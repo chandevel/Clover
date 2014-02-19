@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+	    android:id="@+id/action_pin"
+	    android:icon="@drawable/ic_action_make_available_offline"
+	    android:orderInCategory="1"
+	    android:showAsAction="always"
+	    android:title="@string/action_pin" />
+   	
+    <item 
+        android:id="@+id/action_reply"
+        android:icon="@drawable/ic_action_chat"
+        android:orderInCategory="4"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_reply" />
+</menu>

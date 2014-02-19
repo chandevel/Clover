@@ -1,0 +1,21 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+		
+    </style>
+    
+    <style name="Theme.ImageList" parent="AppTheme">
+	    <item name="android:windowIsTranslucent">true</item>
+	    <item name="android:windowBackground">@android:color/transparent</item>
+	    <item name="android:backgroundDimEnabled">true</item>
+	</style>
+	
+    
+	
+</resources>
+
+
+
+
+

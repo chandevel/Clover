@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="500dp"
+    android:minHeight="400dp"
+    android:orientation="vertical" 
+    android:divider="?android:attr/dividerHorizontal"
+	android:showDividers="middle" >
+    
+	<ViewFlipper 
+	    android:id="@+id/reply_flipper"
+		android:orientation="horizontal"
+		android:layout_weight="1"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp">
+	    <ScrollView
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent" >
+			<LinearLayout
+			    android:id="@+id/reply_data"
+			    style="?android:attr/buttonBarStyle"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="vertical" >
+			        
+			    <EditText
+				    android:id="@+id/reply_name"
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content"
+				    android:hint="@string/reply_name" />
+				
+				<EditText
+				    android:id="@+id/reply_email"
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content"
+				    android:hint="@string/reply_email"
+				    android:inputType="textEmailAddress" />
+				
+				<EditText
+				    android:id="@+id/reply_subject"
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content"
+				    android:hint="@string/reply_subject" />
+				
+				<EditText
+				    android:id="@+id/reply_comment"
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content"
+				    android:hint="@string/reply_comment"
+				    android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+				    android:imeActionLabel="@string/reply_submit"
+				    android:minLines="2" />
+				
+				<LinearLayout
+				    android:orientation="vertical"
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content" >
+				    <LinearLayout
+					    android:orientation="horizontal"
+					    android:layout_width="match_parent"
+					    android:layout_height="wrap_content" >
+					    <Button
+					        android:layout_weight="1"
+					        android:layout_width="0dp"
+					        android:layout_height="wrap_content"
+					        android:id="@+id/reply_file"
+					        android:text="@string/reply_file" />
+					    <Button
+					        android:layout_weight="1"
+					        android:layout_width="0dp"
+					        android:layout_height="wrap_content"
+					        android:id="@+id/reply_file_delete"
+					        android:text="@string/reply_file_delete" />
+				    </LinearLayout>
+				    
+				    <org.floens.chan.utils.LoadView
+				        android:id="@+id/reply_image"
+				        android:layout_width="match_parent"
+				        android:layout_height="wrap_content"
+				        android:minHeight="100dp"
+				        android:adjustViewBounds="true"
+						android:scaleType="centerCrop" />
+				</LinearLayout>
+			</LinearLayout>
+		</ScrollView>
+		<LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:padding="8dp"
+		    android:orientation="vertical" >
+			
+		    <org.floens.chan.utils.LoadView
+			    android:id="@+id/reply_captcha_container"
+		        android:layout_width="300dp"
+		        android:layout_height="60dp"
+		        android:layout_gravity="center" />
+			
+		    <EditText 
+		        android:id="@+id/reply_captcha"
+		        android:hint="@string/reply_captcha"
+		        android:inputType="textNoSuggestions"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content" />
+		    
+		</LinearLayout>
+		<org.floens.chan.utils.LoadView
+		    android:id="@+id/reply_response"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:orientation="vertical" >
+		    
+		</org.floens.chan.utils.LoadView>
+	</ViewFlipper>
+	<LinearLayout
+	    android:orientation="horizontal"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    style="?android:attr/buttonBarStyle" >
+	
+	    <Button
+	        android:id="@+id/reply_cancel"
+	        style="?android:attr/buttonBarButtonStyle"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:text="@string/reply_cancel" />
+	    
+	    <Button
+	        android:id="@+id/reply_submit"
+	        style="?android:attr/buttonBarButtonStyle"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:text="@string/reply_submit" />
+	</LinearLayout>
+</LinearLayout>
+
+
+

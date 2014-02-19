@@ -1,0 +1,183 @@
+package org.floens.chan.activity;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.adapter.PinnedAdapter;
+import org.floens.chan.animation.SwipeDismissListViewTouchListener;
+import org.floens.chan.animation.SwipeDismissListViewTouchListener.DismissCallbacks;
+import org.floens.chan.entity.Loadable;
+import org.floens.chan.entity.Pin;
+import org.floens.chan.entity.Post;
+
+import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
+import android.support.v4.widget.DrawerLayout.SimpleDrawerListener;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+
+/**
+ * Activities that use ThreadFragment need to extend BaseActivity.
+ * BaseActivity provides callbacks for when the user clicks a post,
+ * or clicks an item in the drawer.
+ */
+public abstract class BaseActivity extends Activity {
+    private final static int ACTION_OPEN_URL = 1;
+    
+    protected Loadable loadable;
+    protected DrawerLayout drawer;
+    protected ListView drawerList;
+    protected DrawerListener drawerListener;
+    
+    /**
+	 * Called when a post has been clicked in the pinned drawer
+	 * @param post
+	 */
+	abstract public void onDrawerClicked(Pin post);
+
+	/**
+	 * Called when a post has been clicked in the listview
+	 * @param post
+	 */
+	abstract public void onPostClicked(Post post);
+
+	@Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        setContentView(R.layout.activity_base);
+        
+        drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+        
+        setupDrawer(drawer);
+        
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
+        
+        loadable = new Loadable();
+    }
+	
+    protected void setupDrawer(DrawerLayout drawer) {
+        if (drawerListener == null) {
+            drawerListener = new SimpleDrawerListener() {};
+        }
+        
+        drawer.setDrawerListener(drawerListener);
+        drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        
+        drawerList = (ListView)findViewById(R.id.left_drawer);
+        
+        final PinnedAdapter adapter = ChanApplication.getPinnedManager().getAdapter();
+        drawerList.setAdapter(adapter);
+        
+        drawerList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Pin post = adapter.getItem(position);
+                if (post == null || post.type == Pin.Type.HEADER) return;
+                onDrawerClicked(post);
+            }
+        });
+        
+        SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(drawerList,
+            new DismissCallbacks() {
+                @Override
+                public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                    for (int position : reverseSortedPositions) {
+                        ChanApplication.getPinnedManager().remove(adapter.getItem(position));
+                    }
+                }
+
+                @Override
+                public boolean canDismiss(int position) {
+                    return adapter.getItem(position).type != Pin.Type.HEADER;
+                }
+            });
+        
+        drawerList.setOnTouchListener(touchListener);
+        drawerList.setOnScrollListener(touchListener.makeScrollListener());
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+        case R.id.action_settings:
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }
+        
+        return super.onOptionsItemSelected(item);
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.base, menu);
+        return true;
+    }
+    
+    /**
+     * Set the url that Android Beam will send to other users.
+     * @param url
+     */
+    public void setNfcPushUrl(String url) {
+        NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
+
+        if (adapter != null) {
+            NdefRecord record = null;
+            try {
+                record = NdefRecord.createUri(url);
+            } catch(IllegalArgumentException e) {
+                e.printStackTrace();
+                return;
+            }
+            
+            NdefMessage message = new NdefMessage(new NdefRecord[] {record});
+            adapter.setNdefPushMessage(message, this);
+        }
+    }
+    
+    /**
+     * Let the user choose between all activities that can open the url.
+     * This is done to prevent "open in browser" opening the url in our own app.
+     * @param url
+     */
+    public void openUrl(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        
+        Intent pickIntent = new Intent(Intent.ACTION_PICK_ACTIVITY);
+        pickIntent.putExtra(Intent.EXTRA_INTENT, intent);
+        
+        startActivityForResult(pickIntent, ACTION_OPEN_URL);
+    }
+    
+    /**
+     * Used for openUrl
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == ACTION_OPEN_URL && resultCode == RESULT_OK && data != null) {
+            data.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(data);
+        }
+    }
+}
+
+
+
+
+

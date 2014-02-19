@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.floens.chan"
+    android:versionCode="10"
+    android:versionName="Chan v0.8"
+    android:installLocation="auto" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.NFC" />
+    
+    <application
+        android:name="org.floens.chan.ChanApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="org.floens.chan.activity.BoardActivity"
+            android:label="@string/app_name" 
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                
+				<data android:host="4chan.org" android:scheme="http" android:pathPrefix="/" />
+                <data android:host="4chan.org" android:scheme="https" android:pathPrefix="/" />
+                <data android:host="www.4chan.org" android:scheme="http" android:pathPrefix="/" />
+                <data android:host="www.4chan.org" android:scheme="https" android:pathPrefix="/" />
+                <data android:host="boards.4chan.org" android:scheme="http" android:pathPrefix="/" />
+                <data android:host="boards.4chan.org" android:scheme="https" android:pathPrefix="/" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="org.floens.chan.activity.ThreadActivity" 
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:parentActivityName="org.floens.chan.activity.BoardActivity" >
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="org.floens.chan.activity.BoardActivity" />
+        </activity>
+        <activity
+            android:name="org.floens.chan.activity.CatalogActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+        </activity>
+        <activity
+            android:name="org.floens.chan.activity.SettingsActivity" 
+            android:label="@string/action_settings"
+            android:parentActivityName="org.floens.chan.activity.BoardActivity" >
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="org.floens.chan.activity.BoardActivity" />
+        </activity>
+        <activity
+            android:name="org.floens.chan.activity.AboutActivity" 
+            android:label="@string/about"
+            android:parentActivityName="org.floens.chan.activity.BoardActivity" >
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="org.floens.chan.activity.BoardActivity" />
+        </activity>
+        <activity
+            android:name="org.floens.chan.activity.BoardEditor" 
+            android:label="@string/board_edit"
+            android:parentActivityName="org.floens.chan.activity.BoardActivity" >
+	        <meta-data
+	            android:name="android.support.PARENT_ACTIVITY"
+	            android:value="org.floens.chan.activity.BoardActivity" />
+        </activity>
+        <activity
+            android:name="org.floens.chan.imageview.activity.ImageViewActivity" 
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/Theme.ImageList" >
+        </activity>
+        <activity
+            android:name="org.floens.chan.activity.ImagePickActivity" >
+        </activity>
+        
+        <service
+        	android:name="org.floens.chan.service.PinnedService"
+        	android:exported="false"
+        ></service>
+    </application>
+
+</manifest>
+
+
+
+
+
