@@ -8,17 +8,18 @@ import org.floens.chan.entity.Post;
 import org.floens.chan.fragment.ThreadFragment;
 import org.floens.chan.net.ChanUrls;
 
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class CatalogActivity extends BaseActivity {
+	private final Loadable loadable = new Loadable();
+	
 	private ThreadFragment threadFragment;
 	
     @Override
-	public void onPostClicked(Post post) {
+	public void onOPClicked(Post post) {
 		
 	}
 
@@ -34,9 +35,9 @@ public class CatalogActivity extends BaseActivity {
         loadable.mode = Mode.CATALOG;
         
         threadFragment = ThreadFragment.newInstance(this);
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        /*FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.container, threadFragment);
-        ft.commitAllowingStateLoss();
+        ft.commitAllowingStateLoss();*/
         
         Bundle bundle = getIntent().getExtras();
         
@@ -89,7 +90,7 @@ public class CatalogActivity extends BaseActivity {
     private void startLoading(Loadable loadable) {
         threadFragment.startLoading(loadable);
         
-        setNfcPushUrl(ChanUrls.getCatalogUrlDesktop(loadable.board));
+        setShareUrl(ChanUrls.getCatalogUrlDesktop(loadable.board));
         
         if (TextUtils.isEmpty(loadable.title)) {
             loadable.title = "Catalog /" + loadable.board + "/";

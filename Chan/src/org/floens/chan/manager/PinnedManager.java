@@ -3,13 +3,13 @@ package org.floens.chan.manager;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.adapter.PinnedAdapter;
 import org.floens.chan.entity.Loadable;
 import org.floens.chan.entity.Pin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 public class PinnedManager {
     private final ArrayList<Pin> list = new ArrayList<Pin>();
@@ -130,7 +130,7 @@ public class PinnedManager {
     }
     
     private SharedPreferences getPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(context);
+        return ChanApplication.getPreferences();
     }
 }
 

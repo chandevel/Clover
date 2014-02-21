@@ -52,6 +52,10 @@
             android:configChanges="keyboardHidden|orientation|screenSize" >
         </activity>
         <activity
+            android:name="org.floens.chan.activity.ReplyActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" >
+        </activity>
+        <activity
             android:name="org.floens.chan.activity.SettingsActivity" 
             android:label="@string/action_settings"
             android:parentActivityName="org.floens.chan.activity.BoardActivity" >

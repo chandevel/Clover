@@ -1,5 +1,6 @@
 package org.floens.chan.fragment;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.activity.AboutActivity;
 
@@ -10,7 +11,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 public class SettingsFragment extends PreferenceFragment {
@@ -42,7 +42,7 @@ public class SettingsFragment extends PreferenceFragment {
                     if (++clickCount >= 5) {
                         clickCount = 0;
                         
-                        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                        SharedPreferences p = ChanApplication.getPreferences();
                         boolean e = !p.getBoolean("preference_br", false);
                         p.edit().putBoolean("preference_br", e).commit();
                         String m = e ? "Do a barrel roll" : "No barrel rolls this time";

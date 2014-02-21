@@ -11,7 +11,6 @@ import org.floens.chan.net.ChanUrls;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -224,7 +223,7 @@ public class BoardManager {
     }
 
     private SharedPreferences getPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(context);
+        return ChanApplication.getPreferences();
     }
 }
 

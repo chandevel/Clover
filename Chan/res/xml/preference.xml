@@ -16,6 +16,14 @@
 	        android:key="preference_open_link_confirmation"
 	        android:defaultValue="true" />
 	    
+	    <EditTextPreference 
+	        android:title="@string/default_name_preference"
+	        android:key="preference_default_name" />
+	    
+	    <EditTextPreference 
+            android:title="@string/default_email_preference"
+            android:key="preference_default_email" />
+	    
 	</PreferenceCategory>
     
     <PreferenceCategory 

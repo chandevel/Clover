@@ -2,7 +2,6 @@
     
     
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-		
     </style>
     
     <style name="Theme.ImageList" parent="AppTheme">
@@ -10,8 +9,6 @@
 	    <item name="android:windowBackground">@android:color/transparent</item>
 	    <item name="android:backgroundDimEnabled">true</item>
 	</style>
-	
-    
 	
 </resources>
 

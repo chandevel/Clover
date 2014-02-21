@@ -5,53 +5,62 @@ import org.floens.chan.R;
 import org.floens.chan.adapter.PinnedAdapter;
 import org.floens.chan.animation.SwipeDismissListViewTouchListener;
 import org.floens.chan.animation.SwipeDismissListViewTouchListener.DismissCallbacks;
-import org.floens.chan.entity.Loadable;
 import org.floens.chan.entity.Pin;
 import org.floens.chan.entity.Post;
 
-import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.DrawerLayout.DrawerListener;
-import android.support.v4.widget.DrawerLayout.SimpleDrawerListener;
+import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ShareActionProvider;
 
 /**
  * Activities that use ThreadFragment need to extend BaseActivity.
  * BaseActivity provides callbacks for when the user clicks a post,
  * or clicks an item in the drawer.
  */
-public abstract class BaseActivity extends Activity {
+public abstract class BaseActivity extends Activity implements PanelSlideListener {
     private final static int ACTION_OPEN_URL = 1;
     
-    protected Loadable loadable;
     protected DrawerLayout drawer;
     protected ListView drawerList;
-    protected DrawerListener drawerListener;
+    protected ActionBarDrawerToggle drawerListener;
+    protected SlidingPaneLayout pane;
+    protected ShareActionProvider shareActionProvider;
     
     /**
 	 * Called when a post has been clicked in the pinned drawer
 	 * @param post
 	 */
 	abstract public void onDrawerClicked(Pin post);
-
+	
 	/**
 	 * Called when a post has been clicked in the listview
 	 * @param post
 	 */
-	abstract public void onPostClicked(Post post);
+	abstract public void onOPClicked(Post post);
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,20 +68,20 @@ public abstract class BaseActivity extends Activity {
         
         setContentView(R.layout.activity_base);
         
-        drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
-        
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         setupDrawer(drawer);
         
-        final ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(true);
-        
-        loadable = new Loadable();
+        pane = (SlidingPaneLayout) findViewById(R.id.pane_container);
+        pane.setPanelSlideListener(this);
+        pane.setParallaxDistance(200);
+        pane.setShadowResource(R.drawable.panel_shadow);
+        pane.setSliderFadeColor(0xcce5e5e5);
+        pane.openPane();
     }
 	
     protected void setupDrawer(DrawerLayout drawer) {
         if (drawerListener == null) {
-            drawerListener = new SimpleDrawerListener() {};
+            return;
         }
         
         drawer.setDrawerListener(drawerListener);
@@ -91,6 +100,18 @@ public abstract class BaseActivity extends Activity {
                 onDrawerClicked(post);
             }
         });
+        
+        drawerList.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				Pin post = adapter.getItem(position);
+                if (post == null || post.type == Pin.Type.HEADER) return false;
+                
+                changePinTitle(post);
+				
+				return true;
+			}
+		});
         
         SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(drawerList,
             new DismissCallbacks() {
@@ -128,11 +149,23 @@ public abstract class BaseActivity extends Activity {
         return true;
     }
     
+    @Override
+	public void onPanelClosed(View view) {
+	}
+
+	@Override
+	public void onPanelOpened(View view) {
+	}
+
+	@Override
+	public void onPanelSlide(View view, float offset) {
+	}
+    
     /**
-     * Set the url that Android Beam will send to other users.
+     * Set the url that Android Beam and the share action will send.
      * @param url
      */
-    public void setNfcPushUrl(String url) {
+    public void setShareUrl(String url) {
         NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
 
         if (adapter != null) {
@@ -146,6 +179,13 @@ public abstract class BaseActivity extends Activity {
             
             NdefMessage message = new NdefMessage(new NdefRecord[] {record});
             adapter.setNdefPushMessage(message, this);
+        }
+        
+        if (shareActionProvider != null) {
+        	Intent share = new Intent(android.content.Intent.ACTION_SEND);
+    		share.putExtra(android.content.Intent.EXTRA_TEXT, url);
+    		share.setType("text/plain");
+        	shareActionProvider.setShareIntent(share);
         }
     }
     
@@ -175,6 +215,45 @@ public abstract class BaseActivity extends Activity {
             startActivity(data);
         }
     }
+
+	private void changePinTitle(final Pin pin) {
+		final EditText text = new EditText(this);
+        text.setSingleLine();
+        text.setText(pin.loadable.title);
+        text.setSelectAllOnFocus(true);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int which) {
+                    String value = text.getText().toString();
+                    
+                    if (!TextUtils.isEmpty(value)) {
+                        pin.loadable.title = value;
+                    }
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int which) {
+                }
+            })
+            .setTitle(R.string.drawer_pinned_change_title)
+            .setView(text)
+            .create();
+        
+        text.requestFocus();
+        
+        dialog.setOnShowListener(new OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(text, 0);
+            }
+        });
+        
+        dialog.show();
+	}
 }
 
 

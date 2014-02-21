@@ -33,6 +33,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     private boolean shown = false;
     private Loadable loadable;
     private LoadView container;
+    private ListView listView;
     
     public static ThreadFragment newInstance(BaseActivity activity) {
         ThreadFragment fragment = new ThreadFragment();
@@ -70,6 +71,10 @@ public class ThreadFragment extends Fragment implements ThreadListener {
         if (container != null) {
             container.setView(null);
         }
+        
+        if (listView != null) {
+        	listView.setOnScrollListener(null);
+        }
     }
     
     public void startLoading(Loadable loadable) {
@@ -92,7 +97,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
             
             postAdapter = new PostAdapter(baseActivity, threadManager);
             
-            ListView listView = new ListView(baseActivity);
+            listView = new ListView(baseActivity);
             listView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             listView.setAdapter(postAdapter);
             listView.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
@@ -104,9 +109,11 @@ public class ThreadFragment extends Fragment implements ThreadListener {
                     
                     @Override
                     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                        loadable.listViewIndex = view.getFirstVisiblePosition();
-                        View v = view.getChildAt(0);
-                        loadable.listViewTop = (v == null) ? 0 : v.getTop();
+                    	if (loadable != null) {
+	                        loadable.listViewIndex = view.getFirstVisiblePosition();
+	                        View v = view.getChildAt(0);
+	                        loadable.listViewTop = (v == null) ? 0 : v.getTop();
+                    	}
                     }
                 });
             }
@@ -132,7 +139,11 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     
     @Override
     public void onPostClicked(Post post) {
-        baseActivity.onPostClicked(post);
+    	if (loadable.isThreadMode()) {
+    		threadManager.showPostLinkables(post);
+    	} else {
+    		baseActivity.onOPClicked(post);
+    	}
     }
     
     @Override

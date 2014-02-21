@@ -16,9 +16,11 @@ import org.floens.chan.utils.ViewFlipperAnimations;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -76,25 +78,23 @@ public class ReplyFragment extends DialogFragment {
     }
     
     @Override
-    public void onCreate(Bundle bundle) {
-        super.onCreate(bundle);
-    }
-    
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        
+        if (threadManager == null) return;
         
         getCaptcha();
     }
     
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        
-        ReplyManager replyManager = ReplyManager.getInstance();
-        
-        // Save the info into the draft when existing
-        if (shouldSaveDraft) {
+    public void onPause() {
+    	super.onPause();
+    	
+    	if (threadManager == null) return;
+    	
+    	ReplyManager replyManager = ReplyManager.getInstance();
+    	
+    	if (shouldSaveDraft) {
             draft.name = nameView.getText().toString();
             draft.email = emailView.getText().toString();
             draft.subject = subjectView.getText().toString();
@@ -105,18 +105,34 @@ public class ReplyFragment extends DialogFragment {
             replyManager.removeReplyDraft();
             setFile(null);
         }
-        
-        replyManager.removeFileListener();
+    	
+    	replyManager.removeFileListener();
     }
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+    	if (threadManager == null) {
+    		closeReply();
+    		return new View(inflater.getContext());
+    	}
+    	
         Dialog dialog = getDialog();
-        dialog.setTitle(R.string.reply);
+        Loadable l = threadManager.getLoadable();
+        Context context = inflater.getContext();
+        String title = l.isThreadMode() ?
+        	context.getString(R.string.reply) + " /" + l.board + "/" + l.no : 
+        	context.getString(R.string.reply_to_board) + " /" + l.board + "/";
+        
+        if (dialog == null) {
+        	getActivity().getActionBar().setTitle(title);
+        } else {
+        	dialog.setTitle(title);
+        }
+        
         setClosable(true);
         
         // Setup the views with listeners
-        container = inflater.inflate(R.layout.reply_view, parent);
+        container = inflater.inflate(R.layout.reply_view, null);
         flipper = (ViewFlipper)container.findViewById(R.id.reply_flipper);
         
         nameView = (TextView)container.findViewById(R.id.reply_name);
@@ -141,7 +157,7 @@ public class ReplyFragment extends DialogFragment {
                 if (page == 1) {
                     flipPage(0);
                 } else {
-                    dismiss();
+                    closeReply();
                 }
             }
         });
@@ -185,24 +201,34 @@ public class ReplyFragment extends DialogFragment {
             }
         });
         
-        dialog.setOnKeyListener(new Dialog.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    if (page == 1) {
-                        flipPage(0);
-                    } else if (page == 2) {
-                        dismiss();
-                    }
-                    
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
+        if (dialog != null) {
+	        dialog.setOnKeyListener(new Dialog.OnKeyListener() {
+	            @Override
+	            public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
+	                if (keyCode == KeyEvent.KEYCODE_BACK) {
+	                    if (page == 1) {
+	                        flipPage(0);
+	                    } else if (page == 2) {
+	                        closeReply();
+	                    }
+	                    
+	                    return true;
+	                } else {
+	                    return false;
+	                }
+	            }
+	        });
+        }
         
         Reply draft = ReplyManager.getInstance().getReplyDraft();
+        
+        if (TextUtils.isEmpty(draft.name)) {
+        	draft.name = ChanApplication.getPreferences().getString("preference_default_name", "");
+        }
+        
+        if (TextUtils.isEmpty(draft.email)) {
+        	draft.email = ChanApplication.getPreferences().getString("preference_default_email", "");
+        }
         
         nameView.setText(draft.name);
         emailView.setText(draft.email);
@@ -213,12 +239,22 @@ public class ReplyFragment extends DialogFragment {
         return container;
     }
     
+    private void closeReply() {
+    	if (getDialog() != null) {
+    		dismiss();
+    	} else {
+    		getActivity().finish();
+    	}
+    }
+    
     /**
      * Set if the dialog is able to be closed, by pressing outside of the dialog, or something else.
      */
     private void setClosable(boolean e) {
-        getDialog().setCanceledOnTouchOutside(e);
-        setCancelable(e);
+    	if (getDialog() != null) {
+	        getDialog().setCanceledOnTouchOutside(e);
+	        setCancelable(e);
+    	}
     }
     
     /**
@@ -375,11 +411,12 @@ public class ReplyFragment extends DialogFragment {
             setClosable(true);
             flipPage(1);
             getCaptcha();
+            captchaText.setText("");
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
             Toast.makeText(getActivity(), R.string.reply_success, Toast.LENGTH_SHORT).show();
             threadFragment.reload();
-            dismiss();
+            closeReply();
         } else {
             if (isVisible()) {
                 cancelButton.setEnabled(true);

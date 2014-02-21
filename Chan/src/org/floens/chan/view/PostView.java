@@ -180,7 +180,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         isBuild = true;
         
         Resources resources = context.getResources();
-        int postPadding = resources.getDimensionPixelSize(R.dimen.post_padding);
+        int commentPadding = resources.getDimensionPixelSize(R.dimen.post_comment_padding);
         int textPadding = resources.getDimensionPixelSize(R.dimen.post_text_padding);
         int iconWidth = resources.getDimensionPixelSize(R.dimen.post_icon_width);
         int iconHeight = resources.getDimensionPixelSize(R.dimen.post_icon_height);
@@ -213,7 +213,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         
         LinearLayout right = new LinearLayout(context);
         right.setOrientation(VERTICAL);
-        right.setPadding(postPadding, postPadding, postPadding, postPadding);
+        right.setPadding(commentPadding, commentPadding, commentPadding, commentPadding);
         
             LinearLayout header = new LinearLayout(context);
             header.setOrientation(HORIZONTAL);

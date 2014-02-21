@@ -6,7 +6,9 @@ import org.floens.chan.manager.ReplyManager;
 import org.floens.chan.utils.IconCache;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.extra.BitmapLruImageCache;
@@ -44,6 +46,10 @@ public class ChanApplication extends Application {
     
     public static PinnedManager getPinnedManager() {
         return pinnedManager;
+    }
+    
+    public static SharedPreferences getPreferences() {
+    	return PreferenceManager.getDefaultSharedPreferences(instance);
     }
     
     @Override

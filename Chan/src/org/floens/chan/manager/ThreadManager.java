@@ -2,16 +2,23 @@ package org.floens.chan.manager;
 
 import java.util.ArrayList;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.entity.Loadable;
 import org.floens.chan.entity.Post;
+import org.floens.chan.entity.PostLinkable;
+import org.floens.chan.fragment.PostPopupFragment;
 import org.floens.chan.net.ThreadLoader;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -29,15 +36,15 @@ import com.android.volley.VolleyError;
  * This manages some things like pages, starting and stopping of loading etc.
  */
 public class ThreadManager {
-    private final Context context;
+    private final Activity activity;
     private final ThreadLoader threadLoader;
     private final ThreadManager.ThreadListener threadListener;
     private Loadable loadable;
     private boolean endOfLine = false;
     private final SparseArray<Post> postsById = new SparseArray<Post>();
     
-    public ThreadManager(Context context, final ThreadListener listener) {
-        this.context = context;
+    public ThreadManager(Activity context, final ThreadListener listener) {
+        this.activity = context;
         threadListener = listener;
         
         threadLoader = new ThreadLoader(new ThreadLoader.ThreadLoaderListener() {
@@ -55,6 +62,10 @@ public class ThreadManager {
                 listener.onThreadLoaded(result);
             }
         });
+    }
+    
+    public boolean hasThread() {
+    	return loadable != null;
     }
     
     public Post getPostById(int id) {
@@ -112,7 +123,7 @@ public class ThreadManager {
     }
     
     public void onPostLongClicked(final Post post) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         
         builder.setItems(R.array.post_options, new DialogInterface.OnClickListener() {
             @Override
@@ -142,14 +153,14 @@ public class ThreadManager {
         String errorMessage = "";
         
         if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
-            errorMessage = context.getString(R.string.thread_load_failed_network);
+            errorMessage = activity.getString(R.string.thread_load_failed_network);
         } else if (error instanceof ServerError) {
-            errorMessage = context.getString(R.string.thread_load_failed_server);
+            errorMessage = activity.getString(R.string.thread_load_failed_server);
         } else {
-            errorMessage = context.getString(R.string.thread_load_failed_parsing);
+            errorMessage = activity.getString(R.string.thread_load_failed_parsing);
         }
         
-        TextView view = new TextView(context);
+        TextView view = new TextView(activity);
         view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         view.setText(errorMessage);
         view.setTextSize(24f);
@@ -159,7 +170,7 @@ public class ThreadManager {
     }
     
     private void copyText(String comment) {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("post text", comment);
         clipboard.setPrimaryClip(clip);
     }
@@ -187,7 +198,7 @@ public class ThreadManager {
             text += "\nCountry: " + post.countryName;
         }
         
-        AlertDialog dialog = new AlertDialog.Builder(context)
+        AlertDialog dialog = new AlertDialog.Builder(activity)
             .setTitle(R.string.post_info)
             .setMessage(text)
             .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -198,6 +209,109 @@ public class ThreadManager {
             .create();
         
         dialog.show();
+    }
+    
+    /**
+     * When the user clicks a post:
+     * a. when there's one linkable, open the linkable.
+     * b. when there's more than one linkable, show the user multiple options to select from.
+     * @param post The post that was clicked.
+     */
+    public void showPostLinkables(Post post) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        final ArrayList<PostLinkable> linkables = post.linkables;
+        
+        if (linkables.size() > 0) {
+            if (linkables.size() == 1) {
+                handleLinkableSelected(linkables.get(0));
+            } else {
+                String[] keys = new String[linkables.size()];
+                for (int i = 0; i < linkables.size(); i++) {
+                    keys[i] = linkables.get(i).key;
+                }
+                
+                builder.setItems(keys, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handleLinkableSelected(linkables.get(which));
+                    }
+                });
+                
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
+    }
+    
+    /**
+     * Handle when a linkable has been clicked.
+     * @param linkable the selected linkable.
+     */
+    private void handleLinkableSelected(final PostLinkable linkable) {
+        if (linkable.type == PostLinkable.Type.QUOTE) {
+            showPostPopup(linkable);
+        } else if (linkable.type == PostLinkable.Type.LINK) {
+            if (ChanApplication.getPreferences().getBoolean("preference_open_link_confirmation", true)) {
+                AlertDialog dialog = new AlertDialog.Builder(activity)
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            openLink(linkable);
+                        }
+                    })
+                    .setTitle(R.string.open_link_confirmation)
+                    .setMessage(linkable.value)
+                    .create();
+                
+                dialog.show();
+            } else {
+                openLink(linkable);
+            }
+        }
+    }
+    
+    /**
+     * When a linkable to a post has been clicked, 
+     * show a dialog with the referenced post in it.
+     * @param linkable the clicked linkable.
+     */
+    private void showPostPopup(PostLinkable linkable) {
+        String value = linkable.value;
+        
+        Post post = null;
+        
+        try {
+            // Get post id
+            String[] splitted = value.split("#p");
+            if (splitted.length == 2) {
+                int id = Integer.parseInt(splitted[1]);
+                
+                post = getPostById(id);
+                
+                if (post != null) {
+                    PostPopupFragment popup = PostPopupFragment.newInstance(post, this);
+                    
+                    FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
+                    ft.add(popup, "postPopup");
+                    ft.commitAllowingStateLoss();
+                }
+            }
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Open an url.
+     * @param linkable Linkable with an url.
+     */
+    private void openLink(PostLinkable linkable) {
+    	activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
     }
     
     public interface ThreadListener {
