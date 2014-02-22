@@ -8,12 +8,14 @@ import org.floens.chan.imageview.view.NetworkPhotoView;
 import org.floens.chan.net.GIFRequest;
 import org.floens.chan.view.GIFView;
 
+import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
@@ -22,7 +24,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-public class ImageViewFragment extends Fragment implements View.OnLongClickListener {
+public class ImageViewFragment extends Fragment implements View.OnLongClickListener, OnViewTapListener, OnClickListener {
     private Context context;
     private RelativeLayout wrapper;
     private Post post;
@@ -59,6 +61,8 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
         wrapper.setPadding(padding, padding, padding, padding);
         wrapper.setGravity(Gravity.CENTER);
         
+        wrapper.setOnClickListener(this);
+        
         return wrapper;
     }
     
@@ -76,6 +80,7 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
                 public void onResponse(GIFView view) {
                     wrapper.addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
                     view.setOnLongClickListener(ImageViewFragment.this);
+                    view.setOnClickListener(ImageViewFragment.this);
                     showProgressBar(false);
                 }
             }, new Response.ErrorListener() {
@@ -95,6 +100,7 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
             imageView.setImageUrl(post.imageUrl, ChanApplication.getImageLoader());
             imageView.setMaxScale(3f);
             imageView.setOnLongClickListenerToAttacher(this);
+            imageView.setOnViewTapListenerToAttacher(this);
             
             wrapper.addView(imageView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             
@@ -111,6 +117,16 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
     public boolean onLongClick(View v) {
         return false;
     }
+
+	@Override
+	public void onViewTap(View view, float x, float y) {
+		activity.finish();
+	}
+
+	@Override
+	public void onClick(View v) {
+		activity.finish();
+	}
 }
 
 

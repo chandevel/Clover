@@ -4,6 +4,7 @@ import org.floens.chan.R;
 import org.floens.chan.imageview.fragment.ImageViewFragment;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
+import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import com.android.volley.toolbox.NetworkImageView;
 public class NetworkPhotoView extends NetworkImageView {
     private PhotoViewAttacher attacher;
     private OnLongClickListener longClickListener;
+    private OnViewTapListener viewTapListener;
     private ImageViewFragment fragment;
     
     public NetworkPhotoView(Context context) {
@@ -33,6 +35,10 @@ public class NetworkPhotoView extends NetworkImageView {
         longClickListener = listener;
     }
     
+    public void setOnViewTapListenerToAttacher(OnViewTapListener listener) {
+    	viewTapListener = listener;
+    }
+    
     @Override
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
@@ -40,6 +46,7 @@ public class NetworkPhotoView extends NetworkImageView {
         attacher = new PhotoViewAttacher(this);
         attacher.setMaximumScale(mMaxScale);
         attacher.setOnLongClickListener(longClickListener);
+        attacher.setOnViewTapListener(viewTapListener);
         
         fragment.showProgressBar(false);
     }

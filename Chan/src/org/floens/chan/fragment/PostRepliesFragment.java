@@ -53,7 +53,7 @@ public class PostRepliesFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
     	super.onDismiss(dialog);
     	
-    	if (callback) {
+    	if (callback && manager != null) {
     		manager.onPostRepliesPop();
     	}
     }
