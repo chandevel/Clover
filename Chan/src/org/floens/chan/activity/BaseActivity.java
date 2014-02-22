@@ -230,6 +230,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                     
                     if (!TextUtils.isEmpty(value)) {
                         pin.loadable.title = value;
+                        ChanApplication.getPinnedManager().refresh();
                     }
                 }
             })

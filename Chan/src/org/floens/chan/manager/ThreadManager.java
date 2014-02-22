@@ -119,7 +119,9 @@ public class ThreadManager {
     }
     
     public void onPostClicked(Post post) {
-        threadListener.onPostClicked(post);
+    	if (loadable.isBoardMode()) {
+    		threadListener.onPostClicked(post);
+    	}
     }
     
     public void onPostLongClicked(final Post post) {
@@ -129,12 +131,15 @@ public class ThreadManager {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch(which) {
-                case 0: // Info
+                case 0: // Show clickables
+                	showPostLinkables(post);
+                	break;
+                case 1: // Info
                     showPostInfo(post);
-                case 1: // Quote
+                case 2: // Quote
                     ReplyManager.getInstance().quote(post.no);
                     break;
-                case 2: // Copy text
+                case 3: // Copy text
                     copyText(post.comment.toString());
                     break;
                 }
@@ -142,6 +147,10 @@ public class ThreadManager {
         });
         
         builder.create().show();
+    }
+    
+    public void onPostLinkableClicked(PostLinkable linkable) {
+    	handleLinkableSelected(linkable);
     }
     
     /**

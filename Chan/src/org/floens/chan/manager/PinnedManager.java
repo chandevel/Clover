@@ -66,6 +66,12 @@ public class PinnedManager {
         return tempList;
     }
     
+    public void refresh() {
+    	adapter.notifyDataSetChanged();
+    	
+    	storePinnedListInPreferences("pinnedList", list);
+    }
+    
     public void remove(Pin pin) {
         adapter.remove(pin);
         

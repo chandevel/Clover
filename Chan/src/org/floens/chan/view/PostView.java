@@ -3,6 +3,7 @@ package org.floens.chan.view;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.entity.Post;
+import org.floens.chan.entity.PostLinkable;
 import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.net.ChanUrls;
 import org.floens.chan.utils.IconCache;
@@ -15,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
@@ -69,6 +71,15 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         init();
     }
     
+    @Override
+    protected void onDetachedFromWindow() {
+    	super.onDetachedFromWindow();
+    	
+    	if (post != null) {
+    		post.setLinkableListener(null);
+    	}
+    }
+    
     @SuppressWarnings("deprecation")
     public void setPost(Post post, ThreadManager manager) {
         this.post = post;
@@ -118,6 +129,24 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         if (!TextUtils.isEmpty(post.comment)) {
             commentView.setVisibility(View.VISIBLE);
             commentView.setText(post.comment);
+            commentView.setMovementMethod(LinkMovementMethod.getInstance());
+            commentView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					PostView.this.onClick(v);
+				}
+			});
+            
+            commentView.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					return PostView.this.onLongClick(v);
+				}
+			});
+            
+            if (manager.getLoadable().isThreadMode()) {
+            	post.setLinkableListener(this);
+            }
             
             if (manager.getLoadable().isBoardMode()) {
                 int maxHeight = context.getResources().getDimensionPixelSize(R.dimen.post_max_height);
@@ -128,6 +157,9 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         } else {
             commentView.setVisibility(View.GONE);
             commentView.setText("");
+            commentView.setOnClickListener(null);
+            commentView.setOnLongClickListener(null);
+            post.setLinkableListener(null);
         }
         
         if (post.isOP && post.replies > 0 && manager.getLoadable().isBoardMode()) {
@@ -240,6 +272,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             right.addView(iconView, matchWrapParams);
             
             commentView = new TextView(context);
+            commentView.setTextSize(15);
             right.addView(commentView, matchWrapParams);
             
             repliesView = new TextView(context);
@@ -252,6 +285,10 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         full.addView(right, matchWrapParams);
         
         addView(full, wrapParams);
+    }
+    
+    public void onLinkableClick(PostLinkable linkable) {
+    	manager.onPostLinkableClicked(linkable);
     }
     
     @Override

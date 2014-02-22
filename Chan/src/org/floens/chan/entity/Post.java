@@ -4,7 +4,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.floens.chan.entity.PostLinkable.Type;
 import org.floens.chan.net.ChanUrls;
+import org.floens.chan.view.PostView;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -48,6 +50,7 @@ public class Post {
     public long time = 0;
     public String email = "";
     
+    private PostView linkableListener;
     public final ArrayList<PostLinkable> linkables = new ArrayList<PostLinkable>();
     
     public Post() {
@@ -55,6 +58,14 @@ public class Post {
     
     public void setComment(String e) {
         rawComment = e;
+    }
+    
+    public void setLinkableListener(PostView listener) {
+    	linkableListener = listener;
+    }
+    
+    public PostView getLinkableListener() {
+    	return linkableListener;
     }
     
     /**
@@ -119,18 +130,24 @@ public class Post {
                         String[] parts = text.split("\\s");
                         
                         for (String item : parts) {
-                            try {
-                                URL url = new URL(item);
-                                
-                                SpannableString link = new SpannableString(url.toString());
-                                link.setSpan(new ForegroundColorSpan(Color.argb(255, 0, 0, 180)), 0, link.length(), 0);
-                                
-                                linkables.add(new PostLinkable(item, item, PostLinkable.Type.LINK));
-                                
-                                total = TextUtils.concat(total, link, " ");
-                            } catch(Exception e) {
-                                total = TextUtils.concat(total, item, " ");
-                            }
+                        	if (item.contains("://")) {
+	                            try {
+	                                URL url = new URL(item);
+	                                
+	                                SpannableString link = new SpannableString(url.toString());
+//	                                link.setSpan(new ForegroundColorSpan(Color.argb(255, 0, 0, 180)), 0, link.length(), 0);
+	                                
+//	                                linkables.add(new PostLinkable(this, item, item, PostLinkable.Type.LINK));
+	                                
+	                                PostLinkable pl = new PostLinkable(this, item, item, PostLinkable.Type.LINK); 
+	                                link.setSpan(pl, 0, link.length(), 0);
+	                                linkables.add(pl);
+	                                
+	                                total = TextUtils.concat(total, link, " ");
+	                            } catch(Exception e) {
+	                                total = TextUtils.concat(total, item, " ");
+	                            }
+                        	}
                         }
                     } else {
                         total = TextUtils.concat(total, text);
@@ -148,11 +165,12 @@ public class Post {
                     Element anchor = (Element)node;
                     
                     SpannableString link = new SpannableString(anchor.text());
-                    link.setSpan(new ForegroundColorSpan(Color.argb(255, 221, 0, 0)), 0, link.length(), 0);
+                    
+                    PostLinkable pl = new PostLinkable(this, anchor.text(), anchor.attr("href"),  anchor.text().contains("://") ? Type.LINK : Type.QUOTE);
+                    link.setSpan(pl, 0, link.length(), 0);
+                    linkables.add(pl);
                     
                     total = TextUtils.concat(total, link);
-                    
-                    linkables.add(new PostLinkable(anchor.text(), anchor.attr("href"), PostLinkable.Type.QUOTE));
                 } else {
                     // Unknown tag, add the inner part
                     if (node instanceof Element) {

@@ -85,7 +85,7 @@ public class ThreadLoader {
     private void onError(VolleyError error) {
         if (stopped) return;
         
-        Log.e("Chan", "VolleyError: " + error.getMessage());
+        Log.e("Chan", "VolleyError in ThreadLoader: " + error.getMessage());
         
         // 404 with more pages already loaded means endofline
         if ((error instanceof ServerError) && loadable.isBoardMode() && loadable.no > 0) {

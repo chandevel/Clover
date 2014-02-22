@@ -41,7 +41,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         super.onCreate(savedInstanceState);
         
         boardLoadable.mode = Loadable.Mode.BOARD;
-        threadLoadable.mode =  Loadable.Mode.THREAD;
+        threadLoadable.mode = Loadable.Mode.THREAD;
         
         boardFragment = ThreadFragment.newInstance(this);
         threadFragment = ThreadFragment.newInstance(this);

@@ -82,6 +82,7 @@
     
     <string name="post_info">Info</string>
     <string-array name="post_options">
+        <item>Show clickables</item>
         <item>Info</item>
         <item>Quote</item>
         <item>Copy text</item>

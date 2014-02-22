@@ -139,11 +139,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     
     @Override
     public void onPostClicked(Post post) {
-    	if (loadable.isThreadMode()) {
-    		threadManager.showPostLinkables(post);
-    	} else {
-    		baseActivity.onOPClicked(post);
-    	}
+    	baseActivity.onOPClicked(post);
     }
     
     @Override
