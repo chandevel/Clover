@@ -1,7 +1,7 @@
 package org.floens.chan.activity;
 
+import org.floens.chan.entity.Loadable;
 import org.floens.chan.fragment.ReplyFragment;
-import org.floens.chan.fragment.ThreadFragment;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -10,24 +10,24 @@ import android.util.Log;
 import android.view.MenuItem;
 
 public class ReplyActivity extends Activity {
-	private static ThreadFragment threadFragment;
+	private static Loadable loadable;
 	
-	public static void setThreadFragment(ThreadFragment tf) {
-		threadFragment = tf;
+	public static void setLoadable(Loadable l) {
+		loadable = l;
 	}
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        if (threadFragment != null) {
+        if (loadable != null) {
         	getActionBar().setDisplayHomeAsUpEnabled(true);
         	
         	FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(android.R.id.content, ReplyFragment.newInstance(threadFragment));
+            ft.replace(android.R.id.content, ReplyFragment.newInstance(loadable));
             ft.commitAllowingStateLoss();
         	
-            threadFragment = null;
+            loadable = null;
         } else {
         	Log.e("Chan", "ThreadFragment was null, exiting!");
         	finish();

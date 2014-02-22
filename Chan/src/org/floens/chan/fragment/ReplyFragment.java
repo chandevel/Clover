@@ -8,7 +8,6 @@ import org.floens.chan.entity.Loadable;
 import org.floens.chan.entity.Reply;
 import org.floens.chan.manager.ReplyManager;
 import org.floens.chan.manager.ReplyManager.ReplyResponse;
-import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.net.ChanUrls;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.LoadView;
@@ -21,6 +20,7 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -45,8 +45,7 @@ import com.android.volley.toolbox.StringRequest;
 public class ReplyFragment extends DialogFragment {
     private int page = 0;
     
-    private ThreadManager threadManager;
-    private ThreadFragment threadFragment;
+    private Loadable loadable;
     
     private final Reply draft = new Reply();
     private boolean shouldSaveDraft = true;
@@ -70,27 +69,82 @@ public class ReplyFragment extends DialogFragment {
     private TextView captchaText;
     private LoadView responseContainer;
     
-    public static ReplyFragment newInstance(ThreadFragment fragment) {
+    public static ReplyFragment newInstance(Loadable loadable) {
         ReplyFragment reply = new ReplyFragment();
-        reply.threadFragment = fragment;
-        reply.threadManager = fragment.getThreadManager();
+        reply.loadable = loadable;
         return reply;
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+    	super.onSaveInstanceState(outState);
+    	
+    	loadable.writeToBundle(getActivity(), outState);
     }
     
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         
-        if (threadManager == null) return;
+        if (loadable == null && savedInstanceState != null) {
+        	loadable = new Loadable();
+        	loadable.readFromBundle(getActivity(), savedInstanceState);
+        }
         
-        getCaptcha();
+        if (loadable != null) {
+        	setClosable(true);
+        	
+        	Dialog dialog = getDialog();
+            Context context = getActivity();
+            String title = loadable.isThreadMode() ?
+            	context.getString(R.string.reply) + " /" + loadable.board + "/" + loadable.no : 
+            	context.getString(R.string.reply_to_board) + " /" + loadable.board + "/";
+            
+            if (dialog == null) {
+            	getActivity().getActionBar().setTitle(title);
+            } else {
+            	dialog.setTitle(title);
+            }
+            
+            if (getDialog() != null) {
+            	getDialog().setOnKeyListener(new Dialog.OnKeyListener() {
+    	            @Override
+    	            public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
+    	                if (keyCode == KeyEvent.KEYCODE_BACK) {
+    	                    if (page == 1) flipPage(0);
+    	                    else if (page == 2) closeReply();
+    	                    return true;
+    	                } else return false;
+    	            }
+    	        });
+            }
+            
+            Reply draft = ReplyManager.getInstance().getReplyDraft();
+            
+            if (TextUtils.isEmpty(draft.name)) {
+            	draft.name = ChanApplication.getPreferences().getString("preference_default_name", "");
+            }
+            
+            if (TextUtils.isEmpty(draft.email)) {
+            	draft.email = ChanApplication.getPreferences().getString("preference_default_email", "");
+            }
+            
+            nameView.setText(draft.name);
+            emailView.setText(draft.email);
+            subjectView.setText(draft.subject);
+            commentView.setText(draft.comment);
+            setFile(draft.file);
+            
+            getCaptcha();
+        } else {
+        	Log.e("Chan", "Loadable in ReplyFragment was null");
+        	closeReply();
+        }
     }
     
     @Override
     public void onPause() {
     	super.onPause();
-    	
-    	if (threadManager == null) return;
     	
     	ReplyManager replyManager = ReplyManager.getInstance();
     	
@@ -105,32 +159,18 @@ public class ReplyFragment extends DialogFragment {
             replyManager.removeReplyDraft();
             setFile(null);
         }
+    }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
     	
+    	ReplyManager replyManager = ReplyManager.getInstance();
     	replyManager.removeFileListener();
     }
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-    	if (threadManager == null) {
-    		closeReply();
-    		return new View(inflater.getContext());
-    	}
-    	
-        Dialog dialog = getDialog();
-        Loadable l = threadManager.getLoadable();
-        Context context = inflater.getContext();
-        String title = l.isThreadMode() ?
-        	context.getString(R.string.reply) + " /" + l.board + "/" + l.no : 
-        	context.getString(R.string.reply_to_board) + " /" + l.board + "/";
-        
-        if (dialog == null) {
-        	getActivity().getActionBar().setTitle(title);
-        } else {
-        	dialog.setTitle(title);
-        }
-        
-        setClosable(true);
-        
         // Setup the views with listeners
         container = inflater.inflate(R.layout.reply_view, null);
         flipper = (ViewFlipper)container.findViewById(R.id.reply_flipper);
@@ -200,41 +240,6 @@ public class ReplyFragment extends DialogFragment {
                 };
             }
         });
-        
-        if (dialog != null) {
-	        dialog.setOnKeyListener(new Dialog.OnKeyListener() {
-	            @Override
-	            public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
-	                if (keyCode == KeyEvent.KEYCODE_BACK) {
-	                    if (page == 1) {
-	                        flipPage(0);
-	                    } else if (page == 2) {
-	                        closeReply();
-	                    }
-	                    
-	                    return true;
-	                } else {
-	                    return false;
-	                }
-	            }
-	        });
-        }
-        
-        Reply draft = ReplyManager.getInstance().getReplyDraft();
-        
-        if (TextUtils.isEmpty(draft.name)) {
-        	draft.name = ChanApplication.getPreferences().getString("preference_default_name", "");
-        }
-        
-        if (TextUtils.isEmpty(draft.email)) {
-        	draft.email = ChanApplication.getPreferences().getString("preference_default_email", "");
-        }
-        
-        nameView.setText(draft.name);
-        emailView.setText(draft.email);
-        subjectView.setText(draft.subject);
-        commentView.setText(draft.comment);
-        setFile(draft.file);
         
         return container;
     }
@@ -308,7 +313,7 @@ public class ReplyFragment extends DialogFragment {
                 @Override
                 public void run() {
                     // Other thread
-                    final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), 1000);
+                    final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), 3000);
                     
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -377,8 +382,6 @@ public class ReplyFragment extends DialogFragment {
         
         responseContainer.setView(null);
         
-        Loadable loadable = threadManager.getLoadable();
-        
         draft.name = nameView.getText().toString();
         draft.email = emailView.getText().toString();
         draft.subject = subjectView.getText().toString();
@@ -415,7 +418,7 @@ public class ReplyFragment extends DialogFragment {
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
             Toast.makeText(getActivity(), R.string.reply_success, Toast.LENGTH_SHORT).show();
-            threadFragment.reload();
+//            threadFragment.reload(); // TODO
             closeReply();
         } else {
             if (isVisible()) {

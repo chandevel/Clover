@@ -11,7 +11,7 @@
  
         <FrameLayout
             android:id="@+id/left_pane"
-            android:layout_width="300dp"
+            android:layout_width="320dp"
             android:layout_height="match_parent"
             android:background="#FFFFFFFF" />
  

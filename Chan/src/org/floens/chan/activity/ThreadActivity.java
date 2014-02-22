@@ -68,7 +68,7 @@ public class ThreadActivity extends BaseActivity {
             
             return true;
         case R.id.action_reply:
-            ReplyFragment reply = ReplyFragment.newInstance(threadFragment);
+            ReplyFragment reply = ReplyFragment.newInstance(loadable);
             reply.show(getFragmentManager(), "replyDialog");
             
             return true;

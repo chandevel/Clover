@@ -209,10 +209,10 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 	        return true;
 	    case R.id.action_reply:
 	    	if (pane.isOpen()) {
-		        startReply(pane.isSlideable(), boardFragment);
+		        startReply(pane.isSlideable(), boardLoadable);
 	    	} else {
 	    		if (threadFragment.getThreadManager().hasThread()) {
-			        startReply(pane.isSlideable(), threadFragment);
+			        startReply(pane.isSlideable(), threadLoadable);
 	    		}
 	    	}
 	        
@@ -257,13 +257,13 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 		updateActionBarState();
 	}
 	
-	private void startReply(boolean inActivity, ThreadFragment fragment) {
-		if (inActivity) {
-			ReplyActivity.setThreadFragment(fragment);
+	private void startReply(boolean startInActivity, Loadable loadable) {
+		if (startInActivity) {
+			ReplyActivity.setLoadable(loadable);
 			Intent i = new Intent(this, ReplyActivity.class);
 			startActivity(i);
 		} else {
-			ReplyFragment reply = ReplyFragment.newInstance(fragment);
+			ReplyFragment reply = ReplyFragment.newInstance(loadable);
 	        reply.show(getFragmentManager(), "replyDialog");			
 		}
 	}

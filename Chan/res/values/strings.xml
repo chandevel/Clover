@@ -70,6 +70,7 @@
     <string name="reply_error_file">No file selected</string>
     <string name="reply_success">Post Successful</string>
     <string name="reply_captcha_load_error">Failed to load captcha</string>
+    <string name="reply_captcha_tap_to_reload">Tap to reload the captcha</string>
     
     <string name="open_link_confirmation_preference">Ask before opening links</string>
     <string name="open_link_confirmation">Open link?</string>

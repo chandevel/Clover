@@ -7,7 +7,7 @@ import android.os.Bundle;
  * Something that can be loaded, like a board or thread.
  */
 public class Loadable {
-    public Mode mode = Mode.INVALID;
+    public int mode = Mode.INVALID;
     public String board = "";
     public int no = -1;
     public String title = "";
@@ -84,31 +84,29 @@ public class Loadable {
     
     public void readFromBundle(Context context, Bundle bundle) {
         String p = context.getPackageName();
+        mode = bundle.getInt(p + ".mode", Mode.INVALID);
         board = bundle.getString(p + ".board", "");
         no = bundle.getInt(p + ".no", -1);
         title = bundle.getString(p + ".subject", "");
         listViewIndex = bundle.getInt(p + ".listViewIndex");
         listViewTop = bundle.getInt(p + ".listViewTop");
-        
-        // Log.e("Chan", "Read: " + board + ", " + no);
     }
     
     public void writeToBundle(Context context, Bundle bundle) {
         String p = context.getPackageName();
+        bundle.putInt(p + ".mode", mode);
         bundle.putString(p + ".board", board);
         bundle.putInt(p + ".no", no);
         bundle.putString(p + ".subject", title);
         bundle.putInt(p + ".listViewIndex", listViewIndex);
         bundle.putInt(p + ".listViewTop", listViewTop);
-        
-        // Log.e("Chan", "Write: " + board + ", " + no);
     }
     
-    public static enum Mode {
-        INVALID,
-        THREAD,
-        BOARD,
-        CATALOG
+    public static class Mode {
+        public static final int INVALID = -1;
+        public static final int THREAD = 0;
+        public static final int BOARD = 1;
+        public static final int CATALOG = 2;
     }
 }
 
