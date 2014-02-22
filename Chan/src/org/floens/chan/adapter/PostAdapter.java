@@ -1,6 +1,7 @@
 package org.floens.chan.adapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.R;
 import org.floens.chan.entity.Post;
@@ -21,7 +22,7 @@ public class PostAdapter extends BaseAdapter {
     private final ThreadManager threadManager;
     private boolean endOfLine;
     private int count = 0;
-    private final ArrayList<Post> postList = new ArrayList<Post>();
+    private final List<Post> postList = new ArrayList<Post>();
     
     public PostAdapter(Context activity, ThreadManager threadManager) {
         this.activity = activity;
@@ -84,14 +85,14 @@ public class PostAdapter extends BaseAdapter {
         }
     }
     
-    public void addToList(ArrayList<Post> list){
+    public void addToList(List<Post> list){
         count += list.size();
         postList.addAll(list);
         
         notifyDataSetChanged();
     }
     
-    public ArrayList<Post> getList() {
+    public List<Post> getList() {
         return postList;
     }
     

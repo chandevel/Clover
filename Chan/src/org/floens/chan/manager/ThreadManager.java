@@ -1,13 +1,14 @@
 package org.floens.chan.manager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.entity.Loadable;
 import org.floens.chan.entity.Post;
 import org.floens.chan.entity.PostLinkable;
-import org.floens.chan.fragment.PostPopupFragment;
+import org.floens.chan.fragment.PostRepliesFragment;
 import org.floens.chan.net.ThreadLoader;
 
 import android.app.Activity;
@@ -21,7 +22,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Gravity;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -41,7 +41,9 @@ public class ThreadManager {
     private final ThreadManager.ThreadListener threadListener;
     private Loadable loadable;
     private boolean endOfLine = false;
-    private final SparseArray<Post> postsById = new SparseArray<Post>();
+    
+    private final List<List<Post>> popupQueue = new ArrayList<List<Post>>();
+    private PostRepliesFragment currentPopupFragment;
     
     public ThreadManager(Activity context, final ThreadListener listener) {
         this.activity = context;
@@ -54,11 +56,7 @@ public class ThreadManager {
             }
             
             @Override
-            public void onData(ArrayList<Post> result) {
-                for (Post post : result) {
-                    postsById.append(post.no, post);
-                }
-                
+            public void onData(List<Post> result) {
                 listener.onThreadLoaded(result);
             }
         });
@@ -68,8 +66,8 @@ public class ThreadManager {
     	return loadable != null;
     }
     
-    public Post getPostById(int id) {
-        return postsById.get(id);
+    public Post findPostById(int id) {
+        return threadLoader.getPostById(id);
     }
     
     public Loadable getLoadable() {
@@ -85,7 +83,6 @@ public class ThreadManager {
     public void stop() {
         threadLoader.stop();
         endOfLine = false;
-        postsById.clear();
     }
     
     public void reload() {
@@ -131,14 +128,14 @@ public class ThreadManager {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch(which) {
-                case 0: // Show clickables
-                	showPostLinkables(post);
-                	break;
-                case 1: // Info
-                    showPostInfo(post);
-                case 2: // Quote
+                case 0: // Quote
                     ReplyManager.getInstance().quote(post.no);
                     break;
+                case 1: // Info
+                    showPostInfo(post);
+                case 2: // Show clickables
+                	showPostLinkables(post);
+                	break;
                 case 3: // Copy text
                     copyText(post.comment.toString());
                     break;
@@ -252,13 +249,27 @@ public class ThreadManager {
         }
     }
     
+    public void showPostReplies(Post post) {
+    	List<Post> p = new ArrayList<Post>();
+    	for (int no : post.repliesFrom) {
+    		Post r = findPostById(no);
+    		if (r != null) {
+    			p.add(r);
+    		}
+    	}
+    	
+    	if (p.size() > 0) {
+    		showPostsReplies(p);
+    	}
+    }
+    
     /**
      * Handle when a linkable has been clicked.
      * @param linkable the selected linkable.
      */
     private void handleLinkableSelected(final PostLinkable linkable) {
         if (linkable.type == PostLinkable.Type.QUOTE) {
-            showPostPopup(linkable);
+            showPostReply(linkable);
         } else if (linkable.type == PostLinkable.Type.LINK) {
             if (ChanApplication.getPreferences().getBoolean("preference_open_link_confirmation", true)) {
                 AlertDialog dialog = new AlertDialog.Builder(activity)
@@ -289,7 +300,7 @@ public class ThreadManager {
      * show a dialog with the referenced post in it.
      * @param linkable the clicked linkable.
      */
-    private void showPostPopup(PostLinkable linkable) {
+    private void showPostReply(PostLinkable linkable) {
         String value = linkable.value;
         
         Post post = null;
@@ -300,14 +311,12 @@ public class ThreadManager {
             if (splitted.length == 2) {
                 int id = Integer.parseInt(splitted[1]);
                 
-                post = getPostById(id);
+                post = findPostById(id);
                 
                 if (post != null) {
-                    PostPopupFragment popup = PostPopupFragment.newInstance(post, this);
-                    
-                    FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-                    ft.add(popup, "postPopup");
-                    ft.commitAllowingStateLoss();
+                    List<Post> l = new ArrayList<Post>();
+                    l.add(post);
+                    showPostsReplies(l);
                 }
             }
         } catch(NumberFormatException e) {
@@ -323,8 +332,48 @@ public class ThreadManager {
     	activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
     }
     
-    public interface ThreadListener {
-        public void onThreadLoaded(ArrayList<Post> result);
+    private void showPostsReplies(List<Post> list) {
+    	// Post popups are now queued up, more than 32 popups on top of each other makes the system crash! 
+    	popupQueue.add(list);
+    	
+    	if (currentPopupFragment != null) {
+    		currentPopupFragment.dismissNoCallback();
+    	}
+    	
+		PostRepliesFragment popup = PostRepliesFragment.newInstance(list, this);
+		
+		FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
+	    ft.add(popup, "postPopup");
+	    ft.commit();
+	    
+	    currentPopupFragment = popup;
+	}
+    
+    public void onPostRepliesPop() {
+    	if (popupQueue.size() == 0) return;
+    	
+    	popupQueue.remove(popupQueue.size() - 1);
+    	
+    	if (popupQueue.size() > 0) {
+    		PostRepliesFragment popup = PostRepliesFragment.newInstance(popupQueue.get(popupQueue.size() - 1), this);
+    		
+    		FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
+    	    ft.add(popup, "postPopup");
+    	    ft.commit();
+    	    
+    	    currentPopupFragment = popup;
+    	} else {
+    		currentPopupFragment = null;
+    	}
+    }
+    
+    public void closeAllPostFragments() {
+    	popupQueue.clear();
+    	currentPopupFragment = null;
+    }
+
+	public interface ThreadListener {
+        public void onThreadLoaded(List<Post> result);
         public void onThreadLoadError(VolleyError error);
         public void onPostClicked(Post post);
         public void onThumbnailClicked(Post post);

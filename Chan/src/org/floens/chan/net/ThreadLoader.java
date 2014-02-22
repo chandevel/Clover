@@ -1,12 +1,14 @@
 package org.floens.chan.net;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.entity.Loadable;
 import org.floens.chan.entity.Post;
 
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.android.volley.Response;
 import com.android.volley.ServerError;
@@ -18,6 +20,7 @@ public class ThreadLoader {
     private boolean stopped = false;
     private boolean loading = false;
     private Loadable loadable;
+    private final SparseArray<Post> postsById = new SparseArray<Post>();
     
     public ThreadLoader(ThreadLoaderListener listener) {
         this.listener = listener;
@@ -52,7 +55,13 @@ public class ThreadLoader {
             loader = null;
         }
         
+        postsById.clear();
+        
         stopped = true;
+    }
+    
+    public Post getPostById(int id) {
+        return postsById.get(id);
     }
     
     private ChanReaderRequest getData(Loadable loadable) {
@@ -76,8 +85,10 @@ public class ThreadLoader {
         return request;
     }
     
-    private void onData(ArrayList<Post> result) {
+    private void onData(List<Post> result) {
         if (stopped) return;
+        
+        processPosts(result);
         
         listener.onData(result);
     }
@@ -95,8 +106,20 @@ public class ThreadLoader {
         listener.onError(error);
     }
     
+    private void processPosts(List<Post> posts) {
+    	for (Post post : posts) {
+            postsById.append(post.no, post);
+            
+            for (Post other : posts) {
+            	if (other.repliesTo.contains(post.no)) {
+            		post.repliesFrom.add(other.no);
+            	}
+            }
+        }
+    }
+    
     public static abstract class ThreadLoaderListener {
-        public abstract void onData(ArrayList<Post> result);
+        public abstract void onData(List<Post> result);
         public abstract void onError(VolleyError error);
     }
 }

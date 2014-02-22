@@ -80,11 +80,14 @@
     <string name="open_unknown_title">Unsupported link</string>
     <string name="open_unknown">Chan can\'t open this link. Opening it in your browser instead.</string>
     
+    <string name="post_replies_back">Back</string>
+    <string name="post_replies_close">Close</string>
+    
     <string name="post_info">Info</string>
     <string-array name="post_options">
-        <item>Show clickables</item>
-        <item>Info</item>
         <item>Quote</item>
+        <item>Info</item>
+        <item>Show clickables</item>
         <item>Copy text</item>
     </string-array>
 </resources>

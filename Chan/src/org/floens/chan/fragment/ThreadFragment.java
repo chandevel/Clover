@@ -1,6 +1,7 @@
 package org.floens.chan.fragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.R;
 import org.floens.chan.activity.BaseActivity;
@@ -91,7 +92,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     }
     
     @Override
-    public void onThreadLoaded(ArrayList<Post> posts) {
+    public void onThreadLoaded(List<Post> posts) {
         if (!shown) {
             shown = true;
             

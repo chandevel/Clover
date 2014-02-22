@@ -50,8 +50,21 @@ public class Post {
     public long time = 0;
     public String email = "";
     
+    /**
+     * This post replies to the these ids
+     */
+    public List<Integer> repliesTo = new ArrayList<Integer>();
+    
+    /**
+     * These ids replied to this post
+     */
+    public List<Integer> repliesFrom = new ArrayList<Integer>();
+    
     private PostView linkableListener;
     public final ArrayList<PostLinkable> linkables = new ArrayList<PostLinkable>();
+    /**
+     * The PostView the Post is currently bound to.
+     */
     
     public Post() {
     }
@@ -166,9 +179,21 @@ public class Post {
                     
                     SpannableString link = new SpannableString(anchor.text());
                     
-                    PostLinkable pl = new PostLinkable(this, anchor.text(), anchor.attr("href"),  anchor.text().contains("://") ? Type.LINK : Type.QUOTE);
+                    Type t = anchor.text().contains("://") ? Type.LINK : Type.QUOTE;
+                    PostLinkable pl = new PostLinkable(this, anchor.text(), anchor.attr("href"), t);
                     link.setSpan(pl, 0, link.length(), 0);
                     linkables.add(pl);
+                    
+                    if (t == Type.QUOTE) {
+                    	try {
+                            // Get post id
+                            String[] splitted = anchor.attr("href").split("#p");
+                            if (splitted.length == 2) {
+                                int id = Integer.parseInt(splitted[1]);
+                                repliesTo.add(id);
+                            }
+                        } catch(NumberFormatException e) {}
+                    }
                     
                     total = TextUtils.concat(total, link);
                 } else {

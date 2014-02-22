@@ -42,7 +42,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private NetworkImageView imageView;
     private TextView titleView;
     private TextView commentView;
-    private TextView repliesView;
+    private TextView repliesCountView;
     private LinearLayout iconView;
     private ImageView stickyView;
     private NetworkImageView countryView;
@@ -81,7 +81,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     }
     
     @SuppressWarnings("deprecation")
-    public void setPost(Post post, ThreadManager manager) {
+    public void setPost(final Post post, final ThreadManager manager) {
         this.post = post;
         this.manager = manager;
         
@@ -162,20 +162,32 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             post.setLinkableListener(null);
         }
         
-        if (post.isOP && post.replies > 0 && manager.getLoadable().isBoardMode()) {
-            repliesView.setVisibility(View.VISIBLE);
+        if ((post.isOP && manager.getLoadable().isBoardMode() && post.replies > 0) || (post.repliesFrom.size() > 0)) {
+            repliesCountView.setVisibility(View.VISIBLE);
             
             String text = "";
             
-            if (post.replies > 1) {
-                text = context.getString(R.string.multiple_replies);
-            } else if (post.replies == 1) {
-                text = context.getString(R.string.one_reply);
+            int count = manager.getLoadable().isBoardMode() ? post.replies : post.repliesFrom.size();
+            
+            if (count > 1) {
+                text = count + " " + context.getString(R.string.multiple_replies);
+            } else if (count == 1) {
+                text = count + " " + context.getString(R.string.one_reply);
             }
             
-            repliesView.setText(post.replies + " " + text);
+            if (manager.getLoadable().isThreadMode()) {
+            	repliesCountView.setOnClickListener(new View.OnClickListener() {
+    				@Override
+    				public void onClick(View v) {
+    					manager.showPostReplies(post);
+    				}
+    			});
+            }
+            
+            repliesCountView.setText(text);
         } else {
-            repliesView.setVisibility(View.GONE);
+            repliesCountView.setVisibility(View.GONE);
+            repliesCountView.setOnClickListener(null);
         }
         
         boolean showCountryFlag = !TextUtils.isEmpty(post.country);
@@ -275,13 +287,13 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             commentView.setTextSize(15);
             right.addView(commentView, matchWrapParams);
             
-            repliesView = new TextView(context);
-            repliesView.setTextColor(Color.argb(255, 100, 100, 100));
-            repliesView.setPadding(0, textPadding, 0, 0);
-            repliesView.setTextSize(12);
+            repliesCountView = new TextView(context);
+            repliesCountView.setTextColor(Color.argb(255, 100, 100, 100));
+            repliesCountView.setPadding(0, textPadding, 0, 0);
+            repliesCountView.setTextSize(14);
             
-            right.addView(repliesView, matchWrapParams);
-        
+            right.addView(repliesCountView, matchWrapParams);
+            
         full.addView(right, matchWrapParams);
         
         addView(full, wrapParams);

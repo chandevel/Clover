@@ -1,6 +1,7 @@
 package org.floens.chan.entity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.net.ThreadLoader;
 import org.floens.chan.net.ThreadLoader.ThreadLoaderListener;
@@ -11,12 +12,11 @@ public class Pin {
     public Type type = Type.THREAD;
     public Loadable loadable = new Loadable("", -1);
     
-    
     private int count;
     private int newCount;
     private final boolean watch = true;
     private boolean error = false;
-    private ArrayList<Post> postList = new ArrayList<Post>();
+    private List<Post> postList = new ArrayList<Post>();
     public ThreadLoader threadLoader = new ThreadLoader(new ThreadLoaderListener() {
         @Override
         public void onError(VolleyError volleyError) {
@@ -24,7 +24,7 @@ public class Pin {
         }
         
         @Override
-        public void onData(ArrayList<Post> result) {
+        public void onData(List<Post> result) {
             postList = result;
             
             int totalCount = result.size();
