@@ -1,7 +1,7 @@
 package org.floens.chan.adapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import org.floens.chan.R;
 import org.floens.chan.model.Pin;
@@ -15,19 +15,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class PinnedAdapter extends ArrayAdapter<Pin> {
-    private final HashMap<Pin, Integer> idMap = new HashMap<Pin, Integer>();
+    private final HashMap<Pin, Integer> idMap;
     private int idCounter;
     private View.OnTouchListener listener;
     
-    public PinnedAdapter(Context context, int resId, List<Pin> list) {
-        super(context, resId, list);
+    public PinnedAdapter(Context context, int resId) {
+        super(context, resId, new ArrayList<Pin>());
         
-        int i = 0;
-        for (i = 0; i < list.size(); ++i) {
-            idMap.put(list.get(i), i);
-        }
-        
-        idCounter = i + 1;
+        idMap = new HashMap<Pin, Integer>();
     }
     
     public void setTouchListener(View.OnTouchListener listener) {
@@ -41,6 +36,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
         LinearLayout view = null;
         
         Pin item = getItem(position);
+        
         if (item.type == Pin.Type.HEADER) {
             view = (LinearLayout) inflater.inflate(R.layout.drawer_item_header, null);
             
@@ -80,8 +76,18 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
     @Override
     public long getItemId(int position) {
         if (position < 0 || position >= getCount()) return -1;
+        
         Pin item = getItem(position);
-        return idMap.get(item);
+        if (item == null) {
+        	return -1;
+        } else {
+        	Integer i = idMap.get(item);
+        	if (i == null) {
+        		return -1;
+        	} else {
+        		return i;
+        	}
+        }
     }
 }
 

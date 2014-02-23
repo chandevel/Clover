@@ -24,7 +24,7 @@ public class CatalogActivity extends BaseActivity {
 	}
 
 	@Override
-	public void onDrawerClicked(Pin post) {
+	public void openPin(Pin post) {
 		
 	}
 
@@ -70,7 +70,7 @@ public class CatalogActivity extends BaseActivity {
             
             return true;
         case R.id.action_open_browser:
-            openUrl(ChanUrls.getCatalogUrlDesktop(loadable.board));
+            showUrlOpenPicker(ChanUrls.getCatalogUrlDesktop(loadable.board));
             
             return true;
         case android.R.id.home:

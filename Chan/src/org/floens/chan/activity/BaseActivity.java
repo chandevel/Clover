@@ -1,10 +1,10 @@
 package org.floens.chan.activity;
 
-import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.adapter.PinnedAdapter;
 import org.floens.chan.animation.SwipeDismissListViewTouchListener;
 import org.floens.chan.animation.SwipeDismissListViewTouchListener.DismissCallbacks;
+import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
 
@@ -44,17 +44,20 @@ import android.widget.ShareActionProvider;
 public abstract class BaseActivity extends Activity implements PanelSlideListener {
     private final static int ACTION_OPEN_URL = 1;
     
-    protected DrawerLayout drawer;
-    protected ListView drawerList;
-    protected ActionBarDrawerToggle drawerListener;
-    protected SlidingPaneLayout pane;
-    protected ShareActionProvider shareActionProvider;
+    protected PinnedAdapter pinnedAdapter;
+    protected DrawerLayout pinDrawer;
+    protected ListView pinDrawerView;
+    protected ActionBarDrawerToggle pinDrawerListener;
+    
+    protected SlidingPaneLayout threadPane;
+    
+    private ShareActionProvider shareActionProvider;
     
     /**
 	 * Called when a post has been clicked in the pinned drawer
 	 * @param post
 	 */
-	abstract public void onDrawerClicked(Pin post);
+	abstract public void openPin(Pin post);
 	
 	/**
 	 * Called when a post has been clicked in the listview
@@ -68,43 +71,39 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         
         setContentView(R.layout.activity_base);
         
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        setupDrawer(drawer);
+        pinDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        initDrawer();
         
-        pane = (SlidingPaneLayout) findViewById(R.id.pane_container);
-        pane.setPanelSlideListener(this);
-        pane.setParallaxDistance(200);
-        pane.setShadowResource(R.drawable.panel_shadow);
-        pane.setSliderFadeColor(0xcce5e5e5);
-        pane.openPane();
+        threadPane = (SlidingPaneLayout) findViewById(R.id.pane_container);
+        initPane();
     }
 	
-    protected void setupDrawer(DrawerLayout drawer) {
-        if (drawerListener == null) {
+    protected void initDrawer() {
+        if (pinDrawerListener == null) {
             return;
         }
         
-        drawer.setDrawerListener(drawerListener);
-        drawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        pinDrawer.setDrawerListener(pinDrawerListener);
+        pinDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         
-        drawerList = (ListView)findViewById(R.id.left_drawer);
+        pinDrawerView = (ListView)findViewById(R.id.left_drawer);
         
-        final PinnedAdapter adapter = ChanApplication.getPinnedManager().getAdapter();
-        drawerList.setAdapter(adapter);
+        pinnedAdapter = PinnedManager.getInstance().getAdapter();
+        pinDrawerView.setAdapter(pinnedAdapter);
         
-        drawerList.setOnItemClickListener(new OnItemClickListener() {
+        pinDrawerView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Pin post = adapter.getItem(position);
-                if (post == null || post.type == Pin.Type.HEADER) return;
-                onDrawerClicked(post);
+                Pin pin = pinnedAdapter.getItem(position);
+                if (pin == null || pin.type == Pin.Type.HEADER) return;
+                openPin(pin);
             }
         });
         
-        drawerList.setOnItemLongClickListener(new OnItemLongClickListener() {
+        pinDrawerView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				Pin post = adapter.getItem(position);
+				Pin post = pinnedAdapter.getItem(position);
                 if (post == null || post.type == Pin.Type.HEADER) return false;
                 
                 changePinTitle(post);
@@ -113,26 +112,89 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 			}
 		});
         
-        SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(drawerList,
+        SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(pinDrawerView,
             new DismissCallbacks() {
                 @Override
                 public void onDismiss(ListView listView, int[] reverseSortedPositions) {
                     for (int position : reverseSortedPositions) {
-                        ChanApplication.getPinnedManager().remove(adapter.getItem(position));
+                    	removePin(pinnedAdapter.getItem(position));
                     }
                 }
 
                 @Override
                 public boolean canDismiss(int position) {
-                    return adapter.getItem(position).type != Pin.Type.HEADER;
+                    return pinnedAdapter.getItem(position).type != Pin.Type.HEADER;
                 }
             });
         
-        drawerList.setOnTouchListener(touchListener);
-        drawerList.setOnScrollListener(touchListener.makeScrollListener());
+        pinDrawerView.setOnTouchListener(touchListener);
+        pinDrawerView.setOnScrollListener(touchListener.makeScrollListener());
     }
     
-    @Override
+    private void initPane() {
+    	threadPane.setPanelSlideListener(this);
+        threadPane.setParallaxDistance(200);
+        threadPane.setShadowResource(R.drawable.panel_shadow);
+        threadPane.setSliderFadeColor(0xcce5e5e5);
+        threadPane.openPane();
+    }
+    
+    public void addPin(Pin pin) {
+    	PinnedManager.getInstance().add(pin);
+        pinnedAdapter.add(pin);
+    }
+    
+    public void removePin(Pin pin) {
+    	PinnedManager.getInstance().remove(pin);
+    	pinnedAdapter.remove(pin);
+    }
+    
+    public void updatePin(Pin pin) {
+    	PinnedManager.getInstance().update(pin);
+        pinnedAdapter.notifyDataSetChanged();
+    }
+
+	private void changePinTitle(final Pin pin) {
+		final EditText text = new EditText(this);
+	    text.setSingleLine();
+	    text.setText(pin.loadable.title);
+	    text.setSelectAllOnFocus(true);
+	    
+	    AlertDialog dialog = new AlertDialog.Builder(this)
+	        .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface d, int which) {
+	                String value = text.getText().toString();
+	                
+	                if (!TextUtils.isEmpty(value)) {
+	                    pin.loadable.title = value;
+	                    updatePin(pin);
+	                }
+	            }
+	        })
+	        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+	            @Override
+	            public void onClick(DialogInterface d, int which) {
+	            }
+	        })
+	        .setTitle(R.string.drawer_pinned_change_title)
+	        .setView(text)
+	        .create();
+	    
+	    text.requestFocus();
+	    
+	    dialog.setOnShowListener(new OnShowListener() {
+	        @Override
+	        public void onShow(DialogInterface dialog) {
+	            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	            imm.showSoftInput(text, 0);
+	        }
+	    });
+	    
+	    dialog.show();
+	}
+
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
         case R.id.action_settings:
@@ -146,6 +208,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.base, menu);
+        shareActionProvider = (ShareActionProvider) menu.findItem(R.id.action_share).getActionProvider();
+        
         return true;
     }
     
@@ -194,7 +258,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
      * This is done to prevent "open in browser" opening the url in our own app.
      * @param url
      */
-    public void openUrl(String url) {
+    public void showUrlOpenPicker(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         
         Intent pickIntent = new Intent(Intent.ACTION_PICK_ACTIVITY);
@@ -204,7 +268,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
     
     /**
-     * Used for openUrl
+     * Used for showUrlOpenPicker
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -215,46 +279,6 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             startActivity(data);
         }
     }
-
-	private void changePinTitle(final Pin pin) {
-		final EditText text = new EditText(this);
-        text.setSingleLine();
-        text.setText(pin.loadable.title);
-        text.setSelectAllOnFocus(true);
-        
-        AlertDialog dialog = new AlertDialog.Builder(this)
-            .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface d, int which) {
-                    String value = text.getText().toString();
-                    
-                    if (!TextUtils.isEmpty(value)) {
-                        pin.loadable.title = value;
-                        ChanApplication.getPinnedManager().update(pin);
-                    }
-                }
-            })
-            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface d, int which) {
-                }
-            })
-            .setTitle(R.string.drawer_pinned_change_title)
-            .setView(text)
-            .create();
-        
-        text.requestFocus();
-        
-        dialog.setOnShowListener(new OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(text, 0);
-            }
-        });
-        
-        dialog.show();
-	}
 }
 
 

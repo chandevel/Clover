@@ -17,13 +17,11 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 public class ChanApplication extends Application {
-    public static final boolean DEVELOPER_MODE = false;
+    public static final boolean DEVELOPER_MODE = true;
     
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
     private static ImageLoader imageLoader;
-    private static BoardManager boardManager;
-    private static PinnedManager pinnedManager;
     private static DatabaseManager databaseManager;
     
     public ChanApplication() {
@@ -40,18 +38,6 @@ public class ChanApplication extends Application {
     
     public static ImageLoader getImageLoader() {
         return imageLoader;
-    }
-    
-    public static BoardManager getBoardManager() {
-        return boardManager;
-    }
-    
-    public static PinnedManager getPinnedManager() {
-        return pinnedManager;
-    }
-    
-    public static DatabaseManager getDatabaseManager() {
-    	return databaseManager;
     }
     
     public static SharedPreferences getPreferences() {
@@ -86,10 +72,11 @@ public class ChanApplication extends Application {
         volleyRequestQueue = Volley.newRequestQueue(this);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(1024 * 1024 * 8));
         
-        boardManager = new BoardManager(this);
-        pinnedManager = new PinnedManager(this);
+        new DatabaseManager(this);
+        
+        new BoardManager(this);
+        new PinnedManager(this);
         new ReplyManager(this);
-        databaseManager = new DatabaseManager(this);
     }
 }
 

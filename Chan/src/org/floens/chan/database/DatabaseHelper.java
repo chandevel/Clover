@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Pin;
+import org.floens.chan.utils.Logger;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private static final String DATABASE_NAME = "ChanDB";
@@ -32,11 +34,24 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
-		
+		try {
+			TableUtils.createTable(connectionSource, Pin.class);
+			TableUtils.createTable(connectionSource, Loadable.class);
+		} catch (SQLException e) {
+			Logger.e("Error creating db", e);
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-		
+		switch(oldVersion) {
+		// Change tables if we make adjustments
+		}
 	}
 }
+
+
+
+
+

@@ -2,9 +2,9 @@ package org.floens.chan.activity;
 
 import java.util.ArrayList;
 
-import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.adapter.BoardEditAdapter;
+import org.floens.chan.manager.BoardManager;
 import org.floens.chan.model.Board;
 import org.floens.chan.view.DynamicListView;
 
@@ -35,7 +35,7 @@ public class BoardEditor extends Activity {
         setContentView(R.layout.board_edit);
         
         // Copy not a reference
-        list = (ArrayList<Board>) ChanApplication.getBoardManager().getMyBoards().clone();
+        list = (ArrayList<Board>) BoardManager.getInstance().getMyBoards().clone();
         
         adapter = new BoardEditAdapter(this, R.layout.board_view, list, this);
         listView = (DynamicListView<Board>) findViewById(R.id.board_edit_list);
@@ -51,7 +51,7 @@ public class BoardEditor extends Activity {
         
         // For runtime changes
         if (list.size() > 0) {
-            ChanApplication.getBoardManager().setMyBoards((ArrayList<Board>) list.clone());
+        	BoardManager.getInstance().setMyBoards((ArrayList<Board>) list.clone());
         }
     }
     
@@ -65,7 +65,7 @@ public class BoardEditor extends Activity {
     }
     
     private void addBoard(String value) {
-        ChanApplication.getBoardManager().addBoard(list, value);
+    	BoardManager.getInstance().addBoard(list, value);
         
         adapter = new BoardEditAdapter(this, R.layout.board_view, list, this);
         listView.setArrayList(list);

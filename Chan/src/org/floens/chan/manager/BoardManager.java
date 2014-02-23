@@ -18,6 +18,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 public class BoardManager {
+	private static BoardManager instance;
+	
     private final Context context;
     // Including nsfw ones
     private ArrayList<Board> allBoards = new ArrayList<Board>();
@@ -27,11 +29,17 @@ public class BoardManager {
     private final ArrayList<String> myBoardsValues = new ArrayList<String>();
     
     public BoardManager(Context context) {
+    	instance = this;
+    	
         this.context = context;
         
         loadFromServer();
         myBoards = loadMyBoards();
         updateMyBoardsKeysAndValues(myBoards);
+    }
+    
+    public static BoardManager getInstance() {
+    	return instance;
     }
     
     /**
