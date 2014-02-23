@@ -83,6 +83,8 @@
     <string name="post_replies_back">Back</string>
     <string name="post_replies_close">Close</string>
     
+    <string name="developer">Developer options</string>
+    
     <string name="post_info">Info</string>
     <string-array name="post_options">
         <item>Quote</item>

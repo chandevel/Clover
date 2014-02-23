@@ -27,7 +27,8 @@
 	</PreferenceCategory>
     
     <PreferenceCategory 
-        android:title="@string/about" >
+        android:title="@string/about"
+        android:key="group_about" >
         
         <Preference
 	        android:title="@string/about_licenses"
@@ -37,6 +38,15 @@
         <Preference
             android:title="Chan"
             android:key="about_version" />
+        
+        <Preference
+            android:title="@string/developer"
+            android:key="about_developer" >
+            <intent
+                 android:action="android.intent.action.VIEW"
+                 android:targetPackage="org.floens.chan"
+                 android:targetClass="org.floens.chan.activity.DeveloperActivity" /> 
+        </Preference>
         
     </PreferenceCategory>
 </PreferenceScreen>

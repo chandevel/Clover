@@ -133,6 +133,7 @@ public class ThreadManager {
                     break;
                 case 1: // Info
                     showPostInfo(post);
+                    break;
                 case 2: // Show clickables
                 	showPostLinkables(post);
                 	break;

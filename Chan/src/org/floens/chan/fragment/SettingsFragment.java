@@ -2,6 +2,7 @@ package org.floens.chan.fragment;
 
 import org.floens.chan.R;
 import org.floens.chan.activity.AboutActivity;
+import org.floens.chan.utils.ChanPreferences;
 
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -9,9 +10,13 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
+import android.widget.Toast;
 
 public class SettingsFragment extends PreferenceFragment {
-    private final int clickCount = 0;
+    private int clickCount = 0;
+    
+    private Preference developerPreference;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,27 +38,23 @@ public class SettingsFragment extends PreferenceFragment {
         
         Preference aboutVersion = findPreference("about_version");
         if (aboutVersion != null) {
-            /*aboutVersion.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            aboutVersion.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     if (++clickCount >= 5) {
                         clickCount = 0;
                         
-                        SharedPreferences p = ChanApplication.getPreferences();
-                        boolean e = !p.getBoolean("preference_br", false);
-                        p.edit().putBoolean("preference_br", e).commit();
-                        String m = e ? "Do a barrel roll" : "No barrel rolls this time";
-                        Toast.makeText(getActivity(), m, Toast.LENGTH_LONG).show();
-                        /*
-                         * if (PreferenceManager.getDefaultSharedPreferences(baseActivity).getBoolean("preference_br", false)) {
-                               view.animate().setDuration(1000).rotation(Math.random() < 0.5d ? 540f : -360f).setInterpolator(new DecelerateInterpolator(4f));
-                           }
-                         
+                        boolean enabled = !ChanPreferences.getDeveloper();
+                        ChanPreferences.setDeveloper(enabled);
+                        updateDeveloperPreference();
+                        
+                        Toast.makeText(getActivity(), 
+                        		(enabled ? "Enabled " : "Disabled ") + "developer options", Toast.LENGTH_LONG).show();
                     }
                     
                     return true;
                 }
-            });*/
+            });
             
             String version = "";
             try {
@@ -65,5 +66,17 @@ public class SettingsFragment extends PreferenceFragment {
             aboutVersion.setTitle(R.string.app_name);
             aboutVersion.setSummary(version);
         }
+        
+        developerPreference = findPreference("about_developer");
+        ((PreferenceGroup) findPreference("group_about")).removePreference(developerPreference);
+        updateDeveloperPreference();
+    }
+    
+    private void updateDeveloperPreference() {
+    	if (ChanPreferences.getDeveloper()) {
+    		((PreferenceGroup) findPreference("group_about")).addPreference(developerPreference);
+    	} else {
+    		((PreferenceGroup) findPreference("group_about")).removePreference(developerPreference);
+    	}
     }
 }

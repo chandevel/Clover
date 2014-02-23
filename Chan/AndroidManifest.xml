@@ -80,6 +80,9 @@
         <activity
             android:name="org.floens.chan.activity.ImagePickActivity" >
         </activity>
+        <activity
+            android:name="org.floens.chan.activity.DeveloperActivity" >
+        </activity>
         
         <service
         	android:name="org.floens.chan.service.PinnedService"
