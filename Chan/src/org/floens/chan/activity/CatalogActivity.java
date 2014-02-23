@@ -1,11 +1,11 @@
 package org.floens.chan.activity;
 
 import org.floens.chan.R;
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Loadable.Mode;
-import org.floens.chan.entity.Pin;
-import org.floens.chan.entity.Post;
 import org.floens.chan.fragment.ThreadFragment;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Pin;
+import org.floens.chan.model.Post;
+import org.floens.chan.model.Loadable.Mode;
 import org.floens.chan.net.ChanUrls;
 
 import android.os.Bundle;

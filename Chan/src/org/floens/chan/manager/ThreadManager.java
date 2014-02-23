@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Post;
-import org.floens.chan.entity.PostLinkable;
 import org.floens.chan.fragment.PostRepliesFragment;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Post;
+import org.floens.chan.model.PostLinkable;
 import org.floens.chan.net.ThreadLoader;
 
 import android.app.Activity;

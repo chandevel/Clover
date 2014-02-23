@@ -1,4 +1,4 @@
-package org.floens.chan.entity;
+package org.floens.chan.model;
 
 /**
  * Board key and value.

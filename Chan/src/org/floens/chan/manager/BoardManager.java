@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.entity.Board;
+import org.floens.chan.model.Board;
 import org.floens.chan.net.BoardsRequest;
 import org.floens.chan.net.ChanUrls;
 

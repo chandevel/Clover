@@ -2,9 +2,9 @@ package org.floens.chan.imageview.adapter;
 
 import java.util.ArrayList;
 
-import org.floens.chan.entity.Post;
 import org.floens.chan.imageview.activity.ImageViewActivity;
 import org.floens.chan.imageview.fragment.ImageViewFragment;
+import org.floens.chan.model.Post;
 
 import android.app.Fragment;
 import android.app.FragmentManager;

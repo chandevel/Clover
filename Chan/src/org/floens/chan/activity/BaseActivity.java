@@ -5,8 +5,8 @@ import org.floens.chan.R;
 import org.floens.chan.adapter.PinnedAdapter;
 import org.floens.chan.animation.SwipeDismissListViewTouchListener;
 import org.floens.chan.animation.SwipeDismissListViewTouchListener.DismissCallbacks;
-import org.floens.chan.entity.Pin;
-import org.floens.chan.entity.Post;
+import org.floens.chan.model.Pin;
+import org.floens.chan.model.Post;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -230,7 +230,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                     
                     if (!TextUtils.isEmpty(value)) {
                         pin.loadable.title = value;
-                        ChanApplication.getPinnedManager().refresh();
+                        ChanApplication.getPinnedManager().update(pin);
                     }
                 }
             })

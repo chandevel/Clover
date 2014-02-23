@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.floens.chan.activity.ImagePickActivity;
-import org.floens.chan.entity.Reply;
+import org.floens.chan.model.Reply;
 import org.floens.chan.net.ChanUrls;
 
 import android.content.Context;
@@ -40,7 +40,7 @@ public class ReplyManager {
     private FileListener fileListener;
     
     public ReplyManager(Context context) {
-        this.instance = this;
+        ReplyManager.instance = this;
         this.context = context;
         draft = new Reply();
     }

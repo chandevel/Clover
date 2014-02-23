@@ -1,26 +1,17 @@
 package org.floens.chan.service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
-import org.floens.chan.ChanApplication;
-import org.floens.chan.entity.Pin;
 import org.floens.chan.manager.PinnedManager;
+import org.floens.chan.model.Pin;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
-import android.widget.Toast;
-
-public class PinnedService extends Service {
+public class PinnedService /*extends Service*/ {
     /**
      * Base interval when the thread wakes up
      */
     private final int LOAD_BASE_INTERVAL = 20000;
     
-    private final PinnedManager pinnedManager;
+    private PinnedManager pinnedManager;
     private Thread loadThread;
     private final boolean running = true;
     
@@ -30,7 +21,7 @@ public class PinnedService extends Service {
         @Override
         public void run() {
             while (running) {
-                loadPins();
+//                loadPins();
                 
                 try {
                     Thread.sleep(LOAD_BASE_INTERVAL);
@@ -41,7 +32,7 @@ public class PinnedService extends Service {
         }
     };
     
-    public PinnedService() {
+    /*public PinnedService() {
         pinnedManager = ChanApplication.getPinnedManager();
     }
     
@@ -62,7 +53,7 @@ public class PinnedService extends Service {
     /**
      * Add not yet added pins to our list.
      * Remove old/unwatched pins from our list.
-     */
+     
     private void organizePins() {
         ArrayList<Pin> managerList = pinnedManager.getPinnedThreads();
         
@@ -117,6 +108,6 @@ public class PinnedService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
+    }*/
 
 }

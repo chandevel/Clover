@@ -3,9 +3,9 @@ package org.floens.chan.imageview.activity;
 import java.util.ArrayList;
 
 import org.floens.chan.R;
-import org.floens.chan.entity.Post;
 import org.floens.chan.imageview.ImageSaver;
 import org.floens.chan.imageview.adapter.ImageViewAdapter;
+import org.floens.chan.model.Post;
 
 import android.app.ActionBar;
 import android.app.Activity;

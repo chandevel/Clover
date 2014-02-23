@@ -1,4 +1,4 @@
-package org.floens.chan.entity;
+package org.floens.chan.model;
 
 import android.graphics.Color;
 import android.text.TextPaint;

@@ -1,9 +1,9 @@
-package org.floens.chan.entity;
+package org.floens.chan.model;
 
 import java.io.File;
 
 /**
- * The data needer to send a reply.
+ * The data needed to send a reply.
  */
 public class Reply {
     public String name = "";

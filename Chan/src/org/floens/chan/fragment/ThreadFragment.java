@@ -6,11 +6,11 @@ import java.util.List;
 import org.floens.chan.R;
 import org.floens.chan.activity.BaseActivity;
 import org.floens.chan.adapter.PostAdapter;
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Post;
 import org.floens.chan.imageview.activity.ImageViewActivity;
 import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.manager.ThreadManager.ThreadListener;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Post;
 import org.floens.chan.net.EndOfLineException;
 import org.floens.chan.utils.LoadView;
 

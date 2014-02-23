@@ -1,10 +1,10 @@
-package org.floens.chan.entity;
+package org.floens.chan.model;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.floens.chan.entity.PostLinkable.Type;
+import org.floens.chan.model.PostLinkable.Type;
 import org.floens.chan.net.ChanUrls;
 import org.floens.chan.view.PostView;
 import org.jsoup.Jsoup;

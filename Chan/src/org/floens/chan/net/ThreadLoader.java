@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Post;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Post;
 
 import android.util.Log;
 import android.util.SparseArray;

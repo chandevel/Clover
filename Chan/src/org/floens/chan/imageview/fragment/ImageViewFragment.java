@@ -2,9 +2,9 @@ package org.floens.chan.imageview.fragment;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.entity.Post;
 import org.floens.chan.imageview.activity.ImageViewActivity;
 import org.floens.chan.imageview.view.NetworkPhotoView;
+import org.floens.chan.model.Post;
 import org.floens.chan.net.GIFRequest;
 import org.floens.chan.view.GIFView;
 

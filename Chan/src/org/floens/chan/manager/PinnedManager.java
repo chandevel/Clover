@@ -5,11 +5,10 @@ import java.util.Scanner;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.adapter.PinnedAdapter;
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Pin;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Pin;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 public class PinnedManager {
     private final ArrayList<Pin> list = new ArrayList<Pin>();
@@ -66,28 +65,29 @@ public class PinnedManager {
         return tempList;
     }
     
-    public void refresh() {
+    public void add(Pin pin) {
+    	// No duplicates
+	    for (Pin e : list) {
+	        if (e.loadable.equals(pin.loadable)) {
+	            return;
+	        }
+	    }
+	    
+	    adapter.add(pin);
+	    
+	    storePinnedListInPreferences("pinnedList", list);
+	}
+
+	public void remove(Pin pin) {
+	    adapter.remove(pin);
+	    
+	    storePinnedListInPreferences("pinnedList", list);
+	}
+
+	public void update(Pin pin) {
     	adapter.notifyDataSetChanged();
     	
     	storePinnedListInPreferences("pinnedList", list);
-    }
-    
-    public void remove(Pin pin) {
-        adapter.remove(pin);
-        
-        storePinnedListInPreferences("pinnedList", list);
-    }
-    
-    public void add(Pin pin) {
-        for (Pin e : list) {
-            if (e.loadable.equals(pin.loadable)) {
-                return;
-            }
-        }
-        
-        adapter.add(pin);
-        
-        storePinnedListInPreferences("pinnedList", list);
     }
     
     private void storePinnedListInPreferences(String key, ArrayList<Pin> list) {
@@ -97,11 +97,11 @@ public class PinnedManager {
             total += post.loadable.board + "\u1208" + post.loadable.no + "\u1208" + post.loadable.title + "\n";
         }
         
-        getPreferences().edit().putString(key, total).commit();
+        ChanApplication.getPreferences().edit().putString(key, total).commit();
     }
     
     private ArrayList<Pin> getPinnedListFromPreferences(String key) {
-        String total = getPreferences().getString(key, null);
+        String total = ChanApplication.getPreferences().getString(key, null);
         if (total == null) return null;
         
         ArrayList<Pin> list = new ArrayList<Pin>();
@@ -133,10 +133,6 @@ public class PinnedManager {
         scanner.close();
         
         return list;
-    }
-    
-    private SharedPreferences getPreferences() {
-        return ChanApplication.getPreferences();
     }
 }
 

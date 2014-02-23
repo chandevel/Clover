@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.floens.chan"
-    android:versionCode="10"
-    android:versionName="Chan v0.8"
+    android:versionCode="11"
+    android:versionName="Chan v0.9"
     android:installLocation="auto" >
 
     <uses-sdk
@@ -38,14 +38,6 @@
                 <data android:host="boards.4chan.org" android:scheme="http" android:pathPrefix="/" />
                 <data android:host="boards.4chan.org" android:scheme="https" android:pathPrefix="/" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="org.floens.chan.activity.ThreadActivity" 
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:parentActivityName="org.floens.chan.activity.BoardActivity" >
-	        <meta-data
-	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="org.floens.chan.activity.BoardActivity" />
         </activity>
         <activity
             android:name="org.floens.chan.activity.CatalogActivity"

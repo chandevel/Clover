@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.R;
-import org.floens.chan.entity.Post;
 import org.floens.chan.manager.ThreadManager;
+import org.floens.chan.model.Post;
 import org.floens.chan.view.PostView;
 
 import android.content.Context;

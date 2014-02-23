@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.floens.chan.R;
-import org.floens.chan.entity.Pin;
+import org.floens.chan.model.Pin;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -39,8 +39,6 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         
         LinearLayout view = null;
-        
-        // Log.i("Chan", "Position: " + position + ", " + getItemId(position));
         
         Pin item = getItem(position);
         if (item.type == Pin.Type.HEADER) {

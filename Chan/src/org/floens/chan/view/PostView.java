@@ -2,9 +2,9 @@ package org.floens.chan.view;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.entity.Post;
-import org.floens.chan.entity.PostLinkable;
 import org.floens.chan.manager.ThreadManager;
+import org.floens.chan.model.Post;
+import org.floens.chan.model.PostLinkable;
 import org.floens.chan.net.ChanUrls;
 import org.floens.chan.utils.IconCache;
 

@@ -3,14 +3,13 @@ package org.floens.chan.fragment;
 import java.util.List;
 
 import org.floens.chan.R;
-import org.floens.chan.entity.Post;
 import org.floens.chan.manager.ThreadManager;
+import org.floens.chan.model.Post;
 import org.floens.chan.view.PostView;
 
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,8 +62,6 @@ public class PostRepliesFragment extends DialogFragment {
         context = inflater.getContext();
         
         View container = inflater.inflate(R.layout.post_replies, null);
-        
-        Resources resources = context.getResources();
         
         listView = (ListView) container.findViewById(R.id.post_list);
         

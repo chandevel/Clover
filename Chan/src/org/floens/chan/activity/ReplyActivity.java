@@ -1,7 +1,7 @@
 package org.floens.chan.activity;
 
-import org.floens.chan.entity.Loadable;
 import org.floens.chan.fragment.ReplyFragment;
+import org.floens.chan.model.Loadable;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;

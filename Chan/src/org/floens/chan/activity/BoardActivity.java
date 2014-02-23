@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Pin;
-import org.floens.chan.entity.Post;
 import org.floens.chan.fragment.ReplyFragment;
 import org.floens.chan.fragment.ThreadFragment;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Pin;
+import org.floens.chan.model.Post;
 import org.floens.chan.net.ChanUrls;
 
 import android.app.ActionBar;
@@ -339,12 +339,10 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             } catch (NumberFormatException e) {}
             
             if (no >= 0 && ChanApplication.getBoardManager().getBoardExists(rawBoard)) {
-                boardLoadable.board = rawBoard;
                 boardSetByIntent = true;
-                startLoadingBoard(boardLoadable);
                 
+                startLoadingBoard(new Loadable(rawBoard));
                 startLoadingThread(new Loadable(rawBoard, no));
-                finish();
             } else {
                 handleIntentURIFallback(startUri.toString());
                 return;

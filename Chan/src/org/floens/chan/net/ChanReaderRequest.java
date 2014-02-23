@@ -3,8 +3,8 @@ package org.floens.chan.net;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Post;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Post;
 
 import android.util.JsonReader;
 

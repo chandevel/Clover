@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.adapter.BoardEditAdapter;
-import org.floens.chan.entity.Board;
+import org.floens.chan.model.Board;
 import org.floens.chan.view.DynamicListView;
 
 import android.app.Activity;

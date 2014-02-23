@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.floens.chan.R;
 import org.floens.chan.activity.BoardEditor;
-import org.floens.chan.entity.Board;
+import org.floens.chan.model.Board;
 
 import android.content.Context;
 import android.view.LayoutInflater;

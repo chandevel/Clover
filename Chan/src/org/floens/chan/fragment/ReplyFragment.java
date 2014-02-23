@@ -4,10 +4,10 @@ import java.io.File;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.entity.Loadable;
-import org.floens.chan.entity.Reply;
 import org.floens.chan.manager.ReplyManager;
 import org.floens.chan.manager.ReplyManager.ReplyResponse;
+import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Reply;
 import org.floens.chan.net.ChanUrls;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.LoadView;

@@ -3,7 +3,7 @@ package org.floens.chan.net;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.floens.chan.entity.Board;
+import org.floens.chan.model.Board;
 
 import android.util.JsonReader;
 
