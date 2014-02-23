@@ -13,11 +13,8 @@ import android.content.Context;
 public class PinnedManager {
     private final ArrayList<Pin> list = new ArrayList<Pin>();
     private final PinnedAdapter adapter;
-    private final Context context;
     
     public PinnedManager(Context context) {
-        this.context = context;
-        
         adapter = new PinnedAdapter(context, 0, list);
         
         Pin header = new Pin();

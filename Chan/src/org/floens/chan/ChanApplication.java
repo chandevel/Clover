@@ -1,5 +1,6 @@
 package org.floens.chan;
 
+import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.manager.BoardManager;
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.manager.ReplyManager;
@@ -23,6 +24,7 @@ public class ChanApplication extends Application {
     private static ImageLoader imageLoader;
     private static BoardManager boardManager;
     private static PinnedManager pinnedManager;
+    private static DatabaseManager databaseManager;
     
     public ChanApplication() {
         instance = this;
@@ -46,6 +48,10 @@ public class ChanApplication extends Application {
     
     public static PinnedManager getPinnedManager() {
         return pinnedManager;
+    }
+    
+    public static DatabaseManager getDatabaseManager() {
+    	return databaseManager;
     }
     
     public static SharedPreferences getPreferences() {
@@ -83,6 +89,7 @@ public class ChanApplication extends Application {
         boardManager = new BoardManager(this);
         pinnedManager = new PinnedManager(this);
         new ReplyManager(this);
+        databaseManager = new DatabaseManager(this);
     }
 }
 

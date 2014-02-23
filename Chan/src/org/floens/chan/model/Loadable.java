@@ -3,15 +3,33 @@ package org.floens.chan.model;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
 /**
  * Something that can be loaded, like a board or thread.
  */
+@DatabaseTable
 public class Loadable {
+	@DatabaseField(generatedId = true)
+	private int id;
+	
+	@DatabaseField
     public int mode = Mode.INVALID;
+	
+	@DatabaseField
     public String board = "";
+	
+	@DatabaseField
     public int no = -1;
+	
+	@DatabaseField
     public String title = "";
+	
+	@DatabaseField
     public int listViewIndex;
+	
+	@DatabaseField
     public int listViewTop;
     
     /**
