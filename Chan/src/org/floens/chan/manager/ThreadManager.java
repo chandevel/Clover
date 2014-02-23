@@ -3,13 +3,13 @@ package org.floens.chan.manager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.fragment.PostRepliesFragment;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
 import org.floens.chan.model.PostLinkable;
 import org.floens.chan.net.ThreadLoader;
+import org.floens.chan.utils.ChanPreferences;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -271,7 +271,7 @@ public class ThreadManager {
         if (linkable.type == PostLinkable.Type.QUOTE) {
             showPostReply(linkable);
         } else if (linkable.type == PostLinkable.Type.LINK) {
-            if (ChanApplication.getPreferences().getBoolean("preference_open_link_confirmation", true)) {
+            if (ChanPreferences.getOpenLinkConfirmation()) {
                 AlertDialog dialog = new AlertDialog.Builder(activity)
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override

@@ -9,6 +9,7 @@ import org.floens.chan.manager.ReplyManager.ReplyResponse;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Reply;
 import org.floens.chan.net.ChanUrls;
+import org.floens.chan.utils.ChanPreferences;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.LoadView;
 import org.floens.chan.utils.ViewFlipperAnimations;
@@ -122,11 +123,11 @@ public class ReplyFragment extends DialogFragment {
             Reply draft = ReplyManager.getInstance().getReplyDraft();
             
             if (TextUtils.isEmpty(draft.name)) {
-            	draft.name = ChanApplication.getPreferences().getString("preference_default_name", "");
+            	draft.name = ChanPreferences.getDefaultName();
             }
             
             if (TextUtils.isEmpty(draft.email)) {
-            	draft.email = ChanApplication.getPreferences().getString("preference_default_email", "");
+            	draft.email = ChanPreferences.getDefaultEmail();
             }
             
             nameView.setText(draft.name);

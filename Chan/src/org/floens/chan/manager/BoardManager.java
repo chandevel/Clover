@@ -10,7 +10,6 @@ import org.floens.chan.net.BoardsRequest;
 import org.floens.chan.net.ChanUrls;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -176,11 +175,11 @@ public class BoardManager {
             total += board.key + "|" + board.value + "\n";
         }
         
-        getPreferences().edit().putString(key, total).commit();
+        ChanApplication.getPreferences().edit().putString(key, total).commit();
     }
     
     private ArrayList<Board> getBoardListFromDatabase(String key) {
-        String total = getPreferences().getString(key, null);
+        String total = ChanApplication.getPreferences().getString(key, null);
         if (total == null) return null;
         
         ArrayList<Board> list = new ArrayList<Board>();
@@ -228,10 +227,6 @@ public class BoardManager {
                 Log.e("Chan", "Failed to get boards from server");
             }
         }));
-    }
-
-    private SharedPreferences getPreferences() {
-        return ChanApplication.getPreferences();
     }
 }
 

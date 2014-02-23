@@ -1,20 +1,17 @@
 package org.floens.chan.fragment;
 
-import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.activity.AboutActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
-import android.widget.Toast;
 
 public class SettingsFragment extends PreferenceFragment {
-    private int clickCount = 0;
+    private final int clickCount = 0;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +33,7 @@ public class SettingsFragment extends PreferenceFragment {
         
         Preference aboutVersion = findPreference("about_version");
         if (aboutVersion != null) {
-            aboutVersion.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            /*aboutVersion.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     if (++clickCount >= 5) {
@@ -51,12 +48,12 @@ public class SettingsFragment extends PreferenceFragment {
                          * if (PreferenceManager.getDefaultSharedPreferences(baseActivity).getBoolean("preference_br", false)) {
                                view.animate().setDuration(1000).rotation(Math.random() < 0.5d ? 540f : -360f).setInterpolator(new DecelerateInterpolator(4f));
                            }
-                         */
+                         
                     }
                     
                     return true;
                 }
-            });
+            });*/
             
             String version = "";
             try {

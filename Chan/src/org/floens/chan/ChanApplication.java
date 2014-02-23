@@ -22,7 +22,6 @@ public class ChanApplication extends Application {
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
     private static ImageLoader imageLoader;
-    private static DatabaseManager databaseManager;
     
     public ChanApplication() {
         instance = this;
@@ -72,8 +71,8 @@ public class ChanApplication extends Application {
         volleyRequestQueue = Volley.newRequestQueue(this);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(1024 * 1024 * 8));
         
+        // These manager need a Context
         new DatabaseManager(this);
-        
         new BoardManager(this);
         new PinnedManager(this);
         new ReplyManager(this);
