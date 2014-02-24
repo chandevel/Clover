@@ -3,6 +3,7 @@ package org.floens.chan.imageview.activity;
 import java.util.ArrayList;
 
 import org.floens.chan.R;
+import org.floens.chan.adapter.PostAdapter;
 import org.floens.chan.imageview.ImageSaver;
 import org.floens.chan.imageview.adapter.ImageViewAdapter;
 import org.floens.chan.model.Post;
@@ -21,7 +22,7 @@ import android.view.Window;
  * and then start the activity with startActivity()
  */
 public class ImageViewActivity extends Activity implements ViewPager.OnPageChangeListener {
-    private static ArrayList<Post> imagePosts;
+    private static PostAdapter postAdapter;
     private static int selectedId = -1;
     
     private ImageViewAdapter adapter;
@@ -33,8 +34,8 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
      * @param other the posts to get image data from
      * @param selected the no that the user clicked on
      */
-    public static void setPosts(ArrayList<Post> other, int selected) {
-        imagePosts = other;
+    public static void setAdapter(PostAdapter adapter, int selected) {
+        postAdapter = adapter;
         selectedId = selected;
     }
    
@@ -46,19 +47,26 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         
         super.onCreate(savedInstanceState);
         
-        if (imagePosts != null) {
+        if (postAdapter != null) {
+            // Get the posts with images
+            ArrayList<Post> imagePosts = new ArrayList<Post>();
+            for (Post post : postAdapter.getList()) {
+                if (post.hasImage){
+                    imagePosts.add(post);
+                }
+            }
+            
+            // Setup our pages and adapter
             setContentView(R.layout.image_pager);
-            
             ViewPager viewPager = (ViewPager) findViewById(R.id.image_pager);
-            
             adapter = new ImageViewAdapter(getFragmentManager(), this);
             adapter.addToList(imagePosts);
-            
             viewPager.setAdapter(adapter);
             viewPager.setOnPageChangeListener(this);
             
             progressData = new boolean[imagePosts.size()];
             
+            // Select the right image
             for (int i = 0; i < imagePosts.size(); i++) {
                 if (imagePosts.get(i).no == selectedId) {
                     viewPager.setCurrentItem(i);
@@ -66,8 +74,6 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
                     break;
                 }
             }
-            
-            imagePosts = null;
         } else {
             Log.e("Chan", "Posts in imageview list was null");
             finish();
@@ -78,6 +84,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     public void finish() {
         super.finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        postAdapter = null;
     }
     
     @Override
@@ -135,6 +142,10 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
             String text = "(" + (position + 1) + "/" + progressData.length +  ") " + filename;
             
             getActionBar().setTitle(text);
+        }
+        
+        if (postAdapter != null) {
+            postAdapter.scrollToPost(post);
         }
     }
     

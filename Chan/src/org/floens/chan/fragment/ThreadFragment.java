@@ -1,6 +1,5 @@
 package org.floens.chan.fragment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.R;
@@ -96,9 +95,10 @@ public class ThreadFragment extends Fragment implements ThreadListener {
         if (!shown) {
             shown = true;
             
-            postAdapter = new PostAdapter(baseActivity, threadManager);
-            
             listView = new ListView(baseActivity);
+            
+            postAdapter = new PostAdapter(baseActivity, threadManager, listView);
+            
             listView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             listView.setAdapter(postAdapter);
             listView.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
@@ -147,15 +147,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     public void onThumbnailClicked(Post source) {
         if (isDetached() || postAdapter == null) return;
         
-        ArrayList<Post> withImages = new ArrayList<Post>();
-        
-        for (Post post : postAdapter.getList()) {
-            if (post.hasImage){
-                withImages.add(post);
-            }
-        }
-        
-        ImageViewActivity.setPosts(withImages, source.no);
+        ImageViewActivity.setAdapter(postAdapter, source.no);
         
         Intent intent = new Intent(baseActivity, ImageViewActivity.class);
         baseActivity.startActivity(intent);

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -20,13 +21,15 @@ import android.widget.TextView;
 public class PostAdapter extends BaseAdapter {
     private final Context activity;
     private final ThreadManager threadManager;
+    private final ListView listView;
     private boolean endOfLine;
     private int count = 0;
     private final List<Post> postList = new ArrayList<Post>();
     
-    public PostAdapter(Context activity, ThreadManager threadManager) {
+    public PostAdapter(Context activity, ThreadManager threadManager, ListView listView) {
         this.activity = activity;
         this.threadManager = threadManager;
+        this.listView = listView;
     }
 
     @Override
@@ -100,6 +103,16 @@ public class PostAdapter extends BaseAdapter {
         this.endOfLine = endOfLine;
         
         notifyDataSetChanged();
+    }
+    
+    public void scrollToPost(Post post) {
+        for (int i = 0; i < postList.size(); i++) {
+            if (postList.get(i) == post) {
+                listView.smoothScrollToPosition(i);
+                
+                break;
+            }
+        }
     }
 }
 
