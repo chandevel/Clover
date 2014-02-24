@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.R;
-import org.floens.chan.fragment.ReplyFragment;
 import org.floens.chan.fragment.ThreadFragment;
 import org.floens.chan.manager.BoardManager;
 import org.floens.chan.manager.PinnedManager;
@@ -207,10 +206,10 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 	        return true;
 	    case R.id.action_reply:
 	    	if (threadPane.isOpen()) {
-		        startReply(threadPane.isSlideable(), boardLoadable);
+		        boardFragment.getThreadManager().openReply(true); // todo if tablet
 	    	} else {
 	    		if (threadFragment.getThreadManager().hasThread()) {
-			        startReply(threadPane.isSlideable(), threadLoadable);
+			        threadFragment.getThreadManager().openReply(true); // todo if tablet
 	    		}
 	    	}
 	        
@@ -255,17 +254,6 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 		updateActionBarState();
 	}
 	
-	private void startReply(boolean startInActivity, Loadable loadable) {
-		if (startInActivity) {
-			ReplyActivity.setLoadable(loadable);
-			Intent i = new Intent(this, ReplyActivity.class);
-			startActivity(i);
-		} else {
-			ReplyFragment reply = ReplyFragment.newInstance(loadable);
-	        reply.show(getFragmentManager(), "replyDialog");			
-		}
-	}
-
 	private void startLoadingBoard(Loadable loadable) {
     	this.boardLoadable = loadable;
     	

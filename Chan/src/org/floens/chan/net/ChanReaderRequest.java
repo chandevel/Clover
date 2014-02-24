@@ -78,7 +78,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
                     // Thread array
                     while (reader.hasNext()) {
                         // Thread object
-                        list.add(readThreadObject(reader, loadable.board));
+                        list.add(readPostObject(reader, loadable.board));
                     }
                     reader.endArray();
                 } else {
@@ -115,7 +115,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
                     if (reader.nextName().equals("posts")) {
                         reader.beginArray();
                         
-                        list.add(readThreadObject(reader, loadable.board));
+                        list.add(readPostObject(reader, loadable.board));
 
                         // Only consume one post
                         while (reader.hasNext()) reader.skipValue();
@@ -162,7 +162,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
 	                    reader.beginArray(); // Threads array
 	                    
 	                    while (reader.hasNext()) {
-	                    	list.add(readThreadObject(reader, loadable.board));
+	                    	list.add(readPostObject(reader, loadable.board));
 	                    }
 	                    
 	                    reader.endArray();
@@ -189,7 +189,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
         return list;
     }
     
-    private Post readThreadObject(JsonReader reader, String board) throws IllegalStateException, NumberFormatException, IOException {
+    private Post readPostObject(JsonReader reader, String board) throws IllegalStateException, NumberFormatException, IOException {
         Post post = new Post();
         post.board = board;
         
@@ -242,6 +242,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
                 post.countryName = reader.nextString();
             } else if (key.equals("id")) {
                 post.id = reader.nextString();
+            } else if (key.equals("capcode")) {
+                post.capcode = reader.nextString();
             } else {
                 // Unknown/ignored key
 //                log("Unknown/ignored key: " + key + ".");

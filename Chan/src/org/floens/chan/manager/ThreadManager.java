@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.R;
+import org.floens.chan.activity.ReplyActivity;
 import org.floens.chan.fragment.PostRepliesFragment;
+import org.floens.chan.fragment.ReplyFragment;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
 import org.floens.chan.model.PostLinkable;
@@ -128,16 +130,19 @@ public class ThreadManager {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch(which) {
-                case 0: // Quote
+                case 0: // Reply
+                    openReply(true); // todo if tablet
+                    // Pass through
+                case 1: // Quote
                     ReplyManager.getInstance().quote(post.no);
                     break;
-                case 1: // Info
+                case 2: // Info
                     showPostInfo(post);
                     break;
-                case 2: // Show clickables
+                case 3: // Show clickables
                 	showPostLinkables(post);
                 	break;
-                case 3: // Copy text
+                case 4: // Copy text
                     copyText(post.comment.toString());
                     break;
                 }
@@ -145,6 +150,17 @@ public class ThreadManager {
         });
         
         builder.create().show();
+    }
+    
+    public void openReply(boolean startInActivity) {
+        if (startInActivity) {
+            ReplyActivity.setLoadable(loadable);
+            Intent i = new Intent(activity, ReplyActivity.class);
+            activity.startActivity(i);
+        } else {
+            ReplyFragment reply = ReplyFragment.newInstance(loadable);
+            reply.show(activity.getFragmentManager(), "replyDialog");            
+        }
     }
     
     public void onPostLinkableClicked(PostLinkable linkable) {
@@ -203,6 +219,10 @@ public class ThreadManager {
         
         if (!TextUtils.isEmpty(post.countryName)) {
             text += "\nCountry: " + post.countryName;
+        }
+        
+        if (!TextUtils.isEmpty(post.capcode)) {
+            text += "\nCapcode: " + post.capcode;
         }
         
         AlertDialog dialog = new AlertDialog.Builder(activity)
@@ -380,8 +400,3 @@ public class ThreadManager {
         public void onThumbnailClicked(Post post);
     }
 }
-
-
-
-
-

@@ -45,6 +45,7 @@ public class Post {
     public boolean closed = false;
     public String tripcode = "";
     public String id = "";
+    public String capcode = "";
     public String country = "";
     public String countryName = "";
     public long time = 0;
