@@ -84,6 +84,13 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
     
     @Override
+    protected void onPause() {
+        super.onPause();
+        
+        PinnedManager.getInstance().updateAll();
+    }
+    
+    @Override
     protected void initDrawer() {
         pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer, 
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {};

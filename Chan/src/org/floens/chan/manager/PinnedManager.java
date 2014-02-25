@@ -53,6 +53,11 @@ public class PinnedManager {
         return null;
     }
     
+    /**
+     * Add a pin
+     * @param pin
+     * @return true if it was added, false if it wasn't (duplicated)
+     */
     public boolean add(Pin pin) {
         // No duplicates
         for (Pin e : pins) {
@@ -65,14 +70,37 @@ public class PinnedManager {
         DatabaseManager.getInstance().addPin(pin);
         return true;
     }
-
+    
+    /**
+     * Remove a pin
+     * @param pin
+     */
     public void remove(Pin pin) {
         pins.remove(pin);
         DatabaseManager.getInstance().removePin(pin);
     }
-
+    
+    /**
+     * Update the pin in the database
+     * @param pin
+     */
     public void update(Pin pin) {
         DatabaseManager.getInstance().updatePin(pin);
+    }
+    
+    /**
+     * Updates all the pins to the database. 
+     * This will run in a new thread because it can be an expensive operation.
+     */
+    public void updateAll() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (Pin pin : pins) {
+                    DatabaseManager.getInstance().updatePin(pin);
+                }
+            }
+        }).start();
     }
 }
 
