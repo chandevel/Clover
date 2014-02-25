@@ -49,7 +49,7 @@ public class SettingsFragment extends PreferenceFragment {
                         updateDeveloperPreference();
                         
                         Toast.makeText(getActivity(), 
-                        		(enabled ? "Enabled " : "Disabled ") + "developer options", Toast.LENGTH_LONG).show();
+                                (enabled ? "Enabled " : "Disabled ") + "developer options", Toast.LENGTH_LONG).show();
                     }
                     
                     return true;
@@ -73,10 +73,10 @@ public class SettingsFragment extends PreferenceFragment {
     }
     
     private void updateDeveloperPreference() {
-    	if (ChanPreferences.getDeveloper()) {
-    		((PreferenceGroup) findPreference("group_about")).addPreference(developerPreference);
-    	} else {
-    		((PreferenceGroup) findPreference("group_about")).removePreference(developerPreference);
-    	}
+        if (ChanPreferences.getDeveloper()) {
+            ((PreferenceGroup) findPreference("group_about")).addPreference(developerPreference);
+        } else {
+            ((PreferenceGroup) findPreference("group_about")).removePreference(developerPreference);
+        }
     }
 }

@@ -10,20 +10,20 @@ import org.floens.chan.model.Pin;
 import android.content.Context;
 
 public class PinnedManager {
-	private static PinnedManager instance;
-	
-	private final Context context;
+    private static PinnedManager instance;
+    
+    private final Context context;
     private final List<Pin> pins;
     
     public PinnedManager(Context context) {
-    	instance = this;
-    	
-    	this.context = context;
+        instance = this;
+        
+        this.context = context;
         pins = DatabaseManager.getInstance().getPinned();
     }
     
     public static PinnedManager getInstance() {
-    	return instance;
+        return instance;
     }
     
     public PinnedAdapter getAdapter() {
@@ -56,23 +56,23 @@ public class PinnedManager {
     public boolean add(Pin pin) {
         // No duplicates
         for (Pin e : pins) {
-	        if (e.loadable.equals(pin.loadable)) {
-	            return false;
-	        }
+            if (e.loadable.equals(pin.loadable)) {
+                return false;
+            }
         }
-	    
-	    pins.add(pin);
-	    DatabaseManager.getInstance().addPin(pin);
-	    return true;
-	}
+        
+        pins.add(pin);
+        DatabaseManager.getInstance().addPin(pin);
+        return true;
+    }
 
-	public void remove(Pin pin) {
-	    pins.remove(pin);
-	    DatabaseManager.getInstance().removePin(pin);
-	}
+    public void remove(Pin pin) {
+        pins.remove(pin);
+        DatabaseManager.getInstance().removePin(pin);
+    }
 
-	public void update(Pin pin) {
-    	DatabaseManager.getInstance().updatePin(pin);
+    public void update(Pin pin) {
+        DatabaseManager.getInstance().updatePin(pin);
     }
 }
 

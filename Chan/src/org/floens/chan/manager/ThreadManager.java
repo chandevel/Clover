@@ -65,7 +65,7 @@ public class ThreadManager {
     }
     
     public boolean hasThread() {
-    	return loadable != null;
+        return loadable != null;
     }
     
     public Post findPostById(int id) {
@@ -118,9 +118,9 @@ public class ThreadManager {
     }
     
     public void onPostClicked(Post post) {
-    	if (loadable.isBoardMode()) {
-    		threadListener.onPostClicked(post);
-    	}
+        if (loadable.isBoardMode()) {
+            threadListener.onPostClicked(post);
+        }
     }
     
     public void onPostLongClicked(final Post post) {
@@ -140,8 +140,8 @@ public class ThreadManager {
                     showPostInfo(post);
                     break;
                 case 3: // Show clickables
-                	showPostLinkables(post);
-                	break;
+                    showPostLinkables(post);
+                    break;
                 case 4: // Copy text
                     copyText(post.comment.toString());
                     break;
@@ -164,7 +164,7 @@ public class ThreadManager {
     }
     
     public void onPostLinkableClicked(PostLinkable linkable) {
-    	handleLinkableSelected(linkable);
+        handleLinkableSelected(linkable);
     }
     
     /**
@@ -271,17 +271,17 @@ public class ThreadManager {
     }
     
     public void showPostReplies(Post post) {
-    	List<Post> p = new ArrayList<Post>();
-    	for (int no : post.repliesFrom) {
-    		Post r = findPostById(no);
-    		if (r != null) {
-    			p.add(r);
-    		}
-    	}
-    	
-    	if (p.size() > 0) {
-    		showPostsReplies(p);
-    	}
+        List<Post> p = new ArrayList<Post>();
+        for (int no : post.repliesFrom) {
+            Post r = findPostById(no);
+            if (r != null) {
+                p.add(r);
+            }
+        }
+        
+        if (p.size() > 0) {
+            showPostsReplies(p);
+        }
     }
     
     /**
@@ -350,50 +350,50 @@ public class ThreadManager {
      * @param linkable Linkable with an url.
      */
     private void openLink(PostLinkable linkable) {
-    	activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
+        activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
     }
     
     private void showPostsReplies(List<Post> list) {
-    	// Post popups are now queued up, more than 32 popups on top of each other makes the system crash! 
-    	popupQueue.add(list);
-    	
-    	if (currentPopupFragment != null) {
-    		currentPopupFragment.dismissNoCallback();
-    	}
-    	
-		PostRepliesFragment popup = PostRepliesFragment.newInstance(list, this);
-		
-		FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-	    ft.add(popup, "postPopup");
-	    ft.commit();
-	    
-	    currentPopupFragment = popup;
-	}
+        // Post popups are now queued up, more than 32 popups on top of each other makes the system crash! 
+        popupQueue.add(list);
+        
+        if (currentPopupFragment != null) {
+            currentPopupFragment.dismissNoCallback();
+        }
+        
+        PostRepliesFragment popup = PostRepliesFragment.newInstance(list, this);
+        
+        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
+        ft.add(popup, "postPopup");
+        ft.commit();
+        
+        currentPopupFragment = popup;
+    }
     
     public void onPostRepliesPop() {
-    	if (popupQueue.size() == 0) return;
-    	
-    	popupQueue.remove(popupQueue.size() - 1);
-    	
-    	if (popupQueue.size() > 0) {
-    		PostRepliesFragment popup = PostRepliesFragment.newInstance(popupQueue.get(popupQueue.size() - 1), this);
-    		
-    		FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-    	    ft.add(popup, "postPopup");
-    	    ft.commit();
-    	    
-    	    currentPopupFragment = popup;
-    	} else {
-    		currentPopupFragment = null;
-    	}
+        if (popupQueue.size() == 0) return;
+        
+        popupQueue.remove(popupQueue.size() - 1);
+        
+        if (popupQueue.size() > 0) {
+            PostRepliesFragment popup = PostRepliesFragment.newInstance(popupQueue.get(popupQueue.size() - 1), this);
+            
+            FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
+            ft.add(popup, "postPopup");
+            ft.commit();
+            
+            currentPopupFragment = popup;
+        } else {
+            currentPopupFragment = null;
+        }
     }
     
     public void closeAllPostFragments() {
-    	popupQueue.clear();
-    	currentPopupFragment = null;
+        popupQueue.clear();
+        currentPopupFragment = null;
     }
 
-	public interface ThreadListener {
+    public interface ThreadListener {
         public void onThreadLoaded(List<Post> result);
         public void onThreadLoadError(VolleyError error);
         public void onPostClicked(Post post);

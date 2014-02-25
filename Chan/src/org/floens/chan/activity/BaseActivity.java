@@ -49,18 +49,18 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     private ShareActionProvider shareActionProvider;
     
     /**
-	 * Called when a post has been clicked in the pinned drawer
-	 * @param post
-	 */
-	abstract public void openPin(Pin post);
-	
-	/**
-	 * Called when a post has been clicked in the listview
-	 * @param post
-	 */
-	abstract public void onOPClicked(Post post);
+     * Called when a post has been clicked in the pinned drawer
+     * @param post
+     */
+    abstract public void openPin(Pin post);
+    
+    /**
+     * Called when a post has been clicked in the listview
+     * @param post
+     */
+    abstract public void onOPClicked(Post post);
 
-	@Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
@@ -72,7 +72,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         threadPane = (SlidingPaneLayout) findViewById(R.id.pane_container);
         initPane();
     }
-	
+    
     protected void initDrawer() {
         if (pinDrawerListener == null) {
             return;
@@ -96,23 +96,23 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         });
         
         pinDrawerView.setOnItemLongClickListener(new OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				Pin post = pinnedAdapter.getItem(position);
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Pin post = pinnedAdapter.getItem(position);
                 if (post == null || post.type == Pin.Type.HEADER) return false;
                 
                 changePinTitle(post);
-				
-				return true;
-			}
-		});
+                
+                return true;
+            }
+        });
         
         SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(pinDrawerView,
             new DismissCallbacks() {
                 @Override
                 public void onDismiss(ListView listView, int[] reverseSortedPositions) {
                     for (int position : reverseSortedPositions) {
-                    	removePin(pinnedAdapter.getItem(position));
+                        removePin(pinnedAdapter.getItem(position));
                     }
                 }
 
@@ -127,7 +127,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
     
     private void initPane() {
-    	threadPane.setPanelSlideListener(this);
+        threadPane.setPanelSlideListener(this);
         threadPane.setParallaxDistance(200);
         threadPane.setShadowResource(R.drawable.panel_shadow);
         threadPane.setSliderFadeColor(0xcce5e5e5);
@@ -135,62 +135,62 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
     
     public void addPin(Pin pin) {
-    	if (PinnedManager.getInstance().add(pin)) {
-    	    pinnedAdapter.add(pin);
-    	}
+        if (PinnedManager.getInstance().add(pin)) {
+            pinnedAdapter.add(pin);
+        }
     }
     
     public void removePin(Pin pin) {
-    	PinnedManager.getInstance().remove(pin);
-    	pinnedAdapter.remove(pin);
+        PinnedManager.getInstance().remove(pin);
+        pinnedAdapter.remove(pin);
     }
     
     public void updatePin(Pin pin) {
-    	PinnedManager.getInstance().update(pin);
+        PinnedManager.getInstance().update(pin);
         pinnedAdapter.notifyDataSetChanged();
     }
 
-	private void changePinTitle(final Pin pin) {
-		final EditText text = new EditText(this);
-	    text.setSingleLine();
-	    text.setText(pin.loadable.title);
-	    text.setSelectAllOnFocus(true);
-	    
-	    AlertDialog dialog = new AlertDialog.Builder(this)
-	        .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
-	            @Override
-	            public void onClick(DialogInterface d, int which) {
-	                String value = text.getText().toString();
-	                
-	                if (!TextUtils.isEmpty(value)) {
-	                    pin.loadable.title = value;
-	                    updatePin(pin);
-	                }
-	            }
-	        })
-	        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-	            @Override
-	            public void onClick(DialogInterface d, int which) {
-	            }
-	        })
-	        .setTitle(R.string.drawer_pinned_change_title)
-	        .setView(text)
-	        .create();
-	    
-	    text.requestFocus();
-	    
-	    dialog.setOnShowListener(new OnShowListener() {
-	        @Override
-	        public void onShow(DialogInterface dialog) {
-	            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-	            imm.showSoftInput(text, 0);
-	        }
-	    });
-	    
-	    dialog.show();
-	}
+    private void changePinTitle(final Pin pin) {
+        final EditText text = new EditText(this);
+        text.setSingleLine();
+        text.setText(pin.loadable.title);
+        text.setSelectAllOnFocus(true);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int which) {
+                    String value = text.getText().toString();
+                    
+                    if (!TextUtils.isEmpty(value)) {
+                        pin.loadable.title = value;
+                        updatePin(pin);
+                    }
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface d, int which) {
+                }
+            })
+            .setTitle(R.string.drawer_pinned_change_title)
+            .setView(text)
+            .create();
+        
+        text.requestFocus();
+        
+        dialog.setOnShowListener(new OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(text, 0);
+            }
+        });
+        
+        dialog.show();
+    }
 
-	@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
         case R.id.action_settings:
@@ -210,16 +210,16 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
     
     @Override
-	public void onPanelClosed(View view) {
-	}
+    public void onPanelClosed(View view) {
+    }
 
-	@Override
-	public void onPanelOpened(View view) {
-	}
+    @Override
+    public void onPanelOpened(View view) {
+    }
 
-	@Override
-	public void onPanelSlide(View view, float offset) {
-	}
+    @Override
+    public void onPanelSlide(View view, float offset) {
+    }
     
     /**
      * Set the url that Android Beam and the share action will send.
@@ -242,10 +242,10 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         }
         
         if (shareActionProvider != null) {
-        	Intent share = new Intent(android.content.Intent.ACTION_SEND);
-    		share.putExtra(android.content.Intent.EXTRA_TEXT, url);
-    		share.setType("text/plain");
-        	shareActionProvider.setShareIntent(share);
+            Intent share = new Intent(android.content.Intent.ACTION_SEND);
+            share.putExtra(android.content.Intent.EXTRA_TEXT, url);
+            share.setType("text/plain");
+            shareActionProvider.setShareIntent(share);
         }
     }
     

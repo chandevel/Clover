@@ -11,25 +11,25 @@ import com.j256.ormlite.table.DatabaseTable;
  */
 @DatabaseTable
 public class Loadable {
-	@DatabaseField(generatedId = true)
-	private int id;
-	
-	@DatabaseField
+    @DatabaseField(generatedId = true)
+    private int id;
+    
+    @DatabaseField
     public int mode = Mode.INVALID;
-	
-	@DatabaseField
+    
+    @DatabaseField
     public String board = "";
-	
-	@DatabaseField
+    
+    @DatabaseField
     public int no = -1;
-	
-	@DatabaseField
+    
+    @DatabaseField
     public String title = "";
-	
-	@DatabaseField
+    
+    @DatabaseField
     public int listViewIndex;
-	
-	@DatabaseField
+    
+    @DatabaseField
     public int listViewTop;
     
     /**
@@ -97,7 +97,7 @@ public class Loadable {
     }
     
     public boolean isCatalogMode() {
-    	return mode == Mode.CATALOG;
+        return mode == Mode.CATALOG;
     }
     
     public void readFromBundle(Context context, Bundle bundle) {

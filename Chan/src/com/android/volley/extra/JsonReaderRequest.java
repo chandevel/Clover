@@ -47,10 +47,10 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
             T read = readJson(reader);
             
             try {
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             
             // Log.e("Chan", "Total time: " + (System.currentTimeMillis() - start));
             

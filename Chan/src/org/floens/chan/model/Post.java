@@ -75,11 +75,11 @@ public class Post {
     }
     
     public void setLinkableListener(PostView listener) {
-    	linkableListener = listener;
+        linkableListener = listener;
     }
     
     public PostView getLinkableListener() {
-    	return linkableListener;
+        return linkableListener;
     }
     
     /**
@@ -144,24 +144,24 @@ public class Post {
                         String[] parts = text.split("\\s");
                         
                         for (String item : parts) {
-                        	if (item.contains("://")) {
-	                            try {
-	                                URL url = new URL(item);
-	                                
-	                                SpannableString link = new SpannableString(url.toString());
-//	                                link.setSpan(new ForegroundColorSpan(Color.argb(255, 0, 0, 180)), 0, link.length(), 0);
-	                                
-//	                                linkables.add(new PostLinkable(this, item, item, PostLinkable.Type.LINK));
-	                                
-	                                PostLinkable pl = new PostLinkable(this, item, item, PostLinkable.Type.LINK); 
-	                                link.setSpan(pl, 0, link.length(), 0);
-	                                linkables.add(pl);
-	                                
-	                                total = TextUtils.concat(total, link, " ");
-	                            } catch(Exception e) {
-	                                total = TextUtils.concat(total, item, " ");
-	                            }
-                        	}
+                            if (item.contains("://")) {
+                                try {
+                                    URL url = new URL(item);
+                                    
+                                    SpannableString link = new SpannableString(url.toString());
+//                                  link.setSpan(new ForegroundColorSpan(Color.argb(255, 0, 0, 180)), 0, link.length(), 0);
+                                    
+//                                  linkables.add(new PostLinkable(this, item, item, PostLinkable.Type.LINK));
+                                    
+                                    PostLinkable pl = new PostLinkable(this, item, item, PostLinkable.Type.LINK); 
+                                    link.setSpan(pl, 0, link.length(), 0);
+                                    linkables.add(pl);
+                                    
+                                    total = TextUtils.concat(total, link, " ");
+                                } catch(Exception e) {
+                                    total = TextUtils.concat(total, item, " ");
+                                }
+                            }
                         }
                     } else {
                         total = TextUtils.concat(total, text);
@@ -186,7 +186,7 @@ public class Post {
                     linkables.add(pl);
                     
                     if (t == Type.QUOTE) {
-                    	try {
+                        try {
                             // Get post id
                             String[] splitted = anchor.attr("href").split("#p");
                             if (splitted.length == 2) {

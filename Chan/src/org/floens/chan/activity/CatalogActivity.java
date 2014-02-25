@@ -14,21 +14,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class CatalogActivity extends BaseActivity {
-	private final Loadable loadable = new Loadable();
-	
-	private ThreadFragment threadFragment;
-	
+    private final Loadable loadable = new Loadable();
+    
+    private ThreadFragment threadFragment;
+    
     @Override
-	public void onOPClicked(Post post) {
-		
-	}
+    public void onOPClicked(Post post) {
+        
+    }
 
-	@Override
-	public void openPin(Pin post) {
-		
-	}
+    @Override
+    public void openPin(Pin post) {
+        
+    }
 
-	@Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
@@ -66,7 +66,7 @@ public class CatalogActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
         case R.id.action_reload:
-        	threadFragment.reload();
+            threadFragment.reload();
             
             return true;
         case R.id.action_open_browser:

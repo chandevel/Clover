@@ -74,11 +74,11 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     
     @Override
     protected void onDetachedFromWindow() {
-    	super.onDetachedFromWindow();
-    	
-    	if (post != null) {
-    		post.setLinkableListener(null);
-    	}
+        super.onDetachedFromWindow();
+        
+        if (post != null) {
+            post.setLinkableListener(null);
+        }
     }
     
     public void setPost(final Post post, final ThreadManager manager) {
@@ -147,21 +147,21 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             commentView.setText(post.comment);
             commentView.setMovementMethod(LinkMovementMethod.getInstance());
             commentView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					PostView.this.onClick(v);
-				}
-			});
+                @Override
+                public void onClick(View v) {
+                    PostView.this.onClick(v);
+                }
+            });
             
             commentView.setOnLongClickListener(new OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					return PostView.this.onLongClick(v);
-				}
-			});
+                @Override
+                public boolean onLongClick(View v) {
+                    return PostView.this.onLongClick(v);
+                }
+            });
             
             if (manager.getLoadable().isThreadMode()) {
-            	post.setLinkableListener(this);
+                post.setLinkableListener(this);
             }
             
             if (manager.getLoadable().isBoardMode()) {
@@ -192,12 +192,12 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             }
             
             if (manager.getLoadable().isThreadMode()) {
-            	repliesCountView.setOnClickListener(new View.OnClickListener() {
-    				@Override
-    				public void onClick(View v) {
-    					manager.showPostReplies(post);
-    				}
-    			});
+                repliesCountView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        manager.showPostReplies(post);
+                    }
+                });
             }
             
             repliesCountView.setText(text);
@@ -329,7 +329,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     }
     
     public void onLinkableClick(PostLinkable linkable) {
-    	manager.onPostLinkableClicked(linkable);
+        manager.onPostLinkableClicked(linkable);
     }
     
     @Override

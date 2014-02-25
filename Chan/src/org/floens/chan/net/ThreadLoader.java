@@ -107,13 +107,13 @@ public class ThreadLoader {
     }
     
     private void processPosts(List<Post> posts) {
-    	for (Post post : posts) {
+        for (Post post : posts) {
             postsById.append(post.no, post);
             
             for (Post other : posts) {
-            	if (other.repliesTo.contains(post.no)) {
-            		post.repliesFrom.add(other.no);
-            	}
+                if (other.repliesTo.contains(post.no)) {
+                    post.repliesFrom.add(other.no);
+                }
             }
         }
     }

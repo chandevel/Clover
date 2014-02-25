@@ -78,9 +78,9 @@ public class ReplyFragment extends DialogFragment {
     
     @Override
     public void onSaveInstanceState(Bundle outState) {
-    	super.onSaveInstanceState(outState);
-    	
-    	loadable.writeToBundle(getActivity(), outState);
+        super.onSaveInstanceState(outState);
+        
+        loadable.writeToBundle(getActivity(), outState);
     }
     
     @Override
@@ -88,46 +88,46 @@ public class ReplyFragment extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
         
         if (loadable == null && savedInstanceState != null) {
-        	loadable = new Loadable();
-        	loadable.readFromBundle(getActivity(), savedInstanceState);
+            loadable = new Loadable();
+            loadable.readFromBundle(getActivity(), savedInstanceState);
         }
         
         if (loadable != null) {
-        	setClosable(true);
-        	
-        	Dialog dialog = getDialog();
+            setClosable(true);
+            
+            Dialog dialog = getDialog();
             Context context = getActivity();
             String title = loadable.isThreadMode() ?
-            	context.getString(R.string.reply) + " /" + loadable.board + "/" + loadable.no : 
-            	context.getString(R.string.reply_to_board) + " /" + loadable.board + "/";
+                context.getString(R.string.reply) + " /" + loadable.board + "/" + loadable.no : 
+                context.getString(R.string.reply_to_board) + " /" + loadable.board + "/";
             
             if (dialog == null) {
-            	getActivity().getActionBar().setTitle(title);
+                getActivity().getActionBar().setTitle(title);
             } else {
-            	dialog.setTitle(title);
+                dialog.setTitle(title);
             }
             
             if (getDialog() != null) {
-            	getDialog().setOnKeyListener(new Dialog.OnKeyListener() {
-    	            @Override
-    	            public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
-    	                if (keyCode == KeyEvent.KEYCODE_BACK) {
-    	                    if (page == 1) flipPage(0);
-    	                    else if (page == 2) closeReply();
-    	                    return true;
-    	                } else return false;
-    	            }
-    	        });
+                getDialog().setOnKeyListener(new Dialog.OnKeyListener() {
+                    @Override
+                    public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
+                        if (keyCode == KeyEvent.KEYCODE_BACK) {
+                            if (page == 1) flipPage(0);
+                            else if (page == 2) closeReply();
+                            return true;
+                        } else return false;
+                    }
+                });
             }
             
             Reply draft = ReplyManager.getInstance().getReplyDraft();
             
             if (TextUtils.isEmpty(draft.name)) {
-            	draft.name = ChanPreferences.getDefaultName();
+                draft.name = ChanPreferences.getDefaultName();
             }
             
             if (TextUtils.isEmpty(draft.email)) {
-            	draft.email = ChanPreferences.getDefaultEmail();
+                draft.email = ChanPreferences.getDefaultEmail();
             }
             
             nameView.setText(draft.name);
@@ -138,18 +138,18 @@ public class ReplyFragment extends DialogFragment {
             
             getCaptcha();
         } else {
-        	Log.e("Chan", "Loadable in ReplyFragment was null");
-        	closeReply();
+            Log.e("Chan", "Loadable in ReplyFragment was null");
+            closeReply();
         }
     }
     
     @Override
     public void onPause() {
-    	super.onPause();
-    	
-    	ReplyManager replyManager = ReplyManager.getInstance();
-    	
-    	if (shouldSaveDraft) {
+        super.onPause();
+        
+        ReplyManager replyManager = ReplyManager.getInstance();
+        
+        if (shouldSaveDraft) {
             draft.name = nameView.getText().toString();
             draft.email = emailView.getText().toString();
             draft.subject = subjectView.getText().toString();
@@ -164,10 +164,10 @@ public class ReplyFragment extends DialogFragment {
     
     @Override
     public void onDestroy() {
-    	super.onDestroy();
-    	
-    	ReplyManager replyManager = ReplyManager.getInstance();
-    	replyManager.removeFileListener();
+        super.onDestroy();
+        
+        ReplyManager replyManager = ReplyManager.getInstance();
+        replyManager.removeFileListener();
     }
     
     @Override
@@ -246,21 +246,21 @@ public class ReplyFragment extends DialogFragment {
     }
     
     private void closeReply() {
-    	if (getDialog() != null) {
-    		dismiss();
-    	} else {
-    		getActivity().finish();
-    	}
+        if (getDialog() != null) {
+            dismiss();
+        } else {
+            getActivity().finish();
+        }
     }
     
     /**
      * Set if the dialog is able to be closed, by pressing outside of the dialog, or something else.
      */
     private void setClosable(boolean e) {
-    	if (getDialog() != null) {
-	        getDialog().setCanceledOnTouchOutside(e);
-	        setCancelable(e);
-    	}
+        if (getDialog() != null) {
+            getDialog().setCanceledOnTouchOutside(e);
+            setCancelable(e);
+        }
     }
     
     /**

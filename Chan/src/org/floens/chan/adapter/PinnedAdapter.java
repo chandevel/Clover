@@ -79,14 +79,14 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
         
         Pin item = getItem(position);
         if (item == null) {
-        	return -1;
+            return -1;
         } else {
-        	Integer i = idMap.get(item);
-        	if (i == null) {
-        		return -1;
-        	} else {
-        		return i;
-        	}
+            Integer i = idMap.get(item);
+            if (i == null) {
+                return -1;
+            } else {
+                return i;
+            }
         }
     }
 }

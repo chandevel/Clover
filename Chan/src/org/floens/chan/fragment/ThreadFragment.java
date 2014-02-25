@@ -73,7 +73,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
         }
         
         if (listView != null) {
-        	listView.setOnScrollListener(null);
+            listView.setOnScrollListener(null);
         }
     }
     
@@ -110,11 +110,11 @@ public class ThreadFragment extends Fragment implements ThreadListener {
                     
                     @Override
                     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    	if (loadable != null) {
-	                        loadable.listViewIndex = view.getFirstVisiblePosition();
-	                        View v = view.getChildAt(0);
-	                        loadable.listViewTop = (v == null) ? 0 : v.getTop();
-                    	}
+                        if (loadable != null) {
+                            loadable.listViewIndex = view.getFirstVisiblePosition();
+                            View v = view.getChildAt(0);
+                            loadable.listViewTop = (v == null) ? 0 : v.getTop();
+                        }
                     }
                 });
             }
@@ -140,7 +140,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     
     @Override
     public void onPostClicked(Post post) {
-    	baseActivity.onOPClicked(post);
+        baseActivity.onOPClicked(post);
     }
     
     @Override

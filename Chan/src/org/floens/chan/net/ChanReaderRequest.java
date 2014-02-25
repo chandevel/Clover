@@ -37,7 +37,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
         } else if (loadable.isThreadMode()) {
             url = ChanUrls.getThreadUrl(loadable.board, loadable.no);
         } else if (loadable.isCatalogMode()) {
-        	url = ChanUrls.getCatalogUrl(loadable.board);
+            url = ChanUrls.getCatalogUrl(loadable.board);
         } else {
             throw new IllegalArgumentException("Unknown mode");
         }
@@ -58,9 +58,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
         if (loadable.isBoardMode()) {
             return loadBoard(reader);
         } else if (loadable.isThreadMode()) {
-        	return loadThread(reader);
+            return loadThread(reader);
         } else if (loadable.isCatalogMode()) {
-        	return loadCatalog(reader);
+            return loadCatalog(reader);
         } else {
             throw new IllegalArgumentException("Unknown mode");
         }
@@ -155,22 +155,22 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
             reader.beginArray(); // Array of pages
             
             while (reader.hasNext()) {
-            	reader.beginObject(); // Page object
-            	
-            	while (reader.hasNext()) {
-	                if (reader.nextName().equals("threads")) {
-	                    reader.beginArray(); // Threads array
-	                    
-	                    while (reader.hasNext()) {
-	                    	list.add(readPostObject(reader, loadable.board));
-	                    }
-	                    
-	                    reader.endArray();
-	                } else {
-	                    reader.skipValue();
-	                }
-            	}
-            	
+                reader.beginObject(); // Page object
+                
+                while (reader.hasNext()) {
+                    if (reader.nextName().equals("threads")) {
+                        reader.beginArray(); // Threads array
+                        
+                        while (reader.hasNext()) {
+                            list.add(readPostObject(reader, loadable.board));
+                        }
+                        
+                        reader.endArray();
+                    } else {
+                        reader.skipValue();
+                    }
+                }
+                
                 reader.endObject();
             }
             

@@ -36,7 +36,7 @@ public class NetworkPhotoView extends NetworkImageView {
     }
     
     public void setOnViewTapListenerToAttacher(OnViewTapListener listener) {
-    	viewTapListener = listener;
+        viewTapListener = listener;
     }
     
     @Override

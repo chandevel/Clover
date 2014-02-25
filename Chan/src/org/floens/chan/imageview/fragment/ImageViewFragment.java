@@ -118,15 +118,15 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
         return false;
     }
 
-	@Override
-	public void onViewTap(View view, float x, float y) {
-		activity.finish();
-	}
+    @Override
+    public void onViewTap(View view, float x, float y) {
+        activity.finish();
+    }
 
-	@Override
-	public void onClick(View v) {
-		activity.finish();
-	}
+    @Override
+    public void onClick(View v) {
+        activity.finish();
+    }
 }
 
 

@@ -24,35 +24,35 @@ public class ChanUrls {
     }
     
     public static String getImageUrl(String board, String code, String extension) {
-	    return "https://i.4cdn.org/" + board + "/src/" + code + "." + extension;
-	}
+        return "https://i.4cdn.org/" + board + "/src/" + code + "." + extension;
+    }
 
-	public static String getThumbnailUrl(String board, String code) {
-	    return "https://t.4cdn.org/" + board + "/thumb/" + code + "s.jpg";
-	}
+    public static String getThumbnailUrl(String board, String code) {
+        return "https://t.4cdn.org/" + board + "/thumb/" + code + "s.jpg";
+    }
 
-	public static String getCountryFlagUrl(String countryCode) {
+    public static String getCountryFlagUrl(String countryCode) {
         return "https://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
     }
 
     public static String getBoardsUrl() {
-	    return "https://a.4cdn.org/boards.json";
-	}
+        return "https://a.4cdn.org/boards.json";
+    }
 
-	public static String getPostUrl(String board) {
-	        return "https://sys.4chan.org/" + board + "/post";
-	//        return "http://192.168.6.214/Testing/PostEchoer/post.php";
-	    }
+    public static String getPostUrl(String board) {
+            return "https://sys.4chan.org/" + board + "/post";
+    //        return "http://192.168.6.214/Testing/PostEchoer/post.php";
+        }
 
-	public static String getBoardUrlDesktop(String board) {
-	    return "https://boards.4chan.org/" + board + "/";
-	}
+    public static String getBoardUrlDesktop(String board) {
+        return "https://boards.4chan.org/" + board + "/";
+    }
 
-	public static String getThreadUrlDesktop(String board, int no) {
-	    return "https://boards.4chan.org/" + board + "/res/" + no;
-	}
+    public static String getThreadUrlDesktop(String board, int no) {
+        return "https://boards.4chan.org/" + board + "/res/" + no;
+    }
 
-	public static String getCatalogUrlDesktop(String board) {
+    public static String getCatalogUrlDesktop(String board) {
         return "https://boards.4chan.org/" + board + "/catalog";
     }
 }

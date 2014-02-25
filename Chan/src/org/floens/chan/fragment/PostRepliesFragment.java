@@ -37,8 +37,8 @@ public class PostRepliesFragment extends DialogFragment {
     }
     
     public void dismissNoCallback() {
-    	callback = false;
-    	dismiss();
+        callback = false;
+        dismiss();
     }
     
     @Override
@@ -50,11 +50,11 @@ public class PostRepliesFragment extends DialogFragment {
     
     @Override
     public void onDismiss(DialogInterface dialog) {
-    	super.onDismiss(dialog);
-    	
-    	if (callback && manager != null) {
-    		manager.onPostRepliesPop();
-    	}
+        super.onDismiss(dialog);
+        
+        if (callback && manager != null) {
+            manager.onPostRepliesPop();
+        }
     }
     
     @Override
@@ -66,19 +66,19 @@ public class PostRepliesFragment extends DialogFragment {
         listView = (ListView) container.findViewById(R.id.post_list);
         
         container.findViewById(R.id.replies_back).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				dismiss();
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
         
         container.findViewById(R.id.replies_close).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				manager.closeAllPostFragments();
-				dismiss();
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                manager.closeAllPostFragments();
+                dismiss();
+            }
+        });
         
         return container;
     }
@@ -88,27 +88,27 @@ public class PostRepliesFragment extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
         
         if (posts == null) {
-        	// Restoring from background. 
+            // Restoring from background. 
             dismiss();
         } else {
-	        ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(getActivity(), 0) {
-	        	@Override
-	        	public View getView(int position, View convertView, ViewGroup parent) {
-	        		PostView postView = null;
-	        		if (convertView instanceof PostView) {
-	        			postView = (PostView) convertView;
-	        		} else {
-	        			postView = new PostView(getActivity());
-	        		}
-	        		
-	        		postView.setPost(getItem(position), manager);
-	        		
-	        		return postView;
-	        	}
-	        };
-	        
-	        adapter.addAll(posts);
-	        listView.setAdapter(adapter);
+            ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(getActivity(), 0) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    PostView postView = null;
+                    if (convertView instanceof PostView) {
+                        postView = (PostView) convertView;
+                    } else {
+                        postView = new PostView(getActivity());
+                    }
+                    
+                    postView.setPost(getItem(position), manager);
+                    
+                    return postView;
+                }
+            };
+            
+            adapter.addAll(posts);
+            listView.setAdapter(adapter);
         }
     }
 }

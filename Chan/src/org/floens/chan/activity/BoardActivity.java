@@ -28,8 +28,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 
 public class BoardActivity extends BaseActivity implements ActionBar.OnNavigationListener {
-	private Loadable boardLoadable = new Loadable();
-	private Loadable threadLoadable = new Loadable();
+    private Loadable boardLoadable = new Loadable();
+    private Loadable threadLoadable = new Loadable();
     private ThreadFragment boardFragment;
     private ThreadFragment threadFragment;
     private boolean boardSetByIntent = false;
@@ -86,7 +86,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     @Override
     protected void initDrawer() {
         pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer, 
-        		R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {};
+                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {};
         
         super.initDrawer();
     }
@@ -104,13 +104,13 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
     
     @Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-	    super.onCreateOptionsMenu(menu);
-	    
-	    return true;
-	}
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        
+        return true;
+    }
 
-	@Override
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         pinDrawerListener.onConfigurationChanged(newConfig);
@@ -118,14 +118,14 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
     @Override
     public void openPin(Pin pin) {
-    	startLoadingThread(pin.loadable);
+        startLoadingThread(pin.loadable);
         
         pinDrawer.closeDrawer(pinDrawerView);
     }
 
     @Override
     public void onOPClicked(Post post) {
-    	startLoadingThread(new Loadable(post.board, post.no, post.subject));
+        startLoadingThread(new Loadable(post.board, post.no, post.subject));
     }
 
     @Override
@@ -136,127 +136,127 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     
     @Override
     public void onBackPressed() {
-    	if (threadPane.isOpen()) {
-    		super.onBackPressed();
-    	} else {
-    		threadPane.openPane();
-    	}
+        if (threadPane.isOpen()) {
+            super.onBackPressed();
+        } else {
+            threadPane.openPane();
+        }
     }
     
     private void updateActionBarState() {
-    	final ActionBar actionBar = getActionBar();
-    	
-    	if (threadPane.isSlideable()) {
-	    	if (threadPane.isOpen()) {
-	            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-	            actionBar.setHomeButtonEnabled(true);
-	            actionBar.setTitle("");
-	            pinDrawerListener.setDrawerIndicatorEnabled(true);
-	    	} else {
-	    		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-	    		actionBar.setTitle(threadLoadable.title);
-	    		pinDrawerListener.setDrawerIndicatorEnabled(false);
-	    	}
-	    	
-	    	actionBar.setDisplayHomeAsUpEnabled(true);
-    	} else {
+        final ActionBar actionBar = getActionBar();
+        
+        if (threadPane.isSlideable()) {
+            if (threadPane.isOpen()) {
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+                actionBar.setHomeButtonEnabled(true);
+                actionBar.setTitle("");
+                pinDrawerListener.setDrawerIndicatorEnabled(true);
+            } else {
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+                actionBar.setTitle(threadLoadable.title);
+                pinDrawerListener.setDrawerIndicatorEnabled(false);
+            }
+            
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        } else {
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             pinDrawerListener.setDrawerIndicatorEnabled(true);
-    		actionBar.setTitle(threadLoadable.title);
-    		
-    		actionBar.setDisplayHomeAsUpEnabled(false);
-    	}
-    	
-    	actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setTitle(threadLoadable.title);
+            
+            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
+        
+        actionBar.setDisplayShowTitleEnabled(true);
         
         invalidateOptionsMenu();
     }
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	boolean open = threadPane.isOpen();
-    	
-    	setMenuItemEnabled(menu.findItem(R.id.action_pin), !open);
-    	
-    	return super.onPrepareOptionsMenu(menu);
+        boolean open = threadPane.isOpen();
+        
+        setMenuItemEnabled(menu.findItem(R.id.action_pin), !open);
+        
+        return super.onPrepareOptionsMenu(menu);
     }
     
     private void setMenuItemEnabled(MenuItem item, boolean enabled) {
-    	if (item != null) {
-    		item.setVisible(enabled);
-    		item.setEnabled(enabled);
-    	}
+        if (item != null) {
+            item.setVisible(enabled);
+            item.setEnabled(enabled);
+        }
     }
     
     @Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    if (pinDrawerListener.onOptionsItemSelected(item)) {
-	        return true;
-	    }
-	    
-	    switch(item.getItemId()) {
-	    case R.id.action_reload:
-	    	if (threadPane.isOpen()) {
-	    		boardFragment.reload();
-	    	} else {
-	    		if (threadFragment.getThreadManager().hasThread()) {
-	    			threadFragment.reload();
-	    		}
-	    	}
-	        return true;
-	    case R.id.action_reply:
-	    	if (threadPane.isOpen()) {
-		        boardFragment.getThreadManager().openReply(true); // todo if tablet
-	    	} else {
-	    		if (threadFragment.getThreadManager().hasThread()) {
-			        threadFragment.getThreadManager().openReply(true); // todo if tablet
-	    		}
-	    	}
-	        
-	        return true;
-	    case R.id.action_pin:
-	    	if (threadFragment.getThreadManager().hasThread()) {
-	    		Pin pin = new Pin();
-	            pin.loadable = threadLoadable;
-	            
-	            addPin(pin);
-	            
-	            pinDrawer.openDrawer(pinDrawerView);
-	    	}
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (pinDrawerListener.onOptionsItemSelected(item)) {
+            return true;
+        }
+        
+        switch(item.getItemId()) {
+        case R.id.action_reload:
+            if (threadPane.isOpen()) {
+                boardFragment.reload();
+            } else {
+                if (threadFragment.getThreadManager().hasThread()) {
+                    threadFragment.reload();
+                }
+            }
+            return true;
+        case R.id.action_reply:
+            if (threadPane.isOpen()) {
+                boardFragment.getThreadManager().openReply(true); // todo if tablet
+            } else {
+                if (threadFragment.getThreadManager().hasThread()) {
+                    threadFragment.getThreadManager().openReply(true); // todo if tablet
+                }
+            }
             
             return true;
-	    case R.id.action_open_browser:
-	    	if (threadPane.isOpen()) {
-	    		showUrlOpenPicker(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
-	    	} else {
-	    		if (threadFragment.getThreadManager().hasThread()) {
-	    			showUrlOpenPicker(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
-	    		}
-	    	}
-	        
-	        return true;
-	    case android.R.id.home:
-	    	threadPane.openPane();
-	    	
-	    	return true;
-	    }
-	    
-	    return super.onOptionsItemSelected(item);
-	}
+        case R.id.action_pin:
+            if (threadFragment.getThreadManager().hasThread()) {
+                Pin pin = new Pin();
+                pin.loadable = threadLoadable;
+                
+                addPin(pin);
+                
+                pinDrawer.openDrawer(pinDrawerView);
+            }
+            
+            return true;
+        case R.id.action_open_browser:
+            if (threadPane.isOpen()) {
+                showUrlOpenPicker(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
+            } else {
+                if (threadFragment.getThreadManager().hasThread()) {
+                    showUrlOpenPicker(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
+                }
+            }
+            
+            return true;
+        case android.R.id.home:
+            threadPane.openPane();
+            
+            return true;
+        }
+        
+        return super.onOptionsItemSelected(item);
+    }
 
-	@Override
-	public void onPanelClosed(View view) {
-		updateActionBarState();
-	}
+    @Override
+    public void onPanelClosed(View view) {
+        updateActionBarState();
+    }
 
-	@Override
-	public void onPanelOpened(View view) {
-		updateActionBarState();
-	}
-	
-	private void startLoadingBoard(Loadable loadable) {
-    	this.boardLoadable = loadable;
-    	
+    @Override
+    public void onPanelOpened(View view) {
+        updateActionBarState();
+    }
+    
+    private void startLoadingBoard(Loadable loadable) {
+        this.boardLoadable = loadable;
+        
         boardFragment.startLoading(loadable);
         setShareUrl(ChanUrls.getBoardUrlDesktop(loadable.board));
         
@@ -264,7 +264,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
     
     private void startLoadingThread(Loadable loadable) {
-    	Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
+        Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
         if (pin != null) {
             // Use the loadable from the pin.
             // This way we can store the listview position in the pin loadable, 

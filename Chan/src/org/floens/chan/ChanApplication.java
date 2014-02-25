@@ -40,7 +40,7 @@ public class ChanApplication extends Application {
     }
     
     public static SharedPreferences getPreferences() {
-    	return PreferenceManager.getDefaultSharedPreferences(instance);
+        return PreferenceManager.getDefaultSharedPreferences(instance);
     }
     
     @Override

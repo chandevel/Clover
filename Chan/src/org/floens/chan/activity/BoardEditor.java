@@ -51,7 +51,7 @@ public class BoardEditor extends Activity {
         
         // For runtime changes
         if (list.size() > 0) {
-        	BoardManager.getInstance().setMyBoards((ArrayList<Board>) list.clone());
+            BoardManager.getInstance().setMyBoards((ArrayList<Board>) list.clone());
         }
     }
     
@@ -65,7 +65,7 @@ public class BoardEditor extends Activity {
     }
     
     private void addBoard(String value) {
-    	BoardManager.getInstance().addBoard(list, value);
+        BoardManager.getInstance().addBoard(list, value);
         
         adapter = new BoardEditAdapter(this, R.layout.board_view, list, this);
         listView.setArrayList(list);
