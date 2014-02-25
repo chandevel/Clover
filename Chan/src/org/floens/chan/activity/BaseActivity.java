@@ -36,11 +36,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ShareActionProvider;
 
-/**
- * Activities that use ThreadFragment need to extend BaseActivity.
- * BaseActivity provides callbacks for when the user clicks a post,
- * or clicks an item in the drawer.
- */
 public abstract class BaseActivity extends Activity implements PanelSlideListener {
     private final static int ACTION_OPEN_URL = 1;
     
@@ -140,8 +135,9 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
     
     public void addPin(Pin pin) {
-    	PinnedManager.getInstance().add(pin);
-        pinnedAdapter.add(pin);
+    	if (PinnedManager.getInstance().add(pin)) {
+    	    pinnedAdapter.add(pin);
+    	}
     }
     
     public void removePin(Pin pin) {

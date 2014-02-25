@@ -53,16 +53,17 @@ public class PinnedManager {
         return null;
     }
     
-    public void add(Pin pin) {
-    	// No duplicates
-	    for (Pin e : pins) {
+    public boolean add(Pin pin) {
+        // No duplicates
+        for (Pin e : pins) {
 	        if (e.loadable.equals(pin.loadable)) {
-	            return;
+	            return false;
 	        }
-	    }
+        }
 	    
 	    pins.add(pin);
 	    DatabaseManager.getInstance().addPin(pin);
+	    return true;
 	}
 
 	public void remove(Pin pin) {
