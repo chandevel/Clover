@@ -38,11 +38,11 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
         Pin item = getItem(position);
         
         if (item.type == Pin.Type.HEADER) {
-            view = (LinearLayout) inflater.inflate(R.layout.drawer_item_header, null);
+            view = (LinearLayout) inflater.inflate(R.layout.pin_item_header, null);
             
             ((TextView) view.findViewById(R.id.drawer_item_header)).setText(R.string.drawer_pinned);
         } else {
-            view = (LinearLayout) inflater.inflate(R.layout.drawer_item, null);
+            view = (LinearLayout) inflater.inflate(R.layout.pin_item, null);
             
             ((TextView) view.findViewById(R.id.drawer_item_text)).setText(item.loadable.title);
         }

@@ -118,7 +118,7 @@ public class ThreadLoader {
         }
     }
     
-    public static abstract class ThreadLoaderListener {
+    public static abstract interface ThreadLoaderListener {
         public abstract void onData(List<Post> result);
         public abstract void onError(VolleyError error);
     }

@@ -61,6 +61,12 @@ public class Logger {
             Log.i(TAG_TEST, message);
         }
     }
+    
+    public static void test(String message, Throwable throwable) {
+        if (ChanApplication.DEVELOPER_MODE) {
+            Log.i(TAG_TEST, message, throwable);
+        }
+    }
 }
 
 

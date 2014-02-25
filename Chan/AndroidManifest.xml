@@ -86,13 +86,8 @@
         
         <service
         	android:name="org.floens.chan.service.PinnedService"
-        	android:exported="false"
-        ></service>
+        	android:exported="false" >
+        </service>
     </application>
-
 </manifest>
-
-
-
-
 

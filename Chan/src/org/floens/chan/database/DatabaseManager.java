@@ -50,6 +50,20 @@ public class DatabaseManager {
         }
     }
     
+    public void updatePins(List<Pin> pins) {
+        try {
+            for (Pin pin : pins) {
+                helper.pinDao.update(pin);
+            }
+            
+            for (Pin pin : pins) {
+                helper.loadableDao.update(pin.loadable);
+            }
+        } catch(SQLException e) {
+            Logger.e("Error updating pins in db", e);
+        }
+    }
+    
     public List<Pin> getPinned() {
         List<Pin> list = null;
         try {

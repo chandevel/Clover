@@ -53,6 +53,10 @@ public class PinnedManager {
         return null;
     }
     
+    public List<Pin> getPins() {
+        return pins;
+    }
+    
     /**
      * Add a pin
      * @param pin
@@ -91,14 +95,13 @@ public class PinnedManager {
     /**
      * Updates all the pins to the database. 
      * This will run in a new thread because it can be an expensive operation.
+     * (this will be an huge headache later on when we get concurrent problems)
      */
     public void updateAll() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (Pin pin : pins) {
-                    DatabaseManager.getInstance().updatePin(pin);
-                }
+                DatabaseManager.getInstance().updatePins(pins);
             }
         }).start();
     }

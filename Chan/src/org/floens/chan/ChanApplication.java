@@ -4,9 +4,11 @@ import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.manager.BoardManager;
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.manager.ReplyManager;
+import org.floens.chan.service.PinnedService;
 import org.floens.chan.utils.IconCache;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -62,8 +64,6 @@ public class ChanApplication extends Application {
                 .build());
         }
         
-        // startService(new Intent(this, PinnedService.class));
-        
         // VolleyLog.setTag(getPackageName());
         
         IconCache.createIcons(this);
@@ -73,13 +73,14 @@ public class ChanApplication extends Application {
         
         // These manager need a Context
         new DatabaseManager(this);
+        
         new BoardManager(this);
         new PinnedManager(this);
         new ReplyManager(this);
+        
+        startService(new Intent(this, PinnedService.class));
     }
 }
-
-
 
 
 
