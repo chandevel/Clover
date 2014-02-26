@@ -1,5 +1,6 @@
 package org.floens.chan.manager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.adapter.PinnedAdapter;
@@ -13,6 +14,7 @@ public class PinnedManager {
     private static PinnedManager instance;
     
     private final Context context;
+    private final List<PinListener> listeners = new ArrayList<PinListener>();
     private final List<Pin> pins;
     
     public PinnedManager(Context context) {
@@ -24,6 +26,14 @@ public class PinnedManager {
     
     public static PinnedManager getInstance() {
         return instance;
+    }
+    
+    public void addPinListener(PinListener l) {
+        listeners.add(l);
+    }
+    
+    public void removePinListener(PinListener l) {
+        listeners.remove(l);
     }
     
     public PinnedAdapter getAdapter() {
@@ -72,6 +82,9 @@ public class PinnedManager {
         
         pins.add(pin);
         DatabaseManager.getInstance().addPin(pin);
+        
+        onPinsChanged();
+        
         return true;
     }
     
@@ -82,6 +95,8 @@ public class PinnedManager {
     public void remove(Pin pin) {
         pins.remove(pin);
         DatabaseManager.getInstance().removePin(pin);
+        
+        onPinsChanged();
     }
     
     /**
@@ -90,6 +105,8 @@ public class PinnedManager {
      */
     public void update(Pin pin) {
         DatabaseManager.getInstance().updatePin(pin);
+        
+        onPinsChanged();
     }
     
     /**
@@ -104,6 +121,22 @@ public class PinnedManager {
                 DatabaseManager.getInstance().updatePins(pins);
             }
         }).start();
+    }
+    
+    public void onPinViewed(Pin pin) {
+        pin.watchLastCount = pin.watchNewCount;
+        
+        onPinsChanged();
+    }
+    
+    public void onPinsChanged() {
+        for (PinListener l : listeners) {
+            l.onPinsChanged();
+        }
+    }
+    
+    public static interface PinListener {
+        public void onPinsChanged();
     }
 }
 

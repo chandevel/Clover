@@ -2,6 +2,7 @@ package org.floens.chan.net;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
@@ -13,10 +14,10 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.extra.JsonReaderRequest;
 
-public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
+public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     private Loadable loadable;
     
-    private ChanReaderRequest(String url, Listener<ArrayList<Post>> listener, ErrorListener errorListener) {
+    private ChanReaderRequest(String url, Listener<List<Post>> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
     }
     
@@ -29,7 +30,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
      * @param errorListener
      * @return New instance of ChanReaderRequest
      */
-    public static ChanReaderRequest newInstance(Loadable loadable, Listener<ArrayList<Post>> listener, ErrorListener errorListener) {
+    public static ChanReaderRequest newInstance(Loadable loadable, Listener<List<Post>> listener, ErrorListener errorListener) {
         String url;
         
         if (loadable.isBoardMode()) {
@@ -54,19 +55,35 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
     }
 
     @Override
-    public ArrayList<Post> readJson(JsonReader reader) {
+    public List<Post> readJson(JsonReader reader) {
+        List<Post> list = new ArrayList<Post>();
+        
         if (loadable.isBoardMode()) {
-            return loadBoard(reader);
+            list = loadBoard(reader);
         } else if (loadable.isThreadMode()) {
-            return loadThread(reader);
+            list = loadThread(reader);
         } else if (loadable.isCatalogMode()) {
-            return loadCatalog(reader);
+            list = loadCatalog(reader);
         } else {
             throw new IllegalArgumentException("Unknown mode");
         }
+        
+        processPosts(list);
+        
+        return list;
     }
     
-    private ArrayList<Post> loadThread(JsonReader reader) {
+    private void processPosts(List<Post> posts) {
+        for (Post post : posts) {
+            for (Post other : posts) {
+                if (other.repliesTo.contains(post.no)) {
+                    post.repliesFrom.add(other.no);
+                }
+            }
+        }
+    }
+    
+    private List<Post> loadThread(JsonReader reader) {
         ArrayList<Post> list = new ArrayList<Post>();
         
         try {
@@ -78,7 +95,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
                     // Thread array
                     while (reader.hasNext()) {
                         // Thread object
-                        list.add(readPostObject(reader, loadable.board));
+                        list.add(readPostObject(reader));
                     }
                     reader.endArray();
                 } else {
@@ -100,7 +117,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
         return list;
     }
     
-    private ArrayList<Post> loadBoard(JsonReader reader) {
+    private List<Post> loadBoard(JsonReader reader) {
         ArrayList<Post> list = new ArrayList<Post>();
         
         try {
@@ -115,7 +132,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
                     if (reader.nextName().equals("posts")) {
                         reader.beginArray();
                         
-                        list.add(readPostObject(reader, loadable.board));
+                        list.add(readPostObject(reader));
 
                         // Only consume one post
                         while (reader.hasNext()) reader.skipValue();
@@ -148,7 +165,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
         return list;
     }
     
-    private ArrayList<Post> loadCatalog(JsonReader reader) {
+    private List<Post> loadCatalog(JsonReader reader) {
         ArrayList<Post> list = new ArrayList<Post>();
         
         try {
@@ -162,7 +179,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
                         reader.beginArray(); // Threads array
                         
                         while (reader.hasNext()) {
-                            list.add(readPostObject(reader, loadable.board));
+                            list.add(readPostObject(reader));
                         }
                         
                         reader.endArray();
@@ -189,9 +206,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
         return list;
     }
     
-    private Post readPostObject(JsonReader reader, String board) throws IllegalStateException, NumberFormatException, IOException {
+    private Post readPostObject(JsonReader reader) throws IllegalStateException, NumberFormatException, IOException {
         Post post = new Post();
-        post.board = board;
+        post.board = loadable.board;
         
         reader.beginObject();
         while(reader.hasNext()) {
@@ -252,7 +269,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ArrayList<Post>> {
         }
         reader.endObject();
         
-        if (!post.finish()) {
+        if (!post.finish(loadable)) {
             throw new IOException("Incorrect data about post received.");
         }
         

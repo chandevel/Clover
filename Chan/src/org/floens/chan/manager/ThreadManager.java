@@ -8,6 +8,7 @@ import org.floens.chan.activity.ReplyActivity;
 import org.floens.chan.fragment.PostRepliesFragment;
 import org.floens.chan.fragment.ReplyFragment;
 import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
 import org.floens.chan.model.PostLinkable;
 import org.floens.chan.net.ThreadLoader;
@@ -35,9 +36,10 @@ import com.android.volley.VolleyError;
 
 /**
  * All PostView's need to have this referenced. 
- * This manages some things like pages, starting and stopping of loading etc.
+ * This manages some things like pages, starting and stopping of loading, 
+ * handling linkables, replies popups etc.
  */
-public class ThreadManager {
+public class ThreadManager implements ThreadLoader.ThreadLoaderListener {
     private final Activity activity;
     private final ThreadLoader threadLoader;
     private final ThreadManager.ThreadListener threadListener;
@@ -51,17 +53,17 @@ public class ThreadManager {
         this.activity = context;
         threadListener = listener;
         
-        threadLoader = new ThreadLoader(new ThreadLoader.ThreadLoaderListener() {
-            @Override
-            public void onError(VolleyError error) {
-                listener.onThreadLoadError(error);
-            }
-            
-            @Override
-            public void onData(List<Post> result) {
-                listener.onThreadLoaded(result);
-            }
-        });
+        threadLoader = new ThreadLoader(this);
+    }
+    
+    @Override
+    public void onError(VolleyError error) {
+        threadListener.onThreadLoadError(error);
+    }
+    
+    @Override
+    public void onData(List<Post> result) {
+        threadListener.onThreadLoaded(result);
     }
     
     public boolean hasThread() {
@@ -80,6 +82,11 @@ public class ThreadManager {
         this.loadable = loadable;
                
         threadLoader.start(loadable);
+        
+        Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
+        if (pin != null) {
+            PinnedManager.getInstance().onPinViewed(pin);
+        }
     }
     
     public void stop() {

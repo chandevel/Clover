@@ -16,7 +16,7 @@ import com.j256.ormlite.table.TableUtils;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
     
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -47,6 +47,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         switch(oldVersion) {
         // Change tables if we make adjustments
+        }
+        
+        // Drop the tables and recreate them for now
+        try {
+            TableUtils.dropTable(connectionSource, Pin.class, true);
+            TableUtils.dropTable(connectionSource, Loadable.class, true);
+            
+            onCreate(database, connectionSource);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

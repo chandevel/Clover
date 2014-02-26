@@ -33,6 +33,12 @@ public class Loadable {
     public int listViewTop;
     
     /**
+     * When simple mode is enabled, CPU intensive methods won't get called.
+     * This is used for the thread watcher.
+     */
+    public boolean simpleMode = false;
+    
+    /**
      * Constructs an empty loadable.
      * The mode is INVALID.
      */
@@ -118,6 +124,19 @@ public class Loadable {
         bundle.putString(p + ".subject", title);
         bundle.putInt(p + ".listViewIndex", listViewIndex);
         bundle.putInt(p + ".listViewTop", listViewTop);
+    }
+    
+    public Loadable copy() {
+        Loadable copy = new Loadable();
+        copy.mode = mode;
+        copy.board = board;
+        copy.no = no;
+        copy.title = title;
+        copy.listViewIndex = listViewIndex;
+        copy.listViewTop = listViewTop;
+        copy.simpleMode = simpleMode;
+        
+        return copy;
     }
     
     public static class Mode {

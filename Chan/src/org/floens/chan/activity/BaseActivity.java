@@ -36,7 +36,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ShareActionProvider;
 
-public abstract class BaseActivity extends Activity implements PanelSlideListener {
+public abstract class BaseActivity extends Activity implements PanelSlideListener, PinnedManager.PinListener {
     private final static int ACTION_OPEN_URL = 1;
     
     protected PinnedAdapter pinnedAdapter;
@@ -71,6 +71,15 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         
         threadPane = (SlidingPaneLayout) findViewById(R.id.pane_container);
         initPane();
+        
+        PinnedManager.getInstance().addPinListener(this);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        
+        PinnedManager.getInstance().removePinListener(this);
     }
     
     protected void initDrawer() {
@@ -134,6 +143,11 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         threadPane.openPane();
     }
     
+    @Override
+    public void onPinsChanged() {
+        pinnedAdapter.notifyDataSetChanged();
+    }
+
     public void addPin(Pin pin) {
         if (PinnedManager.getInstance().add(pin)) {
             pinnedAdapter.add(pin);

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -45,6 +46,18 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
             view = (LinearLayout) inflater.inflate(R.layout.pin_item, null);
             
             ((TextView) view.findViewById(R.id.drawer_item_text)).setText(item.loadable.title);
+            
+            int count = Math.max(0, item.watchNewCount - item.watchLastCount);
+            String total = Integer.toString(Math.min(count, 999));
+            
+            ((TextView) view.findViewById(R.id.drawer_item_count)).setText(total);
+            
+            FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.drawer_item_count_container);
+//            if (Math.random() < 0.5d) {
+                frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
+//            } else {
+//                frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
+//            }
         }
         
         if (listener != null) {

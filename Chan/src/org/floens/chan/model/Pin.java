@@ -1,16 +1,12 @@
 package org.floens.chan.model;
 
-import java.util.List;
+import org.floens.chan.watch.PinWatcher;
 
-import org.floens.chan.net.ThreadLoader;
-import org.floens.chan.utils.Logger;
-
-import com.android.volley.VolleyError;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
-public class Pin implements ThreadLoader.ThreadLoaderListener {
+public class Pin {
     // Database stuff
     @DatabaseField(generatedId = true)
     private int id;
@@ -27,35 +23,22 @@ public class Pin implements ThreadLoader.ThreadLoaderListener {
     };
     
     // PinnedService stuff
-    public ThreadLoader threadLoader;
-    public int lastPostCount;
-    public int newPostCount;
+    public PinWatcher pinWatcher;
     
-    public void update() {
-        Logger.test("Update in pin");
-        
-        if (threadLoader == null) {
-            threadLoader = new ThreadLoader(this);
+    @DatabaseField
+    public int watchLastCount;
+    
+    @DatabaseField
+    public int watchNewCount;
+    
+    public void updateWatch() {
+        if (pinWatcher == null) {
+            pinWatcher = new PinWatcher(this);
         }
         
-        threadLoader.start(loadable);
-    }
-    
-    @Override
-    public void onError(VolleyError error) {
-        Logger.test("OnError in pin: ", error);
-    }
-    
-    @Override
-    public void onData(List<Post> result) {
-        Logger.test("OnData in pin: ");
-        Logger.test("Size: " + result.size());
-        
-        newPostCount = result.size();
+        pinWatcher.update();
     }
 }
-
-
 
 
 

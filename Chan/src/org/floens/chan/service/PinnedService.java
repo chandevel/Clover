@@ -10,7 +10,9 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 
 public class PinnedService extends Service {
     private Thread loadThread;
@@ -61,8 +63,18 @@ public class PinnedService extends Service {
     private void doUpdates() {
         List<Pin> pins = PinnedManager.getInstance().getPins();
         for (Pin pin : pins) {
-//            pin.update();
+            pin.updateWatch();
+//            pin.newPostCount++;
         }
+    }
+    
+    public static void callOnPinsChanged() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                PinnedManager.getInstance().onPinsChanged();
+            }
+        });
     }
     
     @SuppressWarnings("deprecation")

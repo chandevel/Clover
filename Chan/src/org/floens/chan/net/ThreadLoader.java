@@ -1,6 +1,5 @@
 package org.floens.chan.net;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.ChanApplication;
@@ -65,9 +64,9 @@ public class ThreadLoader {
     }
     
     private ChanReaderRequest getData(Loadable loadable) {
-        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, new Response.Listener<ArrayList<Post>>() {
+        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, new Response.Listener<List<Post>>() {
             @Override
-            public void onResponse(ArrayList<Post> list) {
+            public void onResponse(List<Post> list) {
                 loading = false;
                 onData(list);
             }
@@ -88,7 +87,9 @@ public class ThreadLoader {
     private void onData(List<Post> result) {
         if (stopped) return;
         
-        processPosts(result);
+        for (Post post : result) {
+            postsById.append(post.no, post);
+        }
         
         listener.onData(result);
     }
@@ -104,18 +105,6 @@ public class ThreadLoader {
         }
         
         listener.onError(error);
-    }
-    
-    private void processPosts(List<Post> posts) {
-        for (Post post : posts) {
-            postsById.append(post.no, post);
-            
-            for (Post other : posts) {
-                if (other.repliesTo.contains(post.no)) {
-                    post.repliesFrom.add(other.no);
-                }
-            }
-        }
     }
     
     public static abstract interface ThreadLoaderListener {

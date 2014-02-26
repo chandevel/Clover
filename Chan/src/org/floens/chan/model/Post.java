@@ -86,7 +86,7 @@ public class Post {
      * Finish up the data
      * @return false if this data is invalid
      */
-    public boolean finish() {
+    public boolean finish(Loadable loadable) {
         if (board == null) return false;
         
         if (no < 0 || resto < 0 || date == null) return false;
@@ -105,7 +105,7 @@ public class Post {
         }
         
         if (rawComment != null) {
-            comment = parseComment(rawComment);
+            comment = parseComment(rawComment, loadable.simpleMode);
         }
         
         try {
@@ -123,9 +123,13 @@ public class Post {
         return true;
     }
     
-    private CharSequence parseComment(String commentRaw) {
-        CharSequence total = new SpannableString("");
+    private CharSequence parseComment(String commentRaw, boolean simpleMode) {
+        if (simpleMode) {
+            return "";
+        }
         
+        CharSequence total = new SpannableString("");
+            
         try {
             String comment = commentRaw.replace("<wbr>", "");
             

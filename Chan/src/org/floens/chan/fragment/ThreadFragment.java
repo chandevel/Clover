@@ -81,6 +81,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
         stopLoading();
         
         this.loadable = loadable;
+        
         threadManager.startLoading(loadable);
     }
     
