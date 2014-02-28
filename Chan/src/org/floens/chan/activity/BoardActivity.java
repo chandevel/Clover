@@ -171,7 +171,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             pinDrawerListener.setDrawerIndicatorEnabled(true);
             actionBar.setTitle(threadLoadable.title);
             
-            actionBar.setDisplayHomeAsUpEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
         
         actionBar.setDisplayShowTitleEnabled(true);
@@ -183,7 +183,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean open = threadPane.isOpen();
         
-        setMenuItemEnabled(menu.findItem(R.id.action_pin), !open);
+        setMenuItemEnabled(menu.findItem(R.id.action_pin), !threadPane.isSlideable() || !open);
         
         return super.onPrepareOptionsMenu(menu);
     }
@@ -306,9 +306,9 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             String rawBoard = parts.get(0); 
             
             if (BoardManager.getInstance().getBoardExists(rawBoard)) {
-                boardLoadable.board = rawBoard;
                 boardSetByIntent = true;
-                startLoadingBoard(boardLoadable);
+                
+                startLoadingBoard(new Loadable(rawBoard));
                 
                 ActionBar actionBar = getActionBar();
                 if (!setNavigationFromBoardValue(rawBoard)) {

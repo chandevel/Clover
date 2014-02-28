@@ -7,9 +7,11 @@ import org.floens.chan.R;
 import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.model.Post;
 import org.floens.chan.view.PostView;
+import org.floens.chan.view.ThreadWatchCounterView;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -19,7 +21,7 @@ import android.widget.TextView;
 
 
 public class PostAdapter extends BaseAdapter {
-    private final Context activity;
+    private final Context context;
     private final ThreadManager threadManager;
     private final ListView listView;
     private boolean endOfLine;
@@ -27,14 +29,14 @@ public class PostAdapter extends BaseAdapter {
     private final List<Post> postList = new ArrayList<Post>();
     
     public PostAdapter(Context activity, ThreadManager threadManager, ListView listView) {
-        this.activity = activity;
+        this.context = activity;
         this.threadManager = threadManager;
         this.listView = listView;
     }
 
     @Override
     public int getCount() {
-        if (threadManager.getLoadable().isBoardMode()) {
+        if (threadManager.getLoadable().isBoardMode() || threadManager.getLoadable().isThreadMode()) {
             return count + 1;
         } else {
             return count;
@@ -53,21 +55,13 @@ public class PostAdapter extends BaseAdapter {
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= getCount() - 1 && !endOfLine) {
+        if (position >= getCount() - 1 && !endOfLine && threadManager.getLoadable().isBoardMode()) {
             // Try to load more posts
             threadManager.loadMore();
         }
         
         if (position >= count) {
-            if (endOfLine) {
-                TextView textView = new TextView(activity);
-                textView.setText(activity.getString(R.string.end_of_line));
-                int padding = activity.getResources().getDimensionPixelSize(R.dimen.general_padding);
-                textView.setPadding(padding, padding, padding, padding);
-                return textView;
-            } else {
-                return new ProgressBar(activity);
-            }
+            return createThreadEndView();
         } else {
             PostView postView = null;
             
@@ -75,22 +69,58 @@ public class PostAdapter extends BaseAdapter {
                 if (convertView != null && convertView instanceof PostView) {
                     postView = (PostView) convertView;
                 } else {
-                    postView = new PostView(activity);
+                    postView = new PostView(context);
                 }
                 
                 postView.setPost(postList.get(position), threadManager);
             } else {
                 Log.e("Chan", "PostAdapter: Invalid index: " + position + ", size: " + postList.size() + ", count: " + count);
-                return new View(activity);
             }
             
             return postView;
         }
     }
     
-    public void addToList(List<Post> list){
-        count += list.size();
-        postList.addAll(list);
+    private View createThreadEndView() {
+        if (threadManager.getWatchLogic() != null) {
+            ThreadWatchCounterView view = new ThreadWatchCounterView(context);
+            view.init(threadManager, listView);
+            int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
+            view.setPadding(padding, padding, padding, padding);
+            view.setGravity(Gravity.CENTER);
+            return view;
+        } else {
+            if (endOfLine) {
+                TextView textView = new TextView(context);
+                textView.setText(context.getString(R.string.end_of_line));
+                int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
+                textView.setPadding(padding, padding, padding, padding);
+                return textView;
+            } else {
+                return new ProgressBar(context);
+            }
+        }
+    }
+    
+    public void addToList(List<Post> list) {
+        List<Post> newPosts = new ArrayList<Post>();
+        
+        for (Post newPost : list) {
+            boolean have = false;
+            for (Post havePost : postList) {
+                if (havePost.no == newPost.no) {
+                    have = true;
+                    break;
+                }
+            }
+            
+            if (!have) {
+                newPosts.add(newPost);
+            }
+        }
+        
+        postList.addAll(newPosts);
+        count += newPosts.size();
         
         notifyDataSetChanged();
     }

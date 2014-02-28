@@ -82,6 +82,14 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         PinnedManager.getInstance().removePinListener(this);
     }
     
+    private void initPane() {
+        threadPane.setPanelSlideListener(this);
+        threadPane.setParallaxDistance(200);
+        threadPane.setShadowResource(R.drawable.panel_shadow);
+        threadPane.setSliderFadeColor(0xcce5e5e5);
+        threadPane.openPane();
+    }
+    
     protected void initDrawer() {
         if (pinDrawerListener == null) {
             return;
@@ -92,7 +100,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         
         pinDrawerView = (ListView)findViewById(R.id.left_drawer);
         
-        pinnedAdapter = PinnedManager.getInstance().getAdapter();
+        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext(), 0); // Get the dark theme, not the light one
+        pinnedAdapter.reload();
         pinDrawerView.setAdapter(pinnedAdapter);
         
         pinDrawerView.setOnItemClickListener(new OnItemClickListener() {
@@ -135,33 +144,21 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         pinDrawerView.setOnScrollListener(touchListener.makeScrollListener());
     }
     
-    private void initPane() {
-        threadPane.setPanelSlideListener(this);
-        threadPane.setParallaxDistance(200);
-        threadPane.setShadowResource(R.drawable.panel_shadow);
-        threadPane.setSliderFadeColor(0xcce5e5e5);
-        threadPane.openPane();
-    }
-    
     @Override
     public void onPinsChanged() {
-        pinnedAdapter.notifyDataSetChanged();
+        pinnedAdapter.reload();
     }
 
     public void addPin(Pin pin) {
-        if (PinnedManager.getInstance().add(pin)) {
-            pinnedAdapter.add(pin);
-        }
+        PinnedManager.getInstance().add(pin);
     }
     
     public void removePin(Pin pin) {
         PinnedManager.getInstance().remove(pin);
-        pinnedAdapter.remove(pin);
     }
     
     public void updatePin(Pin pin) {
         PinnedManager.getInstance().update(pin);
-        pinnedAdapter.notifyDataSetChanged();
     }
 
     private void changePinTitle(final Pin pin) {

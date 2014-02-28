@@ -3,7 +3,6 @@ package org.floens.chan.manager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.floens.chan.adapter.PinnedAdapter;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Pin;
@@ -34,18 +33,6 @@ public class PinnedManager {
     
     public void removePinListener(PinListener l) {
         listeners.remove(l);
-    }
-    
-    public PinnedAdapter getAdapter() {
-        PinnedAdapter adapter = new PinnedAdapter(context, 0);
-        
-        Pin header = new Pin();
-        header.type = Pin.Type.HEADER;
-        adapter.add(header);
-        
-        adapter.addAll(pins);
-        
-        return adapter;
     }
     
     /**

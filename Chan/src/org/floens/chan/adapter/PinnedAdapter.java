@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.floens.chan.R;
+import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
 
 import android.content.Context;
@@ -65,6 +66,16 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
         }
         
         return view;
+    }
+    
+    public void reload() {
+        clear();
+        
+        Pin header = new Pin();
+        header.type = Pin.Type.HEADER;
+        add(header);
+        
+        addAll(PinnedManager.getInstance().getPins());
     }
     
     @Override

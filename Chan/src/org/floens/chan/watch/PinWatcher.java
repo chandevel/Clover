@@ -12,8 +12,6 @@ import org.floens.chan.utils.Logger;
 import com.android.volley.VolleyError;
 
 public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
-    private static final int[] timeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300};
-    
     private final ThreadLoader watchLoader;
     private final Loadable watchLoadable;
     

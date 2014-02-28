@@ -13,6 +13,9 @@ import org.floens.chan.model.Post;
 import org.floens.chan.model.PostLinkable;
 import org.floens.chan.net.ThreadLoader;
 import org.floens.chan.utils.ChanPreferences;
+import org.floens.chan.utils.Logger;
+import org.floens.chan.watch.WatchLogic;
+import org.floens.chan.watch.WatchLogic.WatchListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,13 +41,15 @@ import com.android.volley.VolleyError;
  * All PostView's need to have this referenced. 
  * This manages some things like pages, starting and stopping of loading, 
  * handling linkables, replies popups etc.
+ * onDestroy, onPause and onResume must be called from the activity/fragment
  */
-public class ThreadManager implements ThreadLoader.ThreadLoaderListener {
+public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchListener {
     private final Activity activity;
     private final ThreadLoader threadLoader;
     private final ThreadManager.ThreadListener threadListener;
     private Loadable loadable;
     private boolean endOfLine = false;
+    private WatchLogic watchLogic;
     
     private final List<List<Post>> popupQueue = new ArrayList<List<Post>>();
     private PostRepliesFragment currentPopupFragment;
@@ -56,13 +61,52 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener {
         threadLoader = new ThreadLoader(this);
     }
     
+    public void onDestroy() {
+        if (watchLogic != null) {
+            watchLogic.destroy();
+        }
+    }
+    
+    public void onPause() {
+        if (watchLogic != null) {
+            watchLogic.stopTimer();
+        }
+    }
+    
+    public void onResume() {
+        if (watchLogic != null) {
+            watchLogic.startTimer();
+        }
+    }
+    
+    @Override
+    public void onWatchReloadRequested() {
+        Logger.test("ThreadManager reload requested");
+        
+        if (!threadLoader.isLoading()) {
+            threadLoader.start(loadable);
+        }
+    }
+    
+    public WatchLogic getWatchLogic() {
+        return watchLogic;
+    }
+
     @Override
     public void onError(VolleyError error) {
         threadListener.onThreadLoadError(error);
+        
+        if (watchLogic != null) {
+            watchLogic.stopTimer();
+        }
     }
     
     @Override
     public void onData(List<Post> result) {
+        if (watchLogic != null) {
+            watchLogic.onLoaded(result.size());
+        }
+        
         threadListener.onThreadLoaded(result);
     }
     
@@ -80,18 +124,33 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener {
     
     public void startLoading(Loadable loadable) {
         this.loadable = loadable;
-               
+        
         threadLoader.start(loadable);
         
         Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
         if (pin != null) {
             PinnedManager.getInstance().onPinViewed(pin);
         }
+        
+        if (watchLogic != null) {
+            watchLogic.destroy();
+            watchLogic = null;
+        }
+        
+        if (loadable.isThreadMode()) {
+            watchLogic = new WatchLogic(this);
+            watchLogic.startTimer();
+        }
     }
     
     public void stop() {
         threadLoader.stop();
         endOfLine = false;
+        
+        if (watchLogic != null) {
+            watchLogic.destroy();
+            watchLogic = null;
+        }
     }
     
     public void reload() {
@@ -111,11 +170,19 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener {
     }
     
     public void loadMore() {
+        if (threadLoader.isLoading()) return;
+        
         if (loadable == null) {
             Log.e("Chan", "ThreadManager: loadable null");
         } else {
-            if (!endOfLine) {
-                threadLoader.loadMore();
+            if (loadable.isBoardMode()) {
+                if (!endOfLine) {
+                    threadLoader.loadMore();
+                }
+            } else if (loadable.isThreadMode()) {
+                if (watchLogic != null) {
+                    watchLogic.loadNow();
+                }
             }
         }
     }

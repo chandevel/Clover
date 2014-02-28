@@ -28,10 +28,11 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"></action>
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 
-				<data android:host="4chan.org" android:scheme="http" android:pathPrefix="/" />
+                <data android:host="4chan.org" android:scheme="http" android:pathPrefix="/" />
                 <data android:host="4chan.org" android:scheme="https" android:pathPrefix="/" />
                 <data android:host="www.4chan.org" android:scheme="http" android:pathPrefix="/" />
                 <data android:host="www.4chan.org" android:scheme="https" android:pathPrefix="/" />
@@ -52,25 +53,25 @@
             android:name="org.floens.chan.activity.SettingsActivity" 
             android:label="@string/action_settings"
             android:parentActivityName="org.floens.chan.activity.BoardActivity" >
-	        <meta-data
-	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="org.floens.chan.activity.BoardActivity" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.floens.chan.activity.BoardActivity" />
         </activity>
         <activity
             android:name="org.floens.chan.activity.AboutActivity" 
             android:label="@string/about"
             android:parentActivityName="org.floens.chan.activity.BoardActivity" >
-	        <meta-data
-	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="org.floens.chan.activity.BoardActivity" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.floens.chan.activity.BoardActivity" />
         </activity>
         <activity
             android:name="org.floens.chan.activity.BoardEditor" 
             android:label="@string/board_edit"
             android:parentActivityName="org.floens.chan.activity.BoardActivity" >
-	        <meta-data
-	            android:name="android.support.PARENT_ACTIVITY"
-	            android:value="org.floens.chan.activity.BoardActivity" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.floens.chan.activity.BoardActivity" />
         </activity>
         <activity
             android:name="org.floens.chan.imageview.activity.ImageViewActivity" 

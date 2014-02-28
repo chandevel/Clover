@@ -40,6 +40,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private Post post;
     
     private boolean isBuild = false;
+    private LinearLayout full;
     private NetworkImageView imageView;
     private TextView titleView;
     private TextView commentView;
@@ -217,13 +218,15 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             countryView.setImageUrl(ChanUrls.getCountryFlagUrl(post.country), ChanApplication.getImageLoader());
         } else {
             countryView.setVisibility(View.GONE);
+            countryView.setImageUrl(null, null);
         }
         
         if (post.isOP && manager.getLoadable().isBoardMode()) {
-            setClickable(true);
-            setFocusable(true);
+            full.setClickable(true);
+            full.setFocusable(true);
+            full.setOnClickListener(this);
             
-            ViewUtils.setPressedDrawable(this);
+            ViewUtils.setPressedDrawable(full);
         }
     }
     
@@ -244,7 +247,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         int iconHeight = resources.getDimensionPixelSize(R.dimen.post_icon_height);
         int imageSize = resources.getDimensionPixelSize(R.dimen.thumbnail_size);
         
-        LinearLayout full = new LinearLayout(context);
+        full = new LinearLayout(context);
         full.setLayoutParams(matchParams);
         full.setOrientation(HORIZONTAL);
         
@@ -302,10 +305,14 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             right.addView(commentView, matchWrapParams);
             
             repliesCountView = new TextView(context);
+            
+            // Set the drawable before the padding, because setting the background resets the padding
+            // This behavior differs with 4.4 / 4.1
+            ViewUtils.setPressedDrawable(repliesCountView);
+            
             repliesCountView.setTextColor(Color.argb(255, 100, 100, 100));
             repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
             repliesCountView.setTextSize(14);
-            ViewUtils.setPressedDrawable(repliesCountView);
             
             right.addView(repliesCountView, wrapParams);
             

@@ -51,7 +51,29 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     public void onDestroy() {
         super.onDestroy();
         
-        stopLoading();
+        if (threadManager != null) {
+            stopLoading();
+            
+            threadManager.onDestroy();
+        }
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        if (threadManager != null) {
+            threadManager.onResume();
+        }
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        
+        if (threadManager != null) {
+            threadManager.onPause();
+        }
     }
     
     @Override
