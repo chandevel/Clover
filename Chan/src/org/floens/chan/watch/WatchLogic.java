@@ -19,6 +19,9 @@ public class WatchLogic {
         this.listener = listener;
     }
     
+    /**
+     * Stops the timer and removes the listener
+     */
     public void destroy() {
         this.listener = null;
         clearTimer();
@@ -36,12 +39,18 @@ public class WatchLogic {
         scheduleTimer();
     }
     
+    /**
+     * Stops the timer
+     */
     public void stopTimer() {
         Logger.test("WatchLogic timer paused");
         
         clearTimer();
     }
     
+    /**
+     * Call onWatchReloadRequested on the listener and reset the timer
+     */
     public void loadNow() {
         clearTimer();
         lastLoadTime = 0;
@@ -54,7 +63,7 @@ public class WatchLogic {
     
     /**
      * Call this to notify of new posts.
-     * @param wereNewPosts set this to true when there were new posts, false otherwise
+     * @param postCount how many posts there were loaded
      */
     public void onLoaded(int postCount) {
         Logger.test("WatchLogic onLoaded: " + (postCount > lastPostCount));
@@ -72,7 +81,7 @@ public class WatchLogic {
     }
     
     /**
-     * Time time in ms left before a reload is necessary.
+     * Time in ms left before a reload is necessary.
      * @return
      */
     public long timeLeft() {

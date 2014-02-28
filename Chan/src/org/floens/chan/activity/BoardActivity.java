@@ -206,7 +206,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             if (threadPane.isOpen()) {
                 boardFragment.reload();
             } else {
-                if (threadFragment.getThreadManager().hasThread()) {
+                if (threadFragment.getThreadManager().hasLoadable()) {
                     threadFragment.reload();
                 }
             }
@@ -215,14 +215,14 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             if (threadPane.isOpen()) {
                 boardFragment.getThreadManager().openReply(true); // todo if tablet
             } else {
-                if (threadFragment.getThreadManager().hasThread()) {
+                if (threadFragment.getThreadManager().hasLoadable()) {
                     threadFragment.getThreadManager().openReply(true); // todo if tablet
                 }
             }
             
             return true;
         case R.id.action_pin:
-            if (threadFragment.getThreadManager().hasThread()) {
+            if (threadFragment.getThreadManager().hasLoadable()) {
                 Pin pin = new Pin();
                 pin.loadable = threadLoadable;
                 
@@ -236,7 +236,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             if (threadPane.isOpen()) {
                 showUrlOpenPicker(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
             } else {
-                if (threadFragment.getThreadManager().hasThread()) {
+                if (threadFragment.getThreadManager().hasLoadable()) {
                     showUrlOpenPicker(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
                 }
             }

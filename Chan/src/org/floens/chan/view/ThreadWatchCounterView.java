@@ -4,13 +4,16 @@ import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.watch.WatchLogic;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ThreadWatchCounterView extends TextView {
+public class ThreadWatchCounterView extends TextView implements View.OnClickListener {
     private boolean detached = false;
+    private ThreadManager tm;
     
     public ThreadWatchCounterView(Context activity) {
         super(activity);
@@ -24,28 +27,21 @@ public class ThreadWatchCounterView extends TextView {
         super(activity, attbs, style);
     }
     
-    public void init(final ThreadManager threadManager, final ListView listView) {
+    public void init(final ThreadManager threadManager, final ListView listView, final BaseAdapter adapter) {
+        tm = threadManager;
+        
         updateCounterText(threadManager);
         
-        postInvalidateDelayed(1000);
-        
-        postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (!detached) {
-                    updateCounterText(threadManager);
-                    // TODO: This sometimes fails to recreate this view
-                    listView.invalidateViews();
+                    adapter.notifyDataSetChanged();
                 }
             }
         }, 1000);
         
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                threadManager.loadMore();
-            }
-        });
+        setOnClickListener(this);
     }
     
     @Override
@@ -55,6 +51,11 @@ public class ThreadWatchCounterView extends TextView {
         setOnClickListener(null);
         
         detached = true;
+    }
+    
+    @Override
+    public void onClick(View v) {
+        tm.loadMore();
     }
     
     private void updateCounterText(ThreadManager threadManager) {

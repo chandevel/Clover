@@ -6,6 +6,7 @@ import java.util.List;
 import org.floens.chan.R;
 import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.model.Post;
+import org.floens.chan.utils.ViewUtils;
 import org.floens.chan.view.PostView;
 import org.floens.chan.view.ThreadWatchCounterView;
 
@@ -84,7 +85,8 @@ public class PostAdapter extends BaseAdapter {
     private View createThreadEndView() {
         if (threadManager.getWatchLogic() != null) {
             ThreadWatchCounterView view = new ThreadWatchCounterView(context);
-            view.init(threadManager, listView);
+            ViewUtils.setPressedDrawable(view);
+            view.init(threadManager, listView, this);
             int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
             view.setPadding(padding, padding, padding, padding);
             view.setGravity(Gravity.CENTER);

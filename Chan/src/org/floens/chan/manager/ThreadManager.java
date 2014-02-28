@@ -110,7 +110,7 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
         threadListener.onThreadLoaded(result);
     }
     
-    public boolean hasThread() {
+    public boolean hasLoadable() {
         return loadable != null;
     }
     
@@ -124,6 +124,8 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
     
     public void startLoading(Loadable loadable) {
         this.loadable = loadable;
+        
+        stop();
         
         threadLoader.start(loadable);
         
@@ -157,8 +159,6 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
         if (loadable == null) {
             Log.e("Chan", "ThreadManager: loadable null");
         } else {
-            stop();
-            
             if (loadable.isBoardMode()) {
                 loadable.no = 0;
                 loadable.listViewIndex = 0;
