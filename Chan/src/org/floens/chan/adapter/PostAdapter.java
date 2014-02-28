@@ -89,6 +89,8 @@ public class PostAdapter extends BaseAdapter {
             view.init(threadManager, listView, this);
             int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
             view.setPadding(padding, padding, padding, padding);
+            int height = context.getResources().getDimensionPixelSize(R.dimen.dp48);
+            view.setHeight(height);
             view.setGravity(Gravity.CENTER);
             return view;
         } else {
@@ -104,25 +106,10 @@ public class PostAdapter extends BaseAdapter {
         }
     }
     
-    public void addToList(List<Post> list) {
-        List<Post> newPosts = new ArrayList<Post>();
-        
-        for (Post newPost : list) {
-            boolean have = false;
-            for (Post havePost : postList) {
-                if (havePost.no == newPost.no) {
-                    have = true;
-                    break;
-                }
-            }
-            
-            if (!have) {
-                newPosts.add(newPost);
-            }
-        }
-        
-        postList.addAll(newPosts);
-        count += newPosts.size();
+    public void setList(List<Post> list) {
+        postList.clear();
+        postList.addAll(list);
+        count = list.size();
         
         notifyDataSetChanged();
     }

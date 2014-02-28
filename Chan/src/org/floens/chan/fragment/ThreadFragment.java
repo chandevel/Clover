@@ -147,7 +147,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
             }
         }
         
-        postAdapter.addToList(posts);
+        postAdapter.setList(posts);
     }
     
     @Override
