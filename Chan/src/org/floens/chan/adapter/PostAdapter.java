@@ -106,10 +106,17 @@ public class PostAdapter extends BaseAdapter {
         }
     }
     
+    public void addList(List<Post> list) {
+        postList.addAll(list);
+        count = postList.size();
+        
+        notifyDataSetChanged();
+    }
+    
     public void setList(List<Post> list) {
         postList.clear();
         postList.addAll(list);
-        count = list.size();
+        count = postList.size();
         
         notifyDataSetChanged();
     }

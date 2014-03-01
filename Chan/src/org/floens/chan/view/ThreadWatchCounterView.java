@@ -14,6 +14,7 @@ import android.widget.TextView;
 public class ThreadWatchCounterView extends TextView implements View.OnClickListener {
     private boolean detached = false;
     private ThreadManager tm;
+    private BaseAdapter ad;
     
     public ThreadWatchCounterView(Context activity) {
         super(activity);
@@ -29,6 +30,7 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
     
     public void init(final ThreadManager threadManager, final ListView listView, final BaseAdapter adapter) {
         tm = threadManager;
+        ad = adapter;
         
         updateCounterText(threadManager);
         
@@ -56,6 +58,7 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
     @Override
     public void onClick(View v) {
         tm.loadMore();
+        ad.notifyDataSetChanged();
     }
     
     private void updateCounterText(ThreadManager threadManager) {

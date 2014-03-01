@@ -147,7 +147,11 @@ public class ThreadFragment extends Fragment implements ThreadListener {
             }
         }
         
-        postAdapter.setList(posts);
+        if (loadable.isBoardMode()) {
+            postAdapter.addList(posts);
+        } else {
+            postAdapter.setList(posts);
+        }
     }
     
     @Override
