@@ -8,15 +8,17 @@ import org.floens.chan.R;
 import org.floens.chan.model.Board;
 import org.floens.chan.net.BoardsRequest;
 import org.floens.chan.net.ChanUrls;
+import org.floens.chan.utils.Logger;
 
 import android.content.Context;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 public class BoardManager {
+    private static final String TAG = "BoardManager";
+    
     private static BoardManager instance;
     
     private final Context context;
@@ -196,7 +198,7 @@ public class BoardManager {
             board.key = splitted[0];
             board.value = splitted[1];
             if (!board.finish()) {
-                Log.wtf("Chan", "board.finish in loadfrompreferences threw up");
+                Logger.wtf(TAG, "board.finish in loadfrompreferences threw up");
             }
             
             list.add(board);
@@ -219,12 +221,12 @@ public class BoardManager {
                 storeBoardListInDatabase("allBoards", data);
                 allBoards = data;
                 
-                Log.i("Chan", "Got boards from server");
+                Logger.i(TAG, "Got boards from server");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("Chan", "Failed to get boards from server");
+                Logger.e(TAG, "Failed to get boards from server");
             }
         }));
     }

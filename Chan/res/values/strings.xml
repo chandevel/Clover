@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	
     <string name="cancel">Cancel</string>
     <string name="change">Change</string>
+    <string name="add">Add</string>
     
     <string name="app_name">Chan</string>
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
     <string name="action_pin">Pin</string>
     <string name="action_reply">Reply</string>
+    <string name="action_reply_board">Reply to board</string>
+    <string name="action_reply_thread">Reply to thread</string>
     <string name="action_open_browser">Open in browser</string>
     <string name="action_catalog">Open catalog</string>
     <string name="action_share">Share</string>
     
     <string name="preference_general">General</string>
-    
-    <string name="about">About</string>
-    <string name="about_licenses">Open Source Licenses</string>
-    <string name="about_licences_summary">Legal information about licenses</string>
+    <string name="preference_about">About</string>
+    <string name="preference_licenses">Open Source Licenses</string>
+    <string name="preference_licences_summary">Legal information about licenses</string>
     
     <string name="one_reply">reply</string>
     <string name="multiple_replies">replies</string>
     
     <string name="image_save">Save image</string>
-    <string name="image_save_folder_name">Chan</string>
     <string name="image_save_succeeded">Saved image to</string>
     <string name="image_save_failed">Saving image failed</string>
     <string name="image_save_directory_error">Cannot make save directory</string>
@@ -35,13 +35,11 @@
     <string name="thread_load_failed_network">No network</string>
     <string name="thread_load_failed_parsing">Server inaccessible</string>
     <string name="thread_load_failed_server">404 not found</string>
-    
-    <string name="end_of_line">No more posts</string>
+    <string name="thread_load_end_of_line">No more posts</string>
     
     <string name="board_edit">Edit my boards</string>
     <string name="board_add">Add board</string>
-    <string name="board_add_confirm">Add</string>
-    <string name="board_add_cancel">Cancel</string>
+    
     <string name="board_add_fail">Unknown board code</string>
     <string name="board_add_success">Added</string>
     <string name="board_add_duplicate">You already have that board</string>
@@ -85,6 +83,16 @@
     
     <string name="developer">Developer options</string>
     
+    <string name="delete">Delete</string>
+    <string name="delete_confirm">Delete your post?</string>
+    <string name="delete_wait">Deleting post…</string>
+    <string name="delete_success">Post deleted</string>
+    <string name="delete_password_incorrect">Password incorrect</string>
+    <string name="delete_too_soon">You must wait longer before deleting this post</string>
+    <string name="delete_too_old">You cannot delete a post this old</string>
+    <string name="delete_fail">Error deleting post</string>
+    <string name="delete_image_only">Only delete the image</string>
+    
     <string name="post_info">Info</string>
     <string-array name="post_options">
         <item>Reply</item>
@@ -93,4 +101,5 @@
         <item>Show clickables</item>
         <item>Copy text</item>
     </string-array>
+    
 </resources>

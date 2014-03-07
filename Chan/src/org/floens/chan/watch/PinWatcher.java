@@ -12,6 +12,8 @@ import org.floens.chan.utils.Logger;
 import com.android.volley.VolleyError;
 
 public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
+    private static final String TAG = "PinWatcher";
+    
     private final ThreadLoader watchLoader;
     private final Loadable watchLoadable;
     
@@ -45,12 +47,12 @@ public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
     public void onData(List<Post> result) {
         int count = result.size();
         
-        Logger.i("PinWatcher onData");
-        Logger.i("Post size: " + count);
+        Logger.test("PinWatcher onData");
+        Logger.test("Post size: " + count);
         
         pin.watchNewCount = count;
         
-        Logger.i("Load time: " + (System.currentTimeMillis() - startTime) + "ms");
+        Logger.test("Load time: " + (System.currentTimeMillis() - startTime) + "ms");
         
         PinnedService.callOnPinsChanged();
     }

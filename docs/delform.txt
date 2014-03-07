@@ -1,0 +1,24 @@
+https://sys.4chan.org/ BOARD /imgboard.php
+
+mode=usrdel
+res=123456789
+onlyimgdel=on (optional)
+pwd=qwerty
+
+90283402934=delete
+
+example post:
+39894014=delete&mode=usrdel&res=39894014&onlyimgdel=on&pwd=qwerty
+39894014=delete&mode=usrdel&res=39894014&pwd=_LfF81U0aBiSgQ3MDj9pkJZYr4N27meWb
+
+
+
+Responses:
+Error: You cannot delete a post this old.
+Error: Password incorrect.
+Error: You must wait longer before deleting this post.
+
+When successful:
+<!doctype html><head><meta http-equiv="refresh" content="2;URL=http://boards.4chan.org/b/./"><title>Updating index...</title></head><body><table style="font-family:times,serif;font-size:36pt;text-align:center;width:100%;height:300px;"><td><strong>Updating index...</strong></td></table>
+
+

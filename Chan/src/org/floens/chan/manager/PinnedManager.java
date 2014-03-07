@@ -12,14 +12,11 @@ import android.content.Context;
 public class PinnedManager {
     private static PinnedManager instance;
     
-    private final Context context;
     private final List<PinListener> listeners = new ArrayList<PinListener>();
     private final List<Pin> pins;
     
     public PinnedManager(Context context) {
         instance = this;
-        
-        this.context = context;
         pins = DatabaseManager.getInstance().getPinned();
     }
     

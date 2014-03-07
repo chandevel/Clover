@@ -16,4 +16,5 @@ public class Reply {
     public String fileName = "";
     public String captchaChallenge = "";
     public String captchaResponse = "";
+    public String password = "";
 }

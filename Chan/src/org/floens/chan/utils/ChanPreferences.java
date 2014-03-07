@@ -22,4 +22,8 @@ public class ChanPreferences {
     public static void setDeveloper(boolean developer) {
         ChanApplication.getPreferences().edit().putBoolean("preference_developer", developer).commit();
     }
+    
+    public static String getImageSaveDirectory() {
+        return "Chan";
+    }
 }

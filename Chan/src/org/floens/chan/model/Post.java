@@ -24,12 +24,11 @@ import android.text.style.ForegroundColorSpan;
  */
 public class Post {
     public String board;
-    public boolean isOP = false;
     public int no = -1;
     public int resto = -1;
+    public boolean isOP = false;
     public String date;
     public String name = "";
-    private String rawComment;
     public CharSequence comment = "";
     public String subject = "";
     public String tim;
@@ -50,6 +49,7 @@ public class Post {
     public String countryName = "";
     public long time = 0;
     public String email = "";
+    public boolean isSavedReply = false;
     
     /**
      * This post replies to the these ids
@@ -61,11 +61,13 @@ public class Post {
      */
     public List<Integer> repliesFrom = new ArrayList<Integer>();
     
-    private PostView linkableListener;
     public final ArrayList<PostLinkable> linkables = new ArrayList<PostLinkable>();
     /**
      * The PostView the Post is currently bound to.
      */
+    
+    private PostView linkableListener;
+    private String rawComment;
     
     public Post() {
     }

@@ -2,14 +2,16 @@ package org.floens.chan.activity;
 
 import org.floens.chan.fragment.ReplyFragment;
 import org.floens.chan.model.Loadable;
+import org.floens.chan.utils.Logger;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 
 public class ReplyActivity extends Activity {
+    private static final String TAG = "ReplyActivity";
+    
     private static Loadable loadable;
     
     public static void setLoadable(Loadable l) {
@@ -29,7 +31,7 @@ public class ReplyActivity extends Activity {
             
             loadable = null;
         } else {
-            Log.e("Chan", "ThreadFragment was null, exiting!");
+            Logger.e(TAG, "ThreadFragment was null, exiting!");
             finish();
         }
     }

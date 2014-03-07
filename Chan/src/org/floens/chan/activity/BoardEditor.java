@@ -96,7 +96,7 @@ public class BoardEditor extends Activity {
         text.setSingleLine();
         
         dialog = new AlertDialog.Builder(this)
-            .setPositiveButton(R.string.board_add_confirm, new DialogInterface.OnClickListener() {
+            .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface d, int which) {
                     String value = text.getText().toString();
@@ -106,7 +106,7 @@ public class BoardEditor extends Activity {
                     }
                 }
             })
-            .setNegativeButton(R.string.board_add_cancel, new DialogInterface.OnClickListener() {
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface d, int which) {
                 }

@@ -40,9 +40,14 @@ public class ChanUrls {
     }
 
     public static String getPostUrl(String board) {
-            return "https://sys.4chan.org/" + board + "/post";
-    //        return "http://192.168.6.214/Testing/PostEchoer/post.php";
-        }
+        return "https://sys.4chan.org/" + board + "/post";
+//        return "http://192.168.6.214/Testing/PostEchoer/post.php";
+    }
+    
+    public static String getDeleteUrl(String board) {
+        return "https://sys.4chan.org/" + board + "/imgboard.php";
+//        return "http://192.168.6.214/Testing/PostEchoer/post.php";
+    }
 
     public static String getBoardUrlDesktop(String board) {
         return "https://boards.4chan.org/" + board + "/";

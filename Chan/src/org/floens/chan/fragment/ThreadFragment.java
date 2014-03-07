@@ -160,7 +160,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
             postAdapter.setEndOfLine(true);
         } else {
             if (container != null) {
-                container.setView(threadManager.getTextViewError(error));
+                container.setView(threadManager.getLoadErrorTextView(error));
             }
         }
     }

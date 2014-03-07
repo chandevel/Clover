@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.floens.chan"
-    android:versionCode="11"
-    android:versionName="Chan v0.9"
+    android:versionCode="12"
+    android:versionName="Chan v0.10"
     android:installLocation="auto" >
 
     <uses-sdk
@@ -59,7 +59,7 @@
         </activity>
         <activity
             android:name="org.floens.chan.activity.AboutActivity" 
-            android:label="@string/about"
+            android:label="@string/preference_about"
             android:parentActivityName="org.floens.chan.activity.BoardActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

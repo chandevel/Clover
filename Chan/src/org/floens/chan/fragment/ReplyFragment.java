@@ -12,6 +12,7 @@ import org.floens.chan.net.ChanUrls;
 import org.floens.chan.utils.ChanPreferences;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.LoadView;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ViewFlipperAnimations;
 
 import android.app.Dialog;
@@ -21,7 +22,6 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -44,6 +44,8 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 
 public class ReplyFragment extends DialogFragment {
+    private static final String TAG = "ReplyFragment";
+    
     private int page = 0;
     
     private Loadable loadable;
@@ -138,7 +140,7 @@ public class ReplyFragment extends DialogFragment {
             
             getCaptcha();
         } else {
-            Log.e("Chan", "Loadable in ReplyFragment was null");
+            Logger.e(TAG, "Loadable in ReplyFragment was null");
             closeReply();
         }
     }
@@ -419,7 +421,7 @@ public class ReplyFragment extends DialogFragment {
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
             Toast.makeText(getActivity(), R.string.reply_success, Toast.LENGTH_SHORT).show();
-//            threadFragment.reload(); // TODO
+//            threadFragment.reload(); // won't work: it takes 4chan a variable time to process the reply
             closeReply();
         } else {
             if (isVisible()) {

@@ -21,6 +21,24 @@
         android:showAsAction="ifRoom"
         android:title="@string/action_reply" />
     
+    <item 
+        android:id="@+id/action_reply_tablet"
+        android:icon="@drawable/ic_action_chat"
+        android:orderInCategory="4"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_reply" >
+        <menu>
+            <item
+                android:id="@+id/action_reply_board"
+                android:title="@string/action_reply_board" />
+            <item
+                android:id="@+id/action_reply_thread"
+                android:title="@string/action_reply_thread" />
+        </menu>
+        
+    </item>
+        
+    
     <item
 		android:id="@+id/action_share"
 		android:orderInCategory="5"

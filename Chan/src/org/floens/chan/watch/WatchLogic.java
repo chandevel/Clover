@@ -6,6 +6,8 @@ import java.util.TimerTask;
 import org.floens.chan.utils.Logger;
 
 public class WatchLogic {
+    private static final String TAG = "WatchLogic";
+    
     private static final int[] timeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300};
     
     private WatchListener listener;
@@ -23,16 +25,16 @@ public class WatchLogic {
      * Stops the timer and removes the listener
      */
     public void destroy() {
+        Logger.d(TAG, "Destroy");
         this.listener = null;
         clearTimer();
-        Logger.test("WatchLogic destroy()");
     }
     
     /**
      * Starts the timer from the beginning
      */
     public void startTimer() {
-        Logger.test("WatchLogic timer start");
+        Logger.d(TAG, "Start timer");
         lastLoadTime = now();
         selectedTimeout = 0;
         
@@ -43,7 +45,7 @@ public class WatchLogic {
      * Stops the timer
      */
     public void stopTimer() {
-        Logger.test("WatchLogic timer paused");
+        Logger.d(TAG, "Stop timer");
         
         clearTimer();
     }
@@ -66,7 +68,7 @@ public class WatchLogic {
      * @param postCount how many posts there were loaded
      */
     public void onLoaded(int postCount) {
-        Logger.test("WatchLogic onLoaded: " + (postCount > lastPostCount));
+        Logger.d(TAG, "Loaded. Post count " + postCount + ", last " + lastPostCount);
         
         if (postCount > lastPostCount) {
             selectedTimeout = 0;
@@ -90,6 +92,8 @@ public class WatchLogic {
     }
     
     private void scheduleTimer() {
+        Logger.d(TAG, "Scheduling timer");
+        
         clearTimer();
         
         timer.schedule(new TimerTask() {
@@ -106,6 +110,8 @@ public class WatchLogic {
      * Clear all the scheduled runnables
      */
     private void clearTimer() {
+        Logger.d(TAG, "Clearing timer");
+        
         timer.cancel();
         timer.purge();
         timer = new Timer();

@@ -7,18 +7,21 @@ import java.io.IOException;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.net.ByteArrayRequest;
+import org.floens.chan.utils.ChanPreferences;
+import org.floens.chan.utils.Logger;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 public class ImageSaver {
+    private static final String TAG = "ImageSaver";
+    
     public static void save(final Context context, String imageUrl, final String name, final String extension) {
         ByteArrayRequest request = new ByteArrayRequest(imageUrl, new Response.Listener<byte[]>() {
             @Override
@@ -44,7 +47,7 @@ public class ImageSaver {
                 throw new IOException(errorReason);
             }
             
-            File path = new File(Environment.getExternalStorageDirectory() + File.separator + context.getString(R.string.image_save_folder_name));
+            File path = new File(Environment.getExternalStorageDirectory() + File.separator + ChanPreferences.getImageSaveDirectory());
             
             if (!path.exists()) {
                 if (!path.mkdirs()) {
@@ -62,7 +65,7 @@ public class ImageSaver {
                 nextFileNameNumber++;
             }
             
-            Log.i("Chan", "Saving image to: " + file.getPath()); 
+            Logger.i(TAG, "Saving image to: " + file.getPath()); 
             
             FileOutputStream outputStream = new FileOutputStream(file);
             outputStream.write(data);
@@ -71,7 +74,7 @@ public class ImageSaver {
             MediaScannerConnection.scanFile(context, new String[] { file.toString() }, null, new MediaScannerConnection.OnScanCompletedListener() {
                 @Override
                 public void onScanCompleted(String path, Uri uri) {
-                    Log.i("Chan", "Media scan succeeded: " + uri);
+                    Logger.i(TAG, "Media scan succeeded: " + uri);
                 }
             });
             

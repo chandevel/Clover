@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
 
@@ -80,6 +81,8 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                     post.repliesFrom.add(other.no);
                 }
             }
+            
+            post.isSavedReply = DatabaseManager.getInstance().isSavedReply(post.board, post.no);
         }
     }
     

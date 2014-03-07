@@ -5,8 +5,8 @@ import java.util.List;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
+import org.floens.chan.utils.Logger;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.volley.Response;
@@ -14,6 +14,8 @@ import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 public class ThreadLoader {
+    private static final String TAG = "ThreadLoader";
+    
     private final ThreadLoaderListener listener;
     private ChanReaderRequest loader;
     private boolean stopped = false;
@@ -34,6 +36,8 @@ public class ThreadLoader {
     
     // public void start(int mode, String board, int pageOrThreadId) {
     public void start(Loadable loadable) {
+        Logger.i(TAG, "Start loading " + loadable.board + ", " + loadable.no);
+        
         stop();
         stopped = false;
         
@@ -49,6 +53,8 @@ public class ThreadLoader {
     }
     
     public void stop() {
+        Logger.i(TAG, "Stop loading");
+        
         if (loader != null) {
             loader.cancel();
             loader = null;
@@ -97,7 +103,7 @@ public class ThreadLoader {
     private void onError(VolleyError error) {
         if (stopped) return;
         
-        Log.e("Chan", "VolleyError in ThreadLoader: " + error.getMessage());
+        Logger.e(TAG, "Error loading" + error.getMessage(), error);
         
         // 404 with more pages already loaded means endofline
         if ((error instanceof ServerError) && loadable.isBoardMode() && loadable.no > 0) {

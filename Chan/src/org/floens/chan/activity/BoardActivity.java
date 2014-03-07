@@ -183,7 +183,11 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean open = threadPane.isOpen();
         
+        setMenuItemEnabled(menu.findItem(R.id.action_reload), !threadPane.isSlideable() || open);
         setMenuItemEnabled(menu.findItem(R.id.action_pin), !threadPane.isSlideable() || !open);
+        
+        setMenuItemEnabled(menu.findItem(R.id.action_reply), threadPane.isSlideable());
+        setMenuItemEnabled(menu.findItem(R.id.action_reply_tablet), !threadPane.isSlideable());
         
         return super.onPrepareOptionsMenu(menu);
     }
@@ -203,21 +207,24 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         
         switch(item.getItemId()) {
         case R.id.action_reload:
-            if (threadPane.isOpen()) {
-                boardFragment.reload();
-            } else {
-                if (threadFragment.getThreadManager().hasLoadable()) {
-                    threadFragment.reload();
-                }
-            }
+            boardFragment.reload();
             return true;
         case R.id.action_reply:
             if (threadPane.isOpen()) {
-                boardFragment.getThreadManager().openReply(true); // todo if tablet
+                boardFragment.getThreadManager().openReply(true);
             } else {
                 if (threadFragment.getThreadManager().hasLoadable()) {
-                    threadFragment.getThreadManager().openReply(true); // todo if tablet
+                    threadFragment.getThreadManager().openReply(true);
                 }
+            }
+            return true;
+        case R.id.action_reply_board:
+            boardFragment.getThreadManager().openReply(true);
+            
+            return true;
+        case R.id.action_reply_thread:
+            if (threadFragment.getThreadManager().hasLoadable()) {
+                threadFragment.getThreadManager().openReply(true);
             }
             
             return true;

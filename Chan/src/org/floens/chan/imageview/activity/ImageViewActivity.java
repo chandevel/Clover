@@ -7,12 +7,12 @@ import org.floens.chan.adapter.PostAdapter;
 import org.floens.chan.imageview.ImageSaver;
 import org.floens.chan.imageview.adapter.ImageViewAdapter;
 import org.floens.chan.model.Post;
+import org.floens.chan.utils.Logger;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -22,6 +22,8 @@ import android.view.Window;
  * and then start the activity with startActivity()
  */
 public class ImageViewActivity extends Activity implements ViewPager.OnPageChangeListener {
+    private static final String TAG = "ImageViewActivity";
+    
     private static PostAdapter postAdapter;
     private static int selectedId = -1;
     
@@ -75,7 +77,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
                 }
             }
         } else {
-            Log.e("Chan", "Posts in imageview list was null");
+            Logger.e(TAG, "Posts in imageview list was null");
             finish();
         }
     }

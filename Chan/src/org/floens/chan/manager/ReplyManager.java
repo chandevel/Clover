@@ -4,16 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.floens.chan.activity.ImagePickActivity;
+import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.model.Reply;
+import org.floens.chan.model.SavedReply;
 import org.floens.chan.net.ChanUrls;
+import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import ch.boye.httpclientandroidlib.HttpResponse;
 import ch.boye.httpclientandroidlib.client.ClientProtocolException;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
@@ -30,14 +34,18 @@ import ch.boye.httpclientandroidlib.util.EntityUtils;
  * To send an reply to 4chan.
  */
 public class ReplyManager {
+    private static final String TAG = "ReplyManager";
+    
     private static ReplyManager instance;
     
     private static final Pattern challengePattern = Pattern.compile("challenge.?:.?'([\\w-]+)'");
+    private static final Pattern responsePattern = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
     private static final int POST_TIMEOUT = 10000;
     
     private final Context context;
     private Reply draft;
     private FileListener fileListener;
+    private final Random random = new Random();
     
     public ReplyManager(Context context) {
         ReplyManager.instance = this;
@@ -139,10 +147,73 @@ public class ReplyManager {
      * @param reply The reply object with all data needed, like captcha and the file.
      * @param listener The listener, after server response.
      */
-    public void sendReply(Reply reply, ReplyListener listener) {
+    public void sendDelete(final SavedReply reply, boolean onlyImageDelete, final DeleteListener listener) {
+        Logger.i(TAG, "Sending delete request: " + reply.board + ", " + reply.no);
+        
+        HttpPost httpPost = new HttpPost(ChanUrls.getDeleteUrl(reply.board));
+        
+        MultipartEntity entity = new MultipartEntity();
+        
+        try {
+            entity.addPart(Integer.toString(reply.no), new StringBody("delete"));
+            
+            if (onlyImageDelete) {
+                entity.addPart("onlyimgdel", new StringBody("on"));
+            }
+            
+            // res not necessary
+            
+            entity.addPart("mode", new StringBody("usrdel"));
+            entity.addPart("pwd", new StringBody(reply.password));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return;
+        }
+        
+        httpPost.setEntity(entity);
+        
+        sendHttpPost(httpPost, new HttpPostSendListener() {
+            @Override
+            public void onReponse(String responseString) {
+                DeleteResponse e = new DeleteResponse();
+                
+                if (responseString == null) {
+                    e.isNetworkError = true;
+                } else {
+                    e.responseData = responseString;
+                    
+                    if (responseString.contains("You must wait longer before deleting this post")) {
+                        e.isUserError = true;
+                        e.isTooSoonError = true;
+                    } else if (responseString.contains("Password incorrect")) {
+                        e.isUserError = true;
+                        e.isInvalidPassword = true;
+                    } else if (responseString.contains("You cannot delete a post this old")) {
+                        e.isUserError = true;
+                        e.isTooOldError = true;
+                    } else if (responseString.contains("Updating index")) {
+                        e.isSuccessful = true;
+                    }
+                }
+                
+                listener.onResponse(e);
+            }
+        });
+    }
+    
+    /**
+     * Send an reply off to the server. 
+     * @param reply The reply object with all data needed, like captcha and the file.
+     * @param listener The listener, after server response.
+     */
+    public void sendReply(final Reply reply, final ReplyListener listener) {
+        Logger.i(TAG, "Sending reply request: " + reply.board + ", " + reply.resto);
+        
         HttpPost httpPost = new HttpPost(ChanUrls.getPostUrl(reply.board));
         
         MultipartEntity entity = new MultipartEntity();
+        
+        reply.password = Long.toHexString(random.nextLong());
         
         try {
             entity.addPart("name", new StringBody(reply.name));
@@ -159,7 +230,7 @@ public class ReplyManager {
             entity.addPart("recaptcha_response_field", new StringBody(reply.captchaResponse));
             
             entity.addPart("mode", new StringBody("regist"));
-            entity.addPart("pwd", new StringBody(""));
+            entity.addPart("pwd", new StringBody(reply.password));
             
             if (reply.file != null) {
                 entity.addPart("upfile", new FileBody(reply.file, reply.fileName, "application/octet-stream", "UTF-8"));
@@ -171,7 +242,50 @@ public class ReplyManager {
         
         httpPost.setEntity(entity);
         
-        new SendTask().execute(httpPost, listener);
+        sendHttpPost(httpPost, new HttpPostSendListener() {
+            @Override
+            public void onReponse(String responseString) {
+                ReplyResponse e = new ReplyResponse();
+                
+                if (responseString == null) {
+                    e.isNetworkError = true;
+                } else {
+                    e.responseData = responseString;
+                    
+                    if (responseString.contains("No file selected")) {
+                        e.isUserError = true;
+                        e.isFileError = true;
+                    } else if (responseString.contains("You forgot to solve the CAPTCHA") || 
+                            responseString.contains("You seem to have mistyped the CAPTCHA")) {
+                        e.isUserError = true;
+                        e.isCaptchaError = true;
+                    } else if (responseString.toLowerCase(Locale.ENGLISH).contains("post successful")) {
+                        e.isSuccessful = true;
+                    }
+                }
+                
+                if (e.isSuccessful) {
+                    Matcher matcher = responsePattern.matcher(e.responseData);
+                    
+                    if (matcher.find() && matcher.groupCount() == 2) {
+                        try {
+                            SavedReply savedReply = new SavedReply();
+                            savedReply.board = reply.board;
+                            savedReply.no = Integer.parseInt(matcher.group(2));
+                            savedReply.password = reply.password;
+                            
+                            DatabaseManager.getInstance().saveReply(savedReply);
+                        } catch (NumberFormatException err) {
+                            err.printStackTrace();
+                        }
+                    } else {
+                        Logger.w(TAG, "No thread & no in the response");
+                    }
+                }
+                
+                listener.onResponse(e);
+            }
+        });
     }
     
     /**
@@ -181,56 +295,41 @@ public class ReplyManager {
      * that has another namespace: ch.boye.httpclientandroidlib
      * This lib also has some fixes/improvements of HttpClient for Android.
      */
-    private class SendTask extends AsyncTask<Object, Void, ReplyResponse> {
-        private ReplyListener listener;
-        
-        @Override
-        protected ReplyResponse doInBackground(Object... params) {
-            HttpPost post = (HttpPost) params[0];
-            listener = (ReplyListener) params[1];
-            
-            HttpParams httpParameters = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParameters, POST_TIMEOUT);
-            HttpConnectionParams.setSoTimeout(httpParameters, POST_TIMEOUT);
-            
-            DefaultHttpClient client = new DefaultHttpClient(httpParameters);
-            
-            String responseString = null;
-            
-            try {
-                HttpResponse response = client.execute(post);
-                responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            
-            ReplyResponse e = new ReplyResponse();
-            
-            if (responseString == null) {
-                e.isNetworkError = true;
-            } else {
-                e.responseData = responseString;
+    private void sendHttpPost(final HttpPost post, final HttpPostSendListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpParams httpParameters = new BasicHttpParams();
+                HttpConnectionParams.setConnectionTimeout(httpParameters, POST_TIMEOUT);
+                HttpConnectionParams.setSoTimeout(httpParameters, POST_TIMEOUT);
                 
-                if (responseString.contains("No file selected")) {
-                    e.isUserError = true;
-                    e.isFileError = true;
-                } else if (responseString.contains("You forgot to solve the CAPTCHA") || responseString.contains("You seem to have mistyped the CAPTCHA")) {
-                    e.isUserError = true;
-                    e.isCaptchaError = true;
-                } else if (responseString.toLowerCase(Locale.ENGLISH).contains("post successful")) {
-                    e.isSuccessful = true;
+                DefaultHttpClient client = new DefaultHttpClient(httpParameters);
+                
+                String responseString = null;
+                
+                try {
+                    HttpResponse response = client.execute(post);
+                    responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }
-            
-            return e;
-        }
-        
-        @Override
-        public void onPostExecute(ReplyResponse response) {
-            listener.onResponse(response);
-        }
+                
+                final String finalResponseString = responseString;
+                
+                Utils.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onReponse(finalResponseString);
+                    }
+                });
+            }            
+        }).start();
+    }
+    
+    private static interface HttpPostSendListener {
+        public void onReponse(String responseString);
     }
     
     public static abstract class FileListener {
@@ -245,8 +344,22 @@ public class ReplyManager {
         public abstract void onFileLoading();
     }
     
-    public static abstract class ReplyListener {
-        public abstract void onResponse(ReplyResponse response);
+    public static interface DeleteListener {
+        public void onResponse(DeleteResponse response);
+    }
+    
+    public static class DeleteResponse {
+        public boolean isNetworkError = false;
+        public boolean isUserError = false;
+        public boolean isInvalidPassword = false;
+        public boolean isTooSoonError = false;
+        public boolean isTooOldError = false;
+        public boolean isSuccessful = false;
+        public String responseData = "";
+    }
+    
+    public static interface ReplyListener {
+        public void onResponse(ReplyResponse response);
     }
     
     public static class ReplyResponse {

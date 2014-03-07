@@ -7,7 +7,7 @@ import org.floens.chan.model.Post;
 import org.floens.chan.model.PostLinkable;
 import org.floens.chan.net.ChanUrls;
 import org.floens.chan.utils.IconCache;
-import org.floens.chan.utils.ViewUtils;
+import org.floens.chan.utils.Utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -226,7 +226,13 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             full.setFocusable(true);
             full.setOnClickListener(this);
             
-            ViewUtils.setPressedDrawable(full);
+            Utils.setPressedDrawable(full);
+        }
+        
+        if (post.isSavedReply) {
+            full.setBackgroundColor(0xFFD6BAD0);
+        } else {
+            full.setBackgroundColor(0x00000000);
         }
     }
     
@@ -308,7 +314,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             
             // Set the drawable before the padding, because setting the background resets the padding
             // This behavior differs with 4.4 / 4.1
-            ViewUtils.setPressedDrawable(repliesCountView);
+            Utils.setPressedDrawable(repliesCountView);
             
             repliesCountView.setTextColor(Color.argb(255, 100, 100, 100));
             repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);

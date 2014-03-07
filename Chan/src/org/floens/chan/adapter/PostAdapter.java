@@ -6,12 +6,11 @@ import java.util.List;
 import org.floens.chan.R;
 import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.model.Post;
-import org.floens.chan.utils.ViewUtils;
+import org.floens.chan.utils.Utils;
 import org.floens.chan.view.PostView;
 import org.floens.chan.view.ThreadWatchCounterView;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,8 +73,6 @@ public class PostAdapter extends BaseAdapter {
                 }
                 
                 postView.setPost(postList.get(position), threadManager);
-            } else {
-                Log.e("Chan", "PostAdapter: Invalid index: " + position + ", size: " + postList.size() + ", count: " + count);
             }
             
             return postView;
@@ -85,7 +82,7 @@ public class PostAdapter extends BaseAdapter {
     private View createThreadEndView() {
         if (threadManager.getWatchLogic() != null) {
             ThreadWatchCounterView view = new ThreadWatchCounterView(context);
-            ViewUtils.setPressedDrawable(view);
+            Utils.setPressedDrawable(view);
             view.init(threadManager, listView, this);
             int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
             view.setPadding(padding, padding, padding, padding);
@@ -96,7 +93,7 @@ public class PostAdapter extends BaseAdapter {
         } else {
             if (endOfLine) {
                 TextView textView = new TextView(context);
-                textView.setText(context.getString(R.string.end_of_line));
+                textView.setText(context.getString(R.string.thread_load_end_of_line));
                 int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
                 textView.setPadding(padding, padding, padding, padding);
                 return textView;
