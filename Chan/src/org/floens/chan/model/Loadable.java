@@ -126,6 +126,26 @@ public class Loadable {
         bundle.putInt(p + ".listViewTop", listViewTop);
     }
     
+    public void readFromBundle(Context context, String tag, Bundle bundle) {
+        String p = context.getPackageName();
+        mode = bundle.getInt(p + "." + tag + ".mode", Mode.INVALID);
+        board = bundle.getString(p + "." + tag + ".board", "");
+        no = bundle.getInt(p + "." + tag + ".no", -1);
+        title = bundle.getString(p + "." + tag + ".subject", "");
+        listViewIndex = bundle.getInt(p + "." + tag + ".listViewIndex");
+        listViewTop = bundle.getInt(p + "." + tag + ".listViewTop");
+    }
+    
+    public void writeToBundle(Context context, String tag, Bundle bundle) {
+        String p = context.getPackageName();
+        bundle.putInt(p + "." + tag + ".mode", mode);
+        bundle.putString(p + "." + tag + ".board", board);
+        bundle.putInt(p + "." + tag + ".no", no);
+        bundle.putString(p + "." + tag + ".subject", title);
+        bundle.putInt(p + "." + tag + ".listViewIndex", listViewIndex);
+        bundle.putInt(p + "." + tag + ".listViewTop", listViewTop);
+    }
+    
     public Loadable copy() {
         Loadable copy = new Loadable();
         copy.mode = mode;

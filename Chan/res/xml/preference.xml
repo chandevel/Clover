@@ -12,16 +12,16 @@
 	    </Preference>
 	    
 	    <CheckBoxPreference
-	        android:title="@string/open_link_confirmation_preference"
+	        android:title="@string/preference_open_link_confirmation"
 	        android:key="preference_open_link_confirmation"
 	        android:defaultValue="true" />
 	    
 	    <EditTextPreference 
-	        android:title="@string/default_name_preference"
+	        android:title="@string/preference_default_name"
 	        android:key="preference_default_name" />
 	    
 	    <EditTextPreference 
-            android:title="@string/default_email_preference"
+            android:title="@string/preference_default_email"
             android:key="preference_default_email" />
 	    
 	</PreferenceCategory>
@@ -40,7 +40,7 @@
             android:key="about_version" />
         
         <Preference
-            android:title="@string/developer"
+            android:title="@string/preference_developer"
             android:key="about_developer" >
             <intent
                  android:action="android.intent.action.VIEW"

@@ -64,11 +64,15 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         Uri startUri = startIntent.getData();
         
         if (savedInstanceState != null) {
-            boardLoadable.readFromBundle(this, savedInstanceState);
+            boardLoadable.readFromBundle(this, "board", savedInstanceState);
             boardLoadable.no = 0;
             boardLoadable.listViewIndex = 0;
             boardLoadable.listViewTop = 0;
+            
+            threadLoadable.readFromBundle(this, "thread", savedInstanceState);
+            
             setNavigationFromBoardValue(boardLoadable.board);
+            startLoadingThread(threadLoadable);
         } else if (startUri != null) {
             handleIntentURI(startUri);
         } else {
@@ -80,7 +84,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         
-        boardLoadable.writeToBundle(this, outState);
+        boardLoadable.writeToBundle(this, "board", outState);
+        threadLoadable.writeToBundle(this, "thread", outState);
     }
     
     @Override
@@ -269,6 +274,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
     
     private void startLoadingBoard(Loadable loadable) {
+        if (loadable.mode == Loadable.Mode.INVALID) return;
+        
         this.boardLoadable = loadable;
         
         boardFragment.startLoading(loadable);
@@ -278,6 +285,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
     
     private void startLoadingThread(Loadable loadable) {
+        if (loadable.mode == Loadable.Mode.INVALID) return;
+        
         Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
         if (pin != null) {
             // Use the loadable from the pin.

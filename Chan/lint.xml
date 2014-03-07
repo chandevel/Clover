@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <issue id="Registered">
-        <ignore path="src/org/floens/chan/activity/BaseActivity.java" />
+    <issue id="ButtonStyle">
+        <ignore path="res/layout/reply_view.xml" />
     </issue>
 </lint>

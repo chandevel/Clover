@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Chan</string>
+    
     <string name="cancel">Cancel</string>
     <string name="change">Change</string>
     <string name="add">Add</string>
+    <string name="close">Close</string>
+    <string name="back">Back</string>
     
-    <string name="app_name">Chan</string>
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
     <string name="action_pin">Pin</string>
@@ -15,13 +18,8 @@
     <string name="action_catalog">Open catalog</string>
     <string name="action_share">Share</string>
     
-    <string name="preference_general">General</string>
-    <string name="preference_about">About</string>
-    <string name="preference_licenses">Open Source Licenses</string>
-    <string name="preference_licences_summary">Legal information about licenses</string>
-    
-    <string name="one_reply">reply</string>
-    <string name="multiple_replies">replies</string>
+    <string name="open_unknown_title">Unsupported link</string>
+    <string name="open_unknown">Chan can\'t open this link. Opening it in your browser instead.</string>
     
     <string name="image_save">Save image</string>
     <string name="image_save_succeeded">Saved image to</string>
@@ -39,16 +37,27 @@
     
     <string name="board_edit">Edit my boards</string>
     <string name="board_add">Add board</string>
-    
     <string name="board_add_fail">Unknown board code</string>
     <string name="board_add_success">Added</string>
     <string name="board_add_duplicate">You already have that board</string>
     
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>
-    
     <string name="drawer_pinned">Pinned threads</string>
     <string name="drawer_pinned_change_title">Enter title</string>
+    
+    <string name="one_reply">reply</string>
+    <string name="multiple_replies">replies</string>
+    <string name="post_replies_back">Back</string>
+    <string name="post_replies_close">Close</string>
+    <string name="post_info">Info</string>
+    <string-array name="post_options">
+        <item>Reply</item>
+        <item>Quote</item>
+        <item>Info</item>
+        <item>Show clickables</item>
+        <item>Copy text</item>
+    </string-array>
     
     <string name="reply">Reply to</string>
     <string name="reply_to_board">Make thread in</string>
@@ -59,29 +68,13 @@
     <string name="reply_file">Pick file</string>
     <string name="reply_file_delete">Remove file</string>
     <string name="reply_submit">Submit</string>
-    <string name="reply_back">Back</string>
-    <string name="reply_cancel">Cancel</string>
     <string name="reply_captcha">Enter captcha</string>
-    <string name="reply_close">Close</string>
     <string name="reply_error">Error sending reply</string>
     <string name="reply_error_captcha">Wrong captcha</string>
     <string name="reply_error_file">No file selected</string>
     <string name="reply_success">Post Successful</string>
     <string name="reply_captcha_load_error">Failed to load captcha</string>
     <string name="reply_captcha_tap_to_reload">Tap to reload the captcha</string>
-    
-    <string name="open_link_confirmation_preference">Ask before opening links</string>
-    <string name="open_link_confirmation">Open link?</string>
-    <string name="default_name_preference">Default name</string>
-    <string name="default_email_preference">Default email</string>
-    
-    <string name="open_unknown_title">Unsupported link</string>
-    <string name="open_unknown">Chan can\'t open this link. Opening it in your browser instead.</string>
-    
-    <string name="post_replies_back">Back</string>
-    <string name="post_replies_close">Close</string>
-    
-    <string name="developer">Developer options</string>
     
     <string name="delete">Delete</string>
     <string name="delete_confirm">Delete your post?</string>
@@ -93,13 +86,16 @@
     <string name="delete_fail">Error deleting post</string>
     <string name="delete_image_only">Only delete the image</string>
     
-    <string name="post_info">Info</string>
-    <string-array name="post_options">
-        <item>Reply</item>
-        <item>Quote</item>
-        <item>Info</item>
-        <item>Show clickables</item>
-        <item>Copy text</item>
-    </string-array>
+    <string name="preference_general">General</string>
+    <string name="preference_open_link_confirmation">Ask before opening links</string>
+    <string name="preference_default_name">Default name</string>
+    <string name="preference_default_email">Default email</string>
+    
+    <string name="preference_about">About</string>
+    <string name="preference_licenses">Open Source Licenses</string>
+    <string name="preference_licences_summary">Legal information about licenses</string>
+    <string name="preference_developer">Developer options</string>
+    
+    <string name="open_link_confirmation">Open link?</string>
     
 </resources>

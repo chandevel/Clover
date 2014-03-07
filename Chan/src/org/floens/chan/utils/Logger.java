@@ -17,11 +17,15 @@ public class Logger {
     }
     
     public static void d(String tag, String message) {
-        Log.d(TAG + TAG_SPACER + tag, message);
+        if (ChanApplication.DEVELOPER_MODE) {
+            Log.d(TAG + TAG_SPACER + tag, message);
+        }
     }
     
     public static void d(String tag, String message, Throwable throwable) {
-        Log.d(TAG + TAG_SPACER + tag, message, throwable);
+        if (ChanApplication.DEVELOPER_MODE) {
+            Log.d(TAG + TAG_SPACER + tag, message, throwable);
+        }
     }
     
     public static void i(String tag, String message) {
@@ -68,8 +72,4 @@ public class Logger {
         }
     }
 }
-
-
-
-
 

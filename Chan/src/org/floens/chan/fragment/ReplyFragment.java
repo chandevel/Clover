@@ -286,11 +286,11 @@ public class ReplyFragment extends DialogFragment {
         }
         
         if (page == 0) {
-            cancelButton.setText(R.string.reply_cancel);
+            cancelButton.setText(R.string.cancel);
         } else if (page == 1) {
-            cancelButton.setText(R.string.reply_back);
+            cancelButton.setText(R.string.back);
         } else if (page == 2) {
-            cancelButton.setText(R.string.reply_close);
+            cancelButton.setText(R.string.close);
         }
     }
     
