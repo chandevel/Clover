@@ -14,28 +14,32 @@ import com.android.volley.VolleyError;
 public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
     private static final String TAG = "PinWatcher";
     
-    private final ThreadLoader watchLoader;
-    private final Loadable watchLoadable;
-    
     private final Pin pin;
+    private final Loadable loadable;
+    private final ThreadLoader loader;
+    private final WatchLogic watchLogic;
     
     private long startTime;
 
     public PinWatcher(Pin pin) {
         this.pin = pin;
         
-        watchLoadable = pin.loadable.copy();
-        watchLoadable.simpleMode = true;
+        loadable = pin.loadable.copy();
+        loadable.simpleMode = true;
         
-        watchLoader = new ThreadLoader(this);
+        loader = new ThreadLoader(this);
+        
+        watchLogic = new WatchLogic();
     }
     
     public void update() {
-        Logger.test("PinWatcher update");
-        
-        startTime = System.currentTimeMillis();
-        
-        watchLoader.start(watchLoadable);
+        if (watchLogic.timeLeft() < 0L) {
+            Logger.test("PinWatcher update");
+            
+            startTime = System.currentTimeMillis();
+            
+            loader.start(loadable);
+        }
     }
 
     @Override
@@ -50,7 +54,13 @@ public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
         Logger.test("PinWatcher onData");
         Logger.test("Post size: " + count);
         
+        if (pin.watchLastCount <= 0) {
+            pin.watchLastCount = pin.watchNewCount;
+        }
+        
         pin.watchNewCount = count;
+        
+        watchLogic.onLoaded(count, false);
         
         Logger.test("Load time: " + (System.currentTimeMillis() - startTime) + "ms");
         

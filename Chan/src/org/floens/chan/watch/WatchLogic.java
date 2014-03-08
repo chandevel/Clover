@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Utils;
 
 public class WatchLogic {
     private static final String TAG = "WatchLogic";
@@ -16,6 +17,9 @@ public class WatchLogic {
     private int lastPostCount;
     
     private Timer timer = new Timer();
+    
+    public WatchLogic() {
+    }
     
     public WatchLogic(WatchListener listener) {
         this.listener = listener;
@@ -67,7 +71,7 @@ public class WatchLogic {
      * Call this to notify of new posts.
      * @param postCount how many posts there were loaded
      */
-    public void onLoaded(int postCount) {
+    public void onLoaded(int postCount, boolean scheduleTimer) {
         Logger.d(TAG, "Loaded. Post count " + postCount + ", last " + lastPostCount);
         
         if (postCount > lastPostCount) {
@@ -79,7 +83,9 @@ public class WatchLogic {
         lastLoadTime = now();
         lastPostCount = postCount;
         
-        scheduleTimer();
+        if (scheduleTimer) {
+            scheduleTimer();
+        }
     }
     
     /**
@@ -100,7 +106,12 @@ public class WatchLogic {
             @Override
             public void run() {
                 if (listener != null) {
-                    listener.onWatchReloadRequested();
+                    Utils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onWatchReloadRequested();
+                        }
+                    });
                 }
             }
         }, Math.max(0, timeLeft()));

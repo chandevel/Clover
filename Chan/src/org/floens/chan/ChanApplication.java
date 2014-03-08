@@ -49,10 +49,7 @@ public class ChanApplication extends Application {
         
         if (ChanApplication.DEVELOPER_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectDiskReads()
-                .detectDiskWrites()
-                .detectNetwork()
-                .detectCustomSlowCalls()
+                .detectAll()
                 .penaltyLog()
                 .build());
             
@@ -62,14 +59,11 @@ public class ChanApplication extends Application {
                 .build());
         }
         
-        // VolleyLog.setTag(getPackageName());
-        
         IconCache.createIcons(this);
         
         volleyRequestQueue = Volley.newRequestQueue(this);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(1024 * 1024 * 8));
         
-        // These manager need a Context
         new DatabaseManager(this);
         
         new BoardManager(this);

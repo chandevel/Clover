@@ -53,9 +53,8 @@ public class ThreadLoader {
     }
     
     public void stop() {
-        Logger.i(TAG, "Stop loading");
-        
         if (loader != null) {
+//            Logger.i(TAG, "Stop loading");
             loader.cancel();
             loader = null;
         }

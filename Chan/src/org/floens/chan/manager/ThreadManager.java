@@ -73,6 +73,7 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
     public void onDestroy() {
         if (watchLogic != null) {
             watchLogic.destroy();
+            watchLogic = null;
         }
     }
     
@@ -94,6 +95,11 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
         
         if (!threadLoader.isLoading()) {
             threadLoader.start(loadable);
+            
+            Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
+            if (pin != null) {
+                PinnedManager.getInstance().onPinViewed(pin);
+            }
         }
     }
     
@@ -113,7 +119,7 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
     @Override
     public void onData(List<Post> result) {
         if (watchLogic != null) {
-            watchLogic.onLoaded(result.size());
+            watchLogic.onLoaded(result.size(), true);
         }
         
         threadListener.onThreadLoaded(result);

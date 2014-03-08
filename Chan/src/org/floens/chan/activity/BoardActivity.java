@@ -11,6 +11,7 @@ import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
 import org.floens.chan.net.ChanUrls;
+import org.floens.chan.service.PinnedService;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -86,6 +87,20 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         
         boardLoadable.writeToBundle(this, "board", outState);
         threadLoadable.writeToBundle(this, "thread", outState);
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        
+        PinnedService.onActivityStart();
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        
+        PinnedService.onActivityStop();
     }
     
     @Override

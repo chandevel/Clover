@@ -34,8 +34,7 @@
 		    android:layout_height="match_parent"
 		    android:gravity="center"
 		    android:textSize="16dp"
-		    android:textColor="#fff"
-	        android:text="99" />
+		    android:textColor="#fff" />
 		
 	</FrameLayout>
 	

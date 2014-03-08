@@ -14,11 +14,11 @@ public class IconCache {
      * @param context
      */
     public static void createIcons(final Context context) {
-        (new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 stickyIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.sticky_icon);
             }
-        })).start();
+        }).start();
     }
 }
