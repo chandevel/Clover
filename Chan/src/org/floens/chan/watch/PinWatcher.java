@@ -2,10 +2,10 @@ package org.floens.chan.watch;
 
 import java.util.List;
 
+import org.floens.chan.loader.ThreadLoader;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
-import org.floens.chan.net.ThreadLoader;
 import org.floens.chan.service.PinnedService;
 import org.floens.chan.utils.Logger;
 

@@ -1,4 +1,4 @@
-package org.floens.chan.net;
+package org.floens.chan.loader;
 
 import java.util.List;
 

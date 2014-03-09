@@ -1,4 +1,4 @@
-package org.floens.chan.net;
+package org.floens.chan.loader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.List;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
+import org.floens.chan.net.ChanUrls;
 
 import android.util.JsonReader;
 
