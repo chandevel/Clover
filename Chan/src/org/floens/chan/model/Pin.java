@@ -33,10 +33,10 @@ public class Pin {
     
     public void updateWatch() {
         if (pinWatcher == null) {
-            pinWatcher = new PinWatcher(this);
+//            pinWatcher = new PinWatcher(this);
         }
         
-        pinWatcher.update();
+//        pinWatcher.update();
     }
 }
 

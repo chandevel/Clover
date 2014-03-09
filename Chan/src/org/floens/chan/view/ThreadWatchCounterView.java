@@ -57,12 +57,13 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
     
     @Override
     public void onClick(View v) {
-        tm.loadMore();
+        tm.requestNextData();
         ad.notifyDataSetChanged();
     }
     
     private void updateCounterText(ThreadManager threadManager) {
-        WatchLogic logic = threadManager.getWatchLogic();
+//        WatchLogic logic = threadManager.getWatchLogic();
+        WatchLogic logic = null;
         
         if (logic != null) {
             int time = Math.round(logic.timeLeft() / 1000f);

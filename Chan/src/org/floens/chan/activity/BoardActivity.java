@@ -231,25 +231,21 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             return true;
         case R.id.action_reply:
             if (threadPane.isOpen()) {
-                boardFragment.getThreadManager().openReply(true);
+                boardFragment.openReply();
             } else {
-                if (threadFragment.getThreadManager().hasLoadable()) {
-                    threadFragment.getThreadManager().openReply(true);
-                }
+                threadFragment.openReply();
             }
             return true;
         case R.id.action_reply_board:
-            boardFragment.getThreadManager().openReply(true);
+            boardFragment.openReply();
             
             return true;
         case R.id.action_reply_thread:
-            if (threadFragment.getThreadManager().hasLoadable()) {
-                threadFragment.getThreadManager().openReply(true);
-            }
+            threadFragment.openReply();
             
             return true;
         case R.id.action_pin:
-            if (threadFragment.getThreadManager().hasLoadable()) {
+            if (threadFragment.hasLoader()) {
                 Pin pin = new Pin();
                 pin.loadable = threadLoadable;
                 
@@ -263,7 +259,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             if (threadPane.isOpen()) {
                 showUrlOpenPicker(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
             } else {
-                if (threadFragment.getThreadManager().hasLoadable()) {
+                if (threadFragment.hasLoader()) {
                     showUrlOpenPicker(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
                 }
             }
@@ -293,7 +289,9 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         
         this.boardLoadable = loadable;
         
-        boardFragment.startLoading(loadable);
+        boardFragment.bindLoadable(loadable);
+        boardFragment.requestData();
+        
         setShareUrl(ChanUrls.getBoardUrlDesktop(loadable.board));
         
         updateActionBarState();
@@ -312,7 +310,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         
         threadLoadable = loadable;
         
-        threadFragment.startLoading(loadable);
+        threadFragment.bindLoadable(loadable);
+        threadFragment.requestData();
         
         setShareUrl(ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no));
         

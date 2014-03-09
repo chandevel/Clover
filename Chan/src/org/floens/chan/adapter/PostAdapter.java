@@ -57,7 +57,7 @@ public class PostAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position >= getCount() - 1 && !endOfLine && threadManager.getLoadable().isBoardMode()) {
             // Try to load more posts
-            threadManager.loadMore();
+            threadManager.requestNextData();
         }
         
         if (position >= count) {
@@ -80,7 +80,7 @@ public class PostAdapter extends BaseAdapter {
     }
     
     private View createThreadEndView() {
-        if (threadManager.getWatchLogic() != null) {
+        if (false/* && threadManager.getWatchLogic() != null*/) {
             ThreadWatchCounterView view = new ThreadWatchCounterView(context);
             Utils.setPressedDrawable(view);
             view.init(threadManager, listView, this);

@@ -41,10 +41,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.floens.chan.activity.CatalogActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" >
-        </activity>
-        <activity
             android:name="org.floens.chan.activity.ReplyActivity"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="keyboardHidden|orientation|screenSize" >

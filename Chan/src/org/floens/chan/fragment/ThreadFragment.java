@@ -8,7 +8,6 @@ import org.floens.chan.adapter.PostAdapter;
 import org.floens.chan.imageview.activity.ImageViewActivity;
 import org.floens.chan.loader.EndOfLineException;
 import org.floens.chan.manager.ThreadManager;
-import org.floens.chan.manager.ThreadManager.ThreadListener;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
 import org.floens.chan.utils.LoadView;
@@ -26,12 +25,12 @@ import android.widget.ListView;
 
 import com.android.volley.VolleyError;
 
-public class ThreadFragment extends Fragment implements ThreadListener {
+public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener {
     private BaseActivity baseActivity;
     private ThreadManager threadManager;
-    private PostAdapter postAdapter;
-    private boolean shown = false;
     private Loadable loadable;
+    
+    private PostAdapter postAdapter;
     private LoadView container;
     private ListView listView;
     
@@ -43,8 +42,48 @@ public class ThreadFragment extends Fragment implements ThreadListener {
         return fragment;
     }
     
-    public ThreadManager getThreadManager() {
-        return threadManager;
+    public void bindLoadable(Loadable l) {
+        if (loadable != null) {
+            threadManager.unbindLoader();
+        }
+        
+        setEmpty();
+        
+        loadable = l;
+        threadManager.bindLoader(loadable);
+    }
+    
+    public void requestData() {
+        threadManager.requestData();
+    }
+    
+    private void setEmpty() {
+        postAdapter = null;
+        
+        if (container != null) {
+            container.setView(null);
+        }
+        
+        if (listView != null) {
+            listView.setOnScrollListener(null);
+            listView = null;
+        }
+    }
+    
+    public void reload() {
+        setEmpty();
+        
+        threadManager.requestData();
+    }
+    
+    public void openReply() {
+        if (threadManager.hasLoader()) {
+            threadManager.openReply(true);
+        }
+    }
+    
+    public boolean hasLoader() {
+        return threadManager.hasLoader();
     }
     
     @Override
@@ -52,8 +91,6 @@ public class ThreadFragment extends Fragment implements ThreadListener {
         super.onDestroy();
         
         if (threadManager != null) {
-            stopLoading();
-            
             threadManager.onDestroy();
         }
     }
@@ -82,42 +119,9 @@ public class ThreadFragment extends Fragment implements ThreadListener {
         return container;
     }
     
-    public void stopLoading() {
-        if (threadManager != null) {
-            threadManager.stop();            
-        }
-        
-        shown = false;
-        postAdapter = null;
-        
-        if (container != null) {
-            container.setView(null);
-        }
-        
-        if (listView != null) {
-            listView.setOnScrollListener(null);
-        }
-    }
-    
-    public void startLoading(Loadable loadable) {
-        stopLoading();
-        
-        this.loadable = loadable;
-        
-        threadManager.startLoading(loadable);
-    }
-    
-    public void reload() {
-        stopLoading();
-        
-        threadManager.reload();
-    }
-    
     @Override
     public void onThreadLoaded(List<Post> posts) {
-        if (!shown) {
-            shown = true;
-            
+        if (postAdapter == null) {
             listView = new ListView(baseActivity);
             
             postAdapter = new PostAdapter(baseActivity, threadManager, listView);
@@ -166,7 +170,7 @@ public class ThreadFragment extends Fragment implements ThreadListener {
     }
     
     @Override
-    public void onPostClicked(Post post) {
+    public void onOPClicked(Post post) {
         baseActivity.onOPClicked(post);
     }
     

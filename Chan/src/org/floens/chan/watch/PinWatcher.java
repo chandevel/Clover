@@ -2,7 +2,7 @@ package org.floens.chan.watch;
 
 import java.util.List;
 
-import org.floens.chan.loader.ThreadLoader;
+import org.floens.chan.loader.Loader;
 import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
@@ -11,12 +11,12 @@ import org.floens.chan.utils.Logger;
 
 import com.android.volley.VolleyError;
 
-public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
+public class PinWatcher implements Loader.LoaderListener {
     private static final String TAG = "PinWatcher";
     
     private final Pin pin;
     private final Loadable loadable;
-    private final ThreadLoader loader;
+    private Loader loader;
     private final WatchLogic watchLogic;
     
     private long startTime;
@@ -27,7 +27,7 @@ public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
         loadable = pin.loadable.copy();
         loadable.simpleMode = true;
         
-        loader = new ThreadLoader(this);
+//        loader = new Loader(this);
         
         watchLogic = new WatchLogic();
     }
@@ -38,7 +38,7 @@ public class PinWatcher implements ThreadLoader.ThreadLoaderListener {
             
             startTime = System.currentTimeMillis();
             
-            loader.start(loadable);
+            loader.requestData();
         }
     }
 

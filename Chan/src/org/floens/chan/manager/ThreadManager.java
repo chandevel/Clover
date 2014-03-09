@@ -8,18 +8,16 @@ import org.floens.chan.activity.ReplyActivity;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.fragment.PostRepliesFragment;
 import org.floens.chan.fragment.ReplyFragment;
-import org.floens.chan.loader.ThreadLoader;
+import org.floens.chan.loader.Loader;
+import org.floens.chan.loader.LoaderPool;
 import org.floens.chan.manager.ReplyManager.DeleteListener;
 import org.floens.chan.manager.ReplyManager.DeleteResponse;
 import org.floens.chan.model.Loadable;
-import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
 import org.floens.chan.model.PostLinkable;
 import org.floens.chan.model.SavedReply;
 import org.floens.chan.utils.ChanPreferences;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.watch.WatchLogic;
-import org.floens.chan.watch.WatchLogic.WatchListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -50,165 +48,100 @@ import com.android.volley.VolleyError;
  * handling linkables, replies popups etc.
  * onDestroy, onPause and onResume must be called from the activity/fragment
  */
-public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchListener {
+public class ThreadManager implements Loader.LoaderListener {
     private static final String TAG = "ThreadManager";
     
     private final Activity activity;
-    private final ThreadLoader threadLoader;
-    private final ThreadManager.ThreadListener threadListener;
-    private Loadable loadable;
-    private boolean endOfLine = false;
-    private WatchLogic watchLogic;
-    
+    private final ThreadManager.ThreadManagerListener threadManagerListener;
     private final List<List<Post>> popupQueue = new ArrayList<List<Post>>();
     private PostRepliesFragment currentPopupFragment;
     
-    public ThreadManager(Activity context, final ThreadListener listener) {
+    private Loader loader;
+    
+    public ThreadManager(Activity context, final ThreadManagerListener listener) {
         this.activity = context;
-        threadListener = listener;
-        
-        threadLoader = new ThreadLoader(this);
+        threadManagerListener = listener;
     }
     
     public void onDestroy() {
-        if (watchLogic != null) {
-            watchLogic.destroy();
-            watchLogic = null;
-        }
+        unbindLoader();
     }
     
     public void onPause() {
-        if (watchLogic != null) {
-            watchLogic.stopTimer();
-        }
+        
     }
     
     public void onResume() {
-        if (watchLogic != null) {
-            watchLogic.startTimer();
-        }
-    }
-    
-    @Override
-    public void onWatchReloadRequested() {
-        Logger.d(TAG, "Reload requested");
         
-        if (!threadLoader.isLoading()) {
-            threadLoader.start(loadable);
-            
-            Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
-            if (pin != null) {
-                PinnedManager.getInstance().onPinViewed(pin);
-            }
+    }
+    
+    public void bindLoader(Loadable loadable) {
+        if (loader != null) {
+            unbindLoader();
+        }
+        
+        loader = LoaderPool.getInstance().obtain(loadable, this);
+    }
+    
+    public void unbindLoader() {
+        if (loader != null) {
+            LoaderPool.getInstance().release(loader, this);
+            loader = null;
+        } else {
+            Logger.e(TAG, "Loader already unbinded");
         }
     }
     
-    public WatchLogic getWatchLogic() {
-        return watchLogic;
+    public void requestData() {
+        if (loader != null) {
+            loader.requestData();
+        } else {
+            Logger.e(TAG, "Loader null in requestData");
+        }
     }
-
+    
+    /**
+     * Called by postadapter and threadwatchcounterview.onclick
+     */
+    public void requestNextData() {
+        if (loader != null) {
+            loader.requestNextData();
+        } else {
+            Logger.e(TAG, "Loader null in requestData");
+        }
+    }
+    
     @Override
     public void onError(VolleyError error) {
-        threadListener.onThreadLoadError(error);
-        
-        if (watchLogic != null) {
-            watchLogic.stopTimer();
-        }
+        threadManagerListener.onThreadLoadError(error);
     }
     
     @Override
     public void onData(List<Post> result) {
-        if (watchLogic != null) {
-            watchLogic.onLoaded(result.size(), true);
-        }
-        
-        threadListener.onThreadLoaded(result);
+        threadManagerListener.onThreadLoaded(result);
     }
     
-    public boolean hasLoadable() {
-        return loadable != null;
+    public boolean hasLoader() {
+        return loader != null;
     }
     
     public Post findPostById(int id) {
-        return threadLoader.getPostById(id);
+        if (loader == null) return null;
+        return loader.getPostById(id);
     }
     
     public Loadable getLoadable() {
-        return loadable;
-    }
-    
-    public void startLoading(Loadable loadable) {
-        this.loadable = loadable;
-        
-        stop();
-        
-        threadLoader.start(loadable);
-        
-        Pin pin = PinnedManager.getInstance().findPinByLoadable(loadable);
-        if (pin != null) {
-            PinnedManager.getInstance().onPinViewed(pin);
-        }
-        
-        if (watchLogic != null) {
-            watchLogic.destroy();
-            watchLogic = null;
-        }
-        
-        if (loadable.isThreadMode()) {
-            watchLogic = new WatchLogic(this);
-            watchLogic.startTimer();
-        }
-    }
-    
-    public void stop() {
-        threadLoader.stop();
-        endOfLine = false;
-        
-        if (watchLogic != null) {
-            watchLogic.destroy();
-            watchLogic = null;
-        }
-    }
-    
-    public void reload() {
-        if (loadable == null) {
-            Logger.e(TAG, "ThreadManager: loadable null");
-        } else {
-            if (loadable.isBoardMode()) {
-                loadable.no = 0;
-                loadable.listViewIndex = 0;
-                loadable.listViewTop = 0;
-            }
-            
-            startLoading(loadable);
-        }
-    }
-    
-    public void loadMore() {
-        if (threadLoader.isLoading()) return;
-        
-        if (loadable == null) {
-            Logger.e(TAG, "ThreadManager: loadable null");
-        } else {
-            if (loadable.isBoardMode()) {
-                if (!endOfLine) {
-                    threadLoader.loadMore();
-                }
-            } else if (loadable.isThreadMode()) {
-                if (watchLogic != null) {
-                    watchLogic.loadNow();
-                }
-            }
-        }
+        if (loader == null) return null;
+        return loader.getLoadable();
     }
     
     public void onThumbnailClicked(Post post) {
-        threadListener.onThumbnailClicked(post);
+        threadManagerListener.onThumbnailClicked(post);
     }
     
     public void onPostClicked(Post post) {
-        if (loadable.isBoardMode()) {
-            threadListener.onPostClicked(post);
+        if (loader != null && loader.getLoadable().isBoardMode()) {
+            threadManagerListener.onOPClicked(post);
         }
     }
     
@@ -257,12 +190,14 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
     }
     
     public void openReply(boolean startInActivity) {
+        if (loader == null) return;
+        
         if (startInActivity) {
-            ReplyActivity.setLoadable(loadable);
+            ReplyActivity.setLoadable(loader.getLoadable());
             Intent i = new Intent(activity, ReplyActivity.class);
             activity.startActivity(i);
         } else {
-            ReplyFragment reply = ReplyFragment.newInstance(loadable);
+            ReplyFragment reply = ReplyFragment.newInstance(loader.getLoadable());
             reply.show(activity.getFragmentManager(), "replyDialog");            
         }
     }
@@ -562,10 +497,10 @@ public class ThreadManager implements ThreadLoader.ThreadLoaderListener, WatchLi
         });
     }
     
-    public interface ThreadListener {
+    public interface ThreadManagerListener {
         public void onThreadLoaded(List<Post> result);
         public void onThreadLoadError(VolleyError error);
-        public void onPostClicked(Post post);
+        public void onOPClicked(Post post);
         public void onThumbnailClicked(Post post);
     }
 }
