@@ -8,6 +8,7 @@ import org.floens.chan.model.Loadable;
 import org.floens.chan.model.Post;
 import org.floens.chan.utils.Logger;
 
+import android.os.Handler;
 import android.util.SparseArray;
 
 import com.android.volley.Response;
@@ -16,13 +17,21 @@ import com.android.volley.VolleyError;
 
 public class Loader {
     private static final String TAG = "Loader";
+    private static final Handler handler = new Handler();
+    
+    private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300};
     
     private final List<LoaderListener> listeners = new ArrayList<LoaderListener>();
     private final Loadable loadable;
-    private ChanReaderRequest request;
-    private boolean destroyed = false;
-    
     private final SparseArray<Post> postsById = new SparseArray<Post>();
+    
+    private boolean destroyed = false;
+    private ChanReaderRequest request;
+    
+    private int currentTimeout;
+    private int lastPostCount;
+    private long lastLoadTime;
+    private Runnable pendingRunnable;
     
     public Loader(Loadable loadable) {
         this.loadable = loadable;
@@ -44,6 +53,7 @@ public class Loader {
     public boolean removeListener(LoaderListener l) {
         listeners.remove(l);
         if (listeners.size() == 0) {
+            clearTimer();
             destroyed = true;
             return true;
         } else {
@@ -81,8 +91,15 @@ public class Loader {
                 return;
             }
             
+            clearTimer();
+            
             request = getData(loadable);
         }
+    }
+    
+    public void requestNextDataResetTimer() {
+        currentTimeout = 0;
+        requestNextData();
     }
     
     /**
@@ -98,6 +115,60 @@ public class Loader {
     
     public Loadable getLoadable() {
         return loadable;
+    }
+    
+    public void onStart() {
+        if (loadable.isThreadMode()) {
+            requestNextDataResetTimer();
+        }
+    }
+    
+    public void onStop() {
+        clearTimer();
+    }
+    
+    public long getTimeUntilReload() {
+        long waitTime = watchTimeouts[currentTimeout] * 1000L;
+        return lastLoadTime + waitTime - System.currentTimeMillis();
+    }
+    
+    private void setTimer(int postCount) {
+        if (pendingRunnable != null) {
+            clearTimer();
+        }
+        
+        if (pendingRunnable == null) {
+            pendingRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    pendingRunnableCallback();
+                };
+            };
+            
+            if (postCount > lastPostCount) {
+                currentTimeout = 0;
+            } else {
+                currentTimeout = Math.min(watchTimeouts.length - 1, currentTimeout + 1);
+            }
+            
+            lastPostCount = postCount;
+            
+            handler.postDelayed(pendingRunnable, watchTimeouts[currentTimeout] * 1000L);
+        }
+    }
+    
+    private void clearTimer() {
+        if (pendingRunnable != null) {
+            handler.removeCallbacks(pendingRunnable);
+            pendingRunnable = null;
+            lastLoadTime = 0;
+        }
+    }
+    
+    private void pendingRunnableCallback() {
+        Logger.d(TAG, "pending callback");
+        pendingRunnable = null;
+        requestNextData();
     }
     
     private ChanReaderRequest getData(Loadable loadable) {
@@ -132,6 +203,11 @@ public class Loader {
         for (LoaderListener l : listeners) {
             l.onData(result, loadable.isBoardMode());
         }
+        
+        lastLoadTime = System.currentTimeMillis();
+        if (loadable.isThreadMode()) {
+            setTimer(result.size());
+        }
     }
     
     private void onError(VolleyError error) {
@@ -147,6 +223,8 @@ public class Loader {
         for (LoaderListener l : listeners) {
             l.onError(error);
         }
+        
+        clearTimer();
     }
     
     public static interface LoaderListener {

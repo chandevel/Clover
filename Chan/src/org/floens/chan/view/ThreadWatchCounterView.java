@@ -1,7 +1,7 @@
 package org.floens.chan.view;
 
+import org.floens.chan.loader.Loader;
 import org.floens.chan.manager.ThreadManager;
-import org.floens.chan.watch.WatchLogic;
 
 import android.content.Context;
 import android.os.Handler;
@@ -57,22 +57,24 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
     
     @Override
     public void onClick(View v) {
-        tm.requestNextData();
+        Loader loader = tm.getLoader();
+        if (loader != null) {
+            loader.requestNextDataResetTimer();
+        }
+        
         ad.notifyDataSetChanged();
     }
     
     private void updateCounterText(ThreadManager threadManager) {
-//        WatchLogic logic = threadManager.getWatchLogic();
-        WatchLogic logic = null;
+        Loader loader = tm.getLoader();
+        if (loader == null) return;
         
-        if (logic != null) {
-            int time = Math.round(logic.timeLeft() / 1000f);
-            
-            if (time <= 0) {
-                setText("Loading");
-            } else {
-                setText("Loading in " + time);
-            }
+        int time = Math.round(loader.getTimeUntilReload() / 1000f);
+        
+        if (time <= 0) {
+            setText("Loading");
+        } else {
+            setText("Loading in " + time);
         }
     }
 }

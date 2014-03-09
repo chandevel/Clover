@@ -96,20 +96,20 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
     
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         
         if (threadManager != null) {
-            threadManager.onResume();
+            threadManager.onStart();
         }
     }
     
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         
         if (threadManager != null) {
-            threadManager.onPause();
+            threadManager.onStop();
         }
     }
     

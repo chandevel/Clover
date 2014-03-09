@@ -46,7 +46,7 @@ import com.android.volley.VolleyError;
  * All PostView's need to have this referenced. 
  * This manages some things like pages, starting and stopping of loading, 
  * handling linkables, replies popups etc.
- * onDestroy, onPause and onResume must be called from the activity/fragment
+ * onDestroy, onStart and onStop must be called from the activity/fragment
  */
 public class ThreadManager implements Loader.LoaderListener {
     private static final String TAG = "ThreadManager";
@@ -67,12 +67,16 @@ public class ThreadManager implements Loader.LoaderListener {
         unbindLoader();
     }
     
-    public void onPause() {
-        
+    public void onStart() {
+        if (loader != null) {
+            loader.onStart();
+        }
     }
     
-    public void onResume() {
-        
+    public void onStop() {
+        if (loader != null) {
+            loader.onStop();
+        }
     }
     
     public void bindLoader(Loadable loadable) {
@@ -133,6 +137,10 @@ public class ThreadManager implements Loader.LoaderListener {
     public Loadable getLoadable() {
         if (loader == null) return null;
         return loader.getLoadable();
+    }
+    
+    public Loader getLoader() {
+        return loader;
     }
     
     public void onThumbnailClicked(Post post) {

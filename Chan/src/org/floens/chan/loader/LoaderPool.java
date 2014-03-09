@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.floens.chan.model.Loadable;
-import org.floens.chan.utils.Logger;
 
 public class LoaderPool {
     private static final String TAG = "LoaderPool";
@@ -22,8 +21,6 @@ public class LoaderPool {
     }
     
     public Loader obtain(Loadable loadable, Loader.LoaderListener listener) {
-        Logger.d(TAG, "loaders size: " + loaders.size());
-        
         Loader loader = loaders.get(loadable);
         if (loader == null) {
             loader = new Loader(loadable);
