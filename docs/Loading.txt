@@ -1,0 +1,33 @@
+LoaderPool:
+Loader obtain(Loadable):
+    If loader already obtained somewhere, return the existing Loader
+    Create a new Loader if not obtained somewhere else.
+void release(Loader):
+    If no more listeners on loader, call destroy()
+
+Loader:
+void destroy():
+
+void request():
+    load from beginning
+void onBottomReached():
+    board: load next page
+    thread: reset new counter
+int getUnread():
+    return unread posts
+long getTimeUntilReload:
+    return time in ms until next reload
+
+
+LoaderListener:
+void onData(List<Post>, boolean append) can be called at any moment
+    append: 
+        true if the displayer should append to existing posts
+        false if the displayer should replace existing posts
+void onError(Error error) can be called at any moment
+    404: it's gone
+    EndOfLineException: no more pages
+
+
+
+
