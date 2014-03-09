@@ -80,7 +80,7 @@ public class PostAdapter extends BaseAdapter {
     }
     
     private View createThreadEndView() {
-        if (false/* && threadManager.getWatchLogic() != null*/) {
+        if (threadManager.getLoadable().isThreadMode()) {
             ThreadWatchCounterView view = new ThreadWatchCounterView(context);
             Utils.setPressedDrawable(view);
             view.init(threadManager, listView, this);

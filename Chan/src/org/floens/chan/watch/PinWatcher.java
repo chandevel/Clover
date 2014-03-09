@@ -48,7 +48,7 @@ public class PinWatcher implements Loader.LoaderListener {
     }
     
     @Override
-    public void onData(List<Post> result) {
+    public void onData(List<Post> result, boolean append) {
         int count = result.size();
         
         Logger.test("PinWatcher onData");

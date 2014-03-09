@@ -41,7 +41,7 @@ public class LoaderPool {
         }
         
         if (loader.removeListener(listener)) {
-            loaders.remove(loader);
+            loaders.remove(loader.getLoadable());
         }
     }
 }

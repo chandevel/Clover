@@ -117,8 +117,8 @@ public class ThreadManager implements Loader.LoaderListener {
     }
     
     @Override
-    public void onData(List<Post> result) {
-        threadManagerListener.onThreadLoaded(result);
+    public void onData(List<Post> result, boolean append) {
+        threadManagerListener.onThreadLoaded(result, append);
     }
     
     public boolean hasLoader() {
@@ -498,7 +498,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
     
     public interface ThreadManagerListener {
-        public void onThreadLoaded(List<Post> result);
+        public void onThreadLoaded(List<Post> result, boolean append);
         public void onThreadLoadError(VolleyError error);
         public void onOPClicked(Post post);
         public void onThumbnailClicked(Post post);

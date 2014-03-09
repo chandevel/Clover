@@ -8,9 +8,9 @@ void release(Loader):
 Loader:
 void destroy():
 
-void request():
+void requestData():
     load from beginning
-void onBottomReached():
+void requestNextData():
     board: load next page
     thread: reset new counter
 int getUnread():

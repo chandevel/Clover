@@ -120,7 +120,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
     
     @Override
-    public void onThreadLoaded(List<Post> posts) {
+    public void onThreadLoaded(List<Post> posts, boolean append) {
         if (postAdapter == null) {
             listView = new ListView(baseActivity);
             
@@ -151,7 +151,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             }
         }
         
-        if (loadable.isBoardMode()) {
+        if (append) {
             postAdapter.addList(posts);
         } else {
             postAdapter.setList(posts);

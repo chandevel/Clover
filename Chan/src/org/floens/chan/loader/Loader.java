@@ -76,6 +76,12 @@ public class Loader {
             }
             
             request = getData(loadable);
+        } else if (loadable.isThreadMode()) {
+            if (request != null) {
+                return;
+            }
+            
+            request = getData(loadable);
         }
     }
     
@@ -124,7 +130,7 @@ public class Loader {
         }
         
         for (LoaderListener l : listeners) {
-            l.onData(result);
+            l.onData(result, loadable.isBoardMode());
         }
     }
     
@@ -144,7 +150,7 @@ public class Loader {
     }
     
     public static interface LoaderListener {
-        public void onData(List<Post> result);
+        public void onData(List<Post> result, boolean append);
         public void onError(VolleyError error);
     }
 }
