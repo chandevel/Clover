@@ -130,7 +130,7 @@ public class PostAdapter extends BaseAdapter {
     
     public void scrollToPost(Post post) {
         for (int i = 0; i < postList.size(); i++) {
-            if (postList.get(i) == post) {
+            if (postList.get(i).no == post.no) { 
                 listView.smoothScrollToPosition(i);
                 
                 break;

@@ -42,6 +42,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
+import com.micromobs.android.floatlabel.FloatLabelEditText;
 
 public class ReplyFragment extends DialogFragment {
     private static final String TAG = "ReplyFragment";
@@ -63,10 +64,10 @@ public class ReplyFragment extends DialogFragment {
     private Button fileButton;
     private Button fileDeleteButton;
     private Button submitButton;
-    private TextView nameView;
-    private TextView emailView;
-    private TextView subjectView;
-    private TextView commentView;
+    private FloatLabelEditText nameView;
+    private FloatLabelEditText emailView;
+    private FloatLabelEditText subjectView;
+    private FloatLabelEditText commentView;
     private LoadView imageViewContainer;
     private LoadView captchaContainer;
     private TextView captchaText;
@@ -132,10 +133,10 @@ public class ReplyFragment extends DialogFragment {
                 draft.email = ChanPreferences.getDefaultEmail();
             }
             
-            nameView.setText(draft.name);
-            emailView.setText(draft.email);
-            subjectView.setText(draft.subject);
-            commentView.setText(draft.comment);
+            nameView.getEditText().setText(draft.name);
+            emailView.getEditText().setText(draft.email);
+            subjectView.getEditText().setText(draft.subject);
+            commentView.getEditText().setText(draft.comment);
             setFile(draft.file);
             
             getCaptcha();
@@ -178,10 +179,10 @@ public class ReplyFragment extends DialogFragment {
         container = inflater.inflate(R.layout.reply_view, null);
         flipper = (ViewFlipper)container.findViewById(R.id.reply_flipper);
         
-        nameView = (TextView)container.findViewById(R.id.reply_name);
-        emailView = (TextView)container.findViewById(R.id.reply_email);
-        subjectView = (TextView)container.findViewById(R.id.reply_subject);
-        commentView = (TextView)container.findViewById(R.id.reply_comment);
+        nameView = (FloatLabelEditText)container.findViewById(R.id.reply_name);
+        emailView = (FloatLabelEditText)container.findViewById(R.id.reply_email);
+        subjectView = (FloatLabelEditText)container.findViewById(R.id.reply_subject);
+        commentView = (FloatLabelEditText)container.findViewById(R.id.reply_comment);
         imageViewContainer = (LoadView)container.findViewById(R.id.reply_image);
         responseContainer = (LoadView)container.findViewById(R.id.reply_response);
         captchaContainer = (LoadView)container.findViewById(R.id.reply_captcha_container);

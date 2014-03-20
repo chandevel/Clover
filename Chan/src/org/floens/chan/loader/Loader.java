@@ -66,8 +66,6 @@ public class Loader {
             request.cancel();
         }
         
-        postsById.clear();
-        
         if (loadable.isBoardMode()) {
             loadable.no = 0;
             loadable.listViewIndex = 0;
@@ -109,7 +107,7 @@ public class Loader {
         return request != null;
     }
     
-    public Post getPostById(int id) {
+    public Post findPostById(int id) {
         return postsById.get(id);
     }
     
@@ -196,6 +194,7 @@ public class Loader {
     private void onData(List<Post> result) {
         if (destroyed) return;
         
+        postsById.clear();
         for (Post post : result) {
             postsById.append(post.no, post);
         }

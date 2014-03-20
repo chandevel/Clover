@@ -131,7 +131,7 @@ public class ThreadManager implements Loader.LoaderListener {
     
     public Post findPostById(int id) {
         if (loader == null) return null;
-        return loader.getPostById(id);
+        return loader.findPostById(id);
     }
     
     public Loadable getLoadable() {

@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="image_list_background">#88000000</color>
+
+    <declare-styleable name="FloatLabelEditText">
+        <attr name="hint" format="string"/>
+        <attr name="text" format="string"/>
+        <attr name="textSize" format="dimension"/>
+        <attr name="textColorHintFocused" format="color"/>
+        <attr name="textColorHintUnFocused" format="color"/>
+        <attr name="fitScreenWidth" format="enum">
+            <enum name="full" value="1"/>
+            <enum name="half" value="2"/>
+        </attr>
+    </declare-styleable>
 </resources>
