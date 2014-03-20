@@ -141,6 +141,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         pinDrawerListener.onConfigurationChanged(newConfig);
+        updateActionBarState();
     }
 
     @Override
@@ -202,12 +203,16 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean open = threadPane.isOpen();
+        boolean slidable = threadPane.isSlideable();
         
-        setMenuItemEnabled(menu.findItem(R.id.action_reload), !threadPane.isSlideable() || open);
-        setMenuItemEnabled(menu.findItem(R.id.action_pin), !threadPane.isSlideable() || !open);
+        setMenuItemEnabled(menu.findItem(R.id.action_reload_board), slidable && open);
+        setMenuItemEnabled(menu.findItem(R.id.action_reload_thread), slidable && !open);
+        setMenuItemEnabled(menu.findItem(R.id.action_reload_tablet), !slidable);
         
-        setMenuItemEnabled(menu.findItem(R.id.action_reply), threadPane.isSlideable());
-        setMenuItemEnabled(menu.findItem(R.id.action_reply_tablet), !threadPane.isSlideable());
+        setMenuItemEnabled(menu.findItem(R.id.action_pin), !slidable || !open);
+        
+        setMenuItemEnabled(menu.findItem(R.id.action_reply), slidable);
+        setMenuItemEnabled(menu.findItem(R.id.action_reply_tablet), !slidable);
         
         return super.onPrepareOptionsMenu(menu);
     }
@@ -226,8 +231,13 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         }
         
         switch(item.getItemId()) {
-        case R.id.action_reload:
+        case R.id.action_reload_board:
+        case R.id.action_reload_tablet_board:
             boardFragment.reload();
+            return true;
+        case R.id.action_reload_thread:
+        case R.id.action_reload_tablet_thread:
+            threadFragment.reload();
             return true;
         case R.id.action_reply:
             if (threadPane.isOpen()) {

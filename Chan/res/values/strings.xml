@@ -10,6 +10,8 @@
     
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
+    <string name="action_reload_board">Reload board</string>
+    <string name="action_reload_thread">Reload thread</string>
     <string name="action_pin">Pin</string>
     <string name="action_reply">Reply</string>
     <string name="action_reply_board">Reply to board</string>

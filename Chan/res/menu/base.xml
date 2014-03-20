@@ -1,11 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
-        android:id="@+id/action_reload"
+        android:id="@+id/action_reload_tablet"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="1"
         android:showAsAction="always"
-        android:title="@string/action_reload" />
+        android:title="@string/action_reload" >
+        <menu>
+            <item
+                android:id="@+id/action_reload_tablet_board"
+                android:title="@string/action_reload_board" />
+            <item
+                android:id="@+id/action_reload_tablet_thread"
+                android:title="@string/action_reload_thread" />
+        </menu>
+    </item>
+    
+    <item 
+        android:id="@+id/action_reload_board" 
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="1"
+        android:showAsAction="always"
+        android:title="@string/action_reload_board" />
     
     <item
         android:id="@+id/action_pin"
@@ -37,18 +53,24 @@
         </menu>
         
     </item>
-        
     
     <item
-		android:id="@+id/action_share"
-		android:orderInCategory="5"
+        android:id="@+id/action_reload_thread" 
+        android:icon="@drawable/ic_action_refresh"
+        android:orderInCategory="5"
         android:showAsAction="never"
-		android:title="@string/action_share"
-		android:actionProviderClass="android.widget.ShareActionProvider" />
+        android:title="@string/action_reload_thread" />
+    
+    <item
+        android:id="@+id/action_share"
+        android:orderInCategory="6"
+        android:showAsAction="never"
+        android:title="@string/action_share"
+        android:actionProviderClass="android.widget.ShareActionProvider" />
     
     <item
         android:id="@+id/action_open_browser"
-        android:orderInCategory="6"
+        android:orderInCategory="7"
         android:showAsAction="never"
         android:title="@string/action_open_browser" />
     
