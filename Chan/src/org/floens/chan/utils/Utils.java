@@ -7,6 +7,10 @@ import android.os.Looper;
 import android.view.View;
 
 public class Utils {
+    /**
+     * Sets the android.R.attr.selectableItemBackground as background drawable on the view.
+     * @param view
+     */
     @SuppressWarnings("deprecation")
     public static void setPressedDrawable(View view) {
         TypedArray arr = view.getContext().obtainStyledAttributes(
