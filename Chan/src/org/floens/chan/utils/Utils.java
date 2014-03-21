@@ -1,5 +1,6 @@
 package org.floens.chan.utils;
 
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -13,19 +14,24 @@ public class Utils {
      */
     @SuppressWarnings("deprecation")
     public static void setPressedDrawable(View view) {
-        TypedArray arr = view.getContext().obtainStyledAttributes(
-                new int[] {android.R.attr.selectableItemBackground});
-        
-        Drawable drawable = arr.getDrawable(0);
-        
+        Drawable drawable = Utils.getSelectableBackgroundDrawable(view.getContext());
         view.setBackgroundDrawable(drawable);
-        
-        arr.recycle();
     }
-    
+
+    public static Drawable getSelectableBackgroundDrawable(Context context) {
+        TypedArray arr = context.obtainStyledAttributes(
+                new int[] {android.R.attr.selectableItemBackground});
+
+        Drawable drawable = arr.getDrawable(0);
+
+        arr.recycle();
+
+        return drawable;
+    }
+
     /**
-     * Causes the runnable to be added to the message queue. 
-     * The runnable will be run on the ui thread. 
+     * Causes the runnable to be added to the message queue.
+     * The runnable will be run on the ui thread.
      * @param runnable
      */
     public static void runOnUiThread(Runnable runnable) {

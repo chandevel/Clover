@@ -27,9 +27,9 @@ public class PostAdapter extends BaseAdapter {
     private boolean endOfLine;
     private int count = 0;
     private final List<Post> postList = new ArrayList<Post>();
-    
+
     public PostAdapter(Context activity, ThreadManager threadManager, ListView listView) {
-        this.context = activity;
+        context = activity;
         this.threadManager = threadManager;
         this.listView = listView;
     }
@@ -52,33 +52,33 @@ public class PostAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
-    
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position >= getCount() - 1 && !endOfLine && threadManager.getLoadable().isBoardMode()) {
             // Try to load more posts
             threadManager.requestNextData();
         }
-        
+
         if (position >= count) {
             return createThreadEndView();
         } else {
             PostView postView = null;
-            
+
             if (position >= 0 && position < postList.size()) {
                 if (convertView != null && convertView instanceof PostView) {
                     postView = (PostView) convertView;
                 } else {
                     postView = new PostView(context);
                 }
-                
+
                 postView.setPost(postList.get(position), threadManager);
             }
-            
+
             return postView;
         }
     }
-    
+
     private View createThreadEndView() {
         if (threadManager.getLoadable().isThreadMode()) {
             ThreadWatchCounterView view = new ThreadWatchCounterView(context);
@@ -102,37 +102,38 @@ public class PostAdapter extends BaseAdapter {
             }
         }
     }
-    
+
     public void addList(List<Post> list) {
         postList.addAll(list);
         count = postList.size();
-        
+
         notifyDataSetChanged();
     }
-    
+
     public void setList(List<Post> list) {
         postList.clear();
         postList.addAll(list);
         count = postList.size();
-        
+
         notifyDataSetChanged();
     }
-    
+
     public List<Post> getList() {
         return postList;
     }
-    
+
     public void setEndOfLine(boolean endOfLine) {
         this.endOfLine = endOfLine;
-        
+
         notifyDataSetChanged();
     }
-    
+
     public void scrollToPost(Post post) {
         for (int i = 0; i < postList.size(); i++) {
-            if (postList.get(i).no == post.no) { 
-                listView.smoothScrollToPosition(i);
-                
+            if (postList.get(i).no == post.no) {
+//                listView.smoothScrollToPosition(i); does not work when a view is taller than the container
+                listView.setSelection(i);
+
                 break;
             }
         }
