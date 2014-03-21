@@ -198,6 +198,8 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         }
 
         if (post.isSavedReply) {
+            full.setBackgroundColor(0xFFBCBCBC);
+        } else if (manager.isPostHightlighted(post)) {
             full.setBackgroundColor(0xFFD6BAD0);
         } else {
             full.setBackgroundColor(0x00000000);
@@ -295,6 +297,11 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
 
         full.setOnClickListener(this);
         full.setOnLongClickListener(this);
+    }
+
+    public void setOnClickListeners(View.OnClickListener listener) {
+        commentView.setOnClickListener(listener);
+        full.setOnClickListener(listener);
     }
 
     public void onLinkableClick(PostLinkable linkable) {

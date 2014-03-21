@@ -21,53 +21,53 @@ import android.widget.ListView;
  */
 public class PostRepliesFragment extends DialogFragment {
     private ListView listView;
-    
+
     private List<Post> posts;
     private ThreadManager manager;
     private boolean callback = true;
-    
+
     public static PostRepliesFragment newInstance(List<Post> posts, ThreadManager manager) {
         PostRepliesFragment fragment = new PostRepliesFragment();
         fragment.posts = posts;
         fragment.manager = manager;
-        
+
         return fragment;
     }
-    
+
     public void dismissNoCallback() {
         callback = false;
         dismiss();
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         setStyle(STYLE_NO_TITLE, 0);
     }
-    
+
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        
+
         if (callback && manager != null) {
             manager.onPostRepliesPop();
         }
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup unused, Bundle savedInstanceState) {
         View container = inflater.inflate(R.layout.post_replies, null);
-        
+
         listView = (ListView) container.findViewById(R.id.post_list);
-        
+
         container.findViewById(R.id.replies_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();
             }
         });
-        
+
         container.findViewById(R.id.replies_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,16 +75,16 @@ public class PostRepliesFragment extends DialogFragment {
                 dismiss();
             }
         });
-        
+
         return container;
     }
-    
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
+
         if (posts == null) {
-            // Restoring from background. 
+            // Restoring from background.
             dismiss();
         } else {
             ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(getActivity(), 0) {
@@ -96,23 +96,24 @@ public class PostRepliesFragment extends DialogFragment {
                     } else {
                         postView = new PostView(getActivity());
                     }
-                    
+
                     final Post p = getItem(position);
-                    
+
                     postView.setPost(p, manager);
-                    postView.setOnClickListener(new View.OnClickListener() {
+                    postView.setOnClickListeners(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             manager.closeAllPostFragments();
                             dismiss();
+                            manager.highlightPost(p);
                             manager.scrollToPost(p);
                         }
                     });
-                    
+
                     return postView;
                 }
             };
-            
+
             adapter.addAll(posts);
             listView.setAdapter(adapter);
         }

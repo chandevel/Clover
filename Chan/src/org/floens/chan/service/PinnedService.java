@@ -19,23 +19,10 @@ public class PinnedService extends Service {
     private static final long FOREGROUND_INTERVAL = 10000L;
     private static final long BACKGROUND_INTERVAL = 60000L;
 
-    private static PinnedService instance;
     private static boolean activityInForeground = false;
 
     private Thread loadThread;
     private boolean running = true;
-
-    public PinnedService() {
-        instance = this;
-    }
-
-    /**
-     * Get the PinnedService instance
-     * @return the instance or null
-     */
-    public static PinnedService getInstance() {
-        return instance;
-    }
 
     public static void onActivityStart() {
         Logger.test("onActivityStart");

@@ -6,6 +6,7 @@ import java.util.List;
 import org.floens.chan.R;
 import org.floens.chan.manager.ThreadManager;
 import org.floens.chan.model.Post;
+import org.floens.chan.utils.ScrollerRunnable;
 import org.floens.chan.utils.Utils;
 import org.floens.chan.view.PostView;
 import org.floens.chan.view.ThreadWatchCounterView;
@@ -129,10 +130,14 @@ public class PostAdapter extends BaseAdapter {
     }
 
     public void scrollToPost(Post post) {
+        notifyDataSetChanged();
+
         for (int i = 0; i < postList.size(); i++) {
             if (postList.get(i).no == post.no) {
-//                listView.smoothScrollToPosition(i); does not work when a view is taller than the container
-                listView.setSelection(i);
+//                listView.smoothScrollToPosition(i);
+
+                ScrollerRunnable r = new ScrollerRunnable(listView);
+                r.start(i);
 
                 break;
             }
