@@ -10,12 +10,12 @@ import android.view.View;
  */
 public class PostLinkable extends ClickableSpan {
     public static enum Type {QUOTE, LINK};
-    
+
     public final Post post;
     public final String key;
     public final String value;
     public final Type type;
-    
+
     public PostLinkable(Post post, String key, String value, Type type) {
         this.post = post;
         this.key = key;
@@ -29,7 +29,7 @@ public class PostLinkable extends ClickableSpan {
             post.getLinkableListener().onLinkableClick(this);
         }
     }
-    
+
     @Override
     public void updateDrawState(TextPaint ds) {
         ds.setColor(type == Type.QUOTE ? Color.argb(255, 221, 0, 0) : Color.argb(255, 0, 0, 180));
