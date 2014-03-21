@@ -26,19 +26,13 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
 
-                <!--<EditText
-                    android:id="@+id/reply_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/reply_name" />-->
-
                 <com.micromobs.android.floatlabel.FloatLabelEditText
                     android:id="@+id/reply_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
 
                     floatlabel:fitScreenWidth="full"
-                    floatlabel:textSize="20sp"
+                    floatlabel:textSize="16sp"
                     floatlabel:hint="@string/reply_name"
                     floatlabel:textColorHintFocused="@color/holo_blue_dark"
                     floatlabel:textColorHintUnFocused="@android:color/darker_gray" />
@@ -50,7 +44,7 @@
                     android:inputType="textEmailAddress"
 
                     floatlabel:fitScreenWidth="full"
-                    floatlabel:textSize="20sp"
+                    floatlabel:textSize="16sp"
                     floatlabel:hint="@string/reply_email"
                     floatlabel:textColorHintFocused="@color/holo_blue_dark"
                     floatlabel:textColorHintUnFocused="@android:color/darker_gray" />
@@ -61,7 +55,7 @@
                     android:layout_height="wrap_content"
 
                     floatlabel:fitScreenWidth="full"
-                    floatlabel:textSize="20sp"
+                    floatlabel:textSize="16sp"
                     floatlabel:hint="@string/reply_subject"
                     floatlabel:textColorHintFocused="@color/holo_blue_dark"
                     floatlabel:textColorHintUnFocused="@android:color/darker_gray" />
@@ -75,7 +69,7 @@
                     android:imeActionLabel="@string/reply_submit"
 
                     floatlabel:fitScreenWidth="full"
-                    floatlabel:textSize="20sp"
+                    floatlabel:textSize="16sp"
                     floatlabel:hint="@string/reply_comment"
                     floatlabel:textColorHintFocused="@color/holo_blue_dark"
                     floatlabel:textColorHintUnFocused="@android:color/darker_gray" />
