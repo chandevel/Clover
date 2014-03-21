@@ -13,6 +13,7 @@ import org.floens.chan.loader.LoaderPool;
 import org.floens.chan.manager.ReplyManager.DeleteListener;
 import org.floens.chan.manager.ReplyManager.DeleteResponse;
 import org.floens.chan.model.Loadable;
+import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
 import org.floens.chan.model.PostLinkable;
 import org.floens.chan.model.SavedReply;
@@ -91,6 +92,15 @@ public class ThreadManager implements Loader.LoaderListener {
         }
 
         highlightedPost = null;
+    }
+
+    public void bottomPostViewed() {
+        if (loader != null && loader.getLoadable().isThreadMode()) {
+            Pin pin = PinnedManager.getInstance().findPinByLoadable(loader.getLoadable());
+            if (pin != null) {
+                PinnedManager.getInstance().onPinViewed(pin);
+            }
+        }
     }
 
     public void requestData() {
@@ -398,7 +408,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
         FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.add(popup, "postPopup");
-        ft.commit();
+        ft.commitAllowingStateLoss();
 
         currentPopupFragment = popup;
     }

@@ -7,6 +7,7 @@ import org.floens.chan.animation.SwipeDismissListViewTouchListener.DismissCallba
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
+import org.floens.chan.utils.Logger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,22 +39,22 @@ import android.widget.ShareActionProvider;
 
 public abstract class BaseActivity extends Activity implements PanelSlideListener, PinnedManager.PinListener {
     private final static int ACTION_OPEN_URL = 1;
-    
+
     protected PinnedAdapter pinnedAdapter;
     protected DrawerLayout pinDrawer;
     protected ListView pinDrawerView;
     protected ActionBarDrawerToggle pinDrawerListener;
-    
+
     protected SlidingPaneLayout threadPane;
-    
+
     private ShareActionProvider shareActionProvider;
-    
+
     /**
      * Called when a post has been clicked in the pinned drawer
      * @param post
      */
     abstract public void openPin(Pin post);
-    
+
     /**
      * Called when a post has been clicked in the listview
      * @param post
@@ -63,25 +64,25 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         setContentView(R.layout.activity_base);
-        
+
         pinDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         initDrawer();
-        
+
         threadPane = (SlidingPaneLayout) findViewById(R.id.pane_container);
         initPane();
-        
+
         PinnedManager.getInstance().addPinListener(this);
     }
-    
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        
+
         PinnedManager.getInstance().removePinListener(this);
     }
-    
+
     private void initPane() {
         threadPane.setPanelSlideListener(this);
         threadPane.setParallaxDistance(200);
@@ -89,21 +90,21 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         threadPane.setSliderFadeColor(0xcce5e5e5);
         threadPane.openPane();
     }
-    
+
     protected void initDrawer() {
         if (pinDrawerListener == null) {
             return;
         }
-        
+
         pinDrawer.setDrawerListener(pinDrawerListener);
         pinDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        
+
         pinDrawerView = (ListView)findViewById(R.id.left_drawer);
-        
+
         pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext(), 0); // Get the dark theme, not the light one
         pinnedAdapter.reload();
         pinDrawerView.setAdapter(pinnedAdapter);
-        
+
         pinDrawerView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -112,19 +113,19 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 openPin(pin);
             }
         });
-        
+
         pinDrawerView.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Pin post = pinnedAdapter.getItem(position);
                 if (post == null || post.type == Pin.Type.HEADER) return false;
-                
+
                 changePinTitle(post);
-                
+
                 return true;
             }
         });
-        
+
         SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(pinDrawerView,
             new DismissCallbacks() {
                 @Override
@@ -139,24 +140,26 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                     return pinnedAdapter.getItem(position).type != Pin.Type.HEADER;
                 }
             });
-        
+
         pinDrawerView.setOnTouchListener(touchListener);
         pinDrawerView.setOnScrollListener(touchListener.makeScrollListener());
     }
-    
+
     @Override
     public void onPinsChanged() {
         pinnedAdapter.reload();
+        pinDrawerView.invalidate();
+        Logger.test("onPinsChanged");
     }
 
     public void addPin(Pin pin) {
         PinnedManager.getInstance().add(pin);
     }
-    
+
     public void removePin(Pin pin) {
         PinnedManager.getInstance().remove(pin);
     }
-    
+
     public void updatePin(Pin pin) {
         PinnedManager.getInstance().update(pin);
     }
@@ -166,13 +169,13 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         text.setSingleLine();
         text.setText(pin.loadable.title);
         text.setSelectAllOnFocus(true);
-        
+
         AlertDialog dialog = new AlertDialog.Builder(this)
             .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface d, int which) {
                     String value = text.getText().toString();
-                    
+
                     if (!TextUtils.isEmpty(value)) {
                         pin.loadable.title = value;
                         updatePin(pin);
@@ -187,9 +190,9 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             .setTitle(R.string.drawer_pinned_change_title)
             .setView(text)
             .create();
-        
+
         text.requestFocus();
-        
+
         dialog.setOnShowListener(new OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
@@ -197,7 +200,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 imm.showSoftInput(text, 0);
             }
         });
-        
+
         dialog.show();
     }
 
@@ -208,18 +211,18 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
-        
+
         return super.onOptionsItemSelected(item);
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.base, menu);
         shareActionProvider = (ShareActionProvider) menu.findItem(R.id.action_share).getActionProvider();
-        
+
         return true;
     }
-    
+
     @Override
     public void onPanelClosed(View view) {
     }
@@ -231,7 +234,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     @Override
     public void onPanelSlide(View view, float offset) {
     }
-    
+
     /**
      * Set the url that Android Beam and the share action will send.
      * @param url
@@ -247,11 +250,11 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 e.printStackTrace();
                 return;
             }
-            
+
             NdefMessage message = new NdefMessage(new NdefRecord[] {record});
             adapter.setNdefPushMessage(message, this);
         }
-        
+
         if (shareActionProvider != null) {
             Intent share = new Intent(android.content.Intent.ACTION_SEND);
             share.putExtra(android.content.Intent.EXTRA_TEXT, url);
@@ -259,7 +262,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             shareActionProvider.setShareIntent(share);
         }
     }
-    
+
     /**
      * Let the user choose between all activities that can open the url.
      * This is done to prevent "open in browser" opening the url in our own app.
@@ -267,20 +270,20 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
      */
     public void showUrlOpenPicker(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        
+
         Intent pickIntent = new Intent(Intent.ACTION_PICK_ACTIVITY);
         pickIntent.putExtra(Intent.EXTRA_INTENT, intent);
-        
+
         startActivityForResult(pickIntent, ACTION_OPEN_URL);
     }
-    
+
     /**
      * Used for showUrlOpenPicker
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
+
         if (requestCode == ACTION_OPEN_URL && resultCode == RESULT_OK && data != null) {
             data.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(data);

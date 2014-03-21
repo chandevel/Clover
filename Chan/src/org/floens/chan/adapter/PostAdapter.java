@@ -28,6 +28,7 @@ public class PostAdapter extends BaseAdapter {
     private boolean endOfLine;
     private int count = 0;
     private final List<Post> postList = new ArrayList<Post>();
+    private long lastViewedTime = 0;
 
     public PostAdapter(Context activity, ThreadManager threadManager, ListView listView) {
         context = activity;
@@ -62,6 +63,11 @@ public class PostAdapter extends BaseAdapter {
         }
 
         if (position >= count) {
+            if (System.currentTimeMillis() - lastViewedTime > 10000L) {
+                lastViewedTime = System.currentTimeMillis();
+                threadManager.bottomPostViewed();
+            }
+
             return createThreadEndView();
         } else {
             PostView postView = null;

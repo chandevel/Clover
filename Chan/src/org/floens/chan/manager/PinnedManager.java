@@ -11,27 +11,27 @@ import android.content.Context;
 
 public class PinnedManager {
     private static PinnedManager instance;
-    
+
     private final List<PinListener> listeners = new ArrayList<PinListener>();
     private final List<Pin> pins;
-    
+
     public PinnedManager(Context context) {
         instance = this;
         pins = DatabaseManager.getInstance().getPinned();
     }
-    
+
     public static PinnedManager getInstance() {
         return instance;
     }
-    
+
     public void addPinListener(PinListener l) {
         listeners.add(l);
     }
-    
+
     public void removePinListener(PinListener l) {
         listeners.remove(l);
     }
-    
+
     /**
      * Look for a pin that has an loadable that is equal to the supplied loadable.
      * @param other
@@ -43,14 +43,14 @@ public class PinnedManager {
                 return pin;
             }
         }
-        
+
         return null;
     }
-    
+
     public List<Pin> getPins() {
         return pins;
     }
-    
+
     /**
      * Add a pin
      * @param pin
@@ -63,15 +63,15 @@ public class PinnedManager {
                 return false;
             }
         }
-        
+
         pins.add(pin);
         DatabaseManager.getInstance().addPin(pin);
-        
+
         onPinsChanged();
-        
+
         return true;
     }
-    
+
     /**
      * Remove a pin
      * @param pin
@@ -79,22 +79,23 @@ public class PinnedManager {
     public void remove(Pin pin) {
         pins.remove(pin);
         DatabaseManager.getInstance().removePin(pin);
-        
+        pin.destroy();
+
         onPinsChanged();
     }
-    
+
     /**
      * Update the pin in the database
      * @param pin
      */
     public void update(Pin pin) {
         DatabaseManager.getInstance().updatePin(pin);
-        
+
         onPinsChanged();
     }
-    
+
     /**
-     * Updates all the pins to the database. 
+     * Updates all the pins to the database.
      * This will run in a new thread because it can be an expensive operation.
      * (this will be an huge headache later on when we get concurrent problems)
      */
@@ -106,19 +107,19 @@ public class PinnedManager {
             }
         }).start();
     }
-    
+
     public void onPinViewed(Pin pin) {
-        pin.watchLastCount = pin.watchNewCount;
-        
+        pin.onViewed();
+
         onPinsChanged();
     }
-    
+
     public void onPinsChanged() {
         for (PinListener l : listeners) {
             l.onPinsChanged();
         }
     }
-    
+
     public static interface PinListener {
         public void onPinsChanged();
     }

@@ -19,40 +19,38 @@ import android.widget.TextView;
 public class PinnedAdapter extends ArrayAdapter<Pin> {
     private final HashMap<Pin, Integer> idMap;
     private int idCounter;
-    private View.OnTouchListener listener;
-    
+
     public PinnedAdapter(Context context, int resId) {
         super(context, resId, new ArrayList<Pin>());
-        
+
         idMap = new HashMap<Pin, Integer>();
     }
-    
-    public void setTouchListener(View.OnTouchListener listener) {
-        this.listener = listener;
-    }
-    
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        
+
         LinearLayout view = null;
-        
+
         Pin item = getItem(position);
-        
+
         if (item.type == Pin.Type.HEADER) {
             view = (LinearLayout) inflater.inflate(R.layout.pin_item_header, null);
-            
+
             ((TextView) view.findViewById(R.id.drawer_item_header)).setText(R.string.drawer_pinned);
         } else {
             view = (LinearLayout) inflater.inflate(R.layout.pin_item, null);
-            
+
             ((TextView) view.findViewById(R.id.drawer_item_text)).setText(item.loadable.title);
-            
-            int count = Math.max(0, item.watchNewCount - item.watchLastCount);
-            String total = Integer.toString(Math.min(count, 999));
-            
+
+            int count = item.getNewPostCount();
+            String total = Integer.toString(count);
+            if (count > 999) {
+                total = "1k+";
+            }
+
             ((TextView) view.findViewById(R.id.drawer_item_count)).setText(total);
-            
+
             FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.drawer_item_count_container);
 //            if (Math.random() < 0.5d) {
                 frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
@@ -60,38 +58,36 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
 //                frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
 //            }
         }
-        
-        if (listener != null) {
-            view.setOnTouchListener(listener);
-        }
-        
+
         return view;
     }
-    
+
     public void reload() {
         clear();
-        
+
         Pin header = new Pin();
         header.type = Pin.Type.HEADER;
         add(header);
-        
+
         addAll(PinnedManager.getInstance().getPins());
+
+        notifyDataSetChanged();
     }
-    
+
     @Override
     public void remove(Pin item) {
         super.remove(item);
         idMap.remove(item);
         notifyDataSetChanged();
     }
-    
+
     @Override
     public void add(Pin item) {
         idMap.put(item, ++idCounter);
         super.add(item);
         notifyDataSetChanged();
     }
-    
+
     @Override
     public boolean hasStableIds() {
         return true;
@@ -100,7 +96,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
     @Override
     public long getItemId(int position) {
         if (position < 0 || position >= getCount()) return -1;
-        
+
         Pin item = getItem(position);
         if (item == null) {
             return -1;

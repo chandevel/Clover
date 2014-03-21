@@ -2,13 +2,11 @@ package org.floens.chan.service;
 
 import java.util.List;
 
-import org.floens.chan.R;
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.watch.WatchNotifier;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
@@ -23,6 +21,7 @@ public class PinnedService extends Service {
 
     private Thread loadThread;
     private boolean running = true;
+    private final WatchNotifier watchNotifier;
 
     public static void onActivityStart() {
         Logger.test("onActivityStart");
@@ -32,6 +31,10 @@ public class PinnedService extends Service {
     public static void onActivityStop() {
         Logger.test("onActivityStop");
         activityInForeground = false;
+    }
+
+    public PinnedService() {
+        watchNotifier = new WatchNotifier(this);
     }
 
     @Override
@@ -49,37 +52,39 @@ public class PinnedService extends Service {
     }
 
     private void start() {
-        loadThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+        running = true;
 
-                while (running) {
-                    doUpdates();
+        if (loadThread == null) {
+            loadThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (running) {
+                        update();
 
-                    long timeout = activityInForeground ? FOREGROUND_INTERVAL : BACKGROUND_INTERVAL;
+                        long timeout = activityInForeground ? FOREGROUND_INTERVAL : BACKGROUND_INTERVAL;
 
-                    try {
-                        Thread.sleep(timeout);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        try {
+                            Thread.sleep(timeout);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }
-        });
 
-        loadThread.start();
+                    loadThread = null;
+                }
+            });
+
+            loadThread.start();
+        }
     }
 
-    private void doUpdates() {
+    private void update() {
         List<Pin> pins = PinnedManager.getInstance().getPins();
         for (Pin pin : pins) {
             pin.updateWatch();
         }
+
+        watchNotifier.update();
     }
 
     public static void callOnPinsChanged() {
@@ -91,18 +96,6 @@ public class PinnedService extends Service {
         });
     }
 
-    @SuppressWarnings("deprecation")
-    private void showNotification(String text) {
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        Notification.Builder builder = new Notification.Builder(this);
-        builder.setTicker(text);
-        builder.setContentTitle(text);
-        builder.setContentText(text);
-        builder.setSmallIcon(R.drawable.ic_stat_notify);
-
-        nm.notify(1, builder.getNotification());
-    }
 
     @Override
     public IBinder onBind(Intent intent) {

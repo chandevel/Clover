@@ -46,7 +46,7 @@
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>
     <string name="drawer_pinned">Pinned threads</string>
-    <string name="drawer_pinned_change_title">Enter title</string>
+    <string name="drawer_pinned_change_title">Edit title</string>
     
     <string name="one_reply">reply</string>
     <string name="multiple_replies">replies</string>

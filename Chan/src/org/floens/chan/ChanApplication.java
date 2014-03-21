@@ -4,9 +4,11 @@ import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.manager.BoardManager;
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.manager.ReplyManager;
+import org.floens.chan.service.PinnedService;
 import org.floens.chan.utils.IconCache;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -70,7 +72,7 @@ public class ChanApplication extends Application {
         new PinnedManager(this);
         new ReplyManager(this);
 
-//        startService(new Intent(this, PinnedService.class));
+        startService(new Intent(this, PinnedService.class));
     }
 }
 
