@@ -133,7 +133,11 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         if (!TextUtils.isEmpty(post.comment)) {
             commentView.setVisibility(View.VISIBLE);
             commentView.setText(post.comment);
-            commentView.setMovementMethod(new PostViewMovementMethod());
+
+            if (manager.getLoadable().isThreadMode()) {
+                commentView.setMovementMethod(new PostViewMovementMethod());
+            }
+
             commentView.setOnClickListener(this);
             commentView.setOnLongClickListener(this);
 
