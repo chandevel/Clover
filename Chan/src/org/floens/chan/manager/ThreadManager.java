@@ -31,15 +31,9 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.widget.CheckBox;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 /**
@@ -214,29 +208,8 @@ public class ThreadManager implements Loader.LoaderListener {
         handleLinkableSelected(linkable);
     }
     
-    /**
-     * Returns an TextView containing the appropriate error message
-     * @param error
-     * @return
-     */
-    public TextView getLoadErrorTextView(VolleyError error) {
-        String errorMessage = "";
-        
-        if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
-            errorMessage = activity.getString(R.string.thread_load_failed_network);
-        } else if (error instanceof ServerError) {
-            errorMessage = activity.getString(R.string.thread_load_failed_server);
-        } else {
-            errorMessage = activity.getString(R.string.thread_load_failed_parsing);
-        }
-        
-        TextView view = new TextView(activity);
-        view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        view.setText(errorMessage);
-        view.setTextSize(24f);
-        view.setGravity(Gravity.CENTER);
-        
-        return view;
+    public void scrollToPost(Post post) {
+        threadManagerListener.onScrollTo(post);
     }
     
     private void copyToClipboard(String comment) {
@@ -329,7 +302,7 @@ public class ThreadManager implements Loader.LoaderListener {
         }
         
         if (p.size() > 0) {
-            showPostsReplies(p);
+            showPostsRepliesFragment(p);
         }
     }
     
@@ -386,7 +359,7 @@ public class ThreadManager implements Loader.LoaderListener {
                 if (post != null) {
                     List<Post> l = new ArrayList<Post>();
                     l.add(post);
-                    showPostsReplies(l);
+                    showPostsRepliesFragment(l);
                 }
             }
         } catch(NumberFormatException e) {
@@ -402,7 +375,7 @@ public class ThreadManager implements Loader.LoaderListener {
         activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
     }
     
-    private void showPostsReplies(List<Post> list) {
+    private void showPostsRepliesFragment(List<Post> list) {
         // Post popups are now queued up, more than 32 popups on top of each other makes the system crash! 
         popupQueue.add(list);
         
@@ -510,5 +483,6 @@ public class ThreadManager implements Loader.LoaderListener {
         public void onThreadLoadError(VolleyError error);
         public void onOPClicked(Post post);
         public void onThumbnailClicked(Post post);
+        public void onScrollTo(Post post);
     }
 }

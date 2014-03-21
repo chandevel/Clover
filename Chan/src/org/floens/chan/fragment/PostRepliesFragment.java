@@ -97,7 +97,17 @@ public class PostRepliesFragment extends DialogFragment {
                         postView = new PostView(getActivity());
                     }
                     
-                    postView.setPost(getItem(position), manager);
+                    final Post p = getItem(position);
+                    
+                    postView.setPost(p, manager);
+                    postView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            manager.closeAllPostFragments();
+                            dismiss();
+                            manager.scrollToPost(p);
+                        }
+                    });
                     
                     return postView;
                 }

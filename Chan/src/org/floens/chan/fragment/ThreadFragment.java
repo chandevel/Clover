@@ -15,6 +15,7 @@ import org.floens.chan.utils.LoadView;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,11 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener {
@@ -164,9 +169,34 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             postAdapter.setEndOfLine(true);
         } else {
             if (container != null) {
-                container.setView(threadManager.getLoadErrorTextView(error));
+                container.setView(getLoadErrorTextView(error));
             }
         }
+    }
+    
+    /**
+     * Returns an TextView containing the appropriate error message
+     * @param error
+     * @return
+     */
+    public TextView getLoadErrorTextView(VolleyError error) {
+        String errorMessage = "";
+        
+        if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
+            errorMessage = getActivity().getString(R.string.thread_load_failed_network);
+        } else if (error instanceof ServerError) {
+            errorMessage = getActivity().getString(R.string.thread_load_failed_server);
+        } else {
+            errorMessage = getActivity().getString(R.string.thread_load_failed_parsing);
+        }
+        
+        TextView view = new TextView(getActivity());
+        view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        view.setText(errorMessage);
+        view.setTextSize(24f);
+        view.setGravity(Gravity.CENTER);
+        
+        return view;
     }
     
     @Override
@@ -176,13 +206,20 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     
     @Override
     public void onThumbnailClicked(Post source) {
-        if (isDetached() || postAdapter == null) return;
-        
-        ImageViewActivity.setAdapter(postAdapter, source.no);
-        
-        Intent intent = new Intent(baseActivity, ImageViewActivity.class);
-        baseActivity.startActivity(intent);
-        baseActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        if (postAdapter != null) {
+            ImageViewActivity.setAdapter(postAdapter, source.no);
+            
+            Intent intent = new Intent(baseActivity, ImageViewActivity.class);
+            baseActivity.startActivity(intent);
+            baseActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        }
+    }
+
+    @Override
+    public void onScrollTo(Post post) {
+        if (postAdapter != null) {
+            postAdapter.scrollToPost(post);
+        }
     }
 }
 
