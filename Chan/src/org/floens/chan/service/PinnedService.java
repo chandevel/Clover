@@ -5,6 +5,7 @@ import java.util.List;
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
 import org.floens.chan.utils.ChanPreferences;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.watch.WatchNotifier;
 
 import android.app.Service;
@@ -28,10 +29,16 @@ public class PinnedService extends Service {
 
     public static void onActivityStart() {
         activityInForeground = true;
+        if (instance != null) {
+            instance.onActivityInForeground();
+        }
     }
 
     public static void onActivityStop() {
         activityInForeground = false;
+        if (instance != null) {
+            instance.onActivityInBackground();
+        }
     }
 
     public static void startStopAccordingToSettings(Context context) {
@@ -105,16 +112,21 @@ public class PinnedService extends Service {
                 @Override
                 public void run() {
                     while (running) {
+                        Logger.test("Loadthread iteration");
+
                         update();
 
-                        long timeout = activityInForeground ? FOREGROUND_INTERVAL : BACKGROUND_INTERVAL;
+                        if (!running)
+                            return;
 
-                        if (!running) return;
+                        long timeout = activityInForeground ? FOREGROUND_INTERVAL : BACKGROUND_INTERVAL;
 
                         try {
                             Thread.sleep(timeout);
                         } catch (InterruptedException e) {
-                            return;
+                            if (!running) {
+                                return;
+                            }
                         }
                     }
                 }
@@ -123,6 +135,16 @@ public class PinnedService extends Service {
             loadThread.start();
             Toast.makeText(getApplicationContext(), "Service thread started", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void onActivityInForeground() {
+        if (loadThread != null) {
+            loadThread.interrupt();
+        }
+    }
+
+    private void onActivityInBackground() {
+
     }
 
     private void update() {
@@ -139,7 +161,3 @@ public class PinnedService extends Service {
         return null;
     }
 }
-
-
-
-

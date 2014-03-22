@@ -31,13 +31,9 @@ public class PinWatcher implements Loader.LoaderListener {
     }
 
     public void update() {
-        Logger.test("PinWatcher update");
+//        Logger.test("PinWatcher update");
 
         if (!isError) {
-            if (loader.getTimeUntilReload() < -1000000L) {
-                Logger.test("Here: " + loader.getTimeUntilReload());
-            }
-
             if (loader.getTimeUntilReload() < 0L) {
                 loader.requestNextDataResetTimer();
             }

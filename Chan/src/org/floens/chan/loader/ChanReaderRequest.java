@@ -80,9 +80,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     private void processPosts(List<Post> posts) {
         for (Post post : posts) {
             post.repliesFrom.clear();
-        }
 
-        for (Post post : posts) {
             for (Post other : posts) {
                 if (other.repliesTo.contains(post.no)) {
                     post.repliesFrom.add(other.no);

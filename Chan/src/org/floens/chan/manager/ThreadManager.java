@@ -80,10 +80,12 @@ public class ThreadManager implements Loader.LoaderListener {
         }
 
         loader = LoaderPool.getInstance().obtain(loadable, this);
+        loader.activityHasBinded();
     }
 
     public void unbindLoader() {
         if (loader != null) {
+            loader.onStop();
             LoaderPool.getInstance().release(loader, this);
             loader = null;
         } else {

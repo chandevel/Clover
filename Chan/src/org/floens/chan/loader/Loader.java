@@ -28,6 +28,7 @@ public class Loader {
     private final List<Post> cachedPosts = new ArrayList<Post>();
 
     private boolean destroyed = false;
+    private boolean activityStarted = false;
     private ChanReaderRequest request;
 
     private int currentTimeout;
@@ -119,14 +120,25 @@ public class Loader {
         return loadable;
     }
 
+    // Temp fix
+    public void activityHasBinded() {
+        activityStarted = true;
+    }
+
     public void onStart() {
-        if (loadable.isThreadMode()) {
-            requestNextDataResetTimer();
+        if (!activityStarted) {
+            activityStarted = true;
+            if (loadable.isThreadMode()) {
+                requestNextDataResetTimer();
+            }
         }
     }
 
     public void onStop() {
-        clearTimer();
+        if (activityStarted) {
+            activityStarted = false;
+            clearTimer();
+        }
     }
 
     public long getTimeUntilReload() {
@@ -144,13 +156,6 @@ public class Loader {
         }
 
         if (pendingRunnable == null) {
-            pendingRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    pendingRunnableCallback();
-                };
-            };
-
             lastPostCount = postCount;
 
             if (postCount > lastPostCount) {
@@ -159,7 +164,17 @@ public class Loader {
                 currentTimeout = Math.min(watchTimeouts.length - 1, currentTimeout + 1);
             }
 
-            handler.postDelayed(pendingRunnable, watchTimeouts[currentTimeout] * 1000L);
+            if (activityStarted) {
+                pendingRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        pendingRunnableCallback();
+                    };
+                };
+
+
+                handler.postDelayed(pendingRunnable, watchTimeouts[currentTimeout] * 1000L);
+            }
         }
     }
 
