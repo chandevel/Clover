@@ -5,8 +5,6 @@ import android.view.ViewConfiguration;
 import android.widget.ListView;
 
 public class ScrollerRunnable implements Runnable {
-    private static final int SCROLL_DURATION = 1;
-
     private static final int MOVE_DOWN_POS = 1;
     private static final int MOVE_UP_POS = 2;
 
@@ -28,12 +26,12 @@ public class ScrollerRunnable implements Runnable {
         final int firstPos = mList.getFirstVisiblePosition();
         final int lastPos = firstPos + mList.getChildCount() - 1;
 
-        int viewTravelCount = 0;
+//        int viewTravelCount = 0;
         if (position <= firstPos) {
-            viewTravelCount = firstPos - position + 1;
+//            viewTravelCount = firstPos - position + 1;
             mMode = MOVE_UP_POS;
         } else if (position >= lastPos) {
-            viewTravelCount = position - lastPos + 1;
+//            viewTravelCount = position - lastPos + 1;
             mMode = MOVE_DOWN_POS;
         } else {
             // Already on screen, nothing to do

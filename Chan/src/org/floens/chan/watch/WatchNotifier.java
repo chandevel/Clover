@@ -1,6 +1,10 @@
 package org.floens.chan.watch;
 
+import java.util.List;
+
 import org.floens.chan.R;
+import org.floens.chan.manager.PinnedManager;
+import org.floens.chan.model.Pin;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -16,7 +20,18 @@ public class WatchNotifier {
     }
 
     public void update() {
-        showNotification("Update!");
+        List<Pin> pins = PinnedManager.getInstance().getPins();
+
+        int count = 0;
+        int pinCount = 0;
+
+        for (Pin pin : pins) {
+            count += pin.getNewPostCount();
+            pinCount++;
+        }
+
+        showNotification(count + " new posts in " + pinCount + " threads");
+//        showNotification("WatchNotifier update");
     }
 
     private void showNotification(String text) {
@@ -27,6 +42,7 @@ public class WatchNotifier {
         builder.setContentTitle(text);
         builder.setContentText(text);
         builder.setSmallIcon(R.drawable.ic_stat_notify);
+        builder.setOnlyAlertOnce(false);
 
         nm.notify(NOTIFICATION_ID, builder.getNotification());
     }

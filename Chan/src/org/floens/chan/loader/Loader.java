@@ -200,8 +200,6 @@ public class Loader {
     private void onData(List<Post> result) {
         if (destroyed) return;
 
-        Logger.test("ondata in loader");
-
         postsById.clear();
         for (Post post : result) {
             postsById.append(post.no, post);

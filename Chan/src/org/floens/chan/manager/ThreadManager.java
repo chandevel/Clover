@@ -38,10 +38,9 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 
 /**
- * All PostView's need to have this referenced.
- * This manages some things like pages, starting and stopping of loading,
- * handling linkables, replies popups etc.
- * onDestroy, onStart and onStop must be called from the activity/fragment
+ * All PostView's need to have this referenced. This manages some things like
+ * pages, starting and stopping of loading, handling linkables, replies popups
+ * etc. onDestroy, onStart and onStop must be called from the activity/fragment
  */
 public class ThreadManager implements Loader.LoaderListener {
     private static final String TAG = "ThreadManager";
@@ -54,8 +53,8 @@ public class ThreadManager implements Loader.LoaderListener {
 
     private Loader loader;
 
-    public ThreadManager(Activity context, final ThreadManagerListener listener) {
-        activity = context;
+    public ThreadManager(Activity activity, final ThreadManagerListener listener) {
+        this.activity = activity;
         threadManagerListener = listener;
     }
 
@@ -137,12 +136,14 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public Post findPostById(int id) {
-        if (loader == null) return null;
+        if (loader == null)
+            return null;
         return loader.findPostById(id);
     }
 
     public Loadable getLoadable() {
-        if (loader == null) return null;
+        if (loader == null)
+            return null;
         return loader.getLoadable();
     }
 
@@ -178,7 +179,7 @@ public class ThreadManager implements Loader.LoaderListener {
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch(which) {
+                switch (which) {
                 case 0: // Reply
                     openReply(true); // todo if tablet
                     // Pass through
@@ -205,7 +206,8 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void openReply(boolean startInActivity) {
-        if (loader == null) return;
+        if (loader == null)
+            return;
 
         if (startInActivity) {
             ReplyActivity.setLoadable(loader.getLoadable());
@@ -246,7 +248,7 @@ public class ThreadManager implements Loader.LoaderListener {
             text += "File: " + post.filename + " \nSize: " + post.imageWidth + "x" + post.imageHeight + "\n\n";
         }
 
-        text += "Time: " + post.date ;
+        text += "Time: " + post.date;
 
         if (!TextUtils.isEmpty(post.id)) {
             text += "\nId: " + post.id;
@@ -268,24 +270,23 @@ public class ThreadManager implements Loader.LoaderListener {
             text += "\nCapcode: " + post.capcode;
         }
 
-        AlertDialog dialog = new AlertDialog.Builder(activity)
-            .setTitle(R.string.post_info)
-            .setMessage(text)
-            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            })
-            .create();
+        AlertDialog dialog = new AlertDialog.Builder(activity).setTitle(R.string.post_info).setMessage(text)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                }).create();
 
         dialog.show();
     }
 
     /**
-     * When the user clicks a post:
-     * a. when there's one linkable, open the linkable.
-     * b. when there's more than one linkable, show the user multiple options to select from.
-     * @param post The post that was clicked.
+     * When the user clicks a post: a. when there's one linkable, open the
+     * linkable. b. when there's more than one linkable, show the user multiple
+     * options to select from.
+     *
+     * @param post
+     *            The post that was clicked.
      */
     public void showPostLinkables(Post post) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -329,7 +330,9 @@ public class ThreadManager implements Loader.LoaderListener {
 
     /**
      * Handle when a linkable has been clicked.
-     * @param linkable the selected linkable.
+     *
+     * @param linkable
+     *            the selected linkable.
      */
     private void handleLinkableSelected(final PostLinkable linkable) {
         if (linkable.type == PostLinkable.Type.QUOTE) {
@@ -337,20 +340,16 @@ public class ThreadManager implements Loader.LoaderListener {
         } else if (linkable.type == PostLinkable.Type.LINK) {
             if (ChanPreferences.getOpenLinkConfirmation()) {
                 AlertDialog dialog = new AlertDialog.Builder(activity)
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            openLink(linkable);
-                        }
-                    })
-                    .setTitle(R.string.open_link_confirmation)
-                    .setMessage(linkable.value)
-                    .create();
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        }).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                openLink(linkable);
+                            }
+                        }).setTitle(R.string.open_link_confirmation).setMessage(linkable.value).create();
 
                 dialog.show();
             } else {
@@ -360,9 +359,11 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     /**
-     * When a linkable to a post has been clicked,
-     * show a dialog with the referenced post in it.
-     * @param linkable the clicked linkable.
+     * When a linkable to a post has been clicked, show a dialog with the
+     * referenced post in it.
+     *
+     * @param linkable
+     *            the clicked linkable.
      */
     private void showPostReply(PostLinkable linkable) {
         String value = linkable.value;
@@ -383,21 +384,24 @@ public class ThreadManager implements Loader.LoaderListener {
                     showPostsRepliesFragment(l);
                 }
             }
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
         }
     }
 
     /**
      * Open an url.
-     * @param linkable Linkable with an url.
+     *
+     * @param linkable
+     *            Linkable with an url.
      */
     private void openLink(PostLinkable linkable) {
         activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
     }
 
     private void showPostsRepliesFragment(List<Post> list) {
-        // Post popups are now queued up, more than 32 popups on top of each other makes the system crash!
+        // Post popups are now queued up, more than 32 popups on top of each
+        // other makes the system crash!
         popupQueue.add(list);
 
         if (currentPopupFragment != null) {
@@ -414,7 +418,8 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void onPostRepliesPop() {
-        if (popupQueue.size() == 0) return;
+        if (popupQueue.size() == 0)
+            return;
 
         popupQueue.remove(popupQueue.size() - 1);
 
@@ -442,30 +447,26 @@ public class ThreadManager implements Loader.LoaderListener {
         int padding = activity.getResources().getDimensionPixelSize(R.dimen.general_padding);
         view.setPadding(padding, padding, padding, padding);
 
-        new AlertDialog.Builder(activity)
-            .setTitle(R.string.delete_confirm)
-            .setView(view)
-            .setPositiveButton(R.string.delete, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    doDeletePost(post, view.isChecked());
-                }
-            })
-            .setNegativeButton(R.string.cancel, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            })
-            .show();
+        new AlertDialog.Builder(activity).setTitle(R.string.delete_confirm).setView(view)
+                .setPositiveButton(R.string.delete, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        doDeletePost(post, view.isChecked());
+                    }
+                }).setNegativeButton(R.string.cancel, new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                }).show();
     }
 
     private void doDeletePost(Post post, boolean onlyImageDelete) {
         SavedReply reply = DatabaseManager.getInstance().getSavedReply(post.board, post.no);
         if (reply == null) {
-            /*reply = new SavedReply();
-            reply.board = "g";
-            reply.no = 1234;
-            reply.password = "boom";*/
+            /*
+             * reply = new SavedReply(); reply.board = "g"; reply.no = 1234;
+             * reply.password = "boom";
+             */
             return;
         }
 
@@ -501,9 +502,13 @@ public class ThreadManager implements Loader.LoaderListener {
 
     public interface ThreadManagerListener {
         public void onThreadLoaded(List<Post> result, boolean append);
+
         public void onThreadLoadError(VolleyError error);
+
         public void onOPClicked(Post post);
+
         public void onThumbnailClicked(Post post);
+
         public void onScrollTo(Post post);
     }
 }

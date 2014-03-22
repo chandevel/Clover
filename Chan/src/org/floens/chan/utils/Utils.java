@@ -5,9 +5,14 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
 import android.view.View;
 
 public class Utils {
+    public static int dp(Context context, int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, context.getResources().getDisplayMetrics());
+    }
+
     /**
      * Sets the android.R.attr.selectableItemBackground as background drawable on the view.
      * @param view

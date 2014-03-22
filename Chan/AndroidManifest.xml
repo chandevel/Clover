@@ -54,6 +54,14 @@
                 android:value="org.floens.chan.activity.BoardActivity" />
         </activity>
         <activity
+            android:name="org.floens.chan.activity.WatchSettingsActivity" 
+            android:label="@string/preference_watch_settings"
+            android:parentActivityName="org.floens.chan.activity.BoardActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.floens.chan.activity.BoardActivity" />
+        </activity>
+        <activity
             android:name="org.floens.chan.activity.AboutActivity" 
             android:label="@string/preference_about"
             android:parentActivityName="org.floens.chan.activity.BoardActivity" >
