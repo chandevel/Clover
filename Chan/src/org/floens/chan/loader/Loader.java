@@ -25,6 +25,7 @@ public class Loader {
     private final List<LoaderListener> listeners = new ArrayList<LoaderListener>();
     private final Loadable loadable;
     private final SparseArray<Post> postsById = new SparseArray<Post>();
+    private final List<Post> cachedPosts = new ArrayList<Post>();
 
     private boolean destroyed = false;
     private ChanReaderRequest request;
@@ -75,7 +76,7 @@ public class Loader {
 
         currentTimeout = 0;
 
-        request = getData(loadable);
+        request = getData();
     }
 
     public void requestNextData() {
@@ -86,7 +87,7 @@ public class Loader {
                 request.cancel();
             }
 
-            request = getData(loadable);
+            request = getData();
         } else if (loadable.isThreadMode()) {
             if (request != null) {
                 return;
@@ -94,7 +95,7 @@ public class Loader {
 
             clearTimer();
 
-            request = getData(loadable);
+            request = getData();
         }
     }
 
@@ -175,10 +176,10 @@ public class Loader {
         requestNextData();
     }
 
-    private ChanReaderRequest getData(Loadable loadable) {
+    private ChanReaderRequest getData() {
         Logger.i(TAG, "Requested " + loadable.board + ", " + loadable.no);
 
-        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, new Response.Listener<List<Post>>() {
+        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cachedPosts, new Response.Listener<List<Post>>() {
             @Override
             public void onResponse(List<Post> list) {
                 Loader.this.request = null;
@@ -200,6 +201,12 @@ public class Loader {
     private void onData(List<Post> result) {
         if (destroyed) return;
 
+        cachedPosts.clear();
+
+        if (loadable.isThreadMode()) {
+            cachedPosts.addAll(result);
+        }
+
         postsById.clear();
         for (Post post : result) {
             postsById.append(post.no, post);
@@ -217,6 +224,8 @@ public class Loader {
 
     private void onError(VolleyError error) {
         if (destroyed) return;
+
+        cachedPosts.clear();
 
         Logger.e(TAG, "Error loading " + error.getMessage(), error);
 

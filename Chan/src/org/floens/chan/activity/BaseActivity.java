@@ -7,7 +7,6 @@ import org.floens.chan.animation.SwipeDismissListViewTouchListener.DismissCallba
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
 import org.floens.chan.model.Post;
-import org.floens.chan.utils.Logger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -149,7 +148,6 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     public void onPinsChanged() {
         pinnedAdapter.reload();
         pinDrawerView.invalidate();
-        Logger.test("onPinsChanged");
     }
 
     public void addPin(Pin pin) {

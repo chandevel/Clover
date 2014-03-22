@@ -5,7 +5,6 @@ import java.util.List;
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
 import org.floens.chan.utils.ChanPreferences;
-import org.floens.chan.utils.Logger;
 import org.floens.chan.watch.WatchNotifier;
 
 import android.app.Service;
@@ -28,12 +27,10 @@ public class PinnedService extends Service {
     private final WatchNotifier watchNotifier;
 
     public static void onActivityStart() {
-        Logger.test("onActivityStart");
         activityInForeground = true;
     }
 
     public static void onActivityStop() {
-        Logger.test("onActivityStop");
         activityInForeground = false;
     }
 
