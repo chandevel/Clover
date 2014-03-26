@@ -64,13 +64,16 @@ public class ThreadManager implements Loader.LoaderListener {
 
     public void onStart() {
         if (loader != null) {
-            loader.onStart();
+            if (loader.getLoadable().isThreadMode()) {
+                loader.setAutoLoadMore(true);
+                loader.requestMoreDataAndResetTimer();
+            }
         }
     }
 
     public void onStop() {
         if (loader != null) {
-            loader.onStop();
+            loader.setAutoLoadMore(false);
         }
     }
 
@@ -80,12 +83,14 @@ public class ThreadManager implements Loader.LoaderListener {
         }
 
         loader = LoaderPool.getInstance().obtain(loadable, this);
-        loader.activityHasBinded();
+        if (loadable.isThreadMode()) {
+            loader.setAutoLoadMore(true);
+        }
     }
 
     public void unbindLoader() {
         if (loader != null) {
-            loader.onStop();
+            loader.setAutoLoadMore(false);
             LoaderPool.getInstance().release(loader, this);
             loader = null;
         } else {
@@ -117,7 +122,7 @@ public class ThreadManager implements Loader.LoaderListener {
      */
     public void requestNextData() {
         if (loader != null) {
-            loader.requestNextData();
+            loader.requestMoreData();
         } else {
             Logger.e(TAG, "Loader null in requestData");
         }

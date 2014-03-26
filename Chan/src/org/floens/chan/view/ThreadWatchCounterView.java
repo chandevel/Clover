@@ -59,7 +59,7 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
     public void onClick(View v) {
         Loader loader = tm.getLoader();
         if (loader != null) {
-            loader.requestNextDataResetTimer();
+            loader.requestMoreDataAndResetTimer();
         }
         
         ad.notifyDataSetChanged();
@@ -69,7 +69,7 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
         Loader loader = tm.getLoader();
         if (loader == null) return;
         
-        int time = Math.round(loader.getTimeUntilReload() / 1000f);
+        int time = Math.round(loader.getTimeUntilLoadMore() / 1000f);
         
         if (time <= 0) {
             setText("Loading");
