@@ -71,7 +71,7 @@ public class ChanApplication extends Application {
         new PinnedManager(this);
         new ReplyManager(this);
 
-        PinnedService.startStopAccordingToSettings(this);
+        PinnedService.updateRunningState(this);
     }
 }
 

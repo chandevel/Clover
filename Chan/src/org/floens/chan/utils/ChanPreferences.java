@@ -33,7 +33,7 @@ public class ChanPreferences {
     }
 
     /**
-     * This also calls startStopAccordingToSettings on the PinnedService to
+     * This also calls updateRunningState on the PinnedService to
      * start/stop the service as needed.
      *
      * @param enabled
@@ -41,7 +41,7 @@ public class ChanPreferences {
     public static void setWatchEnabled(boolean enabled) {
         if (getWatchEnabled() != enabled) {
             ChanApplication.getPreferences().edit().putBoolean("preference_watch_enabled", enabled).commit();
-            PinnedService.startStopAccordingToSettings(ChanApplication.getInstance());
+            PinnedService.updateRunningState(ChanApplication.getInstance());
         }
     }
 }

@@ -25,7 +25,7 @@ public class PinnedService extends Service {
 
     private Thread loadThread;
     private boolean running = true;
-    private final WatchNotifier watchNotifier;
+    private WatchNotifier watchNotifier;
 
     public static void onActivityStart() {
         activityInForeground = true;
@@ -41,7 +41,11 @@ public class PinnedService extends Service {
         }
     }
 
-    public static void startStopAccordingToSettings(Context context) {
+    public static boolean getActivityInForeground() {
+        return activityInForeground;
+    }
+
+    public static void updateRunningState(Context context) {
         if (ChanPreferences.getWatchEnabled()) {
             if (!getRunning()) {
                 enable(context);
@@ -78,13 +82,11 @@ public class PinnedService extends Service {
         });
     }
 
-    public PinnedService() {
-        watchNotifier = new WatchNotifier(this);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
+
+        watchNotifier = new WatchNotifier(this);
 
         instance = this;
 
@@ -141,10 +143,11 @@ public class PinnedService extends Service {
         if (loadThread != null) {
             loadThread.interrupt();
         }
+        watchNotifier.onForegroundChanged();
     }
 
     private void onActivityInBackground() {
-
+        watchNotifier.onForegroundChanged();
     }
 
     private void update() {

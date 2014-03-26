@@ -3,20 +3,26 @@ package org.floens.chan.watch;
 import java.util.List;
 
 import org.floens.chan.R;
+import org.floens.chan.activity.BoardActivity;
 import org.floens.chan.manager.PinnedManager;
 import org.floens.chan.model.Pin;
+import org.floens.chan.service.PinnedService;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 
 public class WatchNotifier {
     private final int NOTIFICATION_ID = 1;
 
-    private final Context context;
+    private final PinnedService pinnedService;
+    private final NotificationManager nm;
 
-    public WatchNotifier(Context context) {
-        this.context = context;
+    public WatchNotifier(PinnedService pinnedService) {
+        this.pinnedService = pinnedService;
+        nm = (NotificationManager) pinnedService.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public void update() {
@@ -30,20 +36,38 @@ public class WatchNotifier {
             pinCount++;
         }
 
-        showNotification(count + " new posts in " + pinCount + " threads");
-//        showNotification("WatchNotifier update");
+        if (!PinnedService.getActivityInForeground()) {
+            showNotification(count + " new posts in " + pinCount + " threads\n" + System.currentTimeMillis());
+        }
     }
 
-    private void showNotification(String text) {
-        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    public void onForegroundChanged() {
+        if (PinnedService.getActivityInForeground()) {
+            nm.cancel(NOTIFICATION_ID);
+        } else {
 
-        Notification.Builder builder = new Notification.Builder(context);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void showNotification(String text) {
+        Intent intent = new Intent(pinnedService, BoardActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pending = PendingIntent.getActivity(pinnedService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification.Builder builder = new Notification.Builder(pinnedService);
+        builder.setContentIntent(pending);
+
         builder.setTicker(text);
         builder.setContentTitle(text);
         builder.setContentText(text);
         builder.setSmallIcon(R.drawable.ic_stat_notify);
-        builder.setOnlyAlertOnce(false);
 
         nm.notify(NOTIFICATION_ID, builder.getNotification());
     }
 }
+
+
+
+
+

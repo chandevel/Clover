@@ -157,7 +157,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
         
         if (append) {
-            postAdapter.addList(posts);
+            postAdapter.appendList(posts);
         } else {
             postAdapter.setList(posts);
         }

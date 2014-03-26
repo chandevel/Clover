@@ -34,9 +34,7 @@ public class PinWatcher implements Loader.LoaderListener {
 //        Logger.test("PinWatcher update");
 
         if (!isError) {
-            if (loader.getTimeUntilReload() < 0L) {
-                loader.requestNextDataResetTimer();
-            }
+            loader.tryLoadMoreIfTime();
         }
     }
 

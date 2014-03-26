@@ -20,7 +20,7 @@ public class Loader {
     private static final String TAG = "Loader";
     private static final Handler handler = new Handler(Looper.getMainLooper());
 
-    private static final int[] watchTimeouts = {5, 10, 15, 20, 30, 60, 90, 120, 180, 240, 300};
+    private static final int[] watchTimeouts = { 10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600 };
 
     private final List<LoaderListener> listeners = new ArrayList<LoaderListener>();
     private final Loadable loadable;
@@ -28,7 +28,7 @@ public class Loader {
     private final List<Post> cachedPosts = new ArrayList<Post>();
 
     private boolean destroyed = false;
-    private boolean activityStarted = false;
+    private boolean autoReload = false;
     private ChanReaderRequest request;
 
     private int currentTimeout;
@@ -42,7 +42,9 @@ public class Loader {
 
     /**
      * Add a LoaderListener
-     * @param l the listener to add
+     *
+     * @param l
+     *            the listener to add
      */
     public void addListener(LoaderListener l) {
         listeners.add(l);
@@ -50,7 +52,9 @@ public class Loader {
 
     /**
      * Remove a LoaderListener
-     * @param l the listener to remove
+     *
+     * @param l
+     *            the listener to remove
      * @return true if there are no more listeners, false otherwise
      */
     public boolean removeListener(LoaderListener l) {
@@ -64,7 +68,38 @@ public class Loader {
         }
     }
 
+    /**
+     * Enable this if requestMoreData should me called automatically when the
+     * timer hits 0
+     */
+    public void setAutoLoadMore(boolean autoReload) {
+        if (this.autoReload != autoReload) {
+            Logger.test("Setting autoreload to " + autoReload);
+            this.autoReload = autoReload;
+
+            if (!autoReload) {
+                clearTimer();
+            }
+        }
+    }
+
+    /**
+     * Request more data if the time left is below 0
+     * If auto load more is disabled, this needs to be called manually.
+     * Otherwise this is called automatically when the timer hits 0.
+     */
+    public void tryLoadMoreIfTime() {
+        if (getTimeUntilLoadMore() < 0L) {
+            requestMoreData();
+        }
+    }
+
+    /**
+     * Request data for the first time.
+     */
     public void requestData() {
+        clearTimer();
+
         if (request != null) {
             request.cancel();
         }
@@ -80,7 +115,12 @@ public class Loader {
         request = getData();
     }
 
-    public void requestNextData() {
+    /**
+     * Request more data
+     */
+    public void requestMoreData() {
+        clearTimer();
+
         if (loadable.isBoardMode()) {
             loadable.no++;
 
@@ -94,15 +134,16 @@ public class Loader {
                 return;
             }
 
-            clearTimer();
-
             request = getData();
         }
     }
 
-    public void requestNextDataResetTimer() {
+    /**
+     * Request more data and reset the watch timer.
+     */
+    public void requestMoreDataAndResetTimer() {
         currentTimeout = 0;
-        requestNextData();
+        requestMoreData();
     }
 
     /**
@@ -120,28 +161,11 @@ public class Loader {
         return loadable;
     }
 
-    // Temp fix
-    public void activityHasBinded() {
-        activityStarted = true;
-    }
-
-    public void onStart() {
-        if (!activityStarted) {
-            activityStarted = true;
-            if (loadable.isThreadMode()) {
-                requestNextDataResetTimer();
-            }
-        }
-    }
-
-    public void onStop() {
-        if (activityStarted) {
-            activityStarted = false;
-            clearTimer();
-        }
-    }
-
-    public long getTimeUntilReload() {
+    /**
+     * Get the time in milliseconds until another loadMore is recommended
+     * @return
+     */
+    public long getTimeUntilLoadMore() {
         if (request != null) {
             return 0L;
         } else {
@@ -156,57 +180,64 @@ public class Loader {
         }
 
         if (pendingRunnable == null) {
-            lastPostCount = postCount;
-
             if (postCount > lastPostCount) {
                 currentTimeout = 0;
             } else {
-                currentTimeout = Math.min(watchTimeouts.length - 1, currentTimeout + 1);
+                currentTimeout++;
+                if (currentTimeout >= watchTimeouts.length) {
+                    currentTimeout = watchTimeouts.length - 1;
+                }
             }
 
-            if (activityStarted) {
+            if (!autoReload && currentTimeout < 4) {
+                currentTimeout = 4; // At least 60 seconds in the background
+            }
+
+            lastPostCount = postCount;
+
+            Logger.test("Current timeout: " + watchTimeouts[currentTimeout]);
+
+            if (autoReload) {
                 pendingRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        pendingRunnableCallback();
+                        pendingRunnable = null;
+                        tryLoadMoreIfTime();
                     };
                 };
 
-
+                Logger.test("Scheduled reload");
                 handler.postDelayed(pendingRunnable, watchTimeouts[currentTimeout] * 1000L);
+
             }
         }
     }
 
     private void clearTimer() {
         if (pendingRunnable != null) {
+            Logger.test("Removed reload");
             handler.removeCallbacks(pendingRunnable);
             pendingRunnable = null;
         }
     }
 
-    private void pendingRunnableCallback() {
-        Logger.d(TAG, "pending callback");
-        pendingRunnable = null;
-        requestNextData();
-    }
-
     private ChanReaderRequest getData() {
         Logger.i(TAG, "Requested " + loadable.board + ", " + loadable.no);
 
-        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cachedPosts, new Response.Listener<List<Post>>() {
-            @Override
-            public void onResponse(List<Post> list) {
-                Loader.this.request = null;
-                onData(list);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Loader.this.request = null;
-                onError(error);
-            }
-        });
+        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cachedPosts,
+                new Response.Listener<List<Post>>() {
+                    @Override
+                    public void onResponse(List<Post> list) {
+                        Loader.this.request = null;
+                        onData(list);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Loader.this.request = null;
+                        onError(error);
+                    }
+                });
 
         ChanApplication.getVolleyRequestQueue().add(request);
 
@@ -214,7 +245,8 @@ public class Loader {
     }
 
     private void onData(List<Post> result) {
-        if (destroyed) return;
+        if (destroyed)
+            return;
 
         cachedPosts.clear();
 
@@ -238,7 +270,8 @@ public class Loader {
     }
 
     private void onError(VolleyError error) {
-        if (destroyed) return;
+        if (destroyed)
+            return;
 
         cachedPosts.clear();
 
@@ -261,8 +294,3 @@ public class Loader {
         public void onError(VolleyError error);
     }
 }
-
-
-
-
-

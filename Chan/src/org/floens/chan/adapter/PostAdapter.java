@@ -26,7 +26,6 @@ public class PostAdapter extends BaseAdapter {
     private final ThreadManager threadManager;
     private final ListView listView;
     private boolean endOfLine;
-    private int count = 0;
     private final List<Post> postList = new ArrayList<Post>();
     private long lastViewedTime = 0;
 
@@ -39,9 +38,9 @@ public class PostAdapter extends BaseAdapter {
     @Override
     public int getCount() {
         if (threadManager.getLoadable().isBoardMode() || threadManager.getLoadable().isThreadMode()) {
-            return count + 1;
+            return postList.size() + 1;
         } else {
-            return count;
+            return postList.size();
         }
     }
 
@@ -62,7 +61,7 @@ public class PostAdapter extends BaseAdapter {
             threadManager.requestNextData();
         }
 
-        if (position >= count) {
+        if (position >= postList.size()) {
             if (System.currentTimeMillis() - lastViewedTime > 10000L) {
                 lastViewedTime = System.currentTimeMillis();
                 threadManager.bottomPostViewed();
@@ -110,9 +109,20 @@ public class PostAdapter extends BaseAdapter {
         }
     }
 
-    public void addList(List<Post> list) {
-        postList.addAll(list);
-        count = postList.size();
+    public void appendList(List<Post> list) {
+        for (Post post : list) {
+            boolean flag = true;
+            for (Post own : postList) {
+                if (post.no == own.no) {
+                    flag = false;
+                    break;
+                }
+            }
+
+            if (flag) {
+                postList.add(post);
+            }
+        }
 
         notifyDataSetChanged();
     }
@@ -120,7 +130,6 @@ public class PostAdapter extends BaseAdapter {
     public void setList(List<Post> list) {
         postList.clear();
         postList.addAll(list);
-        count = postList.size();
 
         notifyDataSetChanged();
     }
@@ -140,8 +149,6 @@ public class PostAdapter extends BaseAdapter {
 
         for (int i = 0; i < postList.size(); i++) {
             if (postList.get(i).no == post.no) {
-//                listView.smoothScrollToPosition(i);
-
                 ScrollerRunnable r = new ScrollerRunnable(listView);
                 r.start(i);
 
