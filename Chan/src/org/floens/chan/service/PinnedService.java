@@ -2,11 +2,11 @@ package org.floens.chan.service;
 
 import java.util.List;
 
-import org.floens.chan.manager.PinnedManager;
-import org.floens.chan.model.Pin;
-import org.floens.chan.utils.ChanPreferences;
+import org.floens.chan.ChanApplication;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.watch.WatchNotifier;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.watch.WatchNotifier;
 
 import android.app.Service;
 import android.content.Context;
@@ -77,7 +77,7 @@ public class PinnedService extends Service {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                PinnedManager.getInstance().onPinsChanged();
+                ChanApplication.getPinnedManager().onPinsChanged();
             }
         });
     }
@@ -151,7 +151,7 @@ public class PinnedService extends Service {
     }
 
     private void update() {
-        List<Pin> pins = PinnedManager.getInstance().getPins();
+        List<Pin> pins = ChanApplication.getPinnedManager().getPins();
         for (Pin pin : pins) {
             pin.updateWatch();
         }

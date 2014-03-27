@@ -5,10 +5,10 @@
     android:background="@color/image_list_background"
     android:orientation="vertical" >
 
-	<org.floens.chan.view.HackyViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+	<org.floens.chan.ui.view.HackyViewPager xmlns:android="http://schemas.android.com/apk/res/android"
 		android:id="@+id/image_pager"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
-	</org.floens.chan.view.HackyViewPager>
+	</org.floens.chan.ui.view.HackyViewPager>
 </RelativeLayout>
     

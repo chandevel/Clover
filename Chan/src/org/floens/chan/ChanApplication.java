@@ -1,9 +1,9 @@
 package org.floens.chan;
 
+import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.manager.PinnedManager;
+import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.database.DatabaseManager;
-import org.floens.chan.manager.BoardManager;
-import org.floens.chan.manager.PinnedManager;
-import org.floens.chan.manager.ReplyManager;
 import org.floens.chan.service.PinnedService;
 import org.floens.chan.utils.IconCache;
 
@@ -23,6 +23,10 @@ public class ChanApplication extends Application {
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
     private static ImageLoader imageLoader;
+    private static BoardManager boardManager;
+    private static PinnedManager pinnedManager;
+    private static ReplyManager replyManager;
+    private static DatabaseManager databaseManager;
 
     public ChanApplication() {
         instance = this;
@@ -38,6 +42,22 @@ public class ChanApplication extends Application {
 
     public static ImageLoader getImageLoader() {
         return imageLoader;
+    }
+
+    public static BoardManager getBoardManager() {
+        return boardManager;
+    }
+
+    public static PinnedManager getPinnedManager() {
+        return pinnedManager;
+    }
+
+    public static ReplyManager getReplyManager() {
+        return replyManager;
+    }
+
+    public static DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 
     public static SharedPreferences getPreferences() {
@@ -65,11 +85,10 @@ public class ChanApplication extends Application {
         volleyRequestQueue = Volley.newRequestQueue(this);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(1024 * 1024 * 8));
 
-        new DatabaseManager(this);
-
-        new BoardManager(this);
-        new PinnedManager(this);
-        new ReplyManager(this);
+        databaseManager = new DatabaseManager(this);
+        boardManager = new BoardManager(this);
+        pinnedManager = new PinnedManager(this);
+        replyManager = new ReplyManager(this);
 
         PinnedService.updateRunningState(this);
     }

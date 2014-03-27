@@ -6,13 +6,13 @@
         android:title="@string/preference_watch_settings" >
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="org.floens.chan.activity.WatchSettingsActivity"
+            android:targetClass="org.floens.chan.ui.activity.WatchSettingsActivity"
             android:targetPackage="org.floens.chan" />
     </Preference>
     <Preference android:title="@string/board_edit" >
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="org.floens.chan.activity.BoardEditor"
+            android:targetClass="org.floens.chan.ui.activity.BoardEditor"
             android:targetPackage="org.floens.chan" />
     </Preference>
 
@@ -44,7 +44,7 @@
             android:title="@string/preference_developer" >
             <intent
                 android:action="android.intent.action.VIEW"
-                android:targetClass="org.floens.chan.activity.DeveloperActivity"
+                android:targetClass="org.floens.chan.ui.activity.DeveloperActivity"
                 android:targetPackage="org.floens.chan" />
         </Preference>
     </PreferenceCategory>

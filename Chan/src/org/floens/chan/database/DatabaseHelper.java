@@ -2,9 +2,9 @@ package org.floens.chan.database;
 
 import java.sql.SQLException;
 
-import org.floens.chan.model.Loadable;
-import org.floens.chan.model.Pin;
-import org.floens.chan.model.SavedReply;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.utils.Logger;
 
 import android.content.Context;

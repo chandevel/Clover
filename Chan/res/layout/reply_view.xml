@@ -96,7 +96,7 @@
                             android:text="@string/reply_file_delete" />
                     </LinearLayout>
 
-                    <org.floens.chan.utils.LoadView
+                    <org.floens.chan.ui.view.LoadView
                         android:id="@+id/reply_image"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
                 android:padding="8dp"
                 android:orientation="vertical" >
 
-                <org.floens.chan.utils.LoadView
+                <org.floens.chan.ui.view.LoadView
                     android:id="@+id/reply_captcha_container"
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
@@ -136,13 +136,13 @@
 
             </LinearLayout>
         </ScrollView>
-        <org.floens.chan.utils.LoadView
+        <org.floens.chan.ui.view.LoadView
             android:id="@+id/reply_response"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-        </org.floens.chan.utils.LoadView>
+        </org.floens.chan.ui.view.LoadView>
     </ViewFlipper>
     <LinearLayout
         android:orientation="horizontal"

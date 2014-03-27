@@ -15,6 +15,9 @@
  *******************************************************************************/
 package uk.co.senab.photoview;
 
+import uk.co.senab.photoview.PhotoViewAttacher.OnMatrixChangedListener;
+import uk.co.senab.photoview.PhotoViewAttacher.OnPhotoTapListener;
+import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -23,10 +26,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.widget.ImageView;
-
-import uk.co.senab.photoview.PhotoViewAttacher.OnMatrixChangedListener;
-import uk.co.senab.photoview.PhotoViewAttacher.OnPhotoTapListener;
-import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 
 public class PhotoView extends ImageView implements IPhotoView {
 

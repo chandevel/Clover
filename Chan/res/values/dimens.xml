@@ -12,7 +12,5 @@
     <dimen name="post_icon_height">14dp</dimen>
     <dimen name="post_max_height">200dp</dimen>
     
-    <dimen name="about_text_padding">11dp</dimen>
-    
     <dimen name="image_popup_padding">8dp</dimen>
 </resources>
