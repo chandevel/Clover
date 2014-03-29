@@ -222,6 +222,8 @@ public class Post {
                                 } catch (Exception e) {
                                     total = TextUtils.concat(total, item, " ");
                                 }
+                            } else {
+                                total = TextUtils.concat(total, item, " ");
                             }
                         }
                     } else {
