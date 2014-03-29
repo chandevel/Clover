@@ -1,0 +1,50 @@
+Authorizing pass:
+POST https://sys.4chan.org/auth
+act=do_login&id=HASH&pin=PIN
+(optional) long_login=yes
+
+
+Login response:
+Set-Cookie:pass_id=0; expires=Thu, 01-Jan-1970 00:00:01 GMT; Max-Age=-1396102928; path=/; domain=sys.4chan.org; secure; httponly
+Set-Cookie:pass_id=PASS_ID; expires=Sun, 30-Mar-2014 14:22:09 GMT; Max-Age=86400; path=/; domain=.4chan.org; secure; httponly
+Set-Cookie:pass_enabled=1; expires=Sun, 30-Mar-2014 14:22:09 GMT; Max-Age=86400; path=/; domain=.4chan.org
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="pragma" content="no-cache">
+
+    <title>4chan Pass - Authenticated</title>
+
+    <link rel="stylesheet" style="text/css" href="//s.4cdn.org/css/yotsubanew.530.css">
+</head>
+<body>
+<div class="boardBanner">
+    <div class="boardTitle">4chan Pass</div>
+</div>
+<hr style="width: 90%">
+<br>
+<div style="text-align: center;">   <h1>You are authenticated.</h1>
+    <h2>[<a href="https://sys.4chan.org/auth?act=logout">Logout</a>]</h2></div>
+</body>
+</html>
+
+
+Error responses:
+<div style="text-align: center;"><span style="font-size: 14pt; color: red; font-weight: bold;"><strong style="color: red; font-size: larger;">Error: Your Token must be exactly 10 characters.</strong><br><br><br><br><div style="text-align: center;">[<a href="https://sys.4chan.org/auth">Return</a>]</div></span></div>
+</body>
+
+This Pass is already in use by another IP. Please wait 19 minutes and re-authorize by visiting this page again to change IPs.
+
+
+
+And when posting:
+Cookie: pass_id=PASS_ID; pass_enabled=1;
+
+Logging out:
+sets cookies pass_id=0 and pass_enabled=0
+
+
+
+
