@@ -9,7 +9,7 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.service.PinnedService;
+import org.floens.chan.service.WatchService;
 import org.floens.chan.ui.fragment.ThreadFragment;
 
 import android.app.ActionBar;
@@ -92,14 +92,14 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     protected void onStart() {
         super.onStart();
 
-        PinnedService.onActivityStart();
+        WatchService.onActivityStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        PinnedService.onActivityStop();
+        WatchService.onActivityStop();
     }
 
     @Override

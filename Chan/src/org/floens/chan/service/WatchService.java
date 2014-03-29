@@ -16,11 +16,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.widget.Toast;
 
-public class PinnedService extends Service {
+public class WatchService extends Service {
     private static final long FOREGROUND_INTERVAL = 10000L;
-    private static final long BACKGROUND_INTERVAL = 60000L;
 
-    private static PinnedService instance;
+    private static WatchService instance;
     private static boolean activityInForeground = false;
 
     private Thread loadThread;
@@ -47,8 +46,14 @@ public class PinnedService extends Service {
 
     public static void updateRunningState(Context context) {
         if (ChanPreferences.getWatchEnabled()) {
-            if (!getRunning()) {
-                enable(context);
+            if (ChanApplication.getPinnedManager().getWatchingPins().size() == 0) {
+                if (getRunning()) {
+                    disable(context);
+                }
+            } else {
+                if (!getRunning()) {
+                    enable(context);
+                }
             }
         } else {
             if (getRunning()) {
@@ -59,13 +64,18 @@ public class PinnedService extends Service {
 
     public static void enable(Context context) {
         if (!getRunning()) {
-            context.startService(new Intent(context, PinnedService.class));
+            context.startService(new Intent(context, WatchService.class));
         }
     }
 
     public static void disable(Context context) {
         if (getRunning()) {
-            context.stopService(new Intent(context, PinnedService.class));
+            context.stopService(new Intent(context, WatchService.class));
+
+            List<Pin> pins = ChanApplication.getPinnedManager().getWatchingPins();
+            for (Pin pin : pins) {
+                pin.destroyWatcher();
+            }
         }
     }
 
@@ -86,9 +96,9 @@ public class PinnedService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        watchNotifier = new WatchNotifier(this);
-
         instance = this;
+
+        watchNotifier = new WatchNotifier(this);
 
         startThread();
     }
@@ -102,7 +112,7 @@ public class PinnedService extends Service {
         running = false;
         if (loadThread != null) {
             loadThread.interrupt();
-            Toast.makeText(getApplicationContext(), "Service thread interrupted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Pinned thread interrupted", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -121,7 +131,7 @@ public class PinnedService extends Service {
                         if (!running)
                             return;
 
-                        long timeout = activityInForeground ? FOREGROUND_INTERVAL : BACKGROUND_INTERVAL;
+                        long timeout = activityInForeground ? FOREGROUND_INTERVAL : getBackgroundTimeout();
 
                         try {
                             Thread.sleep(timeout);
@@ -135,7 +145,7 @@ public class PinnedService extends Service {
             });
 
             loadThread.start();
-            Toast.makeText(getApplicationContext(), "Service thread started", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Pinned thread started", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -150,8 +160,13 @@ public class PinnedService extends Service {
         watchNotifier.onForegroundChanged();
     }
 
+    private long getBackgroundTimeout() {
+        Logger.test("::: " + ChanPreferences.getWatchBackgroundTimeout());
+        return ChanPreferences.getWatchBackgroundTimeout();
+    }
+
     private void update() {
-        List<Pin> pins = ChanApplication.getPinnedManager().getPins();
+        List<Pin> pins = ChanApplication.getPinnedManager().getWatchingPins();
         for (Pin pin : pins) {
             pin.updateWatch();
         }

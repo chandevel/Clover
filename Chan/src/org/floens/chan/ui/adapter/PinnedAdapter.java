@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Pin;
 
 import android.content.Context;
@@ -32,7 +33,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
 
         LinearLayout view = null;
 
-        Pin item = getItem(position);
+        final Pin item = getItem(position);
 
         if (item.type == Pin.Type.HEADER) {
             view = (LinearLayout) inflater.inflate(R.layout.pin_item_header, null);
@@ -43,20 +44,41 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
 
             ((TextView) view.findViewById(R.id.drawer_item_text)).setText(item.loadable.title);
 
-            int count = item.getNewPostCount();
-            String total = Integer.toString(count);
-            if (count > 999) {
-                total = "1k+";
-            }
-
-            ((TextView) view.findViewById(R.id.drawer_item_count)).setText(total);
-
             FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.drawer_item_count_container);
-//            if (Math.random() < 0.5d) {
-                frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
-//            } else {
-//                frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
-//            }
+            if (ChanPreferences.getWatchEnabled()) {
+                frameLayout.setVisibility(View.VISIBLE);
+
+                TextView itemCount = (TextView) view.findViewById(R.id.drawer_item_count);
+
+                if (item.isError()) {
+                    itemCount.setText("404");
+                } else {
+                    int count = item.getNewPostCount();
+                    String total = Integer.toString(count);
+                    if (count > 999) {
+                        total = "1k+";
+                    }
+                    itemCount.setText(total);
+                }
+
+                itemCount.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        item.watching = !item.watching;
+                        ChanApplication.getPinnedManager().onPinsChanged();
+                    }
+                });
+
+                if (item.isError()) {
+                    frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
+                } else if (item.watching) {
+                    frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
+                } else {
+                    frameLayout.setBackgroundResource(R.drawable.pin_icon_gray);
+                }
+            } else {
+                frameLayout.setVisibility(View.GONE);
+            }
         }
 
         return view;
@@ -95,7 +117,8 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
 
     @Override
     public long getItemId(int position) {
-        if (position < 0 || position >= getCount()) return -1;
+        if (position < 0 || position >= getCount())
+            return -1;
 
         Pin item = getItem(position);
         if (item == null) {
@@ -110,8 +133,3 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
         }
     }
 }
-
-
-
-
-

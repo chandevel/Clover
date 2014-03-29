@@ -93,6 +93,7 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
             TextView text = new TextView(inflater.getContext());
             text.setTextSize(20);
             text.setText(getArguments().getInt("text_resource"));
+            text.setGravity(Gravity.CENTER);
 
             container.setGravity(Gravity.CENTER);
             container.addView(text);
@@ -102,7 +103,24 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
     }
 
     public static class WatchSettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            addPreferencesFromResource(R.xml.preference_watch);
+        }
 
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+

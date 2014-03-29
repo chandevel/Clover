@@ -6,7 +6,7 @@ import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.service.PinnedService;
+import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.Logger;
 
 import com.android.volley.VolleyError;
@@ -15,9 +15,7 @@ public class PinWatcher implements Loader.LoaderListener {
     private static final String TAG = "PinWatcher";
 
     private final Pin pin;
-    private final Loader loader;
-
-    private long startTime;
+    private Loader loader;
     private boolean isError = false;
 
     public PinWatcher(Pin pin) {
@@ -27,14 +25,15 @@ public class PinWatcher implements Loader.LoaderListener {
     }
 
     public void destroy() {
-        LoaderPool.getInstance().release(loader, this);
+        if (loader != null) {
+            LoaderPool.getInstance().release(loader, this);
+            loader = null;
+        }
     }
 
     public void update() {
-//        Logger.test("PinWatcher update");
-
         if (!isError) {
-            loader.tryLoadMoreIfTime();
+            loader.loadMoreIfTime();
         }
     }
 
@@ -46,14 +45,24 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
+    public boolean isError() {
+        return isError;
+    }
+
     @Override
     public void onError(VolleyError error) {
-        Logger.test("PinWatcher onError: ", error);
+        Logger.e(TAG, "PinWatcher onError: ", error);
         isError = true;
+        pin.watchLastCount = 0;
+        pin.watchNewCount = 0;
+
+        WatchService.callOnPinsChanged();
     }
 
     @Override
     public void onData(List<Post> result, boolean append) {
+        isError = false;
+
         int count = result.size();
 
         Logger.test("PinWatcher onData, Post size: " + count);
@@ -64,6 +73,6 @@ public class PinWatcher implements Loader.LoaderListener {
 
         pin.watchNewCount = count;
 
-        PinnedService.callOnPinsChanged();
+        WatchService.callOnPinsChanged();
     }
 }

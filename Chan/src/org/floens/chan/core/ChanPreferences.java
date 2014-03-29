@@ -1,7 +1,7 @@
 package org.floens.chan.core;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.service.PinnedService;
+import org.floens.chan.service.WatchService;
 
 public class ChanPreferences {
     public static boolean getOpenLinkConfirmation() {
@@ -41,7 +41,13 @@ public class ChanPreferences {
     public static void setWatchEnabled(boolean enabled) {
         if (getWatchEnabled() != enabled) {
             ChanApplication.getPreferences().edit().putBoolean("preference_watch_enabled", enabled).commit();
-            PinnedService.updateRunningState(ChanApplication.getInstance());
+            WatchService.updateRunningState(ChanApplication.getInstance());
+            ChanApplication.getPinnedManager().onPinsChanged();
         }
+    }
+
+    public static long getWatchBackgroundTimeout() {
+        String number = ChanApplication.getPreferences().getString("preference_watch_background_timeout", "0");
+        return Integer.parseInt(number) * 1000L;
     }
 }

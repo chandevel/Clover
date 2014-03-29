@@ -26,6 +26,9 @@ public class Pin {
     public PinWatcher pinWatcher;
 
     @DatabaseField
+    public boolean watching = true;
+
+    @DatabaseField
     public int watchLastCount;
 
     @DatabaseField
@@ -51,9 +54,18 @@ public class Pin {
         watchLastCount = watchNewCount;
     }
 
-    public void destroy() {
+    public void destroyWatcher() {
         if (pinWatcher != null) {
             pinWatcher.destroy();
+            pinWatcher = null;
+        }
+    }
+
+    public boolean isError() {
+        if (pinWatcher != null) {
+            return pinWatcher.isError();
+        } else {
+            return false;
         }
     }
 }

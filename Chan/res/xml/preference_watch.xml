@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <ListPreference 
+        android:title="@string/watch_background_timeout_description"
+        android:summary="Foo"
+        android:key="preference_watch_background_timeout"
+        android:defaultValue="60"
+        android:dialogTitle="bar"
+        android:entries="@array/watch_background_timeouts"
+        android:entryValues="@array/watch_background_timeouts_int" />
+
+</PreferenceScreen>

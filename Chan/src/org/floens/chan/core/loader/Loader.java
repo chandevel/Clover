@@ -75,7 +75,7 @@ public class Loader {
      */
     public void setAutoLoadMore(boolean autoReload) {
         if (this.autoReload != autoReload) {
-            Logger.test("Setting autoreload to " + autoReload);
+            Logger.d(TAG, "Setting autoreload to " + autoReload);
             this.autoReload = autoReload;
 
             if (!autoReload) {
@@ -89,7 +89,7 @@ public class Loader {
      * If auto load more is disabled, this needs to be called manually.
      * Otherwise this is called automatically when the timer hits 0.
      */
-    public void tryLoadMoreIfTime() {
+    public void loadMoreIfTime() {
         if (getTimeUntilLoadMore() < 0L) {
             requestMoreData();
         }
@@ -112,6 +112,7 @@ public class Loader {
         }
 
         currentTimeout = 0;
+        cachedPosts.clear();
 
         request = getData();
     }
@@ -176,47 +177,40 @@ public class Loader {
     }
 
     private void setTimer(int postCount) {
-        if (pendingRunnable != null) {
-            clearTimer();
+        clearTimer();
+
+        if (postCount > lastPostCount) {
+            currentTimeout = 0;
+        } else {
+            currentTimeout++;
+            if (currentTimeout >= watchTimeouts.length) {
+                currentTimeout = watchTimeouts.length - 1;
+            }
         }
 
-        if (pendingRunnable == null) {
-            if (postCount > lastPostCount) {
-                currentTimeout = 0;
-            } else {
-                currentTimeout++;
-                if (currentTimeout >= watchTimeouts.length) {
-                    currentTimeout = watchTimeouts.length - 1;
-                }
-            }
+        if (!autoReload && currentTimeout < 4) {
+            currentTimeout = 4; // At least 60 seconds in the background
+        }
 
-            if (!autoReload && currentTimeout < 4) {
-                currentTimeout = 4; // At least 60 seconds in the background
-            }
+        lastPostCount = postCount;
 
-            lastPostCount = postCount;
-
-            Logger.test("Current timeout: " + watchTimeouts[currentTimeout]);
-
-            if (autoReload) {
-                pendingRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        pendingRunnable = null;
-                        tryLoadMoreIfTime();
-                    };
+        if (autoReload) {
+            pendingRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    pendingRunnable = null;
+                    loadMoreIfTime();
                 };
+            };
 
-                Logger.test("Scheduled reload");
-                handler.postDelayed(pendingRunnable, watchTimeouts[currentTimeout] * 1000L);
-
-            }
+            Logger.d(TAG, "Scheduled reload in " + watchTimeouts[currentTimeout] * 1000L);
+            handler.postDelayed(pendingRunnable, watchTimeouts[currentTimeout] * 1000L);
         }
     }
 
     private void clearTimer() {
         if (pendingRunnable != null) {
-            Logger.test("Removed reload");
+            Logger.d(TAG, "Removed pending runnable");
             handler.removeCallbacks(pendingRunnable);
             pendingRunnable = null;
         }

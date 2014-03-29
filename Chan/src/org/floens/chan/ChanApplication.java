@@ -2,9 +2,10 @@ package org.floens.chan;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.PinnedManager;
+import org.floens.chan.core.manager.PinnedManager.PinListener;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.database.DatabaseManager;
-import org.floens.chan.service.PinnedService;
+import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.IconCache;
 
 import android.app.Application;
@@ -17,7 +18,7 @@ import com.android.volley.extra.BitmapLruImageCache;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
-public class ChanApplication extends Application {
+public class ChanApplication extends Application implements PinListener {
     public static final boolean DEVELOPER_MODE = true;
 
     private static ChanApplication instance;
@@ -88,9 +89,15 @@ public class ChanApplication extends Application {
         databaseManager = new DatabaseManager(this);
         boardManager = new BoardManager(this);
         pinnedManager = new PinnedManager(this);
+        pinnedManager.addPinListener(this);
         replyManager = new ReplyManager(this);
 
-        PinnedService.updateRunningState(this);
+        WatchService.updateRunningState(this);
+    }
+
+    @Override
+    public void onPinsChanged() {
+        WatchService.updateRunningState(this);
     }
 }
 
