@@ -1,5 +1,7 @@
 package org.floens.chan;
 
+import java.lang.reflect.Field;
+
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.PinnedManager;
 import org.floens.chan.core.manager.PinnedManager.PinListener;
@@ -12,6 +14,7 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.view.ViewConfiguration;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.extra.BitmapLruImageCache;
@@ -69,16 +72,21 @@ public class ChanApplication extends Application implements PinListener {
     public void onCreate() {
         super.onCreate();
 
-        if (ChanApplication.DEVELOPER_MODE) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
+        // Force the overflow button to show, even on devices that have a
+        // physical button.
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+        }
 
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build());
+        if (ChanApplication.DEVELOPER_MODE) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
 
         IconCache.createIcons(this);
@@ -100,6 +108,3 @@ public class ChanApplication extends Application implements PinListener {
         WatchService.updateRunningState(this);
     }
 }
-
-
-
