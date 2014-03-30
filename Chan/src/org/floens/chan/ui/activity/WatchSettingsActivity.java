@@ -10,6 +10,9 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -108,19 +111,33 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
             super.onCreate(savedInstanceState);
 
             addPreferencesFromResource(R.xml.preference_watch);
+
+            // final Preference backgroundEnabled =
+            // findPreference("preference_watch_background_enabled");
+
+            final ListPreference backgroundTimeout = (ListPreference) findPreference("preference_watch_background_timeout");
+            String currentValue = backgroundTimeout.getValue();
+            if (currentValue == null) {
+                backgroundTimeout.setValue((String) backgroundTimeout.getEntryValues()[0]);
+                currentValue = backgroundTimeout.getValue();
+            }
+            updateListSummary(backgroundTimeout, currentValue.toString());
+
+            // Timeout is reset when board activity is started
+            backgroundTimeout.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    updateListSummary(backgroundTimeout, newValue.toString());
+                    return true;
+                }
+            });
+        }
+
+        private void updateListSummary(ListPreference backgroundTimeout, String value) {
+            int index = backgroundTimeout.findIndexOfValue(value);
+            backgroundTimeout.setSummary(backgroundTimeout.getEntries()[index]);
         }
 
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-

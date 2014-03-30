@@ -104,9 +104,11 @@
     
     <string name="watch_summary_disabled">Off</string>
     <string name="watch_summary_enabled">Watching pinned threads</string>
-    <string name="watch_info_text">
-        To view the thread watcher options, turn the thread watcher on.
-    </string>
+    <string name="watch_info_text">To watch pins for new posts, turn the thread watcher on.</string>
+    
+    <string name="watch_enable_background">Enable in the background</string>
+    <string name="watch_enable_background_on">Watching pins when Chan is in the background</string>
+    <string name="watch_enable_background_off">Not watching when Chan is in the background</string>
     <string name="watch_background_timeout_description">Time between reloads in background</string>
     <string-array name="watch_background_timeouts">
         <item>1 minute</item>

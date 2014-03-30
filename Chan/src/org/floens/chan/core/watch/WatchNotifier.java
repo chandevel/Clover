@@ -28,6 +28,10 @@ public class WatchNotifier {
         nm = (NotificationManager) pinnedService.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
+    public void destroy() {
+        nm.cancel(NOTIFICATION_ID);
+    }
+
     public void update() {
         if (!WatchService.getActivityInForeground()) {
             prepareNotification();

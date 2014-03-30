@@ -56,7 +56,7 @@ public class PinWatcher implements Loader.LoaderListener {
         pin.watchLastCount = 0;
         pin.watchNewCount = 0;
 
-        WatchService.callOnPinsChanged();
+        WatchService.onPinWatcherResult();
     }
 
     @Override
@@ -73,6 +73,6 @@ public class PinWatcher implements Loader.LoaderListener {
 
         pin.watchNewCount = count;
 
-        WatchService.callOnPinsChanged();
+        WatchService.onPinWatcherResult();
     }
 }

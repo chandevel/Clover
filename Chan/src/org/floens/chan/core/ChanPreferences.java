@@ -29,7 +29,7 @@ public class ChanPreferences {
     }
 
     public static boolean getWatchEnabled() {
-        return ChanApplication.getPreferences().getBoolean("preference_watch_enabled", true);
+        return ChanApplication.getPreferences().getBoolean("preference_watch_enabled", false);
     }
 
     /**
@@ -46,8 +46,17 @@ public class ChanPreferences {
         }
     }
 
+    public static boolean getWatchBackgroundEnabled() {
+        return ChanApplication.getPreferences().getBoolean("preference_watch_background_enabled", true);
+    }
+
     public static long getWatchBackgroundTimeout() {
         String number = ChanApplication.getPreferences().getString("preference_watch_background_timeout", "0");
         return Integer.parseInt(number) * 1000L;
     }
 }
+
+
+
+
+

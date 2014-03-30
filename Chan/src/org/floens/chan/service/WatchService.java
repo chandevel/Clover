@@ -17,6 +17,8 @@ import android.os.Looper;
 import android.widget.Toast;
 
 public class WatchService extends Service {
+    private static final String TAG = "WatchService";
+
     private static final long FOREGROUND_INTERVAL = 10000L;
 
     private static WatchService instance;
@@ -76,6 +78,8 @@ public class WatchService extends Service {
             for (Pin pin : pins) {
                 pin.destroyWatcher();
             }
+
+            instance.watchNotifier.destroy();
         }
     }
 
@@ -83,11 +87,14 @@ public class WatchService extends Service {
         return instance != null;
     }
 
-    public static void callOnPinsChanged() {
+    public static void onPinWatcherResult() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 ChanApplication.getPinnedManager().onPinsChanged();
+                if (instance != null) {
+                    instance.watchNotifier.update();
+                }
             }
         });
     }
@@ -100,12 +107,15 @@ public class WatchService extends Service {
 
         watchNotifier = new WatchNotifier(this);
 
+        Logger.i(TAG, "WatchService created");
+
         startThread();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
 
         instance = null;
 
@@ -114,6 +124,8 @@ public class WatchService extends Service {
             loadThread.interrupt();
             Toast.makeText(getApplicationContext(), "Pinned thread interrupted", Toast.LENGTH_SHORT).show();
         }
+
+        Logger.i(TAG, "WatchService destroyed");
     }
 
     private void startThread() {
@@ -124,7 +136,7 @@ public class WatchService extends Service {
                 @Override
                 public void run() {
                     while (running) {
-                        Logger.test("Loadthread iteration");
+                        Logger.d(TAG, "Loadthread loop");
 
                         update();
 
@@ -132,12 +144,21 @@ public class WatchService extends Service {
                             return;
 
                         long timeout = activityInForeground ? FOREGROUND_INTERVAL : getBackgroundTimeout();
-
-                        try {
-                            Thread.sleep(timeout);
-                        } catch (InterruptedException e) {
-                            if (!running) {
-                                return;
+                        if (timeout < 0L) {
+                            Logger.d(TAG, "Waiting for interrupt...");
+                            try {
+                                Object o = new Object();
+                                synchronized (o) {
+                                    o.wait();
+                                }
+                            } catch (InterruptedException e) {
+                                Logger.d(TAG, "Interrupted!");
+                            }
+                        } else {
+                            try {
+                                Thread.sleep(timeout);
+                            } catch (InterruptedException e) {
+                                Logger.d(TAG, "Interrupted!");
                             }
                         }
                     }
@@ -160,9 +181,16 @@ public class WatchService extends Service {
         watchNotifier.onForegroundChanged();
     }
 
+    /**
+     * Returns the sleep time the user specified for background iteration
+     * @return the sleep time in ms, or -1 if background reloading is disabled
+     */
     private long getBackgroundTimeout() {
-        Logger.test("::: " + ChanPreferences.getWatchBackgroundTimeout());
-        return ChanPreferences.getWatchBackgroundTimeout();
+        if (ChanPreferences.getWatchBackgroundEnabled()) {
+            return ChanPreferences.getWatchBackgroundTimeout();
+        } else {
+            return -1;
+        }
     }
 
     private void update() {
@@ -170,8 +198,6 @@ public class WatchService extends Service {
         for (Pin pin : pins) {
             pin.updateWatch();
         }
-
-        watchNotifier.update();
     }
 
     @Override

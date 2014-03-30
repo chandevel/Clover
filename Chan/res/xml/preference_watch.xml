@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <ListPreference 
-        android:title="@string/watch_background_timeout_description"
-        android:summary="Foo"
-        android:key="preference_watch_background_timeout"
+
+    <CheckBoxPreference
+        android:key="preference_watch_background_enabled"
+        android:summaryOff="@string/watch_enable_background_off"
+        android:summaryOn="@string/watch_enable_background_on"
+        android:title="@string/watch_enable_background" />
+
+    <ListPreference
+        android:dependency="preference_watch_background_enabled"
         android:defaultValue="60"
-        android:dialogTitle="bar"
+        android:dialogTitle="@string/watch_background_timeout_description"
         android:entries="@array/watch_background_timeouts"
-        android:entryValues="@array/watch_background_timeouts_int" />
+        android:entryValues="@array/watch_background_timeouts_int"
+        android:key="preference_watch_background_timeout"
+        android:summary="Foo"
+        android:title="@string/watch_background_timeout_description" />
 
 </PreferenceScreen>
