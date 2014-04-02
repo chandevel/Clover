@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -403,7 +404,12 @@ public class ThreadManager implements Loader.LoaderListener {
      *            Linkable with an url.
      */
     private void openLink(PostLinkable linkable) {
-        activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
+        try {
+            activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(linkable.value)));
+        } catch (ActivityNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(activity, R.string.open_link_failed, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showPostsRepliesFragment(List<Post> list) {

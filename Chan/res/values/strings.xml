@@ -22,6 +22,7 @@
     
     <string name="open_unknown_title">Unsupported link</string>
     <string name="open_unknown">Chan can\'t open this link. Opening it in your browser instead.</string>
+    <string name="open_link_failed">No applications found to open link</string>
     
     <string name="image_save">Save image</string>
     <string name="image_save_succeeded">Saved image to</string>
