@@ -128,6 +128,11 @@ public class WatchService extends Service {
         Logger.i(TAG, "WatchService destroyed");
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
+
     private void startThread() {
         running = true;
 

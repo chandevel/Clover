@@ -34,24 +34,20 @@ public class Pin {
     @DatabaseField
     public int watchNewCount;
 
+    public int quoteLastCount;
+
+    public int quoteNewCount;
+
+    public PinWatcher getPinWatcher() {
+        return pinWatcher;
+    }
+
     public void updateWatch() {
         if (pinWatcher == null) {
             pinWatcher = new PinWatcher(this);
         }
 
         pinWatcher.update();
-    }
-
-    public int getNewPostCount() {
-        if (pinWatcher != null) {
-            return pinWatcher.getNewPostCount();
-        } else {
-            return 0;
-        }
-    }
-
-    public void onViewed() {
-        watchLastCount = watchNewCount;
     }
 
     public void destroyWatcher() {

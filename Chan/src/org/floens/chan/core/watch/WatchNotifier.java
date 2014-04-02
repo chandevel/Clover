@@ -6,22 +6,23 @@ import java.util.List;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.Post;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.ui.activity.BoardActivity;
+import org.floens.chan.utils.Logger;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.support.v4.app.NotificationCompat;
 
 public class WatchNotifier {
     private final int NOTIFICATION_ID = 1;
 
     private final WatchService pinnedService;
     private final NotificationManager nm;
-
-    private int lastNewPosts;
 
     public WatchNotifier(WatchService pinnedService) {
         this.pinnedService = pinnedService;
@@ -47,48 +48,78 @@ public class WatchNotifier {
     }
 
     private void prepareNotification() {
-        List<Pin> pins = ChanApplication.getPinnedManager().getWatchingPins();
+        List<Pin> watchingPins = ChanApplication.getPinnedManager().getWatchingPins();
 
-        int newPosts = 0;
-        List<Pin> pinsWithNewPosts = new ArrayList<Pin>();
-
-        for (Pin pin : pins) {
-            if (pin.getNewPostCount() > 0) {
-                newPosts += pin.getNewPostCount();
-                pinsWithNewPosts.add(pin);
-            }
-        }
-
+        List<Pin> pins = new ArrayList<Pin>();
+        int newPostsCount = 0;
+        int newQuotesCount = 0;
+        List<Post> newPosts = new ArrayList<Post>();
+        boolean makeSound = false;
         boolean show = false;
 
-        if (lastNewPosts != newPosts && newPosts > 0) {
-            show = true;
-        }
-        lastNewPosts = newPosts;
+        for (Pin pin : watchingPins) {
+            PinWatcher watcher = pin.getPinWatcher();
+            if (watcher == null)
+                continue;
 
-        if (show) {
-            String descriptor;
-            if (pinsWithNewPosts.size() == 1) {
-                descriptor = pinsWithNewPosts.get(0).loadable.title;
-            } else {
-                descriptor = pinsWithNewPosts.size() + " threads";
+            boolean add = false;
+
+            if (watcher.getWereNewPosts()) {
+                newPostsCount += watcher.getNewPostsCount();
+                newPosts.addAll(watcher.getNewPosts());
+                show = true;
+                add = true;
             }
 
-            String content = newPosts + " new posts in " + descriptor;
-            String title = "New posts";
+            if (watcher.getWereNewQuotes()) {
+                newQuotesCount += watcher.getNewQuoteCount();
+                show = true;
+                makeSound = true;
+                add = true;
+            }
 
-            showNotification(content, title, content, Integer.toString(newPosts));
+            if (add) {
+                pins.add(pin);
+            }
+        }
+
+        if (show) {
+            // "33 new posts, 3 quoting you"
+            String title = newPostsCount + " new posts";
+            if (newQuotesCount > 0) {
+                title += ", " + newQuotesCount + " quoting you";
+            }
+
+            // "234 new posts in DPT"
+            // "234 new posts in 5 threads"
+            String descriptor;
+            if (pins.size() == 1) {
+                descriptor = pins.get(0).loadable.title;
+            } else {
+                descriptor = pins.size() + " threads";
+            }
+
+            String content = newPostsCount + " new posts in " + descriptor;
+
+            List<CharSequence> lines = new ArrayList<CharSequence>();
+            for (int i = newPosts.size() - 1; i >= 0; i--) {
+                lines.add(newPosts.get(i).comment);
+            }
+
+            showNotification(content, title, content, Integer.toString(newPostsCount), lines, makeSound);
         }
     }
 
     @SuppressWarnings("deprecation")
-    private void showNotification(String tickerText, String title, String content, String contentInfo) {
+    private void showNotification(String tickerText, String title, String content, String contentInfo,
+            List<CharSequence> lines, boolean makeSound) {
         Intent intent = new Intent(pinnedService, BoardActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP
-                | Intent.FLAG_ACTIVITY_NEW_TASK);
+        // intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+        // Intent.FLAG_ACTIVITY_SINGLE_TOP
+        // | Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pending = PendingIntent.getActivity(pinnedService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Notification.Builder builder = new Notification.Builder(pinnedService);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(pinnedService);
         builder.setContentIntent(pending);
 
         builder.setTicker(tickerText);
@@ -97,6 +128,20 @@ public class WatchNotifier {
         builder.setContentInfo(contentInfo);
         builder.setSmallIcon(R.drawable.ic_stat_notify);
 
+        if (makeSound) {
+            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        }
+
+        NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
+        for (CharSequence line : lines.subList(Math.max(0, lines.size() - 10), lines.size())) {
+            style.addLine(line);
+        }
+        style.setBigContentTitle(title);
+        style.setSummaryText(content);
+
+        builder.setStyle(style);
+
+        Logger.test("SHOWING NOTIFICATION!");
         nm.notify(NOTIFICATION_ID, builder.getNotification());
     }
 }

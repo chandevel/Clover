@@ -1,5 +1,6 @@
 package org.floens.chan.core.watch;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.floens.chan.core.loader.Loader;
@@ -17,6 +18,14 @@ public class PinWatcher implements Loader.LoaderListener {
     private final Pin pin;
     private Loader loader;
     private boolean isError = false;
+
+    private final List<Post> posts = new ArrayList<Post>();
+
+    private boolean wereNewPosts = false;
+    private boolean wereNewQuotes = false;
+
+    private int postLastLoad;
+    private int quoteLastLoad;
 
     public PinWatcher(Pin pin) {
         this.pin = pin;
@@ -37,11 +46,58 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
-    public int getNewPostCount() {
+    public void onViewed() {
+        pin.watchLastCount = pin.watchNewCount;
+        pin.quoteLastCount = pin.quoteNewCount;
+    }
+
+    public List<Post> getNewPosts() {
+        if (posts.size() == 0) {
+            return posts;
+        } else {
+            return posts.subList(Math.max(0, posts.size() - getNewPostsCount()), posts.size());
+        }
+    }
+
+    public int getNewPostsCount() {
         if (pin.watchLastCount <= 0) {
             return 0;
         } else {
             return Math.max(0, pin.watchNewCount - pin.watchLastCount);
+        }
+    }
+
+    public boolean getWereNewPosts() {
+        if (wereNewPosts) {
+            wereNewPosts = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public List<Post> getNewQuotes() {
+        if (posts.size() == 0) {
+            return posts;
+        } else {
+            return posts.subList(Math.max(0, posts.size() - getNewQuoteCount()), posts.size());
+        }
+    }
+
+    public int getNewQuoteCount() {
+        if (pin.quoteLastCount <= 0) {
+            return 0;
+        } else {
+            return Math.max(0, pin.quoteNewCount - pin.quoteLastCount);
+        }
+    }
+
+    public boolean getWereNewQuotes() {
+        if (wereNewQuotes) {
+            wereNewQuotes = false;
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -63,15 +119,51 @@ public class PinWatcher implements Loader.LoaderListener {
     public void onData(List<Post> result, boolean append) {
         isError = false;
 
-        int count = result.size();
+        posts.clear();
+        posts.addAll(result);
 
-        Logger.test("PinWatcher onData, Post size: " + count);
-
-        if (pin.watchLastCount <= 0) {
+        if (pin.watchLastCount <= 0)
             pin.watchLastCount = pin.watchNewCount;
+
+        if (pin.quoteLastCount <= 0)
+            pin.quoteLastCount = pin.quoteNewCount;
+
+        pin.watchNewCount = result.size();
+
+        if (postLastLoad == 0)
+            postLastLoad = pin.watchNewCount;
+
+        if (pin.watchNewCount > postLastLoad) {
+            wereNewPosts = true;
+            postLastLoad = pin.watchNewCount;
         }
 
-        pin.watchNewCount = count;
+        // Get list of saved posts
+        List<Post> savedPosts = new ArrayList<Post>();
+        for (Post saved : result) {
+            if (saved.isSavedReply) {
+                savedPosts.add(saved);
+            }
+        }
+
+        // Find posts quoting these saved posts
+        pin.quoteNewCount = 0;
+        for (Post resultPost : result) {
+            // This post replies to me
+            for (Post savedPost : savedPosts) {
+                if (resultPost.repliesTo.contains(savedPost.no)) {
+                    pin.quoteNewCount++;
+                }
+            }
+        }
+
+        if (quoteLastLoad == 0)
+            quoteLastLoad = pin.quoteNewCount;
+
+        if (pin.quoteNewCount > quoteLastLoad) {
+            wereNewQuotes = true;
+            quoteLastLoad = pin.quoteNewCount;
+        }
 
         WatchService.onPinWatcherResult();
     }

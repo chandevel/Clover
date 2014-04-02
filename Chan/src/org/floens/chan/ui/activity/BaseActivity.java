@@ -87,7 +87,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        pinDrawer.openDrawer(pinDrawerView);
+//        pinDrawer.openDrawer(pinDrawerView);
     }
 
     private void initPane() {

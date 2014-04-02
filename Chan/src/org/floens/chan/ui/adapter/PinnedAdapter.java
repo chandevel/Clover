@@ -53,7 +53,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
                 if (item.isError()) {
                     itemCount.setText("404");
                 } else {
-                    int count = item.getNewPostCount();
+                    int count = item.getPinWatcher() == null ? 0 : item.getPinWatcher().getNewPostsCount();
                     String total = Integer.toString(count);
                     if (count > 999) {
                         total = "1k+";
