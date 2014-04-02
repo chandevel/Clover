@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.widget.Toast;
 
 public class WatchService extends Service {
     private static final String TAG = "WatchService";
@@ -116,13 +115,11 @@ public class WatchService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-
         instance = null;
 
         running = false;
         if (loadThread != null) {
             loadThread.interrupt();
-            Toast.makeText(getApplicationContext(), "Pinned thread interrupted", Toast.LENGTH_SHORT).show();
         }
 
         Logger.i(TAG, "WatchService destroyed");
@@ -130,6 +127,14 @@ public class WatchService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Logger.test("Startcommand " + startId);
+
+        if (intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
+            if (watchNotifier != null) {
+                watchNotifier.onPausePinsClicked();
+            }
+        }
+
         return START_STICKY;
     }
 
@@ -171,7 +176,6 @@ public class WatchService extends Service {
             });
 
             loadThread.start();
-            Toast.makeText(getApplicationContext(), "Pinned thread started", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -188,6 +192,7 @@ public class WatchService extends Service {
 
     /**
      * Returns the sleep time the user specified for background iteration
+     *
      * @return the sleep time in ms, or -1 if background reloading is disabled
      */
     private long getBackgroundTimeout() {

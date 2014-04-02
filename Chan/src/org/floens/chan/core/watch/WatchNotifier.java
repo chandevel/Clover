@@ -47,6 +47,17 @@ public class WatchNotifier {
         }
     }
 
+    public void onPausePinsClicked() {
+        nm.cancel(NOTIFICATION_ID);
+
+        List<Pin> watchingPins = ChanApplication.getPinnedManager().getWatchingPins();
+        for (Pin pin : watchingPins) {
+            pin.watching = false;
+        }
+
+        ChanApplication.getPinnedManager().onPinsChanged();
+    }
+
     private void prepareNotification() {
         List<Pin> watchingPins = ChanApplication.getPinnedManager().getWatchingPins();
 
@@ -128,6 +139,15 @@ public class WatchNotifier {
         builder.setContentInfo(contentInfo);
         builder.setSmallIcon(R.drawable.ic_stat_notify);
 
+        Intent pauseWatching = new Intent(pinnedService, WatchService.class);
+        pauseWatching.putExtra("pause_pins", true);
+
+        PendingIntent pauseWatchingPending = PendingIntent.getService(pinnedService, 0, pauseWatching,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.addAction(R.drawable.ic_action_pause, pinnedService.getString(R.string.watch_pause_pins),
+                pauseWatchingPending);
+
         if (makeSound) {
             builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         }
@@ -137,7 +157,7 @@ public class WatchNotifier {
             style.addLine(line);
         }
         style.setBigContentTitle(title);
-        style.setSummaryText(content);
+        // style.setSummaryText(content);
 
         builder.setStyle(style);
 

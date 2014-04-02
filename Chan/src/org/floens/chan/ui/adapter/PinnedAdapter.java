@@ -51,7 +51,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
                 TextView itemCount = (TextView) view.findViewById(R.id.drawer_item_count);
 
                 if (item.isError()) {
-                    itemCount.setText("404");
+                    itemCount.setText("Err");
                 } else {
                     int count = item.getPinWatcher() == null ? 0 : item.getPinWatcher().getNewPostsCount();
                     String total = Integer.toString(count);
@@ -69,12 +69,12 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
                     }
                 });
 
-                if (item.isError()) {
-                    frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
-                } else if (item.watching) {
-                    frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
-                } else {
+                if (!item.watching) {
                     frameLayout.setBackgroundResource(R.drawable.pin_icon_gray);
+                } else if (item.isError()) {
+                    frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
+                } else {
+                    frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
                 }
             } else {
                 frameLayout.setVisibility(View.GONE);
