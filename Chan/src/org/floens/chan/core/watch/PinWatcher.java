@@ -21,12 +21,6 @@ public class PinWatcher implements Loader.LoaderListener {
 
     private final List<Post> posts = new ArrayList<Post>();
 
-    private boolean wereNewPosts = false;
-    private boolean wereNewQuotes = false;
-
-    private int postLastLoad;
-    private int quoteLastLoad;
-
     public PinWatcher(Pin pin) {
         this.pin = pin;
 
@@ -67,15 +61,6 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
-    public boolean getWereNewPosts() {
-        if (wereNewPosts) {
-            wereNewPosts = false;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public List<Post> getNewQuotes() {
         if (posts.size() == 0) {
             return posts;
@@ -89,15 +74,6 @@ public class PinWatcher implements Loader.LoaderListener {
             return 0;
         } else {
             return Math.max(0, pin.quoteNewCount - pin.quoteLastCount);
-        }
-    }
-
-    public boolean getWereNewQuotes() {
-        if (wereNewQuotes) {
-            wereNewQuotes = false;
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -130,14 +106,6 @@ public class PinWatcher implements Loader.LoaderListener {
 
         pin.watchNewCount = result.size();
 
-        if (postLastLoad == 0)
-            postLastLoad = pin.watchNewCount;
-
-        if (pin.watchNewCount > postLastLoad) {
-            wereNewPosts = true;
-            postLastLoad = pin.watchNewCount;
-        }
-
         // Get list of saved posts
         List<Post> savedPosts = new ArrayList<Post>();
         for (Post saved : result) {
@@ -155,14 +123,6 @@ public class PinWatcher implements Loader.LoaderListener {
                     pin.quoteNewCount++;
                 }
             }
-        }
-
-        if (quoteLastLoad == 0)
-            quoteLastLoad = pin.quoteNewCount;
-
-        if (pin.quoteNewCount > quoteLastLoad) {
-            wereNewQuotes = true;
-            quoteLastLoad = pin.quoteNewCount;
         }
 
         WatchService.onPinWatcherResult();

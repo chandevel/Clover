@@ -1,6 +1,8 @@
 package org.floens.chan.core.watch;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.floens.chan.ChanApplication;
@@ -64,7 +66,7 @@ public class WatchNotifier {
         List<Pin> pins = new ArrayList<Pin>();
         int newPostsCount = 0;
         int newQuotesCount = 0;
-        List<Post> newPosts = new ArrayList<Post>();
+        List<Post> posts = new ArrayList<Post>();
         boolean makeSound = false;
         boolean show = false;
 
@@ -75,14 +77,18 @@ public class WatchNotifier {
 
             boolean add = false;
 
-            if (watcher.getWereNewPosts()) {
+            if (watcher.getNewPostsCount() > 0) {
                 newPostsCount += watcher.getNewPostsCount();
-                newPosts.addAll(watcher.getNewPosts());
+                for (Post p : watcher.getNewPosts()) {
+                    p.title = pin.loadable.title;
+                    posts.add(p);
+                }
+
                 show = true;
                 add = true;
             }
 
-            if (watcher.getWereNewQuotes()) {
+            if (watcher.getNewQuoteCount() > 0) {
                 newQuotesCount += watcher.getNewQuoteCount();
                 show = true;
                 makeSound = true;
@@ -112,9 +118,15 @@ public class WatchNotifier {
 
             String content = newPostsCount + " new posts in " + descriptor;
 
+            Collections.sort(posts, new PostAgeComparer());
+
             List<CharSequence> lines = new ArrayList<CharSequence>();
-            for (int i = newPosts.size() - 1; i >= 0; i--) {
-                lines.add(newPosts.get(i).comment);
+            for (Post post : posts) {
+                if (pins.size() > 1) {
+                    lines.add(post.title + ": " + post.comment);
+                } else {
+                    lines.add(post.comment);
+                }
             }
 
             showNotification(content, title, content, Integer.toString(newPostsCount), lines, makeSound);
@@ -163,5 +175,18 @@ public class WatchNotifier {
 
         Logger.test("SHOWING NOTIFICATION!");
         nm.notify(NOTIFICATION_ID, builder.getNotification());
+    }
+
+    private static class PostAgeComparer implements Comparator<Post> {
+        @Override
+        public int compare(Post lhs, Post rhs) {
+            if (lhs.time < rhs.time) {
+                return 1;
+            } else if (lhs.time > rhs.time) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 }

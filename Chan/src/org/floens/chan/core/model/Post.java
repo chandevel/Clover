@@ -52,6 +52,7 @@ public class Post {
     public long time = 0;
     public String email = "";
     public boolean isSavedReply = false;
+    public String title = "";
 
     /**
      * This post replies to the these ids
