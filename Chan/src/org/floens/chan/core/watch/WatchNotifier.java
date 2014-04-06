@@ -21,6 +21,8 @@ import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 
 public class WatchNotifier {
+    private static final String TAG = "WatchNotifier";
+
     private final int NOTIFICATION_ID = 1;
 
     private final WatchService pinnedService;
@@ -58,6 +60,7 @@ public class WatchNotifier {
         }
 
         ChanApplication.getPinnedManager().onPinsChanged();
+        ChanApplication.getPinnedManager().updateAll(); // Can be the last thing this app does
     }
 
     private void prepareNotification() {
@@ -68,11 +71,11 @@ public class WatchNotifier {
         int newQuotesCount = 0;
         List<Post> posts = new ArrayList<Post>();
         boolean makeSound = false;
-        boolean show = false;
+        boolean show = true;
 
         for (Pin pin : watchingPins) {
             PinWatcher watcher = pin.getPinWatcher();
-            if (watcher == null)
+            if (watcher == null || watcher.isError())
                 continue;
 
             boolean add = false;
@@ -91,8 +94,11 @@ public class WatchNotifier {
             if (watcher.getNewQuoteCount() > 0) {
                 newQuotesCount += watcher.getNewQuoteCount();
                 show = true;
-                makeSound = true;
                 add = true;
+            }
+
+            if (watcher.getWereNewQuotes()) {
+                makeSound = true;
             }
 
             if (add) {
@@ -173,7 +179,7 @@ public class WatchNotifier {
 
         builder.setStyle(style);
 
-        Logger.test("SHOWING NOTIFICATION!");
+        Logger.i(TAG, "Showing notification");
         nm.notify(NOTIFICATION_ID, builder.getNotification());
     }
 

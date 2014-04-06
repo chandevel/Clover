@@ -127,8 +127,6 @@ public class WatchService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.test("Startcommand " + startId);
-
         if (intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
             if (watchNotifier != null) {
                 watchNotifier.onPausePinsClicked();

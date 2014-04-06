@@ -20,6 +20,7 @@ public class PinWatcher implements Loader.LoaderListener {
     private boolean isError = false;
 
     private final List<Post> posts = new ArrayList<Post>();
+    private boolean wereNewQuotes = false;
 
     public PinWatcher(Pin pin) {
         this.pin = pin;
@@ -77,6 +78,15 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
+    public boolean getWereNewQuotes() {
+        if (wereNewQuotes) {
+            wereNewQuotes = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public boolean isError() {
         return isError;
     }
@@ -85,8 +95,6 @@ public class PinWatcher implements Loader.LoaderListener {
     public void onError(VolleyError error) {
         Logger.e(TAG, "PinWatcher onError: ", error);
         isError = true;
-        pin.watchLastCount = 0;
-        pin.watchNewCount = 0;
 
         WatchService.onPinWatcherResult();
     }
@@ -114,6 +122,8 @@ public class PinWatcher implements Loader.LoaderListener {
             }
         }
 
+        int lastQuoteCount = pin.quoteNewCount;
+
         // Find posts quoting these saved posts
         pin.quoteNewCount = 0;
         for (Post resultPost : result) {
@@ -123,6 +133,10 @@ public class PinWatcher implements Loader.LoaderListener {
                     pin.quoteNewCount++;
                 }
             }
+        }
+
+        if (pin.quoteNewCount > lastQuoteCount) {
+            wereNewQuotes = true;
         }
 
         WatchService.onPinWatcherResult();
