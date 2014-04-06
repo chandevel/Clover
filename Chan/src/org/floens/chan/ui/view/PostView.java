@@ -52,6 +52,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private TextView repliesCountView;
     private LinearLayout iconView;
     private ImageView stickyView;
+    private ImageView closedView;
     private NetworkImageView countryView;
 
     /**
@@ -189,10 +190,12 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
 
         boolean showCountryFlag = !TextUtils.isEmpty(post.country);
         boolean showStickyIcon = post.sticky;
+        boolean showClosedIcon = post.closed;
 
-        iconView.setVisibility((showCountryFlag || showStickyIcon) ? View.VISIBLE : View.GONE);
+        iconView.setVisibility((showCountryFlag || showStickyIcon || showClosedIcon) ? View.VISIBLE : View.GONE);
 
         stickyView.setVisibility(showStickyIcon ? View.VISIBLE : View.GONE);
+        closedView.setVisibility(showClosedIcon ? View.VISIBLE : View.GONE);
         if (showCountryFlag) {
             countryView.setVisibility(View.VISIBLE);
             countryView.setImageUrl(ChanUrls.getCountryFlagUrl(post.country), ChanApplication.getImageLoader());
@@ -271,6 +274,10 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
                 stickyView = new ImageView(context);
                 stickyView.setImageBitmap(IconCache.stickyIcon);
                 iconView.addView(stickyView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+
+                closedView = new ImageView(context);
+                closedView.setImageBitmap(IconCache.closedIcon);
+                iconView.addView(closedView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
                 countryView = new NetworkImageView(context);
                 countryView.setScaleType(ImageView.ScaleType.FIT_CENTER);

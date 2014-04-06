@@ -8,7 +8,8 @@ import android.graphics.BitmapFactory;
 
 public class IconCache {
     public static Bitmap stickyIcon;
-    
+    public static Bitmap closedIcon;
+
     /**
      * Load the icons in the cache. Lightweight icons only! Icons can be null!
      * @param context
@@ -18,6 +19,7 @@ public class IconCache {
             @Override
             public void run() {
                 stickyIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.sticky_icon);
+                closedIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.closed_icon);
             }
         }).start();
     }
