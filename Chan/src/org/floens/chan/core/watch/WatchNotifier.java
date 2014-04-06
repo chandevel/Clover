@@ -71,7 +71,7 @@ public class WatchNotifier {
         int newQuotesCount = 0;
         List<Post> posts = new ArrayList<Post>();
         boolean makeSound = false;
-        boolean show = true;
+        boolean show = false;
 
         for (Pin pin : watchingPins) {
             PinWatcher watcher = pin.getPinWatcher();
