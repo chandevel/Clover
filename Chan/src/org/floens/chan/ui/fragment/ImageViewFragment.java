@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.net.CachingRequest;
 import org.floens.chan.core.net.GIFRequest;
@@ -97,9 +98,13 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
             if (post.ext.equals("gif")) {
                 loadGif();
             } else if (post.ext.equals("webm")) {
-                loadMovie();
+                if (ChanPreferences.getVideosEnabled()) {
+                    loadMovie();                    
+                } else {
+                    loadOtherImage(post.thumbnailUrl);
+                }
             } else {
-                loadOtherImage();
+                loadOtherImage(post.imageUrl);
             }
         }
     }
@@ -165,11 +170,11 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
         }
     }
 
-    private void loadOtherImage() {
+    private void loadOtherImage(String url) {
         NetworkPhotoView imageView = new NetworkPhotoView(context);
         imageView.setImageViewFragment(this);
         imageView.setFadeIn(100);
-        imageView.setImageUrl(post.imageUrl, ChanApplication.getImageLoader());
+        imageView.setImageUrl(url, ChanApplication.getImageLoader());
         imageView.setMaxScale(3f);
         imageView.setOnLongClickListenerToAttacher(this);
         imageView.setOnViewTapListenerToAttacher(this);

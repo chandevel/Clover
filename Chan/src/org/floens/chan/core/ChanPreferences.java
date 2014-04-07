@@ -54,6 +54,10 @@ public class ChanPreferences {
         String number = ChanApplication.getPreferences().getString("preference_watch_background_timeout", "0");
         return Integer.parseInt(number) * 1000L;
     }
+    
+    public static boolean getVideosEnabled() {
+        return ChanApplication.getPreferences().getBoolean("preference_enable_video", true);
+    }
 }
 
 

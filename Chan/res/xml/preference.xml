@@ -21,6 +21,12 @@
             android:defaultValue="true"
             android:key="preference_open_link_confirmation"
             android:title="@string/preference_open_link_confirmation" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="preference_enable_video"
+            android:title="@string/preference_enable_video"
+            android:summaryOn="@string/preference_enable_video_enabled"
+            android:summaryOff="@string/preference_enable_video_disabled" />
 
         <EditTextPreference
             android:key="preference_default_name"
