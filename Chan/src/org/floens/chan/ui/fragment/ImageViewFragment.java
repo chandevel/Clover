@@ -1,16 +1,23 @@
 package org.floens.chan.ui.fragment;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.net.ByteArrayRequest;
 import org.floens.chan.core.net.GIFRequest;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.view.GIFView;
 import org.floens.chan.ui.view.NetworkPhotoView;
+import org.floens.chan.utils.Logger;
 
 import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 import android.app.Fragment;
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,99 +27,183 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.DiskBasedCache;
 
 public class ImageViewFragment extends Fragment implements View.OnLongClickListener, OnViewTapListener, OnClickListener {
+    private static final String TAG = "ImageViewFragment";
+
     private Context context;
     private RelativeLayout wrapper;
     private Post post;
-    private GIFRequest gifRequest;
     private ImageViewActivity activity;
     private int index;
-    
+
+    private ByteArrayRequest movieRequest;
+
     public static ImageViewFragment newInstance(Post post, ImageViewActivity activity, int index) {
         ImageViewFragment imageViewFragment = new ImageViewFragment();
         imageViewFragment.post = post;
         imageViewFragment.activity = activity;
         imageViewFragment.index = index;
-        
+
         return imageViewFragment;
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         // https://code.google.com/p/android/issues/detail?id=19917
         bundle.putString("bug_19917", "bug_19917");
         super.onSaveInstanceState(bundle);
     }
-    
+
     public void showProgressBar(boolean e) {
         activity.showProgressBar(e, index);
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        context = inflater.getContext();
-        
-        wrapper = new RelativeLayout(context);
-        int padding = (int)context.getResources().getDimension(R.dimen.image_popup_padding);
-        wrapper.setPadding(padding, padding, padding, padding);
-        wrapper.setGravity(Gravity.CENTER);
-        
-        wrapper.setOnClickListener(this);
-        
-        return wrapper;
+        if (post == null) {
+            // No restoring
+            return null;
+        } else {
+            context = inflater.getContext();
+
+            wrapper = new RelativeLayout(context);
+            int padding = (int) context.getResources().getDimension(R.dimen.image_popup_padding);
+            wrapper.setPadding(padding, padding, padding, padding);
+            wrapper.setGravity(Gravity.CENTER);
+
+            wrapper.setOnClickListener(this);
+
+            return wrapper;
+        }
     }
-    
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
-        if (post == null || !post.hasImage) {
-            throw new IllegalArgumentException("No post / post has no image");
-        }
-        
-        if (post.ext.equals("gif")) {
-            gifRequest = new GIFRequest(post.imageUrl, new Response.Listener<GIFView>() {
-                @Override
-                public void onResponse(GIFView view) {
-                    wrapper.addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-                    view.setOnLongClickListener(ImageViewFragment.this);
-                    view.setOnClickListener(ImageViewFragment.this);
-                    showProgressBar(false);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
-                    showProgressBar(false);
-                }
-            }, context);
-           
-            ChanApplication.getVolleyRequestQueue().add(gifRequest);
-            showProgressBar(true);
+
+        if (post == null) {
+            // No restoring
         } else {
-            NetworkPhotoView imageView = new NetworkPhotoView(context);
-            imageView.setImageViewFragment(this);
-            imageView.setFadeIn(100);
-            imageView.setImageUrl(post.imageUrl, ChanApplication.getImageLoader());
-            imageView.setMaxScale(3f);
-            imageView.setOnLongClickListenerToAttacher(this);
-            imageView.setOnViewTapListenerToAttacher(this);
-            
-            wrapper.addView(imageView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-            
-            showProgressBar(true);
+            if (!post.hasImage) {
+                throw new IllegalArgumentException("No post / post has no image");
+            }
+
+            if (post.ext.equals("gif")) {
+                loadGif();
+            } else if (post.ext.equals("webm")) {
+                loadMovie();
+            } else {
+                loadOtherImage();
+            }
         }
+    }
+
+    private void loadMovie() {
+        movieRequest = new ByteArrayRequest(post.imageUrl, new Response.Listener<byte[]>() {
+            @Override
+            public void onResponse(byte[] array) {
+                if (movieRequest != null) {
+                    try {
+                        handleMovieResponse(movieRequest);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                showProgressBar(false);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+                showProgressBar(false);
+            }
+        });
+
+        movieRequest.setShouldCache(true);
+
+        ChanApplication.getVolleyRequestQueue().add(movieRequest);
+
+        showProgressBar(true);
+    }
+
+    private void handleMovieResponse(ByteArrayRequest request) throws IOException {
+        DiskBasedCache cache = (DiskBasedCache) ChanApplication.getVolleyRequestQueue().getCache();
+        File file = cache.getFileForKey(movieRequest.getCacheKey());
+
+        Logger.test(file.getAbsolutePath());
+
+        Logger.test(movieRequest.getCacheKey());
+
+//        Logger.test(movieRequest.getCacheEntry().toString());
+
+        if (file.exists()) {
+            final VideoView view = new VideoView(context);
+            view.setOnLongClickListener(this);
+            view.setOnClickListener(this);
+
+            view.setOnPreparedListener(new OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.setLooping(true);
+                    view.start();
+                    wrapper.addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                }
+            });
+
+            view.setVideoPath(file.getAbsolutePath());
+        } else {
+            Logger.e(TAG, "Cache file doesn't exist");
+            Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void loadOtherImage() {
+        NetworkPhotoView imageView = new NetworkPhotoView(context);
+        imageView.setImageViewFragment(this);
+        imageView.setFadeIn(100);
+        imageView.setImageUrl(post.imageUrl, ChanApplication.getImageLoader());
+        imageView.setMaxScale(3f);
+        imageView.setOnLongClickListenerToAttacher(this);
+        imageView.setOnViewTapListenerToAttacher(this);
+
+        wrapper.addView(imageView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
+        showProgressBar(true);
+    }
+
+    private void loadGif() {
+        ChanApplication.getVolleyRequestQueue().add(new GIFRequest(post.imageUrl, new Response.Listener<GIFView>() {
+            @Override
+            public void onResponse(GIFView view) {
+                wrapper.addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                view.setOnLongClickListener(ImageViewFragment.this);
+                view.setOnClickListener(ImageViewFragment.this);
+                showProgressBar(false);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+                showProgressBar(false);
+            }
+        }, context));
+
+        showProgressBar(true);
     }
 
     @Override
     /*
      * TODO: figure out why adding an onLongClick listener removes the error:
-     * "ImageView no longer exists. You should not use this PhotoViewAttacher any more.");
-     * PhotoViewAttacher line 300
+     * "ImageView no longer exists. You should not use this PhotoViewAttacher any more."
+     * ); PhotoViewAttacher line 300
      */
     public boolean onLongClick(View v) {
         return false;
@@ -128,8 +219,3 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
         activity.finish();
     }
 }
-
-
-
-
-
