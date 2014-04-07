@@ -16,10 +16,10 @@
 
 package com.android.volley;
 
+import org.apache.http.HttpStatus;
+
 import java.util.Collections;
 import java.util.Map;
-
-import org.apache.http.HttpStatus;
 
 /**
  * Data and headers returned from {@link Network#performRequest(Request)}.

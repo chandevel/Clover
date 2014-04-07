@@ -55,7 +55,7 @@ public class DiskBasedCache implements Cache {
     private final int mMaxCacheSizeInBytes;
 
     /** Default maximum disk usage in bytes. */
-    private static final int DEFAULT_DISK_USAGE_BYTES = 25 * 1024 * 1024;
+    private static final int DEFAULT_DISK_USAGE_BYTES = 50 * 1024 * 1024;
 
     /** High water mark percentage for the cache */
     private static final float HYSTERESIS_FACTOR = 0.9f;
@@ -361,12 +361,12 @@ public class DiskBasedCache implements Cache {
          */
         public CacheHeader(String key, Entry entry) {
             this.key = key;
-            this.size = entry.data.length;
-            this.etag = entry.etag;
-            this.serverDate = entry.serverDate;
-            this.ttl = entry.ttl;
-            this.softTtl = entry.softTtl;
-            this.responseHeaders = entry.responseHeaders;
+            size = entry.data.length;
+            etag = entry.etag;
+            serverDate = entry.serverDate;
+            ttl = entry.ttl;
+            softTtl = entry.softTtl;
+            responseHeaders = entry.responseHeaders;
         }
 
         /**

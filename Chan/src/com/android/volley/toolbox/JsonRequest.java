@@ -16,14 +16,14 @@
 
 package com.android.volley.toolbox;
 
-import java.io.UnsupportedEncodingException;
-
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyLog;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * A request for retrieving a T type response body at a given URL that also

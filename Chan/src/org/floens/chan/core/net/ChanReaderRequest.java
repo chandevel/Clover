@@ -14,7 +14,6 @@ import android.util.JsonReader;
 import com.android.volley.ParseError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.extra.JsonReaderRequest;
 
 public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     private Loadable loadable;

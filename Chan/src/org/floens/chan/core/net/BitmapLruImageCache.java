@@ -1,4 +1,4 @@
-package com.android.volley.extra;
+package org.floens.chan.core.net;
 
 import android.graphics.Bitmap;
 import android.util.LruCache;
@@ -9,12 +9,12 @@ public class BitmapLruImageCache extends LruCache<String, Bitmap> implements Ima
     public BitmapLruImageCache(int maxSize) {
             super(maxSize);
     }
-    
+
     @Override
     protected int sizeOf(String key, Bitmap value) {
             return value.getRowBytes() * value.getHeight();
     }
-    
+
     @Override
     public Bitmap getBitmap(String url) {
             return get(url);

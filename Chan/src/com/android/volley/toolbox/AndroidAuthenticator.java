@@ -16,14 +16,14 @@
 
 package com.android.volley.toolbox;
 
+import com.android.volley.AuthFailureError;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.android.volley.AuthFailureError;
 
 /**
  * An Authenticator that uses {@link AccountManager} to get auth
@@ -67,10 +67,11 @@ public class AndroidAuthenticator implements Authenticator {
         return mAccount;
     }
 
+    // TODO: Figure out what to do about notifyAuthFailure
+    @SuppressWarnings("deprecation")
     @Override
     public String getAuthToken() throws AuthFailureError {
         final AccountManager accountManager = AccountManager.get(mContext);
-        @SuppressWarnings("deprecation")
         AccountManagerFuture<Bundle> future = accountManager.getAuthToken(mAccount,
                 mAuthTokenType, mNotifyAuthFailure, null, null);
         Bundle result;

@@ -16,6 +16,8 @@
 
 package com.android.volley;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.VolleyError;
 
 /**
  * Indicates that there was a network error when performing a Volley request.

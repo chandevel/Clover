@@ -6,6 +6,7 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.PinnedManager;
 import org.floens.chan.core.manager.PinnedManager.PinListener;
 import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.IconCache;
@@ -17,7 +18,6 @@ import android.preference.PreferenceManager;
 import android.view.ViewConfiguration;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.extra.BitmapLruImageCache;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 

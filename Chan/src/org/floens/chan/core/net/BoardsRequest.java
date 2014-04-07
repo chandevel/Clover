@@ -9,7 +9,6 @@ import android.util.JsonReader;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.extra.JsonReaderRequest;
 
 public class BoardsRequest extends JsonReaderRequest<ArrayList<Board>> {
     public BoardsRequest(String url, Listener<ArrayList<Board>> listener, ErrorListener errorListener) {

@@ -46,7 +46,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private boolean isBuild = false;
     private LinearLayout full;
     private LinearLayout right;
-    private NetworkImageView imageView;
+    private CustomNetworkImageView imageView;
     private TextView titleView;
     private TextView commentView;
     private TextView repliesCountView;
@@ -234,7 +234,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         full.setOrientation(HORIZONTAL);
 
         // Create thumbnail
-        imageView = new NetworkImageView(context);
+        imageView = new CustomNetworkImageView(context);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setFadeIn(100);
 

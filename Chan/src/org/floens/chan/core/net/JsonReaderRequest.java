@@ -1,4 +1,4 @@
-package com.android.volley.extra;
+package org.floens.chan.core.net;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,41 +19,41 @@ import com.android.volley.toolbox.HttpHeaderParser;
 public abstract class JsonReaderRequest<T> extends Request<T> {
     protected final Listener<T> listener;
     private VolleyError error;
-    
+
     public JsonReaderRequest(String url, Listener<T> listener, ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
-        
+
         this.listener = listener;
     }
-    
+
     @Override
     protected void deliverResponse(T response) {
         listener.onResponse(response);
     }
-    
+
     public void setError(VolleyError error) {
         this.error = error;
     }
-    
+
     @Override
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
         try {
             ByteArrayInputStream baos = new ByteArrayInputStream(response.data);
-            
+
             JsonReader reader = new JsonReader(new InputStreamReader(baos, "UTF-8"));
-            
+
             // long start = System.currentTimeMillis();
-            
+
             T read = readJson(reader);
-            
+
             try {
                 reader.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
             // Log.e("Chan", "Total time: " + (System.currentTimeMillis() - start));
-            
+
             if (read == null) {
                 return Response.error(new VolleyError());
             } else if (error != null) {
@@ -65,7 +65,7 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
             return Response.error(new ParseError(e));
         }
     }
-    
+
     public abstract T readJson(JsonReader reader);
 }
 

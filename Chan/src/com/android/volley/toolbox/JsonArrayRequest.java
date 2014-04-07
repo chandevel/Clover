@@ -16,16 +16,16 @@
 
 package com.android.volley.toolbox;
 
-import java.io.UnsupportedEncodingException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * A request for retrieving a {@link JSONArray} response body at a given URL.
