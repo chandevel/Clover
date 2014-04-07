@@ -16,12 +16,12 @@
 
 package com.android.volley;
 
+import java.util.concurrent.BlockingQueue;
+
 import android.annotation.TargetApi;
 import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Process;
-
-import java.util.concurrent.BlockingQueue;
 
 /**
  * Provides a thread for performing network dispatch from a queue of requests.

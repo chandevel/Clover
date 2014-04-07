@@ -6,6 +6,10 @@ import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
+/**
+ * Request a plain byte[]
+ * Warning: no caching!
+ */
 public class ByteArrayRequest extends Request<byte[]> {
     protected final Listener<byte[]> listener;
     

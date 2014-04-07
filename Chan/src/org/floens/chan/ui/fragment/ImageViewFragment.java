@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.net.ByteArrayRequest;
+import org.floens.chan.core.net.CachingRequest;
 import org.floens.chan.core.net.GIFRequest;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.view.GIFView;
@@ -42,7 +42,7 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
     private ImageViewActivity activity;
     private int index;
 
-    private ByteArrayRequest movieRequest;
+    private CachingRequest movieRequest;
 
     public static ImageViewFragment newInstance(Post post, ImageViewActivity activity, int index) {
         ImageViewFragment imageViewFragment = new ImageViewFragment();
@@ -105,9 +105,9 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
     }
 
     private void loadMovie() {
-        movieRequest = new ByteArrayRequest(post.imageUrl, new Response.Listener<byte[]>() {
+        movieRequest = new CachingRequest(post.imageUrl, new Response.Listener<Void>() {
             @Override
-            public void onResponse(byte[] array) {
+            public void onResponse(Void empty) {
                 if (movieRequest != null) {
                     try {
                         handleMovieResponse(movieRequest);
@@ -134,27 +134,27 @@ public class ImageViewFragment extends Fragment implements View.OnLongClickListe
         showProgressBar(true);
     }
 
-    private void handleMovieResponse(ByteArrayRequest request) throws IOException {
+    private void handleMovieResponse(CachingRequest request) throws IOException {
         DiskBasedCache cache = (DiskBasedCache) ChanApplication.getVolleyRequestQueue().getCache();
         File file = cache.getFileForKey(movieRequest.getCacheKey());
 
-        Logger.test(file.getAbsolutePath());
-
-        Logger.test(movieRequest.getCacheKey());
-
-//        Logger.test(movieRequest.getCacheEntry().toString());
-
         if (file.exists()) {
+            Logger.test("Showing video from " + file.getAbsolutePath());
+
             final VideoView view = new VideoView(context);
+            view.setZOrderOnTop(true);
+            
             view.setOnLongClickListener(this);
             view.setOnClickListener(this);
+
+            wrapper.addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
             view.setOnPreparedListener(new OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mp.setLooping(true);
                     view.start();
-                    wrapper.addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
                 }
             });
 
