@@ -39,7 +39,7 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
 
         watchSwitch = (Switch) menu.findItem(R.id.enable_watch_switch).getActionView();
         watchSwitch.setOnCheckedChangeListener(this);
-        watchSwitch.setPadding(0, 0, Utils.dp(this, 20), 0);
+        watchSwitch.setPadding(0, 0, Utils.dp(this, 14), 0);
 
         setEnabled(ChanPreferences.getWatchEnabled());
 
@@ -90,7 +90,7 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
         public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
             LinearLayout container = new LinearLayout(inflater.getContext());
 
-            int p = Utils.dp(inflater.getContext(), 20);
+            int p = Utils.dp(inflater.getContext(), 14);
             container.setPadding(p, p, p, p);
 
             TextView text = new TextView(inflater.getContext());
