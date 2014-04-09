@@ -29,6 +29,7 @@
     <string name="image_save_failed">Saving image failed</string>
     <string name="image_save_directory_error">Cannot make save directory</string>
     <string name="image_save_not_mounted">Cannot write to storage</string>
+    <string name="image_play_state">Start / stop playing</string>
     
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_open_failed">Failed to open image</string>

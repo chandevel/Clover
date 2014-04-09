@@ -1,16 +1,21 @@
 package org.floens.chan.core.net;
 
+import java.io.File;
+
+import org.floens.chan.ChanApplication;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpHeaderParser;
 
-public class CachingRequest extends Request<Void> {
-    protected final Listener<Void> listener;
+public class FileRequest extends Request<Void> {
+    protected final Listener<File> listener;
 
-    public CachingRequest(String url, Listener<Void> listener, ErrorListener errorListener) {
+    public FileRequest(String url, Listener<File> listener, ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
         this.listener = listener;
         
@@ -24,6 +29,13 @@ public class CachingRequest extends Request<Void> {
 
     @Override
     protected void deliverResponse(Void response) {
-        listener.onResponse(response);
+        DiskBasedCache cache = (DiskBasedCache) ChanApplication.getVolleyRequestQueue().getCache();
+        File file = cache.getFileForKey(getCacheKey());
+
+        if (file.exists()) {
+            listener.onResponse(file);
+        } else {
+            listener.onResponse(null);
+        }
     }
 }

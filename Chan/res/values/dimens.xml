@@ -5,12 +5,10 @@
     <dimen name="post_comment_padding">11dp</dimen>
     <dimen name="post_icon_padding">6dp</dimen>
     
-    <dimen name="dp48">48dp</dimen>
-    
     <dimen name="thumbnail_size">70dp</dimen>
     <dimen name="post_icon_width">24dp</dimen>
     <dimen name="post_icon_height">14dp</dimen>
     <dimen name="post_max_height">200dp</dimen>
     
-    <dimen name="image_popup_padding">8dp</dimen>
+    <dimen name="image_view_padding">8dp</dimen>
 </resources>

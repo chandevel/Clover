@@ -28,7 +28,7 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
 
 /**
  * Custom version of NetworkImageView
- *
+ * 
  * Handles fetching an image from a URL as well as the life-cycle of the
  * associated request.
  */
@@ -74,7 +74,7 @@ public class CustomNetworkImageView extends ImageView {
 
     /**
      * How larger the inner bitmap is to the defined view size.
-     *
+     * 
      * @param amount
      */
     public void setMaxScale(float amount) {
@@ -87,7 +87,7 @@ public class CustomNetworkImageView extends ImageView {
 
     /**
      * Animate the image fading in.
-     *
+     * 
      * @param duration
      *            duration of the fade animation in milliseconds
      */
@@ -100,12 +100,12 @@ public class CustomNetworkImageView extends ImageView {
      * calling this will immediately either set the cached image (if available)
      * or the default image specified by
      * {@link CustomNetworkImageView#setDefaultImageResId(int)} on the view.
-     *
+     * 
      * NOTE: If applicable,
      * {@link CustomNetworkImageView#setDefaultImageResId(int)} and
      * {@link CustomNetworkImageView#setErrorImageResId(int)} should be called
      * prior to calling this function.
-     *
+     * 
      * @param url
      *            The URL that should be loaded into this ImageView.
      * @param imageLoader
@@ -139,7 +139,7 @@ public class CustomNetworkImageView extends ImageView {
 
     /**
      * Loads the image for the view if it isn't already loaded.
-     *
+     * 
      * @param isInLayoutPass
      *            True if this was invoked from a layout pass, false otherwise.
      */
@@ -207,12 +207,9 @@ public class CustomNetworkImageView extends ImageView {
 
             @Override
             public void onResponse(final ImageContainer response, boolean isImmediate) {
-                // If this was an immediate response that was delivered inside
-                // of a layout
-                // pass do not set the image immediately as it will trigger a
-                // requestLayout
-                // inside of a layout. Instead, defer setting the image by
-                // posting back to
+                // If this was an immediate response that was delivered inside of a layout
+                // pass do not set the image immediately as it will trigger a requestLayout
+                // inside of a layout. Instead, defer setting the image by posting back to
                 // the main thread.
                 if (isImmediate && isInLayoutPass) {
                     post(new Runnable() {
@@ -235,7 +232,7 @@ public class CustomNetworkImageView extends ImageView {
                     setImageResource(mDefaultImageId);
                 }
             }
-        }, (int)(maxWidth * mMaxScale), (int)(maxHeight * mMaxScale));
+        }, (int) (maxWidth * mMaxScale), (int) (maxHeight * mMaxScale));
 
         // update the ImageContainer to be the new bitmap container.
         mImageContainer = newContainer;

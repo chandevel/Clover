@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item
-	    android:id="@+id/action_image_save"
-	    android:orderInCategory="1"
-	    android:showAsAction="never"
-	    android:title="@string/image_save" />
+        android:id="@+id/action_image_play_state"
+        android:icon="@drawable/ic_action_play"
+        android:orderInCategory="1"
+        android:showAsAction="always"
+        android:title="@string/image_play_state"/>
+    <item
+        android:id="@+id/action_image_save"
+        android:orderInCategory="2"
+        android:showAsAction="never"
+        android:title="@string/image_save"/>
 
 </menu>

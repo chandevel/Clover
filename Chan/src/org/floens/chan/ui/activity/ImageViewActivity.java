@@ -6,6 +6,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.fragment.ImageViewFragment;
 import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Logger;
 
@@ -18,56 +19,57 @@ import android.view.MenuItem;
 import android.view.Window;
 
 /**
- * An fragment pager that contains images. Call setPosts first, 
- * and then start the activity with startActivity()
+ * An fragment pager that contains images. Call setPosts first, and then start
+ * the activity with startActivity()
  */
 public class ImageViewActivity extends Activity implements ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewActivity";
-    
+
     private static PostAdapter postAdapter;
     private static int selectedId = -1;
-    
+
+    private ViewPager viewPager;
     private ImageViewAdapter adapter;
     private int currentPosition;
-    private boolean[] progressData;
-    
+
     /**
      * Set the posts to show
-     * @param other the posts to get image data from
-     * @param selected the no that the user clicked on
+     * 
+     * @param other
+     *            the posts to get image data from
+     * @param selected
+     *            the no that the user clicked on
      */
     public static void setAdapter(PostAdapter adapter, int selected) {
         postAdapter = adapter;
         selectedId = selected;
     }
-   
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
-        
+
         super.onCreate(savedInstanceState);
-        
+
         if (postAdapter != null) {
             // Get the posts with images
             ArrayList<Post> imagePosts = new ArrayList<Post>();
             for (Post post : postAdapter.getList()) {
-                if (post.hasImage){
+                if (post.hasImage) {
                     imagePosts.add(post);
                 }
             }
-            
+
             // Setup our pages and adapter
             setContentView(R.layout.image_pager);
-            ViewPager viewPager = (ViewPager) findViewById(R.id.image_pager);
+            viewPager = (ViewPager) findViewById(R.id.image_pager);
             adapter = new ImageViewAdapter(getFragmentManager(), this);
-            adapter.addToList(imagePosts);
+            adapter.setList(imagePosts);
             viewPager.setAdapter(adapter);
             viewPager.setOnPageChangeListener(this);
-            
-            progressData = new boolean[imagePosts.size()];
-            
+
             // Select the right image
             for (int i = 0; i < imagePosts.size(); i++) {
                 if (imagePosts.get(i).no == selectedId) {
@@ -77,18 +79,60 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
                 }
             }
         } else {
-            Logger.e(TAG, "Posts in imageview list was null");
+            Logger.e(TAG, "Posts in ImageViewActivity was null");
             finish();
         }
     }
-    
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Avoid things like out of sync, since this is an activity.
+        finish();
+    }
+
     @Override
     public void finish() {
         super.finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         postAdapter = null;
     }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        currentPosition = position;
+
+        ImageViewFragment fragment = getCurrentFragment();
+        if (fragment != null) {
+            fragment.onSelected(adapter, position);
+        }
+
+        Post post = adapter.getPost(position);
+        if (postAdapter != null) {
+            postAdapter.scrollToPost(post);
+        }
+    }
+
+    public void invalidateActionBar() {
+        invalidateOptionsMenu();
+    }
     
+    public void callOnSelect() {
+        ImageViewFragment fragment = getCurrentFragment();
+        if (fragment != null) {
+            fragment.onSelected(adapter, currentPosition);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -97,70 +141,41 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         } else if (item.getItemId() == R.id.action_image_save) {
             Post post = adapter.getPost(currentPosition);
             ImageSaver.save(this, post.imageUrl, post.filename, post.ext);
-            
+
             return true;
         } else {
+            ImageViewFragment fragment = getCurrentFragment();
+            if (fragment != null) {
+                fragment.customOnOptionsItemSelected(item);
+            }
+            
             return super.onOptionsItemSelected(item);
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.image_view, menu);
+        
         return true;
     }
     
-    /**
-     * Show the progressbar in the actionbar at the specified position.
-     * @param e
-     * @param position
-     */
-    public void showProgressBar(boolean e, int position) {
-        progressData[position] = e;
-        
-        if (position == currentPosition) {
-            setProgressBarIndeterminateVisibility(e);
-        }
-    }
-    
     @Override
-    protected void onStop() {
-        super.onStop();
-        
-        // Avoid things like out of sync, since this is an activity.
-        finish();
-    }
-    
-    @Override
-    public void onPageSelected(int position) {
-        currentPosition = position;
-        
-        setProgressBarIndeterminateVisibility(progressData[position]);
-        
-        Post post = adapter.getPost(position);
-        
-        if (post != null) {
-            String filename = post.filename + "." + post.ext;
-            String text = "(" + (position + 1) + "/" + progressData.length +  ") " + filename;
-            
-            getActionBar().setTitle(text);
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        ImageViewFragment fragment = getCurrentFragment();
+        if (fragment != null) {
+            fragment.onPrepareOptionsMenu(currentPosition, adapter, menu);
         }
         
-        if (postAdapter != null) {
-            postAdapter.scrollToPost(post);
-        }
-    }
-    
-    @Override
-    public void onPageScrollStateChanged(int state) {
+        return super.onPrepareOptionsMenu(menu);
     }
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    private ImageViewFragment getCurrentFragment() {
+        Object o = adapter.instantiateItem(viewPager, currentPosition);
+        if (o instanceof ImageViewFragment) {
+            return (ImageViewFragment) o;
+        } else {
+            return null;
+        }
     }
 }
-
-
-
-
-

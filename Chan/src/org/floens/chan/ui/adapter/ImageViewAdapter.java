@@ -15,7 +15,6 @@ import android.view.View;
 
 public class ImageViewAdapter extends FragmentStatePagerAdapter {
     private final ImageViewActivity activity;
-    private int count = 0;
     private final ArrayList<Post> postList = new ArrayList<Post>();
     
     public ImageViewAdapter(FragmentManager fragmentManager, ImageViewActivity activity) {
@@ -25,7 +24,7 @@ public class ImageViewAdapter extends FragmentStatePagerAdapter {
     
     @Override
     public int getCount() {
-        return count;
+        return postList.size();
     }
     
     @Override
@@ -46,8 +45,8 @@ public class ImageViewAdapter extends FragmentStatePagerAdapter {
         view = null;
     }
     
-    public void addToList(ArrayList<Post> list){
-        count += list.size();
+    public void setList(ArrayList<Post> list){
+        postList.clear();
         postList.addAll(list);
         
         notifyDataSetChanged();
