@@ -1,6 +1,7 @@
 package org.floens.chan.ui.fragment;
 
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
@@ -27,7 +28,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     private boolean isVideo = false;
     private boolean videoVisible = false;
     private boolean videoSetIconToPause = false;
-    
+
     public static ImageViewFragment newInstance(Post post, ImageViewActivity activity, int index) {
         ImageViewFragment imageViewFragment = new ImageViewFragment();
         imageViewFragment.post = post;
@@ -35,7 +36,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
         return imageViewFragment;
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (post == null) {
@@ -46,7 +47,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
             imageView = new ThumbnailImageView(context);
             imageView.setCallback(this);
-            
+
             int padding = (int) context.getResources().getDimension(R.dimen.image_view_padding);
             imageView.setPadding(padding, padding, padding, padding);
 
@@ -73,6 +74,10 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 isVideo = true;
                 activity.invalidateActionBar();
                 showProgressBar(false);
+
+                if (ChanPreferences.getVideoAutoPlay()) {
+                    startVideo();
+                }
             } else {
                 imageView.setBigImage(post.imageUrl);
             }
@@ -91,7 +96,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
         String filename = post.filename + "." + post.ext;
         activity.getActionBar().setTitle(filename);
-        
+
         String text = (position + 1) + "/" + adapter.getCount();
         activity.getActionBar().setSubtitle(text);
 
@@ -102,10 +107,11 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         MenuItem item = menu.findItem(R.id.action_image_play_state);
         item.setVisible(isVideo);
         item.setEnabled(isVideo);
-        
+
         VideoView view = imageView.getVideoView();
         if (view != null) {
-            item.setIcon((videoSetIconToPause || view.isPlaying()) ? R.drawable.ic_action_pause : R.drawable.ic_action_play);
+            item.setIcon((videoSetIconToPause || view.isPlaying()) ? R.drawable.ic_action_pause
+                    : R.drawable.ic_action_play);
         }
         videoSetIconToPause = false;
     }
@@ -113,8 +119,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     public void customOnOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_image_play_state) {
             if (!videoVisible) {
-                videoVisible = true;
-                imageView.setVideo(post.imageUrl);
+                startVideo();
             } else {
                 VideoView view = imageView.getVideoView();
                 if (view != null) {
@@ -125,9 +130,14 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                     }
                 }
             }
-            
+
             activity.invalidateActionBar();
         }
+    }
+
+    private void startVideo() {
+        videoVisible = true;
+        imageView.setVideo(post.imageUrl);
     }
 
     public void showProgressBar(boolean e) {
@@ -139,7 +149,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     public void onTap() {
         activity.finish();
     }
-    
+
     @Override
     public void setProgress(boolean progress) {
         showProgressBar(progress);

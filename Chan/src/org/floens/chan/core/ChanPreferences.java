@@ -55,8 +55,8 @@ public class ChanPreferences {
         return Integer.parseInt(number) * 1000L;
     }
     
-    public static boolean getVideosEnabled() {
-        return ChanApplication.getPreferences().getBoolean("preference_enable_video", true);
+    public static boolean getVideoAutoPlay() {
+        return ChanApplication.getPreferences().getBoolean("preference_autoplay", false);
     }
 }
 
