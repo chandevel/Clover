@@ -65,7 +65,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     public void onStart() {
         if (loader != null) {
-            if (loader.getLoadable().isThreadMode()) {
+            if (shouldWatch()) {
                 loader.setAutoLoadMore(true);
                 loader.requestMoreDataAndResetTimer();
             }
@@ -84,7 +84,7 @@ public class ThreadManager implements Loader.LoaderListener {
         }
 
         loader = LoaderPool.getInstance().obtain(loadable, this);
-        if (loadable.isThreadMode()) {
+        if (shouldWatch()) {
             loader.setAutoLoadMore(true);
         }
     }
@@ -108,6 +108,11 @@ public class ThreadManager implements Loader.LoaderListener {
                 ChanApplication.getPinnedManager().onPinViewed(pin);
             }
         }
+    }
+
+    public boolean shouldWatch() {
+        boolean closed = loader.getCachedPosts().size() > 0 && loader.getCachedPosts().get(0).closed;
+        return loader.getLoadable().isThreadMode() && !closed;
     }
 
     public void requestData() {
@@ -136,6 +141,10 @@ public class ThreadManager implements Loader.LoaderListener {
 
     @Override
     public void onData(List<Post> result, boolean append) {
+        if (!shouldWatch()) {
+            loader.setAutoLoadMore(false);
+        }
+
         threadManagerListener.onThreadLoaded(result, append);
     }
 
@@ -292,7 +301,7 @@ public class ThreadManager implements Loader.LoaderListener {
      * When the user clicks a post: a. when there's one linkable, open the
      * linkable. b. when there's more than one linkable, show the user multiple
      * options to select from.
-     *
+     * 
      * @param post
      *            The post that was clicked.
      */
@@ -338,7 +347,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     /**
      * Handle when a linkable has been clicked.
-     *
+     * 
      * @param linkable
      *            the selected linkable.
      */
@@ -369,7 +378,7 @@ public class ThreadManager implements Loader.LoaderListener {
     /**
      * When a linkable to a post has been clicked, show a dialog with the
      * referenced post in it.
-     *
+     * 
      * @param linkable
      *            the clicked linkable.
      */
@@ -399,7 +408,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     /**
      * Open an url.
-     *
+     * 
      * @param linkable
      *            Linkable with an url.
      */

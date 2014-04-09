@@ -175,6 +175,10 @@ public class Loader {
             return lastLoadTime + waitTime - System.currentTimeMillis();
         }
     }
+    
+    public List<Post> getCachedPosts() {
+        return cachedPosts;
+    }
 
     private void setTimer(int postCount) {
         clearTimer();
@@ -259,6 +263,7 @@ public class Loader {
         }
 
         lastLoadTime = System.currentTimeMillis();
+
         if (loadable.isThreadMode()) {
             setTimer(result.size());
         }

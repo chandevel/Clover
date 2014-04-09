@@ -37,7 +37,7 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        if (threadManager.getLoadable().isBoardMode() || threadManager.getLoadable().isThreadMode()) {
+        if (threadManager.getLoadable().isBoardMode() || threadManager.shouldWatch()) {
             return postList.size() + 1;
         } else {
             return postList.size();
@@ -86,7 +86,7 @@ public class PostAdapter extends BaseAdapter {
     }
 
     private View createThreadEndView() {
-        if (threadManager.getLoadable().isThreadMode()) {
+        if (threadManager.shouldWatch()) {
             ThreadWatchCounterView view = new ThreadWatchCounterView(context);
             Utils.setPressedDrawable(view);
             view.init(threadManager, listView, this);
