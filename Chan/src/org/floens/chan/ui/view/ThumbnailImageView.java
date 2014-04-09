@@ -170,6 +170,11 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
         }));
     }
     
+    @Override
+    public void setView(View view, boolean animation) {
+        super.setView(view, animation && !thumbnailNeeded);
+    }
+    
     public VideoView getVideoView() {
         return videoView;
     }
