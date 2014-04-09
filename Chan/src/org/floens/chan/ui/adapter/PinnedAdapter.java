@@ -7,6 +7,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.watch.PinWatcher;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -49,11 +50,13 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
                 frameLayout.setVisibility(View.VISIBLE);
 
                 TextView itemCount = (TextView) view.findViewById(R.id.drawer_item_count);
-
+                
+                PinWatcher watcher = item.getPinWatcher();
+                
                 if (item.isError()) {
                     itemCount.setText("Err");
                 } else {
-                    int count = item.getPinWatcher() == null ? 0 : item.getNewPostsCount();
+                    int count = item.getNewPostsCount();
                     String total = Integer.toString(count);
                     if (count > 999) {
                         total = "1k+";
@@ -71,7 +74,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
 
                 if (!item.watching) {
                     frameLayout.setBackgroundResource(R.drawable.pin_icon_gray);
-                } else if (item.isError()) {
+                } else if (item.getNewQuoteCount() > 0) {
                     frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
                 } else {
                     frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
