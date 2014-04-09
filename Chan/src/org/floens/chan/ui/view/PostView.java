@@ -33,10 +33,14 @@ import android.widget.TextView;
 import com.android.volley.toolbox.NetworkImageView;
 
 public class PostView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
-    private final static LinearLayout.LayoutParams matchParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-    private final static LinearLayout.LayoutParams wrapParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-    private final static LinearLayout.LayoutParams matchWrapParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-    private final static LinearLayout.LayoutParams wrapMatchParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+    private final static LinearLayout.LayoutParams matchParams = new LinearLayout.LayoutParams(
+            LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    private final static LinearLayout.LayoutParams wrapParams = new LinearLayout.LayoutParams(
+            LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    private final static LinearLayout.LayoutParams matchWrapParams = new LinearLayout.LayoutParams(
+            LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+    private final static LinearLayout.LayoutParams wrapMatchParams = new LinearLayout.LayoutParams(
+            LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
 
     private final Activity context;
 
@@ -54,11 +58,12 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private ImageView stickyView;
     private ImageView closedView;
     private NetworkImageView countryView;
+    private View lastSeen;
 
     /**
-     * Represents a post.
-     * Use setPost(Post ThreadManager) to fill it with data.
+     * Represents a post. Use setPost(Post ThreadManager) to fill it with data.
      * setPost can be called multiple times (useful for ListView).
+     * 
      * @param activity
      */
     public PostView(Context activity) {
@@ -211,6 +216,12 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         } else {
             full.setBackgroundColor(0x00000000);
         }
+        
+        if (manager.isPostLastSeen(post)) {
+            lastSeen.setVisibility(View.VISIBLE);
+        } else {
+            lastSeen.setVisibility(View.GONE);
+        }
 
         if (manager.getLoadable().isBoardMode()) {
             Utils.setPressedDrawable(right);
@@ -218,7 +229,8 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     }
 
     private void buildView(final Context context) {
-        if (isBuild) return;
+        if (isBuild)
+            return;
         isBuild = true;
 
         Resources resources = context.getResources();
@@ -257,50 +269,54 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         right = new LinearLayout(context);
         right.setOrientation(VERTICAL);
 
-            LinearLayout header = new LinearLayout(context);
-            header.setOrientation(HORIZONTAL);
+        LinearLayout header = new LinearLayout(context);
+        header.setOrientation(HORIZONTAL);
 
-                titleView = new TextView(context);
-                titleView.setTextSize(14);
-                titleView.setPadding(postPadding, postPadding, postPadding, 0);
-                header.addView(titleView, wrapParams);
+        titleView = new TextView(context);
+        titleView.setTextSize(14);
+        titleView.setPadding(postPadding, postPadding, postPadding, 0);
+        header.addView(titleView, wrapParams);
 
-            right.addView(header, matchWrapParams);
+        right.addView(header, matchWrapParams);
 
-            iconView = new LinearLayout(context);
-            iconView.setOrientation(HORIZONTAL);
-            iconView.setPadding(postPadding, iconPadding, postPadding, 0);
+        iconView = new LinearLayout(context);
+        iconView.setOrientation(HORIZONTAL);
+        iconView.setPadding(postPadding, iconPadding, postPadding, 0);
 
-                stickyView = new ImageView(context);
-                stickyView.setImageBitmap(IconCache.stickyIcon);
-                iconView.addView(stickyView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+        stickyView = new ImageView(context);
+        stickyView.setImageBitmap(IconCache.stickyIcon);
+        iconView.addView(stickyView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
-                closedView = new ImageView(context);
-                closedView.setImageBitmap(IconCache.closedIcon);
-                iconView.addView(closedView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+        closedView = new ImageView(context);
+        closedView.setImageBitmap(IconCache.closedIcon);
+        iconView.addView(closedView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
-                countryView = new NetworkImageView(context);
-                countryView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                iconView.addView(countryView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+        countryView = new NetworkImageView(context);
+        countryView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        iconView.addView(countryView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
-            right.addView(iconView, matchWrapParams);
+        right.addView(iconView, matchWrapParams);
 
-            commentView = new TextView(context);
-            commentView.setTextSize(15);
-            commentView.setPadding(postPadding, commentPadding, postPadding, commentPadding);
-            right.addView(commentView, matchWrapParams);
+        commentView = new TextView(context);
+        commentView.setTextSize(15);
+        commentView.setPadding(postPadding, commentPadding, postPadding, commentPadding);
+        right.addView(commentView, matchWrapParams);
 
-            repliesCountView = new TextView(context);
+        repliesCountView = new TextView(context);
 
-            // Set the drawable before the padding, because setting the background resets the padding
-            // This behavior differs with 4.4 / 4.1
-            Utils.setPressedDrawable(repliesCountView);
+        // Set the drawable before the padding, because setting the background resets the padding
+        // This behavior differs with 4.4 / 4.1
+        Utils.setPressedDrawable(repliesCountView);
 
-            repliesCountView.setTextColor(Color.argb(255, 100, 100, 100));
-            repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
-            repliesCountView.setTextSize(14);
+        repliesCountView.setTextColor(Color.argb(255, 100, 100, 100));
+        repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
+        repliesCountView.setTextSize(14);
 
-            right.addView(repliesCountView, wrapParams);
+        right.addView(repliesCountView, wrapParams);
+
+        lastSeen = new View(context);
+        lastSeen.setBackgroundColor(0xffff0000);
+        right.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(context, 6f)));
 
         full.addView(right, matchWrapParams);
 
@@ -336,8 +352,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
             int action = event.getAction();
 
-            if (action == MotionEvent.ACTION_UP ||
-                action == MotionEvent.ACTION_DOWN) {
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
 
@@ -357,9 +372,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
                     if (action == MotionEvent.ACTION_UP) {
                         link[0].onClick(widget);
                     } else if (action == MotionEvent.ACTION_DOWN) {
-                        Selection.setSelection(buffer,
-                                               buffer.getSpanStart(link[0]),
-                                               buffer.getSpanEnd(link[0]));
+                        Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]));
                     }
 
                     return true;
@@ -375,12 +388,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
                 return true;
             }
 
-//            return Touch.onTouchEvent(widget, buffer, event);
+            //            return Touch.onTouchEvent(widget, buffer, event);
         }
     }
 }
-
-
-
-
-

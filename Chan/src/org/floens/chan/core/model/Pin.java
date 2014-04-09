@@ -59,6 +59,14 @@ public class Pin {
             return Math.max(0, quoteNewCount - quoteLastCount);
         }
     }
+    
+    public Post getLastSeenPost() {
+        if (pinWatcher == null) {
+            return null;
+        } else {
+            return pinWatcher.getLastSeenPost();
+        }
+    }
 
     public void updateWatch() {
         if (pinWatcher == null) {

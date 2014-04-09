@@ -7,7 +7,6 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.watch.PinWatcher;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -50,8 +49,6 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
                 frameLayout.setVisibility(View.VISIBLE);
 
                 TextView itemCount = (TextView) view.findViewById(R.id.drawer_item_count);
-                
-                PinWatcher watcher = item.getPinWatcher();
                 
                 if (item.isError()) {
                     itemCount.setText("Err");

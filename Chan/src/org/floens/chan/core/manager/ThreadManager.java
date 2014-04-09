@@ -50,8 +50,10 @@ public class ThreadManager implements Loader.LoaderListener {
     private final ThreadManager.ThreadManagerListener threadManagerListener;
     private final List<List<Post>> popupQueue = new ArrayList<List<Post>>();
     private PostRepliesFragment currentPopupFragment;
-    private Post highlightedPost;
-
+    private int highlightedPost = -1;
+    private int lastSeenPost = -1;
+    private int lastPost = -1;
+    
     private Loader loader;
 
     public ThreadManager(Activity activity, final ThreadManagerListener listener) {
@@ -98,7 +100,9 @@ public class ThreadManager implements Loader.LoaderListener {
             Logger.e(TAG, "Loader already unbinded");
         }
 
-        highlightedPost = null;
+        highlightedPost = -1;
+        lastSeenPost = -1;
+        lastPost = -1;
     }
 
     public void bottomPostViewed() {
@@ -107,6 +111,8 @@ public class ThreadManager implements Loader.LoaderListener {
             if (pin != null) {
                 ChanApplication.getPinnedManager().onPinViewed(pin);
             }
+            
+            updateLastSeen();
         }
     }
 
@@ -144,6 +150,11 @@ public class ThreadManager implements Loader.LoaderListener {
         if (!shouldWatch()) {
             loader.setAutoLoadMore(false);
         }
+        
+        if (result.size() > 0) {
+            lastPost = result.get(result.size() - 1).no;
+        }
+        updateLastSeen();
 
         threadManagerListener.onThreadLoaded(result, append);
     }
@@ -245,11 +256,15 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void highlightPost(Post post) {
-        highlightedPost = post;
+        highlightedPost = post.no;
     }
 
     public boolean isPostHightlighted(Post post) {
-        return highlightedPost != null && post.board.equals(highlightedPost.board) && post.no == highlightedPost.no;
+        return highlightedPost >= 0 && post.no == highlightedPost;
+    }
+
+    public boolean isPostLastSeen(Post post) {
+        return post.no == lastSeenPost && post.no != lastPost;
     }
 
     private void copyToClipboard(String comment) {
@@ -520,6 +535,19 @@ public class ThreadManager implements Loader.LoaderListener {
                 }
             }
         });
+    }
+    
+    private void updateLastSeen() {
+        Pin pin = ChanApplication.getPinnedManager().findPinByLoadable(loader.getLoadable());
+        if (pin != null) {
+            Post last = pin.getLastSeenPost();
+            if (last != null) {
+                lastSeenPost = last.no;
+                Logger.test("Setting as last seen post " + last.no);
+            } else {
+                lastSeenPost = -1;
+            }
+        }
     }
 
     public interface ThreadManagerListener {
