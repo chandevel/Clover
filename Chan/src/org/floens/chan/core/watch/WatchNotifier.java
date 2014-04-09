@@ -108,7 +108,7 @@ public class WatchNotifier {
 
         if (show) {
             // "33 new posts, 3 quoting you"
-            String title = newPostsCount + " new posts";
+            String title = newPostsCount + " new post" + (newPostsCount != 1 ? "s" : "");
             if (newQuotesCount > 0) {
                 title += ", " + newQuotesCount + " quoting you";
             }
@@ -119,10 +119,10 @@ public class WatchNotifier {
             if (pins.size() == 1) {
                 descriptor = pins.get(0).loadable.title;
             } else {
-                descriptor = pins.size() + " threads";
+                descriptor = pins.size() + " thread" + (pins.size() != 1 ? "s" : "");
             }
 
-            String content = newPostsCount + " new posts in " + descriptor;
+            String content = newPostsCount + " new post" + (newPostsCount != 1 ? "s" : "") + " in " + descriptor;
 
             Collections.sort(posts, new PostAgeComparer());
 
