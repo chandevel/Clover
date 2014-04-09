@@ -80,8 +80,8 @@ public class WatchNotifier {
 
             boolean add = false;
 
-            if (watcher.getNewPostsCount() > 0) {
-                newPostsCount += watcher.getNewPostsCount();
+            if (pin.getNewPostsCount() > 0) {
+                newPostsCount += pin.getNewPostsCount();
                 for (Post p : watcher.getNewPosts()) {
                     p.title = pin.loadable.title;
                     posts.add(p);
@@ -91,8 +91,8 @@ public class WatchNotifier {
                 add = true;
             }
 
-            if (watcher.getNewQuoteCount() > 0) {
-                newQuotesCount += watcher.getNewQuoteCount();
+            if (pin.getNewQuoteCount() > 0) {
+                newQuotesCount += pin.getNewQuoteCount();
                 show = true;
                 add = true;
             }

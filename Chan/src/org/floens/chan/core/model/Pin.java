@@ -41,6 +41,22 @@ public class Pin {
     public PinWatcher getPinWatcher() {
         return pinWatcher;
     }
+    
+    public int getNewPostsCount() {
+        if (watchLastCount <= 0) {
+            return 0;
+        } else {
+            return Math.max(0, watchNewCount - watchLastCount);
+        }
+    }
+    
+    public int getNewQuoteCount() {
+        if (quoteLastCount <= 0) {
+            return 0;
+        } else {
+            return Math.max(0, quoteNewCount - quoteLastCount);
+        }
+    }
 
     public void updateWatch() {
         if (pinWatcher == null) {

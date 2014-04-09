@@ -50,15 +50,7 @@ public class PinWatcher implements Loader.LoaderListener {
         if (posts.size() == 0) {
             return posts;
         } else {
-            return posts.subList(Math.max(0, posts.size() - getNewPostsCount()), posts.size());
-        }
-    }
-
-    public int getNewPostsCount() {
-        if (pin.watchLastCount <= 0) {
-            return 0;
-        } else {
-            return Math.max(0, pin.watchNewCount - pin.watchLastCount);
+            return posts.subList(Math.max(0, posts.size() - pin.getNewPostsCount()), posts.size());
         }
     }
 
@@ -66,15 +58,7 @@ public class PinWatcher implements Loader.LoaderListener {
         if (posts.size() == 0) {
             return posts;
         } else {
-            return posts.subList(Math.max(0, posts.size() - getNewQuoteCount()), posts.size());
-        }
-    }
-
-    public int getNewQuoteCount() {
-        if (pin.quoteLastCount <= 0) {
-            return 0;
-        } else {
-            return Math.max(0, pin.quoteNewCount - pin.quoteLastCount);
+            return posts.subList(Math.max(0, posts.size() - pin.getNewQuoteCount()), posts.size());
         }
     }
 
