@@ -33,9 +33,11 @@ public class Pin {
 
     @DatabaseField
     public int watchNewCount;
-
+    
+    @DatabaseField
     public int quoteLastCount;
-
+    
+    @DatabaseField
     public int quoteNewCount;
 
     public PinWatcher getPinWatcher() {
