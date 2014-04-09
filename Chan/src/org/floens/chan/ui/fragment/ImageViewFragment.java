@@ -108,12 +108,14 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         item.setVisible(isVideo);
         item.setEnabled(isVideo);
 
-        VideoView view = imageView.getVideoView();
-        if (view != null) {
-            item.setIcon((videoSetIconToPause || view.isPlaying()) ? R.drawable.ic_action_pause
-                    : R.drawable.ic_action_play);
+        if (imageView != null) {
+            VideoView view = imageView.getVideoView();
+            if (view != null) {
+                item.setIcon((videoSetIconToPause || view.isPlaying()) ? R.drawable.ic_action_pause
+                        : R.drawable.ic_action_play);
+                videoSetIconToPause = false;
+            }
         }
-        videoSetIconToPause = false;
     }
 
     public void customOnOptionsItemSelected(MenuItem item) {
