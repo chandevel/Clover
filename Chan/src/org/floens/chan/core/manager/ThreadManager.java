@@ -543,7 +543,6 @@ public class ThreadManager implements Loader.LoaderListener {
             Post last = pin.getLastSeenPost();
             if (last != null) {
                 lastSeenPost = last.no;
-                Logger.test("Setting as last seen post " + last.no);
             } else {
                 lastSeenPost = -1;
             }
