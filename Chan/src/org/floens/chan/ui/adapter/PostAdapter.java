@@ -37,7 +37,7 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        if (threadManager.getLoadable().isBoardMode() || threadManager.shouldWatch()) {
+        if ((threadManager.getLoadable() != null && threadManager.getLoadable().isBoardMode()) || threadManager.shouldWatch()) {
             return postList.size() + 1;
         } else {
             return postList.size();
