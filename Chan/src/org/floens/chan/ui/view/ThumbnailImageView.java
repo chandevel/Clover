@@ -34,6 +34,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     private final float maxScale = 3f;
 
     private boolean thumbnailNeeded = true;
+    private boolean tapDismiss = false;
     
     private VideoView videoView;
 
@@ -103,6 +104,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     setView(image, !isImmediate);
                     callback.setProgress(false);
                     thumbnailNeeded = false;
+                    tapDismiss = true;
                 }
             }
         }, (int) (getWidth() * maxScale), (int) (getHeight() * maxScale));
@@ -119,6 +121,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                 setView(view, false);
                 callback.setProgress(false);
                 thumbnailNeeded = false;
+                tapDismiss = true;
             }
         }, new Response.ErrorListener() {
             @Override
@@ -130,7 +133,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
 
     public void setVideo(String videoUrl) {
         callback.setProgress(true);
-        
+
         ChanApplication.getVolleyRequestQueue().add(new FileRequest(videoUrl, new Response.Listener<File>() {
             @Override
             public void onResponse(File file) {
@@ -157,6 +160,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     setView(videoView, false);
                     callback.setProgress(false);
                     thumbnailNeeded = false;
+                    tapDismiss = true;
                 } else {
                     onError();
                 }
@@ -169,12 +173,12 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
             }
         }));
     }
-    
+
     @Override
     public void setView(View view, boolean animation) {
         super.setView(view, animation && !thumbnailNeeded);
     }
-    
+
     public VideoView getVideoView() {
         return videoView;
     }
@@ -186,17 +190,23 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
 
     @Override
     public void onViewTap(View view, float x, float y) {
-        callback.onTap();
+        if (tapDismiss) {
+            callback.onTap();
+        }
     }
 
     @Override
     public void onClick(View v) {
-        callback.onTap();
+        if (tapDismiss) {
+            callback.onTap();
+        }
     }
 
     public static interface ThumbnailImageViewCallback {
         public void onTap();
+
         public void setProgress(boolean progress);
+
         public void onVideoLoaded();
     }
 
