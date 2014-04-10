@@ -50,7 +50,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
 
                 TextView itemCount = (TextView) view.findViewById(R.id.drawer_item_count);
                 
-                if (item.isError()) {
+                if (item.isError) {
                     itemCount.setText("Err");
                 } else {
                     int count = item.getNewPostsCount();

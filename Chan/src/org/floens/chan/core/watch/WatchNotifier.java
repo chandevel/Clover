@@ -75,7 +75,7 @@ public class WatchNotifier {
 
         for (Pin pin : watchingPins) {
             PinWatcher watcher = pin.getPinWatcher();
-            if (watcher == null || watcher.isError())
+            if (watcher == null || pin.isError)
                 continue;
 
             boolean add = false;

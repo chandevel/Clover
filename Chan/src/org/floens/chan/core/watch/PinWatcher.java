@@ -17,7 +17,6 @@ public class PinWatcher implements Loader.LoaderListener {
 
     private final Pin pin;
     private Loader loader;
-    private boolean isError = false;
 
     private final List<Post> posts = new ArrayList<Post>();
     private boolean wereNewQuotes = false;
@@ -36,7 +35,7 @@ public class PinWatcher implements Loader.LoaderListener {
     }
 
     public void update() {
-        if (!isError) {
+        if (!pin.isError) {
             loader.loadMoreIfTime();
         }
     }
@@ -80,21 +79,17 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
-    public boolean isError() {
-        return isError;
-    }
-
     @Override
     public void onError(VolleyError error) {
         Logger.e(TAG, "PinWatcher onError: ", error);
-        isError = true;
+        pin.isError = true;
 
         WatchService.onPinWatcherResult();
     }
 
     @Override
     public void onData(List<Post> result, boolean append) {
-        isError = false;
+        pin.isError = false;
 
         posts.clear();
         posts.addAll(result);

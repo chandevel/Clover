@@ -39,6 +39,8 @@ public class Pin {
     
     @DatabaseField
     public int quoteNewCount;
+    
+    public boolean isError = false;
 
     public PinWatcher getPinWatcher() {
         return pinWatcher;
@@ -80,14 +82,6 @@ public class Pin {
         if (pinWatcher != null) {
             pinWatcher.destroy();
             pinWatcher = null;
-        }
-    }
-
-    public boolean isError() {
-        if (pinWatcher != null) {
-            return pinWatcher.isError();
-        } else {
-            return false;
         }
     }
 }
