@@ -92,7 +92,7 @@ public class PostAdapter extends BaseAdapter {
             view.init(threadManager, listView, this);
             int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
             view.setPadding(padding, padding, padding, padding);
-            int height = Utils.dp(context, 48f);
+            int height = Utils.dp(48f);
             view.setHeight(height);
             view.setGravity(Gravity.CENTER);
             return view;

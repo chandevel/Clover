@@ -11,6 +11,7 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.ui.fragment.ThreadFragment;
+import org.floens.chan.utils.Utils;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -22,10 +23,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 
 public class BoardActivity extends BaseActivity implements ActionBar.OnNavigationListener {
     private Loadable boardLoadable = new Loadable();
@@ -49,16 +53,13 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         ft.replace(R.id.right_pane, threadFragment);
         ft.commitAllowingStateLoss();
 
+        updatePaneState();
         updateActionBarState();
 
         final ActionBar actionBar = getActionBar();
         actionBar.setListNavigationCallbacks(
-                new ArrayAdapter<String>(
-                    actionBar.getThemedContext(),
-                    R.layout.board_select_spinner,
-                    android.R.id.text1,
-                    ChanApplication.getBoardManager().getMyBoardsKeys()
-                ), this);
+                new ArrayAdapter<String>(actionBar.getThemedContext(), R.layout.board_select_spinner,
+                        android.R.id.text1, ChanApplication.getBoardManager().getMyBoardsKeys()), this);
 
         Intent startIntent = getIntent();
         Uri startUri = startIntent.getData();
@@ -111,8 +112,9 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
     @Override
     protected void initDrawer() {
-        pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer,
-                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {};
+        pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer, R.drawable.ic_drawer, R.string.drawer_open,
+                R.string.drawer_close) {
+        };
 
         super.initDrawer();
     }
@@ -141,6 +143,44 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         super.onConfigurationChanged(newConfig);
         pinDrawerListener.onConfigurationChanged(newConfig);
         updateActionBarState();
+
+        updatePaneState();
+    }
+
+    private void updatePaneState() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int width = metrics.widthPixels;
+
+        FrameLayout left = (FrameLayout) findViewById(R.id.left_pane);
+        FrameLayout right = (FrameLayout) findViewById(R.id.right_pane);
+
+        LayoutParams leftParams = left.getLayoutParams();
+        LayoutParams rightParams = right.getLayoutParams();
+        
+        // Content view dp's:
+        // Nexus 4 is 384 x 640 dp 
+        // Nexus 7 is 600 x 960 dp
+        // Nexus 10 is 800 x 1280 dp
+        
+        if (width < Utils.dp(800)) {
+            if (width < Utils.dp(400)) {
+                leftParams.width = width - Utils.dp(30);
+            } else {
+                leftParams.width = width - Utils.dp(150);
+            }
+            rightParams.width = width;
+        } else {
+            leftParams.width = Utils.dp(300);
+            rightParams.width = width - Utils.dp(300);
+        }
+
+        left.setLayoutParams(leftParams);
+        right.setLayoutParams(rightParams);
+
+        threadPane.requestLayout();
+        left.requestLayout();
+        right.requestLayout();
     }
 
     @Override
@@ -235,7 +275,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             return true;
         }
 
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
         case R.id.action_reload_board:
         case R.id.action_reload_tablet_board:
             boardFragment.reload();
@@ -300,7 +340,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
 
     private void startLoadingBoard(Loadable loadable) {
-        if (loadable.mode == Loadable.Mode.INVALID) return;
+        if (loadable.mode == Loadable.Mode.INVALID)
+            return;
 
         boardLoadable = loadable;
 
@@ -313,7 +354,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
 
     private void startLoadingThread(Loadable loadable) {
-        if (loadable.mode == Loadable.Mode.INVALID) return;
+        if (loadable.mode == Loadable.Mode.INVALID)
+            return;
 
         Pin pin = ChanApplication.getPinnedManager().findPinByLoadable(loadable);
         if (pin != null) {
@@ -341,6 +383,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
     /**
      * Handle opening from an external url.
+     * 
      * @param startUri
      */
     private void handleIntentURI(Uri startUri) {
@@ -374,7 +417,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
             try {
                 no = Integer.parseInt(parts.get(2));
-            } catch (NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+            }
 
             if (no >= 0 && ChanApplication.getBoardManager().getBoardExists(rawBoard)) {
                 boardSetByIntent = true;
@@ -391,31 +435,26 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
 
     private void handleIntentURIFallback(final String url) {
-        new AlertDialog.Builder(this)
-            .setTitle(R.string.open_unknown_title)
-            .setMessage(R.string.open_unknown)
-            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Cancel button
-                    finish();
-                }
-            })
-            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // Ok button
-                    showUrlOpenPicker(url);
-                }
-            })
-            .setCancelable(false)
-            .create()
-            .show();
+        new AlertDialog.Builder(this).setTitle(R.string.open_unknown_title).setMessage(R.string.open_unknown)
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Cancel button
+                        finish();
+                    }
+                }).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Ok button
+                        showUrlOpenPicker(url);
+                    }
+                }).setCancelable(false).create().show();
     }
 
     /**
-     * Set the visual selector to the board. If the user has not set the board as a favorite,
-     * return false.
+     * Set the visual selector to the board. If the user has not set the board
+     * as a favorite, return false.
+     * 
      * @param boardValue
      * @return true if spinner was set, false otherwise
      */
@@ -437,6 +476,3 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         }
     }
 }
-
-
-

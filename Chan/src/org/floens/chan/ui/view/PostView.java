@@ -316,7 +316,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
 
         lastSeen = new View(context);
         lastSeen.setBackgroundColor(0xffff0000);
-        right.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(context, 6f)));
+        right.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(6f)));
 
         full.addView(right, matchWrapParams);
 
