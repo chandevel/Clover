@@ -277,7 +277,7 @@ public class ThreadManager implements Loader.LoaderListener {
         String text = "";
 
         if (post.hasImage) {
-            text += "File: " + post.filename + " \nSize: " + post.imageWidth + "x" + post.imageHeight + "\n\n";
+            text += "File: " + post.filename + "." + post.ext + " \nSize: " + post.imageWidth + "x" + post.imageHeight + "\n\n";
         }
 
         text += "Time: " + post.date;
