@@ -35,7 +35,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
 
     private boolean thumbnailNeeded = true;
     private boolean tapDismiss = false;
-    
+
     private VideoView videoView;
 
     public ThumbnailImageView(Context context) {
@@ -136,7 +136,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
 
         ChanApplication.getVolleyRequestQueue().add(new FileRequest(videoUrl, new Response.Listener<File>() {
             @Override
-            public void onResponse(File file) {
+            public void onResponse(final File file) {
                 if (file != null) {
                     videoView = new VideoView(getContext());
                     videoView.setZOrderOnTop(true);
@@ -154,8 +154,20 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                         }
                     });
 
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(200);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            videoView.start();
+                        }
+                    }).start();
+
                     videoView.setVideoPath(file.getAbsolutePath());
-                    videoView.start();
 
                     setView(videoView, false);
                     callback.setProgress(false);
