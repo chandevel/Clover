@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 
 public class WatchNotifier {
     private static final String TAG = "WatchNotifier";
@@ -142,14 +143,15 @@ public class WatchNotifier {
     @SuppressWarnings("deprecation")
     private void showNotification(String tickerText, String title, String content, String contentInfo,
             List<CharSequence> lines, boolean makeSound) {
-        Intent intent = new Intent(pinnedService, BoardActivity.class);
-        // intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-        // Intent.FLAG_ACTIVITY_SINGLE_TOP
-        // | Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pending = PendingIntent.getActivity(pinnedService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent resultIntent = new Intent(pinnedService, BoardActivity.class);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(pinnedService);
+        stackBuilder.addParentStack(BoardActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(pinnedService);
-        builder.setContentIntent(pending);
+        builder.setContentIntent(resultPendingIntent);
 
         builder.setTicker(tickerText);
         builder.setContentTitle(title);

@@ -69,7 +69,7 @@ public class PinWatcher implements Loader.LoaderListener {
             return false;
         }
     }
-    
+
     public Post getLastSeenPost() {
         int i = posts.size() - pin.getNewPostsCount() - 1;
         if (i >= 0 && i < posts.size()) {

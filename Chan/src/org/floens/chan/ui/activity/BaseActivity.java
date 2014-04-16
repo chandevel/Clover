@@ -91,13 +91,6 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         ChanApplication.getPinnedManager().removePinListener(this);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        //        pinDrawer.openDrawer(pinDrawerView);
-    }
-
     private void initPane() {
         threadPane.setPanelSlideListener(this);
         threadPane.setParallaxDistance(200);
