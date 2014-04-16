@@ -410,6 +410,8 @@ public class ReplyFragment extends DialogFragment {
      * @param response
      */
     private void handleSubmitResponse(ReplyResponse response) {      
+        if (getActivity() == null) return;
+        
         if (response.isNetworkError || response.isUserError) {
             int resId = response.isCaptchaError ? R.string.reply_error_captcha : (response.isFileError ? R.string.reply_error_file : R.string.reply_error);
             Toast.makeText(getActivity(), resId, Toast.LENGTH_LONG).show();
