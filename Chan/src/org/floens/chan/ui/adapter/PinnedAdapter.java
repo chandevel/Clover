@@ -49,7 +49,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
                 frameLayout.setVisibility(View.VISIBLE);
 
                 TextView itemCount = (TextView) view.findViewById(R.id.drawer_item_count);
-                
+
                 if (item.isError) {
                     itemCount.setText("Err");
                 } else {

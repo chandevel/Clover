@@ -190,7 +190,7 @@ public class WatchService extends Service {
 
     /**
      * Returns the sleep time the user specified for background iteration
-     *
+     * 
      * @return the sleep time in ms, or -1 if background reloading is disabled
      */
     private long getBackgroundTimeout() {

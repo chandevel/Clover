@@ -33,13 +33,13 @@ import android.widget.TextView;
 
 public class BoardEditAdapter extends ArrayAdapter<Board> {
     HashMap<Board, Integer> mIdMap = new HashMap<Board, Integer>();
-    
+
     private final BoardEditor editor;
 
     public BoardEditAdapter(Context context, int textViewResourceId, List<Board> objects, BoardEditor editor) {
         super(context, textViewResourceId, objects);
         this.editor = editor;
-        
+
         for (int i = 0; i < objects.size(); ++i) {
             mIdMap.put(objects.get(i), i);
         }
@@ -50,30 +50,30 @@ public class BoardEditAdapter extends ArrayAdapter<Board> {
         if (position < 0 || position >= mIdMap.size()) {
             return -1;
         }
-        
+
         Board item = getItem(position);
         return mIdMap.get(item);
     }
-    
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         String text = getItem(position).key;
-        
+
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        
+
         View view = inflater.inflate(R.layout.board_view, null);
-        
-        TextView textView = (TextView)view.findViewById(R.id.board_view_text);
+
+        TextView textView = (TextView) view.findViewById(R.id.board_view_text);
         textView.setText(text);
-        
-        Button button = (Button)view.findViewById(R.id.board_view_delete);
+
+        Button button = (Button) view.findViewById(R.id.board_view_delete);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.onDeleteClicked(getItem(position));
             }
         });
-        
+
         return view;
     }
 
@@ -82,4 +82,3 @@ public class BoardEditAdapter extends ArrayAdapter<Board> {
         return true;
     }
 }
-

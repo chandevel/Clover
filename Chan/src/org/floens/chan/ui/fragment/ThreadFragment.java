@@ -34,114 +34,116 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     private BaseActivity baseActivity;
     private ThreadManager threadManager;
     private Loadable loadable;
-    
+
     private PostAdapter postAdapter;
     private LoadView container;
     private ListView listView;
-    
+
     public static ThreadFragment newInstance(BaseActivity activity) {
         ThreadFragment fragment = new ThreadFragment();
         fragment.baseActivity = activity;
         fragment.threadManager = new ThreadManager(activity, fragment);
-        
+
         return fragment;
     }
-    
+
     public void bindLoadable(Loadable l) {
         if (loadable != null) {
             threadManager.unbindLoader();
         }
-        
+
         setEmpty();
-        
+
         loadable = l;
         threadManager.bindLoader(loadable);
     }
-    
+
     public void requestData() {
         threadManager.requestData();
     }
-    
+
     private void setEmpty() {
         postAdapter = null;
-        
+
         if (container != null) {
             container.setView(null);
         }
-        
+
         if (listView != null) {
             listView.setOnScrollListener(null);
             listView = null;
         }
     }
-    
+
     public void reload() {
         setEmpty();
-        
+
         threadManager.requestData();
     }
-    
+
     public void openReply() {
         if (threadManager.hasLoader()) {
             threadManager.openReply(true);
         }
     }
-    
+
     public boolean hasLoader() {
         return threadManager.hasLoader();
     }
-    
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        
+
         if (threadManager != null) {
             threadManager.onDestroy();
         }
     }
-    
+
     @Override
     public void onStart() {
         super.onStart();
-        
+
         if (threadManager != null) {
             threadManager.onStart();
         }
     }
-    
+
     @Override
     public void onStop() {
         super.onStop();
-        
+
         if (threadManager != null) {
             threadManager.onStop();
         }
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         container = new LoadView(inflater.getContext());
         return container;
     }
-    
+
     @Override
     public void onThreadLoaded(List<Post> posts, boolean append) {
         if (postAdapter == null) {
             listView = new ListView(baseActivity);
-            
+
             postAdapter = new PostAdapter(baseActivity, threadManager, listView);
-            
+
             listView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             listView.setAdapter(postAdapter);
             listView.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
-            
+
             if (threadManager.getLoadable().isThreadMode()) {
                 listView.setOnScrollListener(new OnScrollListener() {
                     @Override
-                    public void onScrollStateChanged(AbsListView view, int scrollState) {}
-                    
+                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    }
+
                     @Override
-                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+                            int totalItemCount) {
                         if (loadable != null) {
                             loadable.listViewIndex = view.getFirstVisiblePosition();
                             View v = view.getChildAt(0);
@@ -150,19 +152,19 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
                     }
                 });
             }
-            
+
             if (container != null) {
                 container.setView(listView);
             }
         }
-        
+
         if (append) {
             postAdapter.appendList(posts);
         } else {
             postAdapter.setList(posts);
         }
     }
-    
+
     @Override
     public void onThreadLoadError(VolleyError error) {
         if (error instanceof EndOfLineException) {
@@ -173,15 +175,16 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             }
         }
     }
-    
+
     /**
      * Returns an TextView containing the appropriate error message
+     * 
      * @param error
      * @return
      */
     public TextView getLoadErrorTextView(VolleyError error) {
         String errorMessage = "";
-        
+
         if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
             errorMessage = getActivity().getString(R.string.thread_load_failed_network);
         } else if (error instanceof ServerError) {
@@ -189,26 +192,26 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         } else {
             errorMessage = getActivity().getString(R.string.thread_load_failed_parsing);
         }
-        
+
         TextView view = new TextView(getActivity());
         view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         view.setText(errorMessage);
         view.setTextSize(24f);
         view.setGravity(Gravity.CENTER);
-        
+
         return view;
     }
-    
+
     @Override
     public void onOPClicked(Post post) {
         baseActivity.onOPClicked(post);
     }
-    
+
     @Override
     public void onThumbnailClicked(Post source) {
         if (postAdapter != null) {
             ImageViewActivity.setAdapter(postAdapter, source.no);
-            
+
             Intent intent = new Intent(baseActivity, ImageViewActivity.class);
             baseActivity.startActivity(intent);
             baseActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -222,8 +225,3 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
     }
 }
-
-
-
-
-

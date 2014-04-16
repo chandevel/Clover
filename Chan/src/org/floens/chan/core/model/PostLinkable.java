@@ -9,7 +9,9 @@ import android.view.View;
  * Anything that links to something in a post uses this entity.
  */
 public class PostLinkable extends ClickableSpan {
-    public static enum Type {QUOTE, LINK};
+    public static enum Type {
+        QUOTE, LINK
+    };
 
     public final Post post;
     public final String key;

@@ -95,7 +95,7 @@ public class Post {
 
     /**
      * Finish up the data
-     *
+     * 
      * @return false if this data is invalid
      */
     public boolean finish(Loadable loadable) {

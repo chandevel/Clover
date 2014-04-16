@@ -13,40 +13,40 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Loadable {
     @DatabaseField(generatedId = true)
     private int id;
-    
+
     @DatabaseField
     public int mode = Mode.INVALID;
-    
+
     @DatabaseField
     public String board = "";
-    
+
     @DatabaseField
     public int no = -1;
-    
+
     @DatabaseField
     public String title = "";
-    
+
     @DatabaseField
     public int listViewIndex;
-    
+
     @DatabaseField
     public int listViewTop;
-    
+
     /**
-     * When simple mode is enabled, CPU intensive methods won't get called.
-     * This is used for the thread watcher.
+     * When simple mode is enabled, CPU intensive methods won't get called. This
+     * is used for the thread watcher.
      */
     public boolean simpleMode = false;
-    
+
     /**
-     * Constructs an empty loadable.
-     * The mode is INVALID.
+     * Constructs an empty loadable. The mode is INVALID.
      */
     public Loadable() {
     }
-    
+
     /**
      * Quick constructor for a board loadable.
+     * 
      * @param board
      */
     public Loadable(String board) {
@@ -54,9 +54,10 @@ public class Loadable {
         this.board = board;
         no = 0;
     }
-    
+
     /**
      * Quick constructor for a thread loadable.
+     * 
      * @param board
      * @param no
      */
@@ -65,9 +66,10 @@ public class Loadable {
         this.board = board;
         this.no = no;
     }
-    
+
     /**
      * Quick constructor for a thread loadable with an title.
+     * 
      * @param board
      * @param no
      * @param title
@@ -78,34 +80,32 @@ public class Loadable {
         this.no = no;
         this.title = title;
     }
-    
+
     /**
      * Does not compare the title.
      */
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof Loadable)) return false;
-        
+        if (!(object instanceof Loadable))
+            return false;
+
         Loadable other = (Loadable) object;
-        
-        return 
-                mode == other.mode &&
-                board.equals(other.board) &&
-                no == other.no;
+
+        return mode == other.mode && board.equals(other.board) && no == other.no;
     }
-    
+
     public boolean isBoardMode() {
         return mode == Mode.BOARD;
     }
-    
+
     public boolean isThreadMode() {
         return mode == Mode.THREAD;
     }
-    
+
     public boolean isCatalogMode() {
         return mode == Mode.CATALOG;
     }
-    
+
     public void readFromBundle(Context context, Bundle bundle) {
         String p = context.getPackageName();
         mode = bundle.getInt(p + ".mode", Mode.INVALID);
@@ -115,7 +115,7 @@ public class Loadable {
         listViewIndex = bundle.getInt(p + ".listViewIndex");
         listViewTop = bundle.getInt(p + ".listViewTop");
     }
-    
+
     public void writeToBundle(Context context, Bundle bundle) {
         String p = context.getPackageName();
         bundle.putInt(p + ".mode", mode);
@@ -125,7 +125,7 @@ public class Loadable {
         bundle.putInt(p + ".listViewIndex", listViewIndex);
         bundle.putInt(p + ".listViewTop", listViewTop);
     }
-    
+
     public void readFromBundle(Context context, String tag, Bundle bundle) {
         String p = context.getPackageName();
         mode = bundle.getInt(p + "." + tag + ".mode", Mode.INVALID);
@@ -135,7 +135,7 @@ public class Loadable {
         listViewIndex = bundle.getInt(p + "." + tag + ".listViewIndex");
         listViewTop = bundle.getInt(p + "." + tag + ".listViewTop");
     }
-    
+
     public void writeToBundle(Context context, String tag, Bundle bundle) {
         String p = context.getPackageName();
         bundle.putInt(p + "." + tag + ".mode", mode);
@@ -145,7 +145,7 @@ public class Loadable {
         bundle.putInt(p + "." + tag + ".listViewIndex", listViewIndex);
         bundle.putInt(p + "." + tag + ".listViewTop", listViewTop);
     }
-    
+
     public Loadable copy() {
         Loadable copy = new Loadable();
         copy.mode = mode;
@@ -155,10 +155,10 @@ public class Loadable {
         copy.listViewIndex = listViewIndex;
         copy.listViewTop = listViewTop;
         copy.simpleMode = simpleMode;
-        
+
         return copy;
     }
-    
+
     public static class Mode {
         public static final int INVALID = -1;
         public static final int THREAD = 0;
@@ -166,8 +166,3 @@ public class Loadable {
         public static final int CATALOG = 2;
     }
 }
-
-
-
-
-

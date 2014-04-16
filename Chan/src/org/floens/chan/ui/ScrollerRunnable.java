@@ -26,12 +26,12 @@ public class ScrollerRunnable implements Runnable {
         final int firstPos = mList.getFirstVisiblePosition();
         final int lastPos = firstPos + mList.getChildCount() - 1;
 
-//        int viewTravelCount = 0;
+        //        int viewTravelCount = 0;
         if (position <= firstPos) {
-//            viewTravelCount = firstPos - position + 1;
+            //            viewTravelCount = firstPos - position + 1;
             mMode = MOVE_UP_POS;
         } else if (position >= lastPos) {
-//            viewTravelCount = position - lastPos + 1;
+            //            viewTravelCount = position - lastPos + 1;
             mMode = MOVE_DOWN_POS;
         } else {
             // Already on screen, nothing to do
@@ -64,8 +64,8 @@ public class ScrollerRunnable implements Runnable {
 
             if (lastPos == mLastSeenPos) {
                 // No new views, let things keep going.
-//                mList.post(this);
-//                return;
+                //                mList.post(this);
+                //                return;
             }
 
             final View lastView = mList.getChildAt(lastViewIndex);
@@ -86,8 +86,8 @@ public class ScrollerRunnable implements Runnable {
         case MOVE_UP_POS: {
             if (firstPos == mLastSeenPos) {
                 // No new views, let things keep going.
-//                mList.post(this);
-//                return;
+                //                mList.post(this);
+                //                return;
             }
 
             final View firstView = mList.getChildAt(0);

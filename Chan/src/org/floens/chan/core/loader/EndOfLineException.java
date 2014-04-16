@@ -12,7 +12,7 @@ public class EndOfLineException extends VolleyError {
     public EndOfLineException() {
         super();
     }
-    
+
     @Override
     public String getMessage() {
         return "End of the line";

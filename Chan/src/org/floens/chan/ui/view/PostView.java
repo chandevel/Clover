@@ -216,7 +216,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         } else {
             full.setBackgroundColor(0x00000000);
         }
-        
+
         if (manager.isPostLastSeen(post)) {
             lastSeen.setVisibility(View.VISIBLE);
         } else {

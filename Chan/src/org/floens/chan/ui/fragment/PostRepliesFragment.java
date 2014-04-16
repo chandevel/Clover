@@ -17,7 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 /**
- * A DialogFragment that shows a list of posts. Use the newInstance method for instantiating.
+ * A DialogFragment that shows a list of posts. Use the newInstance method for
+ * instantiating.
  */
 public class PostRepliesFragment extends DialogFragment {
     private ListView listView;
@@ -119,8 +120,3 @@ public class PostRepliesFragment extends DialogFragment {
         }
     }
 }
-
-
-
-
-

@@ -11,7 +11,7 @@ import java.io.Writer;
 public class IOUtils {
     public static String readString(InputStream is) {
         StringWriter sw = new StringWriter();
-        
+
         try {
             copy(new InputStreamReader(is), sw);
             is.close();
@@ -19,12 +19,13 @@ public class IOUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return sw.toString();
     }
-    
+
     /**
      * Copies the inputstream to the outputstream and closes both streams.
+     * 
      * @param is
      * @param os
      * @throws IOException
@@ -35,11 +36,11 @@ public class IOUtils {
         while ((read = is.read(buffer)) != -1) {
             os.write(buffer, 0, read);
         }
-        
+
         is.close();
         os.close();
     }
-    
+
     public static void copy(Reader input, Writer output) throws IOException {
         char[] buffer = new char[4096];
         int read = 0;

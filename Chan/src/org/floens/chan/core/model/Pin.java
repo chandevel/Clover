@@ -17,9 +17,9 @@ public class Pin {
     // ListView Stuff
     /** Header is used to display a static header in the drawer listview. */
     public Type type = Type.THREAD;
+
     public static enum Type {
-        HEADER,
-        THREAD
+        HEADER, THREAD
     };
 
     // PinnedService stuff
@@ -33,19 +33,19 @@ public class Pin {
 
     @DatabaseField
     public int watchNewCount;
-    
+
     @DatabaseField
     public int quoteLastCount;
-    
+
     @DatabaseField
     public int quoteNewCount;
-    
+
     public boolean isError = false;
 
     public PinWatcher getPinWatcher() {
         return pinWatcher;
     }
-    
+
     public int getNewPostsCount() {
         if (watchLastCount <= 0) {
             return 0;
@@ -53,7 +53,7 @@ public class Pin {
             return Math.max(0, watchNewCount - watchLastCount);
         }
     }
-    
+
     public int getNewQuoteCount() {
         if (quoteLastCount <= 0) {
             return 0;
@@ -61,7 +61,7 @@ public class Pin {
             return Math.max(0, quoteNewCount - quoteLastCount);
         }
     }
-    
+
     public Post getLastSeenPost() {
         if (pinWatcher == null) {
             return null;
@@ -85,6 +85,3 @@ public class Pin {
         }
     }
 }
-
-
-

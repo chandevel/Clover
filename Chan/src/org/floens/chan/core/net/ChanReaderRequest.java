@@ -25,14 +25,19 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
 
     /**
      * Creates a ChanReaderRequest with supplied params
-     * @param mode ThreadManager mode
-     * @param board board key
-     * @param no page for board, no for threads
+     * 
+     * @param mode
+     *            ThreadManager mode
+     * @param board
+     *            board key
+     * @param no
+     *            page for board, no for threads
      * @param listener
      * @param errorListener
      * @return New instance of ChanReaderRequest
      */
-    public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener, ErrorListener errorListener) {
+    public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener,
+            ErrorListener errorListener) {
         String url;
 
         if (loadable.isBoardMode()) {
@@ -110,13 +115,13 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 }
             }
             reader.endObject();
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             setError(new ParseError(e));
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             setError(new ParseError(e));
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             e.printStackTrace();
             setError(new ParseError(e));
         }
@@ -142,7 +147,8 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                         list.add(readPostObject(reader));
 
                         // Only consume one post
-                        while (reader.hasNext()) reader.skipValue();
+                        while (reader.hasNext())
+                            reader.skipValue();
 
                         reader.endArray();
                     } else {
@@ -158,13 +164,13 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             }
 
             reader.endObject();
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             setError(new ParseError(e));
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             setError(new ParseError(e));
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             e.printStackTrace();
             setError(new ParseError(e));
         }
@@ -199,13 +205,13 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             }
 
             reader.endArray();
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             setError(new ParseError(e));
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             setError(new ParseError(e));
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             e.printStackTrace();
             setError(new ParseError(e));
         }
@@ -218,16 +224,16 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         post.board = loadable.board;
 
         reader.beginObject();
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             String key = reader.nextName();
 
             if (key.equals("no")) {
                 // Post number
                 post.no = reader.nextInt();
-            /*} else if (key.equals("time")) {
-                // Time
-                long time = reader.nextLong();
-                post.date = new Date(time * 1000);*/
+                /*} else if (key.equals("time")) {
+                    // Time
+                    long time = reader.nextLong();
+                    post.date = new Date(time * 1000);*/
             } else if (key.equals("now")) {
                 post.date = reader.nextString();
             } else if (key.equals("name")) {
@@ -270,7 +276,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 post.capcode = reader.nextString();
             } else {
                 // Unknown/ignored key
-//                log("Unknown/ignored key: " + key + ".");
+                //                log("Unknown/ignored key: " + key + ".");
                 reader.skipValue();
             }
         }
@@ -295,8 +301,3 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         }
     }
 }
-
-
-
-
-

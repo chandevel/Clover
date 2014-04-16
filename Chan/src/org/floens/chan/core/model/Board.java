@@ -1,9 +1,8 @@
 package org.floens.chan.core.model;
 
 /**
- * Board key and value.
- * key is full name e.g. Literature.
- * value is board key e.g. lit.
+ * Board key and value. key is full name e.g. Literature. value is board key
+ * e.g. lit.
  */
 public class Board {
     /**
@@ -14,15 +13,16 @@ public class Board {
      * Name of the url, e.g. lit
      */
     public String value;
-    
+
     public boolean workSafe = false;
-    
+
     public boolean finish() {
-        if (key == null || value == null) return false;
-        
+        if (key == null || value == null)
+            return false;
+
         return true;
     }
-    
+
     @Override
     public String toString() {
         return key;

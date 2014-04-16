@@ -53,7 +53,7 @@ public class ThreadManager implements Loader.LoaderListener {
     private int highlightedPost = -1;
     private int lastSeenPost = -1;
     private int lastPost = -1;
-    
+
     private Loader loader;
 
     public ThreadManager(Activity activity, final ThreadManagerListener listener) {
@@ -111,7 +111,7 @@ public class ThreadManager implements Loader.LoaderListener {
             if (pin != null) {
                 ChanApplication.getPinnedManager().onPinViewed(pin);
             }
-            
+
             updateLastSeen();
         }
     }
@@ -150,7 +150,7 @@ public class ThreadManager implements Loader.LoaderListener {
         if (!shouldWatch()) {
             loader.setAutoLoadMore(false);
         }
-        
+
         if (result.size() > 0) {
             lastPost = result.get(result.size() - 1).no;
         }
@@ -277,7 +277,8 @@ public class ThreadManager implements Loader.LoaderListener {
         String text = "";
 
         if (post.hasImage) {
-            text += "File: " + post.filename + "." + post.ext + " \nSize: " + post.imageWidth + "x" + post.imageHeight + "\n\n";
+            text += "File: " + post.filename + "." + post.ext + " \nSize: " + post.imageWidth + "x" + post.imageHeight
+                    + "\n\n";
         }
 
         text += "Time: " + post.date;
@@ -536,7 +537,7 @@ public class ThreadManager implements Loader.LoaderListener {
             }
         });
     }
-    
+
     private void updateLastSeen() {
         Pin pin = ChanApplication.getPinnedManager().findPinByLoadable(loader.getLoadable());
         if (pin != null) {

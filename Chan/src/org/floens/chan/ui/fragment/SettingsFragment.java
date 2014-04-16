@@ -48,8 +48,8 @@ public class SettingsFragment extends PreferenceFragment {
                         ChanPreferences.setDeveloper(enabled);
                         updateDeveloperPreference();
 
-                        Toast.makeText(getActivity(),
-                                (enabled ? "Enabled " : "Disabled ") + "developer options", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), (enabled ? "Enabled " : "Disabled ") + "developer options",
+                                Toast.LENGTH_LONG).show();
                     }
 
                     return true;
@@ -78,7 +78,8 @@ public class SettingsFragment extends PreferenceFragment {
 
         final Preference watchPreference = findPreference("watch_settings");
         if (watchPreference != null) {
-            watchPreference.setSummary(ChanPreferences.getWatchEnabled() ? R.string.watch_summary_enabled : R.string.watch_summary_disabled);
+            watchPreference.setSummary(ChanPreferences.getWatchEnabled() ? R.string.watch_summary_enabled
+                    : R.string.watch_summary_disabled);
         }
     }
 

@@ -37,6 +37,7 @@ public class BoardManager {
 
     /**
      * Avoid having 0 boards, which causes graphical problems
+     * 
      * @param list
      */
     private ArrayList<Board> getDefaultBoards() {
@@ -125,6 +126,7 @@ public class BoardManager {
 
     /**
      * Try to add value to the supplied list.
+     * 
      * @param list
      * @param value
      */
@@ -174,7 +176,8 @@ public class BoardManager {
 
     private ArrayList<Board> getBoardListFromDatabase(String key) {
         String total = ChanApplication.getPreferences().getString(key, null);
-        if (total == null) return null;
+        if (total == null)
+            return null;
 
         ArrayList<Board> list = new ArrayList<Board>();
 
@@ -184,7 +187,8 @@ public class BoardManager {
             String line = scanner.nextLine();
             String[] splitted = line.split("\\|");
 
-            if (splitted.length < 2) continue;
+            if (splitted.length < 2)
+                continue;
 
             Board board = new Board();
             board.key = splitted[0];
@@ -207,24 +211,20 @@ public class BoardManager {
             allBoards = temp;
         }
 
-        ChanApplication.getVolleyRequestQueue().add(new BoardsRequest(ChanUrls.getBoardsUrl(), new Response.Listener<ArrayList<Board>>() {
-            @Override
-            public void onResponse(ArrayList<Board> data) {
-                storeBoardListInDatabase("allBoards", data);
-                allBoards = data;
+        ChanApplication.getVolleyRequestQueue().add(
+                new BoardsRequest(ChanUrls.getBoardsUrl(), new Response.Listener<ArrayList<Board>>() {
+                    @Override
+                    public void onResponse(ArrayList<Board> data) {
+                        storeBoardListInDatabase("allBoards", data);
+                        allBoards = data;
 
-                Logger.i(TAG, "Got boards from server");
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Logger.e(TAG, "Failed to get boards from server");
-            }
-        }));
+                        Logger.i(TAG, "Got boards from server");
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Logger.e(TAG, "Failed to get boards from server");
+                    }
+                }));
     }
 }
-
-
-
-
-

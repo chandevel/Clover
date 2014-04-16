@@ -28,7 +28,7 @@ public class PinnedManager {
     /**
      * Look for a pin that has an loadable that is equal to the supplied
      * loadable.
-     *
+     * 
      * @param other
      * @return The pin whose loadable is equal to the supplied loadable, or null
      *         if no pin was found.
@@ -60,7 +60,7 @@ public class PinnedManager {
 
     /**
      * Add a pin
-     *
+     * 
      * @param pin
      * @return true if it was added, false if it wasn't (duplicated)
      */
@@ -82,7 +82,7 @@ public class PinnedManager {
 
     /**
      * Remove a pin
-     *
+     * 
      * @param pin
      */
     public void remove(Pin pin) {
@@ -95,7 +95,7 @@ public class PinnedManager {
 
     /**
      * Update the pin in the database
-     *
+     * 
      * @param pin
      */
     public void update(Pin pin) {

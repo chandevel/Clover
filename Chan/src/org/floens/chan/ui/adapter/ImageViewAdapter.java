@@ -12,48 +12,43 @@ import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
-
 public class ImageViewAdapter extends FragmentStatePagerAdapter {
     private final ImageViewActivity activity;
     private final ArrayList<Post> postList = new ArrayList<Post>();
-    
+
     public ImageViewAdapter(FragmentManager fragmentManager, ImageViewActivity activity) {
         super(fragmentManager);
         this.activity = activity;
     }
-    
+
     @Override
     public int getCount() {
         return postList.size();
     }
-    
+
     @Override
     public Fragment getItem(int position) {
         return ImageViewFragment.newInstance(postList.get(position), activity, position);
     }
-    
+
     public Post getPost(int position) {
-        if (position < 0 || position >= getCount()) return null;
-        
+        if (position < 0 || position >= getCount())
+            return null;
+
         return postList.get(position);
     }
-    
+
     @Override
     public void destroyItem(View collection, int position, Object o) {
-        View view = (View)o;
+        View view = (View) o;
         ((ViewPager) collection).removeView(view);
         view = null;
     }
-    
-    public void setList(ArrayList<Post> list){
+
+    public void setList(ArrayList<Post> list) {
         postList.clear();
         postList.addAll(list);
-        
+
         notifyDataSetChanged();
     }
 }
-
-
-
-
-

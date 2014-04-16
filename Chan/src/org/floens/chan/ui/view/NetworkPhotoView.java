@@ -12,9 +12,8 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 
 /**
- * Extends NetworkImageView.
- * Attaches a PhotoViewAttacher when setBitmap is called.
- * Sets the progressBar to false when a bitmap gets set.
+ * Extends NetworkImageView. Attaches a PhotoViewAttacher when setBitmap is
+ * called. Sets the progressBar to false when a bitmap gets set.
  */
 public class NetworkPhotoView extends CustomNetworkImageView {
     private PhotoViewAttacher attacher;
@@ -70,8 +69,3 @@ public class NetworkPhotoView extends CustomNetworkImageView {
         }
     }
 }
-
-
-
-
-

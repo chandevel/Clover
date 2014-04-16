@@ -95,7 +95,7 @@ public class DatabaseManager {
             for (Pin pin : pins) {
                 helper.loadableDao.update(pin.loadable);
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             Logger.e(TAG, "Error updating pins in db", e);
         }
     }
@@ -103,10 +103,10 @@ public class DatabaseManager {
     public List<Pin> getPinned() {
         List<Pin> list = null;
         try {
-             list = helper.pinDao.queryForAll();
-             for (Pin p : list) {
-                 helper.loadableDao.refresh(p.loadable);
-             }
+            list = helper.pinDao.queryForAll();
+            for (Pin p : list) {
+                helper.loadableDao.refresh(p.loadable);
+            }
         } catch (SQLException e) {
             Logger.e(TAG, "Error getting pins from db", e);
         }
@@ -133,8 +133,3 @@ public class DatabaseManager {
         loadSavedReplies();
     }
 }
-
-
-
-
-

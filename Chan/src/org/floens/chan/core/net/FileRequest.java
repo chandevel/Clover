@@ -18,7 +18,7 @@ public class FileRequest extends Request<Void> {
     public FileRequest(String url, Listener<File> listener, ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
         this.listener = listener;
-        
+
         setShouldCache(true);
     }
 

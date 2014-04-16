@@ -12,6 +12,7 @@ public class IconCache {
 
     /**
      * Load the icons in the cache. Lightweight icons only! Icons can be null!
+     * 
      * @param context
      */
     public static void createIcons(final Context context) {

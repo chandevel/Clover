@@ -68,7 +68,3 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
 
     public abstract T readJson(JsonReader reader);
 }
-
-
-
-

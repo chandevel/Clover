@@ -6,7 +6,7 @@ import java.util.Map;
 import org.floens.chan.core.model.Loadable;
 
 public class LoaderPool {
-//    private static final String TAG = "LoaderPool";
+    //    private static final String TAG = "LoaderPool";
 
     private static LoaderPool instance;
 

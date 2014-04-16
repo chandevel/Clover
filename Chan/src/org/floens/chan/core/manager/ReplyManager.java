@@ -59,7 +59,9 @@ public class ReplyManager {
 
     /**
      * Set an reply draft.
-     * @param value the draft to save.
+     * 
+     * @param value
+     *            the draft to save.
      */
     public void setReplyDraft(Reply value) {
         draft = value;
@@ -67,6 +69,7 @@ public class ReplyManager {
 
     /**
      * Gets the saved reply draft.
+     * 
      * @return the saved draft or an empty draft.
      */
     public Reply getReplyDraft() {
@@ -75,7 +78,9 @@ public class ReplyManager {
 
     /**
      * Add an quote to the comment field. Looks like >>123456789\n
-     * @param no the raw no to quote to.
+     * 
+     * @param no
+     *            the raw no to quote to.
      */
     public void quote(int no) {
         draft.comment = draft.comment + ">>" + no + "\n";
@@ -83,7 +88,9 @@ public class ReplyManager {
 
     /**
      * Pick an file. Starts up the ImagePickActivity.
-     * @param listener FileListener to listen on.
+     * 
+     * @param listener
+     *            FileListener to listen on.
      */
     public void pickFile(FileListener listener) {
         fileListener = listener;
@@ -103,7 +110,8 @@ public class ReplyManager {
     }
 
     /**
-     * Called from ImagePickActivity. Sends the file to the listening fileListener, and deletes the fileListener.
+     * Called from ImagePickActivity. Sends the file to the listening
+     * fileListener, and deletes the fileListener.
      */
     public void _onPickedFile(File file) {
         if (fileListener != null) {
@@ -121,7 +129,9 @@ public class ReplyManager {
 
     /**
      * Get the CAPTCHA challenge hash from an JSON response.
-     * @param total The total response from the server
+     * 
+     * @param total
+     *            The total response from the server
      * @return The pattern, or null when none was found.
      */
     public static String getChallenge(String total) {
@@ -137,8 +147,12 @@ public class ReplyManager {
 
     /**
      * Send an reply off to the server.
-     * @param reply The reply object with all data needed, like captcha and the file.
-     * @param listener The listener, after server response.
+     * 
+     * @param reply
+     *            The reply object with all data needed, like captcha and the
+     *            file.
+     * @param listener
+     *            The listener, after server response.
      */
     public void sendDelete(final SavedReply reply, boolean onlyImageDelete, final DeleteListener listener) {
         Logger.i(TAG, "Sending delete request: " + reply.board + ", " + reply.no);
@@ -196,8 +210,12 @@ public class ReplyManager {
 
     /**
      * Send an reply off to the server.
-     * @param reply The reply object with all data needed, like captcha and the file.
-     * @param listener The listener, after server response.
+     * 
+     * @param reply
+     *            The reply object with all data needed, like captcha and the
+     *            file.
+     * @param listener
+     *            The listener, after server response.
      */
     public void sendReply(final Reply reply, final ReplyListener listener) {
         Logger.i(TAG, "Sending reply request: " + reply.board + ", " + reply.resto);
@@ -248,8 +266,8 @@ public class ReplyManager {
                     if (responseString.contains("No file selected")) {
                         e.isUserError = true;
                         e.isFileError = true;
-                    } else if (responseString.contains("You forgot to solve the CAPTCHA") ||
-                            responseString.contains("You seem to have mistyped the CAPTCHA")) {
+                    } else if (responseString.contains("You forgot to solve the CAPTCHA")
+                            || responseString.contains("You seem to have mistyped the CAPTCHA")) {
                         e.isUserError = true;
                         e.isCaptchaError = true;
                     } else if (responseString.toLowerCase(Locale.ENGLISH).contains("post successful")) {
@@ -282,11 +300,12 @@ public class ReplyManager {
     }
 
     /**
-     * Async task to send an reply to the server.
-     * Uses HttpClient. Since Android 4.4 there is an updated version of HttpClient, 4.2, given with Android.
-     * However, that version causes problems with file uploading. Version 4.3 of HttpClient has been given with a library,
-     * that has another namespace: ch.boye.httpclientandroidlib
-     * This lib also has some fixes/improvements of HttpClient for Android.
+     * Async task to send an reply to the server. Uses HttpClient. Since Android
+     * 4.4 there is an updated version of HttpClient, 4.2, given with Android.
+     * However, that version causes problems with file uploading. Version 4.3 of
+     * HttpClient has been given with a library, that has another namespace:
+     * ch.boye.httpclientandroidlib This lib also has some fixes/improvements of
+     * HttpClient for Android.
      */
     private void sendHttpPost(final HttpPost post, final HttpPostSendListener listener) {
         new Thread(new Runnable() {
@@ -328,9 +347,12 @@ public class ReplyManager {
     public static abstract class FileListener {
         /**
          * When a file is picked.
-         * @param the picked file
+         * 
+         * @param the
+         *            picked file
          */
         public abstract void onFile(File file);
+
         /**
          * When the file has started loading.
          */
@@ -382,14 +404,9 @@ public class ReplyManager {
         public boolean isSuccessful = false;
 
         /**
-         * Raw html from the response. Used to set html in an WebView to the client, when the error was not
-         * recognized by Chan.
+         * Raw html from the response. Used to set html in an WebView to the
+         * client, when the error was not recognized by Chan.
          */
         public String responseData = "";
     }
 }
-
-
-
-
-

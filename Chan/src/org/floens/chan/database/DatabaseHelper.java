@@ -55,7 +55,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-        switch(oldVersion) {
+        switch (oldVersion) {
         // Change tables if we make adjustments
         }
 
@@ -83,8 +83,3 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 }
-
-
-
-
-

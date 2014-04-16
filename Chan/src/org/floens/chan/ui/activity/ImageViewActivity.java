@@ -125,7 +125,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     public void invalidateActionBar() {
         invalidateOptionsMenu();
     }
-    
+
     public void callOnSelect() {
         ImageViewFragment fragment = getCurrentFragment();
         if (fragment != null) {
@@ -148,7 +148,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
             if (fragment != null) {
                 fragment.customOnOptionsItemSelected(item);
             }
-            
+
             return super.onOptionsItemSelected(item);
         }
     }
@@ -156,17 +156,17 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.image_view, menu);
-        
+
         return true;
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         ImageViewFragment fragment = getCurrentFragment();
         if (fragment != null) {
             fragment.onPrepareOptionsMenu(currentPosition, adapter, menu);
         }
-        
+
         return super.onPrepareOptionsMenu(menu);
     }
 

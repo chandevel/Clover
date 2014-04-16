@@ -33,9 +33,9 @@ public class ChanPreferences {
     }
 
     /**
-     * This also calls updateRunningState on the PinnedService to
-     * start/stop the service as needed.
-     *
+     * This also calls updateRunningState on the PinnedService to start/stop the
+     * service as needed.
+     * 
      * @param enabled
      */
     public static void setWatchEnabled(boolean enabled) {
@@ -54,13 +54,8 @@ public class ChanPreferences {
         String number = ChanApplication.getPreferences().getString("preference_watch_background_timeout", "0");
         return Integer.parseInt(number) * 1000L;
     }
-    
+
     public static boolean getVideoAutoPlay() {
         return ChanApplication.getPreferences().getBoolean("preference_autoplay", false);
     }
 }
-
-
-
-
-

@@ -20,7 +20,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-
 public class PostAdapter extends BaseAdapter {
     private final Context context;
     private final ThreadManager threadManager;
@@ -37,7 +36,8 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        if ((threadManager.getLoadable() != null && threadManager.getLoadable().isBoardMode()) || threadManager.shouldWatch()) {
+        if ((threadManager.getLoadable() != null && threadManager.getLoadable().isBoardMode())
+                || threadManager.shouldWatch()) {
             return postList.size() + 1;
         } else {
             return postList.size();
@@ -157,8 +157,3 @@ public class PostAdapter extends BaseAdapter {
         }
     }
 }
-
-
-
-
-

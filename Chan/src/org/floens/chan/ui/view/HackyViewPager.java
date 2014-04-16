@@ -15,7 +15,7 @@ import android.view.MotionEvent;
  * 
  * There's not much I can do in my code for now, but we can mask the result by
  * just catching the problem and ignoring it.
- *
+ * 
  * @author Chris Banes
  */
 public class HackyViewPager extends ViewPager {

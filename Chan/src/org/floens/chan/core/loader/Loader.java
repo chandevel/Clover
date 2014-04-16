@@ -43,7 +43,7 @@ public class Loader {
 
     /**
      * Add a LoaderListener
-     *
+     * 
      * @param l
      *            the listener to add
      */
@@ -53,7 +53,7 @@ public class Loader {
 
     /**
      * Remove a LoaderListener
-     *
+     * 
      * @param l
      *            the listener to remove
      * @return true if there are no more listeners, false otherwise
@@ -85,9 +85,9 @@ public class Loader {
     }
 
     /**
-     * Request more data if the time left is below 0
-     * If auto load more is disabled, this needs to be called manually.
-     * Otherwise this is called automatically when the timer hits 0.
+     * Request more data if the time left is below 0 If auto load more is
+     * disabled, this needs to be called manually. Otherwise this is called
+     * automatically when the timer hits 0.
      */
     public void loadMoreIfTime() {
         if (getTimeUntilLoadMore() < 0L) {
@@ -165,6 +165,7 @@ public class Loader {
 
     /**
      * Get the time in milliseconds until another loadMore is recommended
+     * 
      * @return
      */
     public long getTimeUntilLoadMore() {
@@ -175,7 +176,7 @@ public class Loader {
             return lastLoadTime + waitTime - System.currentTimeMillis();
         }
     }
-    
+
     public List<Post> getCachedPosts() {
         return cachedPosts;
     }
@@ -291,6 +292,7 @@ public class Loader {
 
     public static interface LoaderListener {
         public void onData(List<Post> result, boolean append);
+
         public void onError(VolleyError error);
     }
 }

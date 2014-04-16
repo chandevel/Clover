@@ -14,24 +14,25 @@ import android.graphics.BitmapFactory;
  */
 public class ImageDecoder {
     public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {
-        if (!file.exists()) return null;
-        
+        if (!file.exists())
+            return null;
+
         FileInputStream fis;
-        
+
         try {
             fis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        
+
         Bitmap bitmap = null;
-        
+
         try {
             IOUtils.copy(fis, baos);
-            
+
             bitmap = decode(baos.toByteArray(), maxWidth, maxHeight);
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,14 +46,14 @@ public class ImageDecoder {
                 e.printStackTrace();
             }
         }
-        
+
         return bitmap;
     }
-    
+
     public static Bitmap decode(byte[] data, int maxWidth, int maxHeight) {
         BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
         Bitmap bitmap = null;
-        
+
         // If we have to resize this image, first get the natural bounds.
         decodeOptions.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
@@ -60,25 +61,19 @@ public class ImageDecoder {
         int actualHeight = decodeOptions.outHeight;
 
         // Then compute the dimensions we would ideally like to decode to.
-        int desiredWidth = getResizedDimension(maxWidth, maxHeight,
-                actualWidth, actualHeight);
-        int desiredHeight = getResizedDimension(maxHeight, maxWidth,
-                actualHeight, actualWidth);
+        int desiredWidth = getResizedDimension(maxWidth, maxHeight, actualWidth, actualHeight);
+        int desiredHeight = getResizedDimension(maxHeight, maxWidth, actualHeight, actualWidth);
 
         // Decode to the nearest power of two scaling factor.
         decodeOptions.inJustDecodeBounds = false;
-        
+
         // decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
-        decodeOptions.inSampleSize =
-            findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
-        Bitmap tempBitmap =
-            BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+        decodeOptions.inSampleSize = findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
+        Bitmap tempBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
 
         // If necessary, scale down to the maximal acceptable size.
-        if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
-                tempBitmap.getHeight() > desiredHeight)) {
-            bitmap = Bitmap.createScaledBitmap(tempBitmap,
-                    desiredWidth, desiredHeight, true);
+        if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth || tempBitmap.getHeight() > desiredHeight)) {
+            bitmap = Bitmap.createScaledBitmap(tempBitmap, desiredWidth, desiredHeight, true);
             tempBitmap.recycle();
         } else {
             bitmap = tempBitmap;
@@ -86,7 +81,7 @@ public class ImageDecoder {
 
         return bitmap;
     }
-    
+
     private static int getResizedDimension(int maxPrimary, int maxSecondary, int actualPrimary, int actualSecondary) {
         // If no dominant value at all, just return the actual.
         if (maxPrimary == 0 && maxSecondary == 0) {
@@ -110,7 +105,7 @@ public class ImageDecoder {
         }
         return resized;
     }
-    
+
     private static int findBestSampleSize(int actualWidth, int actualHeight, int desiredWidth, int desiredHeight) {
         double wr = (double) actualWidth / desiredWidth;
         double hr = (double) actualHeight / desiredHeight;
