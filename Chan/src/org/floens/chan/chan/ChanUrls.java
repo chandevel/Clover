@@ -8,11 +8,11 @@ public class ChanUrls {
     }
 
     public static String getPageUrl(String board, int pageNumber) {
-        return "https://a.4cdn.org/" + board + "/" + pageNumber + ".json";
+        return "https://a.4cdn.org/" + board + "/" + (pageNumber + 1) + ".json";
     }
 
     public static String getThreadUrl(String board, int no) {
-        return "https://a.4cdn.org/" + board + "/res/" + no + ".json";
+        return "https://a.4cdn.org/" + board + "/thread/" + no + ".json";
     }
 
     public static String getCaptchaChallengeUrl() {
@@ -24,11 +24,11 @@ public class ChanUrls {
     }
 
     public static String getImageUrl(String board, String code, String extension) {
-        return "https://i.4cdn.org/" + board + "/src/" + code + "." + extension;
+        return "https://i.4cdn.org/" + board + "/" + code + "." + extension;
     }
 
     public static String getThumbnailUrl(String board, String code) {
-        return "https://t.4cdn.org/" + board + "/thumb/" + code + "s.jpg";
+        return "https://t.4cdn.org/" + board + "/" + code + "s.jpg";
     }
 
     public static String getCountryFlagUrl(String countryCode) {
