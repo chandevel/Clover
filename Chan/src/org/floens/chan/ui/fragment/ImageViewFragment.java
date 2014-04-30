@@ -91,6 +91,15 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         super.onSaveInstanceState(bundle);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (imageView != null) {
+            imageView.cancelLoad();
+        }
+    }
+
     public void onSelected(ImageViewAdapter adapter, int position) {
         activity.setProgressBarIndeterminateVisibility(showProgressBar);
 
@@ -101,6 +110,12 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         activity.getActionBar().setSubtitle(text);
 
         activity.invalidateActionBar();
+    }
+
+    public void onDeselected() {
+        if (imageView != null && imageView.getVideoView() != null && imageView.getVideoView().isPlaying()) {
+            imageView.getVideoView().pause();
+        }
     }
 
     public void onPrepareOptionsMenu(int position, ImageViewAdapter adapter, Menu menu) {

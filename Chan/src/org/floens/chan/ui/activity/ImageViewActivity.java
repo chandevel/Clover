@@ -111,7 +111,14 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     public void onPageSelected(int position) {
         currentPosition = position;
 
-        ImageViewFragment fragment = getCurrentFragment();
+        for (int i = -1; i <= 1; i++) {
+            ImageViewFragment fragment = getFragment(i);
+            if (fragment != null) {
+                fragment.onDeselected();
+            }
+        }
+
+        ImageViewFragment fragment = getFragment(currentPosition);
         if (fragment != null) {
             fragment.onSelected(adapter, position);
         }
@@ -127,7 +134,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     }
 
     public void callOnSelect() {
-        ImageViewFragment fragment = getCurrentFragment();
+        ImageViewFragment fragment = getFragment(currentPosition);
         if (fragment != null) {
             fragment.onSelected(adapter, currentPosition);
         }
@@ -144,7 +151,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
             return true;
         } else {
-            ImageViewFragment fragment = getCurrentFragment();
+            ImageViewFragment fragment = getFragment(currentPosition);
             if (fragment != null) {
                 fragment.customOnOptionsItemSelected(item);
             }
@@ -162,7 +169,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        ImageViewFragment fragment = getCurrentFragment();
+        ImageViewFragment fragment = getFragment(currentPosition);
         if (fragment != null) {
             fragment.onPrepareOptionsMenu(currentPosition, adapter, menu);
         }
@@ -170,10 +177,14 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private ImageViewFragment getCurrentFragment() {
-        Object o = adapter.instantiateItem(viewPager, currentPosition);
-        if (o instanceof ImageViewFragment) {
-            return (ImageViewFragment) o;
+    private ImageViewFragment getFragment(int i) {
+        if (i >= 0 && i < adapter.getCount()) {
+            Object o = adapter.instantiateItem(viewPager, i);
+            if (o instanceof ImageViewFragment) {
+                return (ImageViewFragment) o;
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

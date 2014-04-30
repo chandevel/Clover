@@ -6,6 +6,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.net.FileRequest;
 import org.floens.chan.core.net.GIFRequest;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
@@ -36,6 +38,8 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     private boolean thumbnailNeeded = true;
     private boolean tapDismiss = false;
 
+    private ImageContainer imageContainerRequest;
+    private Request<?> imageRequest;
     private VideoView videoView;
 
     public ThumbnailImageView(Context context) {
@@ -83,7 +87,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     public void setBigImage(String imageUrl) {
         callback.setProgress(true);
 
-        ChanApplication.getImageLoader().get(imageUrl, new ImageListener() {
+        imageContainerRequest = ChanApplication.getImageLoader().get(imageUrl, new ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 onError();
@@ -113,77 +117,80 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     public void setGif(String gifUrl) {
         callback.setProgress(true);
 
-        ChanApplication.getVolleyRequestQueue().add(new GIFRequest(gifUrl, new Response.Listener<GIFView>() {
-            @Override
-            public void onResponse(GIFView view) {
-                view.setLayoutParams(Utils.MATCH_PARAMS);
+        imageRequest = ChanApplication.getVolleyRequestQueue().add(
+                new GIFRequest(gifUrl, new Response.Listener<GIFView>() {
+                    @Override
+                    public void onResponse(GIFView view) {
+                        view.setLayoutParams(Utils.MATCH_PARAMS);
 
-                setView(view, false);
-                callback.setProgress(false);
-                thumbnailNeeded = false;
-                tapDismiss = true;
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                onError();
-            }
-        }, getContext()));
+                        setView(view, false);
+                        callback.setProgress(false);
+                        thumbnailNeeded = false;
+                        tapDismiss = true;
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        onError();
+                    }
+                }, getContext()));
     }
 
     public void setVideo(String videoUrl) {
         callback.setProgress(true);
 
-        ChanApplication.getVolleyRequestQueue().add(new FileRequest(videoUrl, new Response.Listener<File>() {
-            @Override
-            public void onResponse(final File file) {
-                if (file != null) {
-                    videoView = new VideoView(getContext());
-                    videoView.setZOrderOnTop(true);
-                    videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-                    videoView.setLayoutParams(Utils.MATCH_PARAMS);
-                    LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-                    par.gravity = Gravity.CENTER;
-                    videoView.setLayoutParams(par);
+        imageRequest = ChanApplication.getVolleyRequestQueue().add(
+                new FileRequest(videoUrl, new Response.Listener<File>() {
+                    @Override
+                    public void onResponse(final File file) {
+                        if (file != null) {
+                            videoView = new VideoView(getContext());
+                            videoView.setZOrderOnTop(true);
+                            videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                                    LayoutParams.MATCH_PARENT));
+                            videoView.setLayoutParams(Utils.MATCH_PARAMS);
+                            LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                            par.gravity = Gravity.CENTER;
+                            videoView.setLayoutParams(par);
 
-                    videoView.setOnPreparedListener(new OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            mp.setLooping(true);
-                            callback.onVideoLoaded();
+                            videoView.setOnPreparedListener(new OnPreparedListener() {
+                                @Override
+                                public void onPrepared(MediaPlayer mp) {
+                                    mp.setLooping(true);
+                                    callback.onVideoLoaded();
+                                }
+                            });
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(200);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    videoView.start();
+                                }
+                            }).start();
+
+                            videoView.setVideoPath(file.getAbsolutePath());
+
+                            setView(videoView, false);
+                            callback.setProgress(false);
+                            thumbnailNeeded = false;
+                            tapDismiss = true;
+                        } else {
+                            onError();
                         }
-                    });
+                    }
+                }, new Response.ErrorListener() {
 
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(200);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
-                            videoView.start();
-                        }
-                    }).start();
-
-                    videoView.setVideoPath(file.getAbsolutePath());
-
-                    setView(videoView, false);
-                    callback.setProgress(false);
-                    thumbnailNeeded = false;
-                    tapDismiss = true;
-                } else {
-                    onError();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                onError();
-            }
-        }));
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        onError();
+                    }
+                }));
     }
 
     @Override
@@ -198,6 +205,19 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     public void onError() {
         Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_LONG).show();
         callback.setProgress(false);
+    }
+
+    public void cancelLoad() {
+        Logger.test("Cancelling load!");
+        if (imageRequest != null) {
+            imageRequest.cancel();
+            imageRequest = null;
+        }
+
+        if (imageContainerRequest != null) {
+            imageContainerRequest.cancelRequest();
+            imageContainerRequest = null;
+        }
     }
 
     @Override

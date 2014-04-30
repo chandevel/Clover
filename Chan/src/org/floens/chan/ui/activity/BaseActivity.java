@@ -52,6 +52,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     protected SlidingPaneLayout threadPane;
 
     private ShareActionProvider shareActionProvider;
+    private Intent pendingShareActionProviderIntent;
 
     /**
      * Called when a post has been clicked in the pinned drawer
@@ -248,6 +249,10 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.base, menu);
         shareActionProvider = (ShareActionProvider) menu.findItem(R.id.action_share).getActionProvider();
+        if (pendingShareActionProviderIntent != null) {
+            shareActionProvider.setShareIntent(pendingShareActionProviderIntent);
+            pendingShareActionProviderIntent = null;
+        }
 
         return true;
     }
@@ -285,11 +290,14 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             adapter.setNdefPushMessage(message, this);
         }
 
+        Intent share = new Intent(android.content.Intent.ACTION_SEND);
+        share.putExtra(android.content.Intent.EXTRA_TEXT, url);
+        share.setType("text/plain");
+
         if (shareActionProvider != null) {
-            Intent share = new Intent(android.content.Intent.ACTION_SEND);
-            share.putExtra(android.content.Intent.EXTRA_TEXT, url);
-            share.setType("text/plain");
             shareActionProvider.setShareIntent(share);
+        } else {
+            pendingShareActionProviderIntent = share;
         }
     }
 

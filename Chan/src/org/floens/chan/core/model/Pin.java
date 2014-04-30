@@ -29,16 +29,16 @@ public class Pin {
     public boolean watching = true;
 
     @DatabaseField
-    public int watchLastCount;
+    public int watchLastCount = -1;
 
     @DatabaseField
-    public int watchNewCount;
+    public int watchNewCount = -1;
 
     @DatabaseField
-    public int quoteLastCount;
+    public int quoteLastCount = -1;
 
     @DatabaseField
-    public int quoteNewCount;
+    public int quoteNewCount = -1;
 
     public boolean isError = false;
 

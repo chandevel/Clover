@@ -53,13 +53,14 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
+    /* Currently not used
     public List<Post> getNewQuotes() {
         if (posts.size() == 0) {
             return posts;
         } else {
             return posts.subList(Math.max(0, posts.size() - pin.getNewQuoteCount()), posts.size());
         }
-    }
+    }*/
 
     public boolean getWereNewQuotes() {
         if (wereNewQuotes) {
@@ -94,10 +95,10 @@ public class PinWatcher implements Loader.LoaderListener {
         posts.clear();
         posts.addAll(result);
 
-        if (pin.watchLastCount <= 0)
+        if (pin.watchLastCount < 0)
             pin.watchLastCount = pin.watchNewCount;
 
-        if (pin.quoteLastCount <= 0)
+        if (pin.quoteLastCount < 0)
             pin.quoteLastCount = pin.quoteNewCount;
 
         pin.watchNewCount = result.size();
@@ -110,7 +111,7 @@ public class PinWatcher implements Loader.LoaderListener {
             }
         }
 
-        int lastQuoteCount = pin.quoteNewCount;
+        int lastCount = pin.quoteNewCount;
 
         // Find posts quoting these saved posts
         pin.quoteNewCount = 0;
@@ -123,7 +124,7 @@ public class PinWatcher implements Loader.LoaderListener {
             }
         }
 
-        if (pin.quoteNewCount > lastQuoteCount) {
+        if (pin.quoteNewCount > lastCount) {
             wereNewQuotes = true;
         }
 

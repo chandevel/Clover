@@ -239,10 +239,16 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
                 actionBar.setHomeButtonEnabled(true);
                 pinDrawerListener.setDrawerIndicatorEnabled(true);
+
+                if (boardLoadable.isBoardMode())
+                    setShareUrl(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
             } else {
                 actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
                 actionBar.setTitle(threadLoadable.title);
                 pinDrawerListener.setDrawerIndicatorEnabled(false);
+
+                if (threadLoadable.isThreadMode())
+                    setShareUrl(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
             }
 
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -253,6 +259,9 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             actionBar.setTitle(threadLoadable.title);
 
             actionBar.setDisplayHomeAsUpEnabled(true);
+
+            if (threadLoadable.isThreadMode())
+                setShareUrl(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
         }
 
         actionBar.setDisplayShowTitleEnabled(true);
@@ -406,8 +415,6 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         boardFragment.bindLoadable(loadable);
         boardFragment.requestData();
 
-        setShareUrl(ChanUrls.getBoardUrlDesktop(loadable.board));
-
         updateActionBarState();
     }
 
@@ -427,8 +434,6 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
         threadFragment.bindLoadable(loadable);
         threadFragment.requestData();
-
-        setShareUrl(ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no));
 
         if (TextUtils.isEmpty(loadable.title)) {
             loadable.title = "/" + loadable.board + "/" + loadable.no;
