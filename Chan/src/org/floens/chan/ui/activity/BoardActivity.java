@@ -10,7 +10,6 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.ui.fragment.ThreadFragment;
-import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import android.app.ActionBar;
@@ -376,8 +375,6 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
      */
     private void loadBoard(String board) {
         boardLoadable = new Loadable(board);
-
-        Logger.test("LoadBoard " + board);
 
         int index = getBoardIndexNavigator(boardLoadable.board);
         if (index >= 0) {

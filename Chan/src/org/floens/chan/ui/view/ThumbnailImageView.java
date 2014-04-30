@@ -6,7 +6,6 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.net.FileRequest;
 import org.floens.chan.core.net.GIFRequest;
-import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -208,7 +207,6 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     }
 
     public void cancelLoad() {
-        Logger.test("Cancelling load!");
         if (imageRequest != null) {
             imageRequest.cancel();
             imageRequest = null;
