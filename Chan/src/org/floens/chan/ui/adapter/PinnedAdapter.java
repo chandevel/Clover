@@ -64,8 +64,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
                 itemCount.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        item.watching = !item.watching;
-                        ChanApplication.getPinnedManager().onPinsChanged();
+                        item.toggleWatch();
                     }
                 });
 

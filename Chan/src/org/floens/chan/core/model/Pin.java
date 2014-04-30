@@ -1,5 +1,6 @@
 package org.floens.chan.core.model;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.core.watch.PinWatcher;
 
 import com.j256.ormlite.field.DatabaseField;
@@ -82,6 +83,14 @@ public class Pin {
         if (pinWatcher != null) {
             pinWatcher.destroy();
             pinWatcher = null;
+        }
+    }
+    
+    public void toggleWatch() {
+        watching = !watching;
+        ChanApplication.getPinnedManager().onPinsChanged();
+        if (watching) {
+            updateWatch();
         }
     }
 }

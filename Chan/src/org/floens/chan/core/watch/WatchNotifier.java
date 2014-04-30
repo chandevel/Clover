@@ -19,19 +19,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 
 public class WatchNotifier {
     private static final String TAG = "WatchNotifier";
 
     private final int NOTIFICATION_ID = 1;
 
-    private final WatchService pinnedService;
+    private final Context context;
     private final NotificationManager nm;
 
-    public WatchNotifier(WatchService pinnedService) {
-        this.pinnedService = pinnedService;
-        nm = (NotificationManager) pinnedService.getSystemService(Context.NOTIFICATION_SERVICE);
+    public WatchNotifier(Context context) {
+        this.context = context;
+        nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public void destroy() {
@@ -143,15 +142,14 @@ public class WatchNotifier {
     @SuppressWarnings("deprecation")
     private void showNotification(String tickerText, String title, String content, String contentInfo,
             List<CharSequence> lines, boolean makeSound) {
-        Intent resultIntent = new Intent(pinnedService, BoardActivity.class);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(pinnedService);
-        stackBuilder.addParentStack(BoardActivity.class);
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(context, BoardActivity.class);
+        intent.addCategory("android.intent.category.LAUNCHER");
+        intent.setAction("android.intent.action.MAIN");
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(pinnedService);
-        builder.setContentIntent(resultPendingIntent);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        builder.setContentIntent(pendingIntent);
 
         builder.setTicker(tickerText);
         builder.setContentTitle(title);
@@ -159,13 +157,13 @@ public class WatchNotifier {
         builder.setContentInfo(contentInfo);
         builder.setSmallIcon(R.drawable.ic_stat_notify);
 
-        Intent pauseWatching = new Intent(pinnedService, WatchService.class);
+        Intent pauseWatching = new Intent(context, WatchService.class);
         pauseWatching.putExtra("pause_pins", true);
 
-        PendingIntent pauseWatchingPending = PendingIntent.getService(pinnedService, 0, pauseWatching,
+        PendingIntent pauseWatchingPending = PendingIntent.getService(context, 0, pauseWatching,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        builder.addAction(R.drawable.ic_action_pause, pinnedService.getString(R.string.watch_pause_pins),
+        builder.addAction(R.drawable.ic_action_pause, context.getString(R.string.watch_pause_pins),
                 pauseWatchingPending);
 
         if (makeSound) {

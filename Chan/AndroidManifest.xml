@@ -101,8 +101,8 @@
         </activity>
         <activity
             android:name="org.floens.chan.ui.activity.ImageViewActivity"
-            android:launchMode="singleTop"
             android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.ImageList" >
         </activity>
         <activity android:name="org.floens.chan.ui.activity.ImagePickActivity" >
