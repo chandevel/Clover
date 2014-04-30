@@ -21,7 +21,14 @@ public class LoaderPool {
     }
 
     public Loader obtain(Loadable loadable, Loader.LoaderListener listener) {
-        Loader loader = loaders.get(loadable);
+        Loader loader = null;
+        for (Loadable l : loaders.keySet()) {
+            if (loadable.equals(l)) {
+                loader = loaders.get(l);
+                break;
+            }
+        }
+
         if (loader == null) {
             loader = new Loader(loadable);
             loaders.put(loadable, loader);
@@ -33,7 +40,15 @@ public class LoaderPool {
     }
 
     public void release(Loader loader, Loader.LoaderListener listener) {
-        if (!loaders.containsValue(loader)) {
+        Loader foundLoader = null;
+        for (Loadable l : loaders.keySet()) {
+            if (loader.getLoadable().equals(l)) {
+                foundLoader = loaders.get(l);
+                break;
+            }
+        }
+
+        if (foundLoader == null) {
             throw new RuntimeException("The released loader does not exist");
         }
 

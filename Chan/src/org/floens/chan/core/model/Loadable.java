@@ -82,7 +82,7 @@ public class Loadable {
     }
 
     /**
-     * Does not compare the title.
+     * Compares the mode, board and no.
      */
     @Override
     public boolean equals(Object object) {
