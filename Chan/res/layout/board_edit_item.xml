@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <org.floens.chan.ui.view.DragGripView
+        android:id="@+id/drag_handle"
+        android:layout_width="64dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="fill_vertical|start"
+        android:paddingBottom="12dp"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:color="#2333" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:gravity="center_vertical"
+        android:minHeight="50sp"
+        android:textSize="24sp" />
+
+</FrameLayout>

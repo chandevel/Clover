@@ -172,6 +172,7 @@ public class DatabaseManager {
             o += "Loadable rows: " + helper.loadableDao.countOf() + "\n";
             o += "Pin rows: " + helper.pinDao.countOf() + "\n";
             o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
+            o += "Board rows: " + helper.boardsDao.countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -8,15 +8,16 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
-import org.floens.chan.ui.adapter.BoardEditAdapter;
-import org.floens.chan.ui.view.DynamicListView;
-import org.floens.chan.utils.Logger;
+import org.floens.chan.ui.SwipeDismissListViewTouchListener;
 import org.floens.chan.utils.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -30,28 +31,80 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
+
+;
 
 public class BoardEditor extends Activity {
     private final BoardManager boardManager = ChanApplication.getBoardManager();
 
     private List<Board> list;
-    private DynamicListView<Board> listView;
+    private DragSortListView listView;
     private BoardEditAdapter adapter;
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.board_edit);
-        
         list = boardManager.getSavedBoards();
 
-        listView = (DynamicListView<Board>) findViewById(R.id.board_edit_list);
+        adapter = new BoardEditAdapter(this, 0, list);
 
-        reload();
+        listView = new DragSortListView(this, null);
+        listView.setAdapter(adapter);
+        listView.setDivider(new ColorDrawable(Color.TRANSPARENT));
+
+        final DragSortController controller = new NiceDragSortController(listView, adapter);
+
+        listView.setFloatViewManager(controller);
+        listView.setOnTouchListener(controller);
+        listView.setDragEnabled(true);
+        listView.setDropListener(new DragSortListView.DropListener() {
+            @Override
+            public void drop(int from, int to) {
+                if (from != to) {
+                    Board board = list.remove(from);
+                    list.add(to, board);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        final SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(listView,
+                new SwipeDismissListViewTouchListener.DismissCallbacks() {
+                    @Override
+                    public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                        for (int position : reverseSortedPositions) {
+                            Board b = adapter.getItem(position);
+                            adapter.remove(b);
+                            b.saved = false;
+                        }
+
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public boolean canDismiss(int position) {
+                        return list.size() > 1;
+                    }
+                });
+
+        listView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return controller.onTouch(view, motionEvent)
+                        || (!listView.isDragging() && touchListener.onTouch(view, motionEvent));
+            }
+        });
+
+        listView.setOnScrollListener(touchListener.makeScrollListener());
+
+        setContentView(listView);
     }
 
     @Override
@@ -63,13 +116,9 @@ public class BoardEditor extends Activity {
             for (int i = 0; i < list.size(); i++) {
                 list.get(i).order = i;
             }
-            
+
             boardManager.updateSavedBoards();
         }
-    }
-
-    public void onDeleteClicked(Board board) {
-        removeBoard(board.value);
     }
 
     @Override
@@ -90,6 +139,7 @@ public class BoardEditor extends Activity {
     }
 
     private void addBoard(final String value) {
+        // Duplicate
         for (Board board : list) {
             if (board.value.equals(value)) {
                 Toast.makeText(this, R.string.board_add_duplicate, Toast.LENGTH_LONG).show();
@@ -98,54 +148,38 @@ public class BoardEditor extends Activity {
             }
         }
 
+        // Normal add
         List<Board> all = ChanApplication.getBoardManager().getAllBoards();
         for (Board board : all) {
             if (board.value.equals(value)) {
                 board.saved = true;
                 list.add(board);
+                adapter.notifyDataSetChanged();
 
                 Toast.makeText(this, getString(R.string.board_add_success) + " " + board.key, Toast.LENGTH_LONG).show();
 
-                reload();
                 return;
             }
         }
 
+        // Unknown
         String message = getString(R.string.board_add_unknown).replace("CODE", value);
         new AlertDialog.Builder(this).setTitle(R.string.board_add_unknown_title).setMessage(message)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (list != null)
-                            list.add(new Board(value, value, true, true));
+                        if (list != null) {
+                            Board b = new Board(value, value, true, true);
+                            list.add(b);
+                            adapter.notifyDataSetChanged();
+                            boardManager.getAllBoards().add(b);
+                        }
                     }
                 }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 }).create().show();
-    }
-
-    private void removeBoard(String value) {
-        if (list.size() <= 1)
-            return;
-
-        for (int i = 0; i < list.size(); i++) {
-            Board b = list.get(i);
-            if (b.value == value) {
-                list.remove(i);
-                b.saved = false;
-                break;
-            }
-        }
-
-        reload();
-    }
-
-    private void reload() {
-        adapter = new BoardEditAdapter(this, R.layout.board_view, list, this);
-        listView.setArrayList(list);
-        listView.setAdapter(adapter);
     }
 
     private void showAddBoardDialog() {
@@ -159,20 +193,21 @@ public class BoardEditor extends Activity {
         text.setThreshold(1);
         text.setDropDownHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        AlertDialog dialog = new AlertDialog.Builder(this).setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface d, int which) {
-                String value = text.getText().toString();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        String value = text.getText().toString();
 
-                if (!TextUtils.isEmpty(value)) {
-                    addBoard(value.toLowerCase(Locale.ENGLISH));
-                }
-            }
-        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface d, int which) {
-            }
-        }).setTitle(R.string.board_add).setView(text).create();
+                        if (!TextUtils.isEmpty(value)) {
+                            addBoard(value.toLowerCase(Locale.ENGLISH));
+                        }
+                    }
+                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                    }
+                }).setTitle(R.string.board_add).setView(text).create();
 
         Utils.requestKeyboardFocus(dialog, text);
 
@@ -294,13 +329,10 @@ public class BoardEditor extends Activity {
             boolean showUnsafe = false;
             for (Board has : currentlyEditing) {
                 if (!has.workSafe) {
-                    Logger.test("Unsafe: " + has.key + ", " + has.workSafe);
                     showUnsafe = true;
                     break;
                 }
             }
-
-            Logger.test("Showing unsafe: " + showUnsafe + ", " + currentlyEditing.size());
 
             List<Board> s = new ArrayList<Board>();
             for (Board b : ChanApplication.getBoardManager().getAllBoards()) {
@@ -308,6 +340,58 @@ public class BoardEditor extends Activity {
                     s.add(b);
             }
             return s;
+        }
+    }
+
+    private class NiceDragSortController extends DragSortController {
+        private final ListView listView;
+        private final ArrayAdapter<Board> adapter;
+
+        public NiceDragSortController(DragSortListView listView, ArrayAdapter<Board> adapter) {
+            super(listView, R.id.drag_handle, DragSortController.ON_DOWN, 0);
+            this.listView = listView;
+            this.adapter = adapter;
+            setSortEnabled(true);
+            setRemoveEnabled(false);
+        }
+
+        @Override
+        public View onCreateFloatView(int position) {
+            return adapter.getView(position, null, listView);
+        }
+
+        @Override
+        public void onDragFloatView(View floatView, Point floatPoint, Point touchPoint) {
+        }
+
+        @Override
+        public void onDestroyFloatView(View floatView) {
+        }
+    }
+
+    private class BoardEditAdapter extends ArrayAdapter<Board> {
+        public BoardEditAdapter(Context context, int textViewResourceId, List<Board> objects) {
+            super(context, textViewResourceId, objects);
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return getItem(position).hashCode();
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            View inflated = LayoutInflater.from(getContext()).inflate(R.layout.board_edit_item, null);
+            TextView text = (TextView) inflated.findViewById(R.id.text);
+            Board b = getItem(position);
+            text.setText(b.value + " - " + b.key);
+
+            return inflated;
         }
     }
 }

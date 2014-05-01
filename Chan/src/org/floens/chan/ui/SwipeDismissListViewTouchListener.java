@@ -1,5 +1,3 @@
-package org.floens.chan.ui;
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -15,6 +13,8 @@ package org.floens.chan.ui;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.floens.chan.ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +74,7 @@ import android.widget.ListView;
  */
 public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
     // Cached ViewConfiguration and system-wide constant values
-    private final int mSlop;
+    private int mSlop;
     private final int mMinFlingVelocity;
     private final int mMaxFlingVelocity;
     private final long mAnimationTime;
@@ -129,12 +129,20 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
      */
     public SwipeDismissListViewTouchListener(ListView listView, DismissCallbacks callbacks) {
         ViewConfiguration vc = ViewConfiguration.get(listView.getContext());
-        mSlop = Math.max(1, (int) (vc.getScaledTouchSlop() * 0.5f));
+        mSlop = vc.getScaledTouchSlop();
         mMinFlingVelocity = vc.getScaledMinimumFlingVelocity() * 16;
         mMaxFlingVelocity = vc.getScaledMaximumFlingVelocity();
         mAnimationTime = listView.getContext().getResources().getInteger(android.R.integer.config_shortAnimTime);
         mListView = listView;
         mCallbacks = callbacks;
+    }
+    
+    public int getSlop() {
+        return mSlop;
+    }
+    
+    public void setSlop(int slop) {
+        mSlop = slop;
     }
 
     /**

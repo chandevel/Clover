@@ -10,7 +10,6 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.net.BoardsRequest;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -80,10 +79,8 @@ public class BoardManager {
     }
 
     public void updateSavedBoards() {
-        long start = Time.get();
         ChanApplication.getDatabaseManager().updateBoards(allBoards);
         reloadSavedKeysValues();
-        Logger.d(TAG, "updateSavedBoards took " + Time.get(start));
     }
     
     private void reloadSavedKeysValues() {
@@ -101,7 +98,6 @@ public class BoardManager {
     }
 
     private void storeBoards() {
-        long start = Time.get();
         Logger.d(TAG, "Storing boards in database");
         
         for (Board test : allBoards) {
@@ -111,13 +107,9 @@ public class BoardManager {
         }
         
         ChanApplication.getDatabaseManager().setBoards(allBoards);
-        
-        Logger.d(TAG, "storeBoards took " + Time.get(start));
     }
 
     private void loadBoards() {
-        long start = Time.get();
-        
         allBoards = ChanApplication.getDatabaseManager().getBoards();
         if (allBoards.size() == 0) {
             Logger.d(TAG, "Loading default boards");
@@ -126,8 +118,6 @@ public class BoardManager {
         }
         
         reloadSavedKeysValues();
-        
-        Logger.d(TAG, "loadBoards took " + Time.get(start));
     }
     
     private void setBoardsFromServer(List<Board> list) {

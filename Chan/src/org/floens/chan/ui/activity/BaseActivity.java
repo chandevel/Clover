@@ -134,7 +134,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 return true;
             }
         });
-
+        
         SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(pinDrawerView,
                 new DismissCallbacks() {
                     @Override
@@ -149,6 +149,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                         return pinnedAdapter.getItem(position).type != Pin.Type.HEADER;
                     }
                 });
+        
+        touchListener.setSlop((int) (touchListener.getSlop() * 0.4f));
 
         pinDrawerView.setOnTouchListener(touchListener);
         pinDrawerView.setOnScrollListener(touchListener.makeScrollListener());
