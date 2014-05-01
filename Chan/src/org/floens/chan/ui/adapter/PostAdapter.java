@@ -9,6 +9,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.ScrollerRunnable;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThreadWatchCounterView;
+import org.floens.chan.utils.Time;
 import org.floens.chan.utils.Utils;
 
 import android.content.Context;
@@ -62,8 +63,8 @@ public class PostAdapter extends BaseAdapter {
         }
 
         if (position >= postList.size()) {
-            if (System.currentTimeMillis() - lastViewedTime > 10000L) {
-                lastViewedTime = System.currentTimeMillis();
+            if (Time.get(lastViewedTime) > 10000L) {
+                lastViewedTime = Time.get();
                 threadManager.bottomPostViewed();
             }
 

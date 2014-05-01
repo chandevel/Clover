@@ -53,7 +53,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         final ActionBar actionBar = getActionBar();
         actionBar.setListNavigationCallbacks(
                 new ArrayAdapter<String>(actionBar.getThemedContext(), R.layout.board_select_spinner,
-                        android.R.id.text1, ChanApplication.getBoardManager().getMyBoardsKeys()), this);
+                        android.R.id.text1, ChanApplication.getBoardManager().getSavedKeys()), this);
 
         updatePaneState();
         updateActionBarState();
@@ -75,8 +75,10 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             }
 
             if (boardLoadable.mode == Loadable.Mode.INVALID) {
-                String board = ChanApplication.getBoardManager().getMyBoardsValues().get(0);
-                loadBoard(board);
+                List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
+                if (savedValues.size() > 0) {
+                    loadBoard(savedValues.get(0));                    
+                }
             }
         }
     }
@@ -396,8 +398,11 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         if (!actionBarSetToListNavigation) {
             actionBarSetToListNavigation = true;
         } else {
-            boardLoadable = new Loadable(ChanApplication.getBoardManager().getMyBoardsValues().get(position));
-            startLoadingBoard(boardLoadable);
+            List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
+            if (position >= 0 && position < savedValues.size()) {
+                boardLoadable = new Loadable(savedValues.get(position));
+                startLoadingBoard(boardLoadable);
+            }
         }
 
         return true;
@@ -496,7 +501,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
 
     private int getBoardIndexNavigator(String boardValue) {
-        List<String> list = ChanApplication.getBoardManager().getMyBoardsValues();
+        List<String> list = ChanApplication.getBoardManager().getSavedValues();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).equals(boardValue)) {
                 return i;

@@ -1,111 +1,66 @@
 package org.floens.chan.core.manager;
 
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.net.BoardsRequest;
 import org.floens.chan.utils.Logger;
-
-import android.content.Context;
-import android.widget.Toast;
+import org.floens.chan.utils.Time;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 public class BoardManager {
     private static final String TAG = "BoardManager";
+    private static final Comparator<Board> savedOrder = new Comparator<Board>() {
+        @Override
+        public int compare(Board lhs, Board rhs) {
+            return lhs.order < rhs.order ? -1 : 1;
+        }            
+    };
 
-    private final Context context;
-    // Including nsfw ones
-    private ArrayList<Board> allBoards = new ArrayList<Board>();
-    private ArrayList<Board> myBoards = new ArrayList<Board>();
+    private List<Board> allBoards;
 
-    private final ArrayList<String> myBoardsKeys = new ArrayList<String>();
-    private final ArrayList<String> myBoardsValues = new ArrayList<String>();
+    private final List<String> savedKeys = new ArrayList<String>();
+    private final List<String> savedValues = new ArrayList<String>();
 
-    public BoardManager(Context context) {
-        this.context = context;
-
+    public BoardManager() {
+        loadBoards();
         loadFromServer();
-        myBoards = loadMyBoards();
-        updateMyBoardsKeysAndValues(myBoards);
     }
 
-    /**
-     * Avoid having 0 boards, which causes graphical problems
-     * 
-     * @param list
-     */
-    private ArrayList<Board> getDefaultBoards() {
-        ArrayList<Board> list = new ArrayList<Board>();
-        {
-            Board board = new Board();
-            board.key = "Video Games";
-            board.value = "v";
-            list.add(board);
-        }
-        {
-            Board board = new Board();
-            board.key = "Anime & Manga";
-            board.value = "a";
-            list.add(board);
-        }
-        {
-            Board board = new Board();
-            board.key = "Comics & Cartoons";
-            board.value = "co";
-            list.add(board);
-        }
-        {
-            Board board = new Board();
-            board.key = "Health & Fitness";
-            board.value = "fit";
-            list.add(board);
-        }
-        {
-            Board board = new Board();
-            board.key = "Technology";
-            board.value = "g";
-            list.add(board);
-        }
-        return list;
+    public List<Board> getAllBoards() {
+        return allBoards;
     }
 
-    public ArrayList<Board> getMyBoards() {
-        return myBoards;
-    }
+    public List<Board> getSavedBoards() {
+        List<Board> saved = new ArrayList<Board>(allBoards.size());
 
-    public void setMyBoards(ArrayList<Board> list) {
-        myBoards.clear();
-        myBoards = list;
-        updateMyBoardsKeysAndValues(list);
-        storeBoardListInDatabase("myBoards", myBoards);
-    }
-
-    private void updateMyBoardsKeysAndValues(ArrayList<Board> list) {
-        myBoardsKeys.clear();
-        myBoardsValues.clear();
-
-        for (Board board : list) {
-            myBoardsKeys.add(board.key);
-            myBoardsValues.add(board.value);
+        for (Board b : allBoards) {
+            if (b.saved)
+                saved.add(b);
         }
+        
+        Collections.sort(saved, savedOrder);
+
+        return saved;
     }
 
-    public ArrayList<String> getMyBoardsKeys() {
-        return myBoardsKeys;
+    public List<String> getSavedKeys() {
+        return savedKeys;
     }
 
-    public ArrayList<String> getMyBoardsValues() {
-        return myBoardsValues;
+    public List<String> getSavedValues() {
+        return savedValues;
     }
 
     public boolean getBoardExists(String board) {
-        for (Board e : allBoards) {
+        for (Board e : getAllBoards()) {
             if (e.value.equals(board)) {
                 return true;
             }
@@ -124,101 +79,87 @@ public class BoardManager {
         return null;
     }
 
-    /**
-     * Try to add value to the supplied list.
-     * 
-     * @param list
-     * @param value
-     */
-    public void addBoard(ArrayList<Board> list, String value) {
-        for (Board board : list) {
-            if (board.value.equals(value)) {
-                Toast.makeText(context, R.string.board_add_duplicate, Toast.LENGTH_LONG).show();
-
-                return;
-            }
+    public void updateSavedBoards() {
+        long start = Time.get();
+        ChanApplication.getDatabaseManager().updateBoards(allBoards);
+        reloadSavedKeysValues();
+        Logger.d(TAG, "updateSavedBoards took " + Time.get(start));
+    }
+    
+    private void reloadSavedKeysValues() {
+        List<Board> saved = getSavedBoards();
+        
+        savedKeys.clear();
+        for (Board board : saved) {
+            savedKeys.add(board.key);
         }
 
-        for (Board board : allBoards) {
-            if (board.value.equals(value)) {
-                list.add(board);
-
-                String text = context.getString(R.string.board_add_success) + " " + board.key;
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-
-                return;
-            }
+        savedValues.clear();
+        for (Board board : saved) {
+            savedValues.add(board.value);
         }
-
-        Toast.makeText(context, R.string.board_add_fail, Toast.LENGTH_LONG).show();
     }
 
-    private ArrayList<Board> loadMyBoards() {
-        ArrayList<Board> list = getBoardListFromDatabase("myBoards");
-        if (list == null || list.size() == 0) {
-            list = getDefaultBoards();
-
-            storeBoardListInDatabase("myBoards", list);
-        }
-
-        return list;
-    }
-
-    private void storeBoardListInDatabase(String key, ArrayList<Board> list) {
-        String total = "";
-
-        for (Board board : list) {
-            total += board.key + "|" + board.value + "\n";
-        }
-
-        ChanApplication.getPreferences().edit().putString(key, total).commit();
-    }
-
-    private ArrayList<Board> getBoardListFromDatabase(String key) {
-        String total = ChanApplication.getPreferences().getString(key, null);
-        if (total == null)
-            return null;
-
-        ArrayList<Board> list = new ArrayList<Board>();
-
-        Scanner scanner = new Scanner(total);
-
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            String[] splitted = line.split("\\|");
-
-            if (splitted.length < 2)
-                continue;
-
-            Board board = new Board();
-            board.key = splitted[0];
-            board.value = splitted[1];
-            if (!board.finish()) {
-                Logger.wtf(TAG, "board.finish in loadfrompreferences threw up");
+    private void storeBoards() {
+        long start = Time.get();
+        Logger.d(TAG, "Storing boards in database");
+        
+        for (Board test : allBoards) {
+            if (test.saved) {
+                Logger.w(TAG, "Board with value " + test.value + " saved");
             }
-
-            list.add(board);
         }
+        
+        ChanApplication.getDatabaseManager().setBoards(allBoards);
+        
+        Logger.d(TAG, "storeBoards took " + Time.get(start));
+    }
 
-        scanner.close();
-
-        return list;
+    private void loadBoards() {
+        long start = Time.get();
+        
+        allBoards = ChanApplication.getDatabaseManager().getBoards();
+        if (allBoards.size() == 0) {
+            Logger.d(TAG, "Loading default boards");
+            allBoards = getDefaultBoards();
+            storeBoards();
+        }
+        
+        reloadSavedKeysValues();
+        
+        Logger.d(TAG, "loadBoards took " + Time.get(start));
+    }
+    
+    private void setBoardsFromServer(List<Board> list) {
+        boolean changed = false;
+        for (Board serverBoard : list) {
+            boolean has = false;
+            for (Board b : allBoards) {
+                if (b.valueEquals(serverBoard)) {
+                    has = true;
+                    break;
+                }
+            }
+            
+            if (!has) {
+                Logger.d(TAG, "Adding unknown board: " + serverBoard.value);
+                allBoards.add(serverBoard);
+                changed = true;
+            }
+        }
+        
+        if (changed) {
+            storeBoards();
+        }
     }
 
     private void loadFromServer() {
-        ArrayList<Board> temp = getBoardListFromDatabase("allBoards");
-        if (temp != null) {
-            allBoards = temp;
-        }
-
         ChanApplication.getVolleyRequestQueue().add(
-                new BoardsRequest(ChanUrls.getBoardsUrl(), new Response.Listener<ArrayList<Board>>() {
+                new BoardsRequest(ChanUrls.getBoardsUrl(), new Response.Listener<List<Board>>() {
                     @Override
-                    public void onResponse(ArrayList<Board> data) {
-                        storeBoardListInDatabase("allBoards", data);
-                        allBoards = data;
-
+                    public void onResponse(List<Board> data) {
                         Logger.i(TAG, "Got boards from server");
+                        setBoardsFromServer(data);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -226,5 +167,15 @@ public class BoardManager {
                         Logger.e(TAG, "Failed to get boards from server");
                     }
                 }));
+    }
+
+    private List<Board> getDefaultBoards() {
+        List<Board> list = new ArrayList<Board>();
+        list.add(new Board("Technology", "g", true, true));
+        list.add(new Board("Video Games", "v", true, true));
+        list.add(new Board("Anime & Manga", "a", true, true));
+        list.add(new Board("Comics & Cartoons", "co", true, true));
+        list.add(new Board("International", "int", true, true));
+        return list;
     }
 }

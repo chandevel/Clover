@@ -42,9 +42,10 @@
     
     <string name="board_edit">Edit my boards</string>
     <string name="board_add">Add board</string>
-    <string name="board_add_fail">Unknown board code</string>
-    <string name="board_add_success">Added</string>
-    <string name="board_add_duplicate">You already have that board</string>
+    <string name="board_add_success">Added board</string>
+    <string name="board_add_duplicate">Board already added</string>
+    <string name="board_add_unknown_title">Unknown board code</string>
+    <string name="board_add_unknown">The board with code CODE is not know. Press OK to add it anyway.</string>
     
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>

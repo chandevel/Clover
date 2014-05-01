@@ -2,10 +2,13 @@ package org.floens.chan.database;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Time;
 
 import android.content.Context;
 
@@ -112,6 +115,54 @@ public class DatabaseManager {
         }
 
         return list;
+    }
+
+    public void setBoards(final List<Board> boards) {
+        try {
+            helper.boardsDao.callBatchTasks(new Callable<Void>() {
+                @Override
+                public Void call() throws SQLException {
+                    for (Board b : boards) {
+                        helper.boardsDao.createOrUpdate(b);
+                    }
+                    
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            Logger.e(TAG, "Error setting boards in db", e);
+        }
+    }
+    
+    public void updateBoards(final List<Board> boards) {
+        try {
+            helper.boardsDao.callBatchTasks(new Callable<Void>() {
+                @Override
+                public Void call() throws SQLException {
+                    long start = Time.get();
+                    for (Board b : boards) {
+                        helper.boardsDao.update(b);
+                    }
+                    
+                    Logger.d(TAG, "Update board took " + Time.get(start));
+                    
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            Logger.e(TAG, "Error updating boards in db", e);
+        }
+    }
+
+    public List<Board> getBoards() {
+        List<Board> boards = null;
+        try {
+            boards = helper.boardsDao.queryForAll();
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error getting boards from db", e);
+        }
+        
+        return boards;
     }
 
     public String getSummary() {

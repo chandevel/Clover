@@ -2,6 +2,7 @@ package org.floens.chan.core.net;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.core.model.Board;
 
@@ -10,18 +11,18 @@ import android.util.JsonReader;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
-public class BoardsRequest extends JsonReaderRequest<ArrayList<Board>> {
-    public BoardsRequest(String url, Listener<ArrayList<Board>> listener, ErrorListener errorListener) {
+public class BoardsRequest extends JsonReaderRequest<List<Board>> {
+    public BoardsRequest(String url, Listener<List<Board>> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
     }
 
     @Override
-    public ArrayList<Board> readJson(JsonReader reader) {
+    public List<Board> readJson(JsonReader reader) {
         return parseJson(reader);
     }
 
-    private ArrayList<Board> parseJson(JsonReader reader) {
-        ArrayList<Board> list = new ArrayList<Board>();
+    private List<Board> parseJson(JsonReader reader) {
+        List<Board> list = new ArrayList<Board>();
 
         try {
             reader.beginObject();

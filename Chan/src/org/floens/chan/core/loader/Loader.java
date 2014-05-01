@@ -8,6 +8,7 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.net.ChanReaderRequest;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Time;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -173,7 +174,7 @@ public class Loader {
             return 0L;
         } else {
             long waitTime = watchTimeouts[currentTimeout] * 1000L;
-            return lastLoadTime + waitTime - System.currentTimeMillis();
+            return lastLoadTime + waitTime - Time.get();
         }
     }
 
@@ -263,7 +264,7 @@ public class Loader {
             l.onData(result, loadable.isBoardMode());
         }
 
-        lastLoadTime = System.currentTimeMillis();
+        lastLoadTime = Time.get();
 
         if (loadable.isThreadMode()) {
             setTimer(result.size());

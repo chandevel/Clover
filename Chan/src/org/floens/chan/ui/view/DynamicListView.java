@@ -16,7 +16,7 @@
 
 package org.floens.chan.ui.view;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.ui.adapter.BoardEditAdapter;
 
@@ -70,7 +70,7 @@ public class DynamicListView<T> extends ListView {
     private final int MOVE_DURATION = 150;
     private final int LINE_THICKNESS = 10;
 
-    public ArrayList<T> mCheeseList;
+    public List<T> mCheeseList;
 
     private int mLastEventY = -1;
 
@@ -372,7 +372,7 @@ public class DynamicListView<T> extends ListView {
         }
     }
 
-    private void swapElements(ArrayList<T> arrayList, int indexOne, int indexTwo) {
+    private void swapElements(List<T> arrayList, int indexOne, int indexTwo) {
         T temp = arrayList.get(indexOne);
         arrayList.set(indexOne, arrayList.get(indexTwo));
         arrayList.set(indexTwo, temp);
@@ -501,7 +501,7 @@ public class DynamicListView<T> extends ListView {
         return false;
     }
 
-    public void setArrayList(ArrayList<T> cheeseList) {
+    public void setArrayList(List<T> cheeseList) {
         mCheeseList = cheeseList;
     }
 

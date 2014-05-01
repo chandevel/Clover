@@ -95,7 +95,7 @@ public class ChanApplication extends Application implements PinListener {
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(1024 * 1024 * 8));
 
         databaseManager = new DatabaseManager(this);
-        boardManager = new BoardManager(this);
+        boardManager = new BoardManager();
         pinnedManager = new PinnedManager(this);
         pinnedManager.addPinListener(this);
         replyManager = new ReplyManager(this);

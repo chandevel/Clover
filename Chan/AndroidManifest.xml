@@ -94,6 +94,7 @@
         <activity
             android:name="org.floens.chan.ui.activity.BoardEditor"
             android:label="@string/board_edit"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:parentActivityName="org.floens.chan.ui.activity.BoardActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

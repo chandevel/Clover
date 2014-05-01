@@ -7,6 +7,7 @@ import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.utils.IconCache;
+import org.floens.chan.utils.Time;
 import org.floens.chan.utils.Utils;
 
 import android.app.Activity;
@@ -126,7 +127,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             total = TextUtils.concat(total, post.capcodeSpan, " ");
         }
 
-        CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, System.currentTimeMillis(),
+        CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(),
                 DateUtils.SECOND_IN_MILLIS, 0);
 
         SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);

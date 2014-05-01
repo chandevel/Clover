@@ -2,7 +2,10 @@ package org.floens.chan.utils;
 
 import org.floens.chan.ChanApplication;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnShowListener;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -10,6 +13,7 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 public class Utils {
     private static DisplayMetrics displayMetrics;
@@ -62,5 +66,16 @@ public class Utils {
      */
     public static void runOnUiThread(Runnable runnable) {
         new Handler(Looper.getMainLooper()).post(runnable);
+    }
+    
+    public static void requestKeyboardFocus(Dialog dialog, final View view) {
+        view.requestFocus();
+        dialog.setOnShowListener(new OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(view, 0);
+            }
+        });
     }
 }

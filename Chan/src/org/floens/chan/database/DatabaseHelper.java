@@ -2,6 +2,7 @@ package org.floens.chan.database;
 
 import java.sql.SQLException;
 
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
@@ -19,12 +20,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 11;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
     public Dao<SavedReply, Integer> savedDao;
-
+    public Dao<Board, Integer> boardsDao;
+    
     private final Context context;
 
     public DatabaseHelper(Context context) {
@@ -36,6 +38,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             pinDao = getDao(Pin.class);
             loadableDao = getDao(Loadable.class);
             savedDao = getDao(SavedReply.class);
+            boardsDao = getDao(Board.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -47,6 +50,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Pin.class);
             TableUtils.createTable(connectionSource, Loadable.class);
             TableUtils.createTable(connectionSource, SavedReply.class);
+            TableUtils.createTable(connectionSource, Board.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -76,6 +80,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, Pin.class, true);
             TableUtils.dropTable(connectionSource, Loadable.class, true);
             TableUtils.dropTable(connectionSource, SavedReply.class, true);
+            TableUtils.dropTable(connectionSource, Board.class, true);
 
             onCreate(database, connectionSource);
         } catch (SQLException e) {

@@ -11,12 +11,11 @@ import org.floens.chan.ui.BadgeDrawable;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener.DismissCallbacks;
 import org.floens.chan.ui.adapter.PinnedAdapter;
+import org.floens.chan.utils.Utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -33,7 +32,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -221,15 +219,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                     }
                 }).setTitle(R.string.drawer_pinned_change_title).setView(text).create();
 
-        text.requestFocus();
-
-        dialog.setOnShowListener(new OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(text, 0);
-            }
-        });
+        Utils.requestKeyboardFocus(dialog, text);
 
         dialog.show();
     }
