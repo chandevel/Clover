@@ -1,19 +1,24 @@
 package org.floens.chan.utils;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnShowListener;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 public class Utils {
     private static DisplayMetrics displayMetrics;
@@ -77,5 +82,14 @@ public class Utils {
                 imm.showSoftInput(view, 0);
             }
         });
+    }
+    
+    public static void openLink(Context context, String link) {
+        try {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));
+        } catch (ActivityNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(context, R.string.open_link_failed, Toast.LENGTH_LONG).show();
+        }
     }
 }

@@ -7,6 +7,7 @@ import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.view.ThumbnailImageView;
 import org.floens.chan.ui.view.ThumbnailImageView.ThumbnailImageViewCallback;
+import org.floens.chan.utils.Utils;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -149,6 +150,8 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
             }
 
             activity.invalidateActionBar();
+        } else if (item.getItemId() == R.id.action_open_browser) {
+            Utils.openLink(context, post.imageUrl);
         }
     }
 
