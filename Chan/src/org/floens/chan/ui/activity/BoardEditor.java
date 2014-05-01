@@ -228,7 +228,7 @@ public class BoardEditor extends Activity {
                 protected synchronized FilterResults performFiltering(CharSequence constraint) {
                     FilterResults results = new FilterResults();
 
-                    if (TextUtils.isEmpty(constraint) || (constraint.toString().contains(" "))) {
+                    if (TextUtils.isEmpty(constraint) || (constraint.toString().startsWith(" "))) {
                         results.values = null;
                         results.count = 0;
                     } else {
@@ -306,9 +306,8 @@ public class BoardEditor extends Activity {
             String lowered = filter.toLowerCase(Locale.ENGLISH);
             List<Board> list = new ArrayList<Board>();
             for (Board b : getBoards()) {
-                if (!haveBoard(b.value)
-                        && (b.key.toLowerCase(Locale.ENGLISH).contains(lowered) || b.value.toLowerCase(Locale.ENGLISH)
-                                .contains(lowered))) {
+                if ((b.key.toLowerCase(Locale.ENGLISH).contains(lowered) || b.value.toLowerCase(Locale.ENGLISH)
+                        .contains(lowered))) {
                     list.add(b);
                 }
             }
@@ -336,7 +335,7 @@ public class BoardEditor extends Activity {
 
             List<Board> s = new ArrayList<Board>();
             for (Board b : ChanApplication.getBoardManager().getAllBoards()) {
-                if (showUnsafe || b.workSafe)
+                if (!haveBoard(b.value) && (showUnsafe || b.workSafe))
                     s.add(b);
             }
             return s;
