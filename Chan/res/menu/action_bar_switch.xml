@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/enable_watch_switch"
+        android:id="@+id/action_bar_switch"
         android:title=""
         android:actionViewClass="android.widget.Switch"
         android:showAsAction="always">

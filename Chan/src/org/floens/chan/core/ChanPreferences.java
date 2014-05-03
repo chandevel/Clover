@@ -58,4 +58,14 @@ public class ChanPreferences {
     public static boolean getVideoAutoPlay() {
         return ChanApplication.getPreferences().getBoolean("preference_autoplay", false);
     }
+
+    public static boolean getPassEnabled() {
+        return ChanApplication.getPreferences().getBoolean("preference_pass_enabled", false);
+    }
+
+    public static void setPassEnabled(boolean enabled) {
+        if (getWatchEnabled() != enabled) {
+            ChanApplication.getPreferences().edit().putBoolean("preference_pass_enabled", enabled).commit();
+        }
+    }
 }

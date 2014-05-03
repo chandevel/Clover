@@ -37,9 +37,9 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.watch_settings, menu);
+        getMenuInflater().inflate(R.menu.action_bar_switch, menu);
 
-        watchSwitch = (Switch) menu.findItem(R.id.enable_watch_switch).getActionView();
+        watchSwitch = (Switch) menu.findItem(R.id.action_bar_switch).getActionView();
         watchSwitch.setOnCheckedChangeListener(this);
         watchSwitch.setPadding(0, 0, Utils.dp(14), 0);
 

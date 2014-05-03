@@ -15,6 +15,14 @@
             android:targetClass="org.floens.chan.ui.activity.BoardEditor"
             android:targetPackage="org.floens.chan" />
     </Preference>
+    <Preference
+        android:key="pass_settings"
+        android:title="@string/preference_pass_settings" >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.floens.chan.ui.activity.PassSettingsActivity"
+            android:targetPackage="org.floens.chan" />
+    </Preference>
 
     <PreferenceCategory android:title="@string/preference_general" >
         <CheckBoxPreference

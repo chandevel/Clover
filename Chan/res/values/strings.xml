@@ -94,6 +94,7 @@
     <string name="delete_image_only">Only delete the image</string>
     
     <string name="preference_watch_settings">Thread watcher</string>
+    <string name="preference_pass_settings">4chan pass</string>
     
     <string name="preference_general">General</string>
     <string name="preference_open_link_confirmation">Ask before opening links</string>
@@ -137,6 +138,10 @@
         <item>1800</item>
         <item>3600</item>
     </string-array>
+    
+    <string name="pass_info_text">4chan pass enables you to post without filling in CAPTCHAs</string>
+    <string name="pass_info_learn_more">Learn more</string>
+    <string name="pass_info_link">https://www.4chan.org/pass</string>
     
 </resources>
 
