@@ -17,4 +17,6 @@ public class Reply {
     public String captchaChallenge = "";
     public String captchaResponse = "";
     public String password = "";
+    public boolean usePass = false;
+    public String passId = "";
 }

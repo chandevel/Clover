@@ -6,6 +6,7 @@
     android:padding="8dp" >
 
     <TextView
+        android:id="@+id/reply_captcha_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/reply_captcha_tap_to_reload"

@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.floens.chan"
     android:installLocation="auto"
-    android:versionCode="15"
-    android:versionName="v0.12" >
+    android:versionCode="16"
+    android:versionName="v0.13" >
 
     <uses-sdk
         android:minSdkVersion="14"

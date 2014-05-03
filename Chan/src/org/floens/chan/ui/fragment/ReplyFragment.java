@@ -74,7 +74,7 @@ public class ReplyFragment extends DialogFragment {
     private EditText fileNameView;
     private LoadView imageViewContainer;
     private LoadView captchaContainer;
-    private TextView captchaText;
+    private TextView captchaInput;
     private LoadView responseContainer;
 
     private Activity context;
@@ -207,7 +207,13 @@ public class ReplyFragment extends DialogFragment {
                 getCaptcha();
             }
         });
-        captchaText = (TextView) container.findViewById(R.id.reply_captcha);
+        captchaInput = (TextView) container.findViewById(R.id.reply_captcha);
+
+        if (ChanPreferences.getPassEnabled()) {
+            ((TextView) container.findViewById(R.id.reply_captcha_text)).setText(R.string.pass_using);
+            container.findViewById(R.id.reply_captcha_container).setVisibility(View.GONE);
+            container.findViewById(R.id.reply_captcha).setVisibility(View.GONE);
+        }
 
         cancelButton = (Button) container.findViewById(R.id.reply_cancel);
         cancelButton.setOnClickListener(new OnClickListener() {
@@ -431,7 +437,7 @@ public class ReplyFragment extends DialogFragment {
         draft.subject = subjectView.getText().toString();
         draft.comment = commentView.getText().toString();
         draft.captchaChallenge = captchaChallenge;
-        draft.captchaResponse = captchaText.getText().toString();
+        draft.captchaResponse = captchaInput.getText().toString();
 
         draft.fileName = "image";
         if (fileNameView != null) {
@@ -443,6 +449,11 @@ public class ReplyFragment extends DialogFragment {
 
         draft.resto = loadable.isBoardMode() ? -1 : loadable.no;
         draft.board = loadable.board;
+
+        if (ChanPreferences.getPassEnabled()) {
+            draft.usePass = true;
+            draft.passId = ChanPreferences.getPassId();
+        }
 
         ChanApplication.getReplyManager().sendReply(draft, new ReplyManager.ReplyListener() {
             @Override
@@ -470,7 +481,7 @@ public class ReplyFragment extends DialogFragment {
             setClosable(true);
             flipPage(1);
             getCaptcha();
-            captchaText.setText("");
+            captchaInput.setText("");
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
             Toast.makeText(context, R.string.reply_success, Toast.LENGTH_SHORT).show();

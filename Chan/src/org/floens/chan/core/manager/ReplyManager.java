@@ -9,7 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.model.Pass;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.ui.activity.ImagePickActivity;
@@ -18,6 +20,8 @@ import org.floens.chan.utils.Utils;
 
 import android.content.Context;
 import android.content.Intent;
+import ch.boye.httpclientandroidlib.Header;
+import ch.boye.httpclientandroidlib.HeaderElement;
 import ch.boye.httpclientandroidlib.HttpResponse;
 import ch.boye.httpclientandroidlib.client.ClientProtocolException;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
@@ -127,6 +131,12 @@ public class ReplyManager {
         fileListener = null;
     }
 
+    public static abstract class FileListener {
+        public abstract void onFile(String name, File file);
+
+        public abstract void onFileLoading();
+    }
+
     /**
      * Get the CAPTCHA challenge hash from an JSON response.
      * 
@@ -143,6 +153,95 @@ public class ReplyManager {
         } else {
             return null;
         }
+    }
+
+    public void sendPass(Pass pass, final PassListener listener) {
+        Logger.i(TAG, "Sending pass login request");
+
+        HttpPost httpPost = new HttpPost(ChanUrls.getPassUrl());
+
+        MultipartEntity entity = new MultipartEntity();
+
+        try {
+            entity.addPart("act", new StringBody("do_login"));
+
+            entity.addPart("id", new StringBody(pass.token));
+            entity.addPart("pin", new StringBody(pass.pin));
+
+            //            entity.addPart("pwd", new StringBody(reply.password));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        httpPost.setEntity(entity);
+
+        sendHttpPost(httpPost, new HttpPostSendListener() {
+            @Override
+            public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response) {
+                PassResponse e = new PassResponse();
+
+                if (responseString == null || response == null) {
+                    e.isError = true;
+                    e.message = context.getString(R.string.pass_error);
+                } else {
+                    e.responseData = responseString;
+
+                    if (responseString.contains("Your device is now authorized")) {
+                        e.message = "Success! Your device is now authorized.";
+
+                        String passId = null;
+
+                        Header[] cookieHeaders = response.getHeaders("Set-Cookie");
+                        if (cookieHeaders != null) {
+                            for (Header cookieHeader : cookieHeaders) {
+                                HeaderElement[] elements = cookieHeader.getElements();
+                                if (elements != null) {
+                                    for (HeaderElement el : elements) {
+                                        if (el != null) {
+                                            if (el.getName().equals("pass_id")) {
+                                                passId = el.getValue();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (passId != null) {
+                            e.passId = passId;
+                        } else {
+                            e.isError = true;
+                            e.message = "Could not get pass id";
+                        }
+                    } else {
+                        e.isError = true;
+                        if (responseString.contains("Your Token must be exactly 10 characters")) {
+                            e.message = "Incorrect token";
+                        } else if (responseString.contains("You have left one or more fields blank")) {
+                            e.message = "You have left one or more fields blank";
+                        } else if (responseString.contains("Incorrect Token or PIN")) {
+                            e.message = "Incorrect Token or PIN";
+                        } else {
+                            e.message = "Unknown error";
+                        }
+                    }
+                }
+
+                listener.onResponse(e);
+            }
+        });
+    }
+
+    public static interface PassListener {
+        public void onResponse(PassResponse response);
+    }
+
+    public static class PassResponse {
+        public boolean isError = false;
+        public String responseData = "";
+        public String message = "";
+        public String passId;
     }
 
     /**
@@ -181,7 +280,7 @@ public class ReplyManager {
 
         sendHttpPost(httpPost, new HttpPostSendListener() {
             @Override
-            public void onReponse(String responseString) {
+            public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response) {
                 DeleteResponse e = new DeleteResponse();
 
                 if (responseString == null) {
@@ -208,6 +307,20 @@ public class ReplyManager {
         });
     }
 
+    public static interface DeleteListener {
+        public void onResponse(DeleteResponse response);
+    }
+
+    public static class DeleteResponse {
+        public boolean isNetworkError = false;
+        public boolean isUserError = false;
+        public boolean isInvalidPassword = false;
+        public boolean isTooSoonError = false;
+        public boolean isTooOldError = false;
+        public boolean isSuccessful = false;
+        public String responseData = "";
+    }
+
     /**
      * Send an reply off to the server.
      * 
@@ -220,7 +333,7 @@ public class ReplyManager {
     public void sendReply(final Reply reply, final ReplyListener listener) {
         Logger.i(TAG, "Sending reply request: " + reply.board + ", " + reply.resto);
 
-        HttpPost httpPost = new HttpPost(ChanUrls.getPostUrl(reply.board));
+        HttpPost httpPost = new HttpPost(ChanUrls.getReplyUrl(reply.board));
 
         MultipartEntity entity = new MultipartEntity();
 
@@ -243,6 +356,10 @@ public class ReplyManager {
             entity.addPart("mode", new StringBody("regist"));
             entity.addPart("pwd", new StringBody(reply.password));
 
+            if (reply.usePass) {
+                httpPost.addHeader("Cookie", "pass_id=" + reply.passId);
+            }
+
             if (reply.file != null) {
                 entity.addPart("upfile", new FileBody(reply.file, reply.fileName, "application/octet-stream", "UTF-8"));
             }
@@ -255,7 +372,7 @@ public class ReplyManager {
 
         sendHttpPost(httpPost, new HttpPostSendListener() {
             @Override
-            public void onReponse(String responseString) {
+            public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response) {
                 ReplyResponse e = new ReplyResponse();
 
                 if (responseString == null) {
@@ -299,80 +416,6 @@ public class ReplyManager {
         });
     }
 
-    /**
-     * Async task to send an reply to the server. Uses HttpClient. Since Android
-     * 4.4 there is an updated version of HttpClient, 4.2, given with Android.
-     * However, that version causes problems with file uploading. Version 4.3 of
-     * HttpClient has been given with a library, that has another namespace:
-     * ch.boye.httpclientandroidlib This lib also has some fixes/improvements of
-     * HttpClient for Android.
-     */
-    private void sendHttpPost(final HttpPost post, final HttpPostSendListener listener) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpParams httpParameters = new BasicHttpParams();
-                HttpConnectionParams.setConnectionTimeout(httpParameters, POST_TIMEOUT);
-                HttpConnectionParams.setSoTimeout(httpParameters, POST_TIMEOUT);
-
-                DefaultHttpClient client = new DefaultHttpClient(httpParameters);
-
-                String responseString = null;
-
-                try {
-                    HttpResponse response = client.execute(post);
-                    responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-                } catch (ClientProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                final String finalResponseString = responseString;
-
-                Utils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onReponse(finalResponseString);
-                    }
-                });
-            }
-        }).start();
-    }
-
-    private static interface HttpPostSendListener {
-        public void onReponse(String responseString);
-    }
-
-    public static abstract class FileListener {
-        /**
-         * When the file was picked
-         * 
-         * @param name
-         * @param file
-         */
-        public abstract void onFile(String name, File file);
-
-        /**
-         * When the file has started loading.
-         */
-        public abstract void onFileLoading();
-    }
-
-    public static interface DeleteListener {
-        public void onResponse(DeleteResponse response);
-    }
-
-    public static class DeleteResponse {
-        public boolean isNetworkError = false;
-        public boolean isUserError = false;
-        public boolean isInvalidPassword = false;
-        public boolean isTooSoonError = false;
-        public boolean isTooOldError = false;
-        public boolean isSuccessful = false;
-        public String responseData = "";
-    }
-
     public static interface ReplyListener {
         public void onResponse(ReplyResponse response);
     }
@@ -408,5 +451,51 @@ public class ReplyManager {
          * client, when the error was not recognized by Chan.
          */
         public String responseData = "";
+    }
+
+    /**
+     * Async task to send an reply to the server. Uses HttpClient. Since Android
+     * 4.4 there is an updated version of HttpClient, 4.2, given with Android.
+     * However, that version causes problems with file uploading. Version 4.3 of
+     * HttpClient has been given with a library, that has another namespace:
+     * ch.boye.httpclientandroidlib This lib also has some fixes/improvements of
+     * HttpClient for Android.
+     */
+    private void sendHttpPost(final HttpPost post, final HttpPostSendListener listener) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpParams httpParameters = new BasicHttpParams();
+                HttpConnectionParams.setConnectionTimeout(httpParameters, POST_TIMEOUT);
+                HttpConnectionParams.setSoTimeout(httpParameters, POST_TIMEOUT);
+
+                final DefaultHttpClient client = new DefaultHttpClient(httpParameters);
+                String responseString = null;
+
+                HttpResponse response = null;
+                try {
+                    response = client.execute(post);
+                    responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                final String finalResponseString = responseString;
+                final HttpResponse finalResponse = response;
+
+                Utils.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onReponse(finalResponseString, client, finalResponse);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private static interface HttpPostSendListener {
+        public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response);
     }
 }

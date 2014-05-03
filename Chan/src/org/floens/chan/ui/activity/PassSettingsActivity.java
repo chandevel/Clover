@@ -1,16 +1,22 @@
 package org.floens.chan.ui.activity;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager.PassResponse;
+import org.floens.chan.core.model.Pass;
 import org.floens.chan.utils.Utils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -21,13 +27,33 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 public class PassSettingsActivity extends Activity implements OnCheckedChangeListener {
+    private static PassSettingsActivity instance;
+
     private Switch enableSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        instance = this;
+
         setFragment(ChanPreferences.getPassEnabled());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        instance = null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        if (TextUtils.isEmpty(ChanPreferences.getPassId())) {
+            ChanPreferences.setPassEnabled(false);
+        }
     }
 
     @Override
@@ -51,16 +77,7 @@ public class PassSettingsActivity extends Activity implements OnCheckedChangeLis
 
     private void setSwitch(boolean enabled) {
         enableSwitch.setChecked(enabled);
-
         ChanPreferences.setPassEnabled(enabled);
-
-        enableSwitch.setEnabled(false);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                enableSwitch.setEnabled(true);
-            }
-        }, 500);
     }
 
     private void setFragment(boolean enabled) {
@@ -100,6 +117,50 @@ public class PassSettingsActivity extends Activity implements OnCheckedChangeLis
             super.onCreate(savedInstanceState);
 
             addPreferencesFromResource(R.xml.preference_pass);
+
+            Preference login = findPreference("preference_pass_login");
+            login.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if (PassSettingsActivity.instance != null) {
+                        Pass pass = new Pass(ChanPreferences.getPassToken(), ChanPreferences.getPassPin());
+                        onLoginClick(pass);
+                    }
+                    return true;
+                }
+            });
+
+            updateLoginButton();
+        }
+
+        private void updateLoginButton() {
+            findPreference("preference_pass_login").setTitle(TextUtils.isEmpty(ChanPreferences.getPassId()) ? R.string.pass_login : R.string.pass_logout);
+        }
+
+        private void onLoginClick(Pass pass) {
+            if (TextUtils.isEmpty(ChanPreferences.getPassId())) {
+                // Login
+                final ProgressDialog dialog = ProgressDialog.show(getActivity(), null, "Logging in");
+
+                ChanApplication.getReplyManager().sendPass(pass, new ReplyManager.PassListener() {
+                    @Override
+                    public void onResponse(PassResponse response) {
+                        dialog.dismiss();
+
+                        if (getActivity() == null)
+                            return;
+
+                        new AlertDialog.Builder(getActivity()).setMessage(response.message)
+                                .setNeutralButton(R.string.ok, null).create().show();
+                        ChanPreferences.setPassId(response.passId);
+                        updateLoginButton();
+                    }
+                });
+            } else {
+                // Logout
+                ChanPreferences.setPassId("");
+                updateLoginButton();
+            }
         }
     }
 }

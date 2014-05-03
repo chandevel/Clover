@@ -64,8 +64,24 @@ public class ChanPreferences {
     }
 
     public static void setPassEnabled(boolean enabled) {
-        if (getWatchEnabled() != enabled) {
+        if (getPassEnabled() != enabled) {
             ChanApplication.getPreferences().edit().putBoolean("preference_pass_enabled", enabled).commit();
         }
+    }
+    
+    public static String getPassToken() {
+        return ChanApplication.getPreferences().getString("preference_pass_token", "");
+    }
+    
+    public static String getPassPin() {
+        return ChanApplication.getPreferences().getString("preference_pass_pin", "");
+    }
+    
+    public static void setPassId(String id) {
+        ChanApplication.getPreferences().edit().putString("preference_pass_id", id).commit();
+    }
+    
+    public static String getPassId() {
+        return ChanApplication.getPreferences().getString("preference_pass_id", "");
     }
 }

@@ -39,14 +39,12 @@ public class ChanUrls {
         return "https://a.4cdn.org/boards.json";
     }
 
-    public static String getPostUrl(String board) {
+    public static String getReplyUrl(String board) {
         return "https://sys.4chan.org/" + board + "/post";
-        //        return "http://192.168.6.214/Testing/PostEchoer/post.php";
     }
 
     public static String getDeleteUrl(String board) {
         return "https://sys.4chan.org/" + board + "/imgboard.php";
-        //        return "http://192.168.6.214/Testing/PostEchoer/post.php";
     }
 
     public static String getBoardUrlDesktop(String board) {
@@ -59,5 +57,9 @@ public class ChanUrls {
 
     public static String getCatalogUrlDesktop(String board) {
         return "https://boards.4chan.org/" + board + "/catalog";
+    }
+
+    public static String getPassUrl() {
+        return "https://sys.4chan.org/auth";
     }
 }

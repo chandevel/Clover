@@ -75,7 +75,7 @@
     <string name="reply_file_delete">Remove file</string>
     <string name="reply_file_name">File name</string>
     <string name="reply_submit">Submit</string>
-    <string name="reply_captcha">Enter captcha</string>
+    <string name="reply_captcha">Enter the text</string>
     <string name="reply_error">Error sending reply</string>
     <string name="reply_error_captcha">Wrong captcha</string>
     <string name="reply_error_file">No file selected</string>
@@ -142,7 +142,14 @@
     <string name="pass_info_text">4chan pass enables you to post without filling in CAPTCHAs</string>
     <string name="pass_info_learn_more">Learn more</string>
     <string name="pass_info_link">https://www.4chan.org/pass</string>
-    
+    <string name="pass_token">Token</string>
+    <string name="pass_pin">PIN</string>
+    <string name="pass_login">Log in</string>
+    <string name="pass_logout">Log out</string>
+    <string name="pass_error">Connection error</string>
+    <string name="pass_summary_enabled">Using 4chan pass</string>
+    <string name="pass_summary_disabled">Off</string>
+    <string name="pass_using">Using 4chan pass</string>
 </resources>
 
 
