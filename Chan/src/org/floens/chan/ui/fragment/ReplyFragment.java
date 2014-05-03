@@ -146,7 +146,7 @@ public class ReplyFragment extends DialogFragment {
             emailView.getEditText().setText(draft.email);
             subjectView.getEditText().setText(draft.subject);
             commentView.getEditText().setText(draft.comment);
-            setFile(draft.file);
+            setFile(draft.fileName, draft.file);
 
             getCaptcha();
         } else {
@@ -167,10 +167,14 @@ public class ReplyFragment extends DialogFragment {
             draft.subject = subjectView.getText().toString();
             draft.comment = commentView.getText().toString();
 
+            if (fileNameView != null) {
+                draft.fileName = fileNameView.getText().toString();
+            }
+
             replyManager.setReplyDraft(draft);
         } else {
             replyManager.removeReplyDraft();
-            setFile(null);
+            setFile(null, null);
         }
     }
 
@@ -223,8 +227,8 @@ public class ReplyFragment extends DialogFragment {
             public void onClick(View view) {
                 ChanApplication.getReplyManager().pickFile(new ReplyManager.FileListener() {
                     @Override
-                    public void onFile(File file) {
-                        setFile(file);
+                    public void onFile(String name, File file) {
+                        setFile(name, file);
                     }
 
                     @Override
@@ -239,7 +243,7 @@ public class ReplyFragment extends DialogFragment {
         fileDeleteButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                setFile(null);
+                setFile(null, null);
             }
         });
 
@@ -317,8 +321,9 @@ public class ReplyFragment extends DialogFragment {
      * @param imagePath
      *            file to image to send or null to clear
      */
-    private void setFile(final File file) {
+    private void setFile(final String name, final File file) {
         draft.file = file;
+        draft.fileName = name;
 
         if (file == null) {
             fileDeleteButton.setEnabled(false);
@@ -352,6 +357,7 @@ public class ReplyFragment extends DialogFragment {
                                 fileNameView.setSingleLine();
                                 fileNameView.setHint(R.string.reply_file_name);
                                 fileNameView.setTextSize(16f);
+                                fileNameView.setText(name);
                                 wrapper.addView(fileNameView);
 
                                 ImageView imageView = new ImageView(context);

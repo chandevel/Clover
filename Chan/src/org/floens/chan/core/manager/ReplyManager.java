@@ -113,9 +113,9 @@ public class ReplyManager {
      * Called from ImagePickActivity. Sends the file to the listening
      * fileListener, and deletes the fileListener.
      */
-    public void _onPickedFile(File file) {
+    public void _onPickedFile(String name, File file) {
         if (fileListener != null) {
-            fileListener.onFile(file);
+            fileListener.onFile(name, file);
         }
         fileListener = null;
     }
@@ -346,12 +346,12 @@ public class ReplyManager {
 
     public static abstract class FileListener {
         /**
-         * When a file is picked.
+         * When the file was picked
          * 
-         * @param the
-         *            picked file
+         * @param name
+         * @param file
          */
-        public abstract void onFile(File file);
+        public abstract void onFile(String name, File file);
 
         /**
          * When the file has started loading.

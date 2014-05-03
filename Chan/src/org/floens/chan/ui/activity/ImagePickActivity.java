@@ -12,8 +12,10 @@ import org.floens.chan.utils.IOUtils;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.widget.Toast;
 
 public class ImagePickActivity extends Activity {
@@ -43,6 +45,18 @@ public class ImagePickActivity extends Activity {
             if (data != null) {
                 final Uri uri = data.getData();
 
+                Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
+                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                returnCursor.moveToFirst();
+                String name = "image";
+                if (nameIndex > -1) {
+                    name = returnCursor.getString(nameIndex);
+                }
+
+                returnCursor.close();
+
+                final String finalName = name;
+
                 ChanApplication.getReplyManager()._onPickedFileLoading();
 
                 // Async load the stream into "pickedFileCache", an file in the cache root
@@ -64,7 +78,7 @@ public class ImagePickActivity extends Activity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    ChanApplication.getReplyManager()._onPickedFile(cacheFile);
+                                    ChanApplication.getReplyManager()._onPickedFile(finalName, cacheFile);
                                 }
 
                             });
