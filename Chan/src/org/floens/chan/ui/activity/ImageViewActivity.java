@@ -7,7 +7,6 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.fragment.ImageViewFragment;
-import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Logger;
 
 import android.app.ActionBar;
@@ -144,11 +143,6 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
-            return true;
-        } else if (item.getItemId() == R.id.action_image_save) {
-            Post post = adapter.getPost(currentPosition);
-            ImageSaver.save(this, post.imageUrl, post.filename, post.ext);
-
             return true;
         } else {
             ImageViewFragment fragment = getFragment(currentPosition);

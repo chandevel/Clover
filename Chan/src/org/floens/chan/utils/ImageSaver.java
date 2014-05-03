@@ -10,6 +10,7 @@ import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.net.ByteArrayRequest;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
@@ -21,23 +22,37 @@ import com.android.volley.VolleyError;
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
 
-    public static void save(final Context context, String imageUrl, final String name, final String extension) {
-        ByteArrayRequest request = new ByteArrayRequest(imageUrl, new Response.Listener<byte[]>() {
+    public static void save(final Context context, String imageUrl, final String name, final String extension,
+            final boolean share) {
+        ChanApplication.getVolleyRequestQueue().add(new ByteArrayRequest(imageUrl, new Response.Listener<byte[]>() {
             @Override
-            public void onResponse(byte[] array) {
-                storeImage(context, array, name, extension);
+            public void onResponse(byte[] data) {
+                storeImage(context, data, name, extension, new SaveCallback() {
+                    @Override
+                    public void onUri(String name, Uri uri) {
+                        if (!share) {
+                            String message = context.getResources().getString(R.string.image_save_succeeded) + " "
+                                    + name;
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                        } else {
+                            Intent intent = new Intent(Intent.ACTION_SEND);
+                            intent.setType("image/*");
+                            intent.putExtra(Intent.EXTRA_STREAM, uri);
+                            context.startActivity(Intent.createChooser(intent, "WAT"));
+                        }
+                    }
+                });
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_LONG).show();
             }
-        });
-
-        ChanApplication.getVolleyRequestQueue().add(request);
+        }));
     }
 
-    private static void storeImage(final Context context, byte[] data, String name, String extension) {
+    private static void storeImage(final Context context, byte[] data, String name, String extension,
+            final SaveCallback callback) {
         String errorReason = null;
 
         try {
@@ -56,31 +71,26 @@ public class ImageSaver {
                 }
             }
 
-            File file = new File(path, name + "." + extension);
-            int nextFileNameNumber = 0;
-            String newName;
-            while (file.exists()) {
-                newName = name + "_" + Integer.toString(nextFileNameNumber) + "." + extension;
-                file = new File(path, newName);
-                nextFileNameNumber++;
+            final File savedFile = saveFile(path, data, name, extension);
+            if (savedFile == null) {
+                errorReason = context.getString(R.string.image_save_failed);
+                throw new IOException(errorReason);
             }
 
-            Logger.i(TAG, "Saving image to: " + file.getPath());
-
-            FileOutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(data);
-            outputStream.close();
-
-            MediaScannerConnection.scanFile(context, new String[] { file.toString() }, null,
+            MediaScannerConnection.scanFile(context, new String[] { savedFile.toString() }, null,
                     new MediaScannerConnection.OnScanCompletedListener() {
                         @Override
-                        public void onScanCompleted(String path, Uri uri) {
-                            Logger.i(TAG, "Media scan succeeded: " + uri);
+                        public void onScanCompleted(String path, final Uri uri) {
+                            Utils.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Logger.i(TAG, "Media scan succeeded: " + uri);
+                                    callback.onUri(savedFile.toString(), uri);
+                                }
+                            });
                         }
                     });
 
-            String message = context.getResources().getString(R.string.image_save_succeeded) + " " + file.getName();
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             e.printStackTrace();
 
@@ -89,5 +99,39 @@ public class ImageSaver {
 
             Toast.makeText(context, errorReason, Toast.LENGTH_LONG).show();
         }
+    }
+
+    private static File saveFile(File path, byte[] source, String name, String extension) {
+        File destination = new File(path, name + "." + extension);
+        int nextFileNameNumber = 0;
+        String newName;
+        while (destination.exists()) {
+            newName = name + "_" + Integer.toString(nextFileNameNumber++) + "." + extension;
+            destination = new File(path, newName);
+        }
+
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(destination);
+            outputStream.write(source);
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+
+        Logger.i(TAG, "Saved image to: " + destination.getPath());
+
+        return destination;
+    }
+
+    private static interface SaveCallback {
+        public void onUri(String name, Uri uri);
     }
 }
