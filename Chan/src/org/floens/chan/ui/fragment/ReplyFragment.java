@@ -14,6 +14,7 @@ import org.floens.chan.ui.ViewFlipperAnimations;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Utils;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -31,8 +32,10 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -68,6 +71,7 @@ public class ReplyFragment extends DialogFragment {
     private FloatLabelEditText emailView;
     private FloatLabelEditText subjectView;
     private FloatLabelEditText commentView;
+    private EditText fileNameView;
     private LoadView imageViewContainer;
     private LoadView captchaContainer;
     private TextView captchaText;
@@ -319,11 +323,9 @@ public class ReplyFragment extends DialogFragment {
         if (file == null) {
             fileDeleteButton.setEnabled(false);
             imageViewContainer.removeAllViews();
+            fileNameView = null;
         } else {
             fileDeleteButton.setEnabled(true);
-            // UI Thread
-
-            final ImageView imageView = new ImageView(context);
 
             new Thread(new Runnable() {
                 @Override
@@ -331,7 +333,6 @@ public class ReplyFragment extends DialogFragment {
                     if (context == null)
                         return;
 
-                    // Other thread
                     final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), 3000);
 
                     context.runOnUiThread(new Runnable() {
@@ -340,14 +341,25 @@ public class ReplyFragment extends DialogFragment {
                             if (context == null)
                                 return;
 
-                            // UI Thread
                             if (bitmap == null) {
                                 Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
                             } else {
-                                imageView.setScaleType(ScaleType.CENTER_CROP);
-                                imageView.setImageBitmap(bitmap);
+                                LinearLayout wrapper = new LinearLayout(context);
+                                wrapper.setLayoutParams(Utils.MATCH_WRAP_PARAMS);
+                                wrapper.setOrientation(LinearLayout.VERTICAL);
 
-                                imageViewContainer.setView(imageView);
+                                fileNameView = new EditText(context);
+                                fileNameView.setSingleLine();
+                                fileNameView.setHint(R.string.reply_file_name);
+                                fileNameView.setTextSize(16f);
+                                wrapper.addView(fileNameView);
+
+                                ImageView imageView = new ImageView(context);
+                                imageView.setScaleType(ScaleType.CENTER_INSIDE);
+                                imageView.setImageBitmap(bitmap);
+                                wrapper.addView(imageView);
+
+                                imageViewContainer.setView(wrapper);
                             }
                         }
                     });
@@ -414,7 +426,14 @@ public class ReplyFragment extends DialogFragment {
         draft.comment = commentView.getText().toString();
         draft.captchaChallenge = captchaChallenge;
         draft.captchaResponse = captchaText.getText().toString();
+
         draft.fileName = "image";
+        if (fileNameView != null) {
+            String n = fileNameView.getText().toString();
+            if (!TextUtils.isEmpty(n)) {
+                draft.fileName = n;
+            }
+        }
 
         draft.resto = loadable.isBoardMode() ? -1 : loadable.no;
         draft.board = loadable.board;

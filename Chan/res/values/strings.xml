@@ -73,6 +73,7 @@
     <string name="reply_comment">Comment</string>
     <string name="reply_file">Pick file</string>
     <string name="reply_file_delete">Remove file</string>
+    <string name="reply_file_name">File name (not required)</string>
     <string name="reply_submit">Submit</string>
     <string name="reply_captcha">Enter captcha</string>
     <string name="reply_error">Error sending reply</string>
