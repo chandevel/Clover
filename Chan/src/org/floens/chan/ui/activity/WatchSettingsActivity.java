@@ -31,6 +31,8 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setFragment(ChanPreferences.getWatchEnabled());
     }
 
     @Override
@@ -41,29 +43,18 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
         watchSwitch.setOnCheckedChangeListener(this);
         watchSwitch.setPadding(0, 0, Utils.dp(14), 0);
 
-        setEnabled(ChanPreferences.getWatchEnabled());
+        setSwitch(ChanPreferences.getWatchEnabled());
 
         return true;
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        setEnabled(isChecked);
+        setFragment(isChecked);
+        setSwitch(isChecked);
     }
 
-    private void setEnabled(boolean enabled) {
-        if (enabled) {
-            FragmentTransaction t = getFragmentManager().beginTransaction();
-            t.replace(android.R.id.content, new WatchSettingsFragment());
-            t.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            t.commit();
-        } else {
-            FragmentTransaction t = getFragmentManager().beginTransaction();
-            t.replace(android.R.id.content, TextFragment.newInstance(R.string.watch_info_text));
-            t.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            t.commit();
-        }
-
+    private void setSwitch(boolean enabled) {
         watchSwitch.setChecked(enabled);
 
         ChanPreferences.setWatchEnabled(enabled);
@@ -75,6 +66,20 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
                 watchSwitch.setEnabled(true);
             }
         }, 500);
+    }
+
+    private void setFragment(boolean enabled) {
+        if (enabled) {
+            FragmentTransaction t = getFragmentManager().beginTransaction();
+            t.replace(android.R.id.content, new WatchSettingsFragment());
+            t.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            t.commit();
+        } else {
+            FragmentTransaction t = getFragmentManager().beginTransaction();
+            t.replace(android.R.id.content, TextFragment.newInstance(R.string.watch_info_text));
+            t.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            t.commit();
+        }
     }
 
     public static class TextFragment extends Fragment {
@@ -111,9 +116,6 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
             super.onCreate(savedInstanceState);
 
             addPreferencesFromResource(R.xml.preference_watch);
-
-            // final Preference backgroundEnabled =
-            // findPreference("preference_watch_background_enabled");
 
             final ListPreference backgroundTimeout = (ListPreference) findPreference("preference_watch_background_timeout");
             String currentValue = backgroundTimeout.getValue();
