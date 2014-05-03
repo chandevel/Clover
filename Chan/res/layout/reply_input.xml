@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:floatlabel="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/reply_data"
+    style="?android:attr/buttonBarStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <com.micromobs.android.floatlabel.FloatLabelEditText
+        android:id="@+id/reply_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        floatlabel:fitScreenWidth="full"
+        floatlabel:hint="@string/reply_name"
+        floatlabel:textColorHintFocused="@color/holo_blue_dark"
+        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
+        floatlabel:textSize="16sp" />
+
+    <com.micromobs.android.floatlabel.FloatLabelEditText
+        android:id="@+id/reply_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        floatlabel:fitScreenWidth="full"
+        floatlabel:hint="@string/reply_email"
+        floatlabel:textColorHintFocused="@color/holo_blue_dark"
+        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
+        floatlabel:textSize="16sp" />
+
+    <com.micromobs.android.floatlabel.FloatLabelEditText
+        android:id="@+id/reply_subject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        floatlabel:fitScreenWidth="full"
+        floatlabel:hint="@string/reply_subject"
+        floatlabel:textColorHintFocused="@color/holo_blue_dark"
+        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
+        floatlabel:textSize="16sp" />
+    
+    <com.micromobs.android.floatlabel.FloatLabelEditText
+        android:id="@+id/reply_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeActionLabel="@string/reply_submit"
+        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+        android:minLines="5"
+        floatlabel:fitScreenWidth="full"
+        floatlabel:hint="@string/reply_comment"
+        floatlabel:textColorHintFocused="@color/holo_blue_dark"
+        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
+        floatlabel:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/reply_file"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/reply_file" />
+
+            <Button
+                android:id="@+id/reply_file_delete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/reply_file_delete" />
+        </LinearLayout>
+
+        <org.floens.chan.ui.view.LoadView
+            android:id="@+id/reply_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:minHeight="200dp"
+            android:scaleType="centerCrop" />
+    </LinearLayout>
+
+</LinearLayout>

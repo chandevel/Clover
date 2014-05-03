@@ -15,9 +15,9 @@ import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -73,6 +73,8 @@ public class ReplyFragment extends DialogFragment {
     private TextView captchaText;
     private LoadView responseContainer;
 
+    private Activity context;
+
     public static ReplyFragment newInstance(Loadable loadable) {
         ReplyFragment reply = new ReplyFragment();
         reply.loadable = loadable;
@@ -83,28 +85,29 @@ public class ReplyFragment extends DialogFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        loadable.writeToBundle(getActivity(), outState);
+        loadable.writeToBundle(context, outState);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        context = getActivity();
+
         if (loadable == null && savedInstanceState != null) {
             loadable = new Loadable();
-            loadable.readFromBundle(getActivity(), savedInstanceState);
+            loadable.readFromBundle(context, savedInstanceState);
         }
 
         if (loadable != null) {
             setClosable(true);
 
             Dialog dialog = getDialog();
-            Context context = getActivity();
             String title = loadable.isThreadMode() ? context.getString(R.string.reply) + " /" + loadable.board + "/"
                     + loadable.no : context.getString(R.string.reply_to_board) + " /" + loadable.board + "/";
 
             if (dialog == null) {
-                getActivity().getActionBar().setTitle(title);
+                context.getActionBar().setTitle(title);
             } else {
                 dialog.setTitle(title);
             }
@@ -173,6 +176,8 @@ public class ReplyFragment extends DialogFragment {
 
         ReplyManager replyManager = ChanApplication.getReplyManager();
         replyManager.removeFileListener();
+
+        context = null;
     }
 
     @Override
@@ -255,7 +260,7 @@ public class ReplyFragment extends DialogFragment {
         if (getDialog() != null) {
             dismiss();
         } else {
-            getActivity().finish();
+            context.finish();
         }
     }
 
@@ -318,20 +323,26 @@ public class ReplyFragment extends DialogFragment {
             fileDeleteButton.setEnabled(true);
             // UI Thread
 
-            final ImageView imageView = new ImageView(getActivity());
+            final ImageView imageView = new ImageView(context);
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    if (context == null)
+                        return;
+
                     // Other thread
                     final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), 3000);
 
-                    getActivity().runOnUiThread(new Runnable() {
+                    context.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            if (context == null)
+                                return;
+
                             // UI Thread
                             if (bitmap == null) {
-                                Toast.makeText(getActivity(), R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+                                Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
                             } else {
                                 imageView.setScaleType(ScaleType.CENTER_CROP);
                                 imageView.setImageBitmap(bitmap);
@@ -357,19 +368,18 @@ public class ReplyFragment extends DialogFragment {
         ChanApplication.getVolleyRequestQueue().add(new StringRequest(Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String result) {
-                if (!isVisible())
-                    return;
+                if (context != null) {
+                    String challenge = ReplyManager.getChallenge(result);
+                    if (challenge != null) {
+                        captchaChallenge = challenge;
+                        String imageUrl = ChanUrls.getCaptchaImageUrl(challenge);
 
-                String challenge = ReplyManager.getChallenge(result);
-                if (challenge != null) {
-                    captchaChallenge = challenge;
-                    String imageUrl = ChanUrls.getCaptchaImageUrl(challenge);
+                        NetworkImageView captchaImage = new NetworkImageView(context);
+                        captchaImage.setImageUrl(imageUrl, ChanApplication.getImageLoader());
+                        captchaContainer.setView(captchaImage);
 
-                    NetworkImageView captchaImage = new NetworkImageView(getActivity());
-                    captchaImage.setImageUrl(imageUrl, ChanApplication.getImageLoader());
-                    captchaContainer.setView(captchaImage);
-
-                    gettingCaptcha = false;
+                        gettingCaptcha = false;
+                    }
                 }
             }
         }, new Response.ErrorListener() {
@@ -377,10 +387,13 @@ public class ReplyFragment extends DialogFragment {
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
                 gettingCaptcha = false;
-                TextView text = new TextView(getActivity());
-                text.setGravity(Gravity.CENTER);
-                text.setText(R.string.reply_captcha_load_error);
-                captchaContainer.setView(text);
+
+                if (context != null) {
+                    TextView text = new TextView(context);
+                    text.setGravity(Gravity.CENTER);
+                    text.setText(R.string.reply_captcha_load_error);
+                    captchaContainer.setView(text);
+                }
             }
         }));
     }
@@ -420,13 +433,13 @@ public class ReplyFragment extends DialogFragment {
      * @param response
      */
     private void handleSubmitResponse(ReplyResponse response) {
-        if (getActivity() == null)
+        if (context == null)
             return;
 
         if (response.isNetworkError || response.isUserError) {
             int resId = response.isCaptchaError ? R.string.reply_error_captcha
                     : (response.isFileError ? R.string.reply_error_file : R.string.reply_error);
-            Toast.makeText(getActivity(), resId, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
             submitButton.setEnabled(true);
             cancelButton.setEnabled(true);
             setClosable(true);
@@ -435,22 +448,20 @@ public class ReplyFragment extends DialogFragment {
             captchaText.setText("");
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
-            Toast.makeText(getActivity(), R.string.reply_success, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.reply_success, Toast.LENGTH_SHORT).show();
             //            threadFragment.reload(); // won't work: it takes 4chan a variable time to process the reply
             closeReply();
         } else {
-            if (isVisible()) {
-                cancelButton.setEnabled(true);
-                setClosable(true);
+            cancelButton.setEnabled(true);
+            setClosable(true);
 
-                WebView webView = new WebView(getActivity());
-                WebSettings settings = webView.getSettings();
-                settings.setSupportZoom(true);
+            WebView webView = new WebView(context);
+            WebSettings settings = webView.getSettings();
+            settings.setSupportZoom(true);
 
-                webView.loadData(response.responseData, "text/html", null);
+            webView.loadData(response.responseData, "text/html", null);
 
-                responseContainer.setView(webView);
-            }
+            responseContainer.setView(webView);
         }
     }
 }
