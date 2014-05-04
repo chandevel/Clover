@@ -62,20 +62,25 @@ public class ImageSaver {
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        for (Uri uri : list) {
-                            DownloadManager.Request request = null;
-                            try {
-                                request = new DownloadManager.Request(uri);
-                            } catch (IllegalArgumentException e) {
-                                continue;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (Uri uri : list) {
+                                    DownloadManager.Request request = null;
+                                    try {
+                                        request = new DownloadManager.Request(uri);
+                                    } catch (IllegalArgumentException e) {
+                                        continue;
+                                    }
+
+                                    request.setDestinationInExternalPublicDir(finalFolderPath, uri.getLastPathSegment());
+                                    request.setVisibleInDownloadsUi(false);
+                                    request.allowScanningByMediaScanner();
+
+                                    dm.enqueue(request);
+                                }
                             }
-
-                            request.setDestinationInExternalPublicDir(finalFolderPath, uri.getLastPathSegment());
-                            request.setVisibleInDownloadsUi(false);
-                            request.allowScanningByMediaScanner();
-
-                            dm.enqueue(request);
-                        }
+                        }).start();
                     }
                 }).show();
     }
