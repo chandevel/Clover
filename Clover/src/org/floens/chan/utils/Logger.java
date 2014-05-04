@@ -22,7 +22,7 @@ import org.floens.chan.ChanApplication;
 import android.util.Log;
 
 public class Logger {
-    private static final String TAG = "Chan";
+    private static final String TAG = "Clover";
     private static final String TAG_SPACER = " | ";
 
     public static void v(String tag, String message) {

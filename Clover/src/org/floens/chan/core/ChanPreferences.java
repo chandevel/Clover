@@ -42,7 +42,7 @@ public class ChanPreferences {
     }
 
     public static String getImageSaveDirectory() {
-        return "Chan";
+        return "Clover";
     }
 
     public static boolean getWatchEnabled() {

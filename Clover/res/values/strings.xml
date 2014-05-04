@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Chan</string>
-    
+    <string name="app_name">Clover</string>
+
     <string name="cancel">Cancel</string>
     <string name="change">Change</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
     <string name="back">Back</string>
     <string name="ok">OK</string>
-    
+
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
     <string name="action_reload_board">Reload board</string>
@@ -21,38 +21,38 @@
     <string name="action_catalog">Open catalog</string>
     <string name="action_share">Share</string>
     <string name="action_download_album">Download album</string>
-    
+
     <string name="open_unknown_title">Unsupported link</string>
-    <string name="open_unknown">Chan can\'t open this link. Opening it in your browser instead.</string>
+    <string name="open_unknown">Clover can\'t open this link. Opening it in your browser instead.</string>
     <string name="open_link_failed">No applications found to open link</string>
-    
+
     <string name="image_save">Save image</string>
     <string name="image_save_succeeded">Saved image to</string>
     <string name="image_save_failed">Saving image failed</string>
     <string name="image_save_directory_error">Cannot make save directory</string>
     <string name="image_save_not_mounted">Cannot write to storage</string>
     <string name="image_play_state">Start / stop playing</string>
-    
+
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_open_failed">Failed to open image</string>
-    
+
     <string name="thread_load_failed_network">No network</string>
     <string name="thread_load_failed_parsing">Server inaccessible</string>
     <string name="thread_load_failed_server">404 not found</string>
     <string name="thread_load_end_of_line">No more posts</string>
-    
+
     <string name="board_edit">Edit my boards</string>
     <string name="board_add">Add board</string>
     <string name="board_add_success">Added board</string>
     <string name="board_add_duplicate">Board already added</string>
     <string name="board_add_unknown_title">Unknown board code</string>
     <string name="board_add_unknown">The board with code CODE is not known. Press OK to add it anyway.</string>
-    
+
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>
     <string name="drawer_pinned">Pinned threads</string>
     <string name="drawer_pinned_change_title">Edit title</string>
-    
+
     <string name="one_reply">reply</string>
     <string name="multiple_replies">replies</string>
     <string name="post_replies_back">Back</string>
@@ -65,7 +65,7 @@
         <item>Show clickables</item>
         <item>Copy text</item>
     </string-array>
-    
+
     <string name="reply">Reply to</string>
     <string name="reply_to_board">Make thread in</string>
     <string name="reply_name">Name</string>
@@ -83,7 +83,7 @@
     <string name="reply_success">Post Successful</string>
     <string name="reply_captcha_load_error">Failed to load captcha</string>
     <string name="reply_captcha_tap_to_reload">Tap to reload the captcha</string>
-    
+
     <string name="delete">Delete</string>
     <string name="delete_confirm">Delete your post?</string>
     <string name="delete_wait">Deleting post…</string>
@@ -93,33 +93,33 @@
     <string name="delete_too_old">You cannot delete a post this old</string>
     <string name="delete_fail">Error deleting post</string>
     <string name="delete_image_only">Only delete the image</string>
-    
+
     <string name="preference_watch_settings">Thread watcher</string>
     <string name="preference_pass_settings">4chan pass</string>
-    
+
     <string name="preference_general">General</string>
     <string name="preference_open_link_confirmation">Ask before opening links</string>
     <string name="preference_autoplay">Start playing videos directly</string>
-    
+
     <string name="preference_default_name">Default name</string>
     <string name="preference_default_email">Default email</string>
-    
+
     <string name="preference_about">About</string>
     <string name="preference_licenses">Open Source Licenses</string>
     <string name="preference_licences_summary">Legal information about licenses</string>
     <string name="preference_developer">Developer options</string>
-    
+
     <string name="open_link_confirmation">Open link?</string>
-    
+
     <string name="watch_pause_pins">Stop watching</string>
-    
+
     <string name="watch_summary_disabled">Off</string>
     <string name="watch_summary_enabled">Watching pinned threads</string>
     <string name="watch_info_text">To watch pins for new posts, turn the thread watcher on.</string>
-    
+
     <string name="watch_enable_background">Enable in the background</string>
-    <string name="watch_enable_background_on">Watching pins when Chan is in the background</string>
-    <string name="watch_enable_background_off">Not watching when Chan is in the background</string>
+    <string name="watch_enable_background_on">Watching pins when Clover is in the background</string>
+    <string name="watch_enable_background_off">Not watching when Clover is in the background</string>
     <string name="watch_background_timeout_description">Time between reloads in background</string>
     <string-array name="watch_background_timeouts">
         <item>1 minute</item>
@@ -139,7 +139,7 @@
         <item>1800</item>
         <item>3600</item>
     </string-array>
-    
+
     <string name="pass_info_text">4chan pass enables you to post without filling in CAPTCHAs</string>
     <string name="pass_info_learn_more">Learn more</string>
     <string name="pass_info_link">https://www.4chan.org/pass</string>
@@ -151,7 +151,7 @@
     <string name="pass_summary_enabled">Using 4chan pass</string>
     <string name="pass_summary_disabled">Off</string>
     <string name="pass_using">Using 4chan pass</string>
-    
+
     <string name="download_confirm">COUNT images will be downloaded to FOLDER</string>
 </resources>
 

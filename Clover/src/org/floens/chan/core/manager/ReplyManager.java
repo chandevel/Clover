@@ -465,7 +465,7 @@ public class ReplyManager {
 
         /**
          * Raw html from the response. Used to set html in an WebView to the
-         * client, when the error was not recognized by Chan.
+         * client, when the error was not recognized by Clover.
          */
         public String responseData = "";
     }

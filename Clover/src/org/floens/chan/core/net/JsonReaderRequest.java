@@ -59,8 +59,6 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
 
             JsonReader reader = new JsonReader(new InputStreamReader(baos, "UTF-8"));
 
-            // long start = System.currentTimeMillis();
-
             T read = readJson(reader);
 
             try {
@@ -68,8 +66,6 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            // Log.e("Chan", "Total time: " + (System.currentTimeMillis() - start));
 
             if (read == null) {
                 return Response.error(new VolleyError());
