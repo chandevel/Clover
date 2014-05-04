@@ -69,55 +69,51 @@ a:hover {
     position: relative;
     width: 100%;
     z-index: 5;
-    margin-top: 460px;
-    left: 0;
+    margin: 460px 0 0 0;
     background: #fff;
-    min-height: 460px;
 }
 
-.floating {
-    width: 800px;
-    height: 400px;
+.container {
+    max-width: 900px;
     margin: 0 auto;
 }
 
-.features {
-    font-size: 20px;
-    line-height: 50px;
-}
-
-.left {
-    margin: 40px 0 0 0;
+.box {
+    min-width: 300px;
     float: left;
 }
 
-.right {
-    margin: 40px 0 0 0;
+.float-right {
     float: right;
+}
+
+.features {
+    margin: 50px 0 0 0;
+    font-size: 20px;
+    line-height: 50px;
 }
 
 .features span {
     width: 30px;
 }
 
+.features.right {
+    min-width: 220px;
+    padding-left: 50px;
+}
+
 .screenshots {
     position: relative;
     top: -100px;
-    margin: 0 auto;
-    width: 300px;
-    height: 500px;
+    height: 400px;
 }
 
 #slideshow {
     position: relative;
 }
 
-#screenshots {
-    position: relative;
-    top: -100px;
-    margin: 0 auto;
-    width: 300px;
-    height: 500px;
+.clear {
+    clear: both;
 }
 
 .phone {
@@ -126,10 +122,15 @@ a:hover {
     width: 300px;
 }
 
+.bitcoin {
+    font-size: 12px;
+    padding: 6px 0;
+}
+
 .footer {
+    margin: 50px 0 0 0;
     text-align: center;
-    height: 30px;
-    margin: 50px auto 100px auto;
+    height: 140px;
     background: #fff;
 }
 
@@ -141,68 +142,27 @@ a:hover {
     color: #777;
 }
 
-/* Mobile Devices (Tablets) */
-@media all and (max-width: 950px) and (min-width: 550px){
-    .wrapper {
-        height: 800px;
+@media (max-width: 899px) {
+    .box {
+        width: 100%;
     }
 
-    .floating {
-        width: 100%;
+    .screenshots {
+        top: 0;
+        height: 450px;
     }
 
     .features {
-        height: 420px; /* blaze it */
-        width: 100%;
-    }
-
-    .right {
-        float: right;
-        margin-right: 0;
         text-align: center;
-        width: 49%;
     }
 
-    .left {
-        float: left;
-        text-align: center;
-        width: 49%;
+    #slideshow {
+        width: 300px;
+        margin: 0 auto;
     }
 
-    .footer {
-        padding-top: 400px;
-    }
-}
-
-/* Mobile Devices (Phones) */
-@media all and (max-width: 549px) {
-    .wrapper {
-        height: 800px;
-    }
-
-    .floating {
-        width: 100%;
-    }
-
-    .features {
-        height: 800px;
-        width: 100%;
-    }
-
-    .right {
-        float: right;
-        margin-right: 0;
-        text-align: center;
-        width: 100%;
-    }
-
-    .left {
-        float: left;
-        text-align: center;
-        width: 100%;
-    }
-
-    .footer {
-        padding-top: 800px;
+    .features.right {
+        min-width: 300px;
+        padding-left: 0;
     }
 }
