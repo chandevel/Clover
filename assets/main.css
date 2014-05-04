@@ -122,16 +122,21 @@ a:hover {
     width: 300px;
 }
 
-.bitcoin {
+.donate {
+    margin: 50px 0 80px 0;
+    text-align: center;
+    height: 50px;
     font-size: 12px;
-    padding: 6px 0;
+}
+
+.bitcoin {
+    padding: 8px 0;
 }
 
 .footer {
-    margin: 50px 0 0 0;
+    margin: 0 0 50px 0;
     text-align: center;
-    height: 140px;
-    background: #fff;
+    height: 40px;
 }
 
 .footer a {
