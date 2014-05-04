@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -80,7 +80,7 @@ public class ReplyManager {
 
     /**
      * Set an reply draft.
-     * 
+     *
      * @param value
      *            the draft to save.
      */
@@ -90,7 +90,7 @@ public class ReplyManager {
 
     /**
      * Gets the saved reply draft.
-     * 
+     *
      * @return the saved draft or an empty draft.
      */
     public Reply getReplyDraft() {
@@ -99,7 +99,7 @@ public class ReplyManager {
 
     /**
      * Add an quote to the comment field. Looks like >>123456789\n
-     * 
+     *
      * @param no
      *            the raw no to quote to.
      */
@@ -109,7 +109,7 @@ public class ReplyManager {
 
     /**
      * Pick an file. Starts up the ImagePickActivity.
-     * 
+     *
      * @param listener
      *            FileListener to listen on.
      */
@@ -156,7 +156,7 @@ public class ReplyManager {
 
     /**
      * Get the CAPTCHA challenge hash from an JSON response.
-     * 
+     *
      * @param total
      *            The total response from the server
      * @return The pattern, or null when none was found.
@@ -263,7 +263,7 @@ public class ReplyManager {
 
     /**
      * Send an reply off to the server.
-     * 
+     *
      * @param reply
      *            The reply object with all data needed, like captcha and the
      *            file.
@@ -340,7 +340,7 @@ public class ReplyManager {
 
     /**
      * Send an reply off to the server.
-     * 
+     *
      * @param reply
      *            The reply object with all data needed, like captcha and the
      *            file.

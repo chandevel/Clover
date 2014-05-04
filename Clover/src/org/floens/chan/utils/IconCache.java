@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ public class IconCache {
 
     /**
      * Load the icons in the cache. Lightweight icons only! Icons can be null!
-     * 
+     *
      * @param context
      */
     public static void createIcons(final Context context) {

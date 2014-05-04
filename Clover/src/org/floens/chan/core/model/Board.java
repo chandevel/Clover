@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,14 +24,14 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Board {
     public Board() {
     }
-    
+
     public Board(String key, String value, boolean saved, boolean workSafe) {
         this.key = key;
         this.value = value;
         this.saved = saved;
         this.workSafe = workSafe;
     }
-    
+
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -66,7 +66,7 @@ public class Board {
     public String toString() {
         return key;
     }
-    
+
     public boolean valueEquals(Board other) {
         return value.equals(other.value);
     }

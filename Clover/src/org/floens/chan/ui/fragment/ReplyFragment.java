@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -309,7 +309,7 @@ public class ReplyFragment extends DialogFragment {
     /**
      * Flip to an page with an animation. Sets the correct text on the
      * cancelButton:
-     * 
+     *
      * @param position
      *            0-2
      */
@@ -340,7 +340,7 @@ public class ReplyFragment extends DialogFragment {
     /**
      * Set the picked image in the imageView. Sets the file in the draft. Call
      * null on the file to empty the imageView.
-     * 
+     *
      * @param imagePath
      *            file to image to send or null to clear
      */
@@ -482,7 +482,7 @@ public class ReplyFragment extends DialogFragment {
 
     /**
      * Got response about or reply from ReplyManager
-     * 
+     *
      * @param response
      */
     private void handleSubmitResponse(ReplyResponse response) {

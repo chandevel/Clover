@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -142,7 +142,7 @@ public class DatabaseManager {
                     for (Board b : boards) {
                         helper.boardsDao.createOrUpdate(b);
                     }
-                    
+
                     return null;
                 }
             });
@@ -150,7 +150,7 @@ public class DatabaseManager {
             Logger.e(TAG, "Error setting boards in db", e);
         }
     }
-    
+
     public void updateBoards(final List<Board> boards) {
         try {
             helper.boardsDao.callBatchTasks(new Callable<Void>() {
@@ -160,9 +160,9 @@ public class DatabaseManager {
                     for (Board b : boards) {
                         helper.boardsDao.update(b);
                     }
-                    
+
                     Logger.d(TAG, "Update board took " + Time.get(start));
-                    
+
                     return null;
                 }
             });
@@ -178,7 +178,7 @@ public class DatabaseManager {
         } catch (SQLException e) {
             Logger.e(TAG, "Error getting boards from db", e);
         }
-        
+
         return boards;
     }
 

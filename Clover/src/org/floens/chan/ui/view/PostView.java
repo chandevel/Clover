@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -81,7 +81,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     /**
      * Represents a post. Use setPost(Post ThreadManager) to fill it with data.
      * setPost can be called multiple times (useful for ListView).
-     * 
+     *
      * @param activity
      */
     public PostView(Context activity) {

@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -52,7 +52,7 @@ public class ChanPreferences {
     /**
      * This also calls updateRunningState on the PinnedService to start/stop the
      * service as needed.
-     * 
+     *
      * @param enabled
      */
     public static void setWatchEnabled(boolean enabled) {
@@ -85,19 +85,19 @@ public class ChanPreferences {
             ChanApplication.getPreferences().edit().putBoolean("preference_pass_enabled", enabled).commit();
         }
     }
-    
+
     public static String getPassToken() {
         return ChanApplication.getPreferences().getString("preference_pass_token", "");
     }
-    
+
     public static String getPassPin() {
         return ChanApplication.getPreferences().getString("preference_pass_pin", "");
     }
-    
+
     public static void setPassId(String id) {
         ChanApplication.getPreferences().edit().putString("preference_pass_id", id).commit();
     }
-    
+
     public static String getPassId() {
         return ChanApplication.getPreferences().getString("preference_pass_id", "");
     }

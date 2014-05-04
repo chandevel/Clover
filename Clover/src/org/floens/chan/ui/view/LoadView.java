@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -57,7 +57,7 @@ public class LoadView extends FrameLayout {
     /**
      * Set the content of this container. It will fade the old one out with the
      * new one. Set view to null to show the progressbar.
-     * 
+     *
      * @param view
      *            the view or null for a progressbar.
      */

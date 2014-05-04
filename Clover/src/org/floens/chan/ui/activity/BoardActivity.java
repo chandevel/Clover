@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -94,7 +94,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             if (boardLoadable.mode == Loadable.Mode.INVALID) {
                 List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
                 if (savedValues.size() > 0) {
-                    loadBoard(savedValues.get(0));                    
+                    loadBoard(savedValues.get(0));
                 }
             }
         }
@@ -166,7 +166,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         LayoutParams rightParams = right.getLayoutParams();
 
         // Content view dp's:
-        // Nexus 4 is 384 x 640 dp 
+        // Nexus 4 is 384 x 640 dp
         // Nexus 7 is 600 x 960 dp
         // Nexus 10 is 800 x 1280 dp
 
@@ -389,7 +389,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
     /**
      * Sets the navigator to appropriately and calls startLoadingBoard
-     * 
+     *
      * @param board
      */
     private void loadBoard(String board) {
@@ -465,7 +465,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
     /**
      * Handle opening from an external url.
-     * 
+     *
      * @param startUri
      */
     private void handleIntentURI(Uri startUri) {

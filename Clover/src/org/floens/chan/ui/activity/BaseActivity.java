@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -71,14 +71,14 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     /**
      * Called when a post has been clicked in the pinned drawer
-     * 
+     *
      * @param post
      */
     abstract public void openPin(Pin post);
 
     /**
      * Called when a post has been clicked in the listview
-     * 
+     *
      * @param post
      */
     abstract public void onOPClicked(Post post);
@@ -151,7 +151,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 return true;
             }
         });
-        
+
         SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(pinDrawerView,
                 new DismissCallbacks() {
                     @Override
@@ -166,7 +166,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                         return pinnedAdapter.getItem(position).type != Pin.Type.HEADER;
                     }
                 });
-        
+
         touchListener.setSlop((int) (touchListener.getSlop() * 0.4f));
 
         pinDrawerView.setOnTouchListener(touchListener);
@@ -280,7 +280,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     /**
      * Set the url that Android Beam and the share action will send.
-     * 
+     *
      * @param url
      */
     public void setShareUrl(String url) {
@@ -313,7 +313,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     /**
      * Let the user choose between all activities that can open the url. This is
      * done to prevent "open in browser" opening the url in our own app.
-     * 
+     *
      * @param url
      */
     public void showUrlOpenPicker(String url) {

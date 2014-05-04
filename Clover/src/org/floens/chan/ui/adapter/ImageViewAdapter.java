@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -69,7 +69,7 @@ public class ImageViewAdapter extends FragmentStatePagerAdapter {
 
         notifyDataSetChanged();
     }
-    
+
     public List<Post> getList() {
         return postList;
     }

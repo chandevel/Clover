@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ package org.floens.chan.core.model;
 public class Pass {
     public String token = "";
     public String pin = "";
-    
+
     public Pass(String token, String pin) {
         this.token = token;
         this.pin = pin;

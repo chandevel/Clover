@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -333,7 +333,7 @@ public class ThreadManager implements Loader.LoaderListener {
      * When the user clicks a post: a. when there's one linkable, open the
      * linkable. b. when there's more than one linkable, show the user multiple
      * options to select from.
-     * 
+     *
      * @param post
      *            The post that was clicked.
      */
@@ -379,7 +379,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     /**
      * Handle when a linkable has been clicked.
-     * 
+     *
      * @param linkable
      *            the selected linkable.
      */
@@ -410,7 +410,7 @@ public class ThreadManager implements Loader.LoaderListener {
     /**
      * When a linkable to a post has been clicked, show a dialog with the
      * referenced post in it.
-     * 
+     *
      * @param linkable
      *            the clicked linkable.
      */
@@ -440,7 +440,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     /**
      * Open an url.
-     * 
+     *
      * @param linkable
      *            Linkable with an url.
      */

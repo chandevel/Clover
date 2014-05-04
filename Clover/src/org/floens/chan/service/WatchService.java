@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -207,7 +207,7 @@ public class WatchService extends Service {
 
     /**
      * Returns the sleep time the user specified for background iteration
-     * 
+     *
      * @return the sleep time in ms, or -1 if background reloading is disabled
      */
     private long getBackgroundTimeout() {

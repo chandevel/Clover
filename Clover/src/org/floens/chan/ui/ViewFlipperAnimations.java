@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ public class ViewFlipperAnimations {
     public static TranslateAnimation NEXT_OUT;
 
     static {
-        // Setup the static TranslateAnimations for the ViewFlipper 
+        // Setup the static TranslateAnimations for the ViewFlipper
         BACK_IN = new TranslateAnimation(Animation.RELATIVE_TO_PARENT, -1f, Animation.RELATIVE_TO_PARENT, 0f, 0, 0f, 0,
                 0f);
         BACK_IN.setInterpolator(new AccelerateDecelerateInterpolator());

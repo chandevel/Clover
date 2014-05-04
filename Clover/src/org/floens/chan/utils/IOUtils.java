@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@ public class IOUtils {
 
     /**
      * Copies the inputstream to the outputstream and closes both streams.
-     * 
+     *
      * @param is
      * @param os
      * @throws IOException

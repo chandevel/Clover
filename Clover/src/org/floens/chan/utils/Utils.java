@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -61,7 +61,7 @@ public class Utils {
     /**
      * Sets the android.R.attr.selectableItemBackground as background drawable
      * on the view.
-     * 
+     *
      * @param view
      */
     @SuppressWarnings("deprecation")
@@ -83,13 +83,13 @@ public class Utils {
     /**
      * Causes the runnable to be added to the message queue. The runnable will
      * be run on the ui thread.
-     * 
+     *
      * @param runnable
      */
     public static void runOnUiThread(Runnable runnable) {
         new Handler(Looper.getMainLooper()).post(runnable);
     }
-    
+
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
         view.requestFocus();
         dialog.setOnShowListener(new OnShowListener() {
@@ -100,7 +100,7 @@ public class Utils {
             }
         });
     }
-    
+
     public static void openLink(Context context, String link) {
         try {
             context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(link)));

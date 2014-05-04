@@ -1,5 +1,5 @@
 /*
- * Chan - 4chan browser https://github.com/Floens/Chan/
+ * Clover - 4chan browser https://github.com/Floens/Clover/
  * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ public class BoardManager {
         @Override
         public int compare(Board lhs, Board rhs) {
             return lhs.order < rhs.order ? -1 : 1;
-        }            
+        }
     };
 
     private List<Board> allBoards;
@@ -61,7 +61,7 @@ public class BoardManager {
             if (b.saved)
                 saved.add(b);
         }
-        
+
         Collections.sort(saved, savedOrder);
 
         return saved;
@@ -99,10 +99,10 @@ public class BoardManager {
         ChanApplication.getDatabaseManager().updateBoards(allBoards);
         reloadSavedKeysValues();
     }
-    
+
     private void reloadSavedKeysValues() {
         List<Board> saved = getSavedBoards();
-        
+
         savedKeys.clear();
         for (Board board : saved) {
             savedKeys.add(board.key);
@@ -116,13 +116,13 @@ public class BoardManager {
 
     private void storeBoards() {
         Logger.d(TAG, "Storing boards in database");
-        
+
         for (Board test : allBoards) {
             if (test.saved) {
                 Logger.w(TAG, "Board with value " + test.value + " saved");
             }
         }
-        
+
         ChanApplication.getDatabaseManager().setBoards(allBoards);
     }
 
@@ -133,10 +133,10 @@ public class BoardManager {
             allBoards = getDefaultBoards();
             storeBoards();
         }
-        
+
         reloadSavedKeysValues();
     }
-    
+
     private void setBoardsFromServer(List<Board> list) {
         boolean changed = false;
         for (Board serverBoard : list) {
@@ -147,14 +147,14 @@ public class BoardManager {
                     break;
                 }
             }
-            
+
             if (!has) {
                 Logger.d(TAG, "Adding unknown board: " + serverBoard.value);
                 allBoards.add(serverBoard);
                 changed = true;
             }
         }
-        
+
         if (changed) {
             storeBoards();
         }
