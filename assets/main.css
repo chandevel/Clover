@@ -129,7 +129,7 @@ a:hover {
 .footer {
     text-align: center;
     height: 30px;
-    margin: 50px auto;
+    margin: 50px auto 100px auto;
     background: #fff;
 }
 
