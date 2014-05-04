@@ -98,9 +98,6 @@ public class PinWatcher implements Loader.LoaderListener {
         if (pin.watchLastCount < 0)
             pin.watchLastCount = pin.watchNewCount;
 
-        if (pin.quoteLastCount < 0)
-            pin.quoteLastCount = pin.quoteNewCount;
-
         pin.watchNewCount = result.size();
 
         // Get list of saved posts
@@ -111,7 +108,8 @@ public class PinWatcher implements Loader.LoaderListener {
             }
         }
 
-        int lastCount = pin.quoteNewCount;
+        // If there are more replies than last time, let the notification make a sound
+        int lastCounterForSoundNotification = pin.quoteNewCount;
 
         // Find posts quoting these saved posts
         pin.quoteNewCount = 0;
@@ -124,7 +122,7 @@ public class PinWatcher implements Loader.LoaderListener {
             }
         }
 
-        if (pin.quoteNewCount > lastCount) {
+        if (pin.quoteNewCount > lastCounterForSoundNotification) {
             wereNewQuotes = true;
         }
 

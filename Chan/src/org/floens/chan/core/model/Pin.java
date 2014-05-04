@@ -36,10 +36,10 @@ public class Pin {
     public int watchNewCount = -1;
 
     @DatabaseField
-    public int quoteLastCount = -1;
+    public int quoteLastCount = 0;
 
     @DatabaseField
-    public int quoteNewCount = -1;
+    public int quoteNewCount = 0;
 
     public boolean isError = false;
 
@@ -85,7 +85,7 @@ public class Pin {
             pinWatcher = null;
         }
     }
-    
+
     public void toggleWatch() {
         watching = !watching;
         ChanApplication.getPinnedManager().onPinsChanged();
