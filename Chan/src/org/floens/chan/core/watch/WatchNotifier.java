@@ -128,10 +128,17 @@ public class WatchNotifier {
 
             List<CharSequence> lines = new ArrayList<CharSequence>();
             for (Post post : posts) {
-                if (pins.size() > 1) {
-                    lines.add(post.title + ": " + post.comment);
+                CharSequence comment;
+                if (post.comment.length() == 0) {
+                    comment = "(image)";
                 } else {
-                    lines.add(post.comment);
+                    comment = post.comment;
+                }
+
+                if (pins.size() > 1) {
+                    lines.add(post.title + ": " + comment);
+                } else {
+                    lines.add(comment);
                 }
             }
 
