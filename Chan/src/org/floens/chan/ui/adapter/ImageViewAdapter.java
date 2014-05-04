@@ -18,6 +18,7 @@
 package org.floens.chan.ui.adapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.ImageViewActivity;
@@ -67,5 +68,9 @@ public class ImageViewAdapter extends FragmentStatePagerAdapter {
         postList.addAll(list);
 
         notifyDataSetChanged();
+    }
+    
+    public List<Post> getList() {
+        return postList;
     }
 }

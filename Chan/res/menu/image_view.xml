@@ -12,18 +12,20 @@
         android:orderInCategory="2"
         android:showAsAction="never"
         android:title="@string/image_save"/>
-    
     <item
         android:id="@+id/action_open_browser"
         android:orderInCategory="3"
         android:showAsAction="never"
-        android:title="@string/action_open_browser" />
-    
-    <item 
+        android:title="@string/action_open_browser"/>
+    <item
         android:id="@+id/action_share"
         android:orderInCategory="4"
         android:showAsAction="never"
-        android:title="@string/action_share" />
-        
+        android:title="@string/action_share"/>
+    <item
+        android:id="@+id/action_download_album"
+        android:orderInCategory="5"
+        android:showAsAction="never"
+        android:title="@string/action_download_album"/>
 
 </menu>

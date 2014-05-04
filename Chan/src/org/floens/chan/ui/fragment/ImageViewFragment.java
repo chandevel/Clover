@@ -132,7 +132,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     public void onDeselected() {
-        if (imageView != null && imageView.getVideoView() != null && imageView.getVideoView().isPlaying()) {
+        if (imageView != null && imageView.getVideoView() != null) {
             imageView.getVideoView().pause();
         }
     }

@@ -18,16 +18,19 @@
 package org.floens.chan.ui.activity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.fragment.ImageViewFragment;
+import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Logger;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
@@ -160,6 +163,24 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_download_album) {
+            List<Uri> uris = new ArrayList<Uri>();
+            Post aPost = null;
+            for (Post post : adapter.getList()) {
+                uris.add(Uri.parse(post.imageUrl));
+                aPost = post;
+            }
+
+            if (uris.size() > 0) {
+                String name = "downloaded";
+                if (aPost != null) {
+                    name = aPost.board + "_" + aPost.resto;
+                }
+
+                ImageSaver.saveAll(this, name, uris);
+            }
+
             return true;
         } else {
             ImageViewFragment fragment = getFragment(currentPosition);

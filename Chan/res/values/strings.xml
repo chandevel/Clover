@@ -20,6 +20,7 @@
     <string name="action_open_browser">Open in browser</string>
     <string name="action_catalog">Open catalog</string>
     <string name="action_share">Share</string>
+    <string name="action_download_album">Download album</string>
     
     <string name="open_unknown_title">Unsupported link</string>
     <string name="open_unknown">Chan can\'t open this link. Opening it in your browser instead.</string>
@@ -150,6 +151,8 @@
     <string name="pass_summary_enabled">Using 4chan pass</string>
     <string name="pass_summary_disabled">Off</string>
     <string name="pass_using">Using 4chan pass</string>
+    
+    <string name="download_confirm">COUNT images will be downloaded to FOLDER</string>
 </resources>
 
 
