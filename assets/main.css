@@ -1,0 +1,208 @@
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    font-family: "Open Sans", sans-serif, Helvetica, Arial;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+a:hover {
+    color: #fff;
+}
+
+.github {
+    position: fixed;
+    z-index: 50;
+    height: 100px;
+    width: 100px;
+    float: right;
+    right: 0px;
+    top: 0px;
+}
+
+.header {
+    position: fixed;
+    z-index: 1;
+    height: 460px;
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    background: url('img/bg-china.jpg') no-repeat;
+    top: -1px;
+    background-position: center;
+}
+
+.header p {
+    margin-top: 120px;
+    color: #FFF;
+    font-size: 24px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+    line-height: 50px;
+}
+
+.dllinks {
+    color: #FFF;
+    margin-top: 55px;
+}
+
+.dllinks .top {
+    font-size: 12px;
+    opacity:  0.7;
+}
+
+.dllinks a {
+    color: #fff;
+}
+
+.dllinks a:hover {
+    color: #ddd;
+}
+
+.wrapper {
+    position: relative;
+    width: 100%;
+    z-index: 5;
+    margin-top: 460px;
+    left: 0;
+    background: #fff;
+    min-height: 460px;
+}
+
+.floating {
+    width: 800px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+.features {
+    font-size: 20px;
+    line-height: 50px;
+}
+
+.left {
+    margin: 40px 0 0 0;
+    float: left;
+}
+
+.right {
+    margin: 40px 0 0 0;
+    float: right;
+}
+
+.features span {
+    width: 30px;
+}
+
+.screenshots {
+    position: relative;
+    top: -100px;
+    margin: 0 auto;
+    width: 300px;
+    height: 500px;
+}
+
+#slideshow {
+    position: relative;
+}
+
+#screenshots {
+    position: relative;
+    top: -100px;
+    margin: 0 auto;
+    width: 300px;
+    height: 500px;
+}
+
+.phone {
+    position: absolute;
+    left: 0;
+    width: 300px;
+}
+
+.footer {
+    text-align: center;
+    height: 30px;
+    margin: 50px auto;
+    background: #fff;
+}
+
+.footer a {
+    color: #000;
+}
+
+.footer a:hover {
+    color: #777;
+}
+
+/* Mobile Devices (Tablets) */
+@media all and (max-width: 950px) and (min-width: 550px){
+    .wrapper {
+        height: 800px;
+    }
+
+    .floating {
+        width: 100%;
+    }
+
+    .features {
+        height: 420px; /* blaze it */
+        width: 100%;
+    }
+
+    .right {
+        float: right;
+        margin-right: 0;
+        text-align: center;
+        width: 49%;
+    }
+
+    .left {
+        float: left;
+        text-align: center;
+        width: 49%;
+    }
+
+    .footer {
+        padding-top: 400px;
+    }
+}
+
+/* Mobile Devices (Phones) */
+@media all and (max-width: 549px) {
+    .wrapper {
+        height: 800px;
+    }
+
+    .floating {
+        width: 100%;
+    }
+
+    .features {
+        height: 800px;
+        width: 100%;
+    }
+
+    .right {
+        float: right;
+        margin-right: 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .left {
+        float: left;
+        text-align: center;
+        width: 100%;
+    }
+
+    .footer {
+        padding-top: 800px;
+    }
+}
