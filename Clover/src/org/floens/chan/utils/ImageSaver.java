@@ -55,6 +55,8 @@ public class ImageSaver {
             folder = Environment.getExternalStoragePublicDirectory(folderPath);
         }
 
+        folder.mkdirs();
+
         final String finalFolderPath = folderPath;
         String text = context.getString(R.string.download_confirm).replace("COUNT", Integer.toString(list.size()))
                 .replace("FOLDER", folderPath);
