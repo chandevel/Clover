@@ -87,7 +87,7 @@ public class ReplyFragment extends DialogFragment {
     private FloatLabelEditText nameView;
     private FloatLabelEditText emailView;
     private FloatLabelEditText subjectView;
-    private FloatLabelEditText commentView;
+    private EditText commentView;
     private EditText fileNameView;
     private LoadView imageViewContainer;
     private LoadView captchaContainer;
@@ -162,7 +162,7 @@ public class ReplyFragment extends DialogFragment {
             nameView.getEditText().setText(draft.name);
             emailView.getEditText().setText(draft.email);
             subjectView.getEditText().setText(draft.subject);
-            commentView.getEditText().setText(draft.comment);
+            commentView.setText(draft.comment);
             setFile(draft.fileName, draft.file);
 
             getCaptcha();
@@ -214,7 +214,9 @@ public class ReplyFragment extends DialogFragment {
         nameView = (FloatLabelEditText) container.findViewById(R.id.reply_name);
         emailView = (FloatLabelEditText) container.findViewById(R.id.reply_email);
         subjectView = (FloatLabelEditText) container.findViewById(R.id.reply_subject);
-        commentView = (FloatLabelEditText) container.findViewById(R.id.reply_comment);
+        commentView = (EditText) container.findViewById(R.id.reply_comment);
+        commentView.requestFocus();
+
         imageViewContainer = (LoadView) container.findViewById(R.id.reply_image);
         responseContainer = (LoadView) container.findViewById(R.id.reply_response);
         captchaContainer = (LoadView) container.findViewById(R.id.reply_captcha_container);
@@ -309,7 +311,7 @@ public class ReplyFragment extends DialogFragment {
     /**
      * Flip to an page with an animation. Sets the correct text on the
      * cancelButton:
-     *
+     * 
      * @param position
      *            0-2
      */
@@ -340,7 +342,7 @@ public class ReplyFragment extends DialogFragment {
     /**
      * Set the picked image in the imageView. Sets the file in the draft. Call
      * null on the file to empty the imageView.
-     *
+     * 
      * @param imagePath
      *            file to image to send or null to clear
      */
@@ -482,7 +484,7 @@ public class ReplyFragment extends DialogFragment {
 
     /**
      * Got response about or reply from ReplyManager
-     *
+     * 
      * @param response
      */
     private void handleSubmitResponse(ReplyResponse response) {
