@@ -97,9 +97,11 @@ public class BoardEditor extends Activity {
                     @Override
                     public void onDismiss(ListView listView, int[] reverseSortedPositions) {
                         for (int position : reverseSortedPositions) {
-                            Board b = adapter.getItem(position);
-                            adapter.remove(b);
-                            b.saved = false;
+                            if (position >= 0 && position < adapter.getCount()) {
+                                Board b = adapter.getItem(position);
+                                adapter.remove(b);
+                                b.saved = false;
+                            }
                         }
 
                         adapter.notifyDataSetChanged();
