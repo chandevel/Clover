@@ -2,17 +2,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <Preference
+        android:summary="@string/board_edit_summary"
+        android:title="@string/board_edit" >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="org.floens.chan.ui.activity.BoardEditor"
+            android:targetPackage="org.floens.chan" />
+    </Preference>
+    <Preference
         android:key="watch_settings"
         android:title="@string/preference_watch_settings" >
         <intent
             android:action="android.intent.action.VIEW"
             android:targetClass="org.floens.chan.ui.activity.WatchSettingsActivity"
-            android:targetPackage="org.floens.chan" />
-    </Preference>
-    <Preference android:title="@string/board_edit" >
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetClass="org.floens.chan.ui.activity.BoardEditor"
             android:targetPackage="org.floens.chan" />
     </Preference>
     <Preference

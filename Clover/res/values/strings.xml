@@ -41,7 +41,8 @@
     <string name="thread_load_failed_server">404 not found</string>
     <string name="thread_load_end_of_line">No more posts</string>
 
-    <string name="board_edit">Edit my boards</string>
+    <string name="board_edit">Edit available boards</string>
+    <string name="board_edit_summary">Add or remove boards</string>
     <string name="board_add">Add board</string>
     <string name="board_add_success">Added board</string>
     <string name="board_add_duplicate">Board already added</string>
