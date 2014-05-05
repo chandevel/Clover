@@ -45,6 +45,7 @@ public class PostAdapter extends BaseAdapter {
     private boolean endOfLine;
     private final List<Post> postList = new ArrayList<Post>();
     private long lastViewedTime = 0;
+    private String loadMessage = null;
 
     public PostAdapter(Context activity, ThreadManager threadManager, ListView listView) {
         context = activity;
@@ -177,5 +178,13 @@ public class PostAdapter extends BaseAdapter {
                 break;
             }
         }
+    }
+
+    public void setErrorMessage(String loadMessage) {
+        this.loadMessage = loadMessage;
+    }
+
+    public String getErrorMessage() {
+        return loadMessage;
     }
 }

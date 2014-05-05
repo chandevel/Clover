@@ -61,7 +61,7 @@ public class Loader {
 
     /**
      * Add a LoaderListener
-     *
+     * 
      * @param l
      *            the listener to add
      */
@@ -71,7 +71,7 @@ public class Loader {
 
     /**
      * Remove a LoaderListener
-     *
+     * 
      * @param l
      *            the listener to remove
      * @return true if there are no more listeners, false otherwise
@@ -183,7 +183,7 @@ public class Loader {
 
     /**
      * Get the time in milliseconds until another loadMore is recommended
-     *
+     * 
      * @return
      */
     public long getTimeUntilLoadMore() {

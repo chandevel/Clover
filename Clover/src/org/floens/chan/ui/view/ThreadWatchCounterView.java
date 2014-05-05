@@ -19,19 +19,19 @@ package org.floens.chan.ui.view;
 
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.ui.adapter.PostAdapter;
 
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class ThreadWatchCounterView extends TextView implements View.OnClickListener {
     private boolean detached = false;
     private ThreadManager tm;
-    private BaseAdapter ad;
+    private PostAdapter ad;
 
     public ThreadWatchCounterView(Context activity) {
         super(activity);
@@ -45,7 +45,7 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
         super(activity, attbs, style);
     }
 
-    public void init(final ThreadManager threadManager, final ListView listView, final BaseAdapter adapter) {
+    public void init(final ThreadManager threadManager, final ListView listView, final PostAdapter adapter) {
         tm = threadManager;
         ad = adapter;
 
@@ -89,10 +89,15 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
 
         int time = Math.round(loader.getTimeUntilLoadMore() / 1000f);
 
-        if (time <= 0) {
-            setText("Loading");
+        String error = ad.getErrorMessage();
+        if (error != null) {
+            setText(error);
         } else {
-            setText("Loading in " + time);
+            if (time <= 0) {
+                setText("Loading");
+            } else {
+                setText("Loading in " + time);
+            }
         }
     }
 }

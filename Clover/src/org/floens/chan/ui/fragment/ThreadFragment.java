@@ -175,6 +175,8 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             }
         }
 
+        postAdapter.setErrorMessage(null);
+
         if (append) {
             postAdapter.appendList(posts);
         } else {
@@ -187,20 +189,36 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         if (error instanceof EndOfLineException) {
             postAdapter.setEndOfLine(true);
         } else {
-            if (container != null) {
-                container.setView(getLoadErrorTextView(error));
+            if (postAdapter == null) {
+                if (container != null) {
+                    container.setView(getLoadErrorTextView(error));
+                }
+            } else {
+                postAdapter.setErrorMessage(getLoadErrorText(error));
             }
         }
     }
 
     /**
      * Returns an TextView containing the appropriate error message
-     *
+     * 
      * @param error
      * @return
      */
-    public TextView getLoadErrorTextView(VolleyError error) {
-        String errorMessage = "";
+    private TextView getLoadErrorTextView(VolleyError error) {
+        String errorMessage = getLoadErrorText(error);
+
+        TextView view = new TextView(getActivity());
+        view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        view.setText(errorMessage);
+        view.setTextSize(24f);
+        view.setGravity(Gravity.CENTER);
+
+        return view;
+    }
+
+    private String getLoadErrorText(VolleyError error) {
+        String errorMessage = "error";
 
         if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
             errorMessage = getActivity().getString(R.string.thread_load_failed_network);
@@ -210,13 +228,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             errorMessage = getActivity().getString(R.string.thread_load_failed_parsing);
         }
 
-        TextView view = new TextView(getActivity());
-        view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        view.setText(errorMessage);
-        view.setTextSize(24f);
-        view.setGravity(Gravity.CENTER);
-
-        return view;
+        return errorMessage;
     }
 
     @Override
