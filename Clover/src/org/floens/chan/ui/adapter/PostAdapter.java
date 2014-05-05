@@ -45,7 +45,6 @@ public class PostAdapter extends BaseAdapter {
     private boolean endOfLine;
     private final List<Post> postList = new ArrayList<Post>();
     private long lastViewedTime = 0;
-    private int lastIndex;
 
     public PostAdapter(Context activity, ThreadManager threadManager, ListView listView) {
         context = activity;
@@ -65,7 +64,6 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public Post getItem(int position) {
-        lastIndex = position;
         return postList.get(position);
     }
 
@@ -169,7 +167,7 @@ public class PostAdapter extends BaseAdapter {
 
         for (int i = 0; i < postList.size(); i++) {
             if (postList.get(i).no == post.no) {
-                if (Math.abs(i - lastIndex) > 20) {
+                if (Math.abs(i - listView.getFirstVisiblePosition()) > 20) {
                     listView.setSelection(i);
                 } else {
                     ScrollerRunnable r = new ScrollerRunnable(listView);
