@@ -12,7 +12,7 @@
         android:paddingBottom="12dp"
         android:paddingStart="16dp"
         android:paddingTop="12dp"
-        android:color="#2333" />
+        android:color="#77111111" />
 
     <TextView
         android:id="@+id/text"

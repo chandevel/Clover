@@ -55,8 +55,6 @@ import android.widget.Toast;
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 
-;
-
 public class BoardEditor extends Activity {
     private final BoardManager boardManager = ChanApplication.getBoardManager();
 
