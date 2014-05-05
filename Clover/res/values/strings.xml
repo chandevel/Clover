@@ -44,6 +44,7 @@
     <string name="board_edit">Edit available boards</string>
     <string name="board_edit_summary">Add or remove boards</string>
     <string name="board_add">Add board</string>
+    <string name="board_add_hint">Board code e.g. lit</string>
     <string name="board_add_success">Added board</string>
     <string name="board_add_duplicate">Board already added</string>
     <string name="board_add_unknown_title">Unknown board code</string>

@@ -209,6 +209,7 @@ public class BoardEditor extends Activity {
         text.setAdapter(fillAdapter);
         text.setThreshold(1);
         text.setDropDownHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        text.setHint(R.string.board_add_hint);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
