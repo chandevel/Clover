@@ -28,6 +28,7 @@ import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.Utils;
 
 import android.app.Fragment;
 import android.content.Intent;
@@ -38,8 +39,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.LinearLayout.LayoutParams;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.NetworkError;
@@ -55,6 +57,8 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     private PostAdapter postAdapter;
     private LoadView container;
     private ListView listView;
+    private ImageView skip;
+    private SkipLogic skipLogic;
 
     public static ThreadFragment newInstance(BaseActivity activity) {
         ThreadFragment fragment = new ThreadFragment();
@@ -77,19 +81,6 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     public void requestData() {
         threadManager.requestData();
-    }
-
-    private void setEmpty() {
-        postAdapter = null;
-
-        if (container != null) {
-            container.setView(null);
-        }
-
-        if (listView != null) {
-            listView.setOnScrollListener(null);
-            listView = null;
-        }
     }
 
     public void reload() {
@@ -144,34 +135,55 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public void onThreadLoaded(List<Post> posts, boolean append) {
         if (postAdapter == null) {
+            RelativeLayout compound = new RelativeLayout(baseActivity);
             listView = new ListView(baseActivity);
 
             postAdapter = new PostAdapter(baseActivity, threadManager, listView);
 
-            listView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            listView.setLayoutParams(Utils.MATCH_PARAMS);
             listView.setAdapter(postAdapter);
             listView.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
 
-            if (threadManager.getLoadable().isThreadMode()) {
-                listView.setOnScrollListener(new OnScrollListener() {
-                    @Override
-                    public void onScrollStateChanged(AbsListView view, int scrollState) {
+            listView.setOnScrollListener(new OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    if (skipLogic != null) {
+                        skipLogic.onScrollStateChanged(view, scrollState);
                     }
+                }
 
-                    @Override
-                    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-                            int totalItemCount) {
-                        if (loadable != null) {
-                            loadable.listViewIndex = view.getFirstVisiblePosition();
-                            View v = view.getChildAt(0);
-                            loadable.listViewTop = (v == null) ? 0 : v.getTop();
-                        }
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (loadable != null) {
+                        loadable.listViewIndex = view.getFirstVisiblePosition();
+                        View v = view.getChildAt(0);
+                        loadable.listViewTop = (v == null) ? 0 : v.getTop();
                     }
-                });
+                    if (skipLogic != null) {
+                        skipLogic.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+                    }
+                }
+            });
+
+            compound.addView(listView);
+
+            if (loadable.isThreadMode()) {
+                skip = new ImageView(baseActivity);
+                skip.setImageResource(R.drawable.skip_arrow_down);
+                skip.setVisibility(View.GONE);
+                compound.addView(skip, Utils.WRAP_PARAMS);
+
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) skip.getLayoutParams();
+                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                params.setMargins(0, 0, Utils.dp(8), Utils.dp(8));
+                skip.setLayoutParams(params);
+
+                skipLogic = new SkipLogic(skip, listView);
             }
 
             if (container != null) {
-                container.setView(listView);
+                container.setView(compound);
             }
         }
 
@@ -182,6 +194,22 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         } else {
             postAdapter.setList(posts);
         }
+    }
+
+    private void setEmpty() {
+        postAdapter = null;
+
+        if (container != null) {
+            container.setView(null);
+        }
+
+        if (listView != null) {
+            listView.setOnScrollListener(null);
+            listView = null;
+        }
+
+        skip = null;
+        skipLogic = null;
     }
 
     @Override
@@ -209,7 +237,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         String errorMessage = getLoadErrorText(error);
 
         TextView view = new TextView(getActivity());
-        view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        view.setLayoutParams(Utils.MATCH_PARAMS);
         view.setText(errorMessage);
         view.setTextSize(24f);
         view.setGravity(Gravity.CENTER);
@@ -251,6 +279,67 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     public void onScrollTo(Post post) {
         if (postAdapter != null) {
             postAdapter.scrollToPost(post);
+        }
+    }
+
+    private static class SkipLogic {
+        private final ImageView skip;
+        private int lastFirstVisibleItem;
+        private int lastTop;
+        private boolean up = false;
+        private final AbsListView listView;
+
+        public SkipLogic(ImageView skipView, AbsListView list) {
+            skip = skipView;
+            listView = list;
+            skip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (up) {
+                        listView.setSelection(0);
+                    } else {
+                        listView.setSelection(listView.getCount() - 1);
+                    }
+                    skip.setVisibility(View.GONE);
+                }
+            });
+        }
+
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            if (scrollState != AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                skip.setVisibility(View.VISIBLE);
+            }
+        }
+
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            View v = view.getChildAt(0);
+            int top = (v == null) ? 0 : v.getTop();
+
+            if (firstVisibleItem == lastFirstVisibleItem) {
+                if (top > lastTop) {
+                    onUp();
+                } else if (top < lastTop) {
+                    onDown();
+                }
+            } else {
+                if (firstVisibleItem > lastFirstVisibleItem) {
+                    onDown();
+                } else {
+                    onUp();
+                }
+            }
+            lastFirstVisibleItem = firstVisibleItem;
+            lastTop = top;
+        }
+
+        private void onUp() {
+            skip.setImageResource(R.drawable.skip_arrow_up);
+            up = true;
+        }
+
+        private void onDown() {
+            skip.setImageResource(R.drawable.skip_arrow_down);
+            up = false;
         }
     }
 }
