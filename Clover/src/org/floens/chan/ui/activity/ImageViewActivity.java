@@ -131,7 +131,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         currentPosition = position;
 
         for (int i = -1; i <= 1; i++) {
-            ImageViewFragment fragment = getFragment(i);
+            ImageViewFragment fragment = getFragment(position + i);
             if (fragment != null) {
                 fragment.onDeselected();
             }
