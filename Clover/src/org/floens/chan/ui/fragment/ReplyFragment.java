@@ -39,6 +39,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.Selection;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -163,6 +164,8 @@ public class ReplyFragment extends DialogFragment {
             emailView.getEditText().setText(draft.email);
             subjectView.getEditText().setText(draft.subject);
             commentView.setText(draft.comment);
+            // To the end of the comment
+            Selection.setSelection(commentView.getText(), commentView.getText().length());
             setFile(draft.fileName, draft.file);
 
             getCaptcha();
