@@ -1,3 +1,6 @@
+New in 1.0.2 (2014-05-07)
+Fixed APK
+
 New in 1.0.1 (2014-05-07)
 
 - Bigger comment view
