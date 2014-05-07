@@ -1,0 +1,10 @@
+New in 1.0.1 (2014-05-07)
+
+- Bigger comment view
+- Added button to scroll up/down a thread
+- Fix images sometimes appearing empty
+- More bug fixes
+
+
+New in 1.0 (2014-05-04)
+- Release!

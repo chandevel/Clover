@@ -39,7 +39,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 public class ChanApplication extends Application implements PinListener {
-    public static final boolean DEVELOPER_MODE = true;
+    public static final boolean DEVELOPER_MODE = false;
 
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
