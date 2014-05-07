@@ -293,8 +293,8 @@ public class ThreadManager implements Loader.LoaderListener {
         String text = "";
 
         if (post.hasImage) {
-            text += "File: " + post.filename + "." + post.ext + " \nSize: " + post.imageWidth + "x" + post.imageHeight
-                    + "\n\n";
+            text += "File: " + post.filename + "." + post.ext + " \nDimensions: " + post.imageWidth + "x"
+                    + post.imageHeight + "\nSize: " + Utils.getReadableFileSize(post.fileSize, false) + "\n\n";
         }
 
         text += "Time: " + post.date;
@@ -440,7 +440,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     /**
      * Open an url.
-     *
+     * 
      * @param linkable
      *            Linkable with an url.
      */

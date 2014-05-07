@@ -70,6 +70,7 @@ public class Post {
     public String email = "";
     public boolean isSavedReply = false;
     public String title = "";
+    public int fileSize;
 
     /**
      * This post replies to the these ids
@@ -112,7 +113,7 @@ public class Post {
 
     /**
      * Finish up the data
-     *
+     * 
      * @return false if this data is invalid
      */
     public boolean finish(Loadable loadable) {

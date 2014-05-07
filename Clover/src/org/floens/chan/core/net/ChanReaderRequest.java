@@ -42,7 +42,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
 
     /**
      * Creates a ChanReaderRequest with supplied params
-     *
+     * 
      * @param mode
      *            ThreadManager mode
      * @param board
@@ -271,6 +271,8 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 post.imageWidth = reader.nextInt();
             } else if (key.equals("h")) {
                 post.imageHeight = reader.nextInt();
+            } else if (key.equals("fsize")) {
+                post.fileSize = reader.nextInt();
             } else if (key.equals("sub")) {
                 post.subject = reader.nextString();
             } else if (key.equals("replies")) {

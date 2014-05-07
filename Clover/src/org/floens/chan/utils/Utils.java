@@ -61,7 +61,7 @@ public class Utils {
     /**
      * Sets the android.R.attr.selectableItemBackground as background drawable
      * on the view.
-     *
+     * 
      * @param view
      */
     @SuppressWarnings("deprecation")
@@ -83,7 +83,7 @@ public class Utils {
     /**
      * Causes the runnable to be added to the message queue. The runnable will
      * be run on the ui thread.
-     *
+     * 
      * @param runnable
      */
     public static void runOnUiThread(Runnable runnable) {
@@ -95,7 +95,8 @@ public class Utils {
         dialog.setOnShowListener(new OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(view, 0);
             }
         });
@@ -108,5 +109,14 @@ public class Utils {
             e.printStackTrace();
             Toast.makeText(context, R.string.open_link_failed, Toast.LENGTH_LONG).show();
         }
+    }
+
+    public static String getReadableFileSize(int bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit)
+            return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 }

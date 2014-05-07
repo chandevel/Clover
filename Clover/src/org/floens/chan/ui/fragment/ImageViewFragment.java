@@ -66,6 +66,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
             imageView = new ThumbnailImageView(context);
             imageView.setCallback(this);
+            imageView.setLayoutParams(Utils.MATCH_PARAMS);
 
             int padding = (int) context.getResources().getDimension(R.dimen.image_view_padding);
             imageView.setPadding(padding, padding, padding, padding);
@@ -85,21 +86,33 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 throw new IllegalArgumentException("Post has no image");
             }
 
-            imageView.setThumbnail(post.thumbnailUrl);
+            // After layout has been done so getWidth & getHeight don't return 0
+            imageView.post(new Runnable() {
+                @Override
+                public void run() {
+                    // When the viewpager is created, it starts loading the first two views,
+                    // then we set a position to the viewpager and it loads three more views!
+                    // Check for these unused views here to avoid unnecessary loads
+                    if (imageView.getWidth() == 0 || imageView.getHeight() == 0)
+                        return;
 
-            if (post.ext.equals("gif")) {
-                imageView.setGif(post.imageUrl);
-            } else if (post.ext.equals("webm")) {
-                isVideo = true;
-                activity.invalidateActionBar();
-                showProgressBar(false);
+                    imageView.setThumbnail(post.thumbnailUrl);
 
-                if (ChanPreferences.getVideoAutoPlay()) {
-                    startVideo();
+                    if (post.ext.equals("gif")) {
+                        imageView.setGif(post.imageUrl);
+                    } else if (post.ext.equals("webm")) {
+                        isVideo = true;
+                        activity.invalidateActionBar();
+                        showProgressBar(false);
+
+                        if (ChanPreferences.getVideoAutoPlay()) {
+                            startVideo();
+                        }
+                    } else {
+                        imageView.setBigImage(post.imageUrl);
+                    }
                 }
-            } else {
-                imageView.setBigImage(post.imageUrl);
-            }
+            });
         }
     }
 

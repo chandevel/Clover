@@ -23,6 +23,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.net.FileRequest;
 import org.floens.chan.core.net.GIFRequest;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -44,6 +45,8 @@ import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
 
 public class ThumbnailImageView extends LoadView implements OnViewTapListener, View.OnClickListener {
+    private static final String TAG = "ThumbnailImageView";
+
     private ThumbnailImageViewCallback callback;
 
     /**
@@ -82,6 +85,11 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     }
 
     public void setThumbnail(String thumbnailUrl) {
+        if (getWidth() == 0 || getHeight() == 0) {
+            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
+            return;
+        }
+
         ChanApplication.getImageLoader().get(thumbnailUrl, new ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -101,7 +109,16 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     }
 
     public void setBigImage(String imageUrl) {
+        if (getWidth() == 0 || getHeight() == 0) {
+            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
+            return;
+        }
+
         callback.setProgress(true);
+
+        // 4096 is the max GPU upload size
+        int maxWidth = Math.min((int) (getWidth() * maxScale), 4096);
+        int maxHeight = Math.min((int) (getHeight() * maxScale), 4096);
 
         imageContainerRequest = ChanApplication.getImageLoader().get(imageUrl, new ImageListener() {
             @Override
@@ -127,10 +144,15 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     tapDismiss = true;
                 }
             }
-        }, (int) (getWidth() * maxScale), (int) (getHeight() * maxScale));
+        }, maxWidth, maxHeight);
     }
 
     public void setGif(String gifUrl) {
+        if (getWidth() == 0 || getHeight() == 0) {
+            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
+            return;
+        }
+
         callback.setProgress(true);
 
         imageRequest = ChanApplication.getVolleyRequestQueue().add(
