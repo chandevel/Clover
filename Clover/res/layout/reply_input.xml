@@ -7,6 +7,16 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
+    <EditText
+        android:id="@+id/reply_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/reply_comment"
+        android:imeActionLabel="@string/reply_submit"
+        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+        android:minLines="4"
+        android:textSize="16sp" />
+
     <com.micromobs.android.floatlabel.FloatLabelEditText
         android:id="@+id/reply_name"
         android:layout_width="match_parent"
@@ -37,16 +47,6 @@
         floatlabel:textColorHintFocused="@color/holo_blue_dark"
         floatlabel:textColorHintUnFocused="@android:color/darker_gray"
         floatlabel:textSize="16sp" />
-
-    <EditText
-        android:id="@+id/reply_comment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:imeActionLabel="@string/reply_submit"
-        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-        android:minLines="4"
-        android:textSize="16sp"
-        android:hint="@string/reply_comment" />
 
     <LinearLayout
         android:layout_width="match_parent"
