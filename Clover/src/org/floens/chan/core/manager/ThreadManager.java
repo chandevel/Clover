@@ -404,6 +404,8 @@ public class ThreadManager implements Loader.LoaderListener {
             } else {
                 openLink(linkable);
             }
+        } else if (linkable.type == PostLinkable.Type.SPOILER) {
+            new AlertDialog.Builder(activity).setMessage(linkable.value).show();
         }
     }
 

@@ -280,6 +280,16 @@ public class Post {
                     }
 
                     total = TextUtils.concat(total, link);
+                } else if (nodeName.equals("s")) {
+                    Element spoiler = (Element) node;
+
+                    SpannableString link = new SpannableString(spoiler.text());
+
+                    PostLinkable pl = new PostLinkable(this, spoiler.text(), spoiler.text(), Type.SPOILER);
+                    link.setSpan(pl, 0, link.length(), 0);
+                    linkables.add(pl);
+
+                    total = TextUtils.concat(total, link);
                 } else {
                     // Unknown tag, add the inner part
                     if (node instanceof Element) {

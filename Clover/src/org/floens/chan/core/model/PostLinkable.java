@@ -27,7 +27,7 @@ import android.view.View;
  */
 public class PostLinkable extends ClickableSpan {
     public static enum Type {
-        QUOTE, LINK
+        QUOTE, LINK, SPOILER
     };
 
     public final Post post;
@@ -51,7 +51,13 @@ public class PostLinkable extends ClickableSpan {
 
     @Override
     public void updateDrawState(TextPaint ds) {
-        ds.setColor(type == Type.QUOTE ? Color.argb(255, 221, 0, 0) : Color.argb(255, 0, 0, 180));
-        ds.setUnderlineText(true);
+        if (type == Type.QUOTE || type == Type.LINK) {
+            ds.setColor(type == Type.QUOTE ? Color.argb(255, 221, 0, 0) : Color.argb(255, 0, 0, 180));
+            ds.setUnderlineText(true);
+        } else if (type == Type.SPOILER) {
+            ds.setColor(0x00000000);
+            ds.bgColor = 0xff000000;
+            ds.setUnderlineText(false);
+        }
     }
 }
