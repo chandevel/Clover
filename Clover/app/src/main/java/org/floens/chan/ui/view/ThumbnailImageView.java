@@ -17,17 +17,6 @@
  */
 package org.floens.chan.ui.view;
 
-import java.io.File;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.core.net.FileRequest;
-import org.floens.chan.core.net.GIFRequest;
-import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Utils;
-
-import uk.co.senab.photoview.PhotoViewAttacher;
-import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
@@ -43,6 +32,18 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.core.net.FileRequest;
+import org.floens.chan.core.net.GIFRequest;
+import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Utils;
+
+import java.io.File;
+
+import uk.co.senab.photoview.PhotoViewAttacher;
+import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 
 public class ThumbnailImageView extends LoadView implements OnViewTapListener, View.OnClickListener {
     private static final String TAG = "ThumbnailImageView";
@@ -171,7 +172,8 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     public void onErrorResponse(VolleyError error) {
                         onError();
                     }
-                }, getContext()));
+                }, getContext())
+        );
     }
 
     public void setVideo(String videoUrl) {
@@ -228,7 +230,8 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     public void onErrorResponse(VolleyError error) {
                         onError();
                     }
-                }));
+                })
+        );
     }
 
     @Override

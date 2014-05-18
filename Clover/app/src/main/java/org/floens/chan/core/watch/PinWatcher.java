@@ -17,8 +17,7 @@
  */
 package org.floens.chan.core.watch;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.android.volley.VolleyError;
 
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.loader.LoaderPool;
@@ -27,7 +26,8 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.Logger;
 
-import com.android.volley.VolleyError;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PinWatcher implements Loader.LoaderListener {
     private static final String TAG = "PinWatcher";

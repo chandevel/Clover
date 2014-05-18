@@ -17,8 +17,6 @@
  */
 package org.floens.chan.core.net;
 
-import org.floens.chan.ui.view.GIFView;
-
 import android.content.Context;
 
 import com.android.volley.NetworkResponse;
@@ -28,6 +26,8 @@ import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.HttpHeaderParser;
+
+import org.floens.chan.ui.view.GIFView;
 
 public class GIFRequest extends Request<GIFView> {
     protected final Listener<GIFView> listener;

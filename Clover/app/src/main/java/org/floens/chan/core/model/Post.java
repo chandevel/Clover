@@ -17,9 +17,12 @@
  */
 package org.floens.chan.core.model;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.PostLinkable.Type;
@@ -31,12 +34,9 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
 
-import android.graphics.Color;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains all data needed to represent a single post.
@@ -113,7 +113,7 @@ public class Post {
 
     /**
      * Finish up the data
-     * 
+     *
      * @return false if this data is invalid
      */
     public boolean finish(Loadable loadable) {

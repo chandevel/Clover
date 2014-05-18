@@ -17,10 +17,12 @@
  */
 package org.floens.chan.core.watch;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.media.RingtoneManager;
+import android.support.v4.app.NotificationCompat;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -30,12 +32,10 @@ import org.floens.chan.service.WatchService;
 import org.floens.chan.ui.activity.BoardActivity;
 import org.floens.chan.utils.Logger;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.media.RingtoneManager;
-import android.support.v4.app.NotificationCompat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class WatchNotifier {
     private static final String TAG = "WatchNotifier";
@@ -165,7 +165,7 @@ public class WatchNotifier {
 
     @SuppressWarnings("deprecation")
     private void showNotification(String tickerText, String title, String content, String contentInfo,
-            List<CharSequence> lines, boolean makeSound) {
+                                  List<CharSequence> lines, boolean makeSound) {
 
         Intent intent = new Intent(context, BoardActivity.class);
         intent.addCategory("android.intent.category.LAUNCHER");

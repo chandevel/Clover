@@ -17,11 +17,6 @@
  */
 package org.floens.chan.core.net;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-
 import android.util.JsonReader;
 
 import com.android.volley.NetworkResponse;
@@ -32,6 +27,11 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 public abstract class JsonReaderRequest<T> extends Request<T> {
     protected final Listener<T> listener;

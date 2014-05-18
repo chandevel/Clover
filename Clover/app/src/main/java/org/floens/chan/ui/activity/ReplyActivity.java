@@ -17,14 +17,14 @@
  */
 package org.floens.chan.ui.activity;
 
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.ui.fragment.ReplyFragment;
-import org.floens.chan.utils.Logger;
-
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.MenuItem;
+
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.ui.fragment.ReplyFragment;
+import org.floens.chan.utils.Logger;
 
 public class ReplyActivity extends Activity {
     private static final String TAG = "ReplyActivity";
@@ -56,10 +56,10 @@ public class ReplyActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case android.R.id.home:
-            finish();
+            case android.R.id.home:
+                finish();
 
-            return true;
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

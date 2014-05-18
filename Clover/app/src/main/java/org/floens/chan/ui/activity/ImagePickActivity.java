@@ -17,15 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.utils.IOUtils;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -34,6 +25,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.widget.Toast;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.utils.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ImagePickActivity extends Activity {
     private static final int IMAGE_RESULT = 1;

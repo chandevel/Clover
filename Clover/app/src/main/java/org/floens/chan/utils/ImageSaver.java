@@ -17,16 +17,6 @@
  */
 package org.floens.chan.utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.net.ByteArrayRequest;
-
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.Context;
@@ -39,6 +29,16 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.net.ByteArrayRequest;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
 
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
@@ -88,7 +88,7 @@ public class ImageSaver {
     }
 
     public static void save(final Context context, String imageUrl, final String name, final String extension,
-            final boolean share) {
+                            final boolean share) {
         ChanApplication.getVolleyRequestQueue().add(new ByteArrayRequest(imageUrl, new Response.Listener<byte[]>() {
             @Override
             public void onResponse(byte[] data) {
@@ -117,7 +117,7 @@ public class ImageSaver {
     }
 
     private static void storeImage(final Context context, byte[] data, String name, String extension,
-            final SaveCallback callback) {
+                                   final SaveCallback callback) {
         String errorReason = null;
 
         try {
@@ -142,7 +142,7 @@ public class ImageSaver {
                 throw new IOException(errorReason);
             }
 
-            MediaScannerConnection.scanFile(context, new String[] { savedFile.toString() }, null,
+            MediaScannerConnection.scanFile(context, new String[]{savedFile.toString()}, null,
                     new MediaScannerConnection.OnScanCompletedListener() {
                         @Override
                         public void onScanCompleted(String path, final Uri uri) {
@@ -154,7 +154,8 @@ public class ImageSaver {
                                 }
                             });
                         }
-                    });
+                    }
+            );
 
         } catch (IOException e) {
             e.printStackTrace();

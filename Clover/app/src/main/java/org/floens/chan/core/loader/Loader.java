@@ -17,16 +17,6 @@
  */
 package org.floens.chan.core.loader;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.net.ChanReaderRequest;
-import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.util.SparseArray;
@@ -35,11 +25,21 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
+import org.floens.chan.ChanApplication;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.net.ChanReaderRequest;
+import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Time;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Loader {
     private static final String TAG = "Loader";
     private static final Handler handler = new Handler(Looper.getMainLooper());
 
-    private static final int[] watchTimeouts = { 10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600 };
+    private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
     private final List<LoaderListener> listeners = new ArrayList<LoaderListener>();
     private final Loadable loadable;
@@ -61,9 +61,8 @@ public class Loader {
 
     /**
      * Add a LoaderListener
-     * 
-     * @param l
-     *            the listener to add
+     *
+     * @param l the listener to add
      */
     public void addListener(LoaderListener l) {
         listeners.add(l);
@@ -71,9 +70,8 @@ public class Loader {
 
     /**
      * Remove a LoaderListener
-     * 
-     * @param l
-     *            the listener to remove
+     *
+     * @param l the listener to remove
      * @return true if there are no more listeners, false otherwise
      */
     public boolean removeListener(LoaderListener l) {
@@ -183,7 +181,7 @@ public class Loader {
 
     /**
      * Get the time in milliseconds until another loadMore is recommended
-     * 
+     *
      * @return
      */
     public long getTimeUntilLoadMore() {
@@ -223,7 +221,9 @@ public class Loader {
                 public void run() {
                     pendingRunnable = null;
                     loadMoreIfTime();
-                };
+                }
+
+                ;
             };
 
             Logger.d(TAG, "Scheduled reload in " + watchTimeouts[currentTimeout] * 1000L);
@@ -255,7 +255,8 @@ public class Loader {
                         Loader.this.request = null;
                         onError(error);
                     }
-                });
+                }
+        );
 
         ChanApplication.getVolleyRequestQueue().add(request);
 

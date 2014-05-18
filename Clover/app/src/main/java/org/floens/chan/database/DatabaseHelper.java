@@ -77,7 +77,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         switch (oldVersion) {
-        // Change tables if we make adjustments
+            // Change tables if we make adjustments
         }
 
         // Drop the tables and recreate them for now

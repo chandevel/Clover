@@ -17,19 +17,6 @@
  */
 package org.floens.chan.ui.fragment;
 
-import java.util.List;
-
-import org.floens.chan.R;
-import org.floens.chan.core.loader.EndOfLineException;
-import org.floens.chan.core.manager.ThreadManager;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.activity.BaseActivity;
-import org.floens.chan.ui.activity.ImageViewActivity;
-import org.floens.chan.ui.adapter.PostAdapter;
-import org.floens.chan.ui.view.LoadView;
-import org.floens.chan.utils.Utils;
-
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -48,6 +35,19 @@ import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
+
+import org.floens.chan.R;
+import org.floens.chan.core.loader.EndOfLineException;
+import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.activity.BaseActivity;
+import org.floens.chan.ui.activity.ImageViewActivity;
+import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.Utils;
+
+import java.util.List;
 
 public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener {
     private BaseActivity baseActivity;
@@ -229,7 +229,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     /**
      * Returns an TextView containing the appropriate error message
-     * 
+     *
      * @param error
      * @return
      */

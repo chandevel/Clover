@@ -17,10 +17,6 @@
  */
 package org.floens.chan.ui.fragment;
 
-import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.ui.activity.AboutActivity;
-
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
@@ -29,6 +25,10 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.widget.Toast;
+
+import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.ui.activity.AboutActivity;
 
 public class SettingsFragment extends PreferenceFragment {
     private int clickCount = 0;

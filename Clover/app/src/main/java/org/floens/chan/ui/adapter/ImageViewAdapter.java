@@ -17,18 +17,18 @@
  */
 package org.floens.chan.ui.adapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.activity.ImageViewActivity;
-import org.floens.chan.ui.fragment.ImageViewFragment;
-
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+
+import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.activity.ImageViewActivity;
+import org.floens.chan.ui.fragment.ImageViewFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImageViewAdapter extends FragmentStatePagerAdapter {
     private final ImageViewActivity activity;

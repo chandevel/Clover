@@ -17,20 +17,20 @@
  */
 package org.floens.chan.core.net;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import android.util.JsonReader;
+
+import com.android.volley.ParseError;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 
-import android.util.JsonReader;
-
-import com.android.volley.ParseError;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     private Loadable loadable;
@@ -42,19 +42,16 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
 
     /**
      * Creates a ChanReaderRequest with supplied params
-     * 
-     * @param mode
-     *            ThreadManager mode
-     * @param board
-     *            board key
-     * @param no
-     *            page for board, no for threads
+     *
+     * @param mode          ThreadManager mode
+     * @param board         board key
+     * @param no            page for board, no for threads
      * @param listener
      * @param errorListener
      * @return New instance of ChanReaderRequest
      */
     public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener,
-            ErrorListener errorListener) {
+                                                ErrorListener errorListener) {
         String url;
 
         if (loadable.isBoardMode()) {

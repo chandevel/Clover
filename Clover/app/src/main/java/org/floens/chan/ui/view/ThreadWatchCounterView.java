@@ -17,16 +17,16 @@
  */
 package org.floens.chan.ui.view;
 
-import org.floens.chan.core.loader.Loader;
-import org.floens.chan.core.manager.ThreadManager;
-import org.floens.chan.ui.adapter.PostAdapter;
-
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.floens.chan.core.loader.Loader;
+import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.ui.adapter.PostAdapter;
 
 public class ThreadWatchCounterView extends TextView implements View.OnClickListener {
     private boolean detached = false;

@@ -17,14 +17,6 @@
  */
 package org.floens.chan.ui.adapter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.model.Pin;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +25,14 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.model.Pin;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PinnedAdapter extends ArrayAdapter<Pin> {
     private final HashMap<Pin, Integer> idMap;

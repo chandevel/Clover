@@ -28,7 +28,9 @@ import android.view.View;
 public class PostLinkable extends ClickableSpan {
     public static enum Type {
         QUOTE, LINK, SPOILER
-    };
+    }
+
+    ;
 
     public final Post post;
     public final String key;

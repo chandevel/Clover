@@ -44,7 +44,7 @@ public class DragGripView extends View {
     private final float mRidgeSize;
     private final float mRidgeGap;
 
-//    private int mWidth;
+    //    private int mWidth;
     private int mHeight;
 
     public DragGripView(Context context) {
@@ -77,10 +77,12 @@ public class DragGripView extends View {
                 View.resolveSize(
                         (int) (HORIZ_RIDGES * (mRidgeSize + mRidgeGap) - mRidgeGap)
                                 + getPaddingLeft() + getPaddingRight(),
-                        widthMeasureSpec),
+                        widthMeasureSpec
+                ),
                 View.resolveSize(
                         (int) mRidgeSize,
-                        heightMeasureSpec));
+                        heightMeasureSpec)
+        );
     }
 
     @Override

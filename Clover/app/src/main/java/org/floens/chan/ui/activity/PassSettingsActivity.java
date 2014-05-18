@@ -17,14 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.manager.ReplyManager.PassResponse;
-import org.floens.chan.core.model.Pass;
-import org.floens.chan.utils.Utils;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -42,6 +34,14 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager.PassResponse;
+import org.floens.chan.core.model.Pass;
+import org.floens.chan.utils.Utils;
 
 public class PassSettingsActivity extends Activity implements OnCheckedChangeListener {
     private static PassSettingsActivity instance;

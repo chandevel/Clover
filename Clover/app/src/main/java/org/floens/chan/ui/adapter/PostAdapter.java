@@ -17,8 +17,14 @@
  */
 package org.floens.chan.ui.adapter;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.manager.ThreadManager;
@@ -29,14 +35,8 @@ import org.floens.chan.ui.view.ThreadWatchCounterView;
 import org.floens.chan.utils.Time;
 import org.floens.chan.utils.Utils;
 
-import android.content.Context;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostAdapter extends BaseAdapter {
     private final Context context;

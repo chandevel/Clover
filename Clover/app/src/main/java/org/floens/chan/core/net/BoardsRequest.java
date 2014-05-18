@@ -17,16 +17,16 @@
  */
 package org.floens.chan.core.net;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.floens.chan.core.model.Board;
-
 import android.util.JsonReader;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+
+import org.floens.chan.core.model.Board;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BoardsRequest extends JsonReaderRequest<List<Board>> {
     public BoardsRequest(String url, Listener<List<Board>> listener, ErrorListener errorListener) {

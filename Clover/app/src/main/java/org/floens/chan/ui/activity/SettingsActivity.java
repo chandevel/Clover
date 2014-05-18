@@ -17,10 +17,10 @@
  */
 package org.floens.chan.ui.activity;
 
-import org.floens.chan.ui.fragment.SettingsFragment;
-
 import android.app.Activity;
 import android.os.Bundle;
+
+import org.floens.chan.ui.fragment.SettingsFragment;
 
 public class SettingsActivity extends Activity {
     @Override

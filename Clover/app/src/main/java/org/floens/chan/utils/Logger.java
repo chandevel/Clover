@@ -17,9 +17,9 @@
  */
 package org.floens.chan.utils;
 
-import org.floens.chan.ChanApplication;
-
 import android.util.Log;
+
+import org.floens.chan.ChanApplication;
 
 public class Logger {
     private static final String TAG = "Clover";

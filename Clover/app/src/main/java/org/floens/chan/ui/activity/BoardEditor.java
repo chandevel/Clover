@@ -17,17 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.ui.SwipeDismissListViewTouchListener;
-import org.floens.chan.utils.Utils;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -54,6 +43,17 @@ import android.widget.Toast;
 
 import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.model.Board;
+import org.floens.chan.ui.SwipeDismissListViewTouchListener;
+import org.floens.chan.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class BoardEditor extends Activity {
     private final BoardManager boardManager = ChanApplication.getBoardManager();
@@ -109,7 +109,8 @@ public class BoardEditor extends Activity {
                     public boolean canDismiss(int position) {
                         return list.size() > 1;
                     }
-                });
+                }
+        );
 
         listView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -147,9 +148,9 @@ public class BoardEditor extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.action_add_board:
-            showAddBoardDialog();
-            return true;
+            case R.id.action_add_board:
+                showAddBoardDialog();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -193,10 +194,10 @@ public class BoardEditor extends Activity {
                         }
                     }
                 }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).create().show();
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        }).create().show();
     }
 
     private void showAddBoardDialog() {

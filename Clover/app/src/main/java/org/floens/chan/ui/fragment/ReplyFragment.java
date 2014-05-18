@@ -17,22 +17,6 @@
  */
 package org.floens.chan.ui.fragment;
 
-import java.io.File;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Reply;
-import org.floens.chan.ui.ViewFlipperAnimations;
-import org.floens.chan.ui.view.LoadView;
-import org.floens.chan.utils.ImageDecoder;
-import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Utils;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -64,6 +48,22 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.micromobs.android.floatlabel.FloatLabelEditText;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Reply;
+import org.floens.chan.ui.ViewFlipperAnimations;
+import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.ImageDecoder;
+import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Utils;
+
+import java.io.File;
 
 public class ReplyFragment extends DialogFragment {
     private static final String TAG = "ReplyFragment";
@@ -314,9 +314,8 @@ public class ReplyFragment extends DialogFragment {
     /**
      * Flip to an page with an animation. Sets the correct text on the
      * cancelButton:
-     * 
-     * @param position
-     *            0-2
+     *
+     * @param position 0-2
      */
     private void flipPage(int position) {
         boolean flipBack = position < page;
@@ -345,9 +344,8 @@ public class ReplyFragment extends DialogFragment {
     /**
      * Set the picked image in the imageView. Sets the file in the draft. Call
      * null on the file to empty the imageView.
-     * 
-     * @param imagePath
-     *            file to image to send or null to clear
+     *
+     * @param imagePath file to image to send or null to clear
      */
     private void setFile(final String name, final File file) {
         draft.file = file;
@@ -487,7 +485,7 @@ public class ReplyFragment extends DialogFragment {
 
     /**
      * Got response about or reply from ReplyManager
-     * 
+     *
      * @param response
      */
     private void handleSubmitResponse(ReplyResponse response) {

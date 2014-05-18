@@ -17,14 +17,14 @@
  */
 package org.floens.chan.utils;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 /**
  * Simple ImageDecoder with no threads. Taken from Volley ImageRequest.

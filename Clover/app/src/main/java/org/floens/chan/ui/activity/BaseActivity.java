@@ -17,19 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import java.util.List;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.core.manager.PinnedManager;
-import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.BadgeDrawable;
-import org.floens.chan.ui.SwipeDismissListViewTouchListener;
-import org.floens.chan.ui.SwipeDismissListViewTouchListener.DismissCallbacks;
-import org.floens.chan.ui.adapter.PinnedAdapter;
-import org.floens.chan.utils.Utils;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -55,6 +42,19 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ShareActionProvider;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.core.manager.PinnedManager;
+import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.BadgeDrawable;
+import org.floens.chan.ui.SwipeDismissListViewTouchListener;
+import org.floens.chan.ui.SwipeDismissListViewTouchListener.DismissCallbacks;
+import org.floens.chan.ui.adapter.PinnedAdapter;
+import org.floens.chan.utils.Utils;
+
+import java.util.List;
 
 public abstract class BaseActivity extends Activity implements PanelSlideListener, PinnedManager.PinListener {
     private final static int ACTION_OPEN_URL = 1;
@@ -165,7 +165,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                     public boolean canDismiss(int position) {
                         return pinnedAdapter.getItem(position).type != Pin.Type.HEADER;
                     }
-                });
+                }
+        );
 
         touchListener.setSlop((int) (touchListener.getSlop() * 0.4f));
 
@@ -246,9 +247,9 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.action_settings:
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -295,7 +296,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 return;
             }
 
-            NdefMessage message = new NdefMessage(new NdefRecord[] { record });
+            NdefMessage message = new NdefMessage(new NdefRecord[]{record});
             adapter.setNdefPushMessage(message, this);
         }
 

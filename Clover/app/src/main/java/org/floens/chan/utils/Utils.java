@@ -17,9 +17,6 @@
  */
 package org.floens.chan.utils;
 
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -36,6 +33,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 
 public class Utils {
     private static DisplayMetrics displayMetrics;
@@ -61,7 +61,7 @@ public class Utils {
     /**
      * Sets the android.R.attr.selectableItemBackground as background drawable
      * on the view.
-     * 
+     *
      * @param view
      */
     @SuppressWarnings("deprecation")
@@ -71,7 +71,7 @@ public class Utils {
     }
 
     public static Drawable getSelectableBackgroundDrawable(Context context) {
-        TypedArray arr = context.obtainStyledAttributes(new int[] { android.R.attr.selectableItemBackground });
+        TypedArray arr = context.obtainStyledAttributes(new int[]{android.R.attr.selectableItemBackground});
 
         Drawable drawable = arr.getDrawable(0);
 
@@ -83,7 +83,7 @@ public class Utils {
     /**
      * Causes the runnable to be added to the message queue. The runnable will
      * be run on the ui thread.
-     * 
+     *
      * @param runnable
      */
     public static void runOnUiThread(Runnable runnable) {

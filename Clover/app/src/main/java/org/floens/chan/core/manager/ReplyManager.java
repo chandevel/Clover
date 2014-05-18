@@ -17,13 +17,8 @@
  */
 package org.floens.chan.core.manager;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Locale;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import android.content.Context;
+import android.content.Intent;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -35,8 +30,14 @@ import org.floens.chan.ui.activity.ImagePickActivity;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
-import android.content.Context;
-import android.content.Intent;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Locale;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import ch.boye.httpclientandroidlib.Header;
 import ch.boye.httpclientandroidlib.HeaderElement;
 import ch.boye.httpclientandroidlib.HttpResponse;
@@ -81,8 +82,7 @@ public class ReplyManager {
     /**
      * Set an reply draft.
      *
-     * @param value
-     *            the draft to save.
+     * @param value the draft to save.
      */
     public void setReplyDraft(Reply value) {
         draft = value;
@@ -100,8 +100,7 @@ public class ReplyManager {
     /**
      * Add an quote to the comment field. Looks like >>123456789\n
      *
-     * @param no
-     *            the raw no to quote to.
+     * @param no the raw no to quote to.
      */
     public void quote(int no) {
         draft.comment = draft.comment + ">>" + no + "\n";
@@ -110,8 +109,7 @@ public class ReplyManager {
     /**
      * Pick an file. Starts up the ImagePickActivity.
      *
-     * @param listener
-     *            FileListener to listen on.
+     * @param listener FileListener to listen on.
      */
     public void pickFile(FileListener listener) {
         fileListener = listener;
@@ -157,8 +155,7 @@ public class ReplyManager {
     /**
      * Get the CAPTCHA challenge hash from an JSON response.
      *
-     * @param total
-     *            The total response from the server
+     * @param total The total response from the server
      * @return The pattern, or null when none was found.
      */
     public static String getChallenge(String total) {
@@ -264,11 +261,9 @@ public class ReplyManager {
     /**
      * Send an reply off to the server.
      *
-     * @param reply
-     *            The reply object with all data needed, like captcha and the
-     *            file.
-     * @param listener
-     *            The listener, after server response.
+     * @param reply    The reply object with all data needed, like captcha and the
+     *                 file.
+     * @param listener The listener, after server response.
      */
     public void sendDelete(final SavedReply reply, boolean onlyImageDelete, final DeleteListener listener) {
         Logger.i(TAG, "Sending delete request: " + reply.board + ", " + reply.no);
@@ -341,11 +336,9 @@ public class ReplyManager {
     /**
      * Send an reply off to the server.
      *
-     * @param reply
-     *            The reply object with all data needed, like captcha and the
-     *            file.
-     * @param listener
-     *            The listener, after server response.
+     * @param reply    The reply object with all data needed, like captcha and the
+     *                 file.
+     * @param listener The listener, after server response.
      */
     public void sendReply(final Reply reply, final ReplyListener listener) {
         Logger.i(TAG, "Sending reply request: " + reply.board + ", " + reply.resto);

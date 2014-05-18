@@ -17,10 +17,10 @@
  */
 package org.floens.chan.core.loader;
 
+import org.floens.chan.core.model.Loadable;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.floens.chan.core.model.Loadable;
 
 public class LoaderPool {
     //    private static final String TAG = "LoaderPool";

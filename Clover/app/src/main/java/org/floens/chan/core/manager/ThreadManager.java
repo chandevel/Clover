@@ -17,8 +17,21 @@
  */
 package org.floens.chan.core.manager;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.text.TextUtils;
+import android.widget.CheckBox;
+import android.widget.Toast;
+
+import com.android.volley.VolleyError;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -38,21 +51,8 @@ import org.floens.chan.ui.fragment.ReplyFragment;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
-import android.text.TextUtils;
-import android.widget.CheckBox;
-import android.widget.Toast;
-
-import com.android.volley.VolleyError;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * All PostView's need to have this referenced. This manages some things like
@@ -224,24 +224,24 @@ public class ThreadManager implements Loader.LoaderListener {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
-                case 0: // Reply
-                    openReply(true); // todo if tablet
-                    // Pass through
-                case 1: // Quote
-                    ChanApplication.getReplyManager().quote(post.no);
-                    break;
-                case 2: // Info
-                    showPostInfo(post);
-                    break;
-                case 3: // Show clickables
-                    showPostLinkables(post);
-                    break;
-                case 4: // Copy text
-                    copyToClipboard(post.comment.toString());
-                    break;
-                case 5: // Delete
-                    deletePost(post);
-                    break;
+                    case 0: // Reply
+                        openReply(true); // todo if tablet
+                        // Pass through
+                    case 1: // Quote
+                        ChanApplication.getReplyManager().quote(post.no);
+                        break;
+                    case 2: // Info
+                        showPostInfo(post);
+                        break;
+                    case 3: // Show clickables
+                        showPostLinkables(post);
+                        break;
+                    case 4: // Copy text
+                        copyToClipboard(post.comment.toString());
+                        break;
+                    case 5: // Delete
+                        deletePost(post);
+                        break;
                 }
             }
         });
@@ -334,8 +334,7 @@ public class ThreadManager implements Loader.LoaderListener {
      * linkable. b. when there's more than one linkable, show the user multiple
      * options to select from.
      *
-     * @param post
-     *            The post that was clicked.
+     * @param post The post that was clicked.
      */
     public void showPostLinkables(Post post) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -380,8 +379,7 @@ public class ThreadManager implements Loader.LoaderListener {
     /**
      * Handle when a linkable has been clicked.
      *
-     * @param linkable
-     *            the selected linkable.
+     * @param linkable the selected linkable.
      */
     private void handleLinkableSelected(final PostLinkable linkable) {
         if (linkable.type == PostLinkable.Type.QUOTE) {
@@ -413,8 +411,7 @@ public class ThreadManager implements Loader.LoaderListener {
      * When a linkable to a post has been clicked, show a dialog with the
      * referenced post in it.
      *
-     * @param linkable
-     *            the clicked linkable.
+     * @param linkable the clicked linkable.
      */
     private void showPostReply(PostLinkable linkable) {
         String value = linkable.value;
@@ -442,9 +439,8 @@ public class ThreadManager implements Loader.LoaderListener {
 
     /**
      * Open an url.
-     * 
-     * @param linkable
-     *            Linkable with an url.
+     *
+     * @param linkable Linkable with an url.
      */
     private void openLink(PostLinkable linkable) {
         Utils.openLink(activity, linkable.value);
@@ -505,10 +501,10 @@ public class ThreadManager implements Loader.LoaderListener {
                         doDeletePost(post, view.isChecked());
                     }
                 }).setNegativeButton(R.string.cancel, new OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).show();
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        }).show();
     }
 
     private void doDeletePost(Post post, boolean onlyImageDelete) {

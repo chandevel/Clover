@@ -17,16 +17,17 @@
  */
 package org.floens.chan.ui.view;
 
-import org.floens.chan.R;
-import org.floens.chan.ui.fragment.ImageViewFragment;
-
-import uk.co.senab.photoview.PhotoViewAttacher;
-import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
+
+import org.floens.chan.R;
+import org.floens.chan.ui.fragment.ImageViewFragment;
+
+import uk.co.senab.photoview.PhotoViewAttacher;
+import uk.co.senab.photoview.PhotoViewAttacher.OnViewTapListener;
 
 /**
  * Extends NetworkImageView. Attaches a PhotoViewAttacher when setBitmap is

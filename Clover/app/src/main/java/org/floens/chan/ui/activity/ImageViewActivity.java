@@ -17,8 +17,14 @@
  */
 package org.floens.chan.ui.activity;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.Window;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
@@ -28,14 +34,8 @@ import org.floens.chan.ui.fragment.ImageViewFragment;
 import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Logger;
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An fragment pager that contains images. Call setPosts first, and then start
@@ -54,10 +54,8 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     /**
      * Set the posts to show
      *
-     * @param other
-     *            the posts to get image data from
-     * @param selected
-     *            the no that the user clicked on
+     * @param other    the posts to get image data from
+     * @param selected the no that the user clicked on
      */
     public static void setAdapter(PostAdapter adapter, int selected) {
         postAdapter = adapter;

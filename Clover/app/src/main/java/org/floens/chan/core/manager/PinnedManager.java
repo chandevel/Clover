@@ -17,14 +17,14 @@
  */
 package org.floens.chan.core.manager;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 
-import android.content.Context;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PinnedManager {
     private final List<PinListener> listeners = new ArrayList<PinListener>();
@@ -48,7 +48,7 @@ public class PinnedManager {
      *
      * @param other
      * @return The pin whose loadable is equal to the supplied loadable, or null
-     *         if no pin was found.
+     * if no pin was found.
      */
     public Pin findPinByLoadable(Loadable other) {
         for (Pin pin : pins) {

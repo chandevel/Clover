@@ -17,7 +17,12 @@
  */
 package org.floens.chan.service;
 
-import java.util.List;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.core.ChanPreferences;
@@ -25,12 +30,7 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.watch.WatchNotifier;
 import org.floens.chan.utils.Logger;
 
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
+import java.util.List;
 
 public class WatchService extends Service {
     private static final String TAG = "WatchService";

@@ -17,16 +17,6 @@
  */
 package org.floens.chan.ui.fragment;
 
-import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.activity.ImageViewActivity;
-import org.floens.chan.ui.adapter.ImageViewAdapter;
-import org.floens.chan.ui.view.ThumbnailImageView;
-import org.floens.chan.ui.view.ThumbnailImageView.ThumbnailImageViewCallback;
-import org.floens.chan.utils.ImageSaver;
-import org.floens.chan.utils.Utils;
-
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -36,6 +26,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.VideoView;
+
+import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.activity.ImageViewActivity;
+import org.floens.chan.ui.adapter.ImageViewAdapter;
+import org.floens.chan.ui.view.ThumbnailImageView;
+import org.floens.chan.ui.view.ThumbnailImageView.ThumbnailImageViewCallback;
+import org.floens.chan.utils.ImageSaver;
+import org.floens.chan.utils.Utils;
 
 public class ImageViewFragment extends Fragment implements ThumbnailImageViewCallback {
     private Context context;

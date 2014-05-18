@@ -28,12 +28,14 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
 
 /**
  * Custom version of NetworkImageView
- * 
+ *
  * Handles fetching an image from a URL as well as the life-cycle of the
  * associated request.
  */
 public class CustomNetworkImageView extends ImageView {
-    /** The URL of the network image to load */
+    /**
+     * The URL of the network image to load
+     */
     private String mUrl;
 
     /**
@@ -47,10 +49,14 @@ public class CustomNetworkImageView extends ImageView {
      */
     private int mErrorImageId;
 
-    /** Local copy of the ImageLoader. */
+    /**
+     * Local copy of the ImageLoader.
+     */
     private ImageLoader mImageLoader;
 
-    /** Current ImageContainer. (either in-flight or finished) */
+    /**
+     * Current ImageContainer. (either in-flight or finished)
+     */
     private ImageContainer mImageContainer;
 
     /**
@@ -74,7 +80,7 @@ public class CustomNetworkImageView extends ImageView {
 
     /**
      * How larger the inner bitmap is to the defined view size.
-     * 
+     *
      * @param amount
      */
     public void setMaxScale(float amount) {
@@ -87,9 +93,8 @@ public class CustomNetworkImageView extends ImageView {
 
     /**
      * Animate the image fading in.
-     * 
-     * @param duration
-     *            duration of the fade animation in milliseconds
+     *
+     * @param duration duration of the fade animation in milliseconds
      */
     public void setFadeIn(int time) {
         mFadeTime = time;
@@ -100,16 +105,14 @@ public class CustomNetworkImageView extends ImageView {
      * calling this will immediately either set the cached image (if available)
      * or the default image specified by
      * {@link CustomNetworkImageView#setDefaultImageResId(int)} on the view.
-     * 
+     *
      * NOTE: If applicable,
      * {@link CustomNetworkImageView#setDefaultImageResId(int)} and
      * {@link CustomNetworkImageView#setErrorImageResId(int)} should be called
      * prior to calling this function.
-     * 
-     * @param url
-     *            The URL that should be loaded into this ImageView.
-     * @param imageLoader
-     *            ImageLoader that will be used to make the request.
+     *
+     * @param url         The URL that should be loaded into this ImageView.
+     * @param imageLoader ImageLoader that will be used to make the request.
      */
     public void setImageUrl(String url, ImageLoader imageLoader) {
         mUrl = url;
@@ -139,9 +142,8 @@ public class CustomNetworkImageView extends ImageView {
 
     /**
      * Loads the image for the view if it isn't already loaded.
-     * 
-     * @param isInLayoutPass
-     *            True if this was invoked from a layout pass, false otherwise.
+     *
+     * @param isInLayoutPass True if this was invoked from a layout pass, false otherwise.
      */
     void loadImageIfNecessary(final boolean isInLayoutPass) {
         int width = getWidth();

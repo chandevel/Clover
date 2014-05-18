@@ -17,16 +17,6 @@
  */
 package org.floens.chan.ui.view;
 
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.manager.ThreadManager;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.PostLinkable;
-import org.floens.chan.utils.IconCache;
-import org.floens.chan.utils.Time;
-import org.floens.chan.utils.Utils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -49,6 +39,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.utils.IconCache;
+import org.floens.chan.utils.Time;
+import org.floens.chan.utils.Utils;
 
 public class PostView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
     private final static LinearLayout.LayoutParams matchParams = new LinearLayout.LayoutParams(

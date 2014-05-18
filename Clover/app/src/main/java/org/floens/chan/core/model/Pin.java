@@ -17,11 +17,11 @@
  */
 package org.floens.chan.core.model;
 
-import org.floens.chan.ChanApplication;
-import org.floens.chan.core.watch.PinWatcher;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.core.watch.PinWatcher;
 
 @DatabaseTable
 public class Pin {
@@ -33,12 +33,16 @@ public class Pin {
     public Loadable loadable = new Loadable("", -1);
 
     // ListView Stuff
-    /** Header is used to display a static header in the drawer listview. */
+    /**
+     * Header is used to display a static header in the drawer listview.
+     */
     public Type type = Type.THREAD;
 
     public static enum Type {
         HEADER, THREAD
-    };
+    }
+
+    ;
 
     // PinnedService stuff
     public PinWatcher pinWatcher;

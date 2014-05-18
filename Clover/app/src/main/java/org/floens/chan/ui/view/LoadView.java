@@ -17,8 +17,6 @@
  */
 package org.floens.chan.ui.view;
 
-import org.floens.chan.utils.SimpleAnimatorListener;
-
 import android.animation.Animator;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -27,6 +25,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+
+import org.floens.chan.utils.SimpleAnimatorListener;
 
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a
@@ -58,8 +58,7 @@ public class LoadView extends FrameLayout {
      * Set the content of this container. It will fade the old one out with the
      * new one. Set view to null to show the progressbar.
      *
-     * @param view
-     *            the view or null for a progressbar.
+     * @param view the view or null for a progressbar.
      */
     public void setView(View view) {
         setView(view, true);

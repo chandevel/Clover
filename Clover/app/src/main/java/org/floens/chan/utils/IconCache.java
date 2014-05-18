@@ -17,11 +17,11 @@
  */
 package org.floens.chan.utils;
 
-import org.floens.chan.R;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
+import org.floens.chan.R;
 
 public class IconCache {
     public static Bitmap stickyIcon;

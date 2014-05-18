@@ -79,61 +79,61 @@ public class ScrollerRunnable implements Runnable {
         final int firstPos = mList.getFirstVisiblePosition();
 
         switch (mMode) {
-        case MOVE_DOWN_POS: {
-            final int lastViewIndex = mList.getChildCount() - 1;
-            final int lastPos = firstPos + lastViewIndex;
+            case MOVE_DOWN_POS: {
+                final int lastViewIndex = mList.getChildCount() - 1;
+                final int lastPos = firstPos + lastViewIndex;
 
-            if (lastViewIndex < 0) {
-                return;
+                if (lastViewIndex < 0) {
+                    return;
+                }
+
+                if (lastPos == mLastSeenPos) {
+                    // No new views, let things keep going.
+                    mList.post(this);
+                    return;
+                }
+
+                final View lastView = mList.getChildAt(lastViewIndex);
+                final int lastViewHeight = lastView.getHeight();
+                final int lastViewTop = lastView.getTop();
+                final int lastViewPixelsShowing = listHeight - lastViewTop;
+                final int extraScroll = lastPos < mList.getCount() - 1 ? mExtraScroll : mList.getPaddingBottom();
+
+                mList.smoothScrollBy(lastViewHeight - lastViewPixelsShowing + extraScroll, mScrollDuration);
+
+                mLastSeenPos = lastPos;
+                if (lastPos < mTargetPos) {
+                    mList.post(this);
+                }
+                break;
             }
 
-            if (lastPos == mLastSeenPos) {
-                // No new views, let things keep going.
-                mList.post(this);
-                return;
+            case MOVE_UP_POS: {
+                if (firstPos == mLastSeenPos) {
+                    // No new views, let things keep going.
+                    mList.post(this);
+                    return;
+                }
+
+                final View firstView = mList.getChildAt(0);
+                if (firstView == null) {
+                    return;
+                }
+                final int firstViewTop = firstView.getTop();
+                final int extraScroll = firstPos > 0 ? mExtraScroll : mList.getPaddingTop();
+
+                mList.smoothScrollBy(firstViewTop - extraScroll, mScrollDuration);
+
+                mLastSeenPos = firstPos;
+
+                if (firstPos > mTargetPos) {
+                    mList.post(this);
+                }
+                break;
             }
 
-            final View lastView = mList.getChildAt(lastViewIndex);
-            final int lastViewHeight = lastView.getHeight();
-            final int lastViewTop = lastView.getTop();
-            final int lastViewPixelsShowing = listHeight - lastViewTop;
-            final int extraScroll = lastPos < mList.getCount() - 1 ? mExtraScroll : mList.getPaddingBottom();
-
-            mList.smoothScrollBy(lastViewHeight - lastViewPixelsShowing + extraScroll, mScrollDuration);
-
-            mLastSeenPos = lastPos;
-            if (lastPos < mTargetPos) {
-                mList.post(this);
-            }
-            break;
-        }
-
-        case MOVE_UP_POS: {
-            if (firstPos == mLastSeenPos) {
-                // No new views, let things keep going.
-                mList.post(this);
-                return;
-            }
-
-            final View firstView = mList.getChildAt(0);
-            if (firstView == null) {
-                return;
-            }
-            final int firstViewTop = firstView.getTop();
-            final int extraScroll = firstPos > 0 ? mExtraScroll : mList.getPaddingTop();
-
-            mList.smoothScrollBy(firstViewTop - extraScroll, mScrollDuration);
-
-            mLastSeenPos = firstPos;
-
-            if (firstPos > mTargetPos) {
-                mList.post(this);
-            }
-            break;
-        }
-
-        default:
-            break;
+            default:
+                break;
         }
     }
 }

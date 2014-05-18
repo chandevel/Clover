@@ -17,18 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import java.util.List;
-
-import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.service.WatchService;
-import org.floens.chan.ui.fragment.ThreadFragment;
-import org.floens.chan.utils.Utils;
-
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
@@ -46,6 +34,18 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.service.WatchService;
+import org.floens.chan.ui.fragment.ThreadFragment;
+import org.floens.chan.utils.Utils;
+
+import java.util.List;
 
 public class BoardActivity extends BaseActivity implements ActionBar.OnNavigationListener {
     private Loadable boardLoadable = new Loadable();
@@ -70,7 +70,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         final ActionBar actionBar = getActionBar();
         actionBar.setListNavigationCallbacks(
                 new ArrayAdapter<String>(actionBar.getThemedContext(), R.layout.board_select_spinner,
-                        android.R.id.text1, ChanApplication.getBoardManager().getSavedKeys()), this);
+                        android.R.id.text1, ChanApplication.getBoardManager().getSavedKeys()), this
+        );
 
         updatePaneState();
         updateActionBarState();
@@ -324,54 +325,54 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         }
 
         switch (item.getItemId()) {
-        case R.id.action_reload_board:
-        case R.id.action_reload_tablet_board:
-            boardFragment.reload();
-            return true;
-        case R.id.action_reload_thread:
-        case R.id.action_reload_tablet_thread:
-            threadFragment.reload();
-            return true;
-        case R.id.action_reply:
-            if (threadPane.isOpen()) {
-                boardFragment.openReply();
-            } else {
-                threadFragment.openReply();
-            }
-            return true;
-        case R.id.action_reply_board:
-            boardFragment.openReply();
-
-            return true;
-        case R.id.action_reply_thread:
-            threadFragment.openReply();
-
-            return true;
-        case R.id.action_pin:
-            if (threadFragment.hasLoader()) {
-                Pin pin = new Pin();
-                pin.loadable = threadLoadable;
-
-                addPin(pin);
-
-                pinDrawer.openDrawer(pinDrawerView);
-            }
-
-            return true;
-        case R.id.action_open_browser:
-            if (threadPane.isOpen()) {
-                showUrlOpenPicker(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
-            } else {
-                if (threadFragment.hasLoader()) {
-                    showUrlOpenPicker(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
+            case R.id.action_reload_board:
+            case R.id.action_reload_tablet_board:
+                boardFragment.reload();
+                return true;
+            case R.id.action_reload_thread:
+            case R.id.action_reload_tablet_thread:
+                threadFragment.reload();
+                return true;
+            case R.id.action_reply:
+                if (threadPane.isOpen()) {
+                    boardFragment.openReply();
+                } else {
+                    threadFragment.openReply();
                 }
-            }
+                return true;
+            case R.id.action_reply_board:
+                boardFragment.openReply();
 
-            return true;
-        case android.R.id.home:
-            threadPane.openPane();
+                return true;
+            case R.id.action_reply_thread:
+                threadFragment.openReply();
 
-            return true;
+                return true;
+            case R.id.action_pin:
+                if (threadFragment.hasLoader()) {
+                    Pin pin = new Pin();
+                    pin.loadable = threadLoadable;
+
+                    addPin(pin);
+
+                    pinDrawer.openDrawer(pinDrawerView);
+                }
+
+                return true;
+            case R.id.action_open_browser:
+                if (threadPane.isOpen()) {
+                    showUrlOpenPicker(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
+                } else {
+                    if (threadFragment.hasLoader()) {
+                        showUrlOpenPicker(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
+                    }
+                }
+
+                return true;
+            case android.R.id.home:
+                threadPane.openPane();
+
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -510,11 +511,11 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
                         finish();
                     }
                 }).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        showUrlOpenPicker(url);
-                    }
-                }).setCancelable(false).create().show();
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showUrlOpenPicker(url);
+            }
+        }).setCancelable(false).create().show();
     }
 
     private int getBoardIndexNavigator(String boardValue) {

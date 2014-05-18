@@ -17,10 +17,8 @@
  */
 package org.floens.chan.core.manager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanUrls;
@@ -28,8 +26,10 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.net.BoardsRequest;
 import org.floens.chan.utils.Logger;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class BoardManager {
     private static final String TAG = "BoardManager";
@@ -173,7 +173,8 @@ public class BoardManager {
                     public void onErrorResponse(VolleyError error) {
                         Logger.e(TAG, "Failed to get boards from server");
                     }
-                }));
+                })
+        );
     }
 
     private List<Board> getDefaultBoards() {

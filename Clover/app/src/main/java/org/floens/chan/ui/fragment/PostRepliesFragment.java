@@ -17,13 +17,6 @@
  */
 package org.floens.chan.ui.fragment;
 
-import java.util.List;
-
-import org.floens.chan.R;
-import org.floens.chan.core.manager.ThreadManager;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.view.PostView;
-
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -32,6 +25,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import org.floens.chan.R;
+import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.view.PostView;
+
+import java.util.List;
 
 /**
  * A DialogFragment that shows a list of posts. Use the newInstance method for

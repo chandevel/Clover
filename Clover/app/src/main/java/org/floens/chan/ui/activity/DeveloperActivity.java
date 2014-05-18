@@ -17,14 +17,14 @@
  */
 package org.floens.chan.ui.activity;
 
-import org.floens.chan.ChanApplication;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.floens.chan.ChanApplication;
 
 public class DeveloperActivity extends Activity {
     @Override
