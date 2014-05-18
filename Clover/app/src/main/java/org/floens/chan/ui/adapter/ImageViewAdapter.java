@@ -22,7 +22,6 @@ import android.app.FragmentManager;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.view.ViewGroup;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.ImageViewActivity;
@@ -58,7 +57,7 @@ public class ImageViewAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
-    public void destroyItem(ViewGroup collection, int position, Object o) {
+    public void destroyItem(View collection, int position, Object o) {
         View view = (View) o;
         ((ViewPager) collection).removeView(view);
         view = null;
