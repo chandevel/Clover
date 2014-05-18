@@ -17,9 +17,7 @@
  */
 package org.floens.chan.database;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.concurrent.Callable;
+import android.content.Context;
 
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Pin;
@@ -27,7 +25,9 @@ import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
-import android.content.Context;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";

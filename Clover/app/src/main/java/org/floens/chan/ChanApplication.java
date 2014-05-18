@@ -17,7 +17,15 @@
  */
 package org.floens.chan;
 
-import java.lang.reflect.Field;
+import android.app.Application;
+import android.content.SharedPreferences;
+import android.os.StrictMode;
+import android.preference.PreferenceManager;
+import android.view.ViewConfiguration;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.PinnedManager;
@@ -28,15 +36,7 @@ import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.IconCache;
 
-import android.app.Application;
-import android.content.SharedPreferences;
-import android.os.StrictMode;
-import android.preference.PreferenceManager;
-import android.view.ViewConfiguration;
-
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
+import java.lang.reflect.Field;
 
 public class ChanApplication extends Application implements PinListener {
     public static final boolean DEVELOPER_MODE = false;

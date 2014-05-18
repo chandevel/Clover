@@ -17,14 +17,6 @@
  */
 package org.floens.chan.database;
 
-import java.sql.SQLException;
-
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.utils.Logger;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -32,6 +24,14 @@ import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+
+import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.utils.Logger;
+
+import java.sql.SQLException;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
