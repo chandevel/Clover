@@ -345,7 +345,8 @@ public class ReplyFragment extends DialogFragment {
      * Set the picked image in the imageView. Sets the file in the draft. Call
      * null on the file to empty the imageView.
      *
-     * @param imagePath file to image to send or null to clear
+     * @param name the filename
+     * @param file the file
      */
     private void setFile(final String name, final File file) {
         draft.file = file;
@@ -406,6 +407,7 @@ public class ReplyFragment extends DialogFragment {
         gettingCaptcha = true;
 
         captchaContainer.setView(null);
+        captchaInput.setText("");
 
         String url = ChanUrls.getCaptchaChallengeUrl();
 
