@@ -93,7 +93,7 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
         if (error != null) {
             setText(error);
         } else {
-            if (time <= 0) {
+            if (time == 0) {
                 setText("Loading");
             } else {
                 setText("Loading in " + time);

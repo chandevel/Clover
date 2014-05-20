@@ -17,8 +17,6 @@
  */
 package org.floens.chan.core.loader;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.SparseArray;
 
 import com.android.volley.Response;
@@ -31,13 +29,18 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.net.ChanReaderRequest;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
+import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Loader {
     private static final String TAG = "Loader";
-    private static final Handler handler = new Handler(Looper.getMainLooper());
+    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
@@ -53,7 +56,7 @@ public class Loader {
     private int currentTimeout;
     private int lastPostCount;
     private long lastLoadTime;
-    private Runnable pendingRunnable;
+    private ScheduledFuture<?> pendingFuture;
 
     public Loader(Loadable loadable) {
         this.loadable = loadable;
@@ -216,26 +219,30 @@ public class Loader {
         lastPostCount = postCount;
 
         if (autoReload) {
-            pendingRunnable = new Runnable() {
+            Runnable pendingRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    pendingRunnable = null;
-                    loadMoreIfTime();
+                    Utils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pendingFuture = null;
+                            // Always reload, it's always time to reload when the timer fires
+                            requestMoreData();
+                        }
+                    });
                 }
-
-                ;
             };
 
             Logger.d(TAG, "Scheduled reload in " + watchTimeouts[currentTimeout] * 1000L);
-            handler.postDelayed(pendingRunnable, watchTimeouts[currentTimeout] * 1000L);
+            pendingFuture = executor.schedule(pendingRunnable, watchTimeouts[currentTimeout], TimeUnit.SECONDS);
         }
     }
 
     private void clearTimer() {
-        if (pendingRunnable != null) {
+        if (pendingFuture != null) {
             Logger.d(TAG, "Removed pending runnable");
-            handler.removeCallbacks(pendingRunnable);
-            pendingRunnable = null;
+            pendingFuture.cancel(false);
+            pendingFuture = null;
         }
     }
 
