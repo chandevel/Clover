@@ -156,7 +156,9 @@ public class BoardEditor extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void addBoard(final String value) {
+    private void addBoard(String value) {
+        value = value.trim();
+
         // Duplicate
         for (Board board : list) {
             if (board.value.equals(value)) {
@@ -182,12 +184,13 @@ public class BoardEditor extends Activity {
 
         // Unknown
         String message = getString(R.string.board_add_unknown).replace("CODE", value);
+        final String finalValue = value;
         new AlertDialog.Builder(this).setTitle(R.string.board_add_unknown_title).setMessage(message)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (list != null) {
-                            Board b = new Board(value, value, true, true);
+                            Board b = new Board(finalValue, finalValue, true, true);
                             list.add(b);
                             adapter.notifyDataSetChanged();
                             boardManager.getAllBoards().add(b);
