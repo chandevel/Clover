@@ -163,8 +163,6 @@ public class WatchService extends Service {
                     while (running) {
                         Logger.d(TAG, "Loadthread loop");
 
-                        update();
-
                         if (!running)
                             return;
 
@@ -180,6 +178,8 @@ public class WatchService extends Service {
                                 Logger.d(TAG, "Interrupted!");
                             }
                         } else {
+                            update();
+
                             try {
                                 Thread.sleep(timeout);
                             } catch (InterruptedException e) {

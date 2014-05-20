@@ -26,6 +26,7 @@ import android.support.v4.app.NotificationCompat;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.service.WatchService;
@@ -61,7 +62,7 @@ public class WatchNotifier {
     }
 
     public void onForegroundChanged() {
-        if (WatchService.getActivityInForeground()) {
+        if (WatchService.getActivityInForeground() && ChanPreferences.getWatchBackgroundEnabled()) {
             nm.cancel(NOTIFICATION_ID);
         } else {
 
