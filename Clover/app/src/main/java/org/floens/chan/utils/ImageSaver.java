@@ -55,11 +55,10 @@ public class ImageSaver {
             folder = Environment.getExternalStoragePublicDirectory(folderPath);
         }
 
-        folder.mkdirs();
-
         final String finalFolderPath = folderPath;
         String text = context.getString(R.string.download_confirm).replace("COUNT", Integer.toString(list.size()))
                 .replace("FOLDER", folderPath);
+        final File finalFolder = folder;
         new AlertDialog.Builder(context).setMessage(text).setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
@@ -67,6 +66,8 @@ public class ImageSaver {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
+                                finalFolder.mkdirs();
+
                                 for (Uri uri : list) {
                                     DownloadManager.Request request = null;
                                     try {
