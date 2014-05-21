@@ -19,7 +19,7 @@ package org.floens.chan.utils;
 
 import android.util.Log;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.ChanBuild;
 
 public class Logger {
     private static final String TAG = "Clover";
@@ -34,13 +34,13 @@ public class Logger {
     }
 
     public static void d(String tag, String message) {
-        if (ChanApplication.DEVELOPER_MODE) {
+        if (ChanBuild.DEVELOPER_MODE) {
             Log.d(TAG + TAG_SPACER + tag, message);
         }
     }
 
     public static void d(String tag, String message, Throwable throwable) {
-        if (ChanApplication.DEVELOPER_MODE) {
+        if (ChanBuild.DEVELOPER_MODE) {
             Log.d(TAG + TAG_SPACER + tag, message, throwable);
         }
     }
@@ -78,13 +78,13 @@ public class Logger {
     }
 
     public static void test(String message) {
-        if (ChanApplication.DEVELOPER_MODE) {
+        if (ChanBuild.DEVELOPER_MODE) {
             Log.i(TAG + TAG_SPACER + "test", message);
         }
     }
 
     public static void test(String message, Throwable throwable) {
-        if (ChanApplication.DEVELOPER_MODE) {
+        if (ChanBuild.DEVELOPER_MODE) {
             Log.i(TAG + TAG_SPACER + "test", message, throwable);
         }
     }

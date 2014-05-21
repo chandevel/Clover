@@ -39,8 +39,6 @@ import org.floens.chan.utils.IconCache;
 import java.lang.reflect.Field;
 
 public class ChanApplication extends Application implements PinListener {
-    public static final boolean DEVELOPER_MODE = false;
-
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
     private static ImageLoader imageLoader;
@@ -101,7 +99,7 @@ public class ChanApplication extends Application implements PinListener {
         } catch (Exception e) {
         }
 
-        if (ChanApplication.DEVELOPER_MODE) {
+        if (ChanBuild.DEVELOPER_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
