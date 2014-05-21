@@ -56,13 +56,13 @@ public class WatchNotifier {
     }
 
     public void update() {
-        if (!WatchService.getActivityInForeground()) {
+        if (!WatchService.getActivityInForeground() && ChanPreferences.getWatchBackgroundEnabled()) {
             prepareNotification();
         }
     }
 
     public void onForegroundChanged() {
-        if (WatchService.getActivityInForeground() && ChanPreferences.getWatchBackgroundEnabled()) {
+        if (WatchService.getActivityInForeground()) {
             nm.cancel(NOTIFICATION_ID);
         } else {
 
