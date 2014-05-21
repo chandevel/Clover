@@ -40,7 +40,7 @@ public class DatabaseManager {
     }
 
     public void saveReply(SavedReply saved) {
-        Logger.e(TAG, "Saving " + saved.board + ", " + saved.no);
+        Logger.i(TAG, "Saving " + saved.board + ", " + saved.no);
 
         try {
             helper.savedDao.create(saved);

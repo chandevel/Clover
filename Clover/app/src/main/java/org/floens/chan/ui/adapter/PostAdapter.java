@@ -81,7 +81,7 @@ public class PostAdapter extends BaseAdapter {
         }
 
         if (position >= postList.size()) {
-            if (Time.get(lastViewedTime) > 10000L) {
+            if (Time.get(lastViewedTime) > 2000L) {
                 lastViewedTime = Time.get();
                 threadManager.bottomPostViewed();
             }

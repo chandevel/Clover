@@ -52,6 +52,7 @@ import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -208,24 +209,27 @@ public class ThreadManager implements Loader.LoaderListener {
     public void onPostLongClicked(final Post post) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-        String[] items = null;
-
-        String[] temp = activity.getResources().getStringArray(R.array.post_options);
+        List<String> options = new ArrayList<String>(Arrays.asList(activity.getResources().getStringArray(R.array.post_options)));
         // Only add the delete option when the post is a saved reply
+        boolean delete = false, saved = false;
         if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
-            items = new String[temp.length + 1];
-            System.arraycopy(temp, 0, items, 0, temp.length);
-            items[items.length - 1] = activity.getString(R.string.delete);
-        } else {
-            items = temp;
+            options.add(activity.getString(R.string.delete));
+            delete = true;
         }
 
-        builder.setItems(items, new DialogInterface.OnClickListener() {
+        if (ChanPreferences.getDeveloper()) {
+            options.add("Make this a saved reply");
+            saved = true;
+        }
+
+        final boolean finalDelete = delete;
+        final boolean finalSaved = saved;
+        builder.setItems(options.toArray(new String[options.size()]), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case 0: // Reply
-                        openReply(true); // todo if tablet
+                        openReply(true);
                         // Pass through
                     case 1: // Quote
                         ChanApplication.getReplyManager().quote(post.no);
@@ -240,7 +244,15 @@ public class ThreadManager implements Loader.LoaderListener {
                         copyToClipboard(post.comment.toString());
                         break;
                     case 5: // Delete
-                        deletePost(post);
+                        if (finalDelete && !finalSaved) {
+                            deletePost(post);
+                        } else if (finalSaved && !finalDelete) {
+                            ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
+                        }
+                        break;
+                    case 6:
+                        ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
+
                         break;
                 }
             }

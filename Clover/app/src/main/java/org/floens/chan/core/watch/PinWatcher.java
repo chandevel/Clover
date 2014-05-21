@@ -60,6 +60,7 @@ public class PinWatcher implements Loader.LoaderListener {
     public void onViewed() {
         pin.watchLastCount = pin.watchNewCount;
         pin.quoteLastCount = pin.quoteNewCount;
+        wereNewQuotes = false;
     }
 
     public List<Post> getNewPosts() {

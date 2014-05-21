@@ -22,6 +22,15 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable
 public class SavedReply {
+    public SavedReply() {
+    }
+
+    public SavedReply(String board, int no, String password) {
+        this.board = board;
+        this.no = no;
+        this.password = password;
+    }
+
     @DatabaseField(generatedId = true)
     private int id;
 
