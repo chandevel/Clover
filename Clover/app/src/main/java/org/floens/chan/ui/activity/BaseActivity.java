@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -52,6 +53,7 @@ import org.floens.chan.ui.BadgeDrawable;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener.DismissCallbacks;
 import org.floens.chan.ui.adapter.PinnedAdapter;
+import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
 import java.util.List;
@@ -87,6 +89,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ThemeHelper.setTheme(this);
+
         setContentView(R.layout.activity_base);
 
         pinDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -111,7 +115,12 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         threadPane.setPanelSlideListener(this);
         threadPane.setParallaxDistance(200);
         threadPane.setShadowResource(R.drawable.panel_shadow);
-        threadPane.setSliderFadeColor(0xcce5e5e5);
+
+        TypedArray ta = obtainStyledAttributes(null, R.styleable.BoardPane, R.attr.board_pane_style, 0);
+        int color = ta.getColor(R.styleable.BoardPane_fade_color, 0);
+        ta.recycle();
+
+        threadPane.setSliderFadeColor(color);
         threadPane.openPane();
     }
 

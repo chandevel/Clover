@@ -41,6 +41,7 @@ import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.PassResponse;
 import org.floens.chan.core.model.Pass;
+import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
 public class PassSettingsActivity extends Activity implements OnCheckedChangeListener {
@@ -51,6 +52,8 @@ public class PassSettingsActivity extends Activity implements OnCheckedChangeLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         instance = this;
 

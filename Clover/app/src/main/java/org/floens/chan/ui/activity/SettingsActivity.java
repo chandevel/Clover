@@ -18,15 +18,55 @@
 package org.floens.chan.ui.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import org.floens.chan.ui.fragment.SettingsFragment;
+import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.ThemeHelper;
 
 public class SettingsActivity extends Activity {
+    private static boolean doingThemeRestart = false;
+    private static ThemeHelper.Theme lastTheme;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
+        if (!doingThemeRestart) {
+            lastTheme = ThemeHelper.getTheme();
+        }
+
+        ThemeHelper.setTheme(this);
+
+        SettingsFragment frag = new SettingsFragment();
+        frag.setArguments(getIntent().getExtras());
+        getFragmentManager().beginTransaction().replace(android.R.id.content, frag).commit();
+    }
+
+    public void restart(Intent intent) {
+        doingThemeRestart = true;
+        startActivity(intent);
+        finish();
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (doingThemeRestart) {
+            doingThemeRestart = false;
+        } else {
+            if (ThemeHelper.getTheme() != lastTheme) {
+                lastTheme = ThemeHelper.getTheme();
+                Logger.test("THEME CHANGED!");
+
+                Intent intent = new Intent(this, BoardActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                startActivity(intent);
+            }
+        }
     }
 }

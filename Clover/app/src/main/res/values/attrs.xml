@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="image_list_background">#88000000</color>
-
     <declare-styleable name="FloatLabelEditText">
         <attr name="hint" format="string"/>
         <attr name="text" format="string"/>
@@ -12,5 +10,22 @@
             <enum name="full" value="1"/>
             <enum name="half" value="2"/>
         </attr>
+    </declare-styleable>
+
+    <attr name="board_pane_style" format="reference"></attr>
+    <attr name="board_pane_left_style" format="reference" />
+    <attr name="board_pane_right_style" format="reference" />
+
+    <declare-styleable name="BoardPane">
+        <attr name="fade_color" format="color"/>
+    </declare-styleable>
+
+    <attr name="post_style" format="reference" />
+
+    <declare-styleable name="PostView">
+        <attr name="thumbnail_background" format="color"/>
+        <attr name="saved_reply_color" format="color"/>
+        <attr name="highlighted_color" format="color"/>
+        <attr name="reply_count_color" format="color"/>
     </declare-styleable>
 </resources>

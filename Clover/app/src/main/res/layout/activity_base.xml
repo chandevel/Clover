@@ -12,14 +12,14 @@
             android:id="@+id/left_pane"
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:background="#FFFFFFFF" />
+            style="?board_pane_left_style" />
 
         <FrameLayout
             android:id="@+id/right_pane"
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#FFE5E5E5" />
+            style="?board_pane_right_style"/>
     </android.support.v4.widget.SlidingPaneLayout>
 
     <ListView

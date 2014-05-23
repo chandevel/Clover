@@ -33,6 +33,7 @@ import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.fragment.ImageViewFragment;
 import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +70,8 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
 
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         if (postAdapter != null) {
             // Get the posts with images

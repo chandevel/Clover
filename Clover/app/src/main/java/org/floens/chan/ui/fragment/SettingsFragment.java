@@ -20,15 +20,20 @@ package org.floens.chan.ui.fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.ui.activity.AboutActivity;
+import org.floens.chan.ui.activity.SettingsActivity;
+import org.floens.chan.utils.ThemeHelper;
 
 public class SettingsFragment extends PreferenceFragment {
     private int clickCount = 0;
@@ -87,6 +92,43 @@ public class SettingsFragment extends PreferenceFragment {
         developerPreference = findPreference("about_developer");
         ((PreferenceGroup) findPreference("group_about")).removePreference(developerPreference);
         updateDeveloperPreference();
+
+        final ListPreference theme = (ListPreference) findPreference("preference_theme");
+        String currentValue = theme.getValue();
+        if (currentValue == null) {
+            theme.setValue((String) theme.getEntryValues()[0]);
+            currentValue = theme.getValue();
+        }
+        updateThemeSummary(theme, currentValue.toString());
+
+        theme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                updateThemeSummary(theme, newValue.toString());
+
+                // Thanks! https://github.com/CyanogenMod/android_packages_apps_Calculator/blob/cm-10.2/src/com/android/calculator2/view/PreferencesFragment.java
+                if (!newValue.toString().equals(ThemeHelper.getTheme().name)) {
+                    Intent intent = new Intent(getActivity(), SettingsActivity.class);
+
+                    intent.putExtra("pos", getListView().getFirstVisiblePosition());
+                    View child = getListView().getChildAt(0);
+                    intent.putExtra("off", child != null ? child.getTop() : 0);
+
+                    ((SettingsActivity) getActivity()).restart(intent);
+                }
+
+                return true;
+            }
+        });
+    }
+
+    public void onStart() {
+        super.onStart();
+
+        final Bundle args = getArguments();
+        if (args != null) {
+            getListView().setSelectionFromTop(args.getInt("pos", 0), args.getInt("off", 0));
+        }
     }
 
     @Override
@@ -106,11 +148,20 @@ public class SettingsFragment extends PreferenceFragment {
         }
     }
 
+    private ListView getListView() {
+        return (ListView) getView().findViewById(android.R.id.list);
+    }
+
     private void updateDeveloperPreference() {
         if (ChanPreferences.getDeveloper()) {
             ((PreferenceGroup) findPreference("group_about")).addPreference(developerPreference);
         } else {
             ((PreferenceGroup) findPreference("group_about")).removePreference(developerPreference);
         }
+    }
+
+    private void updateThemeSummary(ListPreference list, String value) {
+        int index = list.findIndexOfValue(value);
+        list.setSummary(list.getEntries()[index]);
     }
 }

@@ -40,6 +40,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
 public class WatchSettingsActivity extends Activity implements OnCheckedChangeListener {
@@ -48,6 +49,8 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         setFragment(ChanPreferences.getWatchEnabled());
     }

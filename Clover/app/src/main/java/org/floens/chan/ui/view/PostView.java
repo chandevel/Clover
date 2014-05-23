@@ -20,6 +20,7 @@ package org.floens.chan.ui.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.Layout;
 import android.text.Selection;
@@ -78,6 +79,11 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private NetworkImageView countryView;
     private View lastSeen;
 
+    private int thumbnailBackground;
+    private int savedReplyColor;
+    private int highlightedColor;
+    private int replyCountColor;
+
     /**
      * Represents a post. Use setPost(Post ThreadManager) to fill it with data.
      * setPost can be called multiple times (useful for ListView).
@@ -87,16 +93,19 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     public PostView(Context activity) {
         super(activity);
         context = (Activity) activity;
+        init();
     }
 
     public PostView(Context activity, AttributeSet attbs) {
         super(activity, attbs);
         context = (Activity) activity;
+        init();
     }
 
     public PostView(Context activity, AttributeSet attbs, int style) {
         super(activity, attbs, style);
         context = (Activity) activity;
+        init();
     }
 
     @Override
@@ -228,9 +237,9 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         }
 
         if (post.isSavedReply) {
-            full.setBackgroundColor(0xFFBCBCBC);
+            full.setBackgroundColor(savedReplyColor);
         } else if (manager.isPostHightlighted(post)) {
-            full.setBackgroundColor(0xFFD6BAD0);
+            full.setBackgroundColor(highlightedColor);
         } else {
             full.setBackgroundColor(0x00000000);
         }
@@ -244,6 +253,15 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         if (manager.getLoadable().isBoardMode()) {
             Utils.setPressedDrawable(right);
         }
+    }
+
+    private void init() {
+        TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
+        thumbnailBackground = ta.getColor(R.styleable.PostView_thumbnail_background, 0);
+        savedReplyColor = ta.getColor(R.styleable.PostView_saved_reply_color, 0);
+        highlightedColor = ta.getColor(R.styleable.PostView_highlighted_color, 0);
+        replyCountColor = ta.getColor(R.styleable.PostView_reply_count_color, 0);
+        ta.recycle();
     }
 
     private void buildView(final Context context) {
@@ -277,7 +295,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
 
         LinearLayout left = new LinearLayout(context);
         left.setOrientation(VERTICAL);
-        left.setBackgroundColor(0xffdddddd);
+        left.setBackgroundColor(thumbnailBackground);
 
         left.addView(imageView, new LinearLayout.LayoutParams(imageSize, imageSize));
 
@@ -326,7 +344,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         // This behavior differs with 4.4 / 4.1
         Utils.setPressedDrawable(repliesCountView);
 
-        repliesCountView.setTextColor(Color.argb(255, 100, 100, 100));
+        repliesCountView.setTextColor(replyCountColor);
         repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
         repliesCountView.setTextSize(14);
 

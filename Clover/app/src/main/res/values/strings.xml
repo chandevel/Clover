@@ -100,6 +100,19 @@
     <string name="preference_pass_settings">4chan pass</string>
 
     <string name="preference_general">General</string>
+
+    <string name="preference_theme">Theme</string>
+    <string-array name="preference_themes">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>Black</item>
+    </string-array>
+    <string-array name="preference_themes_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>black</item>
+    </string-array>
+
     <string name="preference_open_link_confirmation">Ask before opening links</string>
     <string name="preference_autoplay">Start playing videos directly</string>
 

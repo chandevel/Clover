@@ -49,6 +49,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener;
+import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
@@ -65,6 +66,8 @@ public class BoardEditor extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         list = boardManager.getSavedBoards();
 

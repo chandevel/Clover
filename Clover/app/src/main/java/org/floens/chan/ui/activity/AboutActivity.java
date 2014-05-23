@@ -21,10 +21,14 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 
+import org.floens.chan.utils.ThemeHelper;
+
 public class AboutActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         WebView webView = new WebView(this);
         webView.loadUrl("file:///android_asset/html/licences.html");

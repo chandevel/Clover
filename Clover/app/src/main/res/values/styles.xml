@@ -1,18 +1,68 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-    </style>
-    
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
     <style name="Theme.ImageList" parent="AppTheme">
-	    <item name="android:windowIsTranslucent">true</item>
-	    <item name="android:windowBackground">@android:color/transparent</item>
-	    <item name="android:backgroundDimEnabled">true</item>
-	</style>
-	
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <color name="image_list_background">#88000000</color>
+
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="board_pane_style">@style/BoardPane</item>
+        <item name="board_pane_left_style">@style/BoardLeftPane</item>
+        <item name="board_pane_right_style">@style/BoardRightPane</item>
+
+        <item name="post_style">@style/PostView</item>
+    </style>
+
+    <style name="AppTheme.Dark" parent="android:Theme.Holo">
+        <item name="android:actionBarStyle">@android:style/Widget.Holo.ActionBar.Solid</item>
+
+        <item name="board_pane_style">@style/BoardPane.Dark</item>
+        <item name="board_pane_left_style">@style/BoardLeftPane.Dark</item>
+        <item name="board_pane_right_style">@style/BoardRightPane.Dark</item>
+
+        <item name="post_style">@style/PostView.Dark</item>
+    </style>
+
+    <style name="BoardPane">
+        <item name="fade_color">#CCE5E5E5</item>
+    </style>
+
+    <style name="BoardLeftPane">
+        <item name="android:background">#FFFFFFFF</item>
+    </style>
+
+    <style name="BoardRightPane">
+        <item name="android:background">#FFE5E5E5</item>
+    </style>
+
+    <style name="PostView">
+        <item name="thumbnail_background">#FFDDDDDD</item>
+        <item name="saved_reply_color">#FFBCBCBC</item>
+        <item name="highlighted_color">#FFD6BAD0</item>
+        <item name="reply_count_color">#FF646464</item>
+    </style>
+
+
+    <style name="BoardPane.Dark">
+        <item name="fade_color">#a5323232</item>
+    </style>
+
+    <style name="BoardLeftPane.Dark">
+        <item name="android:background">#ff232323</item>
+    </style>
+
+    <style name="BoardRightPane.Dark">
+        <item name="android:background">#ff232323</item>
+    </style>
+
+    <style name="PostView.Dark">
+        <item name="thumbnail_background">#00000000</item>
+        <item name="saved_reply_color">#ff5c5c5c</item>
+        <item name="highlighted_color">#ff858585</item>
+        <item name="reply_count_color">#ff737373</item>
+    </style>
 </resources>
-
-
-
-
-

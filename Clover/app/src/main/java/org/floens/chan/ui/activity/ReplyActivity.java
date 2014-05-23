@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.ui.fragment.ReplyFragment;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.ThemeHelper;
 
 public class ReplyActivity extends Activity {
     private static final String TAG = "ReplyActivity";
@@ -38,6 +39,8 @@ public class ReplyActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         if (loadable != null) {
             getActionBar().setDisplayHomeAsUpEnabled(true);

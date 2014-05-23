@@ -17,28 +17,36 @@
  */
 package org.floens.chan.core;
 
+import android.content.SharedPreferences;
+
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 import org.floens.chan.service.WatchService;
+import org.floens.chan.utils.ThemeHelper;
 
 public class ChanPreferences {
+    private static SharedPreferences p() {
+        return ChanApplication.getPreferences();
+    }
+
     public static boolean getOpenLinkConfirmation() {
-        return ChanApplication.getPreferences().getBoolean("preference_open_link_confirmation", true);
+        return p().getBoolean("preference_open_link_confirmation", true);
     }
 
     public static String getDefaultName() {
-        return ChanApplication.getPreferences().getString("preference_default_name", "");
+        return p().getString("preference_default_name", "");
     }
 
     public static String getDefaultEmail() {
-        return ChanApplication.getPreferences().getString("preference_default_email", "");
+        return p().getString("preference_default_email", "");
     }
 
     public static boolean getDeveloper() {
-        return ChanApplication.getPreferences().getBoolean("preference_developer", false);
+        return p().getBoolean("preference_developer", false);
     }
 
     public static void setDeveloper(boolean developer) {
-        ChanApplication.getPreferences().edit().putBoolean("preference_developer", developer).commit();
+        p().edit().putBoolean("preference_developer", developer).commit();
     }
 
     public static String getImageSaveDirectory() {
@@ -46,7 +54,7 @@ public class ChanPreferences {
     }
 
     public static boolean getWatchEnabled() {
-        return ChanApplication.getPreferences().getBoolean("preference_watch_enabled", false);
+        return p().getBoolean("preference_watch_enabled", false);
     }
 
     /**
@@ -57,48 +65,52 @@ public class ChanPreferences {
      */
     public static void setWatchEnabled(boolean enabled) {
         if (getWatchEnabled() != enabled) {
-            ChanApplication.getPreferences().edit().putBoolean("preference_watch_enabled", enabled).commit();
+            p().edit().putBoolean("preference_watch_enabled", enabled).commit();
             WatchService.updateRunningState(ChanApplication.getInstance());
             ChanApplication.getPinnedManager().onPinsChanged();
         }
     }
 
     public static boolean getWatchBackgroundEnabled() {
-        return ChanApplication.getPreferences().getBoolean("preference_watch_background_enabled", true);
+        return p().getBoolean("preference_watch_background_enabled", true);
     }
 
     public static long getWatchBackgroundTimeout() {
-        String number = ChanApplication.getPreferences().getString("preference_watch_background_timeout", "0");
+        String number = p().getString("preference_watch_background_timeout", "0");
         return Integer.parseInt(number) * 1000L;
     }
 
     public static boolean getVideoAutoPlay() {
-        return ChanApplication.getPreferences().getBoolean("preference_autoplay", false);
+        return p().getBoolean("preference_autoplay", false);
     }
 
     public static boolean getPassEnabled() {
-        return ChanApplication.getPreferences().getBoolean("preference_pass_enabled", false);
+        return p().getBoolean("preference_pass_enabled", false);
     }
 
     public static void setPassEnabled(boolean enabled) {
         if (getPassEnabled() != enabled) {
-            ChanApplication.getPreferences().edit().putBoolean("preference_pass_enabled", enabled).commit();
+            p().edit().putBoolean("preference_pass_enabled", enabled).commit();
         }
     }
 
     public static String getPassToken() {
-        return ChanApplication.getPreferences().getString("preference_pass_token", "");
+        return p().getString("preference_pass_token", "");
     }
 
     public static String getPassPin() {
-        return ChanApplication.getPreferences().getString("preference_pass_pin", "");
+        return p().getString("preference_pass_pin", "");
     }
 
     public static void setPassId(String id) {
-        ChanApplication.getPreferences().edit().putString("preference_pass_id", id).commit();
+        p().edit().putString("preference_pass_id", id).commit();
     }
 
     public static String getPassId() {
-        return ChanApplication.getPreferences().getString("preference_pass_id", "");
+        return p().getString("preference_pass_id", "");
+    }
+
+    public static String getTheme() {
+        return p().getString("preference_theme", "light");
     }
 }

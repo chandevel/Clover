@@ -25,11 +25,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.utils.ThemeHelper;
 
 public class DeveloperActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         LinearLayout wrapper = new LinearLayout(this);
         wrapper.setOrientation(LinearLayout.VERTICAL);

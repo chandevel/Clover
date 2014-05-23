@@ -27,6 +27,14 @@
     </Preference>
 
     <PreferenceCategory android:title="@string/preference_general" >
+        <ListPreference
+            android:key="preference_theme"
+            android:defaultValue="light"
+            android:dialogTitle="@string/preference_theme"
+            android:entries="@array/preference_themes"
+            android:entryValues="@array/preference_themes_values"
+            android:title="@string/preference_theme" />
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="preference_open_link_confirmation"
