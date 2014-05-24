@@ -28,4 +28,4 @@ Be sure to search for existing items on the todo list and issues page before rep
 ## License
 
 * Clover is [GPLv3](https://github.com/Floens/Clover/blob/master/COPYING.txt)
-* [Licenses of the used libraries](https://github.com/Floens/Clover/blob/master/Clover/assets/html/licences.html).
+* [Licenses of the used libraries](https://rawgit.com/Floens/Clover/master/Clover/app/src/main/assets/html/licences.html).
