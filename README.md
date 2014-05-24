@@ -2,11 +2,11 @@
 
 [![Get it on Google Play](https://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=org.floens.chan)
 
-[Website](http://floens.github.io/Clover/)
 
 Clover is a fast Android app for browsing 4chan.  
 This repo contains all the code for Clover.
 
+[Website](http://floens.github.io/Clover/)  
 [Google Play](https://play.google.com/store/apps/details?id=org.floens.chan)  
 [APK downloads](https://github.com/Floens/Clover/releases)
 
