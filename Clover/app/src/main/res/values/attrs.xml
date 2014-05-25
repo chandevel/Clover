@@ -27,5 +27,16 @@
         <attr name="saved_reply_color" format="color"/>
         <attr name="highlighted_color" format="color"/>
         <attr name="reply_count_color" format="color"/>
+        <attr name="name_color" format="color"/>
+        <attr name="subject_color" format="color"/>
+        <attr name="date_color" format="color"/>
+        <attr name="quote_color" format="color"/>
+        <attr name="link_color" format="color"/>
+        <attr name="spoiler_color" format="color"/>
+        <attr name="capcode_color" format="color"/>
+        <attr name="id_background_light" format="color"/>
+        <attr name="id_background_dark" format="color"/>
     </declare-styleable>
+
+    <attr name="board_edit_item_style" format="reference"/>
 </resources>

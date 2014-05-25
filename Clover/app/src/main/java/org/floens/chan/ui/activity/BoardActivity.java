@@ -48,16 +48,20 @@ import org.floens.chan.utils.Utils;
 import java.util.List;
 
 public class BoardActivity extends BaseActivity implements ActionBar.OnNavigationListener {
-    private Loadable boardLoadable = new Loadable();
-    private Loadable threadLoadable = new Loadable();
+    private Loadable boardLoadable;
+    private Loadable threadLoadable;
     private ThreadFragment boardFragment;
     private ThreadFragment threadFragment;
 
-    private boolean actionBarSetToListNavigation = false;
+    private boolean actionBarSetToListNavigation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        actionBarSetToListNavigation = false;
+        boardLoadable = new Loadable();
+        threadLoadable = new Loadable();
 
         boardFragment = ThreadFragment.newInstance(this);
         threadFragment = ThreadFragment.newInstance(this);

@@ -106,6 +106,8 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         if (threadManager != null) {
             threadManager.onDestroy();
         }
+        threadManager = null;
+        loadable = null;
     }
 
     @Override

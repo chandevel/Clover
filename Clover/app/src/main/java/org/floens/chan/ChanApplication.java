@@ -35,6 +35,7 @@ import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.IconCache;
+import org.floens.chan.utils.ThemeHelper;
 
 import java.lang.reflect.Field;
 
@@ -46,6 +47,7 @@ public class ChanApplication extends Application implements PinListener {
     private static PinnedManager pinnedManager;
     private static ReplyManager replyManager;
     private static DatabaseManager databaseManager;
+    private static ThemeHelper themeHelper;
 
     public ChanApplication() {
         instance = this;

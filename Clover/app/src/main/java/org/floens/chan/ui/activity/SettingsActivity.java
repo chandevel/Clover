@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.floens.chan.ui.fragment.SettingsFragment;
-import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ThemeHelper;
 
 public class SettingsActivity extends Activity {
@@ -34,7 +33,7 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if (!doingThemeRestart) {
-            lastTheme = ThemeHelper.getTheme();
+            lastTheme = ThemeHelper.getInstance().getTheme();
         }
 
         ThemeHelper.setTheme(this);
@@ -58,9 +57,8 @@ public class SettingsActivity extends Activity {
         if (doingThemeRestart) {
             doingThemeRestart = false;
         } else {
-            if (ThemeHelper.getTheme() != lastTheme) {
-                lastTheme = ThemeHelper.getTheme();
-                Logger.test("THEME CHANGED!");
+            if (ThemeHelper.getInstance().getTheme() != lastTheme) {
+                lastTheme = ThemeHelper.getInstance().getTheme();
 
                 Intent intent = new Intent(this, BoardActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

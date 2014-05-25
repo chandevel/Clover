@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.text.Layout;
 import android.text.Selection;
 import android.text.Spannable;
@@ -30,6 +29,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
@@ -83,6 +83,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private int savedReplyColor;
     private int highlightedColor;
     private int replyCountColor;
+    private int dateColor;
 
     /**
      * Represents a post. Use setPost(Post ThreadManager) to fill it with data.
@@ -121,6 +122,13 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         this.post = post;
         this.manager = manager;
 
+        post.setLinkableListener(null);
+
+        if (!post.parsedSpans) {
+            post.parsedSpans = true;
+            parseSpans(post);
+        }
+
         buildView(context);
 
         if (post.hasImage) {
@@ -157,7 +165,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
                 DateUtils.SECOND_IN_MILLIS, 0);
 
         SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);
-        date.setSpan(new ForegroundColorSpan(Color.argb(255, 100, 100, 100)), 0, date.length(), 0);
+        date.setSpan(new ForegroundColorSpan(dateColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(10, true), 0, date.length(), 0);
         total = TextUtils.concat(total, date, " ");
 
@@ -261,6 +269,54 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         savedReplyColor = ta.getColor(R.styleable.PostView_saved_reply_color, 0);
         highlightedColor = ta.getColor(R.styleable.PostView_highlighted_color, 0);
         replyCountColor = ta.getColor(R.styleable.PostView_reply_count_color, 0);
+        dateColor = ta.getColor(R.styleable.PostView_date_color, 0);
+        ta.recycle();
+    }
+
+    private void parseSpans(Post post) {
+        TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
+
+        if (!TextUtils.isEmpty(post.subject)) {
+            post.subjectSpan = new SpannableString(post.subject);
+            post.subjectSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_subject_color, 0)), 0, post.subjectSpan.length(), 0);
+        }
+
+        if (!TextUtils.isEmpty(post.name)) {
+            post.nameSpan = new SpannableString(post.name);
+            post.nameSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.nameSpan.length(), 0);
+        }
+
+        if (!TextUtils.isEmpty(post.tripcode)) {
+            post.tripcodeSpan = new SpannableString(post.tripcode);
+            post.tripcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.tripcodeSpan.length(), 0);
+            post.tripcodeSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, post.tripcodeSpan.length(), 0);
+        }
+
+        if (!TextUtils.isEmpty(post.id)) {
+            post.idSpan = new SpannableString("  ID: " + post.id + "  ");
+
+            // Stolen from the 4chan extension
+            int hash = post.id.hashCode();
+
+            int r = (hash >> 24) & 0xff;
+            int g = (hash >> 16) & 0xff;
+            int b = (hash >> 8) & 0xff;
+
+            int idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
+            boolean lightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
+            int idBgColor = lightColor ? ta.getColor(R.styleable.PostView_id_background_light, 0) : ta.getColor(R.styleable.PostView_id_background_dark, 0);
+
+            post.idSpan.setSpan(new ForegroundColorSpan(idColor), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, post.idSpan.length(), 0);
+        }
+
+        if (!TextUtils.isEmpty(post.capcode)) {
+            post.capcodeSpan = new SpannableString("Capcode: " + post.capcode);
+            post.capcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_capcode_color, 0)), 0, post.capcodeSpan.length(), 0);
+            post.capcodeSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, post.capcodeSpan.length(), 0);
+        }
+
         ta.recycle();
     }
 

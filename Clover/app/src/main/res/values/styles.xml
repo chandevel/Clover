@@ -9,14 +9,20 @@
 
     <color name="image_list_background">#88000000</color>
 
+
+    <!-- Light theme -->
     <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <item name="board_pane_style">@style/BoardPane</item>
         <item name="board_pane_left_style">@style/BoardLeftPane</item>
         <item name="board_pane_right_style">@style/BoardRightPane</item>
 
         <item name="post_style">@style/PostView</item>
+
+        <item name="board_edit_item_style">@style/BoardEditItem</item>
     </style>
 
+
+    <!-- Dark theme -->
     <style name="AppTheme.Dark" parent="android:Theme.Holo">
         <item name="android:actionBarStyle">@android:style/Widget.Holo.ActionBar.Solid</item>
 
@@ -25,8 +31,22 @@
         <item name="board_pane_right_style">@style/BoardRightPane.Dark</item>
 
         <item name="post_style">@style/PostView.Dark</item>
+
+        <item name="board_edit_item_style">@style/BoardEditItem.Dark</item>
     </style>
 
+
+    <!-- Black theme -->
+    <style name="AppTheme.Dark.Black">
+        <item name="android:actionBarStyle">@android:style/Widget.Holo.ActionBar</item>
+
+        <item name="board_pane_style">@style/BoardPane.Dark.Black</item>
+        <item name="board_pane_left_style">@style/BoardLeftPane.Dark.Black</item>
+        <item name="board_pane_right_style">@style/BoardRightPane.Dark.Black</item>
+    </style>
+
+
+    <!-- Light styles -->
     <style name="BoardPane">
         <item name="fade_color">#CCE5E5E5</item>
     </style>
@@ -44,9 +64,23 @@
         <item name="saved_reply_color">#FFBCBCBC</item>
         <item name="highlighted_color">#FFD6BAD0</item>
         <item name="reply_count_color">#FF646464</item>
+        <item name="name_color">#ff117743</item>
+        <item name="subject_color">#ff0F0C5D</item>
+        <item name="date_color">#ff646464</item>
+        <item name="quote_color">#ffDD0000</item>
+        <item name="link_color">#ff0000B4</item>
+        <item name="spoiler_color">#ff000000</item>
+        <item name="capcode_color">#ffff0000</item>
+        <item name="id_background_light">#ff636363</item>
+        <item name="id_background_dark">#00000000</item>
+    </style>
+
+    <style name="BoardEditItem">
+        <item name="android:color">#ff4c4c4c</item>
     </style>
 
 
+    <!-- Dark styles -->
     <style name="BoardPane.Dark">
         <item name="fade_color">#a5323232</item>
     </style>
@@ -61,8 +95,32 @@
 
     <style name="PostView.Dark">
         <item name="thumbnail_background">#00000000</item>
-        <item name="saved_reply_color">#ff5c5c5c</item>
-        <item name="highlighted_color">#ff858585</item>
-        <item name="reply_count_color">#ff737373</item>
+        <item name="saved_reply_color">#ff5C5C5C</item>
+        <item name="highlighted_color">#ff444444</item>
+        <item name="reply_count_color">#ff9f9f9f</item>
+        <item name="subject_color">#ff625cff</item>
+        <item name="date_color">#ff9f9f9f</item>
+        <item name="link_color">#ff625cff</item>
+        <item name="spoiler_color">#ff000000</item>
+        <item name="id_background_light">#00000000</item>
+        <item name="id_background_dark">#ffC6C6C6</item>
+    </style>
+
+    <style name="BoardEditItem.Dark">
+        <item name="android:color">#77ffffff</item>
+    </style>
+
+
+    <!-- Black styles -->
+    <style name="BoardPane.Dark.Black">
+        <item name="fade_color">#a51a1a1a</item>
+    </style>
+
+    <style name="BoardLeftPane.Dark.Black">
+        <item name="android:background">#ff000000</item>
+    </style>
+
+    <style name="BoardRightPane.Dark.Black">
+        <item name="android:background">#ff000000</item>
     </style>
 </resources>

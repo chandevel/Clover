@@ -20,8 +20,6 @@ package org.floens.chan.core.model;
 import android.graphics.Color;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 
 import org.floens.chan.chan.ChanUrls;
@@ -83,16 +81,17 @@ public class Post {
     public List<Integer> repliesFrom = new ArrayList<Integer>();
 
     public final ArrayList<PostLinkable> linkables = new ArrayList<PostLinkable>();
-    /**
-     * The PostView the Post is currently bound to.
-     */
 
+    public boolean parsedSpans = false;
     public SpannableString subjectSpan;
     public SpannableString nameSpan;
     public SpannableString tripcodeSpan;
     public SpannableString idSpan;
     public SpannableString capcodeSpan;
 
+    /**
+     * The PostView the Post is currently bound to.
+     */
     private PostView linkableListener;
     private String rawComment;
 
@@ -156,51 +155,7 @@ public class Post {
             e.printStackTrace();
         }
 
-        parseSpans();
-
         return true;
-    }
-
-    private void parseSpans() {
-        if (!TextUtils.isEmpty(subject)) {
-            subjectSpan = new SpannableString(subject);
-            subjectSpan.setSpan(new ForegroundColorSpan(Color.argb(255, 15, 12, 93)), 0, subjectSpan.length(), 0);
-        }
-
-        if (!TextUtils.isEmpty(name)) {
-            nameSpan = new SpannableString(name);
-            nameSpan.setSpan(new ForegroundColorSpan(Color.argb(255, 17, 119, 67)), 0, nameSpan.length(), 0);
-        }
-
-        if (!TextUtils.isEmpty(tripcode)) {
-            tripcodeSpan = new SpannableString(tripcode);
-            tripcodeSpan.setSpan(new ForegroundColorSpan(Color.argb(255, 17, 119, 67)), 0, tripcodeSpan.length(), 0);
-            tripcodeSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, tripcodeSpan.length(), 0);
-        }
-
-        if (!TextUtils.isEmpty(id)) {
-            idSpan = new SpannableString("  ID: " + id + "  ");
-
-            // Stolen from the 4chan extension
-            int hash = id.hashCode();
-
-            int r = (hash >> 24) & 0xff;
-            int g = (hash >> 16) & 0xff;
-            int b = (hash >> 8) & 0xff;
-
-            int idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
-            int idBgColor = ((r * 0.299f) + (g * 0.587f) + (b * 0.114f)) > 125f ? 0xff636363 : 0x00000000;
-
-            idSpan.setSpan(new ForegroundColorSpan(idColor), 0, idSpan.length(), 0);
-            idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, idSpan.length(), 0);
-            idSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, idSpan.length(), 0);
-        }
-
-        if (!TextUtils.isEmpty(capcode)) {
-            capcodeSpan = new SpannableString("Capcode: " + capcode);
-            capcodeSpan.setSpan(new ForegroundColorSpan(Color.argb(255, 255, 0, 0)), 0, capcodeSpan.length(), 0);
-            capcodeSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, capcodeSpan.length(), 0);
-        }
     }
 
     private CharSequence parseComment(String commentRaw, boolean simpleMode) {

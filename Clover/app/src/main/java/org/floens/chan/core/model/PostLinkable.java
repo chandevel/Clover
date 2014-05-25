@@ -17,10 +17,11 @@
  */
 package org.floens.chan.core.model;
 
-import android.graphics.Color;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
+
+import org.floens.chan.utils.ThemeHelper;
 
 /**
  * Anything that links to something in a post uses this entity.
@@ -29,8 +30,6 @@ public class PostLinkable extends ClickableSpan {
     public static enum Type {
         QUOTE, LINK, SPOILER
     }
-
-    ;
 
     public final Post post;
     public final String key;
@@ -54,11 +53,11 @@ public class PostLinkable extends ClickableSpan {
     @Override
     public void updateDrawState(TextPaint ds) {
         if (type == Type.QUOTE || type == Type.LINK) {
-            ds.setColor(type == Type.QUOTE ? Color.argb(255, 221, 0, 0) : Color.argb(255, 0, 0, 180));
+            ds.setColor(type == Type.QUOTE ? ThemeHelper.getInstance().getQuoteColor() : ThemeHelper.getInstance().getLinkColor());
             ds.setUnderlineText(true);
         } else if (type == Type.SPOILER) {
-            ds.setColor(0x00000000);
-            ds.bgColor = 0xff000000;
+            ds.setColor(ThemeHelper.getInstance().getSpoilerColor());
+            ds.bgColor = ThemeHelper.getInstance().getSpoilerColor();
             ds.setUnderlineText(false);
         }
     }

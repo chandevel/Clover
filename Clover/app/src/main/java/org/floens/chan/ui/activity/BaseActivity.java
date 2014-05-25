@@ -90,6 +90,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         super.onCreate(savedInstanceState);
 
         ThemeHelper.setTheme(this);
+        ThemeHelper.getInstance().reloadPostViewColors(this);
 
         setContentView(R.layout.activity_base);
 

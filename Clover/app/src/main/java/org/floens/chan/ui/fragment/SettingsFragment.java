@@ -107,7 +107,7 @@ public class SettingsFragment extends PreferenceFragment {
                 updateThemeSummary(theme, newValue.toString());
 
                 // Thanks! https://github.com/CyanogenMod/android_packages_apps_Calculator/blob/cm-10.2/src/com/android/calculator2/view/PreferencesFragment.java
-                if (!newValue.toString().equals(ThemeHelper.getTheme().name)) {
+                if (!newValue.toString().equals(ThemeHelper.getInstance().getTheme().name)) {
                     Intent intent = new Intent(getActivity(), SettingsActivity.class);
 
                     intent.putExtra("pos", getListView().getFirstVisiblePosition());
