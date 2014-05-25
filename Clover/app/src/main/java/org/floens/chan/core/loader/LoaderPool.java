@@ -38,14 +38,7 @@ public class LoaderPool {
     }
 
     public Loader obtain(Loadable loadable, Loader.LoaderListener listener) {
-        Loader loader = null;
-        for (Loadable l : loaders.keySet()) {
-            if (loadable.equals(l)) {
-                loader = loaders.get(l);
-                break;
-            }
-        }
-
+        Loader loader = loaders.get(loadable);
         if (loader == null) {
             loader = new Loader(loadable);
             loaders.put(loadable, loader);
