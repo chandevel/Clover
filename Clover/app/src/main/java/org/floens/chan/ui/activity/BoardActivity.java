@@ -59,6 +59,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (wasFinished) return;
+
         actionBarSetToListNavigation = false;
         boardLoadable = new Loadable();
         threadLoadable = new Loadable();

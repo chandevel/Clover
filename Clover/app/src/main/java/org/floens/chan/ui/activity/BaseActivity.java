@@ -34,6 +34,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -59,7 +60,10 @@ import org.floens.chan.utils.Utils;
 import java.util.List;
 
 public abstract class BaseActivity extends Activity implements PanelSlideListener, PinnedManager.PinListener {
+    private final static String TAG = "BaseActivity";
     private final static int ACTION_OPEN_URL = 1;
+
+    protected boolean wasFinished = false;
 
     protected PinnedAdapter pinnedAdapter;
     protected DrawerLayout pinDrawer;
@@ -88,6 +92,21 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // See http://stackoverflow.com/a/7748416/1001608
+        // Possible work around for market launches. See http://code.google.com/p/android/issues/detail?id=2373
+        // for more details. Essentially, the market launches the main activity on top of other activities.
+        // we never want this to happen. Instead, we check if we are the root and if not, we finish.
+        if (!isTaskRoot()) {
+            final Intent intent = getIntent();
+            final String intentAction = intent.getAction();
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && intentAction != null && intentAction.equals(Intent.ACTION_MAIN)) {
+                Log.w(TAG, "Activity is not the root. Finishing activity instead of launching.");
+                finish();
+                wasFinished = true;
+                return;
+            }
+        }
 
         ThemeHelper.setTheme(this);
         ThemeHelper.getInstance().reloadPostViewColors(this);
