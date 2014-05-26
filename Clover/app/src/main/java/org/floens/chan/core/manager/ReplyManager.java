@@ -33,6 +33,7 @@ import org.floens.chan.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -343,6 +344,8 @@ public class ReplyManager {
     public void sendReply(final Reply reply, final ReplyListener listener) {
         Logger.i(TAG, "Sending reply request: " + reply.board + ", " + reply.resto);
 
+        final Charset c8 = Charset.forName("UTF-8");
+
         HttpPost httpPost = new HttpPost(ChanUrls.getReplyUrl(reply.board));
 
         MultipartEntity entity = new MultipartEntity();
@@ -350,18 +353,18 @@ public class ReplyManager {
         reply.password = Long.toHexString(random.nextLong());
 
         try {
-            entity.addPart("name", new StringBody(reply.name));
-            entity.addPart("email", new StringBody(reply.email));
+            entity.addPart("name", new StringBody(reply.name, c8));
+            entity.addPart("email", new StringBody(reply.email, c8));
 
-            entity.addPart("sub", new StringBody(reply.subject));
-            entity.addPart("com", new StringBody(reply.comment));
+            entity.addPart("sub", new StringBody(reply.subject, c8));
+            entity.addPart("com", new StringBody(reply.comment, c8));
 
             if (reply.resto >= 0) {
                 entity.addPart("resto", new StringBody(Integer.toString(reply.resto)));
             }
 
             entity.addPart("recaptcha_challenge_field", new StringBody(reply.captchaChallenge));
-            entity.addPart("recaptcha_response_field", new StringBody(reply.captchaResponse));
+            entity.addPart("recaptcha_response_field", new StringBody(reply.captchaResponse, c8));
 
             entity.addPart("mode", new StringBody("regist"));
             entity.addPart("pwd", new StringBody(reply.password));
