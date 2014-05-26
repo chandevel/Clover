@@ -11,6 +11,10 @@ This repo contains all the code for Clover.
 [APK downloads](https://github.com/Floens/Clover/releases)
 
 
+## Joining the beta
+[Join this G+ community](https://plus.google.com/communities/108906508206092146956) and follow the instructions in the "About this community" box.
+
+
 ## Contact
 IRC: #Clover @ freenode
 
