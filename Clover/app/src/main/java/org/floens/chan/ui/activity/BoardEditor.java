@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class BoardEditor extends Activity {
+    private static final boolean FILLER_ENABLED = false;
+
     private final BoardManager boardManager = ChanApplication.getBoardManager();
 
     private List<Board> list;
@@ -269,10 +271,13 @@ public class BoardEditor extends Activity {
                 @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     filtered.clear();
-                    if (results.values != null) {
-                        filtered.addAll((List<Board>) results.values);
-                    } else {
-                        filtered.addAll(getBoards());
+
+                    if (FILLER_ENABLED) {
+                        if (results.values != null) {
+                            filtered.addAll((List<Board>) results.values);
+                        } else {
+                            filtered.addAll(getBoards());
+                        }
                     }
 
                     notifyDataSetChanged();
