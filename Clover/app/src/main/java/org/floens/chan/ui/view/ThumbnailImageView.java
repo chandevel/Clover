@@ -104,6 +104,7 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     thumbnail.setImageBitmap(response.getBitmap());
                     thumbnail.setLayoutParams(Utils.MATCH_PARAMS);
                     setView(thumbnail, false);
+                    tapDismiss = true;
                 }
             }
         }, getWidth(), getHeight());
