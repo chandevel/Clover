@@ -54,7 +54,7 @@ public class Pin {
     public int watchLastCount = -1;
 
     @DatabaseField
-    public int watchNewCount = 0;
+    public int watchNewCount = -1;
 
     @DatabaseField
     public int quoteLastCount = 0;
@@ -69,7 +69,7 @@ public class Pin {
     }
 
     public int getNewPostsCount() {
-        if (watchLastCount < 0) {
+        if (watchLastCount < 0 || watchNewCount < 0) {
             return 0;
         } else {
             return Math.max(0, watchNewCount - watchLastCount);
