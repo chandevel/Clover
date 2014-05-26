@@ -37,6 +37,7 @@ import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.IconCache;
 import org.floens.chan.utils.ThemeHelper;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 public class ChanApplication extends Application implements PinListener {
@@ -108,7 +109,8 @@ public class ChanApplication extends Application implements PinListener {
 
         IconCache.createIcons(this);
 
-        volleyRequestQueue = Volley.newRequestQueue(this);
+        File cacheDir = new File(getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir(), Volley.DEFAULT_CACHE_DIR);
+        volleyRequestQueue = Volley.newRequestQueue(this, null, cacheDir);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(1024 * 1024 * 8));
 
         databaseManager = new DatabaseManager(this);

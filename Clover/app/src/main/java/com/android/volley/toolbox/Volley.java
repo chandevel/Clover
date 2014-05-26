@@ -30,7 +30,8 @@ import java.io.File;
 public class Volley {
 
     /** Default on-disk cache directory. */
-    private static final String DEFAULT_CACHE_DIR = "volley";
+    public static final String DEFAULT_CACHE_DIR = "volley";
+
 
     /**
      * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
@@ -40,8 +41,10 @@ public class Volley {
      * @return A started {@link RequestQueue} instance.
      */
     public static RequestQueue newRequestQueue(Context context, HttpStack stack) {
-        File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
+        return newRequestQueue(context, stack, new File(context.getCacheDir(), DEFAULT_CACHE_DIR));
+    }
 
+    public static RequestQueue newRequestQueue(Context context, HttpStack stack, File cacheDir) {
         String userAgent = "volley/0";
         try {
             String packageName = context.getPackageName();
