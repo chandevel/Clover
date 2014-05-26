@@ -9,12 +9,23 @@ android {
         targetSdkVersion 19
     }
 
+    Properties props = new Properties()
+    props.load(new FileInputStream(file('keys.properties')))
+
+    /* in app/keys.properties:
+
+    keystoreFile=key.keystore
+    keystorePass=pass
+    keyAlias=alias
+    keyPass=pass
+    */
+
     signingConfigs {
         release {
-            storeFile file("release.keystore")
-            storePassword "pass"
-            keyAlias "alias"
-            keyPassword "pass"
+            storeFile file(props['keystoreFile'])
+            storePassword props['keystorePass']
+            keyAlias props['keyAlias']
+            keyPassword props['keyPass']
         }
     }
 
