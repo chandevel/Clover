@@ -17,8 +17,6 @@
  */
 package org.floens.chan.core.watch;
 
-import android.util.Log;
-
 import com.android.volley.VolleyError;
 
 import org.floens.chan.core.loader.Loader;
@@ -137,7 +135,10 @@ public class PinWatcher implements Loader.LoaderListener {
             wereNewQuotes = true;
         }
 
-        Log.d(TAG, "QuoteLastCount: " + pin.quoteLastCount + ", quoteNewCount: " + pin.quoteNewCount + ", wereNewQuotes: " + wereNewQuotes);
+        if (Logger.debugEnabled()) {
+            Logger.d(TAG, String.format("postlast=%d postnew=%d quotelast=%d quotenew=%d werenewquotes=%b",
+                    pin.watchLastCount, pin.watchNewCount, pin.quoteLastCount, pin.quoteNewCount, wereNewQuotes));
+        }
 
         WatchService.onPinWatcherResult();
     }

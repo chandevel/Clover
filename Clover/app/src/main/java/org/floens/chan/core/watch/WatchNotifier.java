@@ -125,22 +125,18 @@ public class WatchNotifier {
         }
 
         if (show) {
-            // "33 new posts, 3 quoting you"
             String title = newPostsCount + " new post" + (newPostsCount != 1 ? "s" : "");
             if (newQuotesCount > 0) {
                 title += ", " + newQuotesCount + " quoting you";
             }
 
-            // "234 new posts in DPT"
-            // "234 new posts in 5 threads"
-            String descriptor;
-            if (pins.size() == 1) {
-                descriptor = pins.get(0).loadable.title;
-            } else {
-                descriptor = pins.size() + " thread" + (pins.size() != 1 ? "s" : "");
-            }
+            String tickerText = title + " in ";
 
-            String content = newPostsCount + " new post" + (newPostsCount != 1 ? "s" : "") + " in " + descriptor;
+            if (pins.size() == 1) {
+                tickerText += pins.get(0).loadable.title;
+            } else {
+                tickerText += pins.size() + " thread" + (pins.size() != 1 ? "s" : "");
+            }
 
             Collections.sort(posts, new PostAgeComparer());
 
@@ -160,7 +156,7 @@ public class WatchNotifier {
                 }
             }
 
-            showNotification(content, title, content, Integer.toString(newPostsCount), lines, makeSound);
+            showNotification(tickerText, title, tickerText, Integer.toString(newPostsCount), lines, makeSound);
         }
     }
 

@@ -25,6 +25,10 @@ public class Logger {
     private static final String TAG = "Clover";
     private static final String TAG_SPACER = " | ";
 
+    public static boolean debugEnabled() {
+        return ChanBuild.DEVELOPER_MODE;
+    }
+
     public static void v(String tag, String message) {
         Log.v(TAG + TAG_SPACER + tag, message);
     }
