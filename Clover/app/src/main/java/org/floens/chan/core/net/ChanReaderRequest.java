@@ -40,16 +40,6 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         super(url, listener, errorListener);
     }
 
-    /**
-     * Creates a ChanReaderRequest with supplied params
-     *
-     * @param mode          ThreadManager mode
-     * @param board         board key
-     * @param no            page for board, no for threads
-     * @param listener
-     * @param errorListener
-     * @return New instance of ChanReaderRequest
-     */
     public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener,
                                                 ErrorListener errorListener) {
         String url;

@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.watch;
 
+import android.util.Log;
+
 import com.android.volley.VolleyError;
 
 import org.floens.chan.core.loader.Loader;
@@ -114,35 +116,28 @@ public class PinWatcher implements Loader.LoaderListener {
         posts.addAll(result);
 
         if (pin.watchLastCount < 0)
-            pin.watchLastCount = pin.watchNewCount;
+            pin.watchLastCount = result.size();
 
         pin.watchNewCount = result.size();
-
-        // Get list of saved posts
-        List<Post> savedPosts = new ArrayList<Post>();
-        for (Post saved : result) {
-            if (saved.isSavedReply) {
-                savedPosts.add(saved);
-            }
-        }
 
         // If there are more replies than last time, let the notification make a sound
         int lastCounterForSoundNotification = pin.quoteNewCount;
 
-        // Find posts quoting these saved posts
-        pin.quoteNewCount = 0;
-        for (Post resultPost : result) {
-            // This post replies to me
-            for (Post savedPost : savedPosts) {
-                if (resultPost.repliesTo.contains(savedPost.no)) {
-                    pin.quoteNewCount++;
-                }
+        // Get list of saved posts
+        int total = 0;
+        for (Post saved : result) {
+            if (saved.isSavedReply) {
+                total += saved.repliesFrom.size();
             }
         }
+
+        pin.quoteNewCount = total;
 
         if (pin.quoteNewCount > lastCounterForSoundNotification) {
             wereNewQuotes = true;
         }
+
+        Log.d(TAG, "QuoteLastCount: " + pin.quoteLastCount + ", quoteNewCount: " + pin.quoteNewCount + ", wereNewQuotes: " + wereNewQuotes);
 
         WatchService.onPinWatcherResult();
     }
