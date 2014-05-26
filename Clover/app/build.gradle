@@ -4,16 +4,26 @@ android {
     compileSdkVersion 19
     buildToolsVersion "19.0.2"
 
+    Properties versionProps = new Properties()
+    versionProps.load(new FileInputStream(file('version.properties')))
+
+    /* in app/version.properties:
+    code=10
+    name=v1.0
+    */
+
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
+
+        versionName versionProps['name']
+        versionCode versionProps['code'].toInteger()
     }
 
     Properties props = new Properties()
     props.load(new FileInputStream(file('keys.properties')))
 
     /* in app/keys.properties:
-
     keystoreFile=key.keystore
     keystorePass=pass
     keyAlias=alias
@@ -31,14 +41,21 @@ android {
 
     buildTypes {
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-
             signingConfig signingConfigs.release
         }
 
-        debug {
+        beta.initWith(buildTypes.release)
+        beta {
+            versionNameSuffix " Beta"
         }
+
+        debug {
+            versionNameSuffix " Debug"
+        }
+    }
+
+    sourceSets {
+        beta.java.srcDirs = ['src/release/java']
     }
 }
 

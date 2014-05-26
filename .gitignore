@@ -1,5 +1,6 @@
 gps/
 Clover/app/keys.properties
+Clover/app/version.properties
 
 # Built application files
 *.apk
