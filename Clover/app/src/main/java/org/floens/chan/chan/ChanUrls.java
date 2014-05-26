@@ -69,7 +69,7 @@ public class ChanUrls {
     }
 
     public static String getThreadUrlDesktop(String board, int no) {
-        return "https://boards.4chan.org/" + board + "/res/" + no;
+        return "https://boards.4chan.org/" + board + "/thread/" + no;
     }
 
     public static String getCatalogUrlDesktop(String board) {

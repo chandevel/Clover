@@ -486,7 +486,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
             } else {
                 handleIntentURIFallback(startUri.toString());
             }
-        } else if (parts.size() == 3) {
+        } else if (parts.size() >= 3) {
             // Thread mode
             String rawBoard = parts.get(0);
             int no = -1;
