@@ -104,10 +104,6 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                         isVideo = true;
                         activity.invalidateActionBar();
                         showProgressBar(false);
-
-                        if (ChanPreferences.getVideoAutoPlay()) {
-                            startVideo();
-                        }
                     } else {
                         imageView.setBigImage(post.imageUrl);
                     }
@@ -143,8 +139,14 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
         activity.invalidateActionBar();
 
-        if (ChanPreferences.getVideoAutoPlay() && imageView != null && imageView.getVideoView() != null) {
-            imageView.getVideoView().start();
+        if (isVideo && ChanPreferences.getVideoAutoPlay() && imageView != null) {
+            if (!videoVisible) {
+                startVideo();
+            } else {
+                if (imageView.getVideoView() != null) {
+                    imageView.getVideoView().start();
+                }
+            }
         }
     }
 
