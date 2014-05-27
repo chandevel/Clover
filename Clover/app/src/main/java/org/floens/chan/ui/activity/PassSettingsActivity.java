@@ -30,6 +30,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
@@ -170,9 +172,20 @@ public class PassSettingsActivity extends Activity implements OnCheckedChangeLis
                         if (getActivity() == null)
                             return;
 
-                        new AlertDialog.Builder(getActivity()).setMessage(response.message)
-                                .setNeutralButton(R.string.ok, null).create().show();
-                        ChanPreferences.setPassId(response.passId);
+                        if (response.unknownError) {
+                            WebView webView = new WebView(getActivity());
+                            WebSettings settings = webView.getSettings();
+                            settings.setSupportZoom(true);
+
+                            webView.loadData(response.responseData, "text/html", null);
+
+                            new AlertDialog.Builder(getActivity()).setView(webView).setNeutralButton(R.string.ok, null).show();
+                        } else {
+                            new AlertDialog.Builder(getActivity()).setMessage(response.message)
+                                    .setNeutralButton(R.string.ok, null).show();
+                            ChanPreferences.setPassId(response.passId);
+                        }
+
                         updateLoginButton();
                     }
                 });

@@ -238,7 +238,7 @@ public class ReplyManager {
                         } else if (responseString.contains("Incorrect Token or PIN")) {
                             e.message = "Incorrect Token or PIN";
                         } else {
-                            e.message = "Unknown error";
+                            e.unknownError = true;
                         }
                     }
                 }
@@ -254,6 +254,7 @@ public class ReplyManager {
 
     public static class PassResponse {
         public boolean isError = false;
+        public boolean unknownError = false;
         public String responseData = "";
         public String message = "";
         public String passId;
