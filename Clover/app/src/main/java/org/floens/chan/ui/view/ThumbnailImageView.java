@@ -201,26 +201,14 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                                     callback.onVideoLoaded();
                                 }
                             });
-
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Thread.sleep(200);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                    videoView.start();
-                                }
-                            }).start();
-
                             videoView.setVideoPath(file.getAbsolutePath());
 
                             setView(videoView, false);
                             callback.setProgress(false);
                             thumbnailNeeded = false;
                             tapDismiss = true;
+
+                            videoView.start();
                         } else {
                             onError();
                         }
