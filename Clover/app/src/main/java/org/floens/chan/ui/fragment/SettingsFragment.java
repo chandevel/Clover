@@ -37,6 +37,7 @@ import org.floens.chan.utils.ThemeHelper;
 
 public class SettingsFragment extends PreferenceFragment {
     private int clickCount = 0;
+    private boolean argumentsRead = false;
 
     private Preference developerPreference;
 
@@ -126,7 +127,8 @@ public class SettingsFragment extends PreferenceFragment {
         super.onStart();
 
         final Bundle args = getArguments();
-        if (args != null) {
+        if (args != null && !argumentsRead) {
+            argumentsRead = true;
             getListView().setSelectionFromTop(args.getInt("pos", 0), args.getInt("off", 0));
         }
     }
