@@ -20,9 +20,7 @@ package org.floens.chan.core;
 import android.content.SharedPreferences;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
 import org.floens.chan.service.WatchService;
-import org.floens.chan.utils.ThemeHelper;
 
 public class ChanPreferences {
     private static SharedPreferences p() {
@@ -82,6 +80,10 @@ public class ChanPreferences {
 
     public static boolean getVideoAutoPlay() {
         return p().getBoolean("preference_autoplay", false);
+    }
+
+    public static boolean getThreadAutoRefresh() {
+        return p().getBoolean("preference_auto_refresh_thread", true);
     }
 
     public static boolean getPassEnabled() {

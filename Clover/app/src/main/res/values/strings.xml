@@ -115,6 +115,7 @@
 
     <string name="preference_open_link_confirmation">Ask before opening links</string>
     <string name="preference_autoplay">Start playing videos directly</string>
+    <string name="preference_auto_refresh_thread">Auto refresh threads</string>
 
     <string name="preference_default_name">Default name</string>
     <string name="preference_default_email">Default email</string>

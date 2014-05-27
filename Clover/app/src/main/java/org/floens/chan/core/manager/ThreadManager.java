@@ -134,8 +134,13 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public boolean shouldWatch() {
-        boolean closed = loader.getCachedPosts().size() > 0 && loader.getCachedPosts().get(0).closed;
-        return loader.getLoadable().isThreadMode() && !closed;
+        if (!ChanPreferences.getThreadAutoRefresh()) {
+            return false;
+        } else if (loader.getCachedPosts().size() > 0 && loader.getCachedPosts().get(0).closed) {
+            return false;
+        } else {
+            return loader.getLoadable().isThreadMode();
+        }
     }
 
     public void requestData() {
