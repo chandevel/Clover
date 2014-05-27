@@ -215,13 +215,8 @@ public class Post {
                 } else if (nodeName.equals("a")) {
                     Element anchor = (Element) node;
 
-                    SpannableString link = new SpannableString(anchor.text());
-
+                    // is this a link or a quote
                     Type t = anchor.text().contains("://") ? Type.LINK : Type.QUOTE;
-                    PostLinkable pl = new PostLinkable(this, anchor.text(), anchor.attr("href"), t);
-                    link.setSpan(pl, 0, link.length(), 0);
-                    linkables.add(pl);
-
                     if (t == Type.QUOTE) {
                         try {
                             // Get post id
@@ -229,10 +224,21 @@ public class Post {
                             if (splitted.length == 2) {
                                 int id = Integer.parseInt(splitted[1]);
                                 repliesTo.add(id);
+
+                                // Append OP when its a reply to OP
+                                if(id == resto) {
+                                    anchor.appendText(" (OP)");
+                                }
                             }
                         } catch (NumberFormatException e) {
                         }
                     }
+
+                    SpannableString link = new SpannableString(anchor.text());
+
+                    PostLinkable pl = new PostLinkable(this, anchor.text(), anchor.attr("href"), t);
+                    link.setSpan(pl, 0, link.length(), 0);
+                    linkables.add(pl);
 
                     total = TextUtils.concat(total, link);
                 } else if (nodeName.equals("s")) {
