@@ -79,11 +79,15 @@ public class ChanPreferences {
     }
 
     public static boolean getVideoAutoPlay() {
-        return p().getBoolean("preference_autoplay", false);
+        return getImageAutoLoad() && p().getBoolean("preference_autoplay", false);
     }
 
     public static boolean getThreadAutoRefresh() {
         return p().getBoolean("preference_auto_refresh_thread", true);
+    }
+
+    public static boolean getImageAutoLoad() {
+        return p().getBoolean("preference_image_auto_load", true);
     }
 
     public static boolean getPassEnabled() {

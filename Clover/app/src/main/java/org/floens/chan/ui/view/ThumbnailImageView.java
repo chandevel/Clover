@@ -56,7 +56,6 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
     private final float maxScale = 3f;
 
     private boolean thumbnailNeeded = true;
-    private boolean tapDismiss = false;
 
     private ImageContainer imageContainerRequest;
     private Request<?> imageRequest;
@@ -104,7 +103,6 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     thumbnail.setImageBitmap(response.getBitmap());
                     thumbnail.setLayoutParams(Utils.MATCH_PARAMS);
                     setView(thumbnail, false);
-                    tapDismiss = true;
                 }
             }
         }, getWidth(), getHeight());
@@ -143,7 +141,6 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                     setView(image, !isImmediate);
                     callback.setProgress(false);
                     thumbnailNeeded = false;
-                    tapDismiss = true;
                 }
             }
         }, maxWidth, maxHeight);
@@ -166,7 +163,6 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                         setView(view, false);
                         callback.setProgress(false);
                         thumbnailNeeded = false;
-                        tapDismiss = true;
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -206,7 +202,6 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
                             setView(videoView, false);
                             callback.setProgress(false);
                             thumbnailNeeded = false;
-                            tapDismiss = true;
 
                             videoView.start();
                         } else {
@@ -251,16 +246,12 @@ public class ThumbnailImageView extends LoadView implements OnViewTapListener, V
 
     @Override
     public void onViewTap(View view, float x, float y) {
-        if (tapDismiss) {
-            callback.onTap();
-        }
+        callback.onTap();
     }
 
     @Override
     public void onClick(View v) {
-        if (tapDismiss) {
-            callback.onTap();
-        }
+        callback.onTap();
     }
 
     public static interface ThumbnailImageViewCallback {

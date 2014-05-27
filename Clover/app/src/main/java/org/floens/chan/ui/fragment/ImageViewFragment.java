@@ -47,6 +47,8 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     private boolean isVideo = false;
     private boolean videoVisible = false;
     private boolean videoSetIconToPause = false;
+    private boolean tapToLoad = false;
+    private boolean loaded = false;
 
     public static ImageViewFragment newInstance(Post post, ImageViewActivity activity, int index) {
         ImageViewFragment imageViewFragment = new ImageViewFragment();
@@ -98,17 +100,39 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
                     imageView.setThumbnail(post.thumbnailUrl);
 
-                    if (post.ext.equals("gif")) {
-                        imageView.setGif(post.imageUrl);
-                    } else if (post.ext.equals("webm")) {
-                        isVideo = true;
-                        activity.invalidateActionBar();
-                        showProgressBar(false);
+                    if (ChanPreferences.getImageAutoLoad()) {
+                        load();
                     } else {
-                        imageView.setBigImage(post.imageUrl);
+                        tapToLoad = true;
+                        showProgressBar(false);
                     }
                 }
             });
+        }
+    }
+
+    private void load() {
+        if (loaded) return;
+        loaded = true;
+
+        if (post.ext.equals("gif")) {
+            imageView.setGif(post.imageUrl);
+        } else if (post.ext.equals("webm")) {
+            isVideo = true;
+            activity.invalidateActionBar();
+            showProgressBar(false);
+
+            if (tapToLoad) {
+                if (!videoVisible) {
+                    startVideo();
+                } else {
+                    if (imageView.getVideoView() != null) {
+                        imageView.getVideoView().start();
+                    }
+                }
+            }
+        } else {
+            imageView.setBigImage(post.imageUrl);
         }
     }
 
@@ -197,7 +221,9 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     private void startVideo() {
+        if (videoVisible) return;
         videoVisible = true;
+
         imageView.setVideo(post.imageUrl);
     }
 
@@ -208,7 +234,15 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
     @Override
     public void onTap() {
-        activity.finish();
+        if (tapToLoad) {
+            if (loaded) {
+                activity.finish();
+            } else {
+                load();
+            }
+        } else {
+            activity.finish();
+        }
     }
 
     @Override

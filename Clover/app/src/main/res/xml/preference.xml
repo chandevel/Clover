@@ -39,9 +39,16 @@
             android:defaultValue="true"
             android:key="preference_open_link_confirmation"
             android:title="@string/preference_open_link_confirmation" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="preference_image_auto_load"
+            android:title="@string/preference_image_auto_load"/>
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="preference_autoplay"
+            android:dependency="preference_image_auto_load"
             android:title="@string/preference_autoplay" />
 
         <CheckBoxPreference
