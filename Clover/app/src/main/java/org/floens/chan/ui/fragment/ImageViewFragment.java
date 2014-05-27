@@ -142,6 +142,10 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         activity.getActionBar().setSubtitle(text);
 
         activity.invalidateActionBar();
+
+        if (ChanPreferences.getVideoAutoPlay() && imageView != null && imageView.getVideoView() != null) {
+            imageView.getVideoView().start();
+        }
     }
 
     public void onDeselected() {
