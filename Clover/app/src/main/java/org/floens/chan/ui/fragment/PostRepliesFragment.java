@@ -25,11 +25,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.view.PostView;
+import org.floens.chan.utils.ThemeHelper;
 
 import java.util.List;
 
@@ -93,6 +95,11 @@ public class PostRepliesFragment extends DialogFragment {
                 dismiss();
             }
         });
+
+        if (!ThemeHelper.getInstance().getTheme().isLightTheme) {
+            ((TextView)container.findViewById(R.id.replies_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_back_dark, 0, 0, 0);
+            ((TextView)container.findViewById(R.id.replies_close_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_done_dark, 0, 0, 0);
+        }
 
         return container;
     }

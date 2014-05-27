@@ -9,16 +9,18 @@ import org.floens.chan.core.ChanPreferences;
 
 public class ThemeHelper {
     public enum Theme {
-        LIGHT("light", R.style.AppTheme),
-        DARK("dark", R.style.AppTheme_Dark),
-        BLACK("black", R.style.AppTheme_Dark_Black);
+        LIGHT("light", R.style.AppTheme, true),
+        DARK("dark", R.style.AppTheme_Dark, false),
+        BLACK("black", R.style.AppTheme_Dark_Black, false);
 
         public String name;
         public int resValue;
+        public boolean isLightTheme;
 
-        private Theme(String name, int resValue) {
+        private Theme(String name, int resValue, boolean isLightTheme) {
             this.name = name;
             this.resValue = resValue;
+            this.isLightTheme = isLightTheme;
         }
     }
 
