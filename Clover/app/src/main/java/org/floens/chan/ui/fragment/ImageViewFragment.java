@@ -105,6 +105,11 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                     } else {
                         tapToLoad = true;
                         showProgressBar(false);
+
+                        if (post.ext.equals("webm")) {
+                            isVideo = true;
+                            activity.invalidateActionBar();
+                        }
                     }
                 }
             });
