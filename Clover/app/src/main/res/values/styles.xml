@@ -43,6 +43,8 @@
         <item name="board_pane_style">@style/BoardPane.Dark.Black</item>
         <item name="board_pane_left_style">@style/BoardLeftPane.Dark.Black</item>
         <item name="board_pane_right_style">@style/BoardRightPane.Dark.Black</item>
+
+        <item name="post_style">@style/PostView.Dark.Black</item>
     </style>
 
 
@@ -122,5 +124,9 @@
 
     <style name="BoardRightPane.Dark.Black">
         <item name="android:background">#ff000000</item>
+    </style>
+
+    <style name="PostView.Dark.Black">
+        <item name="spoiler_color">#ff2c2c2c</item>
     </style>
 </resources>
