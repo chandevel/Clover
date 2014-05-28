@@ -1,8 +1,15 @@
+New in 1.1 (2014-05-28)
+- Added light, dark and black theme
+- Add option for auto refreshing threads
+- Add option for auto loading images
+- Lots of bug fixes.
+
+
 New in 1.0.2 (2014-05-07)
-Fixed APK
+- Fixed APK
+
 
 New in 1.0.1 (2014-05-07)
-
 - Bigger comment view
 - Added button to scroll up/down a thread
 - Fix images sometimes appearing empty
