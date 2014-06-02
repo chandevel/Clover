@@ -2,22 +2,14 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1"
-
-    Properties versionProps = new Properties()
-    versionProps.load(new FileInputStream(file('version.properties')))
-
-    /* in app/version.properties:
-    code=10
-    name=v1.0
-    */
+    buildToolsVersion "19.1.0"
 
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
 
-        versionName versionProps['name']
-        versionCode versionProps['code'].toInteger()
+        versionName "v1.1"
+        versionCode 24
     }
 
     compileOptions {
@@ -25,28 +17,36 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    Properties props = new Properties()
-    props.load(new FileInputStream(file('keys.properties')))
-
-    /* in app/keys.properties:
-    keystoreFile=key.keystore
+    /*
+    If you want to sign releases, make a file in app/keys.properties with the following content:
+    keystoreFile=yourkey.store
     keystorePass=pass
     keyAlias=alias
     keyPass=pass
     */
 
-    signingConfigs {
-        release {
-            storeFile file(props['keystoreFile'])
-            storePassword props['keystorePass']
-            keyAlias props['keyAlias']
-            keyPassword props['keyPass']
+    File f = file('keys.properties')
+    boolean doSign = f.exists();
+
+    if (doSign) {
+        Properties props = new Properties()
+        props.load(new FileInputStream(f))
+
+        signingConfigs {
+            release {
+                storeFile file(props['keystoreFile'])
+                storePassword props['keystorePass']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPass']
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            if (doSign) {
+                signingConfig signingConfigs.release
+            }
         }
 
         beta.initWith(buildTypes.release)
