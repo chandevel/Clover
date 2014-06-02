@@ -32,25 +32,23 @@ import org.floens.chan.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.boye.httpclientandroidlib.Consts;
 import ch.boye.httpclientandroidlib.Header;
 import ch.boye.httpclientandroidlib.HeaderElement;
 import ch.boye.httpclientandroidlib.HttpResponse;
-import ch.boye.httpclientandroidlib.client.ClientProtocolException;
+import ch.boye.httpclientandroidlib.client.HttpClient;
+import ch.boye.httpclientandroidlib.client.config.RequestConfig;
+import ch.boye.httpclientandroidlib.client.methods.CloseableHttpResponse;
 import ch.boye.httpclientandroidlib.client.methods.HttpPost;
-import ch.boye.httpclientandroidlib.entity.mime.MultipartEntity;
-import ch.boye.httpclientandroidlib.entity.mime.content.FileBody;
-import ch.boye.httpclientandroidlib.entity.mime.content.StringBody;
-import ch.boye.httpclientandroidlib.impl.client.DefaultHttpClient;
-import ch.boye.httpclientandroidlib.params.BasicHttpParams;
-import ch.boye.httpclientandroidlib.params.HttpConnectionParams;
-import ch.boye.httpclientandroidlib.params.HttpParams;
+import ch.boye.httpclientandroidlib.entity.ContentType;
+import ch.boye.httpclientandroidlib.entity.mime.MultipartEntityBuilder;
+import ch.boye.httpclientandroidlib.impl.client.CloseableHttpClient;
+import ch.boye.httpclientandroidlib.impl.client.HttpClientBuilder;
 import ch.boye.httpclientandroidlib.util.EntityUtils;
 
 /**
@@ -62,6 +60,9 @@ public class ReplyManager {
     private static final Pattern challengePattern = Pattern.compile("challenge.?:.?'([\\w-]+)'");
     private static final Pattern responsePattern = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
     private static final int POST_TIMEOUT = 10000;
+
+    private static final ContentType TEXT_UTF_8 = ContentType.create(
+            "text/plain", Consts.UTF_8);
 
     private final Context context;
     private Reply draft;
@@ -161,9 +162,8 @@ public class ReplyManager {
      */
     public static String getChallenge(String total) {
         Matcher matcher = challengePattern.matcher(total);
-        matcher.find();
 
-        if (matcher.groupCount() == 1) {
+        if (matcher.find() && matcher.groupCount() == 1) {
             return matcher.group(1);
         } else {
             return null;
@@ -175,25 +175,20 @@ public class ReplyManager {
 
         HttpPost httpPost = new HttpPost(ChanUrls.getPassUrl());
 
-        MultipartEntity entity = new MultipartEntity();
+        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
 
-        try {
-            entity.addPart("act", new StringBody("do_login"));
+        entity.addTextBody("act", "do_login");
 
-            entity.addPart("id", new StringBody(pass.token));
-            entity.addPart("pin", new StringBody(pass.pin));
+        entity.addTextBody("id", pass.token);
+        entity.addTextBody("pin", pass.pin);
 
-            //            entity.addPart("pwd", new StringBody(reply.password));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return;
-        }
+        //            entity.addPart("pwd", new StringBody(reply.password));
 
-        httpPost.setEntity(entity);
+        httpPost.setEntity(entity.build());
 
         sendHttpPost(httpPost, new HttpPostSendListener() {
             @Override
-            public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response) {
+            public void onResponse(String responseString, HttpClient client, HttpResponse response) {
                 PassResponse e = new PassResponse();
 
                 if (responseString == null || response == null) {
@@ -272,29 +267,26 @@ public class ReplyManager {
 
         HttpPost httpPost = new HttpPost(ChanUrls.getDeleteUrl(reply.board));
 
-        MultipartEntity entity = new MultipartEntity();
+        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
 
-        try {
-            entity.addPart(Integer.toString(reply.no), new StringBody("delete"));
 
-            if (onlyImageDelete) {
-                entity.addPart("onlyimgdel", new StringBody("on"));
-            }
+        entity.addTextBody(Integer.toString(reply.no), "delete");
 
-            // res not necessary
-
-            entity.addPart("mode", new StringBody("usrdel"));
-            entity.addPart("pwd", new StringBody(reply.password));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return;
+        if (onlyImageDelete) {
+            entity.addTextBody("onlyimgdel", "on");
         }
 
-        httpPost.setEntity(entity);
+        // res not necessary
+
+        entity.addTextBody("mode", "usrdel");
+        entity.addTextBody("pwd", reply.password);
+
+
+        httpPost.setEntity(entity.build());
 
         sendHttpPost(httpPost, new HttpPostSendListener() {
             @Override
-            public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response) {
+            public void onResponse(String responseString, HttpClient client, HttpResponse response) {
                 DeleteResponse e = new DeleteResponse();
 
                 if (responseString == null) {
@@ -345,48 +337,41 @@ public class ReplyManager {
     public void sendReply(final Reply reply, final ReplyListener listener) {
         Logger.i(TAG, "Sending reply request: " + reply.board + ", " + reply.resto);
 
-        final Charset c8 = Charset.forName("UTF-8");
-
         HttpPost httpPost = new HttpPost(ChanUrls.getReplyUrl(reply.board));
 
-        MultipartEntity entity = new MultipartEntity();
+        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
 
         reply.password = Long.toHexString(random.nextLong());
 
-        try {
-            entity.addPart("name", new StringBody(reply.name, c8));
-            entity.addPart("email", new StringBody(reply.email, c8));
+        entity.addTextBody("name", reply.name, TEXT_UTF_8);
+        entity.addTextBody("email", reply.email, TEXT_UTF_8);
 
-            entity.addPart("sub", new StringBody(reply.subject, c8));
-            entity.addPart("com", new StringBody(reply.comment, c8));
+        entity.addTextBody("sub", reply.subject, TEXT_UTF_8);
+        entity.addTextBody("com", reply.comment, TEXT_UTF_8);
 
-            if (reply.resto >= 0) {
-                entity.addPart("resto", new StringBody(Integer.toString(reply.resto)));
-            }
-
-            entity.addPart("recaptcha_challenge_field", new StringBody(reply.captchaChallenge));
-            entity.addPart("recaptcha_response_field", new StringBody(reply.captchaResponse, c8));
-
-            entity.addPart("mode", new StringBody("regist"));
-            entity.addPart("pwd", new StringBody(reply.password));
-
-            if (reply.usePass) {
-                httpPost.addHeader("Cookie", "pass_id=" + reply.passId);
-            }
-
-            if (reply.file != null) {
-                entity.addPart("upfile", new FileBody(reply.file, reply.fileName, "application/octet-stream", "UTF-8"));
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return;
+        if (reply.resto >= 0) {
+            entity.addTextBody("resto", Integer.toString(reply.resto));
         }
 
-        httpPost.setEntity(entity);
+        entity.addTextBody("recaptcha_challenge_field", reply.captchaChallenge);
+        entity.addTextBody("recaptcha_response_field", reply.captchaResponse, TEXT_UTF_8);
+
+        entity.addTextBody("mode", "regist");
+        entity.addTextBody("pwd", reply.password);
+
+        if (reply.usePass) {
+            httpPost.addHeader("Cookie", "pass_id=" + reply.passId);
+        }
+
+        if (reply.file != null) {
+            entity.addBinaryBody("upfile", reply.file, ContentType.APPLICATION_OCTET_STREAM, reply.fileName);
+        }
+
+        httpPost.setEntity(entity.build());
 
         sendHttpPost(httpPost, new HttpPostSendListener() {
             @Override
-            public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response) {
+            public void onResponse(String responseString, HttpClient client, HttpResponse response) {
                 ReplyResponse e = new ReplyResponse();
 
                 if (responseString == null) {
@@ -479,37 +464,42 @@ public class ReplyManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                HttpParams httpParameters = new BasicHttpParams();
-                HttpConnectionParams.setConnectionTimeout(httpParameters, POST_TIMEOUT);
-                HttpConnectionParams.setSoTimeout(httpParameters, POST_TIMEOUT);
+                RequestConfig.Builder requestBuilder = RequestConfig.custom();
+                requestBuilder = requestBuilder.setConnectTimeout(POST_TIMEOUT);
+                requestBuilder = requestBuilder.setConnectionRequestTimeout(POST_TIMEOUT);
 
-                final DefaultHttpClient client = new DefaultHttpClient(httpParameters);
-                String responseString = null;
-
-                HttpResponse response = null;
+                HttpClientBuilder httpBuilder = HttpClientBuilder.create();
+                httpBuilder.setDefaultRequestConfig(requestBuilder.build());
+                final CloseableHttpClient client = httpBuilder.build();
                 try {
-                    response = client.execute(post);
-                    responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-                } catch (ClientProtocolException e) {
-                    e.printStackTrace();
+                    final CloseableHttpResponse response = client.execute(post);
+                    final String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    Utils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onResponse(responseString, client, response);
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-
-                final String finalResponseString = responseString;
-                final HttpResponse finalResponse = response;
-
-                Utils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onReponse(finalResponseString, client, finalResponse);
+                    Utils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onResponse(null, client, null);
+                        }
+                    });
+                } finally {
+                    try {
+                        client.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                });
+                }
             }
         }).start();
     }
 
     private static interface HttpPostSendListener {
-        public void onReponse(String responseString, DefaultHttpClient client, HttpResponse response);
+        public void onResponse(String responseString, HttpClient client, HttpResponse response);
     }
 }
