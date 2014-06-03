@@ -154,17 +154,24 @@ public class WatchNotifier {
                 }
             }
 
-            showNotification(tickerText, title, tickerText, Integer.toString(newPostsCount), lines, makeSound);
+            Pin targetPin = null;
+            if (pins.size() == 1) {
+                targetPin = pins.get(0);
+            }
+
+            showNotification(tickerText, title, tickerText, Integer.toString(newPostsCount), lines, makeSound, targetPin);
         }
     }
 
     @SuppressWarnings("deprecation")
     private void showNotification(String tickerText, String title, String content, String contentInfo,
-                                  List<CharSequence> lines, boolean makeSound) {
+                                  List<CharSequence> lines, boolean makeSound, Pin targetPin) {
 
         Intent intent = new Intent(context, BoardActivity.class);
-        intent.addCategory("android.intent.category.LAUNCHER");
-        intent.setAction("android.intent.action.MAIN");
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        intent.putExtra("pin_id", targetPin == null ? -1 : targetPin.id);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);

@@ -60,6 +60,16 @@ public class PinnedManager {
         return null;
     }
 
+    public Pin findPinById(int id) {
+        for (Pin pin : pins) {
+            if (pin.id == id) {
+                return pin;
+            }
+        }
+
+        return null;
+    }
+
     public List<Pin> getPins() {
         return pins;
     }

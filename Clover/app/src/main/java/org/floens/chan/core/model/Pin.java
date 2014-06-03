@@ -27,7 +27,7 @@ import org.floens.chan.core.watch.PinWatcher;
 public class Pin {
     // Database stuff
     @DatabaseField(generatedId = true)
-    private int id;
+    public int id;
 
     @DatabaseField(canBeNull = false, foreign = true)
     public Loadable loadable = new Loadable("", -1);

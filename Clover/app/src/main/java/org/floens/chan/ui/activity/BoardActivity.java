@@ -103,6 +103,21 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
                 }
             }
         }
+
+        Bundle extras = startIntent.getExtras();
+        if (extras != null) {
+            int pinId = extras.getInt("pin_id", -2);
+            if (pinId != -2) {
+                if (pinId == -1) {
+                    pinDrawer.openDrawer(pinDrawerView);
+                } else {
+                    Pin pin = ChanApplication.getPinnedManager().findPinById(pinId);
+                    if (pin != null) {
+                        startLoadingThread(pin.loadable);
+                    }
+                }
+            }
+        }
     }
 
     @Override
