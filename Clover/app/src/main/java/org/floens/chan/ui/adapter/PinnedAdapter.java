@@ -41,7 +41,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
     public PinnedAdapter(Context context, int resId) {
         super(context, resId, new ArrayList<Pin>());
 
-        idMap = new HashMap<Pin, Integer>();
+        idMap = new HashMap<>();
     }
 
     @Override

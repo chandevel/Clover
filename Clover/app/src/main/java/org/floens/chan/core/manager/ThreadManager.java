@@ -65,7 +65,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     private final Activity activity;
     private final ThreadManager.ThreadManagerListener threadManagerListener;
-    private final List<List<Post>> popupQueue = new ArrayList<List<Post>>();
+    private final List<List<Post>> popupQueue = new ArrayList<>();
     private PostRepliesFragment currentPopupFragment;
     private int highlightedPost = -1;
     private int lastSeenPost = -1;
@@ -214,7 +214,7 @@ public class ThreadManager implements Loader.LoaderListener {
     public void onPostLongClicked(final Post post) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-        List<String> options = new ArrayList<String>(Arrays.asList(activity.getResources().getStringArray(R.array.post_options)));
+        List<String> options = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.post_options)));
         // Only add the delete option when the post is a saved reply
         boolean delete = false, saved = false;
         if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
@@ -380,7 +380,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void showPostReplies(Post post) {
-        List<Post> p = new ArrayList<Post>();
+        List<Post> p = new ArrayList<>();
         for (int no : post.repliesFrom) {
             Post r = findPostById(no);
             if (r != null) {
@@ -444,7 +444,7 @@ public class ThreadManager implements Loader.LoaderListener {
                 post = findPostById(id);
 
                 if (post != null) {
-                    List<Post> l = new ArrayList<Post>();
+                    List<Post> l = new ArrayList<>();
                     l.add(post);
                     showPostsRepliesFragment(l);
                 }

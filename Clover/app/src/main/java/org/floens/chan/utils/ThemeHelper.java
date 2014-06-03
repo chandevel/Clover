@@ -48,12 +48,16 @@ public class ThemeHelper {
         String themeName = ChanPreferences.getTheme();
 
         Theme theme = null;
-        if (themeName.equals("light")) {
-            theme = Theme.LIGHT;
-        } else if (themeName.equals("dark")) {
-            theme = Theme.DARK;
-        } else if (themeName.equals("black")) {
-            theme = Theme.BLACK;
+        switch (themeName) {
+            case "light":
+                theme = Theme.LIGHT;
+                break;
+            case "dark":
+                theme = Theme.DARK;
+                break;
+            case "black":
+                theme = Theme.BLACK;
+                break;
         }
 
         return theme;

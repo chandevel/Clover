@@ -51,9 +51,7 @@ public class ImageDecoder {
             IOUtils.copy(fis, baos);
 
             bitmap = decode(baos.toByteArray(), maxWidth, maxHeight);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OutOfMemoryError e) {
+        } catch (IOException | OutOfMemoryError e) {
             e.printStackTrace();
         } finally {
             try {

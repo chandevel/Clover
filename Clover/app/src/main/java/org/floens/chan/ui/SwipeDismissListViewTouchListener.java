@@ -85,7 +85,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
     private int mViewWidth = 1; // 1 and not 0 to prevent dividing by zero
 
     // Transient properties
-    private final List<PendingDismissData> mPendingDismisses = new ArrayList<PendingDismissData>();
+    private final List<PendingDismissData> mPendingDismisses = new ArrayList<>();
     private int mDismissAnimationRefCount = 0;
     private float mDownX;
     private boolean mSwiping;

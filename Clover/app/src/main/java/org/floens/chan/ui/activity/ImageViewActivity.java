@@ -75,7 +75,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
         if (postAdapter != null) {
             // Get the posts with images
-            ArrayList<Post> imagePosts = new ArrayList<Post>();
+            ArrayList<Post> imagePosts = new ArrayList<>();
             for (Post post : postAdapter.getList()) {
                 if (post.hasImage) {
                     imagePosts.add(post);
@@ -166,7 +166,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_download_album) {
-            List<Uri> uris = new ArrayList<Uri>();
+            List<Uri> uris = new ArrayList<>();
             Post aPost = null;
             for (Post post : adapter.getList()) {
                 uris.add(Uri.parse(post.imageUrl));

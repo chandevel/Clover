@@ -27,7 +27,7 @@ public class LoaderPool {
 
     private static LoaderPool instance;
 
-    private static Map<Loadable, Loader> loaders = new HashMap<Loadable, Loader>();
+    private static Map<Loadable, Loader> loaders = new HashMap<>();
 
     public static LoaderPool getInstance() {
         if (instance == null) {

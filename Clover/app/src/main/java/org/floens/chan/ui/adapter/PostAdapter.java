@@ -43,7 +43,7 @@ public class PostAdapter extends BaseAdapter {
     private final ThreadManager threadManager;
     private final ListView listView;
     private boolean endOfLine;
-    private final List<Post> postList = new ArrayList<Post>();
+    private final List<Post> postList = new ArrayList<>();
     private long lastViewedTime = 0;
     private String loadMessage = null;
 

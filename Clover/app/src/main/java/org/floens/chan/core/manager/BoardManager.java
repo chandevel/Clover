@@ -42,8 +42,8 @@ public class BoardManager {
 
     private List<Board> allBoards;
 
-    private final List<String> savedKeys = new ArrayList<String>();
-    private final List<String> savedValues = new ArrayList<String>();
+    private final List<String> savedKeys = new ArrayList<>();
+    private final List<String> savedValues = new ArrayList<>();
 
     public BoardManager() {
         loadBoards();
@@ -55,7 +55,7 @@ public class BoardManager {
     }
 
     public List<Board> getSavedBoards() {
-        List<Board> saved = new ArrayList<Board>(allBoards.size());
+        List<Board> saved = new ArrayList<>(allBoards.size());
 
         for (Board b : allBoards) {
             if (b.saved)
@@ -178,7 +178,7 @@ public class BoardManager {
     }
 
     private List<Board> getDefaultBoards() {
-        List<Board> list = new ArrayList<Board>();
+        List<Board> list = new ArrayList<>();
         list.add(new Board("Technology", "g", true, true));
         list.add(new Board("Video Games", "v", true, true));
         list.add(new Board("Anime & Manga", "a", true, true));

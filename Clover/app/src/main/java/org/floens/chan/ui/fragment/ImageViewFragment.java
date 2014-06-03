@@ -120,24 +120,28 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         if (loaded) return;
         loaded = true;
 
-        if (post.ext.equals("gif")) {
-            imageView.setGif(post.imageUrl);
-        } else if (post.ext.equals("webm")) {
-            isVideo = true;
-            activity.invalidateActionBar();
-            showProgressBar(false);
+        switch (post.ext) {
+            case "gif":
+                imageView.setGif(post.imageUrl);
+                break;
+            case "webm":
+                isVideo = true;
+                activity.invalidateActionBar();
+                showProgressBar(false);
 
-            if (tapToLoad) {
-                if (!videoVisible) {
-                    startVideo();
-                } else {
-                    if (imageView.getVideoView() != null) {
-                        imageView.getVideoView().start();
+                if (tapToLoad) {
+                    if (!videoVisible) {
+                        startVideo();
+                    } else {
+                        if (imageView.getVideoView() != null) {
+                            imageView.getVideoView().start();
+                        }
                     }
                 }
-            }
-        } else {
-            imageView.setBigImage(post.imageUrl);
+                break;
+            default:
+                imageView.setBigImage(post.imageUrl);
+                break;
         }
     }
 

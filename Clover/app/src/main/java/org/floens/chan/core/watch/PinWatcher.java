@@ -35,7 +35,7 @@ public class PinWatcher implements Loader.LoaderListener {
     private final Pin pin;
     private Loader loader;
 
-    private final List<Post> posts = new ArrayList<Post>();
+    private final List<Post> posts = new ArrayList<>();
     private boolean wereNewQuotes = false;
 
     public PinWatcher(Pin pin) {

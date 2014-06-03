@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PinnedManager {
-    private final List<PinListener> listeners = new ArrayList<PinListener>();
+    private final List<PinListener> listeners = new ArrayList<>();
     private final List<Pin> pins;
 
     public PinnedManager(Context context) {
@@ -65,7 +65,7 @@ public class PinnedManager {
     }
 
     public List<Pin> getWatchingPins() {
-        List<Pin> l = new ArrayList<Pin>();
+        List<Pin> l = new ArrayList<>();
 
         for (Pin p : pins) {
             if (p.watching)

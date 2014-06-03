@@ -32,7 +32,7 @@ import java.util.List;
 
 public class ImageViewAdapter extends FragmentStatePagerAdapter {
     private final ImageViewActivity activity;
-    private final ArrayList<Post> postList = new ArrayList<Post>();
+    private final ArrayList<Post> postList = new ArrayList<>();
 
     public ImageViewAdapter(FragmentManager fragmentManager, ImageViewActivity activity) {
         super(fragmentManager);

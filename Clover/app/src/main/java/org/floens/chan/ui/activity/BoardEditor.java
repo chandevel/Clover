@@ -245,7 +245,7 @@ public class BoardEditor extends Activity {
         private List<Board> currentlyEditing;
         private View autoCompleteView;
         private final Filter filter;
-        private final List<Board> filtered = new ArrayList<Board>();
+        private final List<Board> filtered = new ArrayList<>();
 
         public FillAdapter(Context context, int resource) {
             super(context, resource);
@@ -334,7 +334,7 @@ public class BoardEditor extends Activity {
 
         private List<Board> getFiltered(String filter) {
             String lowered = filter.toLowerCase(Locale.ENGLISH);
-            List<Board> list = new ArrayList<Board>();
+            List<Board> list = new ArrayList<>();
             for (Board b : getBoards()) {
                 if ((b.key.toLowerCase(Locale.ENGLISH).contains(lowered) || b.value.toLowerCase(Locale.ENGLISH)
                         .contains(lowered))) {
@@ -363,7 +363,7 @@ public class BoardEditor extends Activity {
                 }
             }
 
-            List<Board> s = new ArrayList<Board>();
+            List<Board> s = new ArrayList<>();
             for (Board b : ChanApplication.getBoardManager().getAllBoards()) {
                 if (!haveBoard(b.value) && (showUnsafe || b.workSafe))
                     s.add(b);

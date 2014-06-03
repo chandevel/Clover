@@ -84,10 +84,10 @@ public class WatchNotifier {
     private void prepareNotification() {
         List<Pin> watchingPins = ChanApplication.getPinnedManager().getWatchingPins();
 
-        List<Pin> pins = new ArrayList<Pin>();
+        List<Pin> pins = new ArrayList<>();
         int newPostsCount = 0;
         int newQuotesCount = 0;
-        List<Post> posts = new ArrayList<Post>();
+        List<Post> posts = new ArrayList<>();
         boolean makeSound = false;
         boolean show = false;
 
@@ -140,7 +140,7 @@ public class WatchNotifier {
 
             Collections.sort(posts, new PostAgeComparer());
 
-            List<CharSequence> lines = new ArrayList<CharSequence>();
+            List<CharSequence> lines = new ArrayList<>();
             for (Post post : posts) {
                 CharSequence comment;
                 if (post.comment.length() == 0) {

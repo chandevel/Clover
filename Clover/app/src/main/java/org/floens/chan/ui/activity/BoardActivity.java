@@ -73,7 +73,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
         final ActionBar actionBar = getActionBar();
         actionBar.setListNavigationCallbacks(
-                new ArrayAdapter<String>(actionBar.getThemedContext(), R.layout.board_select_spinner,
+                new ArrayAdapter<>(actionBar.getThemedContext(), R.layout.board_select_spinner,
                         android.R.id.text1, ChanApplication.getBoardManager().getSavedKeys()), this
         );
 

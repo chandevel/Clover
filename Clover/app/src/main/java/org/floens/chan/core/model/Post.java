@@ -73,14 +73,14 @@ public class Post {
     /**
      * This post replies to the these ids
      */
-    public List<Integer> repliesTo = new ArrayList<Integer>();
+    public List<Integer> repliesTo = new ArrayList<>();
 
     /**
      * These ids replied to this post
      */
-    public List<Integer> repliesFrom = new ArrayList<Integer>();
+    public List<Integer> repliesFrom = new ArrayList<>();
 
-    public final ArrayList<PostLinkable> linkables = new ArrayList<PostLinkable>();
+    public final ArrayList<PostLinkable> linkables = new ArrayList<>();
 
     public boolean parsedSpans = false;
     public SpannableString subjectSpan;

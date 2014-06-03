@@ -39,7 +39,7 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
     }
 
     private List<Board> parseJson(JsonReader reader) {
-        List<Board> list = new ArrayList<Board>();
+        List<Board> list = new ArrayList<>();
 
         try {
             reader.beginObject();
@@ -59,11 +59,7 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
                 }
             }
             reader.endObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
+        } catch (IOException | IllegalStateException | NumberFormatException e) {
             e.printStackTrace();
         }
 
@@ -83,17 +79,22 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
         while (reader.hasNext()) {
             String key = reader.nextName();
 
-            if (key.equals("title")) {
-                // Post number
-                board.key = reader.nextString();
-            } else if (key.equals("board")) {
-                board.value = reader.nextString();
-            } else if (key.equals("ws_board")) {
-                if (reader.nextInt() == 1) {
-                    board.workSafe = true;
-                }
-            } else {
-                reader.skipValue();
+            switch (key) {
+                case "title":
+                    // Post number
+                    board.key = reader.nextString();
+                    break;
+                case "board":
+                    board.value = reader.nextString();
+                    break;
+                case "ws_board":
+                    if (reader.nextInt() == 1) {
+                        board.workSafe = true;
+                    }
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
             }
         }
 
