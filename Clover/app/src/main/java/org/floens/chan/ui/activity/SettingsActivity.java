@@ -47,24 +47,18 @@ public class SettingsActivity extends Activity {
         doingThemeRestart = true;
         startActivity(intent);
         finish();
+        doingThemeRestart = false;
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
 
-        if (doingThemeRestart) {
-            doingThemeRestart = false;
-        } else {
-            if (ThemeHelper.getInstance().getTheme() != lastTheme) {
-                lastTheme = ThemeHelper.getInstance().getTheme();
+        if (ThemeHelper.getInstance().getTheme() != lastTheme) {
+            lastTheme = ThemeHelper.getInstance().getTheme();
 
-                Intent intent = new Intent(this, BoardActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                startActivity(intent);
-            }
+            BaseActivity.doRestartOnResume = true;
         }
     }
 }

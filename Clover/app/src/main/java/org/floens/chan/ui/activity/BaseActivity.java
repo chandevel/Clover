@@ -59,6 +59,8 @@ import org.floens.chan.utils.Utils;
 import java.util.List;
 
 public abstract class BaseActivity extends Activity implements PanelSlideListener, PinnedManager.PinListener {
+    public static boolean doRestartOnResume = false;
+
     private final static int ACTION_OPEN_URL = 1;
 
     protected PinnedAdapter pinnedAdapter;
@@ -110,6 +112,16 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         super.onDestroy();
 
         ChanApplication.getPinnedManager().removePinListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (doRestartOnResume) {
+            doRestartOnResume = false;
+            recreate();
+        }
     }
 
     private void initPane() {
