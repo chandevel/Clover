@@ -170,9 +170,7 @@ public class WatchService extends Service {
                             Logger.d(TAG, "Waiting for interrupt...");
                             try {
                                 Object o = new Object();
-                                synchronized (o) {
-                                    o.wait();
-                                }
+                                o.wait();
                             } catch (InterruptedException e) {
                                 Logger.d(TAG, "Interrupted!");
                             }
