@@ -64,8 +64,6 @@ public class WatchNotifier {
     public void onForegroundChanged() {
         if (WatchService.getActivityInForeground()) {
             nm.cancel(NOTIFICATION_ID);
-        } else {
-
         }
     }
 

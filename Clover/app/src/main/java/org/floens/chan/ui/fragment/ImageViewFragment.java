@@ -81,9 +81,8 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (post == null) {
-            // No restoring
-        } else {
+        // No restoring
+        if (post != null) {
             if (!post.hasImage) {
                 throw new IllegalArgumentException("Post has no image");
             }
