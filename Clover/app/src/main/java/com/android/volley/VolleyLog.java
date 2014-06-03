@@ -52,7 +52,9 @@ public class VolleyLog {
     }
 
     public static void d(String format, Object... args) {
-        Log.d(TAG, buildMessage(format, args));
+        if (DEBUG) {
+            Log.d(TAG, buildMessage(format, args));
+        }
     }
 
     public static void e(String format, Object... args) {
