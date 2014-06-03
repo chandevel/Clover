@@ -137,6 +137,7 @@ public class Post {
 
             thumbnailUrl = ChanUrls.getThumbnailUrl(board, tim);
             imageUrl = ChanUrls.getImageUrl(board, tim, ext);
+            filename = Parser.unescapeEntities(filename, false);
         }
 
         if (rawComment != null) {
