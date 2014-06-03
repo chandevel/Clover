@@ -44,6 +44,7 @@ public class PostAdapter extends BaseAdapter {
     private final ListView listView;
     private boolean endOfLine;
     private final List<Post> postList = new ArrayList<>();
+    private int lastPostCount = 0;
     private long lastViewedTime = 0;
     private String loadMessage = null;
 
@@ -81,6 +82,11 @@ public class PostAdapter extends BaseAdapter {
         }
 
         if (position >= postList.size()) {
+            if (lastPostCount != postList.size()) {
+                lastPostCount = postList.size();
+                lastViewedTime = Time.get();
+            }
+
             if (Time.get(lastViewedTime) > 2000L) {
                 lastViewedTime = Time.get();
                 threadManager.bottomPostViewed();
