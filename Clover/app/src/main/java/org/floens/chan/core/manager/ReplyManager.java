@@ -255,13 +255,6 @@ public class ReplyManager {
         public String passId;
     }
 
-    /**
-     * Send an reply off to the server.
-     *
-     * @param reply    The reply object with all data needed, like captcha and the
-     *                 file.
-     * @param listener The listener, after server response.
-     */
     public void sendDelete(final SavedReply reply, boolean onlyImageDelete, final DeleteListener listener) {
         Logger.i(TAG, "Sending delete request: " + reply.board + ", " + reply.no);
 

@@ -55,7 +55,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     /**
      * Set the posts to show
      *
-     * @param other    the posts to get image data from
+     * @param adapter  the adapter to get image data from
      * @param selected the no that the user clicked on
      */
     public static void setAdapter(PostAdapter adapter, int selected) {

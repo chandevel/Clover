@@ -94,7 +94,7 @@ public class CustomNetworkImageView extends ImageView {
     /**
      * Animate the image fading in.
      *
-     * @param duration duration of the fade animation in milliseconds
+     * @param time duration of the fade animation in milliseconds
      */
     public void setFadeIn(int time) {
         mFadeTime = time;
