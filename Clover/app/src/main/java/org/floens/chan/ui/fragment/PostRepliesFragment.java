@@ -115,7 +115,7 @@ public class PostRepliesFragment extends DialogFragment {
             ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(getActivity(), 0) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    PostView postView = null;
+                    PostView postView;
                     if (convertView instanceof PostView) {
                         postView = (PostView) convertView;
                     } else {

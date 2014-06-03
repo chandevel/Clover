@@ -67,7 +67,7 @@ public class ImageDecoder {
 
     public static Bitmap decode(byte[] data, int maxWidth, int maxHeight) {
         BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
-        Bitmap bitmap = null;
+        Bitmap bitmap;
 
         // If we have to resize this image, first get the natural bounds.
         decodeOptions.inJustDecodeBounds = true;

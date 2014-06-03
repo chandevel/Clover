@@ -68,7 +68,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
 
     @Override
     public List<Post> readJson(JsonReader reader) {
-        List<Post> list = new ArrayList<>();
+        List<Post> list;
 
         if (loadable.isBoardMode()) {
             list = loadBoard(reader);

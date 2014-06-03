@@ -433,7 +433,7 @@ public class ThreadManager implements Loader.LoaderListener {
     private void showPostReply(PostLinkable linkable) {
         String value = linkable.value;
 
-        Post post = null;
+        Post post;
 
         try {
             // Get post id
@@ -542,7 +542,7 @@ public class ThreadManager implements Loader.LoaderListener {
                 dialog.dismiss();
 
                 if (response.isNetworkError || response.isUserError) {
-                    int resId = 0;
+                    int resId;
 
                     if (response.isTooSoonError) {
                         resId = R.string.delete_too_soon;

@@ -248,7 +248,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     private String getLoadErrorText(VolleyError error) {
-        String errorMessage = "error";
+        String errorMessage;
 
         if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
             errorMessage = getActivity().getString(R.string.thread_load_failed_network);

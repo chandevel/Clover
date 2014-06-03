@@ -46,7 +46,7 @@ public class ScrollerRunnable implements Runnable {
         final int firstPos = mList.getFirstVisiblePosition();
         final int lastPos = firstPos + mList.getChildCount() - 1;
 
-        int viewTravelCount = 0;
+        int viewTravelCount;
         if (position <= firstPos) {
             viewTravelCount = firstPos - position + 1;
             mMode = MOVE_UP_POS;

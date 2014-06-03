@@ -48,7 +48,7 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        LinearLayout view = null;
+        LinearLayout view;
 
         final Pin item = getItem(position);
 

@@ -48,7 +48,7 @@ public class IOUtils {
      * @throws IOException
      */
     public static void copy(InputStream is, OutputStream os) throws IOException {
-        int read = 0;
+        int read;
         byte[] buffer = new byte[4096];
         while ((read = is.read(buffer)) != -1) {
             os.write(buffer, 0, read);
@@ -60,7 +60,7 @@ public class IOUtils {
 
     public static void copy(Reader input, Writer output) throws IOException {
         char[] buffer = new char[4096];
-        int read = 0;
+        int read;
         while ((read = input.read(buffer)) != -1) {
             output.write(buffer, 0, read);
         }

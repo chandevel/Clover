@@ -69,7 +69,7 @@ public class ImageSaver {
                                 finalFolder.mkdirs();
 
                                 for (Uri uri : list) {
-                                    DownloadManager.Request request = null;
+                                    DownloadManager.Request request;
                                     try {
                                         request = new DownloadManager.Request(uri);
                                     } catch (IllegalArgumentException e) {
