@@ -32,6 +32,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -284,6 +285,9 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         if (!TextUtils.isEmpty(post.name)) {
             post.nameSpan = new SpannableString(post.name);
             post.nameSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.nameSpan.length(), 0);
+            if (!TextUtils.isEmpty(post.email)) {
+                post.nameSpan.setSpan(new UnderlineSpan(), 0, post.nameSpan.length(), 0);
+            }
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
