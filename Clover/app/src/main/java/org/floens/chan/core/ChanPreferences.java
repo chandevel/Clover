@@ -70,7 +70,7 @@ public class ChanPreferences {
     }
 
     public static boolean getWatchBackgroundEnabled() {
-        return p().getBoolean("preference_watch_background_enabled", true);
+        return p().getBoolean("preference_watch_background_enabled", false);
     }
 
     public static long getWatchBackgroundTimeout() {

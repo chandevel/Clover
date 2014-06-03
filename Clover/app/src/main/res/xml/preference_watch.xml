@@ -5,7 +5,8 @@
         android:key="preference_watch_background_enabled"
         android:summaryOff="@string/watch_enable_background_off"
         android:summaryOn="@string/watch_enable_background_on"
-        android:title="@string/watch_enable_background" />
+        android:title="@string/watch_enable_background"
+        android:defaultValue="off" />
 
     <ListPreference
         android:dependency="preference_watch_background_enabled"
@@ -14,7 +15,6 @@
         android:entries="@array/watch_background_timeouts"
         android:entryValues="@array/watch_background_timeouts_int"
         android:key="preference_watch_background_timeout"
-        android:summary="Foo"
         android:title="@string/watch_background_timeout_description" />
 
 </PreferenceScreen>
