@@ -136,9 +136,7 @@ public class PinnedManager {
     }
 
     public void onPinViewed(Pin pin) {
-        if (pin.getPinWatcher() != null) {
-            pin.getPinWatcher().onViewed();
-        }
+        pin.getPinWatcher().onViewed();
 
         onPinsChanged();
     }

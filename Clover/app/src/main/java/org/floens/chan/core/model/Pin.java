@@ -62,10 +62,6 @@ public class Pin {
 
     public boolean isError = false;
 
-    public PinWatcher getPinWatcher() {
-        return pinWatcher;
-    }
-
     public int getNewPostsCount() {
         if (watchLastCount < 0 || watchNewCount < 0) {
             return 0;
@@ -79,19 +75,11 @@ public class Pin {
     }
 
     public Post getLastSeenPost() {
-        if (pinWatcher == null) {
-            return null;
-        } else {
-            return pinWatcher.getLastSeenPost();
-        }
+        return getPinWatcher().getLastSeenPost();
     }
 
     public void updateWatch() {
-        if (pinWatcher == null) {
-            pinWatcher = new PinWatcher(this);
-        }
-
-        pinWatcher.update();
+        getPinWatcher().update();
     }
 
     public void destroyWatcher() {
@@ -107,5 +95,13 @@ public class Pin {
         if (watching) {
             updateWatch();
         }
+    }
+
+    public PinWatcher getPinWatcher() {
+        if (pinWatcher == null) {
+            pinWatcher = new PinWatcher(this);
+        }
+
+        return pinWatcher;
     }
 }
