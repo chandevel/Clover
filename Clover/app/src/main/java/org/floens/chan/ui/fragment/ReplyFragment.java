@@ -286,7 +286,6 @@ public class ReplyFragment extends DialogFragment {
                     flipPage(2);
                     submit();
                 }
-                ;
             }
         });
 

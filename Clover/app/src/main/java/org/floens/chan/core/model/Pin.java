@@ -42,8 +42,6 @@ public class Pin {
         HEADER, THREAD
     }
 
-    ;
-
     // PinnedService stuff
     public PinWatcher pinWatcher;
 
