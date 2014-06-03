@@ -42,7 +42,7 @@ public class DeveloperActivity extends Activity {
         crashButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                @SuppressWarnings("unused")
+                @SuppressWarnings({"unused", "NumericOverflow"})
                 int i = 1 / 0;
             }
         });
