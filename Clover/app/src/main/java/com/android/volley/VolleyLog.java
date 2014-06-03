@@ -162,6 +162,7 @@ public class VolleyLog {
                 finish("Request on the loose");
                 e("Marker log finalized without finish() - uncaught exit point for request");
             }
+            super.finalize();
         }
 
         /** Returns the time difference between the first and last events in this log. */
