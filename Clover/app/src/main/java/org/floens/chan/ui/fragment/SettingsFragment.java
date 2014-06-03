@@ -100,7 +100,7 @@ public class SettingsFragment extends PreferenceFragment {
             theme.setValue((String) theme.getEntryValues()[0]);
             currentValue = theme.getValue();
         }
-        updateThemeSummary(theme, currentValue.toString());
+        updateThemeSummary(theme, currentValue);
 
         theme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override

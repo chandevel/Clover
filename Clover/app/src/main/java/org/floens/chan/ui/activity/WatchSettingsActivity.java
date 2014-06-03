@@ -143,7 +143,7 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
                 backgroundTimeout.setValue((String) backgroundTimeout.getEntryValues()[0]);
                 currentValue = backgroundTimeout.getValue();
             }
-            updateListSummary(backgroundTimeout, currentValue.toString());
+            updateListSummary(backgroundTimeout, currentValue);
 
             // Timeout is reset when board activity is started
             backgroundTimeout.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {

@@ -183,9 +183,9 @@ public class ReplyFragment extends DialogFragment {
         ReplyManager replyManager = ChanApplication.getReplyManager();
 
         if (shouldSaveDraft) {
-            draft.name = nameView.getText().toString();
-            draft.email = emailView.getText().toString();
-            draft.subject = subjectView.getText().toString();
+            draft.name = nameView.getText();
+            draft.email = emailView.getText();
+            draft.subject = subjectView.getText();
             draft.comment = commentView.getText().toString();
 
             if (fileNameView != null) {
@@ -455,9 +455,9 @@ public class ReplyFragment extends DialogFragment {
 
         responseContainer.setView(null);
 
-        draft.name = nameView.getText().toString();
-        draft.email = emailView.getText().toString();
-        draft.subject = subjectView.getText().toString();
+        draft.name = nameView.getText();
+        draft.email = emailView.getText();
+        draft.subject = subjectView.getText();
         draft.comment = commentView.getText().toString();
         draft.captchaChallenge = captchaChallenge;
         draft.captchaResponse = captchaInput.getText().toString();
