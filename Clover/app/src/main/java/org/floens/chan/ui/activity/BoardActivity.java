@@ -20,6 +20,7 @@ package org.floens.chan.ui.activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -28,12 +29,17 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -43,23 +49,26 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.service.WatchService;
 import org.floens.chan.ui.fragment.ThreadFragment;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import java.util.List;
 
-public class BoardActivity extends BaseActivity implements ActionBar.OnNavigationListener {
+public class BoardActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
+    private static final String TAG = "BoardActivity";
+
     private Loadable boardLoadable;
     private Loadable threadLoadable;
     private ThreadFragment boardFragment;
     private ThreadFragment threadFragment;
 
-    private boolean actionBarSetToListNavigation;
+    private boolean ignoreNextOnItemSelected = false;
+    private Spinner boardSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        actionBarSetToListNavigation = false;
         boardLoadable = new Loadable();
         threadLoadable = new Loadable();
 
@@ -72,10 +81,13 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         ft.commitAllowingStateLoss();
 
         final ActionBar actionBar = getActionBar();
-        actionBar.setListNavigationCallbacks(
-                new ArrayAdapter<>(actionBar.getThemedContext(), R.layout.board_select_spinner,
-                        android.R.id.text1, ChanApplication.getBoardManager().getSavedKeys()), this
-        );
+
+        boardSpinner = new Spinner(actionBar.getThemedContext());
+        boardSpinner.setAdapter(new BoardSpinnerAdapter(this));
+        boardSpinner.setOnItemSelectedListener(this);
+
+        actionBar.setCustomView(boardSpinner);
+        actionBar.setDisplayShowCustomEnabled(true);
 
         updatePaneState();
         updateActionBarState();
@@ -118,6 +130,8 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
                 }
             }
         }
+
+        ignoreNextOnItemSelected = true;
     }
 
     @Override
@@ -159,6 +173,12 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
 
     @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        pinDrawerListener.syncState();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
@@ -172,6 +192,47 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         updateActionBarState();
 
         updatePaneState();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (threadPane.isOpen()) {
+            super.onBackPressed();
+        } else {
+            threadPane.openPane();
+        }
+    }
+
+    @Override
+    public void openPin(Pin pin) {
+        startLoadingThread(pin.loadable);
+
+        pinDrawer.closeDrawer(pinDrawerView);
+    }
+
+    @Override
+    public void onOPClicked(Post post) {
+        startLoadingThread(new Loadable(post.board, post.no, post.subject));
+    }
+
+    @Override
+    public void updatePin(Pin pin) {
+        super.updatePin(pin);
+        updateActionBarState();
+    }
+
+    @Override
+    public void onNothingSelected(final AdapterView<?> parent) {
+    }
+
+    @Override
+    public void onPanelClosed(View view) {
+        updateActionBarState();
+    }
+
+    @Override
+    public void onPanelOpened(View view) {
+        updateActionBarState();
     }
 
     private void updatePaneState() {
@@ -210,39 +271,6 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         right.requestLayout();
     }
 
-    @Override
-    public void openPin(Pin pin) {
-        startLoadingThread(pin.loadable);
-
-        pinDrawer.closeDrawer(pinDrawerView);
-    }
-
-    @Override
-    public void onOPClicked(Post post) {
-        startLoadingThread(new Loadable(post.board, post.no, post.subject));
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        pinDrawerListener.syncState();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (threadPane.isOpen()) {
-            super.onBackPressed();
-        } else {
-            threadPane.openPane();
-        }
-    }
-
-    @Override
-    public void updatePin(Pin pin) {
-        super.updatePin(pin);
-        updateActionBarState();
-    }
-
     private void updateActionBarState() {
         // Force the actionbar state after the ThreadPane layout,
         // otherwise the ThreadPane incorrectly reports that it's not slidable.
@@ -259,14 +287,13 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
 
         if (threadPane.isSlideable()) {
             if (threadPane.isOpen()) {
-                int index = getBoardIndexNavigator(boardLoadable.board);
+                int index = getSpinnerIndex(boardLoadable.board);
 
                 if (index >= 0) {
-                    //                    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-                    setActionBarListMode();
+                    actionBar.setDisplayShowCustomEnabled(true);
                     actionBar.setTitle("");
                 } else {
-                    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+                    actionBar.setDisplayShowCustomEnabled(false);
                     String niceTitle = ChanApplication.getBoardManager().getBoardKey(boardLoadable.board);
                     if (niceTitle == null) {
                         actionBar.setTitle("/" + boardLoadable.board + "/");
@@ -275,42 +302,33 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
                     }
                 }
 
-                actionBar.setHomeButtonEnabled(true);
                 pinDrawerListener.setDrawerIndicatorEnabled(true);
 
                 if (boardLoadable.isBoardMode())
                     setShareUrl(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
             } else {
-                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+                actionBar.setDisplayShowCustomEnabled(false);
                 actionBar.setTitle(threadLoadable.title);
                 pinDrawerListener.setDrawerIndicatorEnabled(false);
 
                 if (threadLoadable.isThreadMode())
                     setShareUrl(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
             }
-
-            actionBar.setDisplayHomeAsUpEnabled(true);
         } else {
-            setActionBarListMode();
-            //            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            actionBar.setDisplayShowCustomEnabled(true);
             pinDrawerListener.setDrawerIndicatorEnabled(true);
             actionBar.setTitle(threadLoadable.title);
 
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
-            if (threadLoadable.isThreadMode())
+            if (threadLoadable.isThreadMode()) {
                 setShareUrl(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
+            }
         }
 
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
 
         invalidateOptionsMenu();
-    }
-
-    private void setActionBarListMode() {
-        ActionBar actionBar = getActionBar();
-        if (actionBar.getNavigationMode() != ActionBar.NAVIGATION_MODE_LIST)
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
 
     @Override
@@ -398,51 +416,40 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
     }
 
     @Override
-    public void onPanelClosed(View view) {
-        updateActionBarState();
-    }
+    public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
+        if (ignoreNextOnItemSelected) {
+            Logger.d(TAG, "Ignoring onItemSelected");
+            ignoreNextOnItemSelected = false;
+            return;
+        }
 
-    @Override
-    public void onPanelOpened(View view) {
-        updateActionBarState();
+        List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
+        if (position >= 0 && position < savedValues.size()) {
+            Loadable board = new Loadable(savedValues.get(position));
+
+            // onItemSelected is called after the view initializes,
+            // ignore if it's the same board
+            if (boardLoadable.equals(board))
+                return;
+
+            startLoadingBoard(board);
+        }
     }
 
     /**
-     * Sets the navigator to appropriately and calls startLoadingBoard
+     * Sets the spinner to the appropriate position and calls startLoadingBoard
      *
      * @param board
      */
     private void loadBoard(String board) {
         boardLoadable = new Loadable(board);
 
-        int index = getBoardIndexNavigator(boardLoadable.board);
-        if (index >= 0) {
-            ActionBar actionBar = getActionBar();
-            setActionBarListMode();
-
-            if (actionBar.getSelectedNavigationIndex() != index) {
-                actionBar.setSelectedNavigationItem(index);
-            } else {
-                startLoadingBoard(boardLoadable);
-            }
-        } else {
-            startLoadingBoard(boardLoadable);
-        }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(int position, long id) {
-        if (!actionBarSetToListNavigation) {
-            actionBarSetToListNavigation = true;
-        } else {
-            List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
-            if (position >= 0 && position < savedValues.size()) {
-                boardLoadable = new Loadable(savedValues.get(position));
-                startLoadingBoard(boardLoadable);
-            }
+        int index = getSpinnerIndex(boardLoadable.board);
+        if (index >= 0 && boardSpinner.getSelectedItemPosition() != index) {
+            boardSpinner.setSelection(index);
         }
 
-        return true;
+        startLoadingBoard(boardLoadable);
     }
 
     private void startLoadingBoard(Loadable loadable) {
@@ -489,14 +496,14 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
      * @param startUri
      */
     private void handleIntentURI(Uri startUri) {
+        Logger.d(TAG, "Opening " + startUri.getPath());
+
         List<String> parts = startUri.getPathSegments();
 
         if (parts.size() == 1) {
             // Board mode
             String rawBoard = parts.get(0);
             if (ChanApplication.getBoardManager().getBoardExists(rawBoard)) {
-                // To clear the flag
-                loadBoard(rawBoard);
                 loadBoard(rawBoard);
             } else {
                 handleIntentURIFallback(startUri.toString());
@@ -515,7 +522,6 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
                 startLoadingThread(new Loadable(rawBoard, no));
             } else {
                 handleIntentURIFallback(startUri.toString());
-                return;
             }
         } else {
             showUrlOpenPicker(startUri.toString());
@@ -537,7 +543,7 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         }).setCancelable(false).create().show();
     }
 
-    private int getBoardIndexNavigator(String boardValue) {
+    private int getSpinnerIndex(String boardValue) {
         List<String> list = ChanApplication.getBoardManager().getSavedValues();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).equals(boardValue)) {
@@ -546,5 +552,39 @@ public class BoardActivity extends BaseActivity implements ActionBar.OnNavigatio
         }
 
         return -1;
+    }
+
+    private class BoardSpinnerAdapter extends BaseAdapter {
+        private Context context;
+        private List<String> keys;
+        private List<String> values;
+
+        public BoardSpinnerAdapter(Context context) {
+            this.context = context;
+            keys = ChanApplication.getBoardManager().getSavedKeys();
+            values = ChanApplication.getBoardManager().getSavedValues();
+        }
+
+        @Override
+        public int getCount() {
+            return keys.size();
+        }
+
+        @Override
+        public Object getItem(final int position) {
+            return keys.get(position);
+        }
+
+        @Override
+        public long getItemId(final int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            TextView view = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
+            view.setText(keys.get(position));
+            return view;
+        }
     }
 }
