@@ -64,6 +64,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
     private boolean ignoreNextOnItemSelected = false;
     private Spinner boardSpinner;
+    private BoardSpinnerAdapter spinnerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +84,8 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         final ActionBar actionBar = getActionBar();
 
         boardSpinner = new Spinner(actionBar.getThemedContext());
-        boardSpinner.setAdapter(new BoardSpinnerAdapter(this));
+        spinnerAdapter = new BoardSpinnerAdapter(this, boardSpinner);
+        boardSpinner.setAdapter(spinnerAdapter);
         boardSpinner.setOnItemSelectedListener(this);
 
         actionBar.setCustomView(boardSpinner);
@@ -101,7 +103,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             // Reset page etc.
             Loadable tmp = new Loadable();
             tmp.readFromBundle(this, "board", savedInstanceState);
-            loadBoard(tmp.board);
+            startLoadingBoard(new Loadable(tmp.board));
         } else {
             if (startUri != null) {
                 handleIntentURI(startUri);
@@ -110,7 +112,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             if (boardLoadable.mode == Loadable.Mode.INVALID) {
                 List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
                 if (savedValues.size() > 0) {
-                    loadBoard(savedValues.get(0));
+                    startLoadingBoard(new Loadable(savedValues.get(0)));
                 }
             }
         }
@@ -306,21 +308,9 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         if (threadPane.isSlideable()) {
             if (threadPane.isOpen()) {
-                int index = getSpinnerIndex(boardLoadable.board);
-
-                if (index >= 0) {
-                    actionBar.setDisplayShowCustomEnabled(true);
-                    actionBar.setTitle("");
-                } else {
-                    actionBar.setDisplayShowCustomEnabled(false);
-                    String niceTitle = ChanApplication.getBoardManager().getBoardKey(boardLoadable.board);
-                    if (niceTitle == null) {
-                        actionBar.setTitle("/" + boardLoadable.board + "/");
-                    } else {
-                        actionBar.setTitle(niceTitle);
-                    }
-                }
-
+                actionBar.setDisplayShowCustomEnabled(true);
+                spinnerAdapter.setBoard(boardLoadable.board);
+                actionBar.setTitle("");
                 pinDrawerListener.setDrawerIndicatorEnabled(true);
 
                 if (boardLoadable.isBoardMode())
@@ -442,33 +432,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             return;
         }
 
-        List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
-        if (position >= 0 && position < savedValues.size()) {
-            Loadable board = new Loadable(savedValues.get(position));
-
-            // onItemSelected is called after the view initializes,
-            // ignore if it's the same board
-            if (boardLoadable.equals(board))
-                return;
-
-            startLoadingBoard(board);
-        }
-    }
-
-    /**
-     * Sets the spinner to the appropriate position and calls startLoadingBoard
-     *
-     * @param board
-     */
-    private void loadBoard(String board) {
-        boardLoadable = new Loadable(board);
-
-        int index = getSpinnerIndex(boardLoadable.board);
-        if (index >= 0 && boardSpinner.getSelectedItemPosition() != index) {
-            boardSpinner.setSelection(index);
-        }
-
-        startLoadingBoard(boardLoadable);
+        spinnerAdapter.onItemSelected(position);
     }
 
     private void startLoadingBoard(Loadable loadable) {
@@ -523,7 +487,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             // Board mode
             String rawBoard = parts.get(0);
             if (ChanApplication.getBoardManager().getBoardExists(rawBoard)) {
-                loadBoard(rawBoard);
+                startLoadingBoard(new Loadable(rawBoard));
             } else {
                 handleIntentURIFallback(startUri.toString());
             }
@@ -562,36 +526,63 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         }).setCancelable(false).create().show();
     }
 
-    private int getSpinnerIndex(String boardValue) {
-        List<String> list = ChanApplication.getBoardManager().getSavedValues();
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).equals(boardValue)) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
     private class BoardSpinnerAdapter extends BaseAdapter {
+        private static final int VIEW_TYPE_ITEM = 0;
+        private static final int VIEW_TYPE_ADD = 1;
+
         private Context context;
+        private Spinner spinner;
         private List<String> keys;
         private List<String> values;
+        private int lastSelectedPosition = 0;
 
-        public BoardSpinnerAdapter(Context context) {
+        public BoardSpinnerAdapter(Context context, Spinner spinner) {
             this.context = context;
+            this.spinner = spinner;
             keys = ChanApplication.getBoardManager().getSavedKeys();
             values = ChanApplication.getBoardManager().getSavedValues();
         }
 
-        @Override
-        public int getCount() {
-            return keys.size();
+        public void setBoard(String boardValue) {
+            for (int i = 0; i < values.size(); i++) {
+                if (values.get(i).equals(boardValue)) {
+                    spinner.setSelection(i);
+                    return;
+                }
+            }
+        }
+
+        public void onItemSelected(int position) {
+            if (position >= 0 && position < values.size()) {
+                Loadable board = new Loadable(values.get(position));
+
+                // onItemSelected is called after the view initializes,
+                // ignore if it's the same board
+                if (boardLoadable.equals(board))
+                    return;
+
+                startLoadingBoard(board);
+
+                lastSelectedPosition = position;
+            } else {
+                startActivity(new Intent(context, BoardEditor.class));
+                spinner.setSelection(lastSelectedPosition);
+            }
         }
 
         @Override
-        public Object getItem(final int position) {
-            return keys.get(position);
+        public int getCount() {
+            return keys.size() + 1;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 2;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position == getCount() - 1 ? VIEW_TYPE_ADD : VIEW_TYPE_ITEM;
         }
 
         @Override
@@ -600,10 +591,41 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         }
 
         @Override
-        public View getView(final int position, final View convertView, final ViewGroup parent) {
-            TextView view = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
-            view.setText(keys.get(position));
-            return view;
+        public String getItem(final int position) {
+            switch(getItemViewType(position)) {
+                case VIEW_TYPE_ITEM:
+                    return keys.get(position);
+                case VIEW_TYPE_ADD:
+                    return context.getString(R.string.board_select_add);
+                default:
+                    return "";
+            }
+        }
+
+        @Override
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+            switch(getItemViewType(position)) {
+                case VIEW_TYPE_ITEM: {
+                    if (convertView == null) {
+                        convertView = LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
+                    }
+
+                    TextView textView = (TextView) convertView;
+                    textView.setText(getItem(position));
+                    return textView;
+                }
+                case VIEW_TYPE_ADD: {
+                    if (convertView == null) {
+                        convertView = LayoutInflater.from(context).inflate(R.layout.board_select_add, null);
+                    }
+
+                    TextView textView = (TextView) convertView;
+                    textView.setText(getItem(position));
+                    return textView;
+                }
+            }
+
+            return null;
         }
     }
 }

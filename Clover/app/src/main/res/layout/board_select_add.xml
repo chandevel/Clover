@@ -11,5 +11,6 @@
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     android:paddingRight="?android:attr/listPreferredItemPaddingRight"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:textStyle="italic"
     android:singleLine="true"
     android:ellipsize="end" />
