@@ -41,8 +41,7 @@
     <string name="thread_load_failed_server">404 not found</string>
     <string name="thread_load_end_of_line">No more posts</string>
 
-    <string name="board_edit">Edit available boards</string>
-    <string name="board_edit_summary">Add or remove boards</string>
+    <string name="board_edit">Board editor</string>
     <string name="board_add">Add board</string>
     <string name="board_add_hint">Board code e.g. lit</string>
     <string name="board_add_success">Added board</string>
@@ -96,6 +95,8 @@
     <string name="delete_fail">Error deleting post</string>
     <string name="delete_image_only">Only delete the image</string>
 
+    <string name="preference_board_edit">Edit boards</string>
+    <string name="preference_board_edit_summary">Add or remove boards</string>
     <string name="preference_watch_settings">Thread watcher</string>
     <string name="preference_pass_settings">4chan pass</string>
 

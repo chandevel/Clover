@@ -2,8 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <Preference
-        android:summary="@string/board_edit_summary"
-        android:title="@string/board_edit" >
+        android:summary="@string/preference_board_edit_summary"
+        android:title="@string/preference_board_edit" >
         <intent
             android:action="android.intent.action.VIEW"
             android:targetClass="org.floens.chan.ui.activity.BoardEditor"
