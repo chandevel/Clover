@@ -90,7 +90,6 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         actionBar.setDisplayShowCustomEnabled(true);
 
         updatePaneState();
-        updateActionBarState();
 
         Intent startIntent = getIntent();
         Uri startUri = startIntent.getData();
@@ -189,7 +188,6 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         pinDrawerListener.onConfigurationChanged(newConfig);
-        updateActionBarState();
 
         updatePaneState();
     }
@@ -246,21 +244,30 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         LayoutParams leftParams = left.getLayoutParams();
         LayoutParams rightParams = right.getLayoutParams();
 
+        boolean wasSlidable = threadPane.isSlideable();
+        boolean isSlidable;
+
         // Content view dp's:
         // Nexus 4 is 384 x 640 dp
         // Nexus 7 is 600 x 960 dp
         // Nexus 10 is 800 x 1280 dp
 
-        if (width < Utils.dp(800)) {
-            if (width < Utils.dp(400)) {
-                leftParams.width = width - Utils.dp(30);
-            } else {
-                leftParams.width = width - Utils.dp(150);
-            }
+        if (width < Utils.dp(400)) {
+            leftParams.width = width - Utils.dp(30);
             rightParams.width = width;
-        } else {
+            isSlidable = true;
+        } else if (width < Utils.dp(800)) {
+            leftParams.width = width - Utils.dp(60);
+            rightParams.width = width;
+            isSlidable = true;
+        } else if (width < Utils.dp(1000)) {
             leftParams.width = Utils.dp(300);
             rightParams.width = width - Utils.dp(300);
+            isSlidable = false;
+        } else {
+            leftParams.width = Utils.dp(400);
+            rightParams.width = width - Utils.dp(400);
+            isSlidable = false;
         }
 
         left.setLayoutParams(leftParams);
@@ -269,6 +276,18 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         threadPane.requestLayout();
         left.requestLayout();
         right.requestLayout();
+
+        updateActionBarState();
+
+        if (isSlidable != wasSlidable) {
+            // Terrible hack to sync state for some devices when it changes slidable mode
+            threadPane.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateActionBarState();
+                }
+            }, 1000);
+        }
     }
 
     private void updateActionBarState() {
