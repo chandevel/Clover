@@ -1,41 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
+<!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:orientation="horizontal" >
-    
-	<TextView
-		android:id="@+id/drawer_item_text"
-		android:layout_width="0dp"
-		android:layout_height="48dp"
-		android:layout_weight="1"
-		android:paddingTop="8dp"
-		android:paddingBottom="8dp"
-		android:paddingLeft="16dp"
-		android:paddingRight="8dp"
-		android:textSize="19sp"
-		android:textColor="#fff"
-		android:gravity="center_vertical"
-		android:ellipsize="end"
-		android:lines="1"
-		android:singleLine="true">
-	</TextView>
-	
-	<FrameLayout
-	    android:id="@+id/drawer_item_count_container"
-	    android:background="@drawable/pin_icon_blue"
-	    android:layout_width="48dp"
-	    android:layout_height="48dp" >
-	    
-		<TextView
-		    android:id="@+id/drawer_item_count"
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:gravity="center"
-		    android:textSize="16dp"
-		    android:textColor="#fff" />
-		
-	</FrameLayout>
-	
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/drawer_item_text"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="1"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="8dp"
+        android:textSize="19sp"
+        android:textColor="#fff"
+        android:gravity="center_vertical"
+        android:ellipsize="end"
+        android:lines="1"
+        android:singleLine="true">
+    </TextView>
+
+    <FrameLayout
+        android:id="@+id/drawer_item_count_container"
+        android:background="@drawable/pin_icon_blue"
+        android:layout_width="48dp"
+        android:layout_height="48dp">
+
+        <TextView
+            android:id="@+id/drawer_item_count"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:textColor="#fff"/>
+
+    </FrameLayout>
+
 </LinearLayout>

@@ -1,44 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <Preference
         android:summary="@string/preference_board_edit_summary"
-        android:title="@string/preference_board_edit" >
+        android:title="@string/preference_board_edit">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetClass="org.floens.chan.ui.activity.BoardEditor"
-            android:targetPackage="org.floens.chan" />
+            android:targetPackage="org.floens.chan"/>
     </Preference>
     <Preference
         android:key="watch_settings"
-        android:title="@string/preference_watch_settings" >
+        android:title="@string/preference_watch_settings">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetClass="org.floens.chan.ui.activity.WatchSettingsActivity"
-            android:targetPackage="org.floens.chan" />
+            android:targetPackage="org.floens.chan"/>
     </Preference>
     <Preference
         android:key="pass_settings"
-        android:title="@string/preference_pass_settings" >
+        android:title="@string/preference_pass_settings">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetClass="org.floens.chan.ui.activity.PassSettingsActivity"
-            android:targetPackage="org.floens.chan" />
+            android:targetPackage="org.floens.chan"/>
     </Preference>
 
-    <PreferenceCategory android:title="@string/preference_general" >
+    <PreferenceCategory android:title="@string/preference_general">
         <ListPreference
             android:key="preference_theme"
             android:defaultValue="light"
             android:dialogTitle="@string/preference_theme"
             android:entries="@array/preference_themes"
             android:entryValues="@array/preference_themes_values"
-            android:title="@string/preference_theme" />
+            android:title="@string/preference_theme"/>
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="preference_open_link_confirmation"
-            android:title="@string/preference_open_link_confirmation" />
+            android:title="@string/preference_open_link_confirmation"/>
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -49,37 +66,37 @@
             android:defaultValue="false"
             android:key="preference_autoplay"
             android:dependency="preference_image_auto_load"
-            android:title="@string/preference_autoplay" />
+            android:title="@string/preference_autoplay"/>
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="preference_auto_refresh_thread"
-            android:title="@string/preference_auto_refresh_thread" />
+            android:title="@string/preference_auto_refresh_thread"/>
 
         <EditTextPreference
             android:key="preference_default_name"
-            android:title="@string/preference_default_name" />
+            android:title="@string/preference_default_name"/>
         <EditTextPreference
             android:key="preference_default_email"
-            android:title="@string/preference_default_email" />
+            android:title="@string/preference_default_email"/>
     </PreferenceCategory>
     <PreferenceCategory
         android:key="group_about"
-        android:title="@string/preference_about" >
+        android:title="@string/preference_about">
         <Preference
             android:key="about_licences"
             android:summary="@string/preference_licences_summary"
-            android:title="@string/preference_licenses" />
+            android:title="@string/preference_licenses"/>
         <Preference
             android:key="about_version"
-            android:title="Chan" />
+            android:title="Chan"/>
         <Preference
             android:key="about_developer"
-            android:title="@string/preference_developer" >
+            android:title="@string/preference_developer">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:targetClass="org.floens.chan.ui.activity.DeveloperActivity"
-                android:targetPackage="org.floens.chan" />
+                android:targetPackage="org.floens.chan"/>
         </Preference>
     </PreferenceCategory>
 

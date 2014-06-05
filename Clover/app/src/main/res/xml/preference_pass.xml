@@ -1,17 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
-    <EditTextPreference 
+<!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
         android:key="preference_pass_token"
-        android:title="@string/pass_token" />
-    
-    <EditTextPreference 
+        android:title="@string/pass_token"/>
+
+    <EditTextPreference
         android:key="preference_pass_pin"
         android:title="@string/pass_pin"
-        android:inputType="numberPassword" />
-    
-    <Preference 
+        android:inputType="numberPassword"/>
+
+    <Preference
         android:key="preference_pass_login"
-        android:title="@string/pass_login" />
+        android:title="@string/pass_login"/>
 
 </PreferenceScreen>
