@@ -44,6 +44,7 @@ import android.widget.TextView;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -254,22 +255,28 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         // Nexus 7 is 600 x 960 dp
         // Nexus 10 is 800 x 1280 dp
 
-        if (width < Utils.dp(400)) {
+        if (ChanPreferences.getForcePhoneLayout()) {
             leftParams.width = width - Utils.dp(30);
             rightParams.width = width;
             isSlidable = true;
-        } else if (width < Utils.dp(800)) {
-            leftParams.width = width - Utils.dp(60);
-            rightParams.width = width;
-            isSlidable = true;
-        } else if (width < Utils.dp(1000)) {
-            leftParams.width = Utils.dp(300);
-            rightParams.width = width - Utils.dp(300);
-            isSlidable = false;
         } else {
-            leftParams.width = Utils.dp(400);
-            rightParams.width = width - Utils.dp(400);
-            isSlidable = false;
+            if (width < Utils.dp(400)) {
+                leftParams.width = width - Utils.dp(30);
+                rightParams.width = width;
+                isSlidable = true;
+            } else if (width < Utils.dp(800)) {
+                leftParams.width = width - Utils.dp(60);
+                rightParams.width = width;
+                isSlidable = true;
+            } else if (width < Utils.dp(1000)) {
+                leftParams.width = Utils.dp(300);
+                rightParams.width = width - Utils.dp(300);
+                isSlidable = false;
+            } else {
+                leftParams.width = Utils.dp(400);
+                rightParams.width = width - Utils.dp(400);
+                isSlidable = false;
+            }
         }
 
         left.setLayoutParams(leftParams);

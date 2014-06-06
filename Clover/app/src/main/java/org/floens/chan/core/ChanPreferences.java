@@ -119,4 +119,8 @@ public class ChanPreferences {
     public static String getTheme() {
         return p().getString("preference_theme", "light");
     }
+
+    public static boolean getForcePhoneLayout() {
+        return p().getBoolean("preference_force_phone_layout", false);
+    }
 }
