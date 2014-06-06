@@ -25,24 +25,12 @@ import org.floens.chan.core.watch.PinWatcher;
 
 @DatabaseTable
 public class Pin {
-    // Database stuff
     @DatabaseField(generatedId = true)
     public int id;
 
     @DatabaseField(canBeNull = false, foreign = true)
     public Loadable loadable = new Loadable("", -1);
 
-    // ListView Stuff
-    /**
-     * Header is used to display a static header in the drawer listview.
-     */
-    public Type type = Type.THREAD;
-
-    public static enum Type {
-        HEADER, THREAD
-    }
-
-    // PinnedService stuff
     public PinWatcher pinWatcher;
 
     @DatabaseField

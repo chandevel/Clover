@@ -147,7 +147,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
         pinDrawerView = (ListView) findViewById(R.id.left_drawer);
 
-        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext(), 0); // Get the dark theme, not the light one
+        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext()); // Get the dark theme, not the light one
         pinnedAdapter.reload();
         pinDrawerView.setAdapter(pinnedAdapter);
 
@@ -155,7 +155,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Pin pin = pinnedAdapter.getItem(position);
-                if (pin == null || pin.type == Pin.Type.HEADER)
+                if (pin == null)
                     return;
                 openPin(pin);
             }
@@ -165,7 +165,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Pin post = pinnedAdapter.getItem(position);
-                if (post == null || post.type == Pin.Type.HEADER)
+                if (post == null)
                     return false;
 
                 changePinTitle(post);
@@ -185,7 +185,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
                     @Override
                     public boolean canDismiss(int position) {
-                        return pinnedAdapter.getItem(position).type != Pin.Type.HEADER;
+                        return pinnedAdapter.getItem(position) != null;
                     }
                 }
         );
@@ -199,7 +199,6 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     @Override
     public void onPinsChanged() {
         pinnedAdapter.reload();
-        pinDrawerView.invalidate();
         updateIcon();
     }
 

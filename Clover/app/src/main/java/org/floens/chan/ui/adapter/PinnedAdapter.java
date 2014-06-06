@@ -21,7 +21,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,98 +32,66 @@ import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Pin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
-public class PinnedAdapter extends ArrayAdapter<Pin> {
-    private final HashMap<Pin, Integer> idMap;
-    private int idCounter;
+public class PinnedAdapter extends BaseAdapter {
+    private final static int VIEW_TYPE_ITEM = 0;
+    private final static int VIEW_TYPE_HEADER = 1;
 
-    public PinnedAdapter(Context context, int resId) {
-        super(context, resId, new ArrayList<Pin>());
+    private Context context;
+    private List<Pin> pins = new ArrayList<>();
 
-        idMap = new HashMap<>();
+    public PinnedAdapter(Context context) {
+        this.context = context;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public int getCount() {
+        return pins.size() + 1;
+    }
 
-        LinearLayout view;
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
 
-        final Pin item = getItem(position);
+    @Override
+    public int getItemViewType(final int position) {
+        return position == 0 ? VIEW_TYPE_HEADER : VIEW_TYPE_ITEM;
+    }
 
-        if (item.type == Pin.Type.HEADER) {
-            view = (LinearLayout) inflater.inflate(R.layout.pin_item_header, null);
-
-            ((TextView) view.findViewById(R.id.drawer_item_header)).setText(R.string.drawer_pinned);
-        } else {
-            view = (LinearLayout) inflater.inflate(R.layout.pin_item, null);
-
-            ((TextView) view.findViewById(R.id.drawer_item_text)).setText(item.loadable.title);
-
-            FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.drawer_item_count_container);
-            if (ChanPreferences.getWatchEnabled()) {
-                frameLayout.setVisibility(View.VISIBLE);
-
-                TextView itemCount = (TextView) view.findViewById(R.id.drawer_item_count);
-
-                if (item.isError) {
-                    itemCount.setText("Err");
+    @Override
+    public Pin getItem(final int position) {
+        switch (getItemViewType(position)) {
+            case VIEW_TYPE_ITEM:
+                int itemPosition = position - 1;
+                if (itemPosition >= 0 && itemPosition < pins.size()) {
+                    return pins.get(itemPosition);
                 } else {
-                    int count = item.getNewPostsCount();
-                    String total = Integer.toString(count);
-                    if (count > 999) {
-                        total = "1k+";
-                    }
-                    itemCount.setText(total);
+                    return null;
                 }
-
-                itemCount.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        item.toggleWatch();
-                    }
-                });
-
-                if (!item.watching) {
-                    frameLayout.setBackgroundResource(R.drawable.pin_icon_gray);
-                } else if (item.getNewQuoteCount() > 0) {
-                    frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
-                } else {
-                    frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
-                }
-            } else {
-                frameLayout.setVisibility(View.GONE);
-            }
+            case VIEW_TYPE_HEADER:
+                return null;
+            default:
+                return null;
         }
-
-        return view;
-    }
-
-    public void reload() {
-        clear();
-
-        Pin header = new Pin();
-        header.type = Pin.Type.HEADER;
-        add(header);
-
-        addAll(ChanApplication.getPinnedManager().getPins());
-
-        notifyDataSetChanged();
     }
 
     @Override
-    public void remove(Pin item) {
-        super.remove(item);
-        idMap.remove(item);
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void add(Pin item) {
-        idMap.put(item, ++idCounter);
-        super.add(item);
-        notifyDataSetChanged();
+    public long getItemId(int position) {
+        switch (getItemViewType(position)) {
+            case VIEW_TYPE_ITEM:
+                int itemPosition = position - 1;
+                if (itemPosition >= 0 && itemPosition < pins.size()) {
+                    return pins.get(itemPosition).id;
+                } else {
+                    return -1;
+                }
+            case VIEW_TYPE_HEADER:
+                return -1;
+            default:
+                return -1;
+        }
     }
 
     @Override
@@ -132,20 +100,71 @@ public class PinnedAdapter extends ArrayAdapter<Pin> {
     }
 
     @Override
-    public long getItemId(int position) {
-        if (position < 0 || position >= getCount())
-            return -1;
+    public View getView(int position, View convertView, ViewGroup parent) {
+        switch (getItemViewType(position)) {
+            case VIEW_TYPE_ITEM: {
+                final Pin item = getItem(position);
 
-        Pin item = getItem(position);
-        if (item == null) {
-            return -1;
-        } else {
-            Integer i = idMap.get(item);
-            if (i == null) {
-                return -1;
-            } else {
-                return i;
+                if (convertView == null) {
+                    convertView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.pin_item, null);
+                }
+
+                ((TextView) convertView.findViewById(R.id.drawer_item_text)).setText(item.loadable.title);
+
+                FrameLayout frameLayout = (FrameLayout) convertView.findViewById(R.id.drawer_item_count_container);
+                if (ChanPreferences.getWatchEnabled()) {
+                    frameLayout.setVisibility(View.VISIBLE);
+
+                    TextView itemCount = (TextView) convertView.findViewById(R.id.drawer_item_count);
+
+                    if (item.isError) {
+                        itemCount.setText("Err");
+                    } else {
+                        int count = item.getNewPostsCount();
+                        String total = Integer.toString(count);
+                        if (count > 999) {
+                            total = "1k+";
+                        }
+                        itemCount.setText(total);
+                    }
+
+                    itemCount.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            item.toggleWatch();
+                        }
+                    });
+
+                    if (!item.watching) {
+                        frameLayout.setBackgroundResource(R.drawable.pin_icon_gray);
+                    } else if (item.getNewQuoteCount() > 0) {
+                        frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
+                    } else {
+                        frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
+                    }
+                } else {
+                    frameLayout.setVisibility(View.GONE);
+                }
+
+                return convertView;
             }
+            case VIEW_TYPE_HEADER: {
+                if (convertView == null) {
+                    convertView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.pin_item_header, null);
+                    ((TextView) convertView.findViewById(R.id.drawer_item_header)).setText(R.string.drawer_pinned);
+                }
+
+                return convertView;
+            }
+            default:
+                return null;
         }
+    }
+
+    public void reload() {
+        pins.clear();
+        pins.addAll(ChanApplication.getPinnedManager().getPins());
+
+        notifyDataSetChanged();
     }
 }
