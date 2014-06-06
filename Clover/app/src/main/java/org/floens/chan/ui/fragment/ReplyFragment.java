@@ -31,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -72,6 +73,7 @@ public class ReplyFragment extends DialogFragment {
     private int page = 0;
 
     private Loadable loadable;
+    private boolean quickMode = false;
 
     private final Reply draft = new Reply();
     private boolean shouldSaveDraft = true;
@@ -98,9 +100,10 @@ public class ReplyFragment extends DialogFragment {
 
     private Activity context;
 
-    public static ReplyFragment newInstance(Loadable loadable) {
+    public static ReplyFragment newInstance(Loadable loadable, boolean quickMode) {
         ReplyFragment reply = new ReplyFragment();
         reply.loadable = loadable;
+        reply.quickMode = quickMode;
         return reply;
     }
 
@@ -133,10 +136,9 @@ public class ReplyFragment extends DialogFragment {
                 context.getActionBar().setTitle(title);
             } else {
                 dialog.setTitle(title);
-            }
-
-            if (getDialog() != null) {
-                getDialog().setOnKeyListener(new Dialog.OnKeyListener() {
+                // todo move elsewhere
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                dialog.setOnKeyListener(new Dialog.OnKeyListener() {
                     @Override
                     public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
                         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -236,6 +238,12 @@ public class ReplyFragment extends DialogFragment {
             ((TextView) container.findViewById(R.id.reply_captcha_text)).setText(R.string.pass_using);
             container.findViewById(R.id.reply_captcha_container).setVisibility(View.GONE);
             container.findViewById(R.id.reply_captcha).setVisibility(View.GONE);
+        }
+
+        if (quickMode) {
+            nameView.setVisibility(View.GONE);
+            emailView.setVisibility(View.GONE);
+            subjectView.setVisibility(View.GONE);
         }
 
         cancelButton = (Button) container.findViewById(R.id.reply_cancel);

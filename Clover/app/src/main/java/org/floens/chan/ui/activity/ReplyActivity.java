@@ -46,7 +46,7 @@ public class ReplyActivity extends Activity {
             getActionBar().setDisplayHomeAsUpEnabled(true);
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(android.R.id.content, ReplyFragment.newInstance(loadable));
+            ft.replace(android.R.id.content, ReplyFragment.newInstance(loadable, false));
             ft.commitAllowingStateLoss();
 
             loadable = null;

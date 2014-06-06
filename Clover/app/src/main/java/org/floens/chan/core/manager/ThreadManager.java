@@ -233,8 +233,8 @@ public class ThreadManager implements Loader.LoaderListener {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
-                    case 0: // Reply
-                        openReply(true);
+                    case 0: // Quick reply
+                        openReply(false);
                         // Pass through
                     case 1: // Quote
                         ChanApplication.getReplyManager().quote(post.no);
@@ -275,7 +275,7 @@ public class ThreadManager implements Loader.LoaderListener {
             Intent i = new Intent(activity, ReplyActivity.class);
             activity.startActivity(i);
         } else {
-            ReplyFragment reply = ReplyFragment.newInstance(loader.getLoadable());
+            ReplyFragment reply = ReplyFragment.newInstance(loader.getLoadable(), true);
             reply.show(activity.getFragmentManager(), "replyDialog");
         }
     }

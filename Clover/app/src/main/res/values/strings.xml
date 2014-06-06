@@ -77,7 +77,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="post_replies_close">Close</string>
     <string name="post_info">Info</string>
     <string-array name="post_options">
-        <item>Reply</item>
+        <item>Quick reply</item>
         <item>Quote</item>
         <item>Info</item>
         <item>Show clickables</item>
