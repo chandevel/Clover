@@ -15,72 +15,85 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.watch;
+package org.floens.chan.ui.service;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.service.WatchService;
+import org.floens.chan.core.watch.PinWatcher;
 import org.floens.chan.ui.activity.BoardActivity;
-import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class WatchNotifier {
+public class WatchNotifier extends Service {
     private static final String TAG = "WatchNotifier";
+    private static final int NOTIFICATION_ID = 1;
 
-    private final int NOTIFICATION_ID = 1;
+    private NotificationManager nm;
+    private WatchManager wm;
 
-    private final Context context;
-    private final NotificationManager nm;
-
-    public WatchNotifier(Context context) {
-        this.context = context;
-        nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    @Override
+    public IBinder onBind(final Intent intent) {
+        return null;
     }
 
-    public void destroy() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        wm = ChanApplication.getWatchManager();
+
+        startForeground(NOTIFICATION_ID, getIdleNotification());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         nm.cancel(NOTIFICATION_ID);
     }
 
-    public void update() {
-        if (!WatchService.getActivityInForeground() && ChanPreferences.getWatchBackgroundEnabled()) {
-            prepareNotification();
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
+            pausePins();
+        } else {
+            updateNotification();
+        }
+
+        return START_STICKY;
+    }
+
+    public void updateNotification() {
+        Notification notification = createNotification();
+        if (notification != null) {
+            nm.notify(NOTIFICATION_ID, notification);
+        } else {
+            nm.notify(NOTIFICATION_ID, getIdleNotification());
         }
     }
 
-    public void onForegroundChanged() {
-        if (WatchService.getActivityInForeground()) {
-            nm.cancel(NOTIFICATION_ID);
-        }
+    public void pausePins() {
+        wm.pausePins();
     }
 
-    public void onPausePinsClicked() {
-        nm.cancel(NOTIFICATION_ID);
-
-        List<Pin> watchingPins = ChanApplication.getPinnedManager().getWatchingPins();
-        for (Pin pin : watchingPins) {
-            pin.watching = false;
-        }
-
-        ChanApplication.getPinnedManager().onPinsChanged();
-        ChanApplication.getPinnedManager().updateAll(); // Can be the last thing this app does
-    }
-
-    private void prepareNotification() {
-        List<Pin> watchingPins = ChanApplication.getPinnedManager().getWatchingPins();
+    private Notification createNotification() {
+        List<Pin> watchingPins = wm.getWatchingPins();
 
         List<Pin> pins = new ArrayList<>();
         int newPostsCount = 0;
@@ -88,6 +101,7 @@ public class WatchNotifier {
         List<Post> posts = new ArrayList<>();
         boolean makeSound = false;
         boolean show = false;
+        boolean wereNewPosts = false;
 
         for (Pin pin : watchingPins) {
             PinWatcher watcher = pin.getPinWatcher();
@@ -97,6 +111,9 @@ public class WatchNotifier {
             boolean add = false;
 
             if (pin.getNewPostsCount() > 0) {
+                if (watcher.getWereNewPosts()) {
+                    wereNewPosts = true;
+                }
                 newPostsCount += pin.getNewPostsCount();
                 for (Post p : watcher.getNewPosts()) {
                     p.title = pin.loadable.title;
@@ -129,7 +146,6 @@ public class WatchNotifier {
             }
 
             String tickerText = title + " in ";
-
             if (pins.size() == 1) {
                 tickerText += pins.get(0).loadable.title;
             } else {
@@ -159,54 +175,67 @@ public class WatchNotifier {
                 targetPin = pins.get(0);
             }
 
-            showNotification(tickerText, title, tickerText, Integer.toString(newPostsCount), lines, makeSound, targetPin);
+            boolean showTickerText = !ChanApplication.getInstance().getApplicationInForeground() && wereNewPosts;
+            return getNotificationFor(showTickerText ? tickerText : null, title, tickerText, Integer.toString(newPostsCount), lines, makeSound, targetPin);
+        } else {
+            return null;
         }
     }
 
-    @SuppressWarnings("deprecation")
-    private void showNotification(String tickerText, String title, String content, String contentInfo,
-                                  List<CharSequence> lines, boolean makeSound, Pin targetPin) {
+    private Notification getIdleNotification() {
+        List<Pin> watchingPins = wm.getWatchingPins();
+        int s = watchingPins.size();
+        String message = "Watching " + s + " thread" + (s != 1 ? "s" : "");
 
-        Intent intent = new Intent(context, BoardActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        return getNotificationFor(null, message, message, "", null, false, null);
+    }
+
+    @SuppressWarnings("deprecation")
+    private Notification getNotificationFor(String tickerText, String title, String content, String count,
+                                            List<CharSequence> lines, boolean makeSound, Pin targetPin) {
+
+        Intent intent = new Intent(this, BoardActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
         intent.putExtra("pin_id", targetPin == null ? -1 : targetPin.id);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setContentIntent(pendingIntent);
 
         builder.setTicker(tickerText);
         builder.setContentTitle(title);
         builder.setContentText(content);
-        builder.setContentInfo(contentInfo);
+        builder.setContentInfo(count);
         builder.setSmallIcon(R.drawable.ic_stat_notify);
 
-        Intent pauseWatching = new Intent(context, WatchService.class);
+        Intent pauseWatching = new Intent(this, WatchNotifier.class);
         pauseWatching.putExtra("pause_pins", true);
 
-        PendingIntent pauseWatchingPending = PendingIntent.getService(context, 0, pauseWatching,
+        PendingIntent pauseWatchingPending = PendingIntent.getService(this, 0, pauseWatching,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        builder.addAction(R.drawable.ic_action_pause, context.getString(R.string.watch_pause_pins),
+        builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins),
                 pauseWatchingPending);
 
         if (makeSound) {
             builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         }
 
-        NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-        for (CharSequence line : lines.subList(Math.max(0, lines.size() - 10), lines.size())) {
-            style.addLine(line);
+        if (lines != null) {
+            NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
+            for (CharSequence line : lines.subList(Math.max(0, lines.size() - 10), lines.size())) {
+                style.addLine(line);
+            }
+            style.setBigContentTitle(title);
+            builder.setStyle(style);
         }
-        style.setBigContentTitle(title);
-        // style.setSummaryText(content);
 
-        builder.setStyle(style);
-
-        Logger.i(TAG, "Showing notification");
-        nm.notify(NOTIFICATION_ID, builder.getNotification());
+        return builder.getNotification();
     }
 
     private static class PostAgeComparer implements Comparator<Post> {

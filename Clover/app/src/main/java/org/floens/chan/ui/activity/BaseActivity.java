@@ -46,7 +46,7 @@ import android.widget.ShareActionProvider;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.manager.PinnedManager;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.BadgeDrawable;
@@ -58,7 +58,7 @@ import org.floens.chan.utils.Utils;
 
 import java.util.List;
 
-public abstract class BaseActivity extends Activity implements PanelSlideListener, PinnedManager.PinListener {
+public abstract class BaseActivity extends Activity implements PanelSlideListener, WatchManager.PinListener {
     public static boolean doRestartOnResume = false;
 
     private final static int ACTION_OPEN_URL = 1;
@@ -102,7 +102,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         threadPane = (SlidingPaneLayout) findViewById(R.id.pane_container);
         initPane();
 
-        ChanApplication.getPinnedManager().addPinListener(this);
+        ChanApplication.getWatchManager().addPinListener(this);
 
         updateIcon();
     }
@@ -111,7 +111,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     protected void onDestroy() {
         super.onDestroy();
 
-        ChanApplication.getPinnedManager().removePinListener(this);
+        ChanApplication.getWatchManager().removePinListener(this);
     }
 
     @Override
@@ -203,7 +203,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
 
     private void updateIcon() {
-        List<Pin> list = ChanApplication.getPinnedManager().getWatchingPins();
+        List<Pin> list = ChanApplication.getWatchManager().getWatchingPins();
         if (list.size() > 0) {
             int count = 0;
             boolean color = false;
@@ -226,15 +226,15 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
 
     public void addPin(Pin pin) {
-        ChanApplication.getPinnedManager().add(pin);
+        ChanApplication.getWatchManager().addPin(pin);
     }
 
     public void removePin(Pin pin) {
-        ChanApplication.getPinnedManager().remove(pin);
+        ChanApplication.getWatchManager().removePin(pin);
     }
 
     public void updatePin(Pin pin) {
-        ChanApplication.getPinnedManager().update(pin);
+        ChanApplication.getWatchManager().updatePin(pin);
     }
 
     private void changePinTitle(final Pin pin) {
@@ -318,7 +318,10 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             }
 
             NdefMessage message = new NdefMessage(new NdefRecord[]{record});
-            adapter.setNdefPushMessage(message, this);
+            try {
+                adapter.setNdefPushMessage(message, this);
+            } catch (Exception e) {
+            }
         }
 
         Intent share = new Intent(android.content.Intent.ACTION_SEND);

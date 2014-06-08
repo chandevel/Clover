@@ -48,7 +48,6 @@ import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.service.WatchService;
 import org.floens.chan.ui.fragment.ThreadFragment;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
@@ -118,22 +117,20 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             }
         }
 
-        Bundle extras = startIntent.getExtras();
-        if (extras != null) {
-            int pinId = extras.getInt("pin_id", -2);
-            if (pinId != -2) {
-                if (pinId == -1) {
-                    pinDrawer.openDrawer(pinDrawerView);
-                } else {
-                    Pin pin = ChanApplication.getPinnedManager().findPinById(pinId);
-                    if (pin != null) {
-                        startLoadingThread(pin.loadable);
-                    }
-                }
-            }
+        if (startIntent.getExtras() != null) {
+            handleExtraBundle(startIntent.getExtras());
         }
 
         ignoreNextOnItemSelected = true;
+    }
+
+    @Override
+    protected void onNewIntent(final Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent.getExtras() != null) {
+            handleExtraBundle(intent.getExtras());
+        }
     }
 
     @Override
@@ -148,21 +145,21 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     protected void onStart() {
         super.onStart();
 
-        WatchService.onActivityStart();
+        ChanApplication.getInstance().activityEnteredForeground();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        WatchService.onActivityStop();
+        ChanApplication.getInstance().activityEnteredBackground();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        ChanApplication.getPinnedManager().updateAll();
+        ChanApplication.getWatchManager().updateDatabase();
     }
 
     @Override
@@ -234,6 +231,20 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     @Override
     public void onPanelOpened(View view) {
         updateActionBarState();
+    }
+
+    private void handleExtraBundle(Bundle extras) {
+        int pinId = extras.getInt("pin_id", -2);
+        if (pinId != -2) {
+            if (pinId == -1) {
+                pinDrawer.openDrawer(pinDrawerView);
+            } else {
+                Pin pin = ChanApplication.getWatchManager().findPinById(pinId);
+                if (pin != null) {
+                    startLoadingThread(pin.loadable);
+                }
+            }
+        }
     }
 
     private void updatePaneState() {
@@ -458,7 +469,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         if (loadable.mode == Loadable.Mode.INVALID)
             return;
 
-        Pin pin = ChanApplication.getPinnedManager().findPinByLoadable(loadable);
+        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loadable);
         if (pin != null) {
             // Use the loadable from the pin.
             // This way we can store the listview position in the pin loadable,

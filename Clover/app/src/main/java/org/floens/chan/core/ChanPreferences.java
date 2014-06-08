@@ -20,7 +20,6 @@ package org.floens.chan.core;
 import android.content.SharedPreferences;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.service.WatchService;
 
 public class ChanPreferences {
     private static SharedPreferences p() {
@@ -64,8 +63,7 @@ public class ChanPreferences {
     public static void setWatchEnabled(boolean enabled) {
         if (getWatchEnabled() != enabled) {
             p().edit().putBoolean("preference_watch_enabled", enabled).commit();
-            WatchService.updateRunningState(ChanApplication.getInstance());
-            ChanApplication.getPinnedManager().onPinsChanged();
+            ChanApplication.getWatchManager().onWatchEnabledChanged(enabled);
         }
     }
 
@@ -73,9 +71,9 @@ public class ChanPreferences {
         return p().getBoolean("preference_watch_background_enabled", false);
     }
 
-    public static long getWatchBackgroundTimeout() {
-        String number = p().getString("preference_watch_background_timeout", "0");
-        return Integer.parseInt(number) * 1000L;
+    public static int getWatchBackgroundTimeout() {
+        String number = p().getString("preference_watch_background_timeout", "60");
+        return Integer.parseInt(number);
     }
 
     public static boolean getVideoAutoPlay() {

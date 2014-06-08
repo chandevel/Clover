@@ -520,7 +520,7 @@ public class ReplyFragment extends DialogFragment {
             // Pin thread on successful post
             Pin pin = new Pin();
             pin.loadable = loadable;
-            ChanApplication.getPinnedManager().add(pin);
+            ChanApplication.getWatchManager().addPin(pin);
 
             closeReply();
         } else {

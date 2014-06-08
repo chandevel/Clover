@@ -19,12 +19,13 @@ package org.floens.chan.core.watch;
 
 import com.android.volley.VolleyError;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ public class PinWatcher implements Loader.LoaderListener {
 
     private final List<Post> posts = new ArrayList<>();
     private boolean wereNewQuotes = false;
+    private boolean wereNewPosts = false;
 
     public PinWatcher(Pin pin) {
         this.pin = pin;
@@ -64,6 +66,7 @@ public class PinWatcher implements Loader.LoaderListener {
 
         pin.quoteLastCount = pin.quoteNewCount;
         wereNewQuotes = false;
+        wereNewPosts = false;
     }
 
     public List<Post> getNewPosts() {
@@ -92,6 +95,15 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
+    public boolean getWereNewPosts() {
+        if (wereNewPosts) {
+            wereNewPosts = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public Post getLastSeenPost() {
         int i = posts.size() - pin.getNewPostsCount() - 1;
         if (i >= 0 && i < posts.size()) {
@@ -106,7 +118,12 @@ public class PinWatcher implements Loader.LoaderListener {
         Logger.e(TAG, "PinWatcher onError: ", error);
         pin.isError = true;
 
-        WatchService.onPinWatcherResult();
+        Utils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ChanApplication.getWatchManager().onPinsChanged();
+            }
+        });
     }
 
     @Override
@@ -116,13 +133,13 @@ public class PinWatcher implements Loader.LoaderListener {
         posts.clear();
         posts.addAll(result);
 
+        int lastQuoteNewCount = pin.quoteNewCount;
+        int lastWatchNewCount = pin.watchNewCount;
+
         if (pin.watchLastCount < 0)
             pin.watchLastCount = result.size();
 
         pin.watchNewCount = result.size();
-
-        // If there are more replies than last time, let the notification make a sound
-        int lastCounterForSoundNotification = pin.quoteNewCount;
 
         // Get list of saved posts
         int total = 0;
@@ -134,15 +151,24 @@ public class PinWatcher implements Loader.LoaderListener {
 
         pin.quoteNewCount = total;
 
-        if (pin.quoteNewCount > lastCounterForSoundNotification) {
+        if (pin.quoteNewCount > lastQuoteNewCount) {
             wereNewQuotes = true;
         }
 
-        if (Logger.debugEnabled()) {
-            Logger.d(TAG, String.format("postlast=%d postnew=%d quotelast=%d quotenew=%d werenewquotes=%b",
-                    pin.watchLastCount, pin.watchNewCount, pin.quoteLastCount, pin.quoteNewCount, wereNewQuotes));
+        if (pin.watchNewCount > lastWatchNewCount) {
+            wereNewPosts = true;
         }
 
-        WatchService.onPinWatcherResult();
+        if (Logger.debugEnabled()) {
+            Logger.d(TAG, String.format("postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b",
+                    pin.watchLastCount, pin.watchNewCount, wereNewPosts, pin.quoteLastCount, pin.quoteNewCount, wereNewQuotes));
+        }
+
+        Utils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ChanApplication.getWatchManager().onPinsChanged();
+            }
+        });
     }
 }

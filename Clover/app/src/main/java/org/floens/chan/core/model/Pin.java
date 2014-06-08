@@ -79,9 +79,10 @@ public class Pin {
 
     public void toggleWatch() {
         watching = !watching;
-        ChanApplication.getPinnedManager().onPinsChanged();
+        ChanApplication.getWatchManager().onPinsChanged();
+
         if (watching) {
-            updateWatch();
+            getPinWatcher().update();
         }
     }
 

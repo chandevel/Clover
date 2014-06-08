@@ -28,27 +28,31 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.manager.PinnedManager;
-import org.floens.chan.core.manager.PinnedManager.PinListener;
 import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.database.DatabaseManager;
-import org.floens.chan.service.WatchService;
 import org.floens.chan.utils.IconCache;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ChanApplication extends Application implements PinListener {
+public class ChanApplication extends Application {
+    private static final String TAG = "ChanApplication";
+
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
     private static ImageLoader imageLoader;
     private static BoardManager boardManager;
-    private static PinnedManager pinnedManager;
+    private static WatchManager watchManager;
     private static ReplyManager replyManager;
     private static DatabaseManager databaseManager;
-    private static ThemeHelper themeHelper;
+
+    private List<ForegroundChangedListener> foregroundChangedListeners = new ArrayList<>();
+    private int activityForegroundCounter = 0;
 
     public ChanApplication() {
         instance = this;
@@ -70,8 +74,8 @@ public class ChanApplication extends Application implements PinListener {
         return boardManager;
     }
 
-    public static PinnedManager getPinnedManager() {
-        return pinnedManager;
+    public static WatchManager getWatchManager() {
+        return watchManager;
     }
 
     public static ReplyManager getReplyManager() {
@@ -115,15 +119,50 @@ public class ChanApplication extends Application implements PinListener {
 
         databaseManager = new DatabaseManager(this);
         boardManager = new BoardManager();
-        pinnedManager = new PinnedManager(this);
-        pinnedManager.addPinListener(this);
+        watchManager = new WatchManager(this);
         replyManager = new ReplyManager(this);
-
-        WatchService.updateRunningState(this);
     }
 
-    @Override
-    public void onPinsChanged() {
-        WatchService.updateRunningState(this);
+    public void activityEnteredForeground() {
+        boolean lastForeground = getApplicationInForeground();
+
+        activityForegroundCounter++;
+
+        if (getApplicationInForeground() != lastForeground) {
+            for (ForegroundChangedListener listener : foregroundChangedListeners) {
+                listener.onForegroundChanged(getApplicationInForeground());
+            }
+        }
+    }
+
+    public void activityEnteredBackground() {
+        boolean lastForeground = getApplicationInForeground();
+
+        activityForegroundCounter--;
+        if (activityForegroundCounter < 0) {
+            Logger.wtf(TAG, "activityForegroundCounter below 0");
+        }
+
+        if (getApplicationInForeground() != lastForeground) {
+            for (ForegroundChangedListener listener : foregroundChangedListeners) {
+                listener.onForegroundChanged(getApplicationInForeground());
+            }
+        }
+    }
+
+    public boolean getApplicationInForeground() {
+        return activityForegroundCounter > 0;
+    }
+
+    public void addForegroundChangedListener(ForegroundChangedListener listener) {
+        foregroundChangedListeners.add(listener);
+    }
+
+    public void removeForegroundChangedListener(ForegroundChangedListener listener) {
+        foregroundChangedListeners.remove(listener);
+    }
+
+    public static interface ForegroundChangedListener {
+        public void onForegroundChanged(boolean foreground);
     }
 }

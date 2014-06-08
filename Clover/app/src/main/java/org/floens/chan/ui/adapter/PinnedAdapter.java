@@ -163,7 +163,7 @@ public class PinnedAdapter extends BaseAdapter {
 
     public void reload() {
         pins.clear();
-        pins.addAll(ChanApplication.getPinnedManager().getPins());
+        pins.addAll(ChanApplication.getWatchManager().getPins());
 
         notifyDataSetChanged();
     }

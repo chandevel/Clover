@@ -23,6 +23,7 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -38,6 +39,7 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.utils.ThemeHelper;
@@ -150,6 +152,15 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     updateListSummary(backgroundTimeout, newValue.toString());
+                    return true;
+                }
+            });
+
+            ((CheckBoxPreference)findPreference("preference_watch_background_enabled")).setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+                    ChanApplication.getWatchManager().onBackgroundWatchingChanged((Boolean)newValue);
+
                     return true;
                 }
             });
