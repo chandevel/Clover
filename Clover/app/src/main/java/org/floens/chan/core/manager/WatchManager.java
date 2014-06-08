@@ -134,7 +134,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     public void removePin(Pin pin) {
         pins.remove(pin);
         ChanApplication.getDatabaseManager().removePin(pin);
-        pin.destroyWatcher();
+        pin.destroy();
 
         onPinsChanged();
     }
@@ -165,9 +165,10 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     }
 
     public void onPinViewed(Pin pin) {
-        pin.getPinWatcher().onViewed();
-
-        onPinsChanged();
+        if (getWatchEnabled()) {
+            pin.getPinWatcher().onViewed();
+            onPinsChanged();
+        }
     }
 
     public void addPinListener(PinListener l) {
@@ -294,7 +295,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         pendingTimer = null;
 
         for (Pin pin : getWatchingPins()) {
-            pin.updateWatch();
+            pin.update();
         }
 
         updateTimerState();

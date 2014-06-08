@@ -565,13 +565,15 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     private void updateLastSeen() {
-        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
-        if (pin != null) {
-            Post last = pin.getLastSeenPost();
-            if (last != null) {
-                lastSeenPost = last.no;
-            } else {
-                lastSeenPost = -1;
+        if (ChanApplication.getWatchManager().getWatchEnabled()) {
+            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
+            if (pin != null) {
+                Post last = pin.getLastSeenPost();
+                if (last != null) {
+                    lastSeenPost = last.no;
+                } else {
+                    lastSeenPost = -1;
+                }
             }
         }
     }

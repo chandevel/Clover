@@ -66,11 +66,11 @@ public class Pin {
         return getPinWatcher().getLastSeenPost();
     }
 
-    public void updateWatch() {
+    public void update() {
         getPinWatcher().update();
     }
 
-    public void destroyWatcher() {
+    public void destroy() {
         if (pinWatcher != null) {
             pinWatcher.destroy();
             pinWatcher = null;
