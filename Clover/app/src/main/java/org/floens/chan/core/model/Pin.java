@@ -73,7 +73,7 @@ public class Pin {
     }
 
     public void update() {
-        if (pinWatcher != null) {
+        if (pinWatcher != null && watching) {
             pinWatcher.update();
         }
     }
@@ -94,9 +94,6 @@ public class Pin {
     public void toggleWatch() {
         watching = !watching;
         ChanApplication.getWatchManager().onPinsChanged();
-
-//        if (watching && pinWatcher != null) {
-//            .update();
-//        }
+        ChanApplication.getWatchManager().invokeLoadNow();
     }
 }

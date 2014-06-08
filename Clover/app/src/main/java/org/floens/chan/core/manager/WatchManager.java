@@ -53,7 +53,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
 
         ChanApplication.getInstance().addForegroundChangedListener(this);
 
-        updateTimerState();
+        updateTimerState(true);
         updateNotificationServiceState();
         updatePinWatchers();
     }
@@ -177,9 +177,19 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
             l.onPinsChanged();
         }
 
-        updateTimerState();
+        updateTimerState(false);
         updateNotificationServiceState();
         updatePinWatchers();
+    }
+
+    public void invokeLoadNow() {
+        if (pendingTimer != null) {
+            pendingTimer.cancel();
+            pendingTimer = null;
+            Logger.d(TAG, "Canceled timer");
+        }
+
+        updateTimerState(true);
     }
 
     public void pausePins() {
@@ -194,19 +204,19 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
 
     public void onWatchEnabledChanged(boolean watchEnabled) {
         updateNotificationServiceState(watchEnabled, getWatchBackgroundEnabled());
-        updateTimerState(watchEnabled, getWatchBackgroundEnabled());
+        updateTimerState(watchEnabled, getWatchBackgroundEnabled(), false);
         updatePinWatchers(watchEnabled);
     }
 
     public void onBackgroundWatchingChanged(boolean backgroundEnabled) {
         updateNotificationServiceState(getTimerEnabled(), backgroundEnabled);
-        updateTimerState(getTimerEnabled(), backgroundEnabled);
+        updateTimerState(getTimerEnabled(), backgroundEnabled, false);
     }
 
     @Override
     public void onForegroundChanged(final boolean foreground) {
         updateNotificationServiceState();
-        updateTimerState();
+        updateTimerState(true);
     }
 
     private boolean getTimerEnabled() {
@@ -245,14 +255,14 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         }
     }
 
-    private void updateTimerState() {
-        updateTimerState(getTimerEnabled(), getWatchBackgroundEnabled());
+    private void updateTimerState(boolean invokeLoadNow) {
+        updateTimerState(getTimerEnabled(), getWatchBackgroundEnabled(), invokeLoadNow);
     }
 
-    private void updateTimerState(boolean watchEnabled, boolean backgroundEnabled) {
+    private void updateTimerState(boolean watchEnabled, boolean backgroundEnabled, boolean invokeLoadNow) {
         if (watchEnabled) {
             if (ChanApplication.getInstance().getApplicationInForeground()) {
-                setTimer(FOREGROUND_TIME);
+                setTimer(invokeLoadNow ? 1 : FOREGROUND_TIME);
             } else {
                 if (backgroundEnabled) {
                     setTimer(ChanPreferences.getWatchBackgroundTimeout());
@@ -307,7 +317,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
             pin.update();
         }
 
-        updateTimerState();
+        updateTimerState(false);
     }
 
     public static interface PinListener {
