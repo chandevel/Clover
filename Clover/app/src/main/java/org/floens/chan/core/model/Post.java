@@ -141,7 +141,7 @@ public class Post {
         }
 
         if (rawComment != null) {
-            comment = parseComment(rawComment, loadable.simpleMode);
+            comment = parseComment(rawComment);
         }
 
         try {
@@ -159,10 +159,7 @@ public class Post {
         return true;
     }
 
-    private CharSequence parseComment(String commentRaw, boolean simpleMode) {
-        if (simpleMode)
-            return "";
-
+    private CharSequence parseComment(String commentRaw) {
         CharSequence total = new SpannableString("");
 
         try {

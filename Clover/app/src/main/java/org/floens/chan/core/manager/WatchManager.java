@@ -55,6 +55,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
 
         updateTimerState();
         updateNotificationServiceState();
+        updatePinWatchers();
     }
 
     /**
@@ -134,7 +135,6 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     public void removePin(Pin pin) {
         pins.remove(pin);
         ChanApplication.getDatabaseManager().removePin(pin);
-        pin.destroy();
 
         onPinsChanged();
     }
@@ -164,13 +164,6 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         }).start();
     }
 
-    public void onPinViewed(Pin pin) {
-        if (getWatchEnabled()) {
-            pin.getPinWatcher().onViewed();
-            onPinsChanged();
-        }
-    }
-
     public void addPinListener(PinListener l) {
         listeners.add(l);
     }
@@ -186,6 +179,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
 
         updateTimerState();
         updateNotificationServiceState();
+        updatePinWatchers();
     }
 
     public void pausePins() {
@@ -201,11 +195,12 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     public void onWatchEnabledChanged(boolean watchEnabled) {
         updateNotificationServiceState(watchEnabled, getWatchBackgroundEnabled());
         updateTimerState(watchEnabled, getWatchBackgroundEnabled());
+        updatePinWatchers(watchEnabled);
     }
 
     public void onBackgroundWatchingChanged(boolean backgroundEnabled) {
-        updateNotificationServiceState(getWatchEnabled(), backgroundEnabled);
-        updateTimerState(getWatchEnabled(), backgroundEnabled);
+        updateNotificationServiceState(getTimerEnabled(), backgroundEnabled);
+        updateTimerState(getTimerEnabled(), backgroundEnabled);
     }
 
     @Override
@@ -214,7 +209,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         updateTimerState();
     }
 
-    public boolean getWatchEnabled() {
+    private boolean getTimerEnabled() {
         // getWatchingPins returns an empty list when ChanPreferences.getWatchEnabled() is false
         return getWatchingPins().size() > 0;
     }
@@ -223,8 +218,22 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         return ChanPreferences.getWatchBackgroundEnabled();
     }
 
+    private void updatePinWatchers() {
+        updatePinWatchers(ChanPreferences.getWatchEnabled());
+    }
+
+    private void updatePinWatchers(boolean watchEnabled) {
+        for (Pin pin : pins) {
+            if (watchEnabled) {
+                pin.createWatcher();
+            } else {
+                pin.destroyWatcher();
+            }
+        }
+    }
+
     private void updateNotificationServiceState() {
-        updateNotificationServiceState(getWatchEnabled(), getWatchBackgroundEnabled());
+        updateNotificationServiceState(getTimerEnabled(), getWatchBackgroundEnabled());
     }
 
     private void updateNotificationServiceState(boolean watchEnabled, boolean backgroundEnabled) {
@@ -237,7 +246,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     }
 
     private void updateTimerState() {
-        updateTimerState(getWatchEnabled(), getWatchBackgroundEnabled());
+        updateTimerState(getTimerEnabled(), getWatchBackgroundEnabled());
     }
 
     private void updateTimerState(boolean watchEnabled, boolean backgroundEnabled) {

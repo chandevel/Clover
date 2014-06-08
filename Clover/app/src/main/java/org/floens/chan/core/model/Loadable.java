@@ -49,11 +49,7 @@ public class Loadable {
     @DatabaseField
     public int listViewTop;
 
-    /**
-     * When simple mode is enabled, CPU intensive methods won't get called. This
-     * is used for the thread watcher.
-     */
-    public boolean simpleMode = false;
+    public int lastViewed = -1;
 
     /**
      * Constructs an empty loadable. The mode is INVALID.
@@ -171,7 +167,6 @@ public class Loadable {
         copy.title = title;
         copy.listViewIndex = listViewIndex;
         copy.listViewTop = listViewTop;
-        copy.simpleMode = simpleMode;
 
         return copy;
     }

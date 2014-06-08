@@ -68,7 +68,6 @@ public class ThreadManager implements Loader.LoaderListener {
     private final List<List<Post>> popupQueue = new ArrayList<>();
     private PostRepliesFragment currentPopupFragment;
     private int highlightedPost = -1;
-    private int lastSeenPost = -1;
     private int lastPost = -1;
 
     private Loader loader;
@@ -118,18 +117,21 @@ public class ThreadManager implements Loader.LoaderListener {
         }
 
         highlightedPost = -1;
-        lastSeenPost = -1;
         lastPost = -1;
     }
 
     public void bottomPostViewed() {
         if (loader != null && loader.getLoadable().isThreadMode()) {
-            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
-            if (pin != null) {
-                ChanApplication.getWatchManager().onPinViewed(pin);
+            List<Post> posts = loader.getCachedPosts();
+            if (posts.size() > 0) {
+                loader.getLoadable().lastViewed = posts.get(posts.size() - 1).no;
             }
+        }
 
-            updateLastSeen();
+        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
+        if (pin != null) {
+            pin.onBottomPostViewed();
+            ChanApplication.getWatchManager().onPinsChanged();
         }
     }
 
@@ -176,7 +178,6 @@ public class ThreadManager implements Loader.LoaderListener {
         if (result.size() > 0) {
             lastPost = result.get(result.size() - 1).no;
         }
-        updateLastSeen();
 
         threadManagerListener.onThreadLoaded(result, append);
     }
@@ -297,7 +298,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public boolean isPostLastSeen(Post post) {
-        return post.no == lastSeenPost && post.no != lastPost;
+        return post.no == loader.getLoadable().lastViewed && post.no != lastPost;
     }
 
     private void copyToClipboard(String comment) {
@@ -562,20 +563,6 @@ public class ThreadManager implements Loader.LoaderListener {
                 }
             }
         });
-    }
-
-    private void updateLastSeen() {
-        if (ChanApplication.getWatchManager().getWatchEnabled()) {
-            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
-            if (pin != null) {
-                Post last = pin.getLastSeenPost();
-                if (last != null) {
-                    lastSeenPost = last.no;
-                } else {
-                    lastSeenPost = -1;
-                }
-            }
-        }
     }
 
     public interface ThreadManagerListener {

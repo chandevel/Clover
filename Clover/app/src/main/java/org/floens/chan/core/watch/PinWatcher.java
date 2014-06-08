@@ -104,15 +104,6 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
-    public Post getLastSeenPost() {
-        int i = posts.size() - pin.getNewPostsCount() - 1;
-        if (i >= 0 && i < posts.size()) {
-            return posts.get(i);
-        } else {
-            return null;
-        }
-    }
-
     @Override
     public void onError(VolleyError error) {
         Logger.e(TAG, "PinWatcher onError: ", error);

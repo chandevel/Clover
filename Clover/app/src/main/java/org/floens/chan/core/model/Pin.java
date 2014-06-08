@@ -31,8 +31,6 @@ public class Pin {
     @DatabaseField(canBeNull = false, foreign = true)
     public Loadable loadable = new Loadable("", -1);
 
-    public PinWatcher pinWatcher;
-
     @DatabaseField
     public boolean watching = true;
 
@@ -50,6 +48,8 @@ public class Pin {
 
     public boolean isError = false;
 
+    private PinWatcher pinWatcher;
+
     public int getNewPostsCount() {
         if (watchLastCount < 0 || watchNewCount < 0) {
             return 0;
@@ -62,15 +62,29 @@ public class Pin {
         return Math.max(0, quoteNewCount - quoteLastCount);
     }
 
-    public Post getLastSeenPost() {
-        return getPinWatcher().getLastSeenPost();
+    public PinWatcher getPinWatcher() {
+        return pinWatcher;
+    }
+
+    public void onBottomPostViewed() {
+        if (pinWatcher != null) {
+            pinWatcher.onViewed();
+        }
     }
 
     public void update() {
-        getPinWatcher().update();
+        if (pinWatcher != null) {
+            pinWatcher.update();
+        }
     }
 
-    public void destroy() {
+    public void createWatcher() {
+        if (pinWatcher == null) {
+            pinWatcher = new PinWatcher(this);
+        }
+    }
+
+    public void destroyWatcher() {
         if (pinWatcher != null) {
             pinWatcher.destroy();
             pinWatcher = null;
@@ -81,16 +95,8 @@ public class Pin {
         watching = !watching;
         ChanApplication.getWatchManager().onPinsChanged();
 
-        if (watching) {
-            getPinWatcher().update();
-        }
-    }
-
-    public PinWatcher getPinWatcher() {
-        if (pinWatcher == null) {
-            pinWatcher = new PinWatcher(this);
-        }
-
-        return pinWatcher;
+//        if (watching && pinWatcher != null) {
+//            .update();
+//        }
     }
 }
