@@ -490,7 +490,6 @@ public class ThreadManager implements Loader.LoaderListener {
         popupQueue.remove(popupQueue.size() - 1);
 
         if (popupQueue.size() > 0) {
-            RepliesPopup pop = popupQueue.get(popupQueue.size() - 1);
             PostRepliesFragment popup = PostRepliesFragment.newInstance(popupQueue.get(popupQueue.size() - 1), this);
 
             FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
