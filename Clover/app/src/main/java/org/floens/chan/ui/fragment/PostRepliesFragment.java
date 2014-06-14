@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,9 +32,8 @@ import org.floens.chan.R;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.view.PostView;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ThemeHelper;
-
-import java.util.List;
 
 /**
  * A DialogFragment that shows a list of posts. Use the newInstance method for
@@ -42,13 +42,13 @@ import java.util.List;
 public class PostRepliesFragment extends DialogFragment {
     private ListView listView;
 
-    private List<Post> posts;
+    private ThreadManager.RepliesPopup repliesPopup;
     private ThreadManager manager;
     private boolean callback = true;
 
-    public static PostRepliesFragment newInstance(List<Post> posts, ThreadManager manager) {
+    public static PostRepliesFragment newInstance(ThreadManager.RepliesPopup repliesPopup, ThreadManager manager) {
         PostRepliesFragment fragment = new PostRepliesFragment();
-        fragment.posts = posts;
+        fragment.repliesPopup = repliesPopup;
         fragment.manager = manager;
 
         return fragment;
@@ -108,7 +108,7 @@ public class PostRepliesFragment extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (posts == null) {
+        if (repliesPopup == null) {
             // Restoring from background.
             dismiss();
         } else {
@@ -139,8 +139,24 @@ public class PostRepliesFragment extends DialogFragment {
                 }
             };
 
-            adapter.addAll(posts);
+            adapter.addAll(repliesPopup.posts);
             listView.setAdapter(adapter);
+
+            listView.setSelectionFromTop(repliesPopup.listViewIndex, repliesPopup.listViewTop);
+            listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+                }
+
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (repliesPopup != null) {
+                        repliesPopup.listViewIndex = view.getFirstVisiblePosition();
+                        View v = view.getChildAt(0);
+                        repliesPopup.listViewTop = (v == null) ? 0 : v.getTop();
+                    }
+                }
+            });
         }
     }
 }

@@ -65,7 +65,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     private final Activity activity;
     private final ThreadManager.ThreadManagerListener threadManagerListener;
-    private final List<List<Post>> popupQueue = new ArrayList<>();
+    private final List<RepliesPopup> popupQueue = new ArrayList<>();
     private PostRepliesFragment currentPopupFragment;
     private int highlightedPost = -1;
     private int lastPost = -1;
@@ -381,6 +381,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void showPostReplies(Post post) {
+        RepliesPopup l = new RepliesPopup();
         List<Post> p = new ArrayList<>();
         for (int no : post.repliesFrom) {
             Post r = findPostById(no);
@@ -388,9 +389,9 @@ public class ThreadManager implements Loader.LoaderListener {
                 p.add(r);
             }
         }
-
+        l.posts = p;
         if (p.size() > 0) {
-            showPostsRepliesFragment(p);
+            showPostsRepliesFragment(l);
         }
     }
 
@@ -445,8 +446,8 @@ public class ThreadManager implements Loader.LoaderListener {
                 post = findPostById(id);
 
                 if (post != null) {
-                    List<Post> l = new ArrayList<>();
-                    l.add(post);
+                    RepliesPopup l = new RepliesPopup();
+                    l.posts.add(post);
                     showPostsRepliesFragment(l);
                 }
             }
@@ -464,16 +465,16 @@ public class ThreadManager implements Loader.LoaderListener {
         Utils.openLink(activity, linkable.value);
     }
 
-    private void showPostsRepliesFragment(List<Post> list) {
+    private void showPostsRepliesFragment(RepliesPopup repliesPopup) {
         // Post popups are now queued up, more than 32 popups on top of each
         // other makes the system crash!
-        popupQueue.add(list);
+        popupQueue.add(repliesPopup);
 
         if (currentPopupFragment != null) {
             currentPopupFragment.dismissNoCallback();
         }
 
-        PostRepliesFragment popup = PostRepliesFragment.newInstance(list, this);
+        PostRepliesFragment popup = PostRepliesFragment.newInstance(repliesPopup, this);
 
         FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.add(popup, "postPopup");
@@ -489,6 +490,7 @@ public class ThreadManager implements Loader.LoaderListener {
         popupQueue.remove(popupQueue.size() - 1);
 
         if (popupQueue.size() > 0) {
+            RepliesPopup pop = popupQueue.get(popupQueue.size() - 1);
             PostRepliesFragment popup = PostRepliesFragment.newInstance(popupQueue.get(popupQueue.size() - 1), this);
 
             FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
@@ -575,5 +577,11 @@ public class ThreadManager implements Loader.LoaderListener {
         public void onThumbnailClicked(Post post);
 
         public void onScrollTo(Post post);
+    }
+
+    public static class RepliesPopup {
+        public List<Post> posts = new ArrayList<>();
+        public int listViewIndex;
+        public int listViewTop;
     }
 }
