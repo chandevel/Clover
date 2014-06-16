@@ -24,4 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:showAsAction="always"
         android:title="@string/board_add"/>
 
+    <item
+        android:id="@+id/action_show_filler"
+        android:showAsAction="never"
+        android:checkable="true"
+        android:title="@string/board_edit_enable_filler"/>
+
 </menu>

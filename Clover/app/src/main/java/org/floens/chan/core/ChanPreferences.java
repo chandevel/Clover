@@ -121,4 +121,12 @@ public class ChanPreferences {
     public static boolean getForcePhoneLayout() {
         return p().getBoolean("preference_force_phone_layout", false);
     }
+
+    public static boolean getBoardEditorFillerEnabled() {
+        return p().getBoolean("preference_board_editor_filler", false);
+    }
+
+    public static boolean setBoardEditorFillerEnabled(boolean enabled) {
+        return p().edit().putBoolean("preference_board_editor_filler", enabled).commit();
+    }
 }

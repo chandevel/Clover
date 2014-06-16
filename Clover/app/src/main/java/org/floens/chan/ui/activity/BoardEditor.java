@@ -46,6 +46,7 @@ import com.mobeta.android.dslv.DragSortListView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener;
@@ -57,8 +58,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class BoardEditor extends Activity {
-    private static final boolean FILLER_ENABLED = false;
-
     private final BoardManager boardManager = ChanApplication.getBoardManager();
 
     private List<Board> list;
@@ -147,6 +146,9 @@ public class BoardEditor extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.board_edit, menu);
+
+        menu.findItem(R.id.action_show_filler).setChecked(ChanPreferences.getBoardEditorFillerEnabled());
+
         return true;
     }
 
@@ -155,6 +157,10 @@ public class BoardEditor extends Activity {
         switch (item.getItemId()) {
             case R.id.action_add_board:
                 showAddBoardDialog();
+                return true;
+            case R.id.action_show_filler:
+                ChanPreferences.setBoardEditorFillerEnabled(!ChanPreferences.getBoardEditorFillerEnabled());
+                item.setChecked(ChanPreferences.getBoardEditorFillerEnabled());
                 return true;
         }
 
@@ -272,7 +278,7 @@ public class BoardEditor extends Activity {
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     filtered.clear();
 
-                    if (FILLER_ENABLED) {
+                    if (ChanPreferences.getBoardEditorFillerEnabled()) {
                         if (results.values != null) {
                             filtered.addAll((List<Board>) results.values);
                         } else {
