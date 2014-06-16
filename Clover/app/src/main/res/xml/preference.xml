@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:targetPackage="org.floens.chan"/>
     </Preference>
 
-    <PreferenceCategory android:title="@string/preference_general">
+    <PreferenceCategory android:title="@string/preference_browsing">
         <ListPreference
             android:key="preference_theme"
             android:defaultValue="light"
@@ -59,6 +59,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <CheckBoxPreference
             android:defaultValue="true"
+            android:key="preference_auto_refresh_thread"
+            android:title="@string/preference_auto_refresh_thread"/>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="preference_image_auto_load"
             android:title="@string/preference_image_auto_load"/>
 
@@ -69,15 +74,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:title="@string/preference_autoplay"/>
 
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="preference_auto_refresh_thread"
-            android:title="@string/preference_auto_refresh_thread"/>
-
-        <CheckBoxPreference
             android:defaultValue="false"
             android:key="preference_force_phone_layout"
             android:title="@string/preference_force_phone_layout"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/preference_posting">
         <EditTextPreference
             android:key="preference_default_name"
             android:title="@string/preference_default_name"/>
@@ -85,6 +87,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:key="preference_default_email"
             android:title="@string/preference_default_email"/>
     </PreferenceCategory>
+
     <PreferenceCategory
         android:key="group_about"
         android:title="@string/preference_about">

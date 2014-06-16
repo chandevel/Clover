@@ -118,7 +118,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="preference_watch_settings">Thread watcher</string>
     <string name="preference_pass_settings">4chan pass</string>
 
-    <string name="preference_general">General</string>
+    <string name="preference_browsing">Browsing</string>
+    <string name="preference_posting">Posting</string>
 
     <string name="preference_theme">Theme</string>
     <string-array name="preference_themes">
