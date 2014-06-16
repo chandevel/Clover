@@ -169,6 +169,8 @@ public class BoardEditor extends Activity {
 
     private void addBoard(String value) {
         value = value.trim();
+        value = value.replace("/", "");
+        value = value.replace("\\", ""); // what are you doing?!
 
         // Duplicate
         for (Board board : list) {
