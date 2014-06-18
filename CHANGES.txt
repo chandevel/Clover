@@ -1,3 +1,8 @@
+New in 1.1.2 (2014-06-18)
+- Added quick reply
+- Bug fixes and other improvements
+
+
 New in 1.1 (2014-05-28)
 - Added light, dark and black theme
 - Add option for auto refreshing threads

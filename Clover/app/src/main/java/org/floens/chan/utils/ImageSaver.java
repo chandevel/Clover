@@ -104,7 +104,7 @@ public class ImageSaver {
                             Intent intent = new Intent(Intent.ACTION_SEND);
                             intent.setType("image/*");
                             intent.putExtra(Intent.EXTRA_STREAM, uri);
-                            context.startActivity(Intent.createChooser(intent, "WAT"));
+                            context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
                         }
                     }
                 });
