@@ -61,8 +61,9 @@ public class PoolingByteArrayOutputStream extends ByteArrayOutputStream {
     }
 
     @Override
-    public void finalize() {
+    public void finalize() throws Throwable {
         mPool.returnBuf(buf);
+        super.finalize();
     }
 
     /**

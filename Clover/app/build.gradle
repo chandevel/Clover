@@ -47,6 +47,8 @@ android {
             if (doSign) {
                 signingConfig signingConfigs.release
             }
+            runProguard true
+            proguardFiles 'proguard.cfg'
         }
 
         beta.initWith(buildTypes.release)
