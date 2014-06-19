@@ -32,7 +32,6 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -174,33 +173,11 @@ public class Post {
 
                 if (node instanceof TextNode) {
                     String text = ((TextNode) node).text();
+                    SpannableString spannable = new SpannableString(text);
 
-                    // Find url's in the text node
-                    if (text.contains("://")) {
-                        String[] parts = text.split("\\s");
+                    detectLinks(text, spannable);
 
-                        for (String item : parts) {
-                            if (item.contains("://")) {
-                                try {
-                                    URL url = new URL(item);
-
-                                    SpannableString link = new SpannableString(url.toString());
-
-                                    PostLinkable pl = new PostLinkable(this, item, item, PostLinkable.Type.LINK);
-                                    link.setSpan(pl, 0, link.length(), 0);
-                                    linkables.add(pl);
-
-                                    total = TextUtils.concat(total, link, " ");
-                                } catch (Exception e) {
-                                    total = TextUtils.concat(total, item, " ");
-                                }
-                            } else {
-                                total = TextUtils.concat(total, item, " ");
-                            }
-                        }
-                    } else {
-                        total = TextUtils.concat(total, text);
-                    }
+                    total = TextUtils.concat(total, spannable);
                 } else if (nodeName.equals("br")) {
                     total = TextUtils.concat(total, "\n");
                 } else if (nodeName.equals("span")) {
@@ -208,6 +185,8 @@ public class Post {
 
                     SpannableString quote = new SpannableString(span.text());
                     quote.setSpan(new ForegroundColorSpan(Color.argb(255, 120, 153, 34)), 0, quote.length(), 0);
+
+                    detectLinks(span.text(), quote);
 
                     total = TextUtils.concat(total, quote);
                 } else if (nodeName.equals("a")) {
@@ -224,7 +203,7 @@ public class Post {
                                 repliesTo.add(id);
 
                                 // Append OP when its a reply to OP
-                                if(id == resto) {
+                                if (id == resto) {
                                     anchor.appendText(" (OP)");
                                 }
                             }
@@ -261,5 +240,40 @@ public class Post {
         }
 
         return total;
+    }
+
+    private void detectLinks(String text, SpannableString spannable) {
+        int startPos = 0;
+        int endPos;
+        while (true) {
+            startPos = text.indexOf("://", startPos);
+            if (startPos < 0) break;
+
+            // go back to the first space
+            while (startPos > 0 && !isWhitespace(text.charAt(startPos - 1))) {
+                startPos--;
+            }
+
+            // find the last non whitespace character
+            endPos = startPos;
+            while (endPos < text.length() - 1 && !isWhitespace(text.charAt(endPos + 1))) {
+                endPos++;
+            }
+
+            // one past
+            endPos++;
+
+            String linkString = text.substring(startPos, endPos);
+
+            PostLinkable pl = new PostLinkable(this, linkString, linkString, PostLinkable.Type.LINK);
+            spannable.setSpan(pl, startPos, endPos, 0);
+            linkables.add(pl);
+
+            startPos = endPos;
+        }
+    }
+
+    private boolean isWhitespace(char c) {
+        return Character.isWhitespace(c) || c == '>'; // consider > as a link separator
     }
 }
