@@ -84,6 +84,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Show clickables</item>
         <item>Copy text</item>
     </string-array>
+    <string name="post_highlight_id">Highlight ID</string>
 
     <string name="reply">Reply to</string>
     <string name="reply_to_board">Make thread in</string>

@@ -69,6 +69,7 @@ public class ThreadManager implements Loader.LoaderListener {
     private PostRepliesFragment currentPopupFragment;
     private int highlightedPost = -1;
     private int lastPost = -1;
+    private String highlightedId = null;
 
     private Loader loader;
 
@@ -118,6 +119,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
         highlightedPost = -1;
         lastPost = -1;
+        highlightedId = null;
     }
 
     public void bottomPostViewed() {
@@ -216,20 +218,23 @@ public class ThreadManager implements Loader.LoaderListener {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
         List<String> options = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.post_options)));
+
+        final boolean id = !TextUtils.isEmpty(post.id);
+        if (id) {
+            options.add(activity.getString(R.string.post_highlight_id));
+        }
+
         // Only add the delete option when the post is a saved reply
-        boolean delete = false, saved = false;
-        if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
+        final boolean delete = ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no);
+        if (delete) {
             options.add(activity.getString(R.string.delete));
-            delete = true;
         }
 
-        if (ChanPreferences.getDeveloper()) {
+        final boolean saved = ChanPreferences.getDeveloper();
+        if (saved) {
             options.add("Make this a saved reply");
-            saved = true;
         }
 
-        final boolean finalDelete = delete;
-        final boolean finalSaved = saved;
         builder.setItems(options.toArray(new String[options.size()]), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -249,17 +254,33 @@ public class ThreadManager implements Loader.LoaderListener {
                     case 4: // Copy text
                         copyToClipboard(post.comment.toString());
                         break;
-                    case 5: // Delete
-                        if (finalDelete && !finalSaved) {
+                    default:
+                        // all optional, but with this order, starting at 5:
+                        // id
+                        // delete
+                        // saved
+
+                        int idIndex = 5;
+                        int deleteIndex = 5;
+                        int savedIndex = 5;
+
+                        if (id) {
+                            deleteIndex++;
+                            savedIndex++;
+                        }
+
+                        if (delete) {
+                            savedIndex++;
+                        }
+
+                        if (id && which == idIndex) {
+                            highlightedId = post.id;
+                            threadManagerListener.onRefreshView();
+                        } else if (delete && which == deleteIndex) {
                             deletePost(post);
-                        } else if (finalSaved && !finalDelete) {
+                        } else if (saved && which == savedIndex) {
                             ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
                         }
-                        break;
-                    case 6:
-                        ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
-
-                        break;
                 }
             }
         });
@@ -294,7 +315,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public boolean isPostHightlighted(Post post) {
-        return highlightedPost >= 0 && post.no == highlightedPost;
+        return (highlightedPost >= 0 && post.no == highlightedPost) || (highlightedId != null && post.id.equals(highlightedId));
     }
 
     public boolean isPostLastSeen(Post post) {
@@ -568,14 +589,11 @@ public class ThreadManager implements Loader.LoaderListener {
 
     public interface ThreadManagerListener {
         public void onThreadLoaded(List<Post> result, boolean append);
-
         public void onThreadLoadError(VolleyError error);
-
         public void onOPClicked(Post post);
-
         public void onThumbnailClicked(Post post);
-
         public void onScrollTo(Post post);
+        public void onRefreshView();
     }
 
     public static class RepliesPopup {

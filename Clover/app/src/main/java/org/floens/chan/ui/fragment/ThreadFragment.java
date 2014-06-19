@@ -284,6 +284,13 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
     }
 
+    @Override
+    public void onRefreshView() {
+        if (postAdapter != null) {
+            postAdapter.notifyDataSetChanged();
+        }
+    }
+
     private static class SkipLogic {
         private final ImageView skip;
         private int lastFirstVisibleItem;
