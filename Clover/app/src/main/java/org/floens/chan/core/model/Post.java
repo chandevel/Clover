@@ -68,6 +68,7 @@ public class Post {
     public boolean isSavedReply = false;
     public String title = "";
     public int fileSize;
+    public int images = -1;
 
     /**
      * This post replies to the these ids
@@ -123,7 +124,7 @@ public class Post {
 
         isOP = resto == 0;
 
-        if (isOP && replies < 0)
+        if (isOP && (replies < 0 || images < 0))
             return false;
 
         if (ext != null) {

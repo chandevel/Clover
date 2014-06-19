@@ -214,6 +214,14 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
                 text = count + " " + context.getString(R.string.one_reply);
             }
 
+            if (manager.getLoadable().isBoardMode() && post.images > 0) {
+                if (post.images > 1) {
+                    text += ", " + post.images + " " + context.getString(R.string.multiple_images);
+                } else {
+                    text += ", " + post.images + " " + context.getString(R.string.one_image);
+                }
+            }
+
             if (manager.getLoadable().isThreadMode()) {
                 repliesCountView.setOnClickListener(new View.OnClickListener() {
                     @Override

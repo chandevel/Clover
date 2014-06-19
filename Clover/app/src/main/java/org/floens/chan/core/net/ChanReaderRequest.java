@@ -285,6 +285,9 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 case "capcode":
                     post.capcode = reader.nextString();
                     break;
+                case "images":
+                    post.images = reader.nextInt();
+                    break;
                 default:
                     // Unknown/ignored key
                     //                log("Unknown/ignored key: " + key + ".");

@@ -74,6 +74,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="one_reply">reply</string>
     <string name="multiple_replies">replies</string>
+    <string name="one_image">image</string>
+    <string name="multiple_images">images</string>
     <string name="post_replies_back">Back</string>
     <string name="post_replies_close">Close</string>
     <string name="post_info">Info</string>
