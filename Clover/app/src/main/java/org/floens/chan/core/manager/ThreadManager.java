@@ -28,7 +28,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.CheckBox;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -52,7 +55,6 @@ import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +66,7 @@ public class ThreadManager implements Loader.LoaderListener {
     private static final String TAG = "ThreadManager";
 
     private final Activity activity;
-    private final ThreadManager.ThreadManagerListener threadManagerListener;
+    private final ThreadManagerListener threadManagerListener;
     private final List<RepliesPopup> popupQueue = new ArrayList<>();
     private PostRepliesFragment currentPopupFragment;
     private int highlightedPost = -1;
@@ -214,31 +216,31 @@ public class ThreadManager implements Loader.LoaderListener {
         }
     }
 
-    public void onPostLongClicked(final Post post) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    public void showPostOptions(final Post post, PopupMenu popupMenu) {
+        Menu menu = popupMenu.getMenu();
 
-        List<String> options = new ArrayList<>(Arrays.asList(activity.getResources().getStringArray(R.array.post_options)));
+        String[] baseOptions = activity.getResources().getStringArray(R.array.post_options);
+        for (int i = 0; i < baseOptions.length; i++) {
+            menu.add(Menu.NONE, i, Menu.NONE, baseOptions[i]);
+        }
 
-        final boolean id = !TextUtils.isEmpty(post.id);
-        if (id) {
-            options.add(activity.getString(R.string.post_highlight_id));
+        if (!TextUtils.isEmpty(post.id)) {
+            menu.add(Menu.NONE, 5, Menu.NONE, activity.getString(R.string.post_highlight_id));
         }
 
         // Only add the delete option when the post is a saved reply
-        final boolean delete = ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no);
-        if (delete) {
-            options.add(activity.getString(R.string.delete));
+        if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
+            menu.add(Menu.NONE, 6, Menu.NONE, activity.getString(R.string.delete));
         }
 
-        final boolean saved = ChanPreferences.getDeveloper();
-        if (saved) {
-            options.add("Make this a saved reply");
+        if (ChanPreferences.getDeveloper()) {
+            menu.add(Menu.NONE, 7, Menu.NONE, "Make this a saved reply");
         }
 
-        builder.setItems(options.toArray(new String[options.size()]), new DialogInterface.OnClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
+            public boolean onMenuItemClick(final MenuItem item) {
+                switch (item.getItemId()) {
                     case 0: // Quick reply
                         openReply(false);
                         // Pass through
@@ -254,38 +256,20 @@ public class ThreadManager implements Loader.LoaderListener {
                     case 4: // Copy text
                         copyToClipboard(post.comment.toString());
                         break;
-                    default:
-                        // all optional, but with this order, starting at 5:
-                        // id
-                        // delete
-                        // saved
-
-                        int idIndex = 5;
-                        int deleteIndex = 5;
-                        int savedIndex = 5;
-
-                        if (id) {
-                            deleteIndex++;
-                            savedIndex++;
-                        }
-
-                        if (delete) {
-                            savedIndex++;
-                        }
-
-                        if (id && which == idIndex) {
-                            highlightedId = post.id;
-                            threadManagerListener.onRefreshView();
-                        } else if (delete && which == deleteIndex) {
-                            deletePost(post);
-                        } else if (saved && which == savedIndex) {
-                            ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
-                        }
+                    case 5: // Id
+                        highlightedId = post.id;
+                        threadManagerListener.onRefreshView();
+                        break;
+                    case 6: // Delete
+                        deletePost(post);
+                        break;
+                    case 7: // Save reply
+                        ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
+                        break;
                 }
+                return false;
             }
         });
-
-        builder.create().show();
     }
 
     public void openReply(boolean startInActivity) {
@@ -326,6 +310,7 @@ public class ThreadManager implements Loader.LoaderListener {
         ClipboardManager clipboard = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Post text", comment);
         clipboard.setPrimaryClip(clip);
+        Toast.makeText(activity, R.string.post_text_copied_to_clipboard, Toast.LENGTH_SHORT).show();
     }
 
     private void showPostInfo(Post post) {
@@ -369,9 +354,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     /**
-     * When the user clicks a post: a. when there's one linkable, open the
-     * linkable. b. when there's more than one linkable, show the user multiple
-     * options to select from.
+     * Show a list of things that can be clicked in a list to the user.
      *
      * @param post The post that was clicked.
      */
@@ -380,24 +363,20 @@ public class ThreadManager implements Loader.LoaderListener {
         final ArrayList<PostLinkable> linkables = post.linkables;
 
         if (linkables.size() > 0) {
-            if (linkables.size() == 1) {
-                handleLinkableSelected(linkables.get(0));
-            } else {
-                String[] keys = new String[linkables.size()];
-                for (int i = 0; i < linkables.size(); i++) {
-                    keys[i] = linkables.get(i).key;
-                }
-
-                builder.setItems(keys, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        handleLinkableSelected(linkables.get(which));
-                    }
-                });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
+            String[] keys = new String[linkables.size()];
+            for (int i = 0; i < linkables.size(); i++) {
+                keys[i] = linkables.get(i).key;
             }
+
+            builder.setItems(keys, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    handleLinkableSelected(linkables.get(which));
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 

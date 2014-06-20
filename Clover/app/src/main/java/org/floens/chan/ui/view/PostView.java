@@ -38,6 +38,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
@@ -49,10 +51,11 @@ import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.utils.IconCache;
+import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Time;
 import org.floens.chan.utils.Utils;
 
-public class PostView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
+public class PostView extends LinearLayout implements View.OnClickListener {
     private final static LinearLayout.LayoutParams matchParams = new LinearLayout.LayoutParams(
             LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     private final static LinearLayout.LayoutParams wrapParams = new LinearLayout.LayoutParams(
@@ -78,6 +81,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     private ImageView stickyView;
     private ImageView closedView;
     private NetworkImageView countryView;
+    private ImageView optionsView;
     private View lastSeen;
 
     private int thumbnailBackground;
@@ -181,7 +185,6 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
             }
 
             commentView.setOnClickListener(this);
-            commentView.setOnLongClickListener(this);
 
             if (manager.getLoadable().isThreadMode()) {
                 post.setLinkableListener(this);
@@ -345,9 +348,12 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
         int iconHeight = resources.getDimensionPixelSize(R.dimen.post_icon_height);
         int imageSize = resources.getDimensionPixelSize(R.dimen.thumbnail_size);
 
+        RelativeLayout wrapper = new RelativeLayout(context);
+        wrapper.setLayoutParams(matchParams);
+
         full = new LinearLayout(context);
-        full.setLayoutParams(matchParams);
         full.setOrientation(HORIZONTAL);
+        wrapper.addView(full, matchParams);
 
         // Create thumbnail
         imageView = new CustomNetworkImageView(context);
@@ -375,6 +381,8 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
 
         LinearLayout header = new LinearLayout(context);
         header.setOrientation(HORIZONTAL);
+        // 25 padding to give optionsView some space
+        header.setPadding(0, 0, Utils.dp(25), 0);
 
         titleView = new TextView(context);
         titleView.setTextSize(14);
@@ -424,10 +432,36 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
 
         full.addView(right, matchWrapParams);
 
-        addView(full, matchParams);
+        optionsView = new ImageView(context);
+        optionsView.setImageResource(R.drawable.ic_overflow);
+        Utils.setPressedDrawable(optionsView);
+        optionsView.setPadding(Utils.dp(15), Utils.dp(5), Utils.dp(5), Utils.dp(15));
+        optionsView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                PopupMenu popupMenu = new PopupMenu(context, v);
+                manager.showPostOptions(post, popupMenu);
+                popupMenu.show();
+                if (ThemeHelper.getInstance().getTheme().isLightTheme) {
+                    optionsView.setImageResource(R.drawable.ic_overflow_black);
+                    popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                        @Override
+                        public void onDismiss(final PopupMenu menu) {
+                            optionsView.setImageResource(R.drawable.ic_overflow);
+                        }
+                    });
+                }
+            }
+        });
+        wrapper.addView(optionsView, wrapParams);
+        RelativeLayout.LayoutParams optionsParams = (RelativeLayout.LayoutParams) optionsView.getLayoutParams();
+        optionsParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        optionsParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        optionsView.setLayoutParams(optionsParams);
 
-        full.setOnClickListener(this);
-        full.setOnLongClickListener(this);
+        addView(wrapper, matchParams);
+
+        wrapper.setOnClickListener(this);
     }
 
     public void setOnClickListeners(View.OnClickListener listener) {
@@ -442,13 +476,6 @@ public class PostView extends LinearLayout implements View.OnClickListener, View
     @Override
     public void onClick(View v) {
         manager.onPostClicked(post);
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        manager.onPostLongClicked(post);
-
-        return true;
     }
 
     private class PostViewMovementMethod extends LinkMovementMethod {
