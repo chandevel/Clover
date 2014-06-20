@@ -126,7 +126,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     private void initPane() {
         threadPane.setPanelSlideListener(this);
-        threadPane.setParallaxDistance(200);
+        threadPane.setParallaxDistance(Utils.dp(100));
         threadPane.setShadowResource(R.drawable.panel_shadow);
 
         TypedArray ta = obtainStyledAttributes(null, R.styleable.BoardPane, R.attr.board_pane_style, 0);
