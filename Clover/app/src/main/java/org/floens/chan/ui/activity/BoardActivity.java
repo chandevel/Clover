@@ -210,7 +210,20 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
     @Override
     public void onOPClicked(Post post) {
-        startLoadingThread(new Loadable(post.board, post.no, post.subject));
+        startLoadingThread(new Loadable(post.board, post.no, generateTitle(post)));
+    }
+
+    @Override
+    public void onOpenThread(Loadable thread) {
+        startLoadingThread(thread);
+    }
+
+    @Override
+    public void onThreadLoaded(Loadable loadable, List<Post> posts) {
+        if (loadable.isThreadMode() && TextUtils.isEmpty(threadLoadable.title) && posts.size() > 0) {
+            threadLoadable.title = generateTitle(posts.get(0));
+            updateActionBarState();
+        }
     }
 
     @Override
@@ -482,10 +495,6 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         threadFragment.bindLoadable(loadable);
         threadFragment.requestData();
 
-        if (TextUtils.isEmpty(loadable.title)) {
-            loadable.title = "/" + loadable.board + "/" + loadable.no;
-        }
-
         threadPane.closePane();
 
         updateActionBarState();
@@ -542,6 +551,16 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                 showUrlOpenPicker(url);
             }
         }).setCancelable(false).create().show();
+    }
+
+    private String generateTitle(Post post) {
+        if (!TextUtils.isEmpty(post.subject)) {
+            return post.subject;
+        } else if (!TextUtils.isEmpty(post.comment)) {
+            return post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
+        } else {
+            return "/" + post.board + "/" + post.no;
+        }
     }
 
     private class BoardSpinnerAdapter extends BaseAdapter {
@@ -610,7 +629,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         @Override
         public String getItem(final int position) {
-            switch(getItemViewType(position)) {
+            switch (getItemViewType(position)) {
                 case VIEW_TYPE_ITEM:
                     return keys.get(position);
                 case VIEW_TYPE_ADD:
@@ -622,7 +641,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
-            switch(getItemViewType(position)) {
+            switch (getItemViewType(position)) {
                 case VIEW_TYPE_ITEM: {
                     if (convertView == null) {
                         convertView = LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);

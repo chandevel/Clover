@@ -169,12 +169,12 @@ public class PostAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void scrollToPost(Post post) {
+    public void scrollToPost(int no) {
         notifyDataSetChanged();
 
         for (int i = 0; i < postList.size(); i++) {
-            if (postList.get(i).no == post.no) {
-                if (Math.abs(i - listView.getFirstVisiblePosition()) > 20) {
+            if (postList.get(i).no == no) {
+                if (Math.abs(i - listView.getFirstVisiblePosition()) > 20 || listView.getChildCount() == 0) {
                     listView.setSelection(i);
                 } else {
                     ScrollerRunnable r = new ScrollerRunnable(listView);

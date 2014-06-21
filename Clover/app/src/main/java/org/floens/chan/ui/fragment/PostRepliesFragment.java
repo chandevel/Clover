@@ -32,7 +32,6 @@ import org.floens.chan.R;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.view.PostView;
-import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ThemeHelper;
 
 /**
@@ -130,8 +129,8 @@ public class PostRepliesFragment extends DialogFragment {
                         public void onClick(View v) {
                             manager.closeAllPostFragments();
                             dismiss();
-                            manager.highlightPost(p);
-                            manager.scrollToPost(p);
+                            manager.highlightPost(p.no);
+                            manager.scrollToPost(p.no);
                         }
                     });
 

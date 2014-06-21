@@ -28,15 +28,15 @@ import org.floens.chan.utils.ThemeHelper;
  */
 public class PostLinkable extends ClickableSpan {
     public static enum Type {
-        QUOTE, LINK, SPOILER
+        QUOTE, LINK, SPOILER, THREAD
     }
 
     public final Post post;
     public final String key;
-    public final String value;
+    public final Object value;
     public final Type type;
 
-    public PostLinkable(Post post, String key, String value, Type type) {
+    public PostLinkable(Post post, String key, Object value, Type type) {
         this.post = post;
         this.key = key;
         this.value = value;
@@ -52,13 +52,25 @@ public class PostLinkable extends ClickableSpan {
 
     @Override
     public void updateDrawState(TextPaint ds) {
-        if (type == Type.QUOTE || type == Type.LINK) {
-            ds.setColor(type == Type.QUOTE ? ThemeHelper.getInstance().getQuoteColor() : ThemeHelper.getInstance().getLinkColor());
+        if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD) {
+            ds.setColor(type == Type.LINK ? ThemeHelper.getInstance().getLinkColor() : ThemeHelper.getInstance().getQuoteColor());
             ds.setUnderlineText(true);
         } else if (type == Type.SPOILER) {
             ds.setColor(ThemeHelper.getInstance().getSpoilerColor());
             ds.bgColor = ThemeHelper.getInstance().getSpoilerColor();
             ds.setUnderlineText(false);
+        }
+    }
+
+    public static class ThreadLink {
+        public String board;
+        public int threadId;
+        public int postId;
+
+        public ThreadLink(String board, int threadId, int postId) {
+            this.board = board;
+            this.threadId = threadId;
+            this.postId = postId;
         }
     }
 }

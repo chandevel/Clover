@@ -53,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="capcode_color" format="color"/>
         <attr name="id_background_light" format="color"/>
         <attr name="id_background_dark" format="color"/>
+        <attr name="inline_quote_color" format="color"/>
     </declare-styleable>
 
     <attr name="board_edit_item_style" format="reference"/>

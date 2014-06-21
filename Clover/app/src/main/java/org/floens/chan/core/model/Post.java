@@ -17,14 +17,15 @@
  */
 package org.floens.chan.core.model;
 
-import android.graphics.Color;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.PostLinkable.Type;
 import org.floens.chan.ui.view.PostView;
+import org.floens.chan.utils.ThemeHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,6 +35,7 @@ import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Contains all data needed to represent a single post.
@@ -179,60 +181,123 @@ public class Post {
                     detectLinks(text, spannable);
 
                     total = TextUtils.concat(total, spannable);
-                } else if (nodeName.equals("br")) {
-                    total = TextUtils.concat(total, "\n");
-                } else if (nodeName.equals("span")) {
-                    Element span = (Element) node;
-
-                    SpannableString quote = new SpannableString(span.text());
-                    quote.setSpan(new ForegroundColorSpan(Color.argb(255, 120, 153, 34)), 0, quote.length(), 0);
-
-                    detectLinks(span.text(), quote);
-
-                    total = TextUtils.concat(total, quote);
-                } else if (nodeName.equals("a")) {
-                    Element anchor = (Element) node;
-
-                    // is this a link or a quote
-                    Type t = anchor.text().contains("://") ? Type.LINK : Type.QUOTE;
-                    if (t == Type.QUOTE) {
-                        try {
-                            // Get post id
-                            String[] splitted = anchor.attr("href").split("#p");
-                            if (splitted.length == 2) {
-                                int id = Integer.parseInt(splitted[1]);
-                                repliesTo.add(id);
-
-                                // Append OP when its a reply to OP
-                                if (id == resto) {
-                                    anchor.appendText(" (OP)");
-                                }
-                            }
-                        } catch (NumberFormatException e) {
-                        }
-                    }
-
-                    SpannableString link = new SpannableString(anchor.text());
-
-                    PostLinkable pl = new PostLinkable(this, anchor.text(), anchor.attr("href"), t);
-                    link.setSpan(pl, 0, link.length(), 0);
-                    linkables.add(pl);
-
-                    total = TextUtils.concat(total, link);
-                } else if (nodeName.equals("s")) {
-                    Element spoiler = (Element) node;
-
-                    SpannableString link = new SpannableString(spoiler.text());
-
-                    PostLinkable pl = new PostLinkable(this, spoiler.text(), spoiler.text(), Type.SPOILER);
-                    link.setSpan(pl, 0, link.length(), 0);
-                    linkables.add(pl);
-
-                    total = TextUtils.concat(total, link);
                 } else {
-                    // Unknown tag, add the inner part
-                    if (node instanceof Element) {
-                        total = TextUtils.concat(total, ((Element) node).text());
+                    switch (nodeName) {
+                        case "br": {
+                            total = TextUtils.concat(total, "\n");
+                            break;
+                        }
+                        case "span": {
+                            Element span = (Element) node;
+
+                            SpannableString quote = new SpannableString(span.text());
+
+                            Set<String> classes = span.classNames();
+                            if (classes.contains("deadlink")) {
+                                quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getQuoteColor()), 0, quote.length(), 0);
+                                quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
+                            } else {
+                                quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getInlineQuoteColor()), 0, quote.length(), 0);
+                                detectLinks(span.text(), quote);
+                            }
+
+                            total = TextUtils.concat(total, quote);
+                            break;
+                        }
+                        case "a": {
+                            Element anchor = (Element) node;
+
+                            String href = anchor.attr("href");
+                            Set<String> classes = anchor.classNames();
+
+                            Type t = null;
+                            String key = null;
+                            Object value = null;
+                            if (classes.contains("quotelink")) {
+                                if (href.contains("/thread/")) {
+                                    // link to another thread
+                                    PostLinkable.ThreadLink threadLink = null;
+
+                                    String[] slashSplit = href.split("/");
+                                    if (slashSplit.length == 4) {
+                                        String board = slashSplit[1];
+                                        String nums = slashSplit[3];
+                                        String[] numsSplitted = nums.split("#p");
+                                        if (numsSplitted.length == 2) {
+                                            try {
+                                                int tId = Integer.parseInt(numsSplitted[0]);
+                                                int pId = Integer.parseInt(numsSplitted[1]);
+                                                threadLink = new PostLinkable.ThreadLink(board, tId, pId);
+                                            } catch (NumberFormatException e) {
+                                            }
+                                        }
+                                    }
+
+                                    if (threadLink != null) {
+                                        t = Type.THREAD;
+                                        key = anchor.text() + " \u2192"; // arrow to the right
+                                        value = threadLink;
+                                    }
+                                } else {
+                                    // normal quote
+                                    int id = -1;
+
+                                    String[] splitted = href.split("#p");
+                                    if (splitted.length == 2) {
+                                        try {
+                                            id = Integer.parseInt(splitted[1]);
+                                        } catch (NumberFormatException e) {
+                                        }
+                                    }
+
+                                    if (id >= 0) {
+                                        t = Type.QUOTE;
+                                        key = anchor.text();
+                                        value = id;
+                                        repliesTo.add(id);
+
+                                        // Append OP when its a reply to OP
+                                        if (id == resto) {
+                                            key += " (OP)";
+                                        }
+                                    }
+                                }
+                            } else {
+                                // normal link
+                                t = Type.LINK;
+                                key = anchor.text();
+                                value = href;
+                            }
+
+                            if (t != null && key != null && value != null) {
+                                SpannableString link = new SpannableString(key);
+                                PostLinkable pl = new PostLinkable(this, key, value, t);
+                                link.setSpan(pl, 0, link.length(), 0);
+                                linkables.add(pl);
+
+                                total = TextUtils.concat(total, link);
+                            }
+                            break;
+                        }
+                        case "s": {
+                            Element spoiler = (Element) node;
+
+                            SpannableString link = new SpannableString(spoiler.text());
+
+                            PostLinkable pl = new PostLinkable(this, spoiler.text(), spoiler.text(), Type.SPOILER);
+                            link.setSpan(pl, 0, link.length(), 0);
+                            linkables.add(pl);
+
+                            total = TextUtils.concat(total, link);
+                            break;
+                        }
+                        default: {
+                            // Unknown tag, add the inner part
+                            if (node instanceof Element) {
+                                total = TextUtils.concat(total, ((Element) node).text());
+                            }
+                            break;
+                        }
                     }
                 }
             }

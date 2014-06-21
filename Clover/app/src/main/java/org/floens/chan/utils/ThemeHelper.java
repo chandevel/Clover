@@ -45,6 +45,7 @@ public class ThemeHelper {
     private int quoteColor;
     private int linkColor;
     private int spoilerColor;
+    private int inlineQuoteColor;
 
     public static ThemeHelper getInstance() {
         if (instance == null) {
@@ -85,6 +86,7 @@ public class ThemeHelper {
         quoteColor = ta.getColor(R.styleable.PostView_quote_color, 0);
         linkColor = ta.getColor(R.styleable.PostView_link_color, 0);
         spoilerColor = ta.getColor(R.styleable.PostView_spoiler_color, 0);
+        inlineQuoteColor = ta.getColor(R.styleable.PostView_inline_quote_color, 0);
         ta.recycle();
     }
 
@@ -98,5 +100,8 @@ public class ThemeHelper {
 
     public int getSpoilerColor() {
         return spoilerColor;
+    }
+    public int getInlineQuoteColor() {
+        return inlineQuoteColor;
     }
 }

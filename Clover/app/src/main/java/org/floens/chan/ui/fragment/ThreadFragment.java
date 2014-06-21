@@ -59,6 +59,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     private ListView listView;
     private ImageView skip;
     private SkipLogic skipLogic;
+    private int highlightedPost = -1;
 
     public static ThreadFragment newInstance(BaseActivity activity) {
         ThreadFragment fragment = new ThreadFragment();
@@ -196,6 +197,12 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         } else {
             postAdapter.setList(posts);
         }
+
+        threadManager.highlightPost(highlightedPost);
+        postAdapter.scrollToPost(highlightedPost);
+        highlightedPost = -1;
+
+        baseActivity.onThreadLoaded(loadable, posts);
     }
 
     private void setEmpty() {
@@ -227,6 +234,8 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
                 postAdapter.setErrorMessage(getLoadErrorText(error));
             }
         }
+
+        highlightedPost = -1;
     }
 
     /**
@@ -278,7 +287,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     @Override
-    public void onScrollTo(Post post) {
+    public void onScrollTo(int post) {
         if (postAdapter != null) {
             postAdapter.scrollToPost(post);
         }
@@ -289,6 +298,12 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         if (postAdapter != null) {
             postAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onOpenThread(final Loadable thread, int highlightedPost) {
+        baseActivity.onOpenThread(thread);
+        this.highlightedPost = highlightedPost;
     }
 
     private static class SkipLogic {

@@ -290,12 +290,12 @@ public class ThreadManager implements Loader.LoaderListener {
         handleLinkableSelected(linkable);
     }
 
-    public void scrollToPost(Post post) {
+    public void scrollToPost(int post) {
         threadManagerListener.onScrollTo(post);
     }
 
-    public void highlightPost(Post post) {
-        highlightedPost = post.no;
+    public void highlightPost(int post) {
+        highlightedPost = post;
     }
 
     public boolean isPostHightlighted(Post post) {
@@ -402,67 +402,46 @@ public class ThreadManager implements Loader.LoaderListener {
      */
     private void handleLinkableSelected(final PostLinkable linkable) {
         if (linkable.type == PostLinkable.Type.QUOTE) {
-            showPostReply(linkable);
+            Post post = findPostById((Integer) linkable.value);
+            if (post != null) {
+                RepliesPopup l = new RepliesPopup();
+                l.posts.add(post);
+                showPostsRepliesFragment(l);
+            }
         } else if (linkable.type == PostLinkable.Type.LINK) {
             if (ChanPreferences.getOpenLinkConfirmation()) {
-                AlertDialog dialog = new AlertDialog.Builder(activity)
-                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                new AlertDialog.Builder(activity)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                Utils.openLink(activity, (String) linkable.value);
                             }
-                        }).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                openLink(linkable);
-                            }
-                        }).setTitle(R.string.open_link_confirmation).setMessage(linkable.value).create();
-
-                dialog.show();
+                        })
+                        .setTitle(R.string.open_link_confirmation)
+                        .setMessage((String) linkable.value)
+                        .show();
             } else {
-                openLink(linkable);
+                Utils.openLink(activity, (String) linkable.value);
             }
         } else if (linkable.type == PostLinkable.Type.SPOILER) {
-            new AlertDialog.Builder(activity).setMessage(linkable.value).show();
+            new AlertDialog.Builder(activity).setMessage((String) linkable.value).show();
+        } else if (linkable.type == PostLinkable.Type.THREAD) {
+            final PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
+            final Loadable thread = new Loadable(link.board, link.threadId);
+
+            new AlertDialog.Builder(activity)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, final int which) {
+                            threadManagerListener.onOpenThread(thread, link.postId);
+                        }
+                    })
+                    .setTitle(R.string.open_thread_confirmation)
+                    .setMessage("/" + thread.board + "/" + thread.no)
+                    .show();
         }
-    }
-
-    /**
-     * When a linkable to a post has been clicked, show a dialog with the
-     * referenced post in it.
-     *
-     * @param linkable the clicked linkable.
-     */
-    private void showPostReply(PostLinkable linkable) {
-        String value = linkable.value;
-
-        Post post;
-
-        try {
-            // Get post id
-            String[] splitted = value.split("#p");
-            if (splitted.length == 2) {
-                int id = Integer.parseInt(splitted[1]);
-
-                post = findPostById(id);
-
-                if (post != null) {
-                    RepliesPopup l = new RepliesPopup();
-                    l.posts.add(post);
-                    showPostsRepliesFragment(l);
-                }
-            }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Open an url.
-     *
-     * @param linkable Linkable with an url.
-     */
-    private void openLink(PostLinkable linkable) {
-        Utils.openLink(activity, linkable.value);
     }
 
     private void showPostsRepliesFragment(RepliesPopup repliesPopup) {
@@ -568,11 +547,18 @@ public class ThreadManager implements Loader.LoaderListener {
 
     public interface ThreadManagerListener {
         public void onThreadLoaded(List<Post> result, boolean append);
+
         public void onThreadLoadError(VolleyError error);
+
         public void onOPClicked(Post post);
+
         public void onThumbnailClicked(Post post);
-        public void onScrollTo(Post post);
+
+        public void onScrollTo(int post);
+
         public void onRefreshView();
+
+        public void onOpenThread(Loadable thread, int highlightedPost);
     }
 
     public static class RepliesPopup {

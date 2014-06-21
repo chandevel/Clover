@@ -145,7 +145,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
         Post post = adapter.getPost(position);
         if (postAdapter != null) {
-            postAdapter.scrollToPost(post);
+            postAdapter.scrollToPost(post.no);
         }
     }
 
