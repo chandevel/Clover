@@ -151,17 +151,10 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     }
 
     /**
-     * Updates all the pins to the database. This will run in a new thread
-     * because it can be an expensive operation. (this will be an huge headache
-     * later on when we get concurrent problems)
+     * Updates all the pins to the database.
      */
     public void updateDatabase() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ChanApplication.getDatabaseManager().updatePins(pins);
-            }
-        }).start();
+        ChanApplication.getDatabaseManager().updatePins(pins);
     }
 
     public void addPinListener(PinListener l) {

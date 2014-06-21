@@ -26,14 +26,19 @@ import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
+    private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
+    private static final long SAVED_REPLY_TRIM_COUNT = 50;
+
     private final DatabaseHelper helper;
     private List<SavedReply> savedReplies;
+    private HashSet<Integer> savedRepliesIds = new HashSet<>();
 
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
@@ -56,10 +61,11 @@ public class DatabaseManager {
             loadSavedReplies();
         }
 
-        // TODO: optimize this
-        for (SavedReply r : savedReplies) {
-            if (r.board.equals(board) && r.no == no) {
-                return r;
+        if (savedRepliesIds.contains(no)) {
+            for (SavedReply r : savedReplies) {
+                if (r.no == no && r.board.equals(board)) {
+                    return r;
+                }
             }
         }
 
@@ -71,11 +77,30 @@ public class DatabaseManager {
     }
 
     private void loadSavedReplies() {
-        // TODO trim the table if it gets too large
         try {
             savedReplies = helper.savedDao.queryForAll();
+            savedRepliesIds.clear();
+            for (SavedReply reply : savedReplies) {
+                savedRepliesIds.add(reply.no);
+            }
+
+            long count = helper.savedDao.countOf();
+            if (count >= SAVED_REPLY_TRIM_TRIGGER) {
+                trimSavedRepliesTable(SAVED_REPLY_TRIM_COUNT + (count - SAVED_REPLY_TRIM_TRIGGER));
+            }
         } catch (SQLException e) {
             Logger.e(TAG, "Error loading saved replies", e);
+        }
+    }
+
+    public void trimSavedRepliesTable(long limit) {
+        try {
+            Logger.i(TAG, "Trimming the length of the savedreply table for " + limit + " rows, was " + helper.savedDao.countOf());
+            helper.savedDao.executeRaw("DELETE FROM savedreply WHERE id IN " +
+                    "(SELECT id FROM savedreply ORDER BY id ASC LIMIT ?)", Long.toString(limit));
+            Logger.i(TAG, "The savedreply table now has " + helper.savedDao.countOf() + " rows");
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error trimming saved replies table", e);
         }
     }
 
@@ -106,16 +131,23 @@ public class DatabaseManager {
         }
     }
 
-    public void updatePins(List<Pin> pins) {
+    public void updatePins(final List<Pin> pins) {
         try {
-            for (Pin pin : pins) {
-                helper.pinDao.update(pin);
-            }
+            helper.pinDao.callBatchTasks(new Callable<Void>() {
+                @Override
+                public Void call() throws SQLException {
+                    for (Pin pin : pins) {
+                        helper.pinDao.update(pin);
+                    }
 
-            for (Pin pin : pins) {
-                helper.loadableDao.update(pin.loadable);
-            }
-        } catch (SQLException e) {
+                    for (Pin pin : pins) {
+                        helper.loadableDao.update(pin.loadable);
+                    }
+
+                    return null;
+                }
+            });
+        } catch (Exception e) {
             Logger.e(TAG, "Error updating pins in db", e);
         }
     }

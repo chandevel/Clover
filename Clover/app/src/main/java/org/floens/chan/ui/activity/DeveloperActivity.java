@@ -25,7 +25,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.utils.ThemeHelper;
+
+import java.util.Random;
 
 public class DeveloperActivity extends Activity {
     @Override
@@ -70,6 +73,33 @@ public class DeveloperActivity extends Activity {
         });
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
+
+        Button savedReplyDummyAdd = new Button(this);
+        savedReplyDummyAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                Random r = new Random();
+                int j = 0;
+                for (int i = 0; i < 100; i++) {
+                    j += r.nextInt(10000);
+                    ChanApplication.getDatabaseManager().saveReply(new SavedReply("g", j, "pass"));
+                }
+                recreate();
+            }
+        });
+        savedReplyDummyAdd.setText("Add test rows to savedReply");
+        wrapper.addView(savedReplyDummyAdd);
+
+        Button trimSavedReply = new Button(this);
+        trimSavedReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                ChanApplication.getDatabaseManager().trimSavedRepliesTable(10);
+                recreate();
+            }
+        });
+        trimSavedReply.setText("Trim savedreply table");
+        wrapper.addView(trimSavedReply);
 
         setContentView(wrapper);
     }
