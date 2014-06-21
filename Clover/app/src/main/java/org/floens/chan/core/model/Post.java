@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.PostLinkable.Type;
 import org.floens.chan.ui.view.PostView;
@@ -205,77 +206,9 @@ public class Post {
                             break;
                         }
                         case "a": {
-                            Element anchor = (Element) node;
-
-                            String href = anchor.attr("href");
-                            Set<String> classes = anchor.classNames();
-
-                            Type t = null;
-                            String key = null;
-                            Object value = null;
-                            if (classes.contains("quotelink")) {
-                                if (href.contains("/thread/")) {
-                                    // link to another thread
-                                    PostLinkable.ThreadLink threadLink = null;
-
-                                    String[] slashSplit = href.split("/");
-                                    if (slashSplit.length == 4) {
-                                        String board = slashSplit[1];
-                                        String nums = slashSplit[3];
-                                        String[] numsSplitted = nums.split("#p");
-                                        if (numsSplitted.length == 2) {
-                                            try {
-                                                int tId = Integer.parseInt(numsSplitted[0]);
-                                                int pId = Integer.parseInt(numsSplitted[1]);
-                                                threadLink = new PostLinkable.ThreadLink(board, tId, pId);
-                                            } catch (NumberFormatException e) {
-                                            }
-                                        }
-                                    }
-
-                                    if (threadLink != null) {
-                                        t = Type.THREAD;
-                                        key = anchor.text() + " \u2192"; // arrow to the right
-                                        value = threadLink;
-                                    }
-                                } else {
-                                    // normal quote
-                                    int id = -1;
-
-                                    String[] splitted = href.split("#p");
-                                    if (splitted.length == 2) {
-                                        try {
-                                            id = Integer.parseInt(splitted[1]);
-                                        } catch (NumberFormatException e) {
-                                        }
-                                    }
-
-                                    if (id >= 0) {
-                                        t = Type.QUOTE;
-                                        key = anchor.text();
-                                        value = id;
-                                        repliesTo.add(id);
-
-                                        // Append OP when its a reply to OP
-                                        if (id == resto) {
-                                            key += " (OP)";
-                                        }
-                                    }
-                                }
-                            } else {
-                                // normal link
-                                t = Type.LINK;
-                                key = anchor.text();
-                                value = href;
-                            }
-
-                            if (t != null && key != null && value != null) {
-                                SpannableString link = new SpannableString(key);
-                                PostLinkable pl = new PostLinkable(this, key, value, t);
-                                link.setSpan(pl, 0, link.length(), 0);
-                                linkables.add(pl);
-
-                                total = TextUtils.concat(total, link);
+                            CharSequence anchor = parseAnchor((Element)node, total);
+                            if (anchor != null) {
+                                total = TextUtils.concat(total, anchor);
                             }
                             break;
                         }
@@ -306,6 +239,86 @@ public class Post {
         }
 
         return total;
+    }
+
+    private CharSequence parseAnchor(Element anchor, CharSequence total) {
+        String href = anchor.attr("href");
+        Set<String> classes = anchor.classNames();
+
+        Type t = null;
+        String key = null;
+        Object value = null;
+        if (classes.contains("quotelink")) {
+            if (href.contains("/thread/")) {
+                // link to another thread
+                PostLinkable.ThreadLink threadLink = null;
+
+                String[] slashSplit = href.split("/");
+                if (slashSplit.length == 4) {
+                    String board = slashSplit[1];
+                    String nums = slashSplit[3];
+                    String[] numsSplitted = nums.split("#p");
+                    if (numsSplitted.length == 2) {
+                        try {
+                            int tId = Integer.parseInt(numsSplitted[0]);
+                            int pId = Integer.parseInt(numsSplitted[1]);
+                            threadLink = new PostLinkable.ThreadLink(board, tId, pId);
+                        } catch (NumberFormatException e) {
+                        }
+                    }
+                }
+
+                if (threadLink != null) {
+                    t = Type.THREAD;
+                    key = anchor.text() + " \u2192"; // arrow to the right
+                    value = threadLink;
+                }
+            } else {
+                // normal quote
+                int id = -1;
+
+                String[] splitted = href.split("#p");
+                if (splitted.length == 2) {
+                    try {
+                        id = Integer.parseInt(splitted[1]);
+                    } catch (NumberFormatException e) {
+                    }
+                }
+
+                if (id >= 0) {
+                    t = Type.QUOTE;
+                    key = anchor.text();
+                    value = id;
+                    repliesTo.add(id);
+
+                    // Append OP when its a reply to OP
+                    if (id == resto) {
+                        key += " (OP)";
+                    }
+
+                    // Append You when it's a reply to an saved reply
+                    if (ChanApplication.getDatabaseManager().isSavedReply(board, id)) {
+                        key += " (You)";
+                    }
+                }
+            }
+        } else {
+            // normal link
+            t = Type.LINK;
+            key = anchor.text();
+            value = href;
+        }
+
+        if (t != null && key != null && value != null) {
+            SpannableString link = new SpannableString(key);
+            PostLinkable pl = new PostLinkable(this, key, value, t);
+            link.setSpan(pl, 0, link.length(), 0);
+            linkables.add(pl);
+
+            return link;
+        } else {
+            return null;
+        }
     }
 
     private void detectLinks(String text, SpannableString spannable) {
