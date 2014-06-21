@@ -518,9 +518,11 @@ public class ReplyFragment extends DialogFragment {
             // threadFragment.reload(); // won't work: it takes 4chan a variable time to process the reply
 
             // Pin thread on successful post
-            Pin pin = new Pin();
-            pin.loadable = loadable;
-            ChanApplication.getWatchManager().addPin(pin);
+            if (loadable.isThreadMode()) {
+                Pin pin = new Pin();
+                pin.loadable = loadable;
+                ChanApplication.getWatchManager().addPin(pin);
+            }
 
             closeReply();
         } else {
