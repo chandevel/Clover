@@ -198,9 +198,11 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             postAdapter.setList(posts);
         }
 
-        threadManager.highlightPost(highlightedPost);
-        postAdapter.scrollToPost(highlightedPost);
-        highlightedPost = -1;
+        if (highlightedPost >= 0) {
+            threadManager.highlightPost(highlightedPost);
+            postAdapter.scrollToPost(highlightedPost);
+            highlightedPost = -1;
+        }
 
         baseActivity.onThreadLoaded(loadable, posts);
     }
