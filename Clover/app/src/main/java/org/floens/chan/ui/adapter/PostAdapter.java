@@ -21,8 +21,8 @@ import android.content.Context;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -41,14 +41,14 @@ import java.util.List;
 public class PostAdapter extends BaseAdapter {
     private final Context context;
     private final ThreadManager threadManager;
-    private final ListView listView;
+    private final AbsListView listView;
     private boolean endOfLine;
     private final List<Post> postList = new ArrayList<>();
     private int lastPostCount = 0;
     private long lastViewedTime = 0;
     private String loadMessage = null;
 
-    public PostAdapter(Context activity, ThreadManager threadManager, ListView listView) {
+    public PostAdapter(Context activity, ThreadManager threadManager, AbsListView listView) {
         context = activity;
         this.threadManager = threadManager;
         this.listView = listView;

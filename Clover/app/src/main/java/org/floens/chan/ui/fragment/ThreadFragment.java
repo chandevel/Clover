@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -56,10 +57,11 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     private PostAdapter postAdapter;
     private LoadView container;
-    private ListView listView;
+    private AbsListView listView;
     private ImageView skip;
     private SkipLogic skipLogic;
     private int highlightedPost = -1;
+    private ThreadManager.ViewMode viewMode = ThreadManager.ViewMode.LIST;
 
     public static ThreadFragment newInstance(BaseActivity activity) {
         ThreadFragment fragment = new ThreadFragment();
@@ -100,6 +102,10 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         return threadManager.hasLoader();
     }
 
+    public void setViewMode(ThreadManager.ViewMode viewMode) {
+        this.viewMode = viewMode;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -136,16 +142,68 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     @Override
-    public void onThreadLoaded(List<Post> posts, boolean append) {
+    public void onOPClicked(Post post) {
+        baseActivity.onOPClicked(post);
+    }
+
+    @Override
+    public void onThumbnailClicked(Post source) {
+        if (postAdapter != null) {
+            ImageViewActivity.setAdapter(postAdapter, source.no);
+
+            Intent intent = new Intent(baseActivity, ImageViewActivity.class);
+            baseActivity.startActivity(intent);
+            baseActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        }
+    }
+
+    @Override
+    public void onScrollTo(int post) {
+        if (postAdapter != null) {
+            postAdapter.scrollToPost(post);
+        }
+    }
+
+    @Override
+    public void onRefreshView() {
+        if (postAdapter != null) {
+            postAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onOpenThread(final Loadable thread, int highlightedPost) {
+        baseActivity.onOpenThread(thread);
+        this.highlightedPost = highlightedPost;
+    }
+
+    @Override
+    public ThreadManager.ViewMode getViewMode() {
+        return viewMode;
+    }
+
+    @Override
+    public void onThreadLoaded(List posts, boolean append) {
         if (postAdapter == null) {
             RelativeLayout compound = new RelativeLayout(baseActivity);
-            listView = new ListView(baseActivity);
 
-            postAdapter = new PostAdapter(baseActivity, threadManager, listView);
-
-            listView.setLayoutParams(Utils.MATCH_PARAMS);
-            listView.setAdapter(postAdapter);
-            listView.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
+            if (viewMode == ThreadManager.ViewMode.LIST) {
+                ListView list = new ListView(baseActivity);
+                listView = list;
+                postAdapter = new PostAdapter(baseActivity, threadManager, listView);
+                listView.setAdapter(postAdapter);
+                list.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
+            } else if (viewMode == ThreadManager.ViewMode.GRID) {
+                GridView grid = new GridView(baseActivity);
+                grid.setNumColumns(GridView.AUTO_FIT);
+                grid.setColumnWidth(baseActivity.getResources().getDimensionPixelSize(R.dimen.post_grid_width));
+                grid.setVerticalSpacing(baseActivity.getResources().getDimensionPixelSize(R.dimen.post_grid_spacing));
+                grid.setHorizontalSpacing(baseActivity.getResources().getDimensionPixelSize(R.dimen.post_grid_spacing));
+                listView = grid;
+                postAdapter = new PostAdapter(baseActivity, threadManager, listView);
+                listView.setAdapter(postAdapter);
+                listView.setSelection(loadable.listViewIndex);
+            }
 
             listView.setOnScrollListener(new OnScrollListener() {
                 @Override
@@ -168,7 +226,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
                 }
             });
 
-            compound.addView(listView);
+            compound.addView(listView, Utils.MATCH_PARAMS);
 
             if (loadable.isThreadMode()) {
                 skip = new ImageView(baseActivity);
@@ -207,22 +265,6 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         baseActivity.onThreadLoaded(loadable, posts);
     }
 
-    private void setEmpty() {
-        postAdapter = null;
-
-        if (container != null) {
-            container.setView(null);
-        }
-
-        if (listView != null) {
-            listView.setOnScrollListener(null);
-            listView = null;
-        }
-
-        skip = null;
-        skipLogic = null;
-    }
-
     @Override
     public void onThreadLoadError(VolleyError error) {
         if (error instanceof EndOfLineException) {
@@ -238,6 +280,22 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
 
         highlightedPost = -1;
+    }
+
+    private void setEmpty() {
+        postAdapter = null;
+
+        if (container != null) {
+            container.setView(null);
+        }
+
+        if (listView != null) {
+            listView.setOnScrollListener(null);
+            listView = null;
+        }
+
+        skip = null;
+        skipLogic = null;
     }
 
     /**
@@ -270,42 +328,6 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
 
         return errorMessage;
-    }
-
-    @Override
-    public void onOPClicked(Post post) {
-        baseActivity.onOPClicked(post);
-    }
-
-    @Override
-    public void onThumbnailClicked(Post source) {
-        if (postAdapter != null) {
-            ImageViewActivity.setAdapter(postAdapter, source.no);
-
-            Intent intent = new Intent(baseActivity, ImageViewActivity.class);
-            baseActivity.startActivity(intent);
-            baseActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        }
-    }
-
-    @Override
-    public void onScrollTo(int post) {
-        if (postAdapter != null) {
-            postAdapter.scrollToPost(post);
-        }
-    }
-
-    @Override
-    public void onRefreshView() {
-        if (postAdapter != null) {
-            postAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onOpenThread(final Loadable thread, int highlightedPost) {
-        baseActivity.onOpenThread(thread);
-        this.highlightedPost = highlightedPost;
     }
 
     private static class SkipLogic {

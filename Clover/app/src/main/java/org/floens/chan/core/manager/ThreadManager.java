@@ -63,6 +63,10 @@ import java.util.List;
  * etc. onDestroy, onStart and onStop must be called from the activity/fragment
  */
 public class ThreadManager implements Loader.LoaderListener {
+    public static enum ViewMode {
+        LIST, GRID
+    }
+
     private static final String TAG = "ThreadManager";
 
     private final Activity activity;
@@ -211,13 +215,17 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void onPostClicked(Post post) {
-        if (loader != null && loader.getLoadable().isBoardMode()) {
+        if (loader != null && (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode())) {
             threadManagerListener.onOPClicked(post);
         }
     }
 
     public void showPostOptions(final Post post, PopupMenu popupMenu) {
         Menu menu = popupMenu.getMenu();
+
+        if (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode()) {
+            menu.add(Menu.NONE, 8, Menu.NONE, activity.getString(R.string.action_pin));
+        }
 
         String[] baseOptions = activity.getResources().getStringArray(R.array.post_options);
         for (int i = 0; i < baseOptions.length; i++) {
@@ -265,6 +273,11 @@ public class ThreadManager implements Loader.LoaderListener {
                         break;
                     case 7: // Save reply
                         ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
+                        break;
+                    case 8: // Pin
+                        Pin pin = new Pin();
+                        pin.loadable = new Loadable(loader.getLoadable().board, post.no, WatchManager.generateTitle(post));
+                        ChanApplication.getWatchManager().addPin(pin);
                         break;
                 }
                 return false;
@@ -393,6 +406,10 @@ public class ThreadManager implements Loader.LoaderListener {
         if (p.size() > 0) {
             showPostsRepliesFragment(l);
         }
+    }
+
+    public ThreadManager.ViewMode getViewMode() {
+        return threadManagerListener.getViewMode();
     }
 
     /**
@@ -559,6 +576,8 @@ public class ThreadManager implements Loader.LoaderListener {
         public void onRefreshView();
 
         public void onOpenThread(Loadable thread, int highlightedPost);
+
+        public ThreadManager.ViewMode getViewMode();
     }
 
     public static class RepliesPopup {

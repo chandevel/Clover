@@ -35,9 +35,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_reply_board">Reply to board</string>
     <string name="action_reply_thread">Reply to thread</string>
     <string name="action_open_browser">Open in browser</string>
-    <string name="action_catalog">Open catalog</string>
     <string name="action_share">Share</string>
     <string name="action_download_album">Download album</string>
+    <string name="action_board_view_mode">View mode</string>
+    <string name="action_board_view_mode_list">List</string>
+    <string name="action_board_view_mode_grid">Grid</string>
 
     <string name="open_unknown_title">Unsupported link</string>
     <string name="open_unknown">Clover can\'t open this link. Opening it in your browser instead.</string>

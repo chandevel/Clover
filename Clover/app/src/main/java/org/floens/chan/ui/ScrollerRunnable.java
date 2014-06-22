@@ -19,6 +19,7 @@ package org.floens.chan.ui;
 
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 public class ScrollerRunnable implements Runnable {
@@ -27,7 +28,7 @@ public class ScrollerRunnable implements Runnable {
     private static final int MOVE_DOWN_POS = 1;
     private static final int MOVE_UP_POS = 2;
 
-    private final ListView mList;
+    private final AbsListView mList;
 
     private int mMode;
     private int mTargetPos;
@@ -35,7 +36,7 @@ public class ScrollerRunnable implements Runnable {
     private int mScrollDuration;
     private final int mExtraScroll;
 
-    public ScrollerRunnable(ListView listView) {
+    public ScrollerRunnable(AbsListView listView) {
         mList = listView;
         mExtraScroll = ViewConfiguration.get(mList.getContext()).getScaledFadingEdgeLength();
     }

@@ -477,7 +477,7 @@ public class ReplyFragment extends DialogFragment {
             }
         }
 
-        draft.resto = loadable.isBoardMode() ? -1 : loadable.no;
+        draft.resto = loadable.isThreadMode() ? loadable.no : -1;
         draft.board = loadable.board;
 
         if (ChanPreferences.getPassEnabled()) {

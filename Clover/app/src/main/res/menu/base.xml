@@ -92,6 +92,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:title="@string/action_open_browser"/>
 
     <item
+        android:id="@+id/action_board_view_mode"
+        android:orderInCategory="8"
+        android:showAsAction="never"
+        android:title="@string/action_board_view_mode">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/action_board_view_mode_list"
+                    android:title="@string/action_board_view_mode_list"/>
+                <item
+                    android:id="@+id/action_board_view_mode_grid"
+                    android:title="@string/action_board_view_mode_grid"/>
+            </group>
+        </menu>
+    </item>
+
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"

@@ -124,7 +124,7 @@ public class Loader {
             request.cancel();
         }
 
-        if (loadable.isBoardMode()) {
+        if (loadable.isBoardMode() || loadable.isCatalogMode()) {
             loadable.no = 0;
             loadable.listViewIndex = 0;
             loadable.listViewTop = 0;

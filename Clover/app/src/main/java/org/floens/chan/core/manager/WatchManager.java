@@ -19,11 +19,13 @@ package org.floens.chan.core.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
@@ -45,6 +47,16 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     private final List<Pin> pins;
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private PendingTimer pendingTimer;
+
+    public static String generateTitle(Post post) {
+        if (!TextUtils.isEmpty(post.subject)) {
+            return post.subject;
+        } else if (!TextUtils.isEmpty(post.comment)) {
+            return post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
+        } else {
+            return "/" + post.board + "/" + post.no;
+        }
+    }
 
     public WatchManager(Context context) {
         this.context = context;

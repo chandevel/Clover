@@ -21,7 +21,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ListView;
+import android.widget.AbsListView;
 import android.widget.TextView;
 
 import org.floens.chan.core.loader.Loader;
@@ -45,7 +45,7 @@ public class ThreadWatchCounterView extends TextView implements View.OnClickList
         super(activity, attbs, style);
     }
 
-    public void init(final ThreadManager threadManager, final ListView listView, final PostAdapter adapter) {
+    public void init(final ThreadManager threadManager, final AbsListView listView, final PostAdapter adapter) {
         tm = threadManager;
         ad = adapter;
 

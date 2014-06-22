@@ -34,6 +34,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -72,12 +73,12 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
     private boolean isBuild = false;
     private LinearLayout full;
-    private LinearLayout right;
+    private LinearLayout contentContainer;
     private CustomNetworkImageView imageView;
     private TextView titleView;
     private TextView commentView;
     private TextView repliesCountView;
-    private LinearLayout iconView;
+    private LinearLayout iconsView;
     private ImageView stickyView;
     private ImageView closedView;
     private NetworkImageView countryView;
@@ -126,6 +127,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     public void setPost(final Post post, final ThreadManager manager) {
         this.post = post;
         this.manager = manager;
+        boolean boardCatalogMode = manager.getLoadable().isBoardMode() || manager.getLoadable().isCatalogMode();
 
         post.setLinkableListener(null);
 
@@ -147,34 +149,45 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         CharSequence total = new SpannableString("");
 
         if (post.subjectSpan != null) {
-            total = TextUtils.concat(total, post.subjectSpan, "\n");
+            total = TextUtils.concat(total, post.subjectSpan);
         }
 
-        if (post.nameSpan != null) {
-            total = TextUtils.concat(total, post.nameSpan, " ");
+        if (isList()) {
+            if (post.subjectSpan != null) {
+                total = TextUtils.concat(total, "\n");
+            }
+
+            if (post.nameSpan != null) {
+                total = TextUtils.concat(total, post.nameSpan, " ");
+            }
+
+            if (post.tripcodeSpan != null) {
+                total = TextUtils.concat(total, post.tripcodeSpan, " ");
+            }
+
+            if (post.idSpan != null) {
+                total = TextUtils.concat(total, post.idSpan, " ");
+            }
+
+            if (post.capcodeSpan != null) {
+                total = TextUtils.concat(total, post.capcodeSpan, " ");
+            }
+
+            CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(),
+                    DateUtils.SECOND_IN_MILLIS, 0);
+
+            SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);
+            date.setSpan(new ForegroundColorSpan(dateColor), 0, date.length(), 0);
+            date.setSpan(new AbsoluteSizeSpan(10, true), 0, date.length(), 0);
+            total = TextUtils.concat(total, date, " ");
         }
 
-        if (post.tripcodeSpan != null) {
-            total = TextUtils.concat(total, post.tripcodeSpan, " ");
+        if (!TextUtils.isEmpty(total)) {
+            titleView.setText(total);
+            titleView.setVisibility(View.VISIBLE);
+        } else {
+            titleView.setVisibility(View.GONE);
         }
-
-        if (post.idSpan != null) {
-            total = TextUtils.concat(total, post.idSpan, " ");
-        }
-
-        if (post.capcodeSpan != null) {
-            total = TextUtils.concat(total, post.capcodeSpan, " ");
-        }
-
-        CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(),
-                DateUtils.SECOND_IN_MILLIS, 0);
-
-        SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);
-        date.setSpan(new ForegroundColorSpan(dateColor), 0, date.length(), 0);
-        date.setSpan(new AbsoluteSizeSpan(10, true), 0, date.length(), 0);
-        total = TextUtils.concat(total, date, " ");
-
-        titleView.setText(total);
 
         if (!TextUtils.isEmpty(post.comment)) {
             commentView.setVisibility(View.VISIBLE);
@@ -189,36 +202,28 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             if (manager.getLoadable().isThreadMode()) {
                 post.setLinkableListener(this);
             }
-
-            if (manager.getLoadable().isBoardMode()) {
-                int maxHeight = context.getResources().getDimensionPixelSize(R.dimen.post_max_height);
-                commentView.setMaxHeight(maxHeight);
-            } else {
-                commentView.setMaxHeight(10000);
-            }
         } else {
             commentView.setVisibility(View.GONE);
             commentView.setText("");
             commentView.setOnClickListener(null);
-            commentView.setOnLongClickListener(null);
             post.setLinkableListener(null);
         }
 
-        if ((post.isOP && manager.getLoadable().isBoardMode() && post.replies > 0) || (post.repliesFrom.size() > 0)) {
+        if (isGrid() || ((post.isOP && boardCatalogMode && post.replies > 0) || (post.repliesFrom.size() > 0))) {
             repliesCountView.setVisibility(View.VISIBLE);
 
             String text = "";
 
-            int count = manager.getLoadable().isBoardMode() ? post.replies : post.repliesFrom.size();
+            int count = boardCatalogMode ? post.replies : post.repliesFrom.size();
 
-            if (count > 1) {
+            if (count != 1) {
                 text = count + " " + context.getString(R.string.multiple_replies);
             } else if (count == 1) {
                 text = count + " " + context.getString(R.string.one_reply);
             }
 
-            if (manager.getLoadable().isBoardMode() && post.images > 0) {
-                if (post.images > 1) {
+            if (boardCatalogMode && post.images > 0) {
+                if (post.images != 1) {
                     text += ", " + post.images + " " + context.getString(R.string.multiple_images);
                 } else {
                     text += ", " + post.images + " " + context.getString(R.string.one_image);
@@ -240,11 +245,11 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             repliesCountView.setOnClickListener(null);
         }
 
-        boolean showCountryFlag = !TextUtils.isEmpty(post.country);
-        boolean showStickyIcon = post.sticky;
-        boolean showClosedIcon = post.closed;
+        boolean showCountryFlag = isList() && !TextUtils.isEmpty(post.country);
+        boolean showStickyIcon = isList() && post.sticky;
+        boolean showClosedIcon = isList() && post.closed;
 
-        iconView.setVisibility((showCountryFlag || showStickyIcon || showClosedIcon) ? View.VISIBLE : View.GONE);
+        iconsView.setVisibility((showCountryFlag || showStickyIcon || showClosedIcon) ? View.VISIBLE : View.GONE);
 
         stickyView.setVisibility(showStickyIcon ? View.VISIBLE : View.GONE);
         closedView.setVisibility(showClosedIcon ? View.VISIBLE : View.GONE);
@@ -268,10 +273,6 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             lastSeen.setVisibility(View.VISIBLE);
         } else {
             lastSeen.setVisibility(View.GONE);
-        }
-
-        if (manager.getLoadable().isBoardMode()) {
-            Utils.setPressedDrawable(right);
         }
     }
 
@@ -341,19 +342,47 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         isBuild = true;
 
         Resources resources = context.getResources();
-        int postPadding = resources.getDimensionPixelSize(R.dimen.post_padding);
-        int commentPadding = resources.getDimensionPixelSize(R.dimen.post_comment_padding);
+        int postPadding = 0;
+        if (isList()) {
+            postPadding = resources.getDimensionPixelSize(R.dimen.post_padding);
+        } else if (isGrid()) {
+            postPadding = resources.getDimensionPixelSize(R.dimen.post_padding_grid);
+        }
+        int commentPadding = 0;
+        if (isList()) {
+            commentPadding = resources.getDimensionPixelSize(R.dimen.post_comment_padding);
+        } else if (isGrid()) {
+            commentPadding = resources.getDimensionPixelSize(R.dimen.post_comment_padding_grid);
+        }
         int iconPadding = resources.getDimensionPixelSize(R.dimen.post_icon_padding);
         int iconWidth = resources.getDimensionPixelSize(R.dimen.post_icon_width);
         int iconHeight = resources.getDimensionPixelSize(R.dimen.post_icon_height);
         int imageSize = resources.getDimensionPixelSize(R.dimen.thumbnail_size);
+        int gridHeight = resources.getDimensionPixelSize(R.dimen.post_grid_height);
+        int gridImageHeight = resources.getDimensionPixelSize(R.dimen.post_grid_image_height);
+
+        int postCommentSize = 0;
+        if (isList()) {
+            postCommentSize = resources.getDimensionPixelSize(R.dimen.post_comment_text);
+        } else if (isGrid()) {
+            postCommentSize = resources.getDimensionPixelSize(R.dimen.post_comment_text_grid);
+        }
 
         RelativeLayout wrapper = new RelativeLayout(context);
         wrapper.setLayoutParams(matchParams);
 
         full = new LinearLayout(context);
-        full.setOrientation(HORIZONTAL);
-        wrapper.addView(full, matchParams);
+        if (isList()) {
+            full.setOrientation(HORIZONTAL);
+            wrapper.addView(full, matchParams);
+        } else if (isGrid()) {
+            full.setOrientation(VERTICAL);
+            wrapper.addView(full, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, gridHeight));
+        }
+
+        LinearLayout imageContainer = new LinearLayout(context);
+        imageContainer.setOrientation(VERTICAL);
+        imageContainer.setBackgroundColor(thumbnailBackground);
 
         // Create thumbnail
         imageView = new CustomNetworkImageView(context);
@@ -367,70 +396,97 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             }
         });
 
-        LinearLayout left = new LinearLayout(context);
-        left.setOrientation(VERTICAL);
-        left.setBackgroundColor(thumbnailBackground);
+        if (isList()) {
+            imageContainer.addView(imageView, new LinearLayout.LayoutParams(imageSize, imageSize));
+            full.addView(imageContainer, wrapMatchParams);
+            full.setMinimumHeight(imageSize);
+        } else if (isGrid()) {
+            imageContainer.addView(imageView, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, gridImageHeight));
+            full.addView(imageContainer, matchWrapParams);
+        }
 
-        left.addView(imageView, new LinearLayout.LayoutParams(imageSize, imageSize));
+        contentContainer = new LinearLayout(context);
+        contentContainer.setOrientation(VERTICAL);
 
-        full.addView(left, wrapMatchParams);
-        full.setMinimumHeight(imageSize);
+        LinearLayout titleContainer = new LinearLayout(context);
+        titleContainer.setOrientation(HORIZONTAL);
 
-        right = new LinearLayout(context);
-        right.setOrientation(VERTICAL);
-
-        LinearLayout header = new LinearLayout(context);
-        header.setOrientation(HORIZONTAL);
-        // 25 padding to give optionsView some space
-        header.setPadding(0, 0, Utils.dp(25), 0);
+        if (isList()) {
+            // 25 padding to give optionsView some space
+            titleContainer.setPadding(0, 0, Utils.dp(25), 0);
+        }
 
         titleView = new TextView(context);
         titleView.setTextSize(14);
         titleView.setPadding(postPadding, postPadding, postPadding, 0);
-        header.addView(titleView, wrapParams);
 
-        right.addView(header, matchWrapParams);
+        titleContainer.addView(titleView, wrapParams);
 
-        iconView = new LinearLayout(context);
-        iconView.setOrientation(HORIZONTAL);
-        iconView.setPadding(postPadding, iconPadding, postPadding, 0);
+        contentContainer.addView(titleContainer, matchWrapParams);
+
+        iconsView = new LinearLayout(context);
+        iconsView.setOrientation(HORIZONTAL);
+        iconsView.setPadding(postPadding, iconPadding, postPadding, 0);
 
         stickyView = new ImageView(context);
         stickyView.setImageBitmap(IconCache.stickyIcon);
-        iconView.addView(stickyView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+        iconsView.addView(stickyView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
         closedView = new ImageView(context);
         closedView.setImageBitmap(IconCache.closedIcon);
-        iconView.addView(closedView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+        iconsView.addView(closedView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
         countryView = new NetworkImageView(context);
         countryView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        iconView.addView(countryView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+        iconsView.addView(countryView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
-        right.addView(iconView, matchWrapParams);
+        contentContainer.addView(iconsView, matchWrapParams);
 
         commentView = new TextView(context);
-        commentView.setTextSize(15);
-        commentView.setPadding(postPadding, commentPadding, postPadding, commentPadding);
-        right.addView(commentView, matchWrapParams);
+        commentView.setTextSize(TypedValue.COMPLEX_UNIT_PX, postCommentSize);
+
+        if (isList()) {
+            commentView.setPadding(postPadding, commentPadding, postPadding, commentPadding);
+
+            if (manager.getLoadable().isBoardMode() || manager.getLoadable().isCatalogMode()) {
+                int maxHeight = context.getResources().getDimensionPixelSize(R.dimen.post_max_height);
+                commentView.setMaxHeight(maxHeight);
+            }
+        } else if (isGrid()) {
+            commentView.setPadding(postPadding, commentPadding, postPadding, 0);
+            // So that is fills up all the height using weight later on
+            commentView.setMinHeight(10000);
+            commentView.setEllipsize(TextUtils.TruncateAt.END);
+        }
+
+        if (isList()) {
+            contentContainer.addView(commentView, matchWrapParams);
+        } else if (isGrid()) {
+            contentContainer.addView(commentView, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f));
+        }
 
         repliesCountView = new TextView(context);
-
-        // Set the drawable before the padding, because setting the background resets the padding
-        // This behavior differs with 4.4 / 4.1
         Utils.setPressedDrawable(repliesCountView);
-
         repliesCountView.setTextColor(replyCountColor);
         repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
-        repliesCountView.setTextSize(14);
+        if (isList()) {
+            repliesCountView.setTextSize(14);
+        } else if (isGrid()) {
+            repliesCountView.setTextSize(11);
+        }
+        repliesCountView.setSingleLine();
 
-        right.addView(repliesCountView, wrapParams);
+        contentContainer.addView(repliesCountView, wrapParams);
 
         lastSeen = new View(context);
         lastSeen.setBackgroundColor(0xffff0000);
-        right.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(6f)));
+        contentContainer.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(6f)));
 
-        full.addView(right, matchWrapParams);
+        if (!manager.getLoadable().isThreadMode()) {
+            Utils.setPressedDrawable(contentContainer);
+        }
+
+        full.addView(contentContainer, matchWrapParams);
 
         optionsView = new ImageView(context);
         optionsView.setImageResource(R.drawable.ic_overflow);
@@ -476,6 +532,14 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         manager.onPostClicked(post);
+    }
+
+    private boolean isList() {
+        return manager.getViewMode() == ThreadManager.ViewMode.LIST;
+    }
+
+    private boolean isGrid() {
+        return manager.getViewMode() == ThreadManager.ViewMode.GRID;
     }
 
     private class PostViewMovementMethod extends LinkMovementMethod {

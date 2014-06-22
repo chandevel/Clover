@@ -129,4 +129,12 @@ public class ChanPreferences {
     public static boolean setBoardEditorFillerEnabled(boolean enabled) {
         return p().edit().putBoolean("preference_board_editor_filler", enabled).commit();
     }
+
+    public static String getBoardViewMode() {
+        return p().getString("preference_board_view_mode", "list");
+    }
+
+    public static void setBoardViewMode(String mode) {
+        p().edit().putString("preference_board_view_mode", mode).commit();
+    }
 }

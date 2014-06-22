@@ -45,6 +45,8 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -74,6 +76,8 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         threadLoadable = new Loadable();
 
         boardFragment = ThreadFragment.newInstance(this);
+        setBoardFragmentViewMode();
+
         threadFragment = ThreadFragment.newInstance(this);
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -210,7 +214,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
     @Override
     public void onOPClicked(Post post) {
-        startLoadingThread(new Loadable(post.board, post.no, generateTitle(post)));
+        startLoadingThread(new Loadable(post.board, post.no, WatchManager.generateTitle(post)));
     }
 
     @Override
@@ -221,7 +225,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     @Override
     public void onThreadLoaded(Loadable loadable, List<Post> posts) {
         if (loadable.isThreadMode() && TextUtils.isEmpty(threadLoadable.title) && posts.size() > 0) {
-            threadLoadable.title = generateTitle(posts.get(0));
+            threadLoadable.title = WatchManager.generateTitle(posts.get(0));
             updateActionBarState();
         }
     }
@@ -344,7 +348,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                 actionBar.setTitle("");
                 pinDrawerListener.setDrawerIndicatorEnabled(true);
 
-                if (boardLoadable.isBoardMode())
+                if (boardLoadable.isBoardMode() || boardLoadable.isCatalogMode())
                     setShareUrl(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
             } else {
                 actionBar.setDisplayShowCustomEnabled(false);
@@ -384,6 +388,14 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         setMenuItemEnabled(menu.findItem(R.id.action_reply), slidable);
         setMenuItemEnabled(menu.findItem(R.id.action_reply_tablet), !slidable);
+
+        setMenuItemEnabled(menu.findItem(R.id.action_board_view_mode), !slidable || open);
+
+        if (ChanPreferences.getBoardViewMode().equals("list")) {
+            menu.findItem(R.id.action_board_view_mode_list).setChecked(true);
+        } else if (ChanPreferences.getBoardViewMode().equals("grid")) {
+            menu.findItem(R.id.action_board_view_mode_grid).setChecked(true);
+        }
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -446,6 +458,20 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                 }
 
                 return true;
+            case R.id.action_board_view_mode_grid:
+                if (!ChanPreferences.getBoardViewMode().equals("grid")) {
+                    ChanPreferences.setBoardViewMode("grid");
+                    setBoardFragmentViewMode();
+                    startLoadingBoard(boardLoadable);
+                }
+                return true;
+            case R.id.action_board_view_mode_list:
+                if (!ChanPreferences.getBoardViewMode().equals("list")) {
+                    ChanPreferences.setBoardViewMode("list");
+                    setBoardFragmentViewMode();
+                    startLoadingBoard(boardLoadable);
+                }
+                return true;
             case android.R.id.home:
                 threadPane.openPane();
 
@@ -471,6 +497,9 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             return;
 
         boardLoadable = loadable;
+
+        // TODO: make this an option
+        boardLoadable.mode = Loadable.Mode.CATALOG;
 
         boardFragment.bindLoadable(loadable);
         boardFragment.requestData();
@@ -553,13 +582,11 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         }).setCancelable(false).create().show();
     }
 
-    private String generateTitle(Post post) {
-        if (!TextUtils.isEmpty(post.subject)) {
-            return post.subject;
-        } else if (!TextUtils.isEmpty(post.comment)) {
-            return post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
-        } else {
-            return "/" + post.board + "/" + post.no;
+    private void setBoardFragmentViewMode() {
+        if (ChanPreferences.getBoardViewMode().equals("list")) {
+            boardFragment.setViewMode(ThreadManager.ViewMode.LIST);
+        } else if (ChanPreferences.getBoardViewMode().equals("grid")) {
+            boardFragment.setViewMode(ThreadManager.ViewMode.GRID);
         }
     }
 
