@@ -54,6 +54,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="id_background_light" format="color"/>
         <attr name="id_background_dark" format="color"/>
         <attr name="inline_quote_color" format="color"/>
+
+        <attr name="title_size" format="dimension"/>
+        <attr name="detail_size" format="dimension"/>
+        <attr name="icon_padding" format="dimension"/>
+        <attr name="icon_width" format="dimension"/>
+        <attr name="icon_height" format="dimension"/>
+        <attr name="options_spacing" format="dimension"/>
+        <attr name="options_left_padding" format="dimension"/>
+        <attr name="options_top_padding" format="dimension"/>
+        <attr name="options_right_padding" format="dimension"/>
+        <attr name="options_bottom_padding" format="dimension"/>
+        <attr name="last_seen_height" format="dimension"/>
+        <attr name="grid_padding" format="dimension"/>
+        <attr name="grid_image_size" format="dimension"/>
+        <attr name="grid_comment_padding" format="dimension"/>
+        <attr name="grid_comment_size" format="dimension"/>
+        <attr name="grid_replies_count_size" format="dimension"/>
+        <attr name="list_comment_max_height" format="dimension"/>
+        <attr name="list_padding" format="dimension"/>
+        <attr name="list_image_size" format="dimension"/>
+        <attr name="list_comment_padding" format="dimension"/>
+        <attr name="list_comment_size" format="dimension"/>
+        <attr name="list_replies_count_size" format="dimension"/>
+        <attr name="grid_width" format="dimension"/>
+        <attr name="grid_height" format="dimension"/>
+        <attr name="grid_spacing" format="dimension"/>
+
     </declare-styleable>
 
     <attr name="board_edit_item_style" format="reference"/>

@@ -115,7 +115,7 @@ public class PostAdapter extends BaseAdapter {
             ThreadWatchCounterView view = new ThreadWatchCounterView(context);
             Utils.setPressedDrawable(view);
             view.init(threadManager, listView, this);
-            int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
+            int padding = Utils.dp(12f);
             view.setPadding(padding, padding, padding, padding);
             int height = Utils.dp(48f);
             view.setHeight(height);
@@ -125,7 +125,7 @@ public class PostAdapter extends BaseAdapter {
             if (endOfLine) {
                 TextView textView = new TextView(context);
                 textView.setText(context.getString(R.string.thread_load_end_of_line));
-                int padding = context.getResources().getDimensionPixelSize(R.dimen.general_padding);
+                int padding = Utils.dp(12f);
                 textView.setPadding(padding, padding, padding, padding);
                 return textView;
             } else {

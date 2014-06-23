@@ -19,7 +19,6 @@ package org.floens.chan.ui.view;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.text.Layout;
 import android.text.Selection;
@@ -85,12 +84,6 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     private ImageView optionsView;
     private View lastSeen;
 
-    private int thumbnailBackground;
-    private int savedReplyColor;
-    private int highlightedColor;
-    private int replyCountColor;
-    private int dateColor;
-
     /**
      * Represents a post. Use setPost(Post ThreadManager) to fill it with data.
      * setPost can be called multiple times (useful for ListView).
@@ -100,19 +93,16 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     public PostView(Context activity) {
         super(activity);
         context = (Activity) activity;
-        init();
     }
 
     public PostView(Context activity, AttributeSet attbs) {
         super(activity, attbs);
         context = (Activity) activity;
-        init();
     }
 
     public PostView(Context activity, AttributeSet attbs, int style) {
         super(activity, attbs, style);
         context = (Activity) activity;
-        init();
     }
 
     @Override
@@ -129,14 +119,23 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         this.manager = manager;
         boolean boardCatalogMode = manager.getLoadable().isBoardMode() || manager.getLoadable().isCatalogMode();
 
-        post.setLinkableListener(null);
+        TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
 
         if (!post.parsedSpans) {
+            parseSpans(post, ta);
             post.parsedSpans = true;
-            parseSpans(post);
         }
 
-        buildView(context);
+        if (!isBuild) {
+            buildView(context, ta);
+            isBuild = true;
+        }
+
+        int dateColor = ta.getColor(R.styleable.PostView_date_color, 0);
+        int savedReplyColor = ta.getColor(R.styleable.PostView_saved_reply_color, 0);
+        int highlightedColor = ta.getColor(R.styleable.PostView_highlighted_color, 0);
+
+        ta.recycle();
 
         if (post.hasImage) {
             imageView.setVisibility(View.VISIBLE);
@@ -189,24 +188,17 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             titleView.setVisibility(View.GONE);
         }
 
-        if (!TextUtils.isEmpty(post.comment)) {
-            commentView.setVisibility(View.VISIBLE);
-            commentView.setText(post.comment);
+        commentView.setText(post.comment);
 
-            if (manager.getLoadable().isThreadMode()) {
-                commentView.setMovementMethod(new PostViewMovementMethod());
-            }
-
+        if (manager.getLoadable().isThreadMode()) {
+            post.setLinkableListener(this);
+            commentView.setMovementMethod(new PostViewMovementMethod());
             commentView.setOnClickListener(this);
-
-            if (manager.getLoadable().isThreadMode()) {
-                post.setLinkableListener(this);
-            }
         } else {
-            commentView.setVisibility(View.GONE);
-            commentView.setText("");
-            commentView.setOnClickListener(null);
             post.setLinkableListener(null);
+            commentView.setOnClickListener(null);
+            commentView.setClickable(false);
+            commentView.setMovementMethod(null);
         }
 
         if (isGrid() || ((post.isOP && boardCatalogMode && post.replies > 0) || (post.repliesFrom.size() > 0))) {
@@ -276,18 +268,8 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         }
     }
 
-    private void init() {
-        TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
-        thumbnailBackground = ta.getColor(R.styleable.PostView_thumbnail_background, 0);
-        savedReplyColor = ta.getColor(R.styleable.PostView_saved_reply_color, 0);
-        highlightedColor = ta.getColor(R.styleable.PostView_highlighted_color, 0);
-        replyCountColor = ta.getColor(R.styleable.PostView_reply_count_color, 0);
-        dateColor = ta.getColor(R.styleable.PostView_date_color, 0);
-        ta.recycle();
-    }
-
-    private void parseSpans(Post post) {
-        TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
+    private void parseSpans(Post post, TypedArray ta) {
+        int detailSize = ta.getDimensionPixelSize(R.styleable.PostView_detail_size, 0);
 
         if (!TextUtils.isEmpty(post.subject)) {
             post.subjectSpan = new SpannableString(post.subject);
@@ -305,7 +287,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         if (!TextUtils.isEmpty(post.tripcode)) {
             post.tripcodeSpan = new SpannableString(post.tripcode);
             post.tripcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.tripcodeSpan.length(), 0);
-            post.tripcodeSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, post.tripcodeSpan.length(), 0);
+            post.tripcodeSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.tripcodeSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.id)) {
@@ -324,48 +306,51 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
             post.idSpan.setSpan(new ForegroundColorSpan(idColor), 0, post.idSpan.length(), 0);
             post.idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, post.idSpan.length(), 0);
-            post.idSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.idSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.capcode)) {
             post.capcodeSpan = new SpannableString("Capcode: " + post.capcode);
             post.capcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_capcode_color, 0)), 0, post.capcodeSpan.length(), 0);
-            post.capcodeSpan.setSpan(new AbsoluteSizeSpan(10, true), 0, post.capcodeSpan.length(), 0);
+            post.capcodeSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.capcodeSpan.length(), 0);
         }
-
-        ta.recycle();
     }
 
-    private void buildView(final Context context) {
-        if (isBuild)
-            return;
-        isBuild = true;
+    private void buildView(final Context context, TypedArray ta) {
+        int thumbnailBackground = ta.getColor(R.styleable.PostView_thumbnail_background, 0);
+        int replyCountColor = ta.getColor(R.styleable.PostView_reply_count_color, 0);
 
-        Resources resources = context.getResources();
-        int postPadding = 0;
-        if (isList()) {
-            postPadding = resources.getDimensionPixelSize(R.dimen.post_padding);
-        } else if (isGrid()) {
-            postPadding = resources.getDimensionPixelSize(R.dimen.post_padding_grid);
-        }
-        int commentPadding = 0;
-        if (isList()) {
-            commentPadding = resources.getDimensionPixelSize(R.dimen.post_comment_padding);
-        } else if (isGrid()) {
-            commentPadding = resources.getDimensionPixelSize(R.dimen.post_comment_padding_grid);
-        }
-        int iconPadding = resources.getDimensionPixelSize(R.dimen.post_icon_padding);
-        int iconWidth = resources.getDimensionPixelSize(R.dimen.post_icon_width);
-        int iconHeight = resources.getDimensionPixelSize(R.dimen.post_icon_height);
-        int imageSize = resources.getDimensionPixelSize(R.dimen.thumbnail_size);
-        int gridHeight = resources.getDimensionPixelSize(R.dimen.post_grid_height);
-        int gridImageHeight = resources.getDimensionPixelSize(R.dimen.post_grid_image_height);
+        int iconPadding = ta.getDimensionPixelSize(R.styleable.PostView_icon_padding, 0);
+        int iconWidth = ta.getDimensionPixelSize(R.styleable.PostView_icon_width, 0);
+        int iconHeight = ta.getDimensionPixelSize(R.styleable.PostView_icon_height, 0);
+        int gridHeight = ta.getDimensionPixelSize(R.styleable.PostView_grid_height, 0);
+        int optionsSpacing = ta.getDimensionPixelSize(R.styleable.PostView_options_spacing, 0);
+        int titleSize = ta.getDimensionPixelSize(R.styleable.PostView_title_size, 0);
+        int optionsLeftPadding = ta.getDimensionPixelSize(R.styleable.PostView_options_left_padding, 0);
+        int optionsTopPadding = ta.getDimensionPixelSize(R.styleable.PostView_options_top_padding, 0);
+        int optionsRightPadding = ta.getDimensionPixelSize(R.styleable.PostView_options_right_padding, 0);
+        int optionsBottomPadding = ta.getDimensionPixelSize(R.styleable.PostView_options_bottom_padding, 0);
+        int lastSeenHeight = ta.getDimensionPixelSize(R.styleable.PostView_last_seen_height, 0);
+
+        int postListMaxHeight = ta.getDimensionPixelSize(R.styleable.PostView_list_comment_max_height, 0);
 
         int postCommentSize = 0;
+        int commentPadding = 0;
+        int postPadding = 0;
+        int imageSize = 0;
+        int repliesCountSize = 0;
         if (isList()) {
-            postCommentSize = resources.getDimensionPixelSize(R.dimen.post_comment_text);
+            postCommentSize = ta.getDimensionPixelSize(R.styleable.PostView_list_comment_size, 0);
+            commentPadding = ta.getDimensionPixelSize(R.styleable.PostView_list_comment_padding, 0);
+            postPadding = ta.getDimensionPixelSize(R.styleable.PostView_list_padding, 0);
+            imageSize = ta.getDimensionPixelSize(R.styleable.PostView_list_image_size, 0);
+            repliesCountSize = ta.getDimensionPixelSize(R.styleable.PostView_list_replies_count_size, 0);
         } else if (isGrid()) {
-            postCommentSize = resources.getDimensionPixelSize(R.dimen.post_comment_text_grid);
+            postCommentSize = ta.getDimensionPixelSize(R.styleable.PostView_grid_comment_size, 0);
+            commentPadding = ta.getDimensionPixelSize(R.styleable.PostView_grid_comment_padding, 0);
+            postPadding = ta.getDimensionPixelSize(R.styleable.PostView_grid_padding, 0);
+            imageSize = ta.getDimensionPixelSize(R.styleable.PostView_grid_image_size, 0);
+            repliesCountSize = ta.getDimensionPixelSize(R.styleable.PostView_grid_replies_count_size, 0);
         }
 
         RelativeLayout wrapper = new RelativeLayout(context);
@@ -401,7 +386,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             full.addView(imageContainer, wrapMatchParams);
             full.setMinimumHeight(imageSize);
         } else if (isGrid()) {
-            imageContainer.addView(imageView, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, gridImageHeight));
+            imageContainer.addView(imageView, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, imageSize));
             full.addView(imageContainer, matchWrapParams);
         }
 
@@ -413,11 +398,11 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
         if (isList()) {
             // 25 padding to give optionsView some space
-            titleContainer.setPadding(0, 0, Utils.dp(25), 0);
+            titleContainer.setPadding(0, 0, optionsSpacing, 0);
         }
 
         titleView = new TextView(context);
-        titleView.setTextSize(14);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleSize);
         titleView.setPadding(postPadding, postPadding, postPadding, 0);
 
         titleContainer.addView(titleView, wrapParams);
@@ -449,14 +434,12 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             commentView.setPadding(postPadding, commentPadding, postPadding, commentPadding);
 
             if (manager.getLoadable().isBoardMode() || manager.getLoadable().isCatalogMode()) {
-                int maxHeight = context.getResources().getDimensionPixelSize(R.dimen.post_max_height);
-                commentView.setMaxHeight(maxHeight);
+                commentView.setMaxHeight(postListMaxHeight);
             }
         } else if (isGrid()) {
             commentView.setPadding(postPadding, commentPadding, postPadding, 0);
             // So that is fills up all the height using weight later on
             commentView.setMinHeight(10000);
-            commentView.setEllipsize(TextUtils.TruncateAt.END);
         }
 
         if (isList()) {
@@ -469,18 +452,14 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         Utils.setPressedDrawable(repliesCountView);
         repliesCountView.setTextColor(replyCountColor);
         repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
-        if (isList()) {
-            repliesCountView.setTextSize(14);
-        } else if (isGrid()) {
-            repliesCountView.setTextSize(11);
-        }
+        repliesCountView.setTextSize(TypedValue.COMPLEX_UNIT_PX, repliesCountSize);
         repliesCountView.setSingleLine();
 
         contentContainer.addView(repliesCountView, wrapParams);
 
         lastSeen = new View(context);
         lastSeen.setBackgroundColor(0xffff0000);
-        contentContainer.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(6f)));
+        contentContainer.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, lastSeenHeight));
 
         if (!manager.getLoadable().isThreadMode()) {
             Utils.setPressedDrawable(contentContainer);
@@ -491,7 +470,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         optionsView = new ImageView(context);
         optionsView.setImageResource(R.drawable.ic_overflow);
         Utils.setPressedDrawable(optionsView);
-        optionsView.setPadding(Utils.dp(15), Utils.dp(5), Utils.dp(5), Utils.dp(15));
+        optionsView.setPadding(optionsLeftPadding, optionsTopPadding, optionsRightPadding, optionsBottomPadding);
         optionsView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {

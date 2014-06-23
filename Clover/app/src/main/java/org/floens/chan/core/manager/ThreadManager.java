@@ -506,7 +506,7 @@ public class ThreadManager implements Loader.LoaderListener {
     private void deletePost(final Post post) {
         final CheckBox view = new CheckBox(activity);
         view.setText(R.string.delete_image_only);
-        int padding = activity.getResources().getDimensionPixelSize(R.dimen.general_padding);
+        int padding = Utils.dp(12f);
         view.setPadding(padding, padding, padding, padding);
 
         new AlertDialog.Builder(activity).setTitle(R.string.delete_confirm).setView(view)

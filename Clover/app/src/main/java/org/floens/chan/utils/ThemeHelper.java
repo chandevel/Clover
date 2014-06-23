@@ -101,6 +101,7 @@ public class ThemeHelper {
     public int getSpoilerColor() {
         return spoilerColor;
     }
+
     public int getInlineQuoteColor() {
         return inlineQuoteColor;
     }
