@@ -24,7 +24,9 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 
@@ -86,6 +88,10 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     }
 
     private void processPosts(List<Post> posts) {
+        boolean anonymize = ChanPreferences.getAnonymize();
+        boolean anonymizeIds = ChanPreferences.getAnonymizeIds();
+        String name = ChanApplication.getInstance().getString(R.string.default_name);
+
         for (Post post : posts) {
             post.repliesFrom.clear();
 
@@ -96,6 +102,16 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             }
 
             post.isSavedReply = ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no);
+
+            if (anonymize) {
+                post.name = name;
+                post.email = "";
+                post.tripcode = "";
+            }
+
+            if (anonymizeIds) {
+                post.id = "";
+            }
         }
     }
 

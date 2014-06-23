@@ -46,6 +46,22 @@ public class AdvancedSettingsActivity extends PreferenceActivity {
                     return true;
                 }
             });
+
+            findPreference("preference_anonymize").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+                    BaseActivity.doRestartOnResume = true;
+                    return true;
+                }
+            });
+
+            findPreference("preference_anonymize_ids").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(final Preference preference, final Object newValue) {
+                    BaseActivity.doRestartOnResume = true;
+                    return true;
+                }
+            });
         }
     }
 }

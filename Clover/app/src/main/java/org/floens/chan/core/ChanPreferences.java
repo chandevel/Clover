@@ -137,4 +137,12 @@ public class ChanPreferences {
     public static void setBoardViewMode(String mode) {
         p().edit().putString("preference_board_view_mode", mode).commit();
     }
+
+    public static boolean getAnonymize() {
+        return p().getBoolean("preference_anonymize", false);
+    }
+
+    public static boolean getAnonymizeIds() {
+        return p().getBoolean("preference_anonymize_ids", false);
+    }
 }

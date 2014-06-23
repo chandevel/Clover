@@ -156,6 +156,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="preference_licences_summary">Legal information about licenses</string>
     <string name="preference_developer">Developer options</string>
 
+    <string name="preference_anonymize">Make everyone Anonymous</string>
+    <string name="preference_anonymize_ids">Hide IDs</string>
+
     <string name="open_link_confirmation">Open link?</string>
     <string name="open_thread_confirmation">Open this thread?</string>
 
@@ -205,6 +208,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_select_add">Add more&#8230;</string>
 
     <string name="settings_advanced_label">Advanced settings</string>
+
+    <string name="default_name">Anonymous</string>
 </resources>
 
 
