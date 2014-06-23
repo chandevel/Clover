@@ -30,12 +30,14 @@ import org.floens.chan.core.model.PostLinkable.Type;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.utils.ThemeHelper;
 import org.jsoup.Jsoup;
+import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.select.NodeTraversor;
+import org.jsoup.select.NodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -218,11 +220,11 @@ public class Post {
                     return quote;
                 }
                 case "a": {
-                    CharSequence anchor = parseAnchor((Element)node);
+                    CharSequence anchor = parseAnchor((Element) node);
                     if (anchor != null) {
                         return anchor;
                     } else {
-                        return ((Element)node).text();
+                        return ((Element) node).text();
                     }
                 }
                 case "s": {
@@ -241,9 +243,8 @@ public class Post {
 
                     Set<String> classes = pre.classNames();
                     if (classes.contains("prettyprint")) {
-                        String clean = Jsoup.clean(pre.html(), "", new Whitelist().addTags("br"), new Document.OutputSettings().prettyPrint(false));
-                        clean = clean.replace("<br />", "\n");
-                        SpannableString monospace = new SpannableString(clean);
+                        String text = getNodeText(pre);
+                        SpannableString monospace = new SpannableString(text);
                         monospace.setSpan(new TypefaceSpan("monospace"), 0, monospace.length(), 0);
                         monospace.setSpan(new AbsoluteSizeSpan(ThemeHelper.getInstance().getCodeTagSize()), 0, monospace.length(), 0);
                         return monospace;
@@ -376,5 +377,66 @@ public class Post {
 
     private boolean isWhitespace(char c) {
         return Character.isWhitespace(c) || c == '>'; // consider > as a link separator
+    }
+
+    // Below code taken from org.jsoup.nodes.Element.text(), but it preserves <br>
+    private String getNodeText(Element node) {
+        final StringBuilder accum = new StringBuilder();
+        new NodeTraversor(new NodeVisitor() {
+            public void head(Node node, int depth) {
+                if (node instanceof TextNode) {
+                    TextNode textNode = (TextNode) node;
+                    appendNormalisedText(accum, textNode);
+                } else if (node instanceof Element) {
+                    Element element = (Element) node;
+                    if (accum.length() > 0 &&
+                            element.isBlock() &&
+                            !lastCharIsWhitespace(accum))
+                        accum.append(" ");
+
+                    if (element.tag().getName().equals("br")) {
+                        accum.append("\n");
+                    }
+                }
+            }
+
+            public void tail(Node node, int depth) {
+            }
+        }).traverse(node);
+        return accum.toString().trim();
+    }
+
+    private static boolean lastCharIsWhitespace(StringBuilder sb) {
+        return sb.length() != 0 && sb.charAt(sb.length() - 1) == ' ';
+    }
+
+    private static void appendNormalisedText(StringBuilder accum, TextNode textNode) {
+        String text = textNode.getWholeText();
+
+        if (!preserveWhitespace(textNode.parent())) {
+            text = normaliseWhitespace(text);
+            if (lastCharIsWhitespace(accum))
+                text = stripLeadingWhitespace(text);
+        }
+        accum.append(text);
+    }
+
+    private static String normaliseWhitespace(String text) {
+        text = StringUtil.normaliseWhitespace(text);
+        return text;
+    }
+
+    private static String stripLeadingWhitespace(String text) {
+        return text.replaceFirst("^\\s+", "");
+    }
+
+    private static boolean preserveWhitespace(Node node) {
+        // looks only at this element and one level up, to prevent recursion & needless stack searches
+        if (node != null && node instanceof Element) {
+            Element element = (Element) node;
+            return element.tag().preserveWhitespace() ||
+                    element.parent() != null && element.parent().tag().preserveWhitespace();
+        }
+        return false;
     }
 }
