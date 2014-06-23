@@ -40,6 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_board_view_mode">View mode</string>
     <string name="action_board_view_mode_list">List</string>
     <string name="action_board_view_mode_grid">Grid</string>
+    <string name="action_settings_advanced">Advanced</string>
 
     <string name="open_unknown_title">Unsupported link</string>
     <string name="open_unknown">Clover can\'t open this link. Opening it in your browser instead.</string>
@@ -201,6 +202,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="download_confirm">COUNT images will be downloaded to FOLDER</string>
 
     <string name="board_select_add">Add more&#8230;</string>
+
+    <string name="settings_advanced_label">Advanced settings</string>
 </resources>
 
 

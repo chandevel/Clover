@@ -134,6 +134,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </activity>
         <activity android:name="org.floens.chan.ui.activity.DeveloperActivity">
         </activity>
+        <activity
+            android:name="org.floens.chan.ui.activity.AdvancedSettingsActivity"
+            android:label="@string/settings_advanced_label"
+            android:parentActivityName="org.floens.chan.ui.activity.BoardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.floens.chan.ui.activity.BoardActivity"/>
+        </activity>
 
         <service
             android:name=".ui.service.WatchNotifier"

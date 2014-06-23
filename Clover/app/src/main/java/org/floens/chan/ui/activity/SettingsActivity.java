@@ -20,7 +20,10 @@ package org.floens.chan.ui.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
+import org.floens.chan.R;
 import org.floens.chan.ui.fragment.SettingsFragment;
 import org.floens.chan.utils.ThemeHelper;
 
@@ -59,6 +62,23 @@ public class SettingsActivity extends Activity {
             lastTheme = ThemeHelper.getInstance().getTheme();
 
             BaseActivity.doRestartOnResume = true;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.settings, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        if (item.getItemId() == R.id.action_settings_advanced) {
+            startActivity(new Intent(this, AdvancedSettingsActivity.class));
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 }

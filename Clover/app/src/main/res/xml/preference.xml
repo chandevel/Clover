@@ -72,11 +72,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:key="preference_autoplay"
             android:dependency="preference_image_auto_load"
             android:title="@string/preference_autoplay"/>
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="preference_force_phone_layout"
-            android:title="@string/preference_force_phone_layout"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/preference_posting">
