@@ -146,6 +146,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
      */
     public void removePin(Pin pin) {
         pins.remove(pin);
+        pin.destroyWatcher();
         ChanApplication.getDatabaseManager().removePin(pin);
 
         onPinsChanged();
