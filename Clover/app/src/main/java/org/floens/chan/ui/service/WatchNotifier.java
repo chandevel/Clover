@@ -207,7 +207,11 @@ public class WatchNotifier extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setContentIntent(pendingIntent);
 
-        builder.setTicker(tickerText.subSequence(0, Math.min(tickerText.length(), 50)));
+        if (tickerText != null) {
+            tickerText = tickerText.substring(0, Math.min(tickerText.length(), 50));
+        }
+
+        builder.setTicker(tickerText);
         builder.setContentTitle(title);
         builder.setContentText(content);
         builder.setContentInfo(count);
