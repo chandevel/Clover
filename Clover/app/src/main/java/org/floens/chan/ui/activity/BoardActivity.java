@@ -670,8 +670,9 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         public View getView(final int position, View convertView, final ViewGroup parent) {
             switch (getItemViewType(position)) {
                 case VIEW_TYPE_ITEM: {
-                    if (convertView == null) {
+                    if (convertView == null || (Integer)convertView.getTag() != VIEW_TYPE_ITEM) {
                         convertView = LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
+                        convertView.setTag(VIEW_TYPE_ITEM);
                     }
 
                     TextView textView = (TextView) convertView;
@@ -679,8 +680,9 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                     return textView;
                 }
                 case VIEW_TYPE_ADD: {
-                    if (convertView == null) {
+                    if (convertView == null || (Integer)convertView.getTag() != VIEW_TYPE_ADD) {
                         convertView = LayoutInflater.from(context).inflate(R.layout.board_select_add, null);
+                        convertView.setTag(VIEW_TYPE_ADD);
                     }
 
                     TextView textView = (TextView) convertView;
