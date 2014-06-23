@@ -52,7 +52,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         if (!TextUtils.isEmpty(post.subject)) {
             return post.subject;
         } else if (!TextUtils.isEmpty(post.comment)) {
-            return post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
+            return "/" + post.board + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
         } else {
             return "/" + post.board + "/" + post.no;
         }
