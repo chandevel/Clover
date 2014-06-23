@@ -19,8 +19,10 @@ package org.floens.chan.core.model;
 
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
+import android.text.style.TypefaceSpan;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanUrls;
@@ -33,6 +35,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
+import org.jsoup.safety.Whitelist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,65 +176,9 @@ public class Post {
             List<Node> nodes = document.body().childNodes();
 
             for (Node node : nodes) {
-                String nodeName = node.nodeName();
-
-                if (node instanceof TextNode) {
-                    String text = ((TextNode) node).text();
-                    SpannableString spannable = new SpannableString(text);
-
-                    detectLinks(text, spannable);
-
-                    total = TextUtils.concat(total, spannable);
-                } else {
-                    switch (nodeName) {
-                        case "br": {
-                            total = TextUtils.concat(total, "\n");
-                            break;
-                        }
-                        case "span": {
-                            Element span = (Element) node;
-
-                            SpannableString quote = new SpannableString(span.text());
-
-                            Set<String> classes = span.classNames();
-                            if (classes.contains("deadlink")) {
-                                quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getQuoteColor()), 0, quote.length(), 0);
-                                quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
-                            } else {
-                                quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getInlineQuoteColor()), 0, quote.length(), 0);
-                                detectLinks(span.text(), quote);
-                            }
-
-                            total = TextUtils.concat(total, quote);
-                            break;
-                        }
-                        case "a": {
-                            CharSequence anchor = parseAnchor((Element)node, total);
-                            if (anchor != null) {
-                                total = TextUtils.concat(total, anchor);
-                            }
-                            break;
-                        }
-                        case "s": {
-                            Element spoiler = (Element) node;
-
-                            SpannableString link = new SpannableString(spoiler.text());
-
-                            PostLinkable pl = new PostLinkable(this, spoiler.text(), spoiler.text(), Type.SPOILER);
-                            link.setSpan(pl, 0, link.length(), 0);
-                            linkables.add(pl);
-
-                            total = TextUtils.concat(total, link);
-                            break;
-                        }
-                        default: {
-                            // Unknown tag, add the inner part
-                            if (node instanceof Element) {
-                                total = TextUtils.concat(total, ((Element) node).text());
-                            }
-                            break;
-                        }
-                    }
+                CharSequence nodeParsed = parseNode(node);
+                if (nodeParsed != null) {
+                    total = TextUtils.concat(total, nodeParsed);
                 }
             }
         } catch (Exception e) {
@@ -241,7 +188,82 @@ public class Post {
         return total;
     }
 
-    private CharSequence parseAnchor(Element anchor, CharSequence total) {
+    private CharSequence parseNode(Node node) {
+        if (node instanceof TextNode) {
+            String text = ((TextNode) node).text();
+            SpannableString spannable = new SpannableString(text);
+
+            detectLinks(text, spannable);
+
+            return spannable;
+        } else {
+            switch (node.nodeName()) {
+                case "br": {
+                    return "\n";
+                }
+                case "span": {
+                    Element span = (Element) node;
+
+                    SpannableString quote = new SpannableString(span.text());
+
+                    Set<String> classes = span.classNames();
+                    if (classes.contains("deadlink")) {
+                        quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getQuoteColor()), 0, quote.length(), 0);
+                        quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
+                    } else {
+                        quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getInlineQuoteColor()), 0, quote.length(), 0);
+                        detectLinks(span.text(), quote);
+                    }
+
+                    return quote;
+                }
+                case "a": {
+                    CharSequence anchor = parseAnchor((Element)node);
+                    if (anchor != null) {
+                        return anchor;
+                    } else {
+                        return ((Element)node).text();
+                    }
+                }
+                case "s": {
+                    Element spoiler = (Element) node;
+
+                    SpannableString link = new SpannableString(spoiler.text());
+
+                    PostLinkable pl = new PostLinkable(this, spoiler.text(), spoiler.text(), Type.SPOILER);
+                    link.setSpan(pl, 0, link.length(), 0);
+                    linkables.add(pl);
+
+                    return link;
+                }
+                case "pre": {
+                    Element pre = (Element) node;
+
+                    Set<String> classes = pre.classNames();
+                    if (classes.contains("prettyprint")) {
+                        String clean = Jsoup.clean(pre.html(), "", new Whitelist().addTags("br"), new Document.OutputSettings().prettyPrint(false));
+                        clean = clean.replace("<br />", "\n");
+                        SpannableString monospace = new SpannableString(clean);
+                        monospace.setSpan(new TypefaceSpan("monospace"), 0, monospace.length(), 0);
+                        monospace.setSpan(new AbsoluteSizeSpan(ThemeHelper.getInstance().getCodeTagSize()), 0, monospace.length(), 0);
+                        return monospace;
+                    } else {
+                        return pre.text();
+                    }
+                }
+                default: {
+                    // Unknown tag, add the inner part
+                    if (node instanceof Element) {
+                        return ((Element) node).text();
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        }
+    }
+
+    private CharSequence parseAnchor(Element anchor) {
         String href = anchor.attr("href");
         Set<String> classes = anchor.classNames();
 

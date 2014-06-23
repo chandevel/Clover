@@ -122,6 +122,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="id_background_light">#ff636363</item>
         <item name="id_background_dark">#00000000</item>
         <item name="inline_quote_color">#ff789922</item>
+
+        <item name="code_tag_size">12sp</item>
     </style>
 
     <style name="BoardEditItem">

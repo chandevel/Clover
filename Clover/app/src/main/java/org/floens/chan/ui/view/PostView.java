@@ -134,6 +134,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         int dateColor = ta.getColor(R.styleable.PostView_date_color, 0);
         int savedReplyColor = ta.getColor(R.styleable.PostView_saved_reply_color, 0);
         int highlightedColor = ta.getColor(R.styleable.PostView_highlighted_color, 0);
+        int detailSize = ta.getDimensionPixelSize(R.styleable.PostView_detail_size, 0);
 
         ta.recycle();
 
@@ -177,7 +178,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
             SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);
             date.setSpan(new ForegroundColorSpan(dateColor), 0, date.length(), 0);
-            date.setSpan(new AbsoluteSizeSpan(10, true), 0, date.length(), 0);
+            date.setSpan(new AbsoluteSizeSpan(detailSize), 0, date.length(), 0);
             total = TextUtils.concat(total, date, " ");
         }
 

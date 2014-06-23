@@ -46,6 +46,7 @@ public class ThemeHelper {
     private int linkColor;
     private int spoilerColor;
     private int inlineQuoteColor;
+    private int codeTagSize;
 
     public static ThemeHelper getInstance() {
         if (instance == null) {
@@ -87,6 +88,7 @@ public class ThemeHelper {
         linkColor = ta.getColor(R.styleable.PostView_link_color, 0);
         spoilerColor = ta.getColor(R.styleable.PostView_spoiler_color, 0);
         inlineQuoteColor = ta.getColor(R.styleable.PostView_inline_quote_color, 0);
+        codeTagSize = ta.getDimensionPixelSize(R.styleable.PostView_code_tag_size, 0);
         ta.recycle();
     }
 
@@ -104,5 +106,9 @@ public class ThemeHelper {
 
     public int getInlineQuoteColor() {
         return inlineQuoteColor;
+    }
+
+    public int getCodeTagSize() {
+        return codeTagSize;
     }
 }

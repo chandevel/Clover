@@ -81,6 +81,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="grid_height" format="dimension"/>
         <attr name="grid_spacing" format="dimension"/>
 
+        <attr name="code_tag_size" format="dimension"/>
+
     </declare-styleable>
 
     <attr name="board_edit_item_style" format="reference"/>
