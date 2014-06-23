@@ -79,4 +79,8 @@ public class ChanUrls {
     public static String getPassUrl() {
         return "https://sys.4chan.org/auth";
     }
+
+    public static String getReportUrl(String board, int no) {
+        return "https://sys.4chan.org/" + board + "/imgboard.php?mode=report&no=" + no;
+    }
 }
