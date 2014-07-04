@@ -145,4 +145,8 @@ public class ChanPreferences {
     public static boolean getAnonymizeIds() {
         return p().getBoolean("preference_anonymize_ids", false);
     }
+
+    public static String getBoardMode() {
+        return p().getString("preference_board_mode", "catalog");
+    }
 }

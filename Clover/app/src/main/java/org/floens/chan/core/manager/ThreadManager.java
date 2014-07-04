@@ -145,12 +145,14 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public boolean shouldWatch() {
-        if (!ChanPreferences.getThreadAutoRefresh()) {
+        if (!loader.getLoadable().isThreadMode()) {
+            return false;
+        } else if (!ChanPreferences.getThreadAutoRefresh()) {
             return false;
         } else if (loader.getCachedPosts().size() > 0 && loader.getCachedPosts().get(0).closed) {
             return false;
         } else {
-            return loader.getLoadable().isThreadMode();
+            return true;
         }
     }
 

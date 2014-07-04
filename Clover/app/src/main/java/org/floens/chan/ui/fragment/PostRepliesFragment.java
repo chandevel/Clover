@@ -96,8 +96,8 @@ public class PostRepliesFragment extends DialogFragment {
         });
 
         if (!ThemeHelper.getInstance().getTheme().isLightTheme) {
-            ((TextView)container.findViewById(R.id.replies_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_back_dark, 0, 0, 0);
-            ((TextView)container.findViewById(R.id.replies_close_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_done_dark, 0, 0, 0);
+            ((TextView) container.findViewById(R.id.replies_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_back_dark, 0, 0, 0);
+            ((TextView) container.findViewById(R.id.replies_close_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_done_dark, 0, 0, 0);
         }
 
         return container;

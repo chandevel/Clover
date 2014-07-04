@@ -156,10 +156,10 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
                 }
             });
 
-            ((CheckBoxPreference)findPreference("preference_watch_background_enabled")).setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            ((CheckBoxPreference) findPreference("preference_watch_background_enabled")).setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(final Preference preference, final Object newValue) {
-                    ChanApplication.getWatchManager().onBackgroundWatchingChanged((Boolean)newValue);
+                    ChanApplication.getWatchManager().onBackgroundWatchingChanged((Boolean) newValue);
 
                     return true;
                 }

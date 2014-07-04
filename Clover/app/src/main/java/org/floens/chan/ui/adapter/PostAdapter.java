@@ -18,20 +18,24 @@
 package org.floens.chan.ui.adapter;
 
 import android.content.Context;
+import android.os.Handler;
+import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.ScrollerRunnable;
 import org.floens.chan.ui.view.PostView;
-import org.floens.chan.ui.view.ThreadWatchCounterView;
 import org.floens.chan.utils.Time;
 import org.floens.chan.utils.Utils;
 
@@ -39,6 +43,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostAdapter extends BaseAdapter {
+    private static final int VIEW_TYPE_ITEM = 0;
+    private static final int VIEW_TYPE_STATUS = 1;
+
     private final Context context;
     private final ThreadManager threadManager;
     private final AbsListView listView;
@@ -56,17 +63,30 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        if ((threadManager.getLoadable() != null && threadManager.getLoadable().isBoardMode())
-                || threadManager.shouldWatch()) {
-            return postList.size() + 1;
+        return postList.size() + (showStatusView() ? 1 : 0);
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (showStatusView()) {
+            return position == getCount() - 1 ? VIEW_TYPE_STATUS : VIEW_TYPE_ITEM;
         } else {
-            return postList.size();
+            return VIEW_TYPE_ITEM;
         }
     }
 
     @Override
     public Post getItem(int position) {
-        return postList.get(position);
+        if (position >= 0 && position < postList.size()) {
+            return postList.get(position);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -76,61 +96,59 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= getCount() - 1 && !endOfLine && threadManager.getLoadable().isBoardMode()) {
+        if (position >= getCount() - 1) {
+            onGetBottomView();
+        }
+
+        switch (getItemViewType(position)) {
+            case VIEW_TYPE_ITEM: {
+                if (convertView == null || convertView.getTag() == null && (Integer) convertView.getTag() != VIEW_TYPE_ITEM) {
+                    convertView = new PostView(context);
+                    convertView.setTag(VIEW_TYPE_ITEM);
+                }
+
+                PostView postView = (PostView) convertView;
+                postView.setPost(getItem(position), threadManager);
+
+                return postView;
+            }
+            case VIEW_TYPE_STATUS: {
+                return new StatusView(context);
+            }
+        }
+
+        return null;
+    }
+
+    private void onGetBottomView() {
+        if (threadManager.getLoadable().isBoardMode() && !endOfLine) {
             // Try to load more posts
             threadManager.requestNextData();
         }
 
-        if (position >= postList.size()) {
-            if (lastPostCount != postList.size()) {
-                lastPostCount = postList.size();
-                lastViewedTime = Time.get();
-            }
+        if (lastPostCount != postList.size()) {
+            lastPostCount = postList.size();
+            lastViewedTime = Time.get();
+        }
 
-            if (Time.get(lastViewedTime) > 2000L) {
-                lastViewedTime = Time.get();
-                threadManager.bottomPostViewed();
-            }
-
-            return createThreadEndView();
-        } else {
-            PostView postView = null;
-
-            if (position >= 0 && position < postList.size()) {
-                if (convertView != null && convertView instanceof PostView) {
-                    postView = (PostView) convertView;
-                } else {
-                    postView = new PostView(context);
-                }
-
-                postView.setPost(postList.get(position), threadManager);
-            }
-
-            return postView;
+        if (Time.get(lastViewedTime) > 1000L) {
+            lastViewedTime = Time.get();
+            threadManager.bottomPostViewed();
         }
     }
 
-    private View createThreadEndView() {
-        if (threadManager.shouldWatch()) {
-            ThreadWatchCounterView view = new ThreadWatchCounterView(context);
-            Utils.setPressedDrawable(view);
-            view.init(threadManager, listView, this);
-            int padding = Utils.dp(12f);
-            view.setPadding(padding, padding, padding, padding);
-            int height = Utils.dp(48f);
-            view.setHeight(height);
-            view.setGravity(Gravity.CENTER);
-            return view;
-        } else {
-            if (endOfLine) {
-                TextView textView = new TextView(context);
-                textView.setText(context.getString(R.string.thread_load_end_of_line));
-                int padding = Utils.dp(12f);
-                textView.setPadding(padding, padding, padding, padding);
-                return textView;
+    private boolean showStatusView() {
+        Loadable l = threadManager.getLoadable();
+        if (l != null) {
+            if (l.isBoardMode()) {
+                return true;
+            } else if (l.isThreadMode() && threadManager.shouldWatch()) {
+                return true;
             } else {
-                return new ProgressBar(context);
+                return false;
             }
+        } else {
+            return false;
         }
     }
 
@@ -192,5 +210,92 @@ public class PostAdapter extends BaseAdapter {
 
     public String getErrorMessage() {
         return loadMessage;
+    }
+
+    public class StatusView extends LinearLayout {
+        boolean detached = false;
+
+        public StatusView(Context activity) {
+            super(activity);
+            init();
+        }
+
+        public StatusView(Context activity, AttributeSet attr) {
+            super(activity, attr);
+            init();
+        }
+
+        public StatusView(Context activity, AttributeSet attr, int style) {
+            super(activity, attr, style);
+            init();
+        }
+
+        public void init() {
+            Loader loader = threadManager.getLoader();
+            if (loader == null)
+                return;
+
+            setGravity(Gravity.CENTER);
+
+            if (threadManager.shouldWatch()) {
+                String error = getErrorMessage();
+                if (error != null) {
+                    setText(error);
+                } else {
+                    int time = Math.round(loader.getTimeUntilLoadMore() / 1000f);
+                    if (time == 0) {
+                        setText("Loading");
+                    } else {
+                        setText("Loading in " + time);
+                    }
+                }
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!detached) {
+                            notifyDataSetChanged();
+                        }
+                    }
+                }, 1000);
+
+                setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Loader loader = threadManager.getLoader();
+                        if (loader != null) {
+                            loader.requestMoreDataAndResetTimer();
+                        }
+
+                        notifyDataSetChanged();
+                    }
+                });
+
+                Utils.setPressedDrawable(this);
+            } else {
+                if (endOfLine) {
+                    setText(context.getString(R.string.thread_load_end_of_line));
+                } else {
+                    setProgressBar();
+                }
+            }
+        }
+
+        @Override
+        protected void onDetachedFromWindow() {
+            super.onDetachedFromWindow();
+            detached = true;
+        }
+
+        private void setText(String string) {
+            TextView text = new TextView(context);
+            text.setText(string);
+            text.setGravity(Gravity.CENTER);
+            addView(text, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(48)));
+        }
+
+        private void setProgressBar() {
+            addView(new ProgressBar(context));
+        }
     }
 }

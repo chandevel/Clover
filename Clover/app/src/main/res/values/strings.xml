@@ -141,6 +141,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>black</item>
     </string-array>
 
+    <string name="preference_board_mode">Board mode</string>
+    <string-array name="preference_board_modes">
+        <item>Catalog</item>
+        <item>Paginated</item>
+    </string-array>
+    <string-array name="preference_board_modes_values">
+        <item>catalog</item>
+        <item>pages</item>
+    </string-array>
+
     <string name="preference_open_link_confirmation">Ask before opening links</string>
     <string name="preference_autoplay">Start playing videos immediately</string>
     <string name="preference_auto_refresh_thread">Auto refresh threads</string>

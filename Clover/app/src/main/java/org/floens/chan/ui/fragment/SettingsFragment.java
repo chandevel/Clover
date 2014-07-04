@@ -32,6 +32,7 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.ui.activity.AboutActivity;
+import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.SettingsActivity;
 import org.floens.chan.utils.ThemeHelper;
 
@@ -100,12 +101,12 @@ public class SettingsFragment extends PreferenceFragment {
             theme.setValue((String) theme.getEntryValues()[0]);
             currentValue = theme.getValue();
         }
-        updateThemeSummary(theme, currentValue);
+        updateSummary(theme, currentValue);
 
         theme.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                updateThemeSummary(theme, newValue.toString());
+                updateSummary(theme, newValue.toString());
 
                 // Thanks! https://github.com/CyanogenMod/android_packages_apps_Calculator/blob/cm-10.2/src/com/android/calculator2/view/PreferencesFragment.java
                 if (!newValue.toString().equals(ThemeHelper.getInstance().getTheme().name)) {
@@ -118,6 +119,22 @@ public class SettingsFragment extends PreferenceFragment {
                     ((SettingsActivity) getActivity()).restart(intent);
                 }
 
+                return true;
+            }
+        });
+
+        final ListPreference boardMode = (ListPreference) findPreference("preference_board_mode");
+        String currentModeValue = boardMode.getValue();
+        if (currentModeValue == null) {
+            boardMode.setValue((String) boardMode.getEntryValues()[0]);
+            currentModeValue = boardMode.getValue();
+        }
+        updateSummary(boardMode, currentModeValue);
+        boardMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                updateSummary(boardMode, newValue.toString());
+                BaseActivity.doRestartOnResume = true;
                 return true;
             }
         });
@@ -162,7 +179,7 @@ public class SettingsFragment extends PreferenceFragment {
         }
     }
 
-    private void updateThemeSummary(ListPreference list, String value) {
+    private void updateSummary(ListPreference list, String value) {
         int index = list.findIndexOfValue(value);
         list.setSummary(list.getEntries()[index]);
     }

@@ -498,8 +498,11 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         boardLoadable = loadable;
 
-        // TODO: make this an option
-        boardLoadable.mode = Loadable.Mode.CATALOG;
+        if (ChanPreferences.getBoardMode().equals("catalog")) {
+            boardLoadable.mode = Loadable.Mode.CATALOG;
+        } else if (ChanPreferences.getBoardMode().equals("pages")) {
+            boardLoadable.mode = Loadable.Mode.BOARD;
+        }
 
         boardFragment.bindLoadable(loadable);
         boardFragment.requestData();
@@ -670,7 +673,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         public View getView(final int position, View convertView, final ViewGroup parent) {
             switch (getItemViewType(position)) {
                 case VIEW_TYPE_ITEM: {
-                    if (convertView == null || (Integer)convertView.getTag() != VIEW_TYPE_ITEM) {
+                    if (convertView == null || (Integer) convertView.getTag() != VIEW_TYPE_ITEM) {
                         convertView = LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
                         convertView.setTag(VIEW_TYPE_ITEM);
                     }
@@ -680,7 +683,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                     return textView;
                 }
                 case VIEW_TYPE_ADD: {
-                    if (convertView == null || (Integer)convertView.getTag() != VIEW_TYPE_ADD) {
+                    if (convertView == null || (Integer) convertView.getTag() != VIEW_TYPE_ADD) {
                         convertView = LayoutInflater.from(context).inflate(R.layout.board_select_add, null);
                         convertView.setTag(VIEW_TYPE_ADD);
                     }
