@@ -20,6 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="48dp"
     android:orientation="horizontal">
 
+    <org.floens.chan.ui.view.CustomNetworkImageView
+        android:id="@+id/pin_image"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
     <TextView
         android:id="@+id/pin_text"
         android:layout_width="0dp"

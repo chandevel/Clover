@@ -129,6 +129,10 @@ public class PinWatcher implements Loader.LoaderListener {
     public void onData(List<Post> result, boolean append) {
         pin.isError = false;
 
+        if (pin.opPost == null && result.size() > 0) {
+            pin.opPost = result.get(0);
+        }
+
         posts.clear();
         posts.addAll(result);
 

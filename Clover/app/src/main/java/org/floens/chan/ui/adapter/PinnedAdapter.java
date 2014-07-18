@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.ui.view.CustomNetworkImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,13 +109,24 @@ public class PinnedAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         switch (getItemViewType(position)) {
             case VIEW_TYPE_ITEM: {
-                final Pin item = getItem(position);
+                final Pin pin = getItem(position);
 
                 if (convertView == null) {
                     convertView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.pin_item, null);
                 }
 
-                ((TextView) convertView.findViewById(R.id.pin_text)).setText(item.loadable.title);
+                CustomNetworkImageView imageView = (CustomNetworkImageView) convertView.findViewById(R.id.pin_image);
+                if (pin.opPost != null && pin.opPost.hasImage) {
+                    imageView.setVisibility(View.VISIBLE);
+                    imageView.setFadeIn(100);
+                    if (imageView.getUrl() == null || !imageView.getUrl().equals(pin.opPost.thumbnailUrl)) {
+                        imageView.setImageUrl(pin.opPost.thumbnailUrl, ChanApplication.getImageLoader());
+                    }
+                } else {
+                    imageView.setVisibility(View.GONE);
+                }
+
+                ((TextView) convertView.findViewById(R.id.pin_text)).setText(pin.loadable.title);
 
                 FrameLayout timeContainer = (FrameLayout) convertView.findViewById(R.id.pin_time_container);
                 FrameLayout countContainer = (FrameLayout) convertView.findViewById(R.id.pin_count_container);
@@ -121,10 +134,9 @@ public class PinnedAdapter extends BaseAdapter {
                     countContainer.setVisibility(View.VISIBLE);
 
                     TextView timeView = (TextView) convertView.findViewById(R.id.pin_time);
-
-                    if (item.watching && item.getPinWatcher() != null) {
+                    if (pin.watching && pin.getPinWatcher() != null) {
                         timeContainer.setVisibility(View.VISIBLE);
-                        long timeRaw = item.getPinWatcher().getTimeUntilNextLoad();
+                        long timeRaw = pin.getPinWatcher().getTimeUntilNextLoad();
                         long time = 0;
                         if (timeRaw > 0) {
                             time = timeRaw / 1000L;
@@ -141,10 +153,10 @@ public class PinnedAdapter extends BaseAdapter {
                     TextView countView = (TextView) convertView.findViewById(R.id.pin_count);
                     ProgressBar loadView = (ProgressBar) convertView.findViewById(R.id.pin_load);
 
-                    if (item.isError) {
+                    if (pin.isError) {
                         countView.setText("Err");
                     } else {
-                        int count = item.getNewPostsCount();
+                        int count = pin.getNewPostsCount();
                         String total = Integer.toString(count);
                         if (count > 999) {
                             total = "1k+";
@@ -152,7 +164,7 @@ public class PinnedAdapter extends BaseAdapter {
                         countView.setText(total);
                     }
 
-                    if (item.getPinWatcher() != null && item.getPinWatcher().isLoading()) {
+                    if (pin.getPinWatcher() != null && pin.getPinWatcher().isLoading()) {
                         countView.setVisibility(View.GONE);
                         loadView.setVisibility(View.VISIBLE);
                     } else {
@@ -163,13 +175,13 @@ public class PinnedAdapter extends BaseAdapter {
                     countView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            item.toggleWatch();
+                            pin.toggleWatch();
                         }
                     });
 
-                    if (!item.watching) {
+                    if (!pin.watching) {
                         countContainer.setBackgroundResource(R.drawable.pin_icon_gray);
-                    } else if (item.getNewQuoteCount() > 0) {
+                    } else if (pin.getNewQuoteCount() > 0) {
                         countContainer.setBackgroundResource(R.drawable.pin_icon_red);
                     } else {
                         countContainer.setBackgroundResource(R.drawable.pin_icon_blue);

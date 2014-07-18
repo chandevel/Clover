@@ -515,13 +515,10 @@ public class ReplyFragment extends DialogFragment {
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
             Toast.makeText(context, R.string.reply_success, Toast.LENGTH_SHORT).show();
-            // threadFragment.reload(); // won't work: it takes 4chan a variable time to process the reply
 
             // Pin thread on successful post
             if (loadable.isThreadMode()) {
-                Pin pin = new Pin();
-                pin.loadable = loadable;
-                ChanApplication.getWatchManager().addPin(pin);
+                ChanApplication.getWatchManager().addPin(loadable);
             }
 
             closeReply();

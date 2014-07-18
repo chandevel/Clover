@@ -45,6 +45,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
@@ -214,7 +215,9 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
     @Override
     public void onOPClicked(Post post) {
-        startLoadingThread(new Loadable(post.board, post.no, WatchManager.generateTitle(post)));
+        Loadable l = new Loadable(post.board, post.no);
+        l.generateTitle(post);
+        startLoadingThread(l);
     }
 
     @Override
@@ -225,7 +228,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     @Override
     public void onThreadLoaded(Loadable loadable, List<Post> posts) {
         if (loadable.isThreadMode() && TextUtils.isEmpty(threadLoadable.title) && posts.size() > 0) {
-            threadLoadable.title = WatchManager.generateTitle(posts.get(0));
+            threadLoadable.generateTitle(posts.get(0));
             updateActionBarState();
         }
     }
@@ -313,6 +316,16 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         threadPane.requestLayout();
         left.requestLayout();
         right.requestLayout();
+
+        LayoutParams drawerParams = pinDrawerView.getLayoutParams();
+
+        if (width < Utils.dp(340)) {
+            drawerParams.width = Utils.dp(280);
+        } else {
+            drawerParams.width = Utils.dp(320);
+        }
+
+        pinDrawerView.setLayoutParams(drawerParams);
 
         updateActionBarState();
 
@@ -439,12 +452,11 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                 return true;
             case R.id.action_pin:
                 if (threadFragment.hasLoader()) {
-                    Pin pin = new Pin();
-                    pin.loadable = threadLoadable;
-
-                    addPin(pin);
-
-                    pinDrawer.openDrawer(pinDrawerView);
+                    Loader loader = threadFragment.getLoader();
+                    if (loader.getCachedPosts().size() > 0) {
+                        ChanApplication.getWatchManager().addPin(loader.getCachedPosts().get(0));
+                        pinDrawer.openDrawer(pinDrawerView);
+                    }
                 }
 
                 return true;

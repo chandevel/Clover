@@ -48,16 +48,6 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private PendingTimer pendingTimer;
 
-    public static String generateTitle(Post post) {
-        if (!TextUtils.isEmpty(post.subject)) {
-            return post.subject;
-        } else if (!TextUtils.isEmpty(post.comment)) {
-            return "/" + post.board + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
-        } else {
-            return "/" + post.board + "/" + post.no;
-        }
-    }
-
     public WatchManager(Context context) {
         this.context = context;
 
@@ -137,6 +127,24 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         onPinsChanged();
 
         return true;
+    }
+
+    public boolean addPin(Loadable loadable) {
+        Pin pin = new Pin();
+        if (!TextUtils.isEmpty(loadable.title)) {
+            pin.loadable = new Loadable(loadable.board, loadable.no, loadable.title);
+        } else {
+            pin.loadable = new Loadable(loadable.board, loadable.no);
+        }
+        return addPin(pin);
+    }
+
+    public boolean addPin(Post opPost) {
+        Pin pin = new Pin();
+        pin.loadable = new Loadable(opPost.board, opPost.no);
+        pin.loadable.generateTitle(opPost);
+        pin.opPost = opPost;
+        return addPin(pin);
     }
 
     /**

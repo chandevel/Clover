@@ -230,10 +230,6 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         }
     }
 
-    public void addPin(Pin pin) {
-        ChanApplication.getWatchManager().addPin(pin);
-    }
-
     public void removePin(Pin pin) {
         ChanApplication.getWatchManager().removePin(pin);
     }

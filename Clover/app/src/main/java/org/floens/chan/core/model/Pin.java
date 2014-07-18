@@ -48,6 +48,8 @@ public class Pin {
 
     public boolean isError = false;
 
+    public Post opPost;
+
     private PinWatcher pinWatcher;
 
     public int getNewPostsCount() {

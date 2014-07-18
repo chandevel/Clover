@@ -91,6 +91,10 @@ public class CustomNetworkImageView extends ImageView {
         return mMaxScale;
     }
 
+    public String getUrl() {
+        return mUrl;
+    }
+
     /**
      * Animate the image fading in.
      *

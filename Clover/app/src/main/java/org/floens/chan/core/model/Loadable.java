@@ -19,6 +19,7 @@ package org.floens.chan.core.model;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -169,6 +170,16 @@ public class Loadable {
         copy.listViewTop = listViewTop;
 
         return copy;
+    }
+
+    public void generateTitle(Post post) {
+        if (!TextUtils.isEmpty(post.subject)) {
+            title = post.subject;
+        } else if (!TextUtils.isEmpty(post.comment)) {
+            title = "/" + post.board + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
+        } else {
+            title = "/" + post.board + "/" + post.no;
+        }
     }
 
     public static class Mode {

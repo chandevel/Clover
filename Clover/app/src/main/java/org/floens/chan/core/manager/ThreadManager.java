@@ -281,9 +281,7 @@ public class ThreadManager implements Loader.LoaderListener {
                         ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
                         break;
                     case 9: // Pin
-                        Pin pin = new Pin();
-                        pin.loadable = new Loadable(loader.getLoadable().board, post.no, WatchManager.generateTitle(post));
-                        ChanApplication.getWatchManager().addPin(pin);
+                        ChanApplication.getWatchManager().addPin(post);
                         break;
                 }
                 return false;

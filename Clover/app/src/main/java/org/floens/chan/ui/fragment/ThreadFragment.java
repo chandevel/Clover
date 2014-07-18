@@ -40,6 +40,7 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
 import org.floens.chan.core.loader.EndOfLineException;
+import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -105,6 +106,10 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     public void setViewMode(ThreadManager.ViewMode viewMode) {
         this.viewMode = viewMode;
+    }
+
+    public Loader getLoader() {
+        return threadManager.getLoader();
     }
 
     @Override

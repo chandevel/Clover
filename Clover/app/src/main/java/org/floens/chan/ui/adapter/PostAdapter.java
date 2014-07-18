@@ -242,7 +242,7 @@ public class PostAdapter extends BaseAdapter {
                 if (error != null) {
                     setText(error);
                 } else {
-                    int time = Math.round(loader.getTimeUntilLoadMore() / 1000f);
+                    long time = loader.getTimeUntilLoadMore() / 1000L;
                     if (time == 0) {
                         setText("Loading");
                     } else {
