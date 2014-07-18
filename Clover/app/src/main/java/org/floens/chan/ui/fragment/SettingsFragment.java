@@ -122,22 +122,6 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
-
-        final ListPreference boardMode = (ListPreference) findPreference("preference_board_mode");
-        String currentModeValue = boardMode.getValue();
-        if (currentModeValue == null) {
-            boardMode.setValue((String) boardMode.getEntryValues()[0]);
-            currentModeValue = boardMode.getValue();
-        }
-        updateSummary(boardMode, currentModeValue);
-        boardMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                updateSummary(boardMode, newValue.toString());
-                BaseActivity.doRestartOnResume = true;
-                return true;
-            }
-        });
     }
 
     public void onStart() {

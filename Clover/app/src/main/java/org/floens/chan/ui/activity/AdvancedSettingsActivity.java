@@ -18,6 +18,7 @@
 package org.floens.chan.ui.activity;
 
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
@@ -62,6 +63,27 @@ public class AdvancedSettingsActivity extends PreferenceActivity {
                     return true;
                 }
             });
+
+            final ListPreference boardMode = (ListPreference) findPreference("preference_board_mode");
+            String currentModeValue = boardMode.getValue();
+            if (currentModeValue == null) {
+                boardMode.setValue((String) boardMode.getEntryValues()[0]);
+                currentModeValue = boardMode.getValue();
+            }
+            updateSummary(boardMode, currentModeValue);
+            boardMode.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    updateSummary(boardMode, newValue.toString());
+                    BaseActivity.doRestartOnResume = true;
+                    return true;
+                }
+            });
+        }
+
+        private void updateSummary(ListPreference list, String value) {
+            int index = list.findIndexOfValue(value);
+            list.setSummary(list.getEntries()[index]);
         }
     }
 }

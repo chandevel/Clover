@@ -52,14 +52,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:entryValues="@array/preference_themes_values"
             android:title="@string/preference_theme"/>
 
-        <ListPreference
-            android:key="preference_board_mode"
-            android:defaultValue="catalog"
-            android:dialogTitle="@string/preference_board_mode"
-            android:entries="@array/preference_board_modes"
-            android:entryValues="@array/preference_board_modes_values"
-            android:title="@string/preference_board_mode" />
-
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="preference_open_link_confirmation"
