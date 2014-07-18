@@ -119,7 +119,7 @@ public class BoardManager {
 
         for (Board test : allBoards) {
             if (test.saved) {
-                Logger.w(TAG, "Board with value " + test.value + " saved");
+                Logger.d(TAG, "Board with value " + test.value + " saved");
             }
         }
 
@@ -150,6 +150,11 @@ public class BoardManager {
 
             if (!has) {
                 Logger.d(TAG, "Adding unknown board: " + serverBoard.value);
+
+                if (serverBoard.workSafe) {
+                    serverBoard.saved = true;
+                }
+
                 allBoards.add(serverBoard);
                 changed = true;
             }
@@ -157,6 +162,7 @@ public class BoardManager {
 
         if (changed) {
             storeBoards();
+            reloadSavedKeysValues();
         }
     }
 
