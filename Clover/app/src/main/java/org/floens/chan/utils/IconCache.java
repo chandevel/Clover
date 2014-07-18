@@ -26,19 +26,11 @@ import org.floens.chan.R;
 public class IconCache {
     public static Bitmap stickyIcon;
     public static Bitmap closedIcon;
+    public static Bitmap trashIcon;
 
-    /**
-     * Load the icons in the cache. Lightweight icons only! Icons can be null!
-     *
-     * @param context
-     */
     public static void createIcons(final Context context) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                stickyIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.sticky_icon);
-                closedIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.closed_icon);
-            }
-        }).start();
+        stickyIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.sticky_icon);
+        closedIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.closed_icon);
+        trashIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.trash_icon);
     }
 }

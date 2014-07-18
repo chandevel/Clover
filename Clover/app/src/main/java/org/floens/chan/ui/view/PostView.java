@@ -80,6 +80,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     private LinearLayout iconsView;
     private ImageView stickyView;
     private ImageView closedView;
+    private ImageView deletedView;
     private NetworkImageView countryView;
     private ImageView optionsView;
     private View lastSeen;
@@ -241,11 +242,13 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         boolean showCountryFlag = isList() && !TextUtils.isEmpty(post.country);
         boolean showStickyIcon = isList() && post.sticky;
         boolean showClosedIcon = isList() && post.closed;
+        boolean showDeletedIcon = isList() && post.deleted;
 
-        iconsView.setVisibility((showCountryFlag || showStickyIcon || showClosedIcon) ? View.VISIBLE : View.GONE);
+        iconsView.setVisibility((showCountryFlag || showStickyIcon || showClosedIcon || showDeletedIcon) ? View.VISIBLE : View.GONE);
 
         stickyView.setVisibility(showStickyIcon ? View.VISIBLE : View.GONE);
         closedView.setVisibility(showClosedIcon ? View.VISIBLE : View.GONE);
+        deletedView.setVisibility(showDeletedIcon ? View.VISIBLE : View.GONE);
         if (showCountryFlag) {
             countryView.setVisibility(View.VISIBLE);
             countryView.setImageUrl(ChanUrls.getCountryFlagUrl(post.country), ChanApplication.getImageLoader());
@@ -421,6 +424,10 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         closedView = new ImageView(context);
         closedView.setImageBitmap(IconCache.closedIcon);
         iconsView.addView(closedView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
+
+        deletedView = new ImageView(context);
+        deletedView.setImageBitmap(IconCache.trashIcon);
+        iconsView.addView(deletedView, new LinearLayout.LayoutParams(iconWidth, iconHeight));
 
         countryView = new NetworkImageView(context);
         countryView.setScaleType(ImageView.ScaleType.FIT_CENTER);

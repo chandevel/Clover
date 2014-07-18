@@ -77,6 +77,7 @@ public class Post {
     public String title = "";
     public int fileSize;
     public int images = -1;
+    public boolean deleted = false;
 
     /**
      * This post replies to the these ids

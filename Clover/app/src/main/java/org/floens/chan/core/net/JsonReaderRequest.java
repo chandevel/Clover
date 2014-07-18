@@ -67,7 +67,7 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
                 e.printStackTrace();
             }
 
-            if (read == null) {
+            if (read == null && error == null) {
                 return Response.error(new VolleyError());
             } else if (error != null) {
                 return Response.error(error);

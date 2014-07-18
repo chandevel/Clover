@@ -32,7 +32,9 @@ import org.floens.chan.core.model.Post;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     private Loadable loadable;
@@ -82,25 +84,94 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             throw new IllegalArgumentException("Unknown mode");
         }
 
-        processPosts(list);
-
-        return list;
+        List<Post> result = null;
+        try {
+            result = processPosts(list);
+        } catch (IOException e) {
+            setError(new ParseError(e));
+        }
+        return result;
     }
 
-    private void processPosts(List<Post> posts) {
+    private List<Post> processPosts(List<Post> serverList) throws IOException {
         boolean anonymize = ChanPreferences.getAnonymize();
         boolean anonymizeIds = ChanPreferences.getAnonymizeIds();
         String name = ChanApplication.getInstance().getString(R.string.default_name);
 
-        for (Post post : posts) {
-            post.repliesFrom.clear();
+        List<Post> totalList = new ArrayList<>(serverList.size());
 
-            for (Post other : posts) {
-                if (other.repliesTo.contains(post.no)) {
-                    post.repliesFrom.add(other.no);
+        if (cached.size() > 0) {
+            totalList.addAll(cached);
+
+            // If there's a cached post but it's not in the list received from the server, mark it as deleted
+            boolean serverHas;
+            for (Post cache : cached) {
+                serverHas = false;
+                for (Post b : serverList) {
+                    if (b.no == cache.no) {
+                        serverHas = true;
+                        break;
+                    }
                 }
+
+                if (!serverHas)
+                    cache.deleted = true;
             }
 
+            // If there's a post in the list from the server, that's not in the cached list, add it.
+            boolean known;
+            for (Post post : serverList) {
+                known = false;
+
+                for (Post cache : cached) {
+                    if (cache.no == post.no) {
+                        known = true;
+                        break;
+                    }
+                }
+
+                // serverPost is not in finalList
+                if (!known) {
+                    totalList.add(post);
+                }
+            }
+        } else {
+            totalList.addAll(serverList);
+        }
+
+        Set<Integer> invalidatedPosts = new HashSet<>();
+        for (Post post : totalList) {
+            if (!post.deleted) {
+                post.repliesFrom.clear();
+
+                for (Post other : totalList) {
+                    if (other.repliesTo.contains(post.no) && !other.deleted) {
+                        post.repliesFrom.add(other.no);
+                    }
+                }
+            } else {
+                post.repliesTo.clear();
+
+                for (int no : post.repliesFrom) {
+                    invalidatedPosts.add(no);
+                }
+
+                post.repliesFrom.clear();
+            }
+        }
+
+        for (int no : invalidatedPosts) {
+            for (Post post : totalList) {
+                if (post.no == no) {
+                    if (!post.finish(loadable)) {
+                        throw new IOException("Incorrect data about post received.");
+                    }
+                    break;
+                }
+            }
+        }
+
+        for (Post post : totalList) {
             post.isSavedReply = ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no);
 
             if (anonymize) {
@@ -113,6 +184,8 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 post.id = "";
             }
         }
+
+        return totalList;
     }
 
     private List<Post> loadThread(JsonReader reader) {
