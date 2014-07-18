@@ -67,6 +67,10 @@ public class ChanPreferences {
         }
     }
 
+    public static boolean getWatchCountdownVisibleEnabled() {
+        return p().getBoolean("preference_watch_countdown", false);
+    }
+
     public static boolean getWatchBackgroundEnabled() {
         return p().getBoolean("preference_watch_background_enabled", false);
     }

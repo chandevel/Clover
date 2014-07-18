@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -19,19 +18,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <CheckBoxPreference
+        android:defaultValue="off"
+        android:key="preference_watch_countdown"
+        android:summary="@string/watch_countdown_description"
+        android:title="@string/watch_countdown" />
+
+    <CheckBoxPreference
+        android:defaultValue="off"
         android:key="preference_watch_background_enabled"
-        android:summaryOff="@string/watch_enable_background_off"
-        android:summaryOn="@string/watch_enable_background_on"
-        android:title="@string/watch_enable_background"
-        android:defaultValue="off"/>
+        android:summary="@string/watch_enable_background_description"
+        android:title="@string/watch_enable_background" />
 
     <ListPreference
-        android:dependency="preference_watch_background_enabled"
         android:defaultValue="60"
+        android:dependency="preference_watch_background_enabled"
         android:dialogTitle="@string/watch_background_timeout_description"
         android:entries="@array/watch_background_timeouts"
         android:entryValues="@array/watch_background_timeouts_int"
         android:key="preference_watch_background_timeout"
-        android:title="@string/watch_background_timeout_description"/>
+        android:title="@string/watch_background_timeout_description" />
 
 </PreferenceScreen>

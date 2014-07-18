@@ -134,7 +134,7 @@ public class PinnedAdapter extends BaseAdapter {
                     countContainer.setVisibility(View.VISIBLE);
 
                     TextView timeView = (TextView) convertView.findViewById(R.id.pin_time);
-                    if (pin.watching && pin.getPinWatcher() != null) {
+                    if (pin.watching && pin.getPinWatcher() != null && ChanPreferences.getWatchCountdownVisibleEnabled()) {
                         timeContainer.setVisibility(View.VISIBLE);
                         long timeRaw = pin.getPinWatcher().getTimeUntilNextLoad();
                         long time = 0;

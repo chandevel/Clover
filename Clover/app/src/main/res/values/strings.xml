@@ -178,10 +178,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="watch_summary_enabled">Watching pinned threads</string>
     <string name="watch_info_text">To watch pins for new posts, turn the thread watcher on.</string>
 
+    <string name="watch_countdown">Show countdown</string>
+    <string name="watch_countdown_description">Show a countdown left of the new post counter</string>
+
     <string name="watch_enable_background">Enable in the background</string>
-    <string name="watch_enable_background_on">Watching pins when Clover is in the background</string>
-    <string name="watch_enable_background_off">Not watching when Clover is in the background</string>
-    <string name="watch_background_timeout_description">Time between reloads in background</string>
+    <string name="watch_enable_background_description">Watch pins when Clover is in the background</string>
+    <string name="watch_background_timeout_description">Time between loads in background</string>
     <string-array name="watch_background_timeouts">
         <item>1 minute</item>
         <item>2 minutes</item>
