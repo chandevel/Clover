@@ -18,12 +18,15 @@
 package org.floens.chan.ui.adapter;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
@@ -40,6 +43,7 @@ public class PinnedAdapter extends BaseAdapter {
 
     private Context context;
     private List<Pin> pins = new ArrayList<>();
+    private boolean postInvalidated = false;
 
     public PinnedAdapter(Context context) {
         this.context = context;
@@ -109,26 +113,54 @@ public class PinnedAdapter extends BaseAdapter {
                     convertView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.pin_item, null);
                 }
 
-                ((TextView) convertView.findViewById(R.id.drawer_item_text)).setText(item.loadable.title);
+                ((TextView) convertView.findViewById(R.id.pin_text)).setText(item.loadable.title);
 
-                FrameLayout frameLayout = (FrameLayout) convertView.findViewById(R.id.drawer_item_count_container);
+                FrameLayout timeContainer = (FrameLayout) convertView.findViewById(R.id.pin_time_container);
+                FrameLayout countContainer = (FrameLayout) convertView.findViewById(R.id.pin_count_container);
                 if (ChanPreferences.getWatchEnabled()) {
-                    frameLayout.setVisibility(View.VISIBLE);
+                    countContainer.setVisibility(View.VISIBLE);
 
-                    TextView itemCount = (TextView) convertView.findViewById(R.id.drawer_item_count);
+                    TextView timeView = (TextView) convertView.findViewById(R.id.pin_time);
+
+                    if (item.watching && item.getPinWatcher() != null) {
+                        timeContainer.setVisibility(View.VISIBLE);
+                        long timeRaw = item.getPinWatcher().getTimeUntilNextLoad();
+                        long time = 0;
+                        if (timeRaw > 0) {
+                            time = timeRaw / 1000L;
+                            time = Math.min(9999, time);
+                        }
+
+                        timeView.setText(Long.toString(time));
+
+                        postInvalidate();
+                    } else {
+                        timeContainer.setVisibility(View.GONE);
+                    }
+
+                    TextView countView = (TextView) convertView.findViewById(R.id.pin_count);
+                    ProgressBar loadView = (ProgressBar) convertView.findViewById(R.id.pin_load);
 
                     if (item.isError) {
-                        itemCount.setText("Err");
+                        countView.setText("Err");
                     } else {
                         int count = item.getNewPostsCount();
                         String total = Integer.toString(count);
                         if (count > 999) {
                             total = "1k+";
                         }
-                        itemCount.setText(total);
+                        countView.setText(total);
                     }
 
-                    itemCount.setOnClickListener(new View.OnClickListener() {
+                    if (item.getPinWatcher() != null && item.getPinWatcher().isLoading()) {
+                        countView.setVisibility(View.GONE);
+                        loadView.setVisibility(View.VISIBLE);
+                    } else {
+                        loadView.setVisibility(View.GONE);
+                        countView.setVisibility(View.VISIBLE);
+                    }
+
+                    countView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             item.toggleWatch();
@@ -136,14 +168,15 @@ public class PinnedAdapter extends BaseAdapter {
                     });
 
                     if (!item.watching) {
-                        frameLayout.setBackgroundResource(R.drawable.pin_icon_gray);
+                        countContainer.setBackgroundResource(R.drawable.pin_icon_gray);
                     } else if (item.getNewQuoteCount() > 0) {
-                        frameLayout.setBackgroundResource(R.drawable.pin_icon_red);
+                        countContainer.setBackgroundResource(R.drawable.pin_icon_red);
                     } else {
-                        frameLayout.setBackgroundResource(R.drawable.pin_icon_blue);
+                        countContainer.setBackgroundResource(R.drawable.pin_icon_blue);
                     }
                 } else {
-                    frameLayout.setVisibility(View.GONE);
+                    timeContainer.setVisibility(View.GONE);
+                    countContainer.setVisibility(View.GONE);
                 }
 
                 return convertView;
@@ -151,7 +184,7 @@ public class PinnedAdapter extends BaseAdapter {
             case VIEW_TYPE_HEADER: {
                 if (convertView == null) {
                     convertView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.pin_item_header, null);
-                    ((TextView) convertView.findViewById(R.id.drawer_item_header)).setText(R.string.drawer_pinned);
+                    ((TextView) convertView.findViewById(R.id.pin_header)).setText(R.string.drawer_pinned);
                 }
 
                 return convertView;
@@ -166,5 +199,18 @@ public class PinnedAdapter extends BaseAdapter {
         pins.addAll(ChanApplication.getWatchManager().getPins());
 
         notifyDataSetChanged();
+    }
+
+    private void postInvalidate() {
+        if (!postInvalidated) {
+            postInvalidated = true;
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    postInvalidated = false;
+                    notifyDataSetInvalidated();
+                }
+            }, 1000);
+        }
     }
 }

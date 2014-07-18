@@ -104,6 +104,14 @@ public class PinWatcher implements Loader.LoaderListener {
         }
     }
 
+    public long getTimeUntilNextLoad() {
+        return loader.getTimeUntilLoadMore();
+    }
+
+    public boolean isLoading() {
+        return loader.isLoading();
+    }
+
     @Override
     public void onError(VolleyError error) {
         Logger.e(TAG, "PinWatcher onError: ", error);

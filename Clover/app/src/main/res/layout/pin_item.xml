@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -16,42 +15,63 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/drawer_item_text"
+        android:id="@+id/pin_text"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_weight="1"
-        android:paddingTop="8dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:lines="1"
         android:paddingBottom="8dp"
         android:paddingLeft="16dp"
-        android:paddingRight="8dp"
-        android:textSize="19sp"
+        android:paddingRight="0dp"
+        android:paddingTop="8dp"
+        android:singleLine="true"
         android:textColor="#fff"
-        android:gravity="center_vertical"
-        android:ellipsize="end"
-        android:lines="1"
-        android:singleLine="true">
-    </TextView>
+        android:textSize="19sp" />
 
     <FrameLayout
-        android:id="@+id/drawer_item_count_container"
-        android:background="@drawable/pin_icon_blue"
-        android:layout_width="48dp"
-        android:layout_height="48dp">
+        android:id="@+id/pin_time_container"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:paddingLeft="4dp">
 
         <TextView
-            android:id="@+id/drawer_item_count"
+            android:id="@+id/pin_time"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:lines="1"
+            android:minWidth="36dp"
+            android:textColor="#fff"
+            android:textSize="16dp" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/pin_count_container"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/pin_icon_blue">
+
+        <TextView
+            android:id="@+id/pin_count"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textSize="16dp"
-            android:textColor="#fff"/>
+            android:textColor="#fff"
+            android:textSize="16dp" />
+
+        <ProgressBar
+            android:id="@+id/pin_load"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 

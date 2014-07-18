@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 public class WatchManager implements ChanApplication.ForegroundChangedListener {
     private static final String TAG = "WatchManager";
-    private static final int FOREGROUND_TIME = 10;
+    private static final int FOREGROUND_TIME = 5;
 
     private final Context context;
     private final List<PinListener> listeners = new ArrayList<>();
@@ -312,11 +312,11 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
             }
         }, time, TimeUnit.SECONDS);
         pendingTimer = new PendingTimer(scheduledFuture, time);
-        Logger.d(TAG, "Timer firing in " + time + " seconds");
+//        Logger.d(TAG, "Timer firing in " + time + " seconds");
     }
 
     private void timerFired() {
-        Logger.d(TAG, "Timer fired");
+//        Logger.d(TAG, "Timer fired");
         pendingTimer = null;
 
         for (Pin pin : getWatchingPins()) {
