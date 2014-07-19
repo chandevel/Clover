@@ -189,6 +189,8 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
             mViewWidth = mListView.getWidth();
         }
 
+        mListView.requestDisallowInterceptTouchEvent(true);
+
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
                 if (mPaused) {

@@ -37,6 +37,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -173,7 +174,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 if (post == null)
                     return false;
 
-                changePinTitle(post);
+                onPinLongPress(post);
 
                 return true;
             }
@@ -195,10 +196,9 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 }
         );
 
-        touchListener.setSlop((int) (touchListener.getSlop() * 0.4f));
-
         pinDrawerView.setOnTouchListener(touchListener);
         pinDrawerView.setOnScrollListener(touchListener.makeScrollListener());
+        pinDrawerView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
     }
 
     @Override
@@ -238,32 +238,45 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         ChanApplication.getWatchManager().updatePin(pin);
     }
 
-    private void changePinTitle(final Pin pin) {
-        final EditText text = new EditText(this);
-        text.setSingleLine();
-        text.setText(pin.loadable.title);
-        text.setSelectAllOnFocus(true);
+    private void onPinLongPress(final Pin pin) {
+        new AlertDialog.Builder(this)
+        .setNegativeButton(R.string.drawer_pinned_delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Delete pin
+                removePin(pin);
+            }
+        }).setPositiveButton(R.string.drawer_pinned_change_title, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Change pin title
+                final EditText text = new EditText(BaseActivity.this);
+                text.setSingleLine();
+                text.setText(pin.loadable.title);
+                text.setSelectAllOnFocus(true);
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface d, int which) {
-                        String value = text.getText().toString();
+                AlertDialog titleDialog = new AlertDialog.Builder(BaseActivity.this)
+                        .setPositiveButton(R.string.change, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int which) {
+                                String value = text.getText().toString();
 
-                        if (!TextUtils.isEmpty(value)) {
-                            pin.loadable.title = value;
-                            updatePin(pin);
-                        }
-                    }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface d, int which) {
-                    }
-                }).setTitle(R.string.drawer_pinned_change_title).setView(text).create();
+                                if (!TextUtils.isEmpty(value)) {
+                                    pin.loadable.title = value;
+                                    updatePin(pin);
+                                }
+                            }
+                        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int which) {
+                            }
+                        }).setTitle(R.string.drawer_pinned_change_title).setView(text).create();
 
-        Utils.requestKeyboardFocus(dialog, text);
+                Utils.requestKeyboardFocus(titleDialog, text);
 
-        dialog.show();
+                titleDialog.show();
+            }
+        }).show();
     }
 
     @Override

@@ -190,6 +190,12 @@ public class ThreadManager implements Loader.LoaderListener {
             lastPost = result.get(result.size() - 1).no;
         }
 
+        // TODO: fix hack
+        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
+        if (pin != null && pin.opPost == null && result.size() > 0) {
+            pin.opPost = result.get(0);
+        }
+
         threadManagerListener.onThreadLoaded(result, append);
     }
 

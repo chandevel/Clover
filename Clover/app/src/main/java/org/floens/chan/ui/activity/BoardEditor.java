@@ -33,6 +33,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Filter;
@@ -125,6 +126,28 @@ public class BoardEditor extends Activity {
         });
 
         listView.setOnScrollListener(touchListener.makeScrollListener());
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                new AlertDialog.Builder(BoardEditor.this)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (position >= 0 && position < adapter.getCount()) {
+                                    Board b = adapter.getItem(position);
+                                    adapter.remove(b);
+                                    b.saved = false;
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        })
+                        .setMessage(R.string.board_delete)
+                        .show();
+                return true;
+            }
+        });
 
         setContentView(listView);
     }

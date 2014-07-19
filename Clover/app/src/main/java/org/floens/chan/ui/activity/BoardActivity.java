@@ -231,6 +231,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             threadLoadable.generateTitle(posts.get(0));
             updateActionBarState();
         }
+        pinnedAdapter.notifyDataSetChanged();
     }
 
     @Override
