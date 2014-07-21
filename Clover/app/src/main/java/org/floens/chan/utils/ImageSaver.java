@@ -75,8 +75,6 @@ public class ImageSaver {
         String fileName = filterName(name + "." + extension);
         final File file = findUnused(new File(saveDir, fileName), false);
 
-        Logger.test(file.getAbsolutePath());
-
         ChanApplication.getVolleyRequestQueue().add(new ByteArrayRequest(imageUrl, new Response.Listener<byte[]>() {
             @Override
             public void onResponse(byte[] data) {
@@ -259,8 +257,6 @@ public class ImageSaver {
     }
 
     private static void scanFile(final Context context, final String path, final boolean shareAfterwards) {
-        Logger.test("Scan: " + path);
-
         MediaScannerConnection.scanFile(context, new String[]{path}, null,
                 new MediaScannerConnection.OnScanCompletedListener() {
                     @Override
