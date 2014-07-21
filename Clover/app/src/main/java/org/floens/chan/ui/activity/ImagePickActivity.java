@@ -63,47 +63,51 @@ public class ImagePickActivity extends Activity {
                 final Uri uri = data.getData();
 
                 Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                returnCursor.moveToFirst();
-                String name = "image";
-                if (nameIndex > -1) {
-                    name = returnCursor.getString(nameIndex);
-                }
+                if (returnCursor != null) {
+                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    returnCursor.moveToFirst();
+                    String name = "image";
+                    if (nameIndex > -1) {
+                        name = returnCursor.getString(nameIndex);
+                    }
 
-                returnCursor.close();
+                    returnCursor.close();
 
-                final String finalName = name;
+                    final String finalName = name;
 
-                ChanApplication.getReplyManager()._onPickedFileLoading();
+                    ChanApplication.getReplyManager()._onPickedFileLoading();
 
-                // Async load the stream into "pickedFileCache", an file in the cache root
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final File cacheFile = new File(getCacheDir() + File.separator + "pickedFileCache");
+                    // Async load the stream into "pickedFileCache", an file in the cache root
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                final File cacheFile = new File(getCacheDir() + File.separator + "pickedFileCache");
 
-                            if (cacheFile.exists()) {
-                                cacheFile.delete();
-                            }
-
-                            InputStream is = getContentResolver().openInputStream(uri);
-                            FileOutputStream fos = new FileOutputStream(cacheFile);
-
-                            IOUtils.copy(is, fos);
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ChanApplication.getReplyManager()._onPickedFile(finalName, cacheFile);
+                                if (cacheFile.exists()) {
+                                    cacheFile.delete();
                                 }
 
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                                InputStream is = getContentResolver().openInputStream(uri);
+                                FileOutputStream fos = new FileOutputStream(cacheFile);
+
+                                IOUtils.copy(is, fos);
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ChanApplication.getReplyManager()._onPickedFile(finalName, cacheFile);
+                                    }
+
+                                });
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                }).start();
+                    }).start();
+                } else {
+                    Toast.makeText(this, R.string.image_open_failed, Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
