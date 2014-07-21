@@ -24,11 +24,18 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.ui.fragment.FolderPickFragment;
+import org.floens.chan.utils.ThemeHelper;
+
+import java.io.File;
 
 public class AdvancedSettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
 
         getFragmentManager().beginTransaction().replace(android.R.id.content, new AdvancedSettingsFragment()).commit();
     }
@@ -79,6 +86,32 @@ public class AdvancedSettingsActivity extends PreferenceActivity {
                     return true;
                 }
             });
+
+            reloadSavePath();
+            final Preference saveLocation = findPreference("preference_image_save_location");
+            saveLocation.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    File dir = ChanPreferences.getImageSaveDirectory();
+                    dir.mkdirs();
+
+                    FolderPickFragment frag = FolderPickFragment.newInstance(new FolderPickFragment.FolderPickListener() {
+                        @Override
+                        public void folderPicked(File path) {
+                            ChanPreferences.setImageSaveDirectory(path);
+                            reloadSavePath();
+                        }
+                    }, dir);
+                    getActivity().getFragmentManager().beginTransaction().add(frag, null).commit();
+
+                    return true;
+                }
+            });
+        }
+
+        private void reloadSavePath() {
+            Preference saveLocation = findPreference("preference_image_save_location");
+            saveLocation.setSummary(ChanPreferences.getImageSaveDirectory().getAbsolutePath());
         }
 
         private void updateSummary(ListPreference list, String value) {

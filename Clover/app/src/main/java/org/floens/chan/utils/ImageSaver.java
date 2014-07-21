@@ -38,45 +38,57 @@ import org.floens.chan.core.net.ByteArrayRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
 
-    public static void saveAll(Context context, String folderName, final List<Uri> list) {
+    public static void saveAll(final Context context, String folderName, final List<DownloadPair> list) {
         final DownloadManager dm = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
-        String folderPath = ChanPreferences.getImageSaveDirectory() + File.separator + folderName;
-        File folder = Environment.getExternalStoragePublicDirectory(folderPath);
-        int nextFileNameNumber = 0;
-        while (folder.exists() || folder.isFile()) {
-            folderPath = ChanPreferences.getImageSaveDirectory() + File.separator + folderName + "_"
-                    + Integer.toString(nextFileNameNumber++);
-            folder = Environment.getExternalStoragePublicDirectory(folderPath);
-        }
+        folderName = filterName(folderName);
 
-        final String finalFolderPath = folderPath;
-        String text = context.getString(R.string.download_confirm).replace("COUNT", Integer.toString(list.size()))
-                .replace("FOLDER", folderPath);
-        final File finalFolder = folder;
+        final File subFolder = findUnused(new File(ChanPreferences.getImageSaveDirectory() + File.separator + folderName), true);
+
+        String text = context.getString(R.string.download_confirm)
+                .replace("COUNT", Integer.toString(list.size()))
+                .replace("FOLDER", subFolder.getAbsolutePath());
+
         new AlertDialog.Builder(context).setMessage(text).setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        if (!subFolder.isDirectory() && !subFolder.mkdirs()) {
+                            Toast.makeText(context, R.string.image_save_directory_error, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        final List<Pair> files = new ArrayList<>(list.size());
+                        for (DownloadPair uri : list) {
+                            String name = filterName(uri.imageName);
+                            // Finding unused filenames won't actually work, because the file doesn't get
+                            // saved right away. The download manager will also prevent if there's a name collision.
+                            File destination = findUnused(new File(subFolder, name), false);
+
+                            Pair p = new Pair();
+                            p.uri = Uri.parse(uri.imageUrl);
+                            p.file = destination;
+                            files.add(p);
+                        }
+
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                finalFolder.mkdirs();
-
-                                for (Uri uri : list) {
+                                for (Pair pair : files) {
                                     DownloadManager.Request request;
                                     try {
-                                        request = new DownloadManager.Request(uri);
+                                        request = new DownloadManager.Request(pair.uri);
                                     } catch (IllegalArgumentException e) {
                                         continue;
                                     }
 
-                                    request.setDestinationInExternalPublicDir(finalFolderPath, uri.getLastPathSegment());
+                                    request.setDestinationUri(Uri.fromFile(pair.file));
                                     request.setVisibleInDownloadsUi(false);
                                     request.allowScanningByMediaScanner();
 
@@ -88,26 +100,23 @@ public class ImageSaver {
                 }).show();
     }
 
-    public static void save(final Context context, String imageUrl, final String name, final String extension,
-                            final boolean share) {
+    public static void saveImage(final Context context, String imageUrl, String name, final String extension, final boolean share) {
+        File saveDir = ChanPreferences.getImageSaveDirectory();
+
+        if (!saveDir.isDirectory() && !saveDir.mkdirs()) {
+            Toast.makeText(context, R.string.image_save_directory_error, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        String fileName = filterName(name + "." + extension);
+        final File file = findUnused(new File(saveDir, fileName), false);
+
+        Logger.test(file.getAbsolutePath());
+
         ChanApplication.getVolleyRequestQueue().add(new ByteArrayRequest(imageUrl, new Response.Listener<byte[]>() {
             @Override
             public void onResponse(byte[] data) {
-                storeImage(context, data, name, extension, new SaveCallback() {
-                    @Override
-                    public void onUri(String name, Uri uri) {
-                        if (!share) {
-                            String message = context.getResources().getString(R.string.image_save_succeeded) + " "
-                                    + name;
-                            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-                        } else {
-                            Intent intent = new Intent(Intent.ACTION_SEND);
-                            intent.setType("image/*");
-                            intent.putExtra(Intent.EXTRA_STREAM, uri);
-                            context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
-                        }
-                    }
-                });
+                storeImage(context, data, file, share);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -117,71 +126,81 @@ public class ImageSaver {
         }));
     }
 
-    private static void storeImage(final Context context, byte[] data, String name, String extension,
-                                   final SaveCallback callback) {
-        String errorReason = null;
-
-        try {
-            if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                errorReason = context.getString(R.string.image_save_not_mounted);
-                throw new IOException(errorReason);
-            }
-
-            File path = new File(Environment.getExternalStorageDirectory() + File.separator
-                    + ChanPreferences.getImageSaveDirectory());
-
-            if (!path.exists()) {
-                if (!path.mkdirs()) {
-                    errorReason = context.getString(R.string.image_save_directory_error);
-                    throw new IOException(errorReason);
-                }
-            }
-
-            final File savedFile = saveFile(path, data, name, extension);
-            if (savedFile == null) {
-                errorReason = context.getString(R.string.image_save_failed);
-                throw new IOException(errorReason);
-            }
-
-            MediaScannerConnection.scanFile(context, new String[]{savedFile.toString()}, null,
-                    new MediaScannerConnection.OnScanCompletedListener() {
-                        @Override
-                        public void onScanCompleted(String path, final Uri uri) {
-                            Utils.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Logger.i(TAG, "Media scan succeeded: " + uri);
-                                    callback.onUri(savedFile.toString(), uri);
-                                }
-                            });
-                        }
-                    }
-            );
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            if (errorReason == null)
-                errorReason = context.getString(R.string.image_save_failed);
-
-            Toast.makeText(context, errorReason, Toast.LENGTH_LONG).show();
-        }
+    private static String filterName(String name) {
+        return name.replaceAll("[^\\w.]", "");
     }
 
-    private static File saveFile(File path, byte[] source, String name, String extension) {
-        File destination = new File(path, name + "." + extension);
-        int nextFileNameNumber = 0;
-        String newName;
-        while (destination.exists()) {
-            newName = name + "_" + Integer.toString(nextFileNameNumber++) + "." + extension;
-            destination = new File(path, newName);
+    private static File findUnused(File start, boolean isDir) {
+        String base;
+        String extension;
+
+        if (isDir) {
+            base = start.getAbsolutePath();
+            extension = null;
+        } else {
+            String[] splitted = start.getAbsolutePath().split("\\.(?=[^\\.]+$)");
+            if (splitted.length == 2) {
+                base = splitted[0];
+                extension = "." + splitted[1];
+            } else {
+                base = splitted[0];
+                extension = ".";
+            }
         }
 
+        File test;
+        if (isDir) {
+            test = new File(base);
+        } else {
+            test = new File(base + extension);
+        }
+        int index = 0;
+        int tries = 0;
+        while (test.exists() && tries++ < 100) {
+            if (isDir) {
+                test = new File(base + "_" + index);
+            } else {
+                test = new File(base + "_" + index + extension);
+            }
+            index++;
+        }
+
+        return test;
+    }
+
+    private static void storeImage(final Context context, final byte[] data, final File destination, final boolean share) {
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            Toast.makeText(context, R.string.image_save_not_mounted, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final boolean res = saveByteArray(destination, data);
+
+                Utils.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!res) {
+                            Toast.makeText(context, R.string.image_save_failed, Toast.LENGTH_LONG).show();
+                        } else {
+                            scanFile(context, destination.getAbsolutePath(), share);
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private static boolean saveByteArray(File destination, byte[] source) {
+        boolean res = false;
         FileOutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(destination);
             outputStream.write(source);
             outputStream.close();
+            res = true;
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -192,13 +211,49 @@ public class ImageSaver {
                 }
             }
         }
-
-        Logger.i(TAG, "Saved image to: " + destination.getPath());
-
-        return destination;
+        return res;
     }
 
-    private static interface SaveCallback {
-        public void onUri(String name, Uri uri);
+    private static void scanFile(final Context context, final String path, final boolean shareAfterwards) {
+        Logger.test("Scan: " + path);
+
+        MediaScannerConnection.scanFile(context, new String[]{path}, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    @Override
+                    public void onScanCompleted(String unused, final Uri uri) {
+                        Utils.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Logger.i(TAG, "File saved & media scan succeeded: " + uri);
+
+                                if (shareAfterwards) {
+                                    Intent intent = new Intent(Intent.ACTION_SEND);
+                                    intent.setType("image/*");
+                                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+                                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
+                                } else {
+                                    String message = context.getResources().getString(R.string.image_save_succeeded) + " " + path;
+                                    Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    }
+                }
+        );
+    }
+
+    public static class DownloadPair {
+        public String imageUrl;
+        public String imageName;
+
+        public DownloadPair(String uri, String name) {
+            this.imageUrl = uri;
+            this.imageName = name;
+        }
+    }
+
+    private static class Pair {
+        public Uri uri;
+        public File file;
     }
 }

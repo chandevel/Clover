@@ -19,14 +19,15 @@ package org.floens.chan.ui.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.adapter.PostAdapter;
@@ -166,20 +167,21 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_download_album) {
-            List<Uri> uris = new ArrayList<>();
-            Post aPost = null;
+            List<ImageSaver.DownloadPair> list = new ArrayList<>();
+
+            String name = "downloaded";
+            String filename;
             for (Post post : adapter.getList()) {
-                uris.add(Uri.parse(post.imageUrl));
-                aPost = post;
+                filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
+                list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
+
+                name = post.board + "_" + post.resto;
             }
 
-            if (uris.size() > 0) {
-                String name = "downloaded";
-                if (aPost != null) {
-                    name = aPost.board + "_" + aPost.resto;
+            if (list.size() > 0) {
+                if (!TextUtils.isEmpty(name)) {
+                    ImageSaver.saveAll(this, name, list);
                 }
-
-                ImageSaver.saveAll(this, name, uris);
             }
 
             return true;

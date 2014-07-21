@@ -32,7 +32,6 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.ui.activity.AboutActivity;
-import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.SettingsActivity;
 import org.floens.chan.utils.ThemeHelper;
 

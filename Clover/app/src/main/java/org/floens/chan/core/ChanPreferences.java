@@ -18,8 +18,11 @@
 package org.floens.chan.core;
 
 import android.content.SharedPreferences;
+import android.os.Environment;
 
 import org.floens.chan.ChanApplication;
+
+import java.io.File;
 
 public class ChanPreferences {
     private static SharedPreferences p() {
@@ -46,8 +49,24 @@ public class ChanPreferences {
         p().edit().putBoolean("preference_developer", developer).commit();
     }
 
-    public static String getImageSaveDirectory() {
-        return "Clover";
+    public static File getImageSaveDirectory() {
+        String path = p().getString("preference_image_save_location", null);
+        File file;
+        if (path == null) {
+            file = new File(Environment.getExternalStorageDirectory() + File.separator + "Clover");
+        } else {
+            file = new File(path);
+        }
+
+        return file;
+    }
+
+    public static void setImageSaveDirectory(File file) {
+        p().edit().putString("preference_image_save_location", file.getAbsolutePath()).commit();
+    }
+
+    public static boolean getImageSaveOriginalFilename() {
+        return p().getBoolean("preference_image_save_original", false);
     }
 
     public static boolean getWatchEnabled() {

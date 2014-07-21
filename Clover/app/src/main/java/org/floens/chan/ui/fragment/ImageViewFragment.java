@@ -222,9 +222,9 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         } else if (item.getItemId() == R.id.action_open_browser) {
             Utils.openLink(context, post.imageUrl);
         } else if (item.getItemId() == R.id.action_image_save) {
-            ImageSaver.save(context, post.imageUrl, post.filename, post.ext, false);
+            ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, false);
         } else if (item.getItemId() == R.id.action_share) {
-            ImageSaver.save(context, post.imageUrl, post.filename, post.ext, true);
+            ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, true);
         }
     }
 

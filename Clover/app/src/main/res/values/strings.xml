@@ -81,8 +81,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="multiple_replies">replies</string>
     <string name="one_image">image</string>
     <string name="multiple_images">images</string>
-    <string name="post_replies_back">Back</string>
-    <string name="post_replies_close">Close</string>
     <string name="post_info">Info</string>
     <string-array name="post_options">
         <item>Quick reply</item>
@@ -123,6 +121,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete_fail">Error deleting post</string>
     <string name="delete_image_only">Only delete the image</string>
 
+    <string name="folder_pick_ok">Choose</string>
+
     <string name="preference_board_edit">Edit boards</string>
     <string name="preference_board_edit_summary">Add or remove boards</string>
     <string name="preference_watch_settings">Thread watcher</string>
@@ -153,6 +153,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>pages</item>
     </string-array>
 
+    <string name="preference_image_save_location">Image save folder</string>
+    <string name="preference_image_save_original">Save original filename</string>
     <string name="preference_open_link_confirmation">Ask before opening links</string>
     <string name="preference_autoplay">Start playing videos immediately</string>
     <string name="preference_auto_refresh_thread">Auto refresh threads</string>
