@@ -19,9 +19,11 @@ package org.floens.chan.utils;
 
 import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
@@ -40,62 +42,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
+    private static BroadcastReceiver receiver;
 
     public static void saveAll(final Context context, String folderName, final List<DownloadPair> list) {
-        final DownloadManager dm = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-
         folderName = filterName(folderName);
 
         final File subFolder = findUnused(new File(ChanPreferences.getImageSaveDirectory() + File.separator + folderName), true);
 
-        String text = context.getString(R.string.download_confirm)
-                .replace("COUNT", Integer.toString(list.size()))
-                .replace("FOLDER", subFolder.getAbsolutePath());
+        String text = context.getString(R.string.download_confirm, Integer.toString(list.size()), subFolder.getAbsolutePath());
 
         new AlertDialog.Builder(context).setMessage(text).setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (!subFolder.isDirectory() && !subFolder.mkdirs()) {
-                            Toast.makeText(context, R.string.image_save_directory_error, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
-                        final List<Pair> files = new ArrayList<>(list.size());
-                        for (DownloadPair uri : list) {
-                            String name = filterName(uri.imageName);
-                            // Finding unused filenames won't actually work, because the file doesn't get
-                            // saved right away. The download manager will also prevent if there's a name collision.
-                            File destination = findUnused(new File(subFolder, name), false);
-
-                            Pair p = new Pair();
-                            p.uri = Uri.parse(uri.imageUrl);
-                            p.file = destination;
-                            files.add(p);
-                        }
-
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (Pair pair : files) {
-                                    DownloadManager.Request request;
-                                    try {
-                                        request = new DownloadManager.Request(pair.uri);
-                                    } catch (IllegalArgumentException e) {
-                                        continue;
-                                    }
-
-                                    request.setDestinationUri(Uri.fromFile(pair.file));
-                                    request.setVisibleInDownloadsUi(false);
-                                    request.allowScanningByMediaScanner();
-
-                                    dm.enqueue(request);
-                                }
-                            }
-                        }).start();
+                        listDownload(context, subFolder, list);
                     }
                 }).show();
     }
@@ -124,6 +88,86 @@ public class ImageSaver {
                 Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_LONG).show();
             }
         }));
+    }
+
+    private static void listDownload(Context context, File subFolder, final List<DownloadPair> list) {
+        final DownloadManager dm = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+
+        if (!subFolder.isDirectory() && !subFolder.mkdirs()) {
+            Toast.makeText(context, R.string.image_save_directory_error, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final List<Pair> files = new ArrayList<>(list.size());
+        for (DownloadPair uri : list) {
+            String name = filterName(uri.imageName);
+            // Finding unused filenames won't actually work, because the file doesn't get
+            // saved right away. The download manager will also prevent if there's a name collision.
+            File destination = findUnused(new File(subFolder, name), false);
+
+            Pair p = new Pair();
+            p.uri = Uri.parse(uri.imageUrl);
+            p.file = destination;
+            files.add(p);
+        }
+
+        final AtomicBoolean stopped = new AtomicBoolean(false);
+        final List<Long> ids = new ArrayList<>();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (Pair pair : files) {
+                    if (stopped.get()) {
+                        break;
+                    }
+
+                    DownloadManager.Request request;
+                    try {
+                        request = new DownloadManager.Request(pair.uri);
+                    } catch (IllegalArgumentException e) {
+                        continue;
+                    }
+
+                    request.setDestinationUri(Uri.fromFile(pair.file));
+                    request.setVisibleInDownloadsUi(false);
+                    request.allowScanningByMediaScanner();
+
+                    synchronized (stopped) {
+                        if (stopped.get()) {
+                            break;
+                        }
+                        ids.add(dm.enqueue(request));
+                    }
+                }
+            }
+        }).start();
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (DownloadManager.ACTION_NOTIFICATION_CLICKED.equals(intent.getAction())) {
+                    synchronized (stopped) {
+                        stopped.set(true);
+
+                        for (Long id : ids) {
+                            dm.remove(id);
+                        }
+                    }
+                } else if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
+                    if (receiver != null) {
+                        context.unregisterReceiver(receiver);
+                        receiver = null;
+                    }
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED);
+        filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+
+        context.registerReceiver(receiver, filter);
     }
 
     private static String filterName(String name) {

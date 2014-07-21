@@ -219,7 +219,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="pass_summary_disabled">Off</string>
     <string name="pass_using">Using 4chan pass</string>
 
-    <string name="download_confirm">COUNT images will be downloaded to FOLDER</string>
+    <string name="download_confirm">%1$s images will be downloaded to %2$s</string>
 
     <string name="board_select_add">Add more&#8230;</string>
 
