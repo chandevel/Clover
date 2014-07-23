@@ -1,3 +1,17 @@
+New in 1.1.3 (2014-07-23)
+- Added an overflow button to posts, replaces long holding
+- Added gridview
+- Added advanced settings
+- Added dead link support
+- Added code tag support
+- Added linking to other threads
+- Added thumbnails and countdowns to pins
+- Loading catalog mode by default, can be changed under advanced settings
+- All worksafe boards are now added by default
+- Fixed issue where pins could not be removed
+- Lots of bug fixes
+
+
 New in 1.1.2 (2014-06-18)
 - Added quick reply
 - Bug fixes and other improvements
