@@ -17,10 +17,10 @@
  */
 package org.floens.chan.ui.activity;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 
 import org.floens.chan.R;
@@ -30,7 +30,7 @@ import org.floens.chan.utils.ThemeHelper;
 
 import java.io.File;
 
-public class AdvancedSettingsActivity extends PreferenceActivity {
+public class AdvancedSettingsActivity extends Activity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
