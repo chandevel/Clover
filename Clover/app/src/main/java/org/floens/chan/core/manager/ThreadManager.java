@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -514,16 +515,19 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     private void deletePost(final Post post) {
-        final CheckBox view = new CheckBox(activity);
-        view.setText(R.string.delete_image_only);
-        int padding = Utils.dp(12f);
-        view.setPadding(padding, padding, padding, padding);
+        final CheckBox checkBox = new CheckBox(activity);
+        checkBox.setText(R.string.delete_image_only);
 
-        new AlertDialog.Builder(activity).setTitle(R.string.delete_confirm).setView(view)
+        LinearLayout wrapper = new LinearLayout(activity);
+        wrapper.addView(checkBox);
+        int padding = Utils.dp(8f);
+        wrapper.setPadding(padding, padding, padding, padding);
+
+        new AlertDialog.Builder(activity).setTitle(R.string.delete_confirm).setView(wrapper)
                 .setPositiveButton(R.string.delete, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        doDeletePost(post, view.isChecked());
+                        doDeletePost(post, checkBox.isChecked());
                     }
                 }).setNegativeButton(R.string.cancel, new OnClickListener() {
             @Override
