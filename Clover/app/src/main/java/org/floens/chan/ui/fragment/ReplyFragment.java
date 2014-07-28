@@ -57,7 +57,6 @@ import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
 import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.ui.ViewFlipperAnimations;
 import org.floens.chan.ui.view.LoadView;
@@ -517,7 +516,7 @@ public class ReplyFragment extends DialogFragment {
             Toast.makeText(context, R.string.reply_success, Toast.LENGTH_SHORT).show();
 
             // Pin thread on successful post
-            if (loadable.isThreadMode()) {
+            if (ChanPreferences.getPinOnPost() && loadable.isThreadMode()) {
                 ChanApplication.getWatchManager().addPin(loadable);
             }
 

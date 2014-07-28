@@ -80,6 +80,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <EditTextPreference
             android:key="preference_default_email"
             android:title="@string/preference_default_email" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="preference_pin_on_post"
+            android:title="@string/preference_pin_on_post" />
     </PreferenceCategory>
 
     <PreferenceCategory
