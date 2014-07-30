@@ -213,7 +213,7 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
      * By default, the value will be treated as an image resource. If the value
      * cannot be used as an image resource, the value is used as an image Uri.
      * 
-     * Intended to be overridden by Adapters that need to filter strings
+     * Intended to be overridden by Adapters that need to setFilter strings
      * retrieved from the database.
      * 
      * @param v
@@ -234,7 +234,7 @@ public class SimpleDragSortCursorAdapter extends ResourceDragSortCursorAdapter {
      * no existing ViewBinder or if the existing ViewBinder cannot handle
      * binding to a TextView.
      * 
-     * Intended to be overridden by Adapters that need to filter strings
+     * Intended to be overridden by Adapters that need to setFilter strings
      * retrieved from the database.
      * 
      * @param v

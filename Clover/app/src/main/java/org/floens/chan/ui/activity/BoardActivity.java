@@ -38,6 +38,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -47,7 +48,6 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
-import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -68,6 +68,8 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     private boolean ignoreNextOnItemSelected = false;
     private Spinner boardSpinner;
     private BoardSpinnerAdapter spinnerAdapter;
+    private MenuItem searchMenuItem;
+    private boolean searchBoard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +187,38 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+
+        searchMenuItem = menu.findItem(R.id.action_search);
+
+        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        searchView.setQueryHint(getString(R.string.search_hint));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                doSearch(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                doSearch(newText);
+                return false;
+            }
+        });
+        searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                threadFragment.setFilter("");
+                boardFragment.setFilter("");
+
+                return true;
+            }
+        });
 
         return true;
     }
@@ -411,6 +445,11 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             menu.findItem(R.id.action_board_view_mode_grid).setChecked(true);
         }
 
+        setMenuItemEnabled(menu.findItem(R.id.action_search), slidable);
+        setMenuItemEnabled(menu.findItem(R.id.action_search_tablet), !slidable);
+
+        showSearch(false);
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -485,6 +524,14 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                     startLoadingBoard(boardLoadable);
                 }
                 return true;
+            case R.id.action_search_board:
+                showSearch(true);
+                searchBoard = true;
+                return true;
+            case R.id.action_search_thread:
+                showSearch(true);
+                searchBoard = false;
+                return true;
             case android.R.id.home:
                 threadPane.openPane();
 
@@ -517,7 +564,12 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             boardLoadable.mode = Loadable.Mode.BOARD;
         }
 
-        boardFragment.bindLoadable(loadable);
+        // Force catalog mode when using grid
+        if (boardFragment.getViewMode() == ThreadManager.ViewMode.GRID) {
+            boardLoadable.mode = Loadable.Mode.CATALOG;
+        }
+
+        boardFragment.bindLoadable(boardLoadable);
         boardFragment.requestData();
 
         updateActionBarState();
@@ -543,6 +595,32 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         threadPane.closePane();
 
         updateActionBarState();
+    }
+
+    private void showSearch(boolean show) {
+        if (searchMenuItem != null) {
+            if (show) {
+                searchMenuItem.expandActionView();
+            } else {
+                searchMenuItem.collapseActionView();
+            }
+        }
+    }
+
+    private void doSearch(String filter) {
+        if (threadPane.isSlideable()) {
+            if (threadPane.isOpen()) {
+                boardFragment.setFilter(filter);
+            } else {
+                threadFragment.setFilter(filter);
+            }
+        } else {
+            if (searchBoard) {
+                boardFragment.setFilter(filter);
+            } else {
+                threadFragment.setFilter(filter);
+            }
+        }
     }
 
     /**

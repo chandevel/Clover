@@ -19,12 +19,15 @@ package org.floens.chan.ui.adapter;
 
 import android.content.Context;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,29 +44,46 @@ import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class PostAdapter extends BaseAdapter {
+public class PostAdapter extends BaseAdapter implements Filterable {
     private static final int VIEW_TYPE_ITEM = 0;
     private static final int VIEW_TYPE_STATUS = 1;
 
+    private final Object lock = new Object();
+
     private final Context context;
-    private final ThreadManager threadManager;
     private final AbsListView listView;
+
+    private final ThreadManager threadManager;
+    private final PostAdapterListener listener;
+
+    /**
+     * The list with the original data
+     */
+    private final List<Post> sourceList = new ArrayList<>();
+
+    /**
+     * The list that is displayed (filtered)
+     */
+    private final List<Post> displayList = new ArrayList<>();
+
     private boolean endOfLine;
-    private final List<Post> postList = new ArrayList<>();
     private int lastPostCount = 0;
     private long lastViewedTime = 0;
     private String loadMessage = null;
+    private String filter = "";
 
-    public PostAdapter(Context activity, ThreadManager threadManager, AbsListView listView) {
+    public PostAdapter(Context activity, ThreadManager threadManager, AbsListView listView, PostAdapterListener listener) {
         context = activity;
         this.threadManager = threadManager;
         this.listView = listView;
+        this.listener = listener;
     }
 
     @Override
     public int getCount() {
-        return postList.size() + (showStatusView() ? 1 : 0);
+        return displayList.size() + (showStatusView() ? 1 : 0);
     }
 
     @Override
@@ -73,8 +93,8 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (showStatusView()) {
-            return position == getCount() - 1 ? VIEW_TYPE_STATUS : VIEW_TYPE_ITEM;
+        if (position == getCount() - 1) {
+            return showStatusView() ? VIEW_TYPE_STATUS : VIEW_TYPE_ITEM;
         } else {
             return VIEW_TYPE_ITEM;
         }
@@ -82,8 +102,9 @@ public class PostAdapter extends BaseAdapter {
 
     @Override
     public Post getItem(int position) {
-        if (position >= 0 && position < postList.size()) {
-            return postList.get(position);
+        int realPosition = position;
+        if (realPosition >= 0 && realPosition < displayList.size()) {
+            return displayList.get(realPosition);
         } else {
             return null;
         }
@@ -102,7 +123,7 @@ public class PostAdapter extends BaseAdapter {
 
         switch (getItemViewType(position)) {
             case VIEW_TYPE_ITEM: {
-                if (convertView == null || convertView.getTag() == null && (Integer) convertView.getTag() != VIEW_TYPE_ITEM) {
+                if (convertView == null || convertView.getTag() == null || (Integer) convertView.getTag() != VIEW_TYPE_ITEM) {
                     convertView = new PostView(context);
                     convertView.setTag(VIEW_TYPE_ITEM);
                 }
@@ -120,14 +141,146 @@ public class PostAdapter extends BaseAdapter {
         return null;
     }
 
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraintRaw) {
+                FilterResults results = new FilterResults();
+
+                if (TextUtils.isEmpty(constraintRaw)) {
+                    ArrayList<Post> tmp;
+                    synchronized (lock) {
+                        tmp = new ArrayList<>(sourceList);
+                    }
+                    results.values = tmp;
+                } else {
+                    List<Post> all;
+                    synchronized (lock) {
+                        all = new ArrayList<>(sourceList);
+                    }
+
+                    List<Post> accepted = new ArrayList<>();
+                    String constraint = constraintRaw.toString().toLowerCase(Locale.ENGLISH);
+
+                    for (Post post : all) {
+                        if (post.comment.toString().toLowerCase(Locale.ENGLISH).contains(constraint)) {
+                            accepted.add(post);
+                        }
+                    }
+
+                    results.values = accepted;
+                }
+
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, final FilterResults results) {
+                filter = constraint.toString();
+                synchronized (lock) {
+                    displayList.clear();
+                    displayList.addAll((List<Post>) results.values);
+                }
+                notifyDataSetChanged();
+                listener.onFilterResults(filter, ((List<Post>) results.values).size(), TextUtils.isEmpty(filter));
+            }
+        };
+    }
+
+    public void setFilter(String filter) {
+        getFilter().filter(filter);
+        notifyDataSetChanged();
+    }
+
+    public void appendList(List<Post> list) {
+        synchronized (lock) {
+            boolean flag;
+            for (Post post : list) {
+                flag = true;
+                for (Post own : sourceList) {
+                    if (post.no == own.no) {
+                        flag = false;
+                        break;
+                    }
+                }
+
+                if (flag) {
+                    sourceList.add(post);
+                }
+            }
+
+            if (!isFiltering()) {
+                displayList.clear();
+                displayList.addAll(sourceList);
+            } else {
+                setFilter(filter);
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void setList(List<Post> list) {
+        synchronized (lock) {
+            sourceList.clear();
+            sourceList.addAll(list);
+
+            if (!isFiltering()) {
+                displayList.clear();
+                displayList.addAll(sourceList);
+            } else {
+                setFilter(filter);
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public List<Post> getList() {
+        return sourceList;
+    }
+
+    public void setEndOfLine(boolean endOfLine) {
+        this.endOfLine = endOfLine;
+
+        notifyDataSetChanged();
+    }
+
+    public void scrollToPost(int no) {
+        notifyDataSetChanged();
+
+        synchronized (lock) {
+            for (int i = 0; i < displayList.size(); i++) {
+                if (displayList.get(i).no == no) {
+                    if (Math.abs(i - listView.getFirstVisiblePosition()) > 20 || listView.getChildCount() == 0) {
+                        listView.setSelection(i);
+                    } else {
+                        ScrollerRunnable r = new ScrollerRunnable(listView);
+                        r.start(i);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    public void setErrorMessage(String loadMessage) {
+        this.loadMessage = loadMessage;
+    }
+
+    public String getErrorMessage() {
+        return loadMessage;
+    }
+
     private void onGetBottomView() {
         if (threadManager.getLoadable().isBoardMode() && !endOfLine) {
             // Try to load more posts
             threadManager.requestNextData();
         }
 
-        if (lastPostCount != postList.size()) {
-            lastPostCount = postList.size();
+        if (lastPostCount != sourceList.size()) {
+            lastPostCount = sourceList.size();
             lastViewedTime = Time.get();
         }
 
@@ -140,76 +293,18 @@ public class PostAdapter extends BaseAdapter {
     private boolean showStatusView() {
         Loadable l = threadManager.getLoadable();
         if (l != null) {
-            if (l.isBoardMode()) {
-                return true;
-            } else if (l.isThreadMode() && threadManager.shouldWatch()) {
-                return true;
-            } else {
-                return false;
-            }
+            return l.isBoardMode() || l.isThreadMode();
         } else {
             return false;
         }
     }
 
-    public void appendList(List<Post> list) {
-        for (Post post : list) {
-            boolean flag = true;
-            for (Post own : postList) {
-                if (post.no == own.no) {
-                    flag = false;
-                    break;
-                }
-            }
-
-            if (flag) {
-                postList.add(post);
-            }
-        }
-
-        notifyDataSetChanged();
+    private boolean isFiltering() {
+        return !TextUtils.isEmpty(filter);
     }
 
-    public void setList(List<Post> list) {
-        postList.clear();
-        postList.addAll(list);
-
-        notifyDataSetChanged();
-    }
-
-    public List<Post> getList() {
-        return postList;
-    }
-
-    public void setEndOfLine(boolean endOfLine) {
-        this.endOfLine = endOfLine;
-
-        notifyDataSetChanged();
-    }
-
-    public void scrollToPost(int no) {
-        notifyDataSetChanged();
-
-        for (int i = 0; i < postList.size(); i++) {
-            if (postList.get(i).no == no) {
-                if (Math.abs(i - listView.getFirstVisiblePosition()) > 20 || listView.getChildCount() == 0) {
-                    listView.setSelection(i);
-                } else {
-                    ScrollerRunnable r = new ScrollerRunnable(listView);
-                    r.start(i);
-                }
-
-                break;
-            }
-        }
-    }
-
-    public void setErrorMessage(String loadMessage) {
-        this.loadMessage = loadMessage;
-    }
-
-    public String getErrorMessage() {
-        return loadMessage;
+    public interface PostAdapterListener {
+        public void onFilterResults(String filter, int count, boolean all);
     }
 
     public class StatusView extends LinearLayout {
@@ -232,47 +327,53 @@ public class PostAdapter extends BaseAdapter {
 
         public void init() {
             Loader loader = threadManager.getLoader();
-            if (loader == null)
+            if (loader == null || loader.getLoadable() == null)
                 return;
 
             setGravity(Gravity.CENTER);
 
-            if (threadManager.shouldWatch()) {
-                String error = getErrorMessage();
-                if (error != null) {
-                    setText(error);
-                } else {
-                    long time = loader.getTimeUntilLoadMore() / 1000L;
-                    if (time == 0) {
-                        setText("Loading");
-                    } else {
-                        setText("Loading in " + time);
-                    }
-                }
+            Loadable loadable = loader.getLoadable();
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!detached) {
+            if (loadable.isThreadMode()) {
+                if (threadManager.shouldWatch()) {
+                    String error = getErrorMessage();
+                    if (error != null) {
+                        setText(error);
+                    } else {
+                        long time = loader.getTimeUntilLoadMore() / 1000L;
+                        if (time == 0) {
+                            setText("Loading");
+                        } else {
+                            setText("Loading in " + time);
+                        }
+                    }
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!detached) {
+                                notifyDataSetChanged();
+                            }
+                        }
+                    }, 1000);
+
+                    setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Loader loader = threadManager.getLoader();
+                            if (loader != null) {
+                                loader.requestMoreDataAndResetTimer();
+                            }
+
                             notifyDataSetChanged();
                         }
-                    }
-                }, 1000);
+                    });
 
-                setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Loader loader = threadManager.getLoader();
-                        if (loader != null) {
-                            loader.requestMoreDataAndResetTimer();
-                        }
-
-                        notifyDataSetChanged();
-                    }
-                });
-
-                Utils.setPressedDrawable(this);
-            } else {
+                    Utils.setPressedDrawable(this);
+                } else {
+                    setText("");
+                }
+            } else if (loadable.isBoardMode()) {
                 if (endOfLine) {
                     setText(context.getString(R.string.thread_load_end_of_line));
                 } else {

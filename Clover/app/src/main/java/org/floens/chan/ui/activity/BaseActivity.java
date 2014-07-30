@@ -240,13 +240,13 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     private void onPinLongPress(final Pin pin) {
         new AlertDialog.Builder(this)
-        .setNegativeButton(R.string.drawer_pinned_delete, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Delete pin
-                removePin(pin);
-            }
-        }).setPositiveButton(R.string.drawer_pinned_change_title, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.drawer_pinned_delete, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Delete pin
+                        removePin(pin);
+                    }
+                }).setPositiveButton(R.string.drawer_pinned_change_title, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Change pin title

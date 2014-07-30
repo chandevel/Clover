@@ -143,11 +143,12 @@ public class Loader {
         clearTimer();
 
         if (loadable.isBoardMode()) {
-            loadable.no++;
-
             if (request != null) {
-                request.cancel();
+                // finish the last board load first
+                return;
             }
+
+            loadable.no++;
 
             request = getData();
         } else if (loadable.isThreadMode()) {

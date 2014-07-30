@@ -18,9 +18,11 @@
 package org.floens.chan.ui.fragment;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +31,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -52,7 +55,7 @@ import org.floens.chan.utils.Utils;
 
 import java.util.List;
 
-public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener {
+public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener, PostAdapter.PostAdapterListener {
     private BaseActivity baseActivity;
     private ThreadManager threadManager;
     private Loadable loadable;
@@ -61,9 +64,13 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     private LoadView container;
     private AbsListView listView;
     private ImageView skip;
+    private FilterView filterView;
+
     private SkipLogic skipLogic;
     private int highlightedPost = -1;
     private ThreadManager.ViewMode viewMode = ThreadManager.ViewMode.LIST;
+    private String lastFilter = "";
+    private boolean isFiltering = false;
 
     public static ThreadFragment newInstance(BaseActivity activity) {
         ThreadFragment fragment = new ThreadFragment();
@@ -110,6 +117,13 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     public Loader getLoader() {
         return threadManager.getLoader();
+    }
+
+    public void setFilter(String filter) {
+        if (!filter.equals(lastFilter) && postAdapter != null) {
+            lastFilter = filter;
+            postAdapter.setFilter(filter);
+        }
     }
 
     @Override
@@ -193,10 +207,17 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         if (postAdapter == null) {
             RelativeLayout compound = new RelativeLayout(baseActivity);
 
+            LinearLayout listViewContainer = new LinearLayout(baseActivity);
+            listViewContainer.setOrientation(LinearLayout.VERTICAL);
+
+            filterView = new FilterView(baseActivity);
+            filterView.setVisibility(View.GONE);
+            listViewContainer.addView(filterView, Utils.MATCH_WRAP_PARAMS);
+
             if (viewMode == ThreadManager.ViewMode.LIST) {
                 ListView list = new ListView(baseActivity);
                 listView = list;
-                postAdapter = new PostAdapter(baseActivity, threadManager, listView);
+                postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
                 listView.setAdapter(postAdapter);
                 list.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
             } else if (viewMode == ThreadManager.ViewMode.GRID) {
@@ -210,7 +231,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
                 grid.setVerticalSpacing(postGridSpacing);
                 grid.setHorizontalSpacing(postGridSpacing);
                 listView = grid;
-                postAdapter = new PostAdapter(baseActivity, threadManager, listView);
+                postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
                 listView.setAdapter(postAdapter);
                 listView.setSelection(loadable.listViewIndex);
             }
@@ -218,25 +239,35 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             listView.setOnScrollListener(new OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView view, int scrollState) {
-                    if (skipLogic != null) {
-                        skipLogic.onScrollStateChanged(view, scrollState);
+                    if (!isFiltering) {
+                        if (skipLogic != null) {
+                            skipLogic.onScrollStateChanged(view, scrollState);
+                        }
                     }
                 }
 
                 @Override
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (loadable != null) {
-                        loadable.listViewIndex = view.getFirstVisiblePosition();
-                        View v = view.getChildAt(0);
-                        loadable.listViewTop = (v == null) ? 0 : v.getTop();
-                    }
-                    if (skipLogic != null) {
-                        skipLogic.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+                    if (!isFiltering) {
+                        if (loadable != null) {
+                            int index = view.getFirstVisiblePosition();
+                            View v = view.getChildAt(0);
+                            int top = v == null ? 0 : v.getTop();
+                            if (index != 0 || top != 0) {
+                                loadable.listViewIndex = index;
+                                loadable.listViewTop = top;
+                            }
+                        }
+                        if (skipLogic != null) {
+                            skipLogic.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+                        }
                     }
                 }
             });
 
-            compound.addView(listView, Utils.MATCH_PARAMS);
+            listViewContainer.addView(listView, Utils.MATCH_PARAMS);
+
+            compound.addView(listViewContainer, Utils.MATCH_PARAMS);
 
             if (loadable.isThreadMode()) {
                 skip = new ImageView(baseActivity);
@@ -290,6 +321,19 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
 
         highlightedPost = -1;
+    }
+
+    public void onFilterResults(String filter, int count, boolean all) {
+        isFiltering = !all;
+
+        if (filterView != null) {
+            if (all) {
+                filterView.setVisibility(View.GONE);
+            } else {
+                filterView.setVisibility(View.VISIBLE);
+                filterView.setText(filter, count);
+            }
+        }
     }
 
     private void setEmpty() {
@@ -398,6 +442,37 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         private void onDown() {
             skip.setImageResource(R.drawable.skip_arrow_down);
             up = false;
+        }
+    }
+
+    public class FilterView extends LinearLayout {
+        private TextView textView;
+
+        public FilterView(Context activity) {
+            super(activity);
+            init();
+        }
+
+        public FilterView(Context activity, AttributeSet attr) {
+            super(activity, attr);
+            init();
+        }
+
+        public FilterView(Context activity, AttributeSet attr, int style) {
+            super(activity, attr, style);
+            init();
+        }
+
+        private void init() {
+            textView = new TextView(getContext());
+            textView.setGravity(Gravity.CENTER);
+            addView(textView, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(48)));
+        }
+
+        private void setText(String filter, int count) {
+            String posts = getContext().getString(count == 1 ? R.string.one_post : R.string.multiple_posts);
+            String text = getContext().getString(R.string.search_results, Integer.toString(count), posts, filter);
+            textView.setText(text);
         }
     }
 }
