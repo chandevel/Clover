@@ -93,6 +93,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     abstract public void onThreadLoaded(Loadable loadable, List<Post> posts);
 
+    abstract public void onSetFilter(String filter);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

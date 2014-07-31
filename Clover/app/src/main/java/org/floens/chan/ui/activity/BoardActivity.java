@@ -68,6 +68,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     private boolean ignoreNextOnItemSelected = false;
     private Spinner boardSpinner;
     private BoardSpinnerAdapter spinnerAdapter;
+    private SearchView searchView;
     private MenuItem searchMenuItem;
     private boolean searchBoard;
 
@@ -190,7 +191,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         searchMenuItem = menu.findItem(R.id.action_search);
 
-        SearchView searchView = (SearchView) searchMenuItem.getActionView();
+        searchView = (SearchView) searchMenuItem.getActionView();
         searchView.setQueryHint(getString(R.string.search_hint));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -221,6 +222,13 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         });
 
         return true;
+    }
+
+    @Override
+    public void onSetFilter(String filter) {
+        if (searchView != null) {
+            searchView.setQuery("", true);
+        }
     }
 
     @Override

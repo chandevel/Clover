@@ -73,6 +73,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     private long lastViewedTime = 0;
     private String loadMessage = null;
     private String filter = "";
+    private int pendingScrollToPost = -1;
 
     public PostAdapter(Context activity, ThreadManager threadManager, AbsListView listView, PostAdapterListener listener) {
         context = activity;
@@ -183,6 +184,16 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                 }
                 notifyDataSetChanged();
                 listener.onFilterResults(filter, ((List<Post>) results.values).size(), TextUtils.isEmpty(filter));
+                if (pendingScrollToPost >= 0) {
+                    final int to = pendingScrollToPost;
+                    pendingScrollToPost = -1;
+                    listView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollToPost(to);
+                        }
+                    });
+                }
             }
         };
     }
@@ -247,19 +258,23 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     }
 
     public void scrollToPost(int no) {
-        notifyDataSetChanged();
+        if (isFiltering()) {
+            pendingScrollToPost = no;
+        } else {
+            notifyDataSetChanged();
 
-        synchronized (lock) {
-            for (int i = 0; i < displayList.size(); i++) {
-                if (displayList.get(i).no == no) {
-                    if (Math.abs(i - listView.getFirstVisiblePosition()) > 20 || listView.getChildCount() == 0) {
-                        listView.setSelection(i);
-                    } else {
-                        ScrollerRunnable r = new ScrollerRunnable(listView);
-                        r.start(i);
+            synchronized (lock) {
+                for (int i = 0; i < displayList.size(); i++) {
+                    if (displayList.get(i).no == no) {
+                        if (Math.abs(i - listView.getFirstVisiblePosition()) > 20 || listView.getChildCount() == 0) {
+                            listView.setSelection(i);
+                        } else {
+                            ScrollerRunnable r = new ScrollerRunnable(listView);
+                            r.start(i);
+                        }
+
+                        break;
                     }
-
-                    break;
                 }
             }
         }

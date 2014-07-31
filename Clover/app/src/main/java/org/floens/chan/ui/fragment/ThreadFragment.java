@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -162,8 +163,13 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     @Override
-    public void onOPClicked(Post post) {
-        baseActivity.onOPClicked(post);
+    public void onPostClicked(Post post) {
+        if (loadable.isBoardMode() || loadable.isCatalogMode()) {
+            baseActivity.onOPClicked(post);
+        } else if (loadable.isThreadMode() && !TextUtils.isEmpty(lastFilter)) {
+            baseActivity.onSetFilter("");
+            postAdapter.scrollToPost(post.no);
+        }
     }
 
     @Override

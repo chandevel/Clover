@@ -225,8 +225,8 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void onPostClicked(Post post) {
-        if (loader != null && (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode())) {
-            threadManagerListener.onOPClicked(post);
+        if (loader != null) {
+            threadManagerListener.onPostClicked(post);
         }
     }
 
@@ -581,7 +581,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
         public void onThreadLoadError(VolleyError error);
 
-        public void onOPClicked(Post post);
+        public void onPostClicked(Post post);
 
         public void onThumbnailClicked(Post post);
 
