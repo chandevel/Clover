@@ -141,7 +141,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
         if (post.hasImage) {
             imageView.setVisibility(View.VISIBLE);
-            imageView.setImageUrl(post.thumbnailUrl, ChanApplication.getImageLoader());
+            imageView.setImageUrl(post.thumbnailUrl, ChanApplication.getVolleyImageLoader());
         } else {
             imageView.setVisibility(View.GONE);
             imageView.setImageUrl(null, null);
@@ -251,7 +251,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         deletedView.setVisibility(showDeletedIcon ? View.VISIBLE : View.GONE);
         if (showCountryFlag) {
             countryView.setVisibility(View.VISIBLE);
-            countryView.setImageUrl(ChanUrls.getCountryFlagUrl(post.country), ChanApplication.getImageLoader());
+            countryView.setImageUrl(ChanUrls.getCountryFlagUrl(post.country), ChanApplication.getVolleyImageLoader());
         } else {
             countryView.setVisibility(View.GONE);
             countryView.setImageUrl(null, null);

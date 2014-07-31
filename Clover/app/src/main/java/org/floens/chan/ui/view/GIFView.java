@@ -26,7 +26,14 @@ import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.View;
 
+import org.floens.chan.utils.Utils;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class GIFView extends View {
+    private static final ExecutorService executor = Executors.newFixedThreadPool(1);
+
     private Movie movie;
     private long movieStart;
 
@@ -51,20 +58,22 @@ public class GIFView extends View {
         setLayerType(LAYER_TYPE_SOFTWARE, paint);
     }
 
-    public boolean setData(byte[] array) {
-        Movie movie = Movie.decodeByteArray(array, 0, array.length);
-
-        return onMovieLoaded(movie);
-    }
-
-    private boolean onMovieLoaded(Movie movie) {
-        if (movie != null) {
-            this.movie = movie;
-            invalidate();
-            return true;
-        } else {
-            return false;
-        }
+    public void setPath(final String path) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                final Movie movie = Movie.decodeFile(path);
+                if (movie != null) {
+                    Utils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            GIFView.this.movie = movie;
+                            invalidate();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override

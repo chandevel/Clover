@@ -24,7 +24,10 @@ import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
@@ -51,6 +54,8 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
     private ViewPager viewPager;
     private ImageViewAdapter adapter;
+    private ProgressBar progressBar;
+
     private int currentPosition;
 
     /**
@@ -72,36 +77,54 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
-
-        if (postAdapter != null) {
-            // Get the posts with images
-            ArrayList<Post> imagePosts = new ArrayList<>();
-            for (Post post : postAdapter.getList()) {
-                if (post.hasImage) {
-                    imagePosts.add(post);
-                }
-            }
-
-            // Setup our pages and adapter
-            setContentView(R.layout.image_pager);
-            viewPager = (ViewPager) findViewById(R.id.image_pager);
-            adapter = new ImageViewAdapter(getFragmentManager(), this);
-            adapter.setList(imagePosts);
-            viewPager.setAdapter(adapter);
-            viewPager.setOnPageChangeListener(this);
-
-            // Select the right image
-            for (int i = 0; i < imagePosts.size(); i++) {
-                if (imagePosts.get(i).no == selectedId) {
-                    viewPager.setCurrentItem(i);
-                    onPageSelected(i);
-                    break;
-                }
-            }
-        } else {
+        if (postAdapter == null) {
             Logger.e(TAG, "Posts in ImageViewActivity was null");
             finish();
+            return;
+        }
+
+        ThemeHelper.setTheme(this);
+
+        progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        progressBar.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+        progressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar_no_bg));
+        progressBar.setIndeterminate(false);
+        progressBar.setMax(1000000);
+
+        final FrameLayout decorView = (FrameLayout) getWindow().getDecorView();
+        decorView.addView(progressBar);
+
+        progressBar.post(new Runnable() {
+            @Override
+            public void run() {
+                View contentView = decorView.findViewById(android.R.id.content);
+                progressBar.setY(contentView.getY() - progressBar.getHeight() / 2);
+            }
+        });
+
+        // Get the posts with images
+        ArrayList<Post> imagePosts = new ArrayList<>();
+        for (Post post : postAdapter.getList()) {
+            if (post.hasImage) {
+                imagePosts.add(post);
+            }
+        }
+
+        // Setup our pages and adapter
+        setContentView(R.layout.image_pager);
+        viewPager = (ViewPager) findViewById(R.id.image_pager);
+        adapter = new ImageViewAdapter(getFragmentManager(), this);
+        adapter.setList(imagePosts);
+        viewPager.setAdapter(adapter);
+        viewPager.setOnPageChangeListener(this);
+
+        // Select the right image
+        for (int i = 0; i < imagePosts.size(); i++) {
+            if (imagePosts.get(i).no == selectedId) {
+                viewPager.setCurrentItem(i);
+                onPageSelected(i);
+                break;
+            }
         }
     }
 
@@ -154,10 +177,19 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         invalidateOptionsMenu();
     }
 
-    public void callOnSelect() {
+    public void updateActionBarIfSelected(ImageViewFragment targetFragment) {
         ImageViewFragment fragment = getFragment(currentPosition);
-        if (fragment != null) {
+        if (fragment != null && fragment == targetFragment) {
             fragment.onSelected(adapter, currentPosition);
+        }
+    }
+
+    public void setProgressBar(long current, long total, boolean done) {
+        if (done) {
+            progressBar.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setProgress((int) (((double) current / total) * progressBar.getMax()));
         }
     }
 
@@ -206,7 +238,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     public boolean onPrepareOptionsMenu(Menu menu) {
         ImageViewFragment fragment = getFragment(currentPosition);
         if (fragment != null) {
-            fragment.onPrepareOptionsMenu(currentPosition, adapter, menu);
+            fragment.onPrepareOptionsMenu(menu);
         }
 
         return super.onPrepareOptionsMenu(menu);

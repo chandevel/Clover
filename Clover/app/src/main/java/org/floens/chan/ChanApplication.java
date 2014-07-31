@@ -19,19 +19,20 @@ package org.floens.chan;
 
 import android.app.Application;
 import android.content.SharedPreferences;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.view.ViewConfiguration;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.koushikdutta.ion.Ion;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.IconCache;
 import org.floens.chan.utils.Logger;
 
@@ -43,13 +44,18 @@ import java.util.List;
 public class ChanApplication extends Application {
     private static final String TAG = "ChanApplication";
 
+    private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024; // 50mb
+    private static final String FILE_CACHE_NAME = "filecache";
+    private static final int VOLLEY_LRU_CACHE_SIZE = 8 * 1024 * 1024; // 8mb
+
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
-    private static ImageLoader imageLoader;
+    private static com.android.volley.toolbox.ImageLoader imageLoader;
     private static BoardManager boardManager;
     private static WatchManager watchManager;
     private static ReplyManager replyManager;
     private static DatabaseManager databaseManager;
+    private static FileCache fileCache;
 
     private List<ForegroundChangedListener> foregroundChangedListeners = new ArrayList<>();
     private int activityForegroundCounter = 0;
@@ -66,7 +72,7 @@ public class ChanApplication extends Application {
         return volleyRequestQueue;
     }
 
-    public static ImageLoader getImageLoader() {
+    public static ImageLoader getVolleyImageLoader() {
         return imageLoader;
     }
 
@@ -84,6 +90,10 @@ public class ChanApplication extends Application {
 
     public static DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public static FileCache getFileCache() {
+        return fileCache;
     }
 
     public static SharedPreferences getPreferences() {
@@ -113,9 +123,14 @@ public class ChanApplication extends Application {
 
         IconCache.createIcons(this);
 
-        File cacheDir = new File(getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir(), Volley.DEFAULT_CACHE_DIR);
-        volleyRequestQueue = Volley.newRequestQueue(this, null, cacheDir);
-        imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(1024 * 1024 * 8));
+        Ion.getDefault(this).getCache().setMaxSize(1 * 1024 * 1024);
+
+        File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
+
+        volleyRequestQueue = Volley.newRequestQueue(this, null, new File(cacheDir, Volley.DEFAULT_CACHE_DIR));
+        imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(VOLLEY_LRU_CACHE_SIZE));
+
+        fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE);
 
         databaseManager = new DatabaseManager(this);
         boardManager = new BoardManager();

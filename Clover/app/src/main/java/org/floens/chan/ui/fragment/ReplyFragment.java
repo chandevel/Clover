@@ -428,7 +428,7 @@ public class ReplyFragment extends DialogFragment {
                         String imageUrl = ChanUrls.getCaptchaImageUrl(challenge);
 
                         NetworkImageView captchaImage = new NetworkImageView(context);
-                        captchaImage.setImageUrl(imageUrl, ChanApplication.getImageLoader());
+                        captchaImage.setImageUrl(imageUrl, ChanApplication.getVolleyImageLoader());
                         captchaContainer.setView(captchaImage);
 
                         gettingCaptcha = false;

@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -120,7 +119,7 @@ public class PinnedAdapter extends BaseAdapter {
                     imageView.setVisibility(View.VISIBLE);
                     imageView.setFadeIn(100);
                     if (imageView.getUrl() == null || !imageView.getUrl().equals(pin.opPost.thumbnailUrl)) {
-                        imageView.setImageUrl(pin.opPost.thumbnailUrl, ChanApplication.getImageLoader());
+                        imageView.setImageUrl(pin.opPost.thumbnailUrl, ChanApplication.getVolleyImageLoader());
                     }
                 } else {
                     imageView.setVisibility(View.GONE);

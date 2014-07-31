@@ -71,6 +71,7 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.android.support:support-v13:18.0.+'
+    compile 'com.koushikdutta.ion:ion:1.+'
 
     compile files('libs/httpclientandroidlib-1.2.1.jar')
 }

@@ -41,14 +41,19 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     private Context context;
     private ImageViewActivity activity;
 
+    private ThumbnailImageView imageView;
+
     private Post post;
     private boolean showProgressBar = true;
-    private ThumbnailImageView imageView;
     private boolean isVideo = false;
     private boolean videoVisible = false;
     private boolean videoSetIconToPause = false;
     private boolean tapToLoad = false;
     private boolean loaded = false;
+
+    private long progressCurrent;
+    private long progressTotal;
+    private boolean progressDone;
 
     public static ImageViewFragment newInstance(Post post, ImageViewActivity activity, int index) {
         ImageViewFragment imageViewFragment = new ImageViewFragment();
@@ -68,9 +73,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
             imageView = new ThumbnailImageView(context);
             imageView.setCallback(this);
-            imageView.setLayoutParams(Utils.MATCH_PARAMS);
-
-            int padding = (int) context.getResources().getDimension(R.dimen.image_view_padding);
+            int padding = Utils.dp(8);
             imageView.setPadding(padding, padding, padding, padding);
 
             return imageView;
@@ -180,6 +183,8 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 }
             }
         }
+
+        activity.setProgressBar(progressCurrent, progressTotal, progressDone);
     }
 
     public void onDeselected() {
@@ -188,7 +193,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         }
     }
 
-    public void onPrepareOptionsMenu(int position, ImageViewAdapter adapter, Menu menu) {
+    public void onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.action_image_play_state);
         item.setVisible(isVideo);
         item.setEnabled(isVideo);
@@ -237,7 +242,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
     public void showProgressBar(boolean e) {
         showProgressBar = e;
-        activity.callOnSelect();
+        activity.updateActionBarIfSelected(this);
     }
 
     @Override
@@ -256,6 +261,14 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     @Override
     public void setProgress(boolean progress) {
         showProgressBar(progress);
+    }
+
+    @Override
+    public void setLinearProgress(long current, long total, boolean done) {
+        progressCurrent = current;
+        progressTotal = total;
+        progressDone = done;
+        activity.updateActionBarIfSelected(this);
     }
 
     @Override
