@@ -370,7 +370,11 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                             }
                         }, 1000);
                     } else {
-                        setText(context.getString(R.string.thread_refresh_bar_inactive));
+                        if (loader.getTimeUntilLoadMore() == 0) {
+                            setText(context.getString(R.string.thread_refresh_now));
+                        } else {
+                            setText(context.getString(R.string.thread_refresh_bar_inactive));
+                        }
                     }
 
                     setOnClickListener(new OnClickListener() {
@@ -379,6 +383,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                             Loader loader = threadManager.getLoader();
                             if (loader != null) {
                                 loader.requestMoreDataAndResetTimer();
+                                setText(context.getString(R.string.thread_refresh_now));
                             }
 
                             notifyDataSetChanged();
