@@ -66,6 +66,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_load_failed_parsing">Server inaccessible</string>
     <string name="thread_load_failed_server">404 not found</string>
     <string name="thread_load_end_of_line">No more posts</string>
+    <string name="thread_refresh_bar_inactive">Tap to refresh</string>
+    <string name="thread_refresh_now">Loading</string>
+    <string name="thread_refresh_countdown">Loading in %1$d</string>
 
     <string name="board_edit">Board editor</string>
     <string name="board_add">Add board</string>

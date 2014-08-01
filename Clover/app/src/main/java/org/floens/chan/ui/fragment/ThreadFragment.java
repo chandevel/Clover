@@ -295,7 +295,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             }
         }
 
-        postAdapter.setErrorMessage(null);
+        postAdapter.setStatusMessage(null);
 
         if (append) {
             postAdapter.appendList(posts);
@@ -322,7 +322,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
                     container.setView(getLoadErrorTextView(error));
                 }
             } else {
-                postAdapter.setErrorMessage(getLoadErrorText(error));
+                postAdapter.setStatusMessage(getLoadErrorText(error));
             }
         }
 

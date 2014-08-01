@@ -71,7 +71,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     private boolean endOfLine;
     private int lastPostCount = 0;
     private long lastViewedTime = 0;
-    private String loadMessage = null;
+    private String statusMessage = null;
     private String filter = "";
     private int pendingScrollToPost = -1;
 
@@ -280,12 +280,12 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         }
     }
 
-    public void setErrorMessage(String loadMessage) {
-        this.loadMessage = loadMessage;
+    public void setStatusMessage(String loadMessage) {
+        this.statusMessage = loadMessage;
     }
 
-    public String getErrorMessage() {
-        return loadMessage;
+    public String getStatusMessage() {
+        return statusMessage;
     }
 
     private void onGetBottomView() {
@@ -348,29 +348,30 @@ public class PostAdapter extends BaseAdapter implements Filterable {
             setGravity(Gravity.CENTER);
 
             Loadable loadable = loader.getLoadable();
-
             if (loadable.isThreadMode()) {
-                if (threadManager.shouldWatch()) {
-                    String error = getErrorMessage();
-                    if (error != null) {
-                        setText(error);
-                    } else {
+                String error = getStatusMessage();
+                if (error != null) {
+                    setText(error);
+                } else {
+                    if (threadManager.shouldWatch()) {
                         long time = loader.getTimeUntilLoadMore() / 1000L;
                         if (time == 0) {
-                            setText("Loading");
+                            setText(context.getString(R.string.thread_refresh_now));
                         } else {
-                            setText("Loading in " + time);
+                            setText(context.getString(R.string.thread_refresh_countdown, time));
                         }
-                    }
 
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!detached) {
-                                notifyDataSetChanged();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!detached) {
+                                    notifyDataSetChanged();
+                                }
                             }
-                        }
-                    }, 1000);
+                        }, 1000);
+                    } else {
+                        setText(context.getString(R.string.thread_refresh_bar_inactive));
+                    }
 
                     setOnClickListener(new OnClickListener() {
                         @Override
@@ -383,11 +384,9 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                             notifyDataSetChanged();
                         }
                     });
-
-                    Utils.setPressedDrawable(this);
-                } else {
-                    setText("");
                 }
+
+                Utils.setPressedDrawable(this);
             } else if (loadable.isBoardMode()) {
                 if (endOfLine) {
                     setText(context.getString(R.string.thread_load_end_of_line));
