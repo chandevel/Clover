@@ -502,7 +502,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                 if (threadFragment.hasLoader()) {
                     Loader loader = threadFragment.getLoader();
                     if (loader.getCachedPosts().size() > 0) {
-                        ChanApplication.getWatchManager().addPin(loader.getCachedPosts().get(0));
+                        ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getCachedPosts().get(0));
                         pinDrawer.openDrawer(pinDrawerView);
                     }
                 }
