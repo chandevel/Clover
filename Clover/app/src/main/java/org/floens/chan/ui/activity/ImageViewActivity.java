@@ -24,12 +24,14 @@ import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import org.floens.chan.R;
+import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
@@ -195,41 +197,48 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        } else if (item.getItemId() == R.id.action_download_album) {
-            List<ImageSaver.DownloadPair> list = new ArrayList<>();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.action_download_album:
+                List<ImageSaver.DownloadPair> list = new ArrayList<>();
 
-            String name = "downloaded";
-            String filename;
-            for (Post post : adapter.getList()) {
-                filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
-                list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
+                String name = "downloaded";
+                String filename;
+                for (Post post : adapter.getList()) {
+                    filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
+                    list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
 
-                name = post.board + "_" + post.resto;
-            }
-
-            if (list.size() > 0) {
-                if (!TextUtils.isEmpty(name)) {
-                    ImageSaver.saveAll(this, name, list);
+                    name = post.board + "_" + post.resto;
                 }
-            }
 
-            return true;
-        } else {
-            ImageViewFragment fragment = getFragment(currentPosition);
-            if (fragment != null) {
-                fragment.customOnOptionsItemSelected(item);
-            }
+                if (list.size() > 0) {
+                    if (!TextUtils.isEmpty(name)) {
+                        ImageSaver.saveAll(this, name, list);
+                    }
+                }
 
-            return super.onOptionsItemSelected(item);
+                return true;
+            default:
+                ImageViewFragment fragment = getFragment(currentPosition);
+                if (fragment != null) {
+                    fragment.customOnOptionsItemSelected(item);
+                }
+
+                return super.onOptionsItemSelected(item);
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.image_view, menu);
+
+        MenuItem imageSearch = menu.findItem(R.id.action_image_search);
+        SubMenu subMenu = imageSearch.getSubMenu();
+        for (ImageSearch engine : ImageSearch.engines) {
+            subMenu.add(Menu.NONE, engine.getId(), Menu.NONE, engine.getName());
+        }
 
         return true;
     }

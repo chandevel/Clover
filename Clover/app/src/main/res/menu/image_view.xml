@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -23,26 +22,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:icon="@drawable/ic_action_play"
         android:orderInCategory="1"
         android:showAsAction="always"
-        android:title="@string/image_play_state"/>
+        android:title="@string/image_play_state" />
     <item
         android:id="@+id/action_image_save"
         android:orderInCategory="2"
         android:showAsAction="never"
-        android:title="@string/image_save"/>
+        android:title="@string/image_save" />
     <item
         android:id="@+id/action_open_browser"
         android:orderInCategory="3"
         android:showAsAction="never"
-        android:title="@string/action_open_browser"/>
+        android:title="@string/action_open_browser" />
     <item
         android:id="@+id/action_share"
         android:orderInCategory="4"
         android:showAsAction="never"
-        android:title="@string/action_share"/>
+        android:title="@string/action_share" />
     <item
-        android:id="@+id/action_download_album"
+        android:id="@+id/action_image_search"
         android:orderInCategory="5"
         android:showAsAction="never"
-        android:title="@string/action_download_album"/>
+        android:title="@string/action_search_image">
+        <menu></menu>
+    </item>
+    <item
+        android:id="@+id/action_download_album"
+        android:orderInCategory="6"
+        android:showAsAction="never"
+        android:title="@string/action_download_album" />
 
 </menu>

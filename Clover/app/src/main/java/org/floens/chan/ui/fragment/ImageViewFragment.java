@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.VideoView;
 
 import org.floens.chan.R;
+import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.ImageViewActivity;
@@ -209,27 +210,42 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     public void customOnOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_image_play_state) {
-            if (!videoVisible) {
-                startVideo();
-            } else {
-                VideoView view = imageView.getVideoView();
-                if (view != null) {
-                    if (!view.isPlaying()) {
-                        view.start();
-                    } else {
-                        view.pause();
+        switch (item.getItemId()) {
+            case R.id.action_image_play_state:
+                if (!videoVisible) {
+                    startVideo();
+                } else {
+                    VideoView view = imageView.getVideoView();
+                    if (view != null) {
+                        if (!view.isPlaying()) {
+                            view.start();
+                        } else {
+                            view.pause();
+                        }
                     }
                 }
-            }
 
-            activity.invalidateActionBar();
-        } else if (item.getItemId() == R.id.action_open_browser) {
-            Utils.openLink(context, post.imageUrl);
-        } else if (item.getItemId() == R.id.action_image_save) {
-            ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, false);
-        } else if (item.getItemId() == R.id.action_share) {
-            ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, true);
+                activity.invalidateActionBar();
+                break;
+            case R.id.action_open_browser:
+                Utils.openLink(context, post.imageUrl);
+                break;
+            case R.id.action_image_save:
+                ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, false);
+                break;
+            case R.id.action_share:
+                ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, true);
+                break;
+            default:
+                // Search if it was an ImageSearch item
+                for (ImageSearch engine : ImageSearch.engines) {
+                    if (item.getItemId() == engine.getId()) {
+                        Utils.openLink(context, engine.getUrl(post.imageUrl));
+                        break;
+                    }
+                }
+
+                break;
         }
     }
 
