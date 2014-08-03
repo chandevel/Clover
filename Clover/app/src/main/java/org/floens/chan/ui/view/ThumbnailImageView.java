@@ -277,10 +277,12 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 callback.onVideoLoaded();
             }
         });
+
         videoView.setVideoPath(file.getAbsolutePath());
 
         setView(videoView, false);
         callback.setProgress(false);
+        callback.setLinearProgress(0, 0, true);
         thumbnailNeeded = false;
 
         videoView.start();
