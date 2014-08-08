@@ -232,6 +232,13 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     }
 
     @Override
+    public void onPanelSlide(View view, float offset) {
+        super.onPanelSlide(view, offset);
+
+        searchMenuItem.collapseActionView();
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         pinDrawerListener.onConfigurationChanged(newConfig);
