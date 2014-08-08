@@ -41,7 +41,11 @@ import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.CancellationException;
+
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 public class ThumbnailImageView extends LoadView implements View.OnClickListener {
     private static final String TAG = "ThumbnailImageView";
@@ -58,6 +62,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     private Request<?> imageRequest;
     private Future<?> ionRequest;
     private VideoView videoView;
+    private GifDrawable gifDrawable;
 
     public ThumbnailImageView(Context context) {
         super(context);
@@ -81,6 +86,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     public void setCallback(ThumbnailImageViewCallback callback) {
         this.callback = callback;
     }
+
 
     public void setThumbnail(String thumbnailUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
@@ -211,12 +217,23 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     }
 
     private void onGif(File file) {
-        GIFView view = new GIFView(getContext());
-        view.setPath(file.getAbsolutePath());
+        GifDrawable drawable;
+        try {
+            drawable = new GifDrawable(file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            onError();
+            return;
+        }
+
+        GifImageView view = new GifImageView(getContext());
+        view.setImageDrawable(drawable);
         view.setLayoutParams(Utils.MATCH_PARAMS);
         setView(view, false);
+
         callback.setProgress(false);
         callback.setLinearProgress(0, 0, true);
+        thumbnailNeeded = false;
     }
 
     public void setVideo(String videoUrl) {
