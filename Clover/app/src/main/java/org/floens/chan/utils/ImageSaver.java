@@ -169,7 +169,7 @@ public class ImageSaver {
     }
 
     private static String filterName(String name) {
-        return name.replaceAll("[^\\w.]", "");
+        return name.replaceAll("[^a-zA-Z0-9.]", "_");
     }
 
     private static File findUnused(File start, boolean isDir) {
