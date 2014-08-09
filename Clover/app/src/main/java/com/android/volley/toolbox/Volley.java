@@ -45,6 +45,10 @@ public class Volley {
     }
 
     public static RequestQueue newRequestQueue(Context context, HttpStack stack, File cacheDir) {
+        return newRequestQueue(context, stack, cacheDir, -1);
+    }
+
+    public static RequestQueue newRequestQueue(Context context, HttpStack stack, File cacheDir, int diskCacheSize) {
         String userAgent = "volley/0";
         try {
             String packageName = context.getPackageName();
@@ -65,7 +69,8 @@ public class Volley {
 
         Network network = new BasicNetwork(stack);
 
-        RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir), network);
+        DiskBasedCache diskCache = diskCacheSize < 0 ? new DiskBasedCache(cacheDir) : new DiskBasedCache(cacheDir, diskCacheSize);
+        RequestQueue queue = new RequestQueue(diskCache, network);
         queue.start();
 
         return queue;

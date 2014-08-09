@@ -47,6 +47,7 @@ public class ChanApplication extends Application {
     private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024; // 50mb
     private static final String FILE_CACHE_NAME = "filecache";
     private static final int VOLLEY_LRU_CACHE_SIZE = 8 * 1024 * 1024; // 8mb
+    private static final int VOLLEY_CACHE_SIZE = 20 * 1024 * 1024; // 8mb
 
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
@@ -127,7 +128,7 @@ public class ChanApplication extends Application {
 
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
 
-        volleyRequestQueue = Volley.newRequestQueue(this, null, new File(cacheDir, Volley.DEFAULT_CACHE_DIR));
+        volleyRequestQueue = Volley.newRequestQueue(this, null, new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(VOLLEY_LRU_CACHE_SIZE));
 
         fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE);
