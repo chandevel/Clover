@@ -163,7 +163,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         for (int no : invalidatedPosts) {
             for (Post post : totalList) {
                 if (post.no == no) {
-                    if (!post.finish(loadable)) {
+                    if (!post.finish()) {
                         throw new IOException("Incorrect data about post received.");
                     }
                     break;
@@ -397,7 +397,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         if (cachedResult != null) {
             return cachedResult;
         } else {
-            if (!post.finish(loadable)) {
+            if (!post.finish()) {
                 throw new IOException("Incorrect data about post received.");
             }
 

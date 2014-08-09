@@ -104,7 +104,7 @@ public class Post {
      *
      * @return false if this data is invalid
      */
-    public boolean finish(Loadable loadable) {
+    public boolean finish() {
         if (board == null)
             return false;
 
