@@ -34,6 +34,7 @@ import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
+import com.koushikdutta.ion.Response;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -139,20 +140,30 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                         }
                     })
                     .write(file)
-                    .setCallback(new FutureCallback<File>() {
+                    .withResponse()
+                    .setCallback(new FutureCallback<Response<File>>() {
                         @Override
-                        public void onCompleted(Exception e, File result) {
-                            if (e != null || result == null || result.length() == 0) {
-                                if (result != null) {
-                                    ChanApplication.getFileCache().delete(result);
+                        public void onCompleted(Exception e, Response<File> result) {
+                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
+                                if (result.getResult() != null) {
+                                    ChanApplication.getFileCache().delete(result.getResult());
                                 }
-                                if (e != null && !(e instanceof CancellationException)) {
-                                    onError();
-                                    e.printStackTrace();
+                                onNotFoundError();
+                                return;
+                            }
+
+                            if (e != null && !(e instanceof CancellationException)) {
+                                e.printStackTrace();
+                                if (result != null && result.getResult() != null) {
+                                    ChanApplication.getFileCache().delete(result.getResult());
                                 }
-                            } else {
-                                ChanApplication.getFileCache().put(result);
-                                onBigImage(result);
+                                onError();
+                                return;
+                            }
+
+                            if (result != null && result.getResult() != null) {
+                                ChanApplication.getFileCache().put(result.getResult());
+                                onBigImage(result.getResult());
                             }
                         }
                     });
@@ -196,20 +207,30 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                         }
                     })
                     .write(file)
-                    .setCallback(new FutureCallback<File>() {
+                    .withResponse()
+                    .setCallback(new FutureCallback<Response<File>>() {
                         @Override
-                        public void onCompleted(Exception e, File result) {
-                            if (e != null || result == null || result.length() == 0) {
-                                if (result != null) {
-                                    ChanApplication.getFileCache().delete(result);
+                        public void onCompleted(Exception e, Response<File> result) {
+                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
+                                if (result.getResult() != null) {
+                                    ChanApplication.getFileCache().delete(result.getResult());
                                 }
-                                if (e != null && !(e instanceof CancellationException)) {
-                                    onError();
-                                    e.printStackTrace();
+                                onNotFoundError();
+                                return;
+                            }
+
+                            if (e != null && !(e instanceof CancellationException)) {
+                                e.printStackTrace();
+                                if (result != null && result.getResult() != null) {
+                                    ChanApplication.getFileCache().delete(result.getResult());
                                 }
-                            } else {
-                                ChanApplication.getFileCache().put(result);
-                                onGif(result);
+                                onError();
+                                return;
+                            }
+
+                            if (result != null && result.getResult() != null) {
+                                ChanApplication.getFileCache().put(result.getResult());
+                                onGif(result.getResult());
                             }
                         }
                     });
@@ -257,20 +278,30 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                         }
                     })
                     .write(file)
-                    .setCallback(new FutureCallback<File>() {
+                    .withResponse()
+                    .setCallback(new FutureCallback<Response<File>>() {
                         @Override
-                        public void onCompleted(Exception e, File result) {
-                            if (e != null || result == null || result.length() == 0) {
-                                if (result != null) {
-                                    ChanApplication.getFileCache().delete(result);
+                        public void onCompleted(Exception e, Response<File> result) {
+                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
+                                if (result.getResult() != null) {
+                                    ChanApplication.getFileCache().delete(result.getResult());
                                 }
-                                if (e != null && !(e instanceof CancellationException)) {
-                                    onError();
-                                    e.printStackTrace();
+                                onNotFoundError();
+                                return;
+                            }
+
+                            if (e != null && !(e instanceof CancellationException)) {
+                                e.printStackTrace();
+                                if (result != null && result.getResult() != null) {
+                                    ChanApplication.getFileCache().delete(result.getResult());
                                 }
-                            } else {
-                                ChanApplication.getFileCache().put(result);
-                                onVideo(result);
+                                onError();
+                                return;
+                            }
+
+                            if (result != null && result.getResult() != null) {
+                                ChanApplication.getFileCache().put(result.getResult());
+                                onVideo(result.getResult());
                             }
                         }
                     });
@@ -316,6 +347,11 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
     public void onError() {
         Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+        callback.setProgress(false);
+    }
+
+    public void onNotFoundError() {
+        Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_LONG).show();
         callback.setProgress(false);
     }
 
