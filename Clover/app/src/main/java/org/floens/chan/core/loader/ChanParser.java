@@ -18,11 +18,13 @@
 package org.floens.chan.core.loader;
 
 
+import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 
 import org.floens.chan.ChanApplication;
@@ -41,8 +43,12 @@ import org.jsoup.select.NodeVisitor;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChanParser {
+    private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
+
     private static ChanParser instance;
 
     static {
@@ -113,18 +119,57 @@ public class ChanParser {
                 case "span": {
                     Element span = (Element) node;
 
-                    SpannableString quote = new SpannableString(span.text());
+                    SpannableString quote = null;
 
                     Set<String> classes = span.classNames();
                     if (classes.contains("deadlink")) {
+                        quote = new SpannableString(span.text());
                         quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getQuoteColor()), 0, quote.length(), 0);
                         quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
+                    } else if (classes.contains("fortune")) {
+                        // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
+                        // manually add these <br>
+                        quote = new SpannableString("\n\n" + span.text());
+
+                        String style = span.attr("style");
+                        if (!TextUtils.isEmpty(style)) {
+                            style = style.replace(" ", "");
+
+                            // private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
+                            Matcher matcher = colorPattern.matcher(style);
+
+                            int hexColor = 0xff0000;
+                            if (matcher.find()) {
+                                String group = matcher.group(1);
+                                if (!TextUtils.isEmpty(group)) {
+                                    try {
+                                        hexColor = Integer.parseInt(group, 16);
+                                    } catch (NumberFormatException e) {
+                                    }
+                                }
+                            }
+
+                            if (hexColor >= 0 && hexColor <= 0xffffff) {
+                                quote.setSpan(new ForegroundColorSpan(0xff000000 + hexColor), 0, quote.length(), 0);
+                                quote.setSpan(new StyleSpan(Typeface.BOLD), 0, quote.length(), 0);
+                            }
+                        }
                     } else {
+                        quote = new SpannableString(span.text());
                         quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getInlineQuoteColor()), 0, quote.length(), 0);
                         detectLinks(post, span.text(), quote);
                     }
 
                     return quote;
+                }
+                case "strong": {
+                    Element strong = (Element) node;
+
+                    SpannableString red = new SpannableString(strong.text());
+                    red.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getQuoteColor()), 0, red.length(), 0);
+                    red.setSpan(new StyleSpan(Typeface.BOLD), 0, red.length(), 0);
+
+                    return red;
                 }
                 case "a": {
                     CharSequence anchor = parseAnchor(post, (Element) node);
