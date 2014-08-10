@@ -31,7 +31,7 @@ public class AboutActivity extends Activity {
         ThemeHelper.setTheme(this);
 
         WebView webView = new WebView(this);
-        webView.loadUrl("file:///android_asset/html/licences.html");
+        webView.loadUrl("file:///android_asset/html/licenses.html");
 
         setContentView(webView);
     }
