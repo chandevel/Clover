@@ -139,11 +139,20 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
         ta.recycle();
 
-        if (post.hasImage) {
+        if (post.fileDeleted) {
             imageView.setVisibility(View.VISIBLE);
+            imageView.setImageBitmap(null);
+            imageView.setDefaultImageResId(R.drawable.file_deleted);
+            imageView.setImageUrl(null, null);
+        } else if (post.hasImage) {
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setImageBitmap(null);
+            imageView.setDefaultImageResId(0);
             imageView.setImageUrl(post.thumbnailUrl, ChanApplication.getVolleyImageLoader());
         } else {
             imageView.setVisibility(View.GONE);
+            imageView.setImageBitmap(null);
+            imageView.setDefaultImageResId(0);
             imageView.setImageUrl(null, null);
         }
 
@@ -381,7 +390,9 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                manager.onThumbnailClicked(post);
+                if (post.hasImage && !post.fileDeleted) {
+                    manager.onThumbnailClicked(post);
+                }
             }
         });
 

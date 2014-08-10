@@ -62,6 +62,7 @@ public class Post {
     public int fileSize;
     public int images = -1;
     public String rawComment;
+    public boolean fileDeleted = false;
 
     public boolean deleted = false;
 

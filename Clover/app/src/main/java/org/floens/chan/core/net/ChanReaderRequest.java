@@ -368,6 +368,9 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 case "images":
                     post.images = reader.nextInt();
                     break;
+                case "filedeleted":
+                    post.fileDeleted = reader.nextInt() == 1;
+                    break;
                 default:
                     // Unknown/ignored key
                     //                log("Unknown/ignored key: " + key + ".");
