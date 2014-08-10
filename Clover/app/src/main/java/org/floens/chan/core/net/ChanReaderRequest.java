@@ -19,7 +19,6 @@ package org.floens.chan.core.net;
 
 import android.util.JsonReader;
 
-import com.android.volley.ParseError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
@@ -71,7 +70,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     }
 
     @Override
-    public List<Post> readJson(JsonReader reader) {
+    public List<Post> readJson(JsonReader reader) throws Exception {
         List<Post> list;
 
         if (loadable.isBoardMode()) {
@@ -84,16 +83,10 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             throw new IllegalArgumentException("Unknown mode");
         }
 
-        List<Post> result = null;
-        try {
-            result = processPosts(list);
-        } catch (IOException e) {
-            setError(new ParseError(e));
-        }
-        return result;
+        return processPosts(list);
     }
 
-    private List<Post> processPosts(List<Post> serverList) throws IOException {
+    private List<Post> processPosts(List<Post> serverList) throws Exception {
         boolean anonymize = ChanPreferences.getAnonymize();
         boolean anonymizeIds = ChanPreferences.getAnonymizeIds();
         String name = ChanApplication.getInstance().getString(R.string.default_name);
@@ -188,113 +181,99 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         return totalList;
     }
 
-    private List<Post> loadThread(JsonReader reader) {
+    private List<Post> loadThread(JsonReader reader) throws Exception {
         ArrayList<Post> list = new ArrayList<>();
 
-        try {
-            reader.beginObject();
-            // Page object
-            while (reader.hasNext()) {
-                if (reader.nextName().equals("posts")) {
-                    reader.beginArray();
-                    // Thread array
-                    while (reader.hasNext()) {
-                        // Thread object
-                        list.add(readPostObject(reader));
-                    }
-                    reader.endArray();
-                } else {
-                    reader.skipValue();
-                }
-            }
-            reader.endObject();
-        } catch (IOException | IllegalStateException | NumberFormatException e) {
-            e.printStackTrace();
-            setError(new ParseError(e));
-        }
-
-        return list;
-    }
-
-    private List<Post> loadBoard(JsonReader reader) {
-        ArrayList<Post> list = new ArrayList<>();
-
-        try {
-            reader.beginObject(); // Threads array
-
-            if (reader.nextName().equals("threads")) {
+        reader.beginObject();
+        // Page object
+        while (reader.hasNext()) {
+            String key = reader.nextName();
+            if (key.equals("posts")) {
                 reader.beginArray();
-
+                // Thread array
                 while (reader.hasNext()) {
-                    reader.beginObject(); // Thread object
-
-                    if (reader.nextName().equals("posts")) {
-                        reader.beginArray();
-
-                        list.add(readPostObject(reader));
-
-                        // Only consume one post
-                        while (reader.hasNext())
-                            reader.skipValue();
-
-                        reader.endArray();
-                    } else {
-                        reader.skipValue();
-                    }
-
-                    reader.endObject();
+                    // Thread object
+                    list.add(readPostObject(reader));
                 }
-
                 reader.endArray();
             } else {
                 reader.skipValue();
             }
-
-            reader.endObject();
-        } catch (IOException | IllegalStateException | NumberFormatException e) {
-            e.printStackTrace();
-            setError(new ParseError(e));
         }
+        reader.endObject();
 
         return list;
     }
 
-    private List<Post> loadCatalog(JsonReader reader) {
+    private List<Post> loadBoard(JsonReader reader) throws Exception {
         ArrayList<Post> list = new ArrayList<>();
 
-        try {
-            reader.beginArray(); // Array of pages
+        reader.beginObject(); // Threads array
+
+        if (reader.nextName().equals("threads")) {
+            reader.beginArray();
 
             while (reader.hasNext()) {
-                reader.beginObject(); // Page object
+                reader.beginObject(); // Thread object
 
-                while (reader.hasNext()) {
-                    if (reader.nextName().equals("threads")) {
-                        reader.beginArray(); // Threads array
+                if (reader.nextName().equals("posts")) {
+                    reader.beginArray();
 
-                        while (reader.hasNext()) {
-                            list.add(readPostObject(reader));
-                        }
+                    list.add(readPostObject(reader));
 
-                        reader.endArray();
-                    } else {
+                    // Only consume one post
+                    while (reader.hasNext())
                         reader.skipValue();
-                    }
+
+                    reader.endArray();
+                } else {
+                    reader.skipValue();
                 }
 
                 reader.endObject();
             }
 
             reader.endArray();
-        } catch (IOException | IllegalStateException | NumberFormatException e) {
-            e.printStackTrace();
-            setError(new ParseError(e));
+        } else {
+            reader.skipValue();
         }
+
+        reader.endObject();
 
         return list;
     }
 
-    private Post readPostObject(JsonReader reader) throws IllegalStateException, NumberFormatException, IOException {
+    private List<Post> loadCatalog(JsonReader reader) throws Exception {
+        ArrayList<Post> list = new ArrayList<>();
+
+        reader.beginArray(); // Array of pages
+
+        while (reader.hasNext()) {
+            reader.beginObject(); // Page object
+
+            while (reader.hasNext()) {
+                if (reader.nextName().equals("threads")) {
+                    reader.beginArray(); // Threads array
+
+                    while (reader.hasNext()) {
+                        list.add(readPostObject(reader));
+                    }
+
+                    reader.endArray();
+                } else {
+                    reader.skipValue();
+                }
+            }
+
+            reader.endObject();
+        }
+
+        reader.endArray();
+
+        return list;
+    }
+
+    private Post readPostObject(JsonReader reader) throws Exception {
         Post post = new Post();
         post.board = loadable.board;
 

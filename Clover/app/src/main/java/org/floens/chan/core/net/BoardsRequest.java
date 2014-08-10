@@ -34,34 +34,25 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
     }
 
     @Override
-    public List<Board> readJson(JsonReader reader) {
-        return parseJson(reader);
-    }
-
-    private List<Board> parseJson(JsonReader reader) {
+    public List<Board> readJson(JsonReader reader) throws Exception {
         List<Board> list = new ArrayList<>();
 
-        try {
-            reader.beginObject();
-            // Page object
-            while (reader.hasNext()) {
-                String key = reader.nextName();
-                if (key.equals("boards")) {
-                    reader.beginArray();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String key = reader.nextName();
+            if (key.equals("boards")) {
+                reader.beginArray();
 
-                    while (reader.hasNext()) {
-                        list.add(readBoardEntry(reader));
-                    }
-
-                    reader.endArray();
-                } else {
-                    throw new IOException("Invalid data received");
+                while (reader.hasNext()) {
+                    list.add(readBoardEntry(reader));
                 }
+
+                reader.endArray();
+            } else {
+                reader.skipValue();
             }
-            reader.endObject();
-        } catch (IOException | IllegalStateException | NumberFormatException e) {
-            e.printStackTrace();
         }
+        reader.endObject();
 
         return list;
     }

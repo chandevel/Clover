@@ -20,7 +20,6 @@ package org.floens.chan.core.net;
 import android.util.JsonReader;
 
 import com.android.volley.NetworkResponse;
-import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
@@ -35,7 +34,6 @@ import java.io.UnsupportedEncodingException;
 
 public abstract class JsonReaderRequest<T> extends Request<T> {
     protected final Listener<T> listener;
-    private VolleyError error;
 
     public JsonReaderRequest(String url, Listener<T> listener, ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
@@ -48,36 +46,51 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
         listener.onResponse(response);
     }
 
-    public void setError(VolleyError error) {
-        this.error = error;
-    }
-
     @Override
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
+        ByteArrayInputStream baos = new ByteArrayInputStream(response.data);
+
+        JsonReader reader = null;
         try {
-            ByteArrayInputStream baos = new ByteArrayInputStream(response.data);
+            reader = new JsonReader(new InputStreamReader(baos, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
-            JsonReader reader = new JsonReader(new InputStreamReader(baos, "UTF-8"));
+        Exception exception = null;
+        T read = null;
+        try {
+            read = readJson(reader);
+        } catch (Exception e) {
+            exception = e;
+        }
 
-            T read = readJson(reader);
-
+        if (reader != null) {
             try {
                 reader.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
 
-            if (read == null && error == null) {
-                return Response.error(new VolleyError());
-            } else if (error != null) {
-                return Response.error(error);
+        if (read == null) {
+            if (exception != null) {
+                return Response.error(new VolleyError(exception));
             } else {
-                return Response.success(read, HttpHeaderParser.parseCacheHeaders(response));
+                return Response.error(new VolleyError("Unknown error"));
             }
-        } catch (UnsupportedEncodingException e) {
-            return Response.error(new ParseError(e));
+        } else {
+            return Response.success(read, HttpHeaderParser.parseCacheHeaders(response));
         }
     }
 
-    public abstract T readJson(JsonReader reader);
+    /**
+     * Read your json. Returning null or throwing something means a Response.error, Response.success is returned otherwise.
+     * The reader is closed for you.
+     *
+     * @param reader A json reader to use
+     * @return null or the data
+     * @throws Exception none or an exception
+     */
+    public abstract T readJson(JsonReader reader) throws Exception;
 }
