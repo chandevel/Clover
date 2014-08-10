@@ -31,8 +31,6 @@ import org.floens.chan.core.model.Post;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -99,17 +97,19 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             totalList.addAll(cached);
 
             // If there's a cached post but it's not in the list received from the server, mark it as deleted
-            boolean serverHas;
-            for (Post cache : cached) {
-                serverHas = false;
-                for (Post b : serverList) {
-                    if (b.no == cache.no) {
-                        serverHas = true;
-                        break;
+            if (loadable.isThreadMode()) {
+                boolean serverHas;
+                for (Post cache : cached) {
+                    serverHas = false;
+                    for (Post b : serverList) {
+                        if (b.no == cache.no) {
+                            serverHas = true;
+                            break;
+                        }
                     }
-                }
 
-                cache.deleted = !serverHas;
+                    cache.deleted = !serverHas;
+                }
             }
 
             // If there's a post in the list from the server, that's not in the cached list, add it.
@@ -131,12 +131,14 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             }
 
             // Sort if it got out of order due to posts disappearing/reappearing
-            Collections.sort(totalList, new Comparator<Post>() {
-                @Override
-                public int compare(Post lhs, Post rhs) {
-                    return lhs.time == rhs.time ? 0 : (lhs.time < rhs.time ? -1 : 1);
-                }
-            });
+            /*if (loadable.isThreadMode()) {
+                Collections.sort(totalList, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post lhs, Post rhs) {
+                        return lhs.time == rhs.time ? 0 : (lhs.time < rhs.time ? -1 : 1);
+                    }
+                });
+            }*/
 
         } else {
             totalList.addAll(serverList);
