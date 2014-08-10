@@ -171,7 +171,7 @@ public class RequestQueue {
     }
 
     /**
-     * A simple predicate or setFilter interface for Requests, for use by
+     * A simple predicate or filter interface for Requests, for use by
      * {@link RequestQueue#cancelAll(RequestFilter)}.
      */
     public interface RequestFilter {
@@ -179,7 +179,7 @@ public class RequestQueue {
     }
 
     /**
-     * Cancels all requests in this queue for which the given setFilter applies.
+     * Cancels all requests in this queue for which the given filter applies.
      * @param filter The filtering function to use
      */
     public void cancelAll(RequestFilter filter) {

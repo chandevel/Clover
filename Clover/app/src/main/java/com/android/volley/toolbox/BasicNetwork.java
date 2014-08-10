@@ -16,23 +16,6 @@
 
 package com.android.volley.toolbox;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.impl.cookie.DateUtils;
-import org.floens.chan.utils.Logger;
-
 import android.os.SystemClock;
 
 import com.android.volley.AuthFailureError;
@@ -47,6 +30,22 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.impl.cookie.DateUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A network performing Volley requests over an {@link HttpStack}.
@@ -223,9 +222,6 @@ public class BasicNetwork implements Network {
                 bytes.write(buffer, 0, count);
             }
             return bytes.toByteArray();
-        } catch (OutOfMemoryError e) {
-            Logger.e("Volley BasicNetwork", "Should not happen!", e);
-            return new byte[0];
         } finally {
             try {
                 // Close the InputStream and release the resources by "consuming the content".

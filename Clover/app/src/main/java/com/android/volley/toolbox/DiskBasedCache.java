@@ -16,6 +16,11 @@
 
 package com.android.volley.toolbox;
 
+import android.os.SystemClock;
+
+import com.android.volley.Cache;
+import com.android.volley.VolleyLog;
+
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,11 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import android.os.SystemClock;
-
-import com.android.volley.Cache;
-import com.android.volley.VolleyLog;
 
 /**
  * Cache implementation that caches files directly onto the hard disk in the specified
@@ -55,13 +55,13 @@ public class DiskBasedCache implements Cache {
     private final int mMaxCacheSizeInBytes;
 
     /** Default maximum disk usage in bytes. */
-    private static final int DEFAULT_DISK_USAGE_BYTES = 50 * 1024 * 1024;
+    private static final int DEFAULT_DISK_USAGE_BYTES = 5 * 1024 * 1024;
 
     /** High water mark percentage for the cache */
     private static final float HYSTERESIS_FACTOR = 0.9f;
 
     /** Magic number for current version of cache file format. */
-    private static final int CACHE_MAGIC = 0x20120504;
+    private static final int CACHE_MAGIC = 0x20140623;
 
     /**
      * Constructs an instance of the DiskBasedCache at the specified directory.
@@ -197,7 +197,12 @@ public class DiskBasedCache implements Cache {
         try {
             FileOutputStream fos = new FileOutputStream(file);
             CacheHeader e = new CacheHeader(key, entry);
-            e.writeHeader(fos);
+            boolean success = e.writeHeader(fos);
+            if (!success) {
+                fos.close();
+                VolleyLog.d("Failed to write header for %s", file.getAbsolutePath());
+                throw new IOException();
+            }
             fos.write(entry.data);
             fos.close();
             putEntry(key, e);
@@ -361,12 +366,12 @@ public class DiskBasedCache implements Cache {
          */
         public CacheHeader(String key, Entry entry) {
             this.key = key;
-            size = entry.data.length;
-            etag = entry.etag;
-            serverDate = entry.serverDate;
-            ttl = entry.ttl;
-            softTtl = entry.softTtl;
-            responseHeaders = entry.responseHeaders;
+            this.size = entry.data.length;
+            this.etag = entry.etag;
+            this.serverDate = entry.serverDate;
+            this.ttl = entry.ttl;
+            this.softTtl = entry.softTtl;
+            this.responseHeaders = entry.responseHeaders;
         }
 
         /**
