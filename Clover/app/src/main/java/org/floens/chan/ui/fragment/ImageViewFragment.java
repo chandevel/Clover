@@ -231,10 +231,10 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 Utils.openLink(context, post.imageUrl);
                 break;
             case R.id.action_image_save:
-                ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, false);
-                break;
             case R.id.action_share:
-                ImageSaver.saveImage(context, post.imageUrl, ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename, post.ext, true);
+                ImageSaver.saveImage(context, post.imageUrl,
+                        ChanPreferences.getImageSaveOriginalFilename() ? Long.toString(post.tim) : post.filename, post.ext,
+                        item.getItemId() == R.id.action_share);
                 break;
             default:
                 // Search if it was an ImageSearch item

@@ -39,7 +39,7 @@ public class Post {
     public String name = "";
     public CharSequence comment = "";
     public String subject = "";
-    public String tim;
+    public long tim = -1;
     public String ext;
     public String filename;
     public int replies = -1;
@@ -55,7 +55,7 @@ public class Post {
     public String capcode = "";
     public String country = "";
     public String countryName = "";
-    public long time = 0;
+    public long time = -1;
     public String email = "";
     public boolean isSavedReply = false;
     public String title = "";
@@ -108,7 +108,7 @@ public class Post {
         if (board == null)
             return false;
 
-        if (no < 0 || resto < 0 || date == null)
+        if (no < 0 || resto < 0 || date == null || time < 0)
             return false;
 
         isOP = resto == 0;
@@ -121,11 +121,11 @@ public class Post {
         }
 
         if (hasImage) {
-            if (filename == null || tim == null || ext == null || imageWidth <= 0 || imageHeight <= 0)
+            if (filename == null || ext == null || imageWidth <= 0 || imageHeight <= 0 || tim < 0)
                 return false;
 
-            thumbnailUrl = ChanUrls.getThumbnailUrl(board, tim);
-            imageUrl = ChanUrls.getImageUrl(board, tim, ext);
+            thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
+            imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
             filename = Parser.unescapeEntities(filename, false);
         }
 

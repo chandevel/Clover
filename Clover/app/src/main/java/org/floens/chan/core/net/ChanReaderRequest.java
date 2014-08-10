@@ -31,6 +31,8 @@ import org.floens.chan.core.model.Post;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -107,8 +109,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                     }
                 }
 
-                if (!serverHas)
-                    cache.deleted = true;
+                cache.deleted = !serverHas;
             }
 
             // If there's a post in the list from the server, that's not in the cached list, add it.
@@ -128,6 +129,15 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                     totalList.add(post);
                 }
             }
+
+            // Sort if it got out of order due to posts disappearing/reappearing
+            Collections.sort(totalList, new Comparator<Post>() {
+                @Override
+                public int compare(Post lhs, Post rhs) {
+                    return lhs.time == rhs.time ? 0 : (lhs.time < rhs.time ? -1 : 1);
+                }
+            });
+
         } else {
             totalList.addAll(serverList);
         }
@@ -300,7 +310,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                     post.rawComment = reader.nextString();
                     break;
                 case "tim":
-                    post.tim = reader.nextString();
+                    post.tim = reader.nextLong();
                     break;
                 case "time":
                     post.time = reader.nextLong();
