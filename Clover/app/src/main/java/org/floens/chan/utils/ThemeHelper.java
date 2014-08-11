@@ -42,6 +42,7 @@ public class ThemeHelper {
     }
 
     private static ThemeHelper instance;
+    private Context context;
     private int quoteColor;
     private int linkColor;
     private int spoilerColor;
@@ -82,7 +83,12 @@ public class ThemeHelper {
         return theme;
     }
 
+    public Context getThemedContext() {
+        return context;
+    }
+
     public void reloadPostViewColors(Context context) {
+        this.context = context;
         TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
         quoteColor = ta.getColor(R.styleable.PostView_quote_color, 0);
         linkColor = ta.getColor(R.styleable.PostView_link_color, 0);

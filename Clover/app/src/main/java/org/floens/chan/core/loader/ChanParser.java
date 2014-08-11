@@ -18,16 +18,20 @@
 package org.floens.chan.core.loader;
 
 
+import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.utils.ThemeHelper;
@@ -75,8 +79,63 @@ public class ChanParser {
             e.printStackTrace();
         }
 
+        if (!post.parsedSpans) {
+            TypedArray ta = ThemeHelper.getInstance().getThemedContext().obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
+            post.parsedSpans = true;
+            parseSpans(post, ta);
+            ta.recycle();
+        }
+
         if (post.rawComment != null) {
             post.comment = parseComment(post, post.rawComment);
+        }
+    }
+
+    private void parseSpans(Post post, TypedArray ta) {
+        int detailSize = ta.getDimensionPixelSize(R.styleable.PostView_detail_size, 0);
+
+        if (!TextUtils.isEmpty(post.subject)) {
+            post.subjectSpan = new SpannableString(post.subject);
+            post.subjectSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_subject_color, 0)), 0, post.subjectSpan.length(), 0);
+        }
+
+        if (!TextUtils.isEmpty(post.name)) {
+            post.nameSpan = new SpannableString(post.name);
+            post.nameSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.nameSpan.length(), 0);
+            if (!TextUtils.isEmpty(post.email)) {
+                post.nameSpan.setSpan(new UnderlineSpan(), 0, post.nameSpan.length(), 0);
+            }
+        }
+
+        if (!TextUtils.isEmpty(post.tripcode)) {
+            post.tripcodeSpan = new SpannableString(post.tripcode);
+            post.tripcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.tripcodeSpan.length(), 0);
+            post.tripcodeSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.tripcodeSpan.length(), 0);
+        }
+
+        if (!TextUtils.isEmpty(post.id)) {
+            post.idSpan = new SpannableString("  ID: " + post.id + "  ");
+
+            // Stolen from the 4chan extension
+            int hash = post.id.hashCode();
+
+            int r = (hash >> 24) & 0xff;
+            int g = (hash >> 16) & 0xff;
+            int b = (hash >> 8) & 0xff;
+
+            int idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
+            boolean lightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
+            int idBgColor = lightColor ? ta.getColor(R.styleable.PostView_id_background_light, 0) : ta.getColor(R.styleable.PostView_id_background_dark, 0);
+
+            post.idSpan.setSpan(new ForegroundColorSpan(idColor), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.idSpan.length(), 0);
+        }
+
+        if (!TextUtils.isEmpty(post.capcode)) {
+            post.capcodeSpan = new SpannableString("Capcode: " + post.capcode);
+            post.capcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_capcode_color, 0)), 0, post.capcodeSpan.length(), 0);
+            post.capcodeSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.capcodeSpan.length(), 0);
         }
     }
 
