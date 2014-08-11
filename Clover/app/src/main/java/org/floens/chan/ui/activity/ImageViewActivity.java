@@ -215,7 +215,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
                 if (list.size() > 0) {
                     if (!TextUtils.isEmpty(name)) {
-                        ImageSaver.saveAll(this, name, list);
+                        ImageSaver.getInstance().saveAll(this, name, list);
                     }
                 }
 

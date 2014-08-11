@@ -26,18 +26,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Environment;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.net.ByteArrayRequest;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,9 +44,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
-    private static BroadcastReceiver receiver;
+    private static final int NOTIFICATION_ID = 1;
 
-    public static void saveAll(final Context context, String folderName, final List<DownloadPair> list) {
+    private static ImageSaver instance;
+
+    public static ImageSaver getInstance() {
+        return instance;
+    }
+
+    static {
+        instance = new ImageSaver();
+    }
+
+    private BroadcastReceiver receiver;
+
+    public void saveAll(final Context context, String folderName, final List<DownloadPair> list) {
         folderName = filterName(folderName);
 
         final File subFolder = findUnused(new File(ChanPreferences.getImageSaveDirectory() + File.separator + folderName), true);
@@ -64,31 +74,69 @@ public class ImageSaver {
                 }).show();
     }
 
-    public static void saveImage(final Context context, String imageUrl, String name, final String extension, final boolean share) {
-        File saveDir = ChanPreferences.getImageSaveDirectory();
-
-        if (!saveDir.isDirectory() && !saveDir.mkdirs()) {
-            Toast.makeText(context, R.string.image_save_directory_error, Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        String fileName = filterName(name + "." + extension);
-        final File file = findUnused(new File(saveDir, fileName), false);
-
-        ChanApplication.getVolleyRequestQueue().add(new ByteArrayRequest(imageUrl, new Response.Listener<byte[]>() {
+    public void saveImage(final Context context, String imageUrl, final String name, final String extension, final boolean share) {
+        Future<?> ionRequest = ChanApplication.getFileCache().downloadFile(context, imageUrl, new FileCache.DownloadedCallback() {
             @Override
-            public void onResponse(byte[] data) {
-                storeImage(context, data, file, share);
+            @SuppressWarnings("deprecation")
+            public void onProgress(long downloaded, long total, boolean done) {
             }
-        }, new Response.ErrorListener() {
+
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void onSuccess(final File source) {
+                onFileDownloaded(context, name, extension, source, share);
+            }
+
+            @Override
+            public void onFail(boolean notFound) {
                 Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_LONG).show();
             }
-        }));
+        });
     }
 
-    private static void listDownload(Context context, File subFolder, final List<DownloadPair> list) {
+    private void onFileDownloaded(final Context context, final String name, final String extension, final File downloaded, boolean share) {
+        if (share) {
+            scanFile(context, downloaded, true);
+        } else {
+            /*if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                Toast.makeText(context, R.string.image_save_not_mounted, Toast.LENGTH_LONG).show();
+                return;
+            }*/
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    File saveDir = ChanPreferences.getImageSaveDirectory();
+
+                    if (!saveDir.isDirectory() && !saveDir.mkdirs()) {
+                        showToast(context, context.getString(R.string.image_save_directory_error));
+                        return;
+                    }
+
+                    String fileName = filterName(name + "." + extension);
+                    File destination = findUnused(new File(saveDir, fileName), false);
+
+                    final boolean success = storeImage(downloaded, destination);
+                    if (success) {
+                        scanFile(context, destination, false);
+                        showToast(context, context.getString(R.string.image_save_succeeded) + " " + destination.getAbsolutePath());
+                    } else {
+                        showToast(context, context.getString(R.string.image_save_failed));
+                    }
+                }
+            }).start();
+        }
+    }
+
+    private void showToast(final Context context, final String message) {
+        Utils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void listDownload(Context context, File subFolder, final List<DownloadPair> list) {
         final DownloadManager dm = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
         if (!subFolder.isDirectory() && !subFolder.mkdirs()) {
@@ -168,11 +216,11 @@ public class ImageSaver {
         context.registerReceiver(receiver, filter);
     }
 
-    private static String filterName(String name) {
+    private String filterName(String name) {
         return name.replaceAll("[^a-zA-Z0-9.]", "_");
     }
 
-    private static File findUnused(File start, boolean isDir) {
+    private File findUnused(File start, boolean isDir) {
         String base;
         String extension;
 
@@ -210,70 +258,33 @@ public class ImageSaver {
         return test;
     }
 
-    private static void storeImage(final Context context, final byte[] data, final File destination, final boolean share) {
-        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            Toast.makeText(context, R.string.image_save_not_mounted, Toast.LENGTH_LONG).show();
-            return;
-        }
+    private boolean storeImage(final File source, final File destination) {
+        boolean res = true;
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final boolean res = saveByteArray(destination, data);
-
-                Utils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!res) {
-                            Toast.makeText(context, R.string.image_save_failed, Toast.LENGTH_LONG).show();
-                        } else {
-                            scanFile(context, destination.getAbsolutePath(), share);
-                        }
-                    }
-                });
-            }
-        }).start();
-    }
-
-    private static boolean saveByteArray(File destination, byte[] source) {
-        boolean res = false;
-        FileOutputStream outputStream = null;
         try {
-            outputStream = new FileOutputStream(destination);
-            outputStream.write(source);
-            outputStream.close();
-            res = true;
+            IOUtils.copy(new FileInputStream(source), new FileOutputStream(destination));
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                }
-            }
+            res = false;
         }
+
         return res;
     }
 
-    private static void scanFile(final Context context, final String path, final boolean shareAfterwards) {
-        MediaScannerConnection.scanFile(context, new String[]{path}, null,
+    private void scanFile(final Context context, final File file, final boolean shareAfterwards) {
+        MediaScannerConnection.scanFile(context, new String[]{file.getAbsolutePath()}, null,
                 new MediaScannerConnection.OnScanCompletedListener() {
                     @Override
                     public void onScanCompleted(String unused, final Uri uri) {
                         Utils.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Logger.i(TAG, "File saved & media scan succeeded: " + uri);
+                                Logger.i(TAG, "Media scan succeeded: " + uri);
 
                                 if (shareAfterwards) {
                                     Intent intent = new Intent(Intent.ACTION_SEND);
                                     intent.setType("image/*");
                                     intent.putExtra(Intent.EXTRA_STREAM, uri);
                                     context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
-                                } else {
-                                    String message = context.getResources().getString(R.string.image_save_succeeded) + " " + path;
-                                    Toast.makeText(context, message, Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
