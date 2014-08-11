@@ -171,7 +171,7 @@ public class PinnedAdapter extends BaseAdapter {
                         countView.setVisibility(View.VISIBLE);
                     }
 
-                    countView.setOnClickListener(new View.OnClickListener() {
+                    countContainer.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             pin.toggleWatch();
