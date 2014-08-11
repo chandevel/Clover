@@ -19,7 +19,6 @@ package org.floens.chan.core.manager;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.core.ChanPreferences;
@@ -131,11 +130,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
 
     public boolean addPin(Loadable loadable) {
         Pin pin = new Pin();
-        if (!TextUtils.isEmpty(loadable.title)) {
-            pin.loadable = new Loadable(loadable.board, loadable.no, loadable.title);
-        } else {
-            pin.loadable = new Loadable(loadable.board, loadable.no);
-        }
+        pin.loadable = loadable;
         return addPin(pin);
     }
 
