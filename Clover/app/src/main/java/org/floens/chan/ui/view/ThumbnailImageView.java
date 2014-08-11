@@ -31,19 +31,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.koushikdutta.async.future.Future;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.ProgressCallback;
-import com.koushikdutta.ion.Response;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.CancellationException;
 
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -121,64 +117,36 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         }
 
         callback.setProgress(true);
+        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), imageUrl, new FileCache.DownloadedCallback() {
+            @Override
+            public void onProgress(long downloaded, long total, boolean done) {
+                if (done) {
+                    callback.setProgress(false);
+                    callback.setLinearProgress(0, 0, true);
+                    thumbnailNeeded = false;
+                } else {
+                    callback.setLinearProgress(downloaded, total, false);
+                }
+            }
 
-        File file = ChanApplication.getFileCache().get(imageUrl);
-        if (file.exists()) {
-            onBigImage(file);
-        } else {
-            ionRequest = Ion.with(getContext())
-                    .load(imageUrl)
-                    .progress(new ProgressCallback() {
-                        @Override
-                        public void onProgress(final long downloaded, final long total) {
-                            Utils.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    callback.setLinearProgress(downloaded, total, false);
-                                }
-                            });
-                        }
-                    })
-                    .write(file)
-                    .withResponse()
-                    .setCallback(new FutureCallback<Response<File>>() {
-                        @Override
-                        public void onCompleted(Exception e, Response<File> result) {
-                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
-                                if (result.getResult() != null) {
-                                    ChanApplication.getFileCache().delete(result.getResult());
-                                }
-                                onNotFoundError();
-                                return;
-                            }
+            @Override
+            public void onSuccess(File file) {
+                SubsamplingScaleImageView image = new SubsamplingScaleImageView(getContext());
+                image.setImageFile(file.getAbsolutePath());
+                image.setOnClickListener(ThumbnailImageView.this);
 
-                            if (e != null && !(e instanceof CancellationException)) {
-                                e.printStackTrace();
-                                if (result != null && result.getResult() != null) {
-                                    ChanApplication.getFileCache().delete(result.getResult());
-                                }
-                                onError();
-                                return;
-                            }
+                setView(image, false);
+            }
 
-                            if (result != null && result.getResult() != null) {
-                                ChanApplication.getFileCache().put(result.getResult());
-                                onBigImage(result.getResult());
-                            }
-                        }
-                    });
-        }
-    }
-
-    private void onBigImage(File file) {
-        SubsamplingScaleImageView image = new SubsamplingScaleImageView(getContext());
-        image.setImageFile(file.getAbsolutePath());
-        image.setOnClickListener(this);
-
-        setView(image, false);
-        callback.setProgress(false);
-        callback.setLinearProgress(0, 0, true);
-        thumbnailNeeded = false;
+            @Override
+            public void onFail(boolean notFound) {
+                if (notFound) {
+                    onNotFoundError();
+                } else {
+                    onError();
+                }
+            }
+        });
     }
 
     public void setGif(String gifUrl) {
@@ -188,152 +156,95 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         }
 
         callback.setProgress(true);
+        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), gifUrl, new FileCache.DownloadedCallback() {
+            @Override
+            public void onProgress(long downloaded, long total, boolean done) {
+                if (done) {
+                    callback.setProgress(false);
+                    callback.setLinearProgress(0, 0, true);
+                    thumbnailNeeded = false;
+                } else {
+                    callback.setLinearProgress(downloaded, total, false);
+                }
+            }
 
-        File file = ChanApplication.getFileCache().get(gifUrl);
-        if (file.exists()) {
-            onGif(file);
-        } else {
-            ionRequest = Ion.with(getContext())
-                    .load(gifUrl)
-                    .progress(new ProgressCallback() {
-                        @Override
-                        public void onProgress(final long downloaded, final long total) {
-                            Utils.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    callback.setLinearProgress(downloaded, total, false);
-                                }
-                            });
-                        }
-                    })
-                    .write(file)
-                    .withResponse()
-                    .setCallback(new FutureCallback<Response<File>>() {
-                        @Override
-                        public void onCompleted(Exception e, Response<File> result) {
-                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
-                                if (result.getResult() != null) {
-                                    ChanApplication.getFileCache().delete(result.getResult());
-                                }
-                                onNotFoundError();
-                                return;
-                            }
+            @Override
+            public void onSuccess(File file) {
+                GifDrawable drawable;
+                try {
+                    drawable = new GifDrawable(file.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    onError();
+                    return;
+                }
 
-                            if (e != null && !(e instanceof CancellationException)) {
-                                e.printStackTrace();
-                                if (result != null && result.getResult() != null) {
-                                    ChanApplication.getFileCache().delete(result.getResult());
-                                }
-                                onError();
-                                return;
-                            }
+                GifImageView view = new GifImageView(getContext());
+                view.setImageDrawable(drawable);
+                view.setLayoutParams(Utils.MATCH_PARAMS);
+                setView(view, false);
+            }
 
-                            if (result != null && result.getResult() != null) {
-                                ChanApplication.getFileCache().put(result.getResult());
-                                onGif(result.getResult());
-                            }
-                        }
-                    });
-        }
-    }
-
-    private void onGif(File file) {
-        GifDrawable drawable;
-        try {
-            drawable = new GifDrawable(file.getAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
-            onError();
-            return;
-        }
-
-        GifImageView view = new GifImageView(getContext());
-        view.setImageDrawable(drawable);
-        view.setLayoutParams(Utils.MATCH_PARAMS);
-        setView(view, false);
-
-        callback.setProgress(false);
-        callback.setLinearProgress(0, 0, true);
-        thumbnailNeeded = false;
+            @Override
+            public void onFail(boolean notFound) {
+                if (notFound) {
+                    onNotFoundError();
+                } else {
+                    onError();
+                }
+            }
+        });
     }
 
     public void setVideo(String videoUrl) {
         callback.setProgress(true);
-
-        File file = ChanApplication.getFileCache().get(videoUrl);
-        if (file.exists()) {
-            onVideo(file);
-        } else {
-            ionRequest = Ion.with(getContext())
-                    .load(videoUrl)
-                    .progress(new ProgressCallback() {
-                        @Override
-                        public void onProgress(final long downloaded, final long total) {
-                            Utils.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    callback.setLinearProgress(downloaded, total, false);
-                                }
-                            });
-                        }
-                    })
-                    .write(file)
-                    .withResponse()
-                    .setCallback(new FutureCallback<Response<File>>() {
-                        @Override
-                        public void onCompleted(Exception e, Response<File> result) {
-                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
-                                if (result.getResult() != null) {
-                                    ChanApplication.getFileCache().delete(result.getResult());
-                                }
-                                onNotFoundError();
-                                return;
-                            }
-
-                            if (e != null && !(e instanceof CancellationException)) {
-                                e.printStackTrace();
-                                if (result != null && result.getResult() != null) {
-                                    ChanApplication.getFileCache().delete(result.getResult());
-                                }
-                                onError();
-                                return;
-                            }
-
-                            if (result != null && result.getResult() != null) {
-                                ChanApplication.getFileCache().put(result.getResult());
-                                onVideo(result.getResult());
-                            }
-                        }
-                    });
-        }
-    }
-
-    private void onVideo(File file) {
-        videoView = new VideoView(getContext());
-        videoView.setZOrderOnTop(true);
-        videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
-        videoView.setLayoutParams(Utils.MATCH_PARAMS);
-        LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        par.gravity = Gravity.CENTER;
-        videoView.setLayoutParams(par);
-
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), videoUrl, new FileCache.DownloadedCallback() {
             @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.setLooping(true);
-                callback.onVideoLoaded();
+            public void onProgress(long downloaded, long total, boolean done) {
+                if (done) {
+                    callback.setProgress(false);
+                    callback.setLinearProgress(0, 0, true);
+                    thumbnailNeeded = false;
+                } else {
+                    callback.setLinearProgress(downloaded, total, false);
+                }
+            }
+
+            @Override
+            public void onSuccess(File file) {
+                videoView = new VideoView(getContext());
+                videoView.setZOrderOnTop(true);
+                videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                        LayoutParams.MATCH_PARENT));
+                videoView.setLayoutParams(Utils.MATCH_PARAMS);
+                LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                par.gravity = Gravity.CENTER;
+                videoView.setLayoutParams(par);
+
+                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mp.setLooping(true);
+                        callback.onVideoLoaded();
+                    }
+                });
+
+                videoView.setVideoPath(file.getAbsolutePath());
+
+                setView(videoView, false);
+
+                videoView.start();
+            }
+
+            @Override
+            public void onFail(boolean notFound) {
+                if (notFound) {
+                    onNotFoundError();
+                } else {
+                    onError();
+                }
             }
         });
-
-        videoView.setVideoPath(file.getAbsolutePath());
-
-        setView(videoView, false);
-        callback.setProgress(false);
-        callback.setLinearProgress(0, 0, true);
-        thumbnailNeeded = false;
-
-        videoView.start();
     }
 
     @Override

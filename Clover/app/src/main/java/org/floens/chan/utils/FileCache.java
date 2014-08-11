@@ -1,8 +1,18 @@
 package org.floens.chan.utils;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.koushikdutta.async.future.Future;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.ProgressCallback;
+import com.koushikdutta.ion.Response;
+
+import org.floens.chan.ChanApplication;
+
 import java.io.File;
+import java.util.concurrent.CancellationException;
 
 public class FileCache {
     private static final String TAG = "FileCache";
@@ -37,6 +47,60 @@ public class FileCache {
         size -= file.length();
 
         return file.delete();
+    }
+
+    public Future<Response<File>> downloadFile(Context context, String url, final DownloadedCallback callback) {
+        File file = get(url);
+        if (file.exists()) {
+            file.setLastModified(Time.get());
+            callback.onProgress(0, 0, true);
+            callback.onSuccess(file);
+            return null;
+        } else {
+            return Ion.with(context)
+                    .load(url)
+                    .progress(new ProgressCallback() {
+                        @Override
+                        public void onProgress(final long downloaded, final long total) {
+                            Utils.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onProgress(downloaded, total, false);
+                                }
+                            });
+                        }
+                    })
+                    .write(file)
+                    .withResponse()
+                    .setCallback(new FutureCallback<Response<File>>() {
+                        @Override
+                        public void onCompleted(Exception e, Response<File> result) {
+                            callback.onProgress(0, 0, true);
+
+                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
+                                if (result.getResult() != null) {
+                                    delete(result.getResult());
+                                }
+                                callback.onFail(true);
+                                return;
+                            }
+
+                            if (e != null && !(e instanceof CancellationException)) {
+                                e.printStackTrace();
+                                if (result != null && result.getResult() != null) {
+                                    delete(result.getResult());
+                                }
+                                callback.onFail(false);
+                                return;
+                            }
+
+                            if (result != null && result.getResult() != null) {
+                                ChanApplication.getFileCache().put(result.getResult());
+                                callback.onSuccess(result.getResult());
+                            }
+                        }
+                    });
+        }
     }
 
     private void trim() {
@@ -82,5 +146,13 @@ public class FileCache {
                 size += file.length();
             }
         }
+    }
+
+    public interface DownloadedCallback {
+        public void onProgress(long downloaded, long total, boolean done);
+
+        public void onSuccess(File file);
+
+        public void onFail(boolean notFound);
     }
 }
