@@ -155,7 +155,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
         pinDrawerView = (ListView) findViewById(R.id.left_drawer);
 
-        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext()); // Get the dark theme, not the light one
+        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext(), pinDrawerView); // Get the dark theme, not the light one
         pinnedAdapter.reload();
         pinDrawerView.setAdapter(pinnedAdapter);
 

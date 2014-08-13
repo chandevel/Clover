@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -43,11 +44,13 @@ public class PinnedAdapter extends BaseAdapter {
     private final static int VIEW_TYPE_HEADER = 1;
 
     private Context context;
+    private ListView listView;
     private List<Pin> pins = new ArrayList<>();
     private boolean postInvalidated = false;
 
-    public PinnedAdapter(Context context) {
+    public PinnedAdapter(Context context, ListView listView) {
         this.context = context;
+        this.listView = listView;
     }
 
     @Override
@@ -219,7 +222,7 @@ public class PinnedAdapter extends BaseAdapter {
                 @Override
                 public void run() {
                     postInvalidated = false;
-                    notifyDataSetInvalidated();
+                    listView.invalidateViews();
                 }
             }, 1000);
         }
