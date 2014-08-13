@@ -25,33 +25,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/reply_comment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/reply_comment"
-        android:imeActionLabel="@string/reply_submit"
-        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-        android:minLines="4"
-        android:textSize="16sp"/>
-
     <com.micromobs.android.floatlabel.FloatLabelEditText
         android:id="@+id/reply_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         floatlabel:fitScreenWidth="full"
         floatlabel:hint="@string/reply_name"
-        floatlabel:textColorHintFocused="@color/holo_blue_dark"
-        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
-        floatlabel:textSize="16sp"/>
-
-    <com.micromobs.android.floatlabel.FloatLabelEditText
-        android:id="@+id/reply_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        floatlabel:fitScreenWidth="full"
-        floatlabel:hint="@string/reply_email"
         floatlabel:textColorHintFocused="@color/holo_blue_dark"
         floatlabel:textColorHintUnFocused="@android:color/darker_gray"
         floatlabel:textSize="16sp"/>
@@ -65,6 +44,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         floatlabel:textColorHintFocused="@color/holo_blue_dark"
         floatlabel:textColorHintUnFocused="@android:color/darker_gray"
         floatlabel:textSize="16sp"/>
+
+    <com.micromobs.android.floatlabel.FloatLabelEditText
+        android:id="@+id/reply_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        floatlabel:fitScreenWidth="full"
+        floatlabel:hint="@string/reply_email"
+        floatlabel:textColorHintFocused="@color/holo_blue_dark"
+        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
+        floatlabel:textSize="16sp"/>
+
+    <EditText
+        android:id="@+id/reply_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/reply_comment"
+        android:imeActionLabel="@string/reply_submit"
+        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+        android:minLines="4"
+        android:textSize="16sp"/>
 
     <LinearLayout
         android:layout_width="match_parent"

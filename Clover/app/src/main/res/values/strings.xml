@@ -109,7 +109,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply">Reply to</string>
     <string name="reply_to_board">Make thread in</string>
     <string name="reply_name">Name</string>
-    <string name="reply_email">Email</string>
+    <string name="reply_email">Options</string>
     <string name="reply_subject">Subject</string>
     <string name="reply_comment">Comment</string>
     <string name="reply_file">Pick file</string>

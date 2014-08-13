@@ -245,6 +245,10 @@ public class ReplyFragment extends DialogFragment {
             subjectView.setVisibility(View.GONE);
         }
 
+        if (loadable.isThreadMode()) {
+            subjectView.setVisibility(View.GONE);
+        }
+
         cancelButton = (Button) container.findViewById(R.id.reply_cancel);
         cancelButton.setOnClickListener(new OnClickListener() {
             @Override
