@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -369,45 +370,47 @@ public class ReplyFragment extends DialogFragment {
         } else {
             fileDeleteButton.setEnabled(true);
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (context == null)
-                        return;
+            LinearLayout wrapper = new LinearLayout(context);
+            wrapper.setLayoutParams(Utils.MATCH_WRAP_PARAMS);
+            wrapper.setOrientation(LinearLayout.VERTICAL);
 
-                    final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), 3000);
+            fileNameView = new EditText(context);
+            fileNameView.setSingleLine();
+            fileNameView.setHint(R.string.reply_file_name);
+            fileNameView.setTextSize(16f);
+            fileNameView.setText(name);
+            wrapper.addView(fileNameView);
 
-                    context.runOnUiThread(new Runnable() {
+            final ImageView imageView = new ImageView(context);
+            imageView.setScaleType(ScaleType.CENTER_INSIDE);
+            wrapper.addView(imageView);
+
+            imageViewContainer.setView(wrapper);
+
+            String extension = MimeTypeMap.getFileExtensionFromUrl(name);
+            if (extension != null) {
+                String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                if (mimeType != null && mimeType.contains("image")) {
+                    new Thread(new Runnable() {
                         @Override
                         public void run() {
                             if (context == null)
                                 return;
 
-                            if (bitmap == null) {
-                                Toast.makeText(context, R.string.image_preview_failed, Toast.LENGTH_LONG).show();
-                            } else {
-                                LinearLayout wrapper = new LinearLayout(context);
-                                wrapper.setLayoutParams(Utils.MATCH_WRAP_PARAMS);
-                                wrapper.setOrientation(LinearLayout.VERTICAL);
+                            final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), 3000);
 
-                                fileNameView = new EditText(context);
-                                fileNameView.setSingleLine();
-                                fileNameView.setHint(R.string.reply_file_name);
-                                fileNameView.setTextSize(16f);
-                                fileNameView.setText(name);
-                                wrapper.addView(fileNameView);
-
-                                ImageView imageView = new ImageView(context);
-                                imageView.setScaleType(ScaleType.CENTER_INSIDE);
-                                imageView.setImageBitmap(bitmap);
-                                wrapper.addView(imageView);
-
-                                imageViewContainer.setView(wrapper);
-                            }
+                            context.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (context != null && bitmap != null) {
+                                        imageView.setImageBitmap(bitmap);
+                                    }
+                                }
+                            });
                         }
-                    });
+                    }).start();
                 }
-            }).start();
+            }
         }
     }
 

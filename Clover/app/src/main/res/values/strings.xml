@@ -64,6 +64,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="image_not_found">Image not found</string>
     <string name="image_open_failed">Failed to open image</string>
 
+    <string name="file_open_failed">Failed to open file</string>
+
     <string name="thread_load_failed_network">No network</string>
     <string name="thread_load_failed_parsing">Server inaccessible</string>
     <string name="thread_load_failed_server">404 not found</string>
