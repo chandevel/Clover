@@ -24,14 +24,12 @@ public class FileCache {
         this.directory = directory;
         this.maxSize = maxSize;
 
-        if (!directory.exists() && !directory.mkdirs()) {
-            Logger.e(TAG, "Unable to create file cache dir " + directory.getAbsolutePath());
-        }
-
-        calculateSize();
+        makeDir();
     }
 
     public File get(String key) {
+        makeDir();
+
         return new File(directory, Integer.toString(key.hashCode()));
     }
 
@@ -98,6 +96,16 @@ public class FileCache {
                             }
                         }
                     });
+        }
+    }
+
+    private void makeDir() {
+        if (!directory.exists()) {
+            calculateSize();
+
+            if (!directory.mkdirs()) {
+                Logger.e(TAG, "Unable to create file cache dir " + directory.getAbsolutePath());
+            }
         }
     }
 
