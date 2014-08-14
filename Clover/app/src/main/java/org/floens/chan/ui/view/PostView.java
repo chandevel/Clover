@@ -147,33 +147,12 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         }
 
         if (isList()) {
-            if (post.subjectSpan != null) {
-                total = TextUtils.concat(total, "\n");
-            }
-
-            if (post.nameSpan != null) {
-                total = TextUtils.concat(total, post.nameSpan, " ");
-            }
-
-            if (post.tripcodeSpan != null) {
-                total = TextUtils.concat(total, post.tripcodeSpan, " ");
-            }
-
-            if (post.idSpan != null) {
-                total = TextUtils.concat(total, post.idSpan, " ");
-            }
-
-            if (post.capcodeSpan != null) {
-                total = TextUtils.concat(total, post.capcodeSpan, " ");
-            }
-
-            CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(),
-                    DateUtils.SECOND_IN_MILLIS, 0);
-
+            CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
             SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);
             date.setSpan(new ForegroundColorSpan(dateColor), 0, date.length(), 0);
             date.setSpan(new AbsoluteSizeSpan(detailSize), 0, date.length(), 0);
-            total = TextUtils.concat(total, date, " ");
+
+            total = TextUtils.concat(total, post.subjectSpan == null ? "" : "\n", post.nameTripcodeIdCapcodeSpan, date, " ");
         }
 
         if (!TextUtils.isEmpty(total)) {

@@ -56,7 +56,6 @@ public class Post {
     public String country = "";
     public String countryName = "";
     public long time = -1;
-    public String email = "";
     public boolean isSavedReply = false;
     public String title = "";
     public int fileSize;
@@ -82,6 +81,7 @@ public class Post {
     public SpannableString tripcodeSpan;
     public SpannableString idSpan;
     public SpannableString capcodeSpan;
+    public CharSequence nameTripcodeIdCapcodeSpan;
 
     /**
      * The PostView the Post is currently bound to.

@@ -351,10 +351,6 @@ public class ThreadManager implements Loader.LoaderListener {
             text += "\nId: " + post.id;
         }
 
-        if (!TextUtils.isEmpty(post.email)) {
-            text += "\nEmail: " + post.email;
-        }
-
         if (!TextUtils.isEmpty(post.tripcode)) {
             text += "\nTripcode: " + post.tripcode;
         }

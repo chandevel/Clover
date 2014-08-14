@@ -28,10 +28,10 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.utils.ThemeHelper;
@@ -92,6 +92,18 @@ public class ChanParser {
     }
 
     private void parseSpans(Post post, TypedArray ta) {
+        boolean anonymize = ChanPreferences.getAnonymize();
+        boolean anonymizeIds = ChanPreferences.getAnonymizeIds();
+
+        if (anonymize) {
+            post.name = ChanApplication.getInstance().getString(R.string.default_name);
+            post.tripcode = "";
+        }
+
+        if (anonymizeIds) {
+            post.id = "";
+        }
+
         int detailSize = ta.getDimensionPixelSize(R.styleable.PostView_detail_size, 0);
 
         if (!TextUtils.isEmpty(post.subject)) {
@@ -102,9 +114,6 @@ public class ChanParser {
         if (!TextUtils.isEmpty(post.name)) {
             post.nameSpan = new SpannableString(post.name);
             post.nameSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.nameSpan.length(), 0);
-            if (!TextUtils.isEmpty(post.email)) {
-                post.nameSpan.setSpan(new UnderlineSpan(), 0, post.nameSpan.length(), 0);
-            }
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
@@ -136,6 +145,23 @@ public class ChanParser {
             post.capcodeSpan = new SpannableString("Capcode: " + post.capcode);
             post.capcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_capcode_color, 0)), 0, post.capcodeSpan.length(), 0);
             post.capcodeSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.capcodeSpan.length(), 0);
+        }
+
+        post.nameTripcodeIdCapcodeSpan = new SpannableString("");
+        if (post.nameSpan != null) {
+            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.nameSpan, " ");
+        }
+
+        if (post.tripcodeSpan != null) {
+            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.tripcodeSpan, " ");
+        }
+
+        if (post.idSpan != null) {
+            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.idSpan, " ");
+        }
+
+        if (post.capcodeSpan != null) {
+            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.capcodeSpan, " ");
         }
     }
 
