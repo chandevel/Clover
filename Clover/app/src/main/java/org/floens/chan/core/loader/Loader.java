@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.loader;
 
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 import com.android.volley.Response;
@@ -48,6 +49,7 @@ public class Loader {
     private final Loadable loadable;
     private final SparseArray<Post> postsById = new SparseArray<Post>();
     private final List<Post> cachedPosts = new ArrayList<Post>();
+    private Post op;
 
     private boolean destroyed = false;
     private boolean autoReload = false;
@@ -132,6 +134,7 @@ public class Loader {
 
         currentTimeout = 0;
         cachedPosts.clear();
+        op = null;
 
         request = getData();
     }
@@ -181,6 +184,10 @@ public class Loader {
 
     public Loadable getLoadable() {
         return loadable;
+    }
+
+    public Post getOP() {
+        return op;
     }
 
     /**
@@ -284,6 +291,18 @@ public class Loader {
         postsById.clear();
         for (Post post : result) {
             postsById.append(post.no, post);
+        }
+
+        if (loadable.isThreadMode() && result.size() > 0) {
+            op = result.get(0);
+        }
+
+        if (TextUtils.isEmpty(loadable.title)) {
+            if (getOP() != null) {
+                loadable.generateTitle(getOP());
+            } else {
+                loadable.title = "/" + loadable.board + "/";
+            }
         }
 
         for (LoaderListener l : listeners) {

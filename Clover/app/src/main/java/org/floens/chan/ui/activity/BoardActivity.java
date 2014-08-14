@@ -27,7 +27,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -276,10 +275,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
     @Override
     public void onThreadLoaded(Loadable loadable, List<Post> posts) {
-        if (loadable.isThreadMode() && TextUtils.isEmpty(threadLoadable.title) && posts.size() > 0) {
-            threadLoadable.generateTitle(posts.get(0));
-            updateActionBarState();
-        }
+        updateActionBarState();
         pinnedAdapter.notifyDataSetChanged();
     }
 

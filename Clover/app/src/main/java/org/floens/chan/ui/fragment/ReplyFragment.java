@@ -128,8 +128,7 @@ public class ReplyFragment extends DialogFragment {
             setClosable(true);
 
             Dialog dialog = getDialog();
-            String title = loadable.isThreadMode() ? context.getString(R.string.reply) + " /" + loadable.board + "/"
-                    + loadable.no : context.getString(R.string.reply_to_board) + " /" + loadable.board + "/";
+            String title = (loadable.isThreadMode() ? context.getString(R.string.reply) : context.getString(R.string.reply_to_board)) + " " + loadable.title;
 
             if (dialog == null) {
                 context.getActionBar().setTitle(title);
