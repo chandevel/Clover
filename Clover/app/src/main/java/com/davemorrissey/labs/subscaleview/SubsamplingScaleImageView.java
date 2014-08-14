@@ -183,6 +183,8 @@ public class SubsamplingScaleImageView extends View {
     private Paint bitmapPaint;
     private Paint debugPaint;
 
+    private InitedCallback initCallback;
+
     public SubsamplingScaleImageView(Context context, AttributeSet attr) {
         super(context, attr);
         setMinimumDpi(160);
@@ -219,6 +221,10 @@ public class SubsamplingScaleImageView extends View {
 
     public SubsamplingScaleImageView(Context context) {
         this(context, null);
+    }
+
+    public void setInitCallback(InitedCallback initCallback) {
+        this.initCallback = initCallback;
     }
 
     /**
@@ -1529,7 +1535,9 @@ public class SubsamplingScaleImageView extends View {
      * skip their own rendering until the base layer (and its scale and translate) are known.
      */
     protected void onImageReady() {
-
+        if (initCallback != null) {
+            initCallback.onInit();
+        }
     }
 
     /**
@@ -1821,5 +1829,9 @@ public class SubsamplingScaleImageView extends View {
             invalidate();
         }
 
+    }
+
+    public interface InitedCallback {
+        public void onInit();
     }
 }

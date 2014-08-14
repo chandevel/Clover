@@ -121,7 +121,6 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
-                    callback.setProgress(false);
                     callback.setLinearProgress(0, 0, true);
                     thumbnailNeeded = false;
                 } else {
@@ -131,11 +130,25 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
             @Override
             public void onSuccess(File file) {
-                SubsamplingScaleImageView image = new SubsamplingScaleImageView(getContext());
+                final SubsamplingScaleImageView image = new SubsamplingScaleImageView(getContext());
                 image.setImageFile(file.getAbsolutePath());
                 image.setOnClickListener(ThumbnailImageView.this);
 
-                setView(image, false);
+                addView(image);
+
+                image.setInitCallback(new SubsamplingScaleImageView.InitedCallback() {
+                    @Override
+                    public void onInit() {
+                        Utils.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                removeAllViews();
+                                addView(image);
+                                callback.setProgress(false);
+                            }
+                        });
+                    }
+                });
             }
 
             @Override
@@ -245,11 +258,6 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 }
             }
         });
-    }
-
-    @Override
-    public void setView(View view, boolean animation) {
-        super.setView(view, animation && !thumbnailNeeded);
     }
 
     public VideoView getVideoView() {
