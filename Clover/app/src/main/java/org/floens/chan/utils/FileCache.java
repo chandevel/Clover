@@ -9,8 +9,6 @@ import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
 
-import org.floens.chan.ChanApplication;
-
 import java.io.File;
 import java.util.concurrent.CancellationException;
 
@@ -95,7 +93,7 @@ public class FileCache {
                             }
 
                             if (result != null && result.getResult() != null) {
-                                ChanApplication.getFileCache().put(result.getResult());
+                                put(result.getResult());
                                 callback.onSuccess(result.getResult());
                             }
                         }
