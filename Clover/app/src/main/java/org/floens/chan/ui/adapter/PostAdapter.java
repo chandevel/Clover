@@ -164,7 +164,8 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                     String constraint = constraintRaw.toString().toLowerCase(Locale.ENGLISH);
 
                     for (Post post : all) {
-                        if (post.comment.toString().toLowerCase(Locale.ENGLISH).contains(constraint)) {
+                        if (post.comment.toString().toLowerCase(Locale.ENGLISH).contains(constraint) ||
+                                post.subject.toLowerCase(Locale.ENGLISH).contains(constraint)) {
                             accepted.add(post);
                         }
                     }
