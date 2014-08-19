@@ -17,14 +17,20 @@
  */
 package org.floens.chan.ui.fragment;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import org.floens.chan.R;
@@ -37,6 +43,8 @@ import org.floens.chan.ui.view.ThumbnailImageView;
 import org.floens.chan.ui.view.ThumbnailImageView.ThumbnailImageViewCallback;
 import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Utils;
+
+import java.io.File;
 
 public class ImageViewFragment extends Fragment implements ThumbnailImageViewCallback {
     private Context context;
@@ -146,6 +154,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 imageView.setBigImage(post.imageUrl);
                 break;
         }
+
     }
 
     @Override
@@ -247,6 +256,45 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
                 break;
         }
+    }
+
+    public void onVideoError(File video) {
+        if (ChanPreferences.getVideoErrorIgnore()) {
+            Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
+        } else {
+            showVideoWarning();
+        }
+    }
+
+    private void showVideoWarning() {
+        LinearLayout notice = new LinearLayout(context);
+        notice.setOrientation(LinearLayout.VERTICAL);
+
+        TextView noticeText = new TextView(context);
+        noticeText.setText(R.string.video_playback_warning);
+        noticeText.setTextSize(16f);
+        notice.addView(noticeText, Utils.MATCH_WRAP_PARAMS);
+
+        final CheckBox dontShowAgain = new CheckBox(context);
+        dontShowAgain.setText(R.string.video_playback_ignore);
+        notice.addView(dontShowAgain, Utils.MATCH_WRAP_PARAMS);
+
+        int padding = Utils.dp(16f);
+        notice.setPadding(padding, padding, padding, padding);
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.video_playback_warning_title)
+                .setView(notice)
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (dontShowAgain.isChecked()) {
+                            ChanPreferences.setVideoErrorIgnore(true);
+                        }
+                    }
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void startVideo() {

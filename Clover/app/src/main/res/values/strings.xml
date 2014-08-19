@@ -242,6 +242,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="settings_advanced_label">Advanced settings</string>
 
     <string name="default_name">Anonymous</string>
+
+    <string name="video_playback_warning_title">WebM not supported</string>
+    <string name="video_playback_warning">Unfortunately, your hardware doesn\'t support playing WebM videos.\nYou can install an external media player that has a software decoder. Then if you installed that, enable \"Open videos external\" in the settings.</string>
+    <string name="video_playback_ignore">Don\'t show again</string>
+    <string name="preference_video_external">Open videos external</string>
+    <string name="preference_video_external_summary">Open videos in external media player</string>
 </resources>
 
 

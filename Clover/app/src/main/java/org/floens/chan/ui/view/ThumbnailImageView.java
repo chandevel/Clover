@@ -17,8 +17,11 @@
  */
 package org.floens.chan.ui.view;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -34,6 +37,7 @@ import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
@@ -224,29 +228,48 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             }
 
             @Override
-            public void onSuccess(File file) {
-                videoView = new VideoView(getContext());
-                videoView.setZOrderOnTop(true);
-                videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                        LayoutParams.MATCH_PARENT));
-                videoView.setLayoutParams(Utils.MATCH_PARAMS);
-                LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-                par.gravity = Gravity.CENTER;
-                videoView.setLayoutParams(par);
+            public void onSuccess(final File file) {
+                if (ChanPreferences.getVideoExternal()) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(file), "video/*");
 
-                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        mp.setLooping(true);
-                        callback.onVideoLoaded();
+                    try {
+                        getContext().startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(getContext(), R.string.open_link_failed, Toast.LENGTH_SHORT).show();
                     }
-                });
+                } else {
+                    videoView = new VideoView(getContext());
+                    videoView.setZOrderOnTop(true);
+                    videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                            LayoutParams.MATCH_PARENT));
+                    videoView.setLayoutParams(Utils.MATCH_PARAMS);
+                    LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                    par.gravity = Gravity.CENTER;
+                    videoView.setLayoutParams(par);
 
-                videoView.setVideoPath(file.getAbsolutePath());
+                    videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            mp.setLooping(true);
+                            callback.onVideoLoaded();
+                        }
+                    });
+                    videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                        @Override
+                        public boolean onError(MediaPlayer mp, int what, int extra) {
+                            callback.onVideoError(file);
 
-                setView(videoView, false);
+                            return true;
+                        }
+                    });
 
-                videoView.start();
+                    videoView.setVideoPath(file.getAbsolutePath());
+
+                    setView(videoView, false);
+
+                    videoView.start();
+                }
             }
 
             @Override
@@ -298,5 +321,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         public void setLinearProgress(long current, long total, boolean done);
 
         public void onVideoLoaded();
+
+        public void onVideoError(File video);
     }
 }

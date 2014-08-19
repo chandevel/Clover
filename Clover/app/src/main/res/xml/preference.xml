@@ -71,6 +71,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:dependency="preference_image_auto_load"
             android:key="preference_autoplay"
             android:title="@string/preference_autoplay" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="preference_video_external"
+            android:summary="@string/preference_video_external_summary"
+            android:title="@string/preference_video_external" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/preference_posting">

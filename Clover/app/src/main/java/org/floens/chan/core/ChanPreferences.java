@@ -104,7 +104,7 @@ public class ChanPreferences {
     }
 
     public static boolean getVideoAutoPlay() {
-        return getImageAutoLoad() && p().getBoolean("preference_autoplay", false);
+        return getImageAutoLoad() && !getVideoExternal() && p().getBoolean("preference_autoplay", false);
     }
 
     public static boolean getThreadAutoRefresh() {
@@ -175,5 +175,17 @@ public class ChanPreferences {
 
     public static String getBoardMode() {
         return p().getString("preference_board_mode", "catalog");
+    }
+
+    public static boolean getVideoErrorIgnore() {
+        return p().getBoolean("preference_video_error_ignore", false);
+    }
+
+    public static void setVideoErrorIgnore(boolean show) {
+        p().edit().putBoolean("preference_video_error_ignore", show).commit();
+    }
+
+    public static boolean getVideoExternal() {
+        return p().getBoolean("preference_video_external", false);
     }
 }
