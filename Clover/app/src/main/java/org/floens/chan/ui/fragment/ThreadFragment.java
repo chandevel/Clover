@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -35,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.android.volley.NetworkError;
@@ -52,6 +52,7 @@ import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
 import java.util.List;
@@ -70,7 +71,6 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     private SkipLogic skipLogic;
     private int highlightedPost = -1;
     private ThreadManager.ViewMode viewMode = ThreadManager.ViewMode.LIST;
-    private String lastFilter = "";
     private boolean isFiltering = false;
 
     public static ThreadFragment newInstance(BaseActivity activity) {
@@ -120,10 +120,11 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         return threadManager.getLoader();
     }
 
-    public void setFilter(String filter) {
-        if (!filter.equals(lastFilter) && postAdapter != null) {
-            lastFilter = filter;
-            postAdapter.setFilter(filter);
+    public void startFiltering() {
+        if (filterView != null) {
+            isFiltering = true;
+            filterView.setVisibility(View.VISIBLE);
+            filterView.focusSearch();
         }
     }
 
@@ -166,8 +167,8 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     public void onPostClicked(Post post) {
         if (loadable.isBoardMode() || loadable.isCatalogMode()) {
             baseActivity.onOPClicked(post);
-        } else if (loadable.isThreadMode() && !TextUtils.isEmpty(lastFilter)) {
-            baseActivity.onSetFilter("");
+        } else if (loadable.isThreadMode() && isFiltering) {
+            filterView.clearSearch();
             postAdapter.scrollToPost(post.no);
         }
     }
@@ -211,87 +212,8 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public void onThreadLoaded(List posts, boolean append) {
         if (postAdapter == null) {
-            RelativeLayout compound = new RelativeLayout(baseActivity);
-
-            LinearLayout listViewContainer = new LinearLayout(baseActivity);
-            listViewContainer.setOrientation(LinearLayout.VERTICAL);
-
-            filterView = new FilterView(baseActivity);
-            filterView.setVisibility(View.GONE);
-            listViewContainer.addView(filterView, Utils.MATCH_WRAP_PARAMS);
-
-            if (viewMode == ThreadManager.ViewMode.LIST) {
-                ListView list = new ListView(baseActivity);
-                listView = list;
-                postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
-                listView.setAdapter(postAdapter);
-                list.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
-            } else if (viewMode == ThreadManager.ViewMode.GRID) {
-                GridView grid = new GridView(baseActivity);
-                grid.setNumColumns(GridView.AUTO_FIT);
-                TypedArray ta = baseActivity.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
-                int postGridWidth = ta.getDimensionPixelSize(R.styleable.PostView_grid_width, 0);
-                int postGridSpacing = ta.getDimensionPixelSize(R.styleable.PostView_grid_spacing, 0);
-                ta.recycle();
-                grid.setColumnWidth(postGridWidth);
-                grid.setVerticalSpacing(postGridSpacing);
-                grid.setHorizontalSpacing(postGridSpacing);
-                listView = grid;
-                postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
-                listView.setAdapter(postAdapter);
-                listView.setSelection(loadable.listViewIndex);
-            }
-
-            listView.setOnScrollListener(new OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(AbsListView view, int scrollState) {
-                    if (!isFiltering) {
-                        if (skipLogic != null) {
-                            skipLogic.onScrollStateChanged(view, scrollState);
-                        }
-                    }
-                }
-
-                @Override
-                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (!isFiltering) {
-                        if (loadable != null) {
-                            int index = view.getFirstVisiblePosition();
-                            View v = view.getChildAt(0);
-                            int top = v == null ? 0 : v.getTop();
-                            if (index != 0 || top != 0) {
-                                loadable.listViewIndex = index;
-                                loadable.listViewTop = top;
-                            }
-                        }
-                        if (skipLogic != null) {
-                            skipLogic.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
-                        }
-                    }
-                }
-            });
-
-            listViewContainer.addView(listView, Utils.MATCH_PARAMS);
-
-            compound.addView(listViewContainer, Utils.MATCH_PARAMS);
-
-            if (loadable.isThreadMode()) {
-                skip = new ImageView(baseActivity);
-                skip.setImageResource(R.drawable.skip_arrow_down);
-                skip.setVisibility(View.GONE);
-                compound.addView(skip, Utils.WRAP_PARAMS);
-
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) skip.getLayoutParams();
-                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                params.setMargins(0, 0, Utils.dp(8), Utils.dp(8));
-                skip.setLayoutParams(params);
-
-                skipLogic = new SkipLogic(skip, listView);
-            }
-
             if (container != null) {
-                container.setView(compound);
+                container.setView(createView());
             }
         }
 
@@ -333,13 +255,91 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         isFiltering = !all;
 
         if (filterView != null) {
-            if (all) {
-                filterView.setVisibility(View.GONE);
-            } else {
-                filterView.setVisibility(View.VISIBLE);
-                filterView.setText(filter, count);
-            }
+            filterView.setText(filter, count, all);
         }
+    }
+
+    private RelativeLayout createView() {
+        RelativeLayout compound = new RelativeLayout(baseActivity);
+
+        LinearLayout listViewContainer = new LinearLayout(baseActivity);
+        listViewContainer.setOrientation(LinearLayout.VERTICAL);
+
+        filterView = new FilterView(baseActivity);
+        filterView.setVisibility(View.GONE);
+        listViewContainer.addView(filterView, Utils.MATCH_WRAP_PARAMS);
+
+        if (viewMode == ThreadManager.ViewMode.LIST) {
+            ListView list = new ListView(baseActivity);
+            listView = list;
+            postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
+            listView.setAdapter(postAdapter);
+            list.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
+        } else if (viewMode == ThreadManager.ViewMode.GRID) {
+            GridView grid = new GridView(baseActivity);
+            grid.setNumColumns(GridView.AUTO_FIT);
+            TypedArray ta = baseActivity.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
+            int postGridWidth = ta.getDimensionPixelSize(R.styleable.PostView_grid_width, 0);
+            int postGridSpacing = ta.getDimensionPixelSize(R.styleable.PostView_grid_spacing, 0);
+            ta.recycle();
+            grid.setColumnWidth(postGridWidth);
+            grid.setVerticalSpacing(postGridSpacing);
+            grid.setHorizontalSpacing(postGridSpacing);
+            listView = grid;
+            postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
+            listView.setAdapter(postAdapter);
+            listView.setSelection(loadable.listViewIndex);
+        }
+
+        listView.setOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (!isFiltering) {
+                    if (skipLogic != null) {
+                        skipLogic.onScrollStateChanged(view, scrollState);
+                    }
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (!isFiltering) {
+                    if (loadable != null) {
+                        int index = view.getFirstVisiblePosition();
+                        View v = view.getChildAt(0);
+                        int top = v == null ? 0 : v.getTop();
+                        if (index != 0 || top != 0) {
+                            loadable.listViewIndex = index;
+                            loadable.listViewTop = top;
+                        }
+                    }
+                    if (skipLogic != null) {
+                        skipLogic.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+                    }
+                }
+            }
+        });
+
+        listViewContainer.addView(listView, Utils.MATCH_PARAMS);
+
+        compound.addView(listViewContainer, Utils.MATCH_PARAMS);
+
+        if (loadable.isThreadMode()) {
+            skip = new ImageView(baseActivity);
+            skip.setImageResource(R.drawable.skip_arrow_down);
+            skip.setVisibility(View.GONE);
+            compound.addView(skip, Utils.WRAP_PARAMS);
+
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) skip.getLayoutParams();
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params.setMargins(0, 0, Utils.dp(8), Utils.dp(8));
+            skip.setLayoutParams(params);
+
+            skipLogic = new SkipLogic(skip, listView);
+        }
+
+        return compound;
     }
 
     private void setEmpty() {
@@ -356,6 +356,13 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
         skip = null;
         skipLogic = null;
+        filterView = null;
+    }
+
+    private void doFilter(String filter) {
+        if (postAdapter != null) {
+            postAdapter.setFilter(filter);
+        }
     }
 
     /**
@@ -452,6 +459,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     public class FilterView extends LinearLayout {
+        private SearchView searchView;
         private TextView textView;
 
         public FilterView(Context activity) {
@@ -469,16 +477,79 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             init();
         }
 
+        public void focusSearch() {
+            searchView.requestFocus();
+        }
+
+        public void clearSearch() {
+            searchView.setQuery("", false);
+            doFilter("");
+            setVisibility(View.GONE);
+        }
+
         private void init() {
+            setOrientation(LinearLayout.VERTICAL);
+
+            LinearLayout searchViewContainer = new LinearLayout(getContext());
+            searchViewContainer.setOrientation(LinearLayout.HORIZONTAL);
+
+            searchView = new SearchView(getContext());
+            searchView.setIconifiedByDefault(false);
+            searchViewContainer.addView(searchView);
+            LinearLayout.LayoutParams searchViewParams = (LinearLayout.LayoutParams) searchView.getLayoutParams();
+            searchViewParams.weight = 1f;
+            searchViewParams.width = 0;
+            searchViewParams.height = LayoutParams.MATCH_PARENT;
+            searchView.setLayoutParams(searchViewParams);
+
+            ImageView closeButton = new ImageView(getContext());
+            searchViewContainer.addView(closeButton);
+            closeButton.setImageResource(ThemeHelper.getInstance().getTheme().isLightTheme ? R.drawable.ic_action_cancel : R.drawable.ic_action_cancel_dark);
+            LinearLayout.LayoutParams closeButtonParams = (LinearLayout.LayoutParams) closeButton.getLayoutParams();
+            searchViewParams.width = Utils.dp(48);
+            searchViewParams.height = LayoutParams.MATCH_PARENT;
+            closeButton.setLayoutParams(closeButtonParams);
+            Utils.setPressedDrawable(closeButton);
+            int padding = Utils.dp(8);
+            closeButton.setPadding(padding, padding, padding, padding);
+
+            closeButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clearSearch();
+                }
+            });
+
+            addView(searchViewContainer, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(48)));
+
+            searchView.setQueryHint(getString(R.string.search_hint));
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    doFilter(query);
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    doFilter(newText);
+                    return false;
+                }
+            });
+
             textView = new TextView(getContext());
             textView.setGravity(Gravity.CENTER);
             addView(textView, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(48)));
         }
 
-        private void setText(String filter, int count) {
-            String posts = getContext().getString(count == 1 ? R.string.one_post : R.string.multiple_posts);
-            String text = getContext().getString(R.string.search_results, Integer.toString(count), posts, filter);
-            textView.setText(text);
+        private void setText(String filter, int count, boolean all) {
+            if (all) {
+                textView.setText("");
+            } else {
+                String posts = getContext().getString(count == 1 ? R.string.one_post : R.string.multiple_posts);
+                String text = getContext().getString(R.string.search_results, Integer.toString(count), posts, filter);
+                textView.setText(text);
+            }
         }
     }
 }

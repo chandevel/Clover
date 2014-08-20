@@ -79,9 +79,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <item
         android:id="@+id/action_search"
-        android:actionViewClass="android.widget.SearchView"
         android:orderInCategory="6"
-        android:showAsAction="never|collapseActionView"
         android:title="@string/action_search" />
 
     <item
