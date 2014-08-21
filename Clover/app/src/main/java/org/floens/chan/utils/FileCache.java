@@ -5,9 +5,10 @@ import android.util.Log;
 
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
 import com.koushikdutta.ion.Response;
+
+import org.floens.chan.ChanApplication;
 
 import java.io.File;
 import java.util.concurrent.CancellationException;
@@ -25,6 +26,7 @@ public class FileCache {
         this.maxSize = maxSize;
 
         makeDir();
+        calculateSize();
     }
 
     public File get(String key) {
@@ -53,7 +55,7 @@ public class FileCache {
             callback.onSuccess(file);
             return null;
         } else {
-            return Ion.with(context)
+            return ChanApplication.getIon()
                     .load(url)
                     .progress(new ProgressCallback() {
                         @Override
@@ -101,10 +103,10 @@ public class FileCache {
 
     private void makeDir() {
         if (!directory.exists()) {
-            calculateSize();
-
             if (!directory.mkdirs()) {
                 Logger.e(TAG, "Unable to create file cache dir " + directory.getAbsolutePath());
+            } else {
+                calculateSize();
             }
         }
     }
