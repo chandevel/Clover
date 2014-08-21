@@ -134,13 +134,13 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
             @Override
             public void onSuccess(File file) {
-                final SubsamplingScaleImageView image = new SubsamplingScaleImageView(getContext());
+                final CustomScaleImageView image = new CustomScaleImageView(getContext());
                 image.setImageFile(file.getAbsolutePath());
                 image.setOnClickListener(ThumbnailImageView.this);
 
                 addView(image);
 
-                image.setInitCallback(new SubsamplingScaleImageView.InitedCallback() {
+                image.setInitCallback(new CustomScaleImageView.InitedCallback() {
                     @Override
                     public void onInit() {
                         Utils.runOnUiThread(new Runnable() {
