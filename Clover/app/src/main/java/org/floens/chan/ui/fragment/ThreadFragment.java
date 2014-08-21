@@ -27,6 +27,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.GridView;
@@ -495,6 +496,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
             searchView = new SearchView(getContext());
             searchView.setIconifiedByDefault(false);
+            searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
             searchViewContainer.addView(searchView);
             LinearLayout.LayoutParams searchViewParams = (LinearLayout.LayoutParams) searchView.getLayoutParams();
             searchViewParams.weight = 1f;
@@ -539,7 +541,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
             textView = new TextView(getContext());
             textView.setGravity(Gravity.CENTER);
-            addView(textView, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(48)));
+            addView(textView, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(28)));
         }
 
         private void setText(String filter, int count, boolean all) {
