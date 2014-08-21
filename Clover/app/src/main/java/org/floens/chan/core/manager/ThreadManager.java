@@ -237,6 +237,10 @@ public class ThreadManager implements Loader.LoaderListener {
             menu.add(Menu.NONE, 9, Menu.NONE, activity.getString(R.string.action_pin));
         }
 
+        if (loader.getLoadable().isThreadMode()) {
+            menu.add(Menu.NONE, 5, Menu.NONE, activity.getString(R.string.post_quick_reply));
+        }
+
         String[] baseOptions = activity.getResources().getStringArray(R.array.post_options);
         for (int i = 0; i < baseOptions.length; i++) {
             menu.add(Menu.NONE, i, Menu.NONE, baseOptions[i]);
@@ -259,22 +263,22 @@ public class ThreadManager implements Loader.LoaderListener {
             @Override
             public boolean onMenuItemClick(final MenuItem item) {
                 switch (item.getItemId()) {
-                    case 0: // Quick reply
+                    case 5: // Quick reply
                         openReply(false);
                         // Pass through
-                    case 1: // Quote
+                    case 0: // Quote
                         ChanApplication.getReplyManager().quote(post.no);
                         break;
-                    case 2: // Info
+                    case 1: // Info
                         showPostInfo(post);
                         break;
-                    case 3: // Show clickables
+                    case 2: // Show clickables
                         showPostLinkables(post);
                         break;
-                    case 4: // Copy text
+                    case 3: // Copy text
                         copyToClipboard(post.comment.toString());
                         break;
-                    case 5: // Report
+                    case 4: // Report
                         Utils.openLink(activity, ChanUrls.getReportUrl(post.board, post.no));
                         break;
                     case 6: // Id

@@ -98,13 +98,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="multiple_posts">posts</string>
     <string name="post_info">Info</string>
     <string-array name="post_options">
-        <item>Quick reply</item>
         <item>Quote</item>
         <item>Info</item>
         <item>Show clickables</item>
         <item>Copy text</item>
         <item>Report</item>
     </string-array>
+    <string name="post_quick_reply">Quick reply</string>
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_text_copied_to_clipboard">Text copied to clipboard</string>
 
