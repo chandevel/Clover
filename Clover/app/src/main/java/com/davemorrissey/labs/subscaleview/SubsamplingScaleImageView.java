@@ -1025,6 +1025,9 @@ public class SubsamplingScaleImageView extends View {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed to initialise bitmap decoder", e);
+            } catch (OutOfMemoryError e) {
+                Log.e(TAG, "OOM in decode tile", e);
+                System.gc();
             }
             return null;
         }
@@ -1086,6 +1089,9 @@ public class SubsamplingScaleImageView extends View {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed to decode tile", e);
+            } catch (OutOfMemoryError e) {
+                Log.e(TAG, "OOM in decode tile", e);
+                System.gc();
             }
             return null;
         }
