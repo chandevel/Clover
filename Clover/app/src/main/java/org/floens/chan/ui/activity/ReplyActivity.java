@@ -42,7 +42,7 @@ public class ReplyActivity extends Activity {
 
         ThemeHelper.setTheme(this);
 
-        if (loadable != null) {
+        if (loadable != null && savedInstanceState == null) {
             getActionBar().setDisplayHomeAsUpEnabled(true);
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -50,7 +50,7 @@ public class ReplyActivity extends Activity {
             ft.commitAllowingStateLoss();
 
             loadable = null;
-        } else {
+        } else if (savedInstanceState == null) {
             Logger.e(TAG, "ThreadFragment was null, exiting!");
             finish();
         }

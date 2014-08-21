@@ -112,6 +112,7 @@ public class ReplyFragment extends DialogFragment {
         super.onSaveInstanceState(outState);
 
         loadable.writeToBundle(context, outState);
+        outState.putBoolean(context.getPackageName() + ".quickmode", quickMode);
     }
 
     @Override
@@ -123,6 +124,7 @@ public class ReplyFragment extends DialogFragment {
         if (loadable == null && savedInstanceState != null) {
             loadable = new Loadable();
             loadable.readFromBundle(context, savedInstanceState);
+            quickMode = savedInstanceState.getBoolean(context.getPackageName() + ".quickmode");
         }
 
         if (loadable != null) {
@@ -169,6 +171,16 @@ public class ReplyFragment extends DialogFragment {
             // To the end of the comment
             Selection.setSelection(commentView.getText(), commentView.getText().length());
             setFile(draft.fileName, draft.file);
+
+            if (loadable.isThreadMode()) {
+                subjectView.setVisibility(View.GONE);
+            }
+
+            if (quickMode) {
+                nameView.setVisibility(View.GONE);
+                emailView.setVisibility(View.GONE);
+                subjectView.setVisibility(View.GONE);
+            }
 
             getCaptcha();
         } else {
@@ -237,16 +249,6 @@ public class ReplyFragment extends DialogFragment {
             ((TextView) container.findViewById(R.id.reply_captcha_text)).setText(R.string.pass_using);
             container.findViewById(R.id.reply_captcha_container).setVisibility(View.GONE);
             container.findViewById(R.id.reply_captcha).setVisibility(View.GONE);
-        }
-
-        if (quickMode) {
-            nameView.setVisibility(View.GONE);
-            emailView.setVisibility(View.GONE);
-            subjectView.setVisibility(View.GONE);
-        }
-
-        if (loadable.isThreadMode()) {
-            subjectView.setVisibility(View.GONE);
         }
 
         cancelButton = (Button) container.findViewById(R.id.reply_cancel);
