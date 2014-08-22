@@ -188,4 +188,9 @@ public class ChanPreferences {
     public static boolean getVideoExternal() {
         return p().getBoolean("preference_video_external", false);
     }
+
+    public static int getFontSize() {
+        String font = p().getString("preference_font", null);
+        return font == null ? 15 : Integer.parseInt(font);
+    }
 }

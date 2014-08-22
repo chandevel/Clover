@@ -69,13 +69,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="grid_padding" format="dimension"/>
         <attr name="grid_image_size" format="dimension"/>
         <attr name="grid_comment_padding" format="dimension"/>
-        <attr name="grid_comment_size" format="dimension"/>
         <attr name="grid_replies_count_size" format="dimension"/>
         <attr name="list_comment_max_height" format="dimension"/>
         <attr name="list_padding" format="dimension"/>
         <attr name="list_image_size" format="dimension"/>
         <attr name="list_comment_padding" format="dimension"/>
-        <attr name="list_comment_size" format="dimension"/>
         <attr name="list_replies_count_size" format="dimension"/>
         <attr name="grid_width" format="dimension"/>
         <attr name="grid_height" format="dimension"/>

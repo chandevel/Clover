@@ -268,13 +268,13 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         int imageSize = 0;
         int repliesCountSize = 0;
         if (isList()) {
-            postCommentSize = ta.getDimensionPixelSize(R.styleable.PostView_list_comment_size, 0);
+            postCommentSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, ThemeHelper.getInstance().getFontSize(), getResources().getDisplayMetrics());
             commentPadding = ta.getDimensionPixelSize(R.styleable.PostView_list_comment_padding, 0);
             postPadding = ta.getDimensionPixelSize(R.styleable.PostView_list_padding, 0);
             imageSize = ta.getDimensionPixelSize(R.styleable.PostView_list_image_size, 0);
             repliesCountSize = ta.getDimensionPixelSize(R.styleable.PostView_list_replies_count_size, 0);
         } else if (isGrid()) {
-            postCommentSize = ta.getDimensionPixelSize(R.styleable.PostView_grid_comment_size, 0);
+            postCommentSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, ThemeHelper.getInstance().getFontSize() - 1, getResources().getDisplayMetrics());
             commentPadding = ta.getDimensionPixelSize(R.styleable.PostView_grid_comment_padding, 0);
             postPadding = ta.getDimensionPixelSize(R.styleable.PostView_grid_padding, 0);
             imageSize = ta.getDimensionPixelSize(R.styleable.PostView_grid_image_size, 0);

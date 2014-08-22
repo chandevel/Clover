@@ -158,6 +158,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>black</item>
     </string-array>
 
+    <string name="preference_font">Font size</string>
+    <string-array name="preference_fonts">
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15 (normal)</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+    </string-array>
+    <string-array name="preference_fonts_values">
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+    </string-array>
+
     <string name="preference_board_mode">Board mode</string>
     <string-array name="preference_board_modes">
         <item>Catalog</item>

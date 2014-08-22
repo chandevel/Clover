@@ -32,6 +32,7 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.ui.activity.AboutActivity;
+import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.SettingsActivity;
 import org.floens.chan.utils.ThemeHelper;
 
@@ -117,6 +118,24 @@ public class SettingsFragment extends PreferenceFragment {
 
                     ((SettingsActivity) getActivity()).restart(intent);
                 }
+
+                return true;
+            }
+        });
+
+        final ListPreference font = (ListPreference) findPreference("preference_font");
+        String currentFontValue = font.getValue();
+        if (currentFontValue == null) {
+            font.setValue((String) font.getEntryValues()[0]);
+            currentFontValue = font.getValue();
+        }
+        updateSummary(font, currentFontValue);
+
+        font.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                updateSummary(font, newValue.toString());
+                BaseActivity.doRestartOnResume = true;
 
                 return true;
             }

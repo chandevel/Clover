@@ -98,13 +98,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="grid_padding">5dp</item>
         <item name="grid_image_size">120dp</item>
         <item name="grid_comment_padding">8dp</item>
-        <item name="grid_comment_size">14sp</item>
         <item name="grid_replies_count_size">11sp</item>
 
         <item name="list_padding">10dp</item>
         <item name="list_image_size">70dp</item>
         <item name="list_comment_padding">11dp</item>
-        <item name="list_comment_size">15sp</item>
         <item name="list_replies_count_size">14sp</item>
         <item name="list_comment_max_height">200dp</item>
 

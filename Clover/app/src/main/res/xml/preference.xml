@@ -51,6 +51,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:key="preference_theme"
             android:title="@string/preference_theme" />
 
+        <ListPreference
+            android:defaultValue="15"
+            android:dialogTitle="@string/preference_font"
+            android:entries="@array/preference_fonts"
+            android:entryValues="@array/preference_fonts_values"
+            android:key="preference_font"
+            android:title="@string/preference_font" />
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="preference_open_link_confirmation"
