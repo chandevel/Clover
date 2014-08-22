@@ -387,17 +387,27 @@ public class ReplyManager {
                 if (e.isSuccessful) {
                     Matcher matcher = responsePattern.matcher(e.responseData);
 
-                    if (matcher.find() && matcher.groupCount() == 2) {
+                    int threadNo = -1;
+                    int no = -1;
+                    if (matcher.find()) {
                         try {
-                            SavedReply savedReply = new SavedReply();
-                            savedReply.board = reply.board;
-                            savedReply.no = Integer.parseInt(matcher.group(2));
-                            savedReply.password = reply.password;
-
-                            ChanApplication.getDatabaseManager().saveReply(savedReply);
+                            threadNo = Integer.parseInt(matcher.group(1));
+                            no = Integer.parseInt(matcher.group(2));
                         } catch (NumberFormatException err) {
                             err.printStackTrace();
                         }
+                    }
+
+                    if (threadNo >= 0 && no >= 0) {
+                        SavedReply savedReply = new SavedReply();
+                        savedReply.board = reply.board;
+                        savedReply.no = no;
+                        savedReply.password = reply.password;
+
+                        ChanApplication.getDatabaseManager().saveReply(savedReply);
+
+                        e.threadNo = threadNo;
+                        e.no = no;
                     } else {
                         Logger.w(TAG, "No thread & no in the response");
                     }
@@ -443,6 +453,16 @@ public class ReplyManager {
          * client, when the error was not recognized by Clover.
          */
         public String responseData = "";
+
+        /**
+         * The no the post has
+         */
+        public int no = -1;
+
+        /**
+         * The thread no the post has
+         */
+        public int threadNo = -1;
     }
 
     /**
