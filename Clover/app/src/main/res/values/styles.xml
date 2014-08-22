@@ -79,9 +79,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="PostView">
-        <item name="grid_width">110dp</item>
+        <item name="grid_width">90dp</item>
         <item name="grid_height">300dp</item>
-        <item name="grid_spacing">1dp</item>
+        <item name="grid_spacing">0dp</item>
 
         <item name="title_size">14sp</item>
         <item name="detail_size">10sp</item>
