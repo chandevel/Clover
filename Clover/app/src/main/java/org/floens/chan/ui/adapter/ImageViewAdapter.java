@@ -20,8 +20,6 @@ package org.floens.chan.ui.adapter;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.support.v13.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.view.View;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.ImageViewActivity;
@@ -54,13 +52,6 @@ public class ImageViewAdapter extends FragmentStatePagerAdapter {
             return null;
 
         return postList.get(position);
-    }
-
-    @Override
-    public void destroyItem(View collection, int position, Object o) {
-        View view = (View) o;
-        ((ViewPager) collection).removeView(view);
-        view = null;
     }
 
     public void setList(ArrayList<Post> list) {

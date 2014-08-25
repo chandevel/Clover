@@ -211,7 +211,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     @Override
-    public void onThreadLoaded(List posts, boolean append) {
+    public void onThreadLoaded(List<Post> posts, boolean append) {
         if (postAdapter == null) {
             if (container != null) {
                 container.setView(createView());

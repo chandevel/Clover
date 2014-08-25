@@ -176,6 +176,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                 return results;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, final FilterResults results) {
                 filter = constraint.toString();
