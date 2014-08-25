@@ -49,7 +49,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
-import com.micromobs.android.floatlabel.FloatLabelEditText;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -88,9 +87,9 @@ public class ReplyFragment extends DialogFragment {
     private Button fileButton;
     private Button fileDeleteButton;
     private Button submitButton;
-    private FloatLabelEditText nameView;
-    private FloatLabelEditText emailView;
-    private FloatLabelEditText subjectView;
+    private EditText nameView;
+    private EditText emailView;
+    private EditText subjectView;
     private EditText commentView;
     private EditText fileNameView;
     private LoadView imageViewContainer;
@@ -164,9 +163,9 @@ public class ReplyFragment extends DialogFragment {
                 draft.email = ChanPreferences.getDefaultEmail();
             }
 
-            nameView.getEditText().setText(draft.name);
-            emailView.getEditText().setText(draft.email);
-            subjectView.getEditText().setText(draft.subject);
+            nameView.setText(draft.name);
+            emailView.setText(draft.email);
+            subjectView.setText(draft.subject);
             commentView.setText(draft.comment);
             // To the end of the comment
             Selection.setSelection(commentView.getText(), commentView.getText().length());
@@ -196,9 +195,9 @@ public class ReplyFragment extends DialogFragment {
         ReplyManager replyManager = ChanApplication.getReplyManager();
 
         if (shouldSaveDraft) {
-            draft.name = nameView.getText();
-            draft.email = emailView.getText();
-            draft.subject = subjectView.getText();
+            draft.name = nameView.getText().toString();
+            draft.email = emailView.getText().toString();
+            draft.subject = subjectView.getText().toString();
             draft.comment = commentView.getText().toString();
 
             if (fileNameView != null) {
@@ -228,9 +227,9 @@ public class ReplyFragment extends DialogFragment {
         container = inflater.inflate(R.layout.reply_view, null);
         flipper = (ViewFlipper) container.findViewById(R.id.reply_flipper);
 
-        nameView = (FloatLabelEditText) container.findViewById(R.id.reply_name);
-        emailView = (FloatLabelEditText) container.findViewById(R.id.reply_email);
-        subjectView = (FloatLabelEditText) container.findViewById(R.id.reply_subject);
+        nameView = (EditText) container.findViewById(R.id.reply_name);
+        emailView = (EditText) container.findViewById(R.id.reply_email);
+        subjectView = (EditText) container.findViewById(R.id.reply_subject);
         commentView = (EditText) container.findViewById(R.id.reply_comment);
         commentView.requestFocus();
 
@@ -469,9 +468,9 @@ public class ReplyFragment extends DialogFragment {
 
         responseContainer.setView(null);
 
-        draft.name = nameView.getText();
-        draft.email = emailView.getText();
-        draft.subject = subjectView.getText();
+        draft.name = nameView.getText().toString();
+        draft.email = emailView.getText().toString();
+        draft.subject = subjectView.getText().toString();
         draft.comment = commentView.getText().toString();
         draft.captchaChallenge = captchaChallenge;
         draft.captchaResponse = captchaInput.getText().toString();

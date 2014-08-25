@@ -25,35 +25,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <com.micromobs.android.floatlabel.FloatLabelEditText
+    <EditText
         android:id="@+id/reply_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        floatlabel:fitScreenWidth="full"
-        floatlabel:hint="@string/reply_name"
-        floatlabel:textColorHintFocused="@color/holo_blue_dark"
-        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
-        floatlabel:textSize="16sp"/>
+        android:hint="@string/reply_name"
+        android:textSize="16sp"/>
 
-    <com.micromobs.android.floatlabel.FloatLabelEditText
+    <EditText
         android:id="@+id/reply_subject"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        floatlabel:fitScreenWidth="full"
-        floatlabel:hint="@string/reply_subject"
-        floatlabel:textColorHintFocused="@color/holo_blue_dark"
-        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
-        floatlabel:textSize="16sp"/>
+        android:hint="@string/reply_subject"
+        android:textSize="16sp"/>
 
-    <com.micromobs.android.floatlabel.FloatLabelEditText
+    <EditText
         android:id="@+id/reply_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        floatlabel:fitScreenWidth="full"
-        floatlabel:hint="@string/reply_email"
-        floatlabel:textColorHintFocused="@color/holo_blue_dark"
-        floatlabel:textColorHintUnFocused="@android:color/darker_gray"
-        floatlabel:textSize="16sp"/>
+        android:hint="@string/reply_email"
+        android:textSize="16sp"/>
 
     <EditText
         android:id="@+id/reply_comment"

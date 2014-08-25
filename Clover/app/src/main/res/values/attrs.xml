@@ -17,18 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <declare-styleable name="FloatLabelEditText">
-        <attr name="hint" format="string"/>
-        <attr name="text" format="string"/>
-        <attr name="textSize" format="dimension"/>
-        <attr name="textColorHintFocused" format="color"/>
-        <attr name="textColorHintUnFocused" format="color"/>
-        <attr name="fitScreenWidth" format="enum">
-            <enum name="full" value="1"/>
-            <enum name="half" value="2"/>
-        </attr>
-    </declare-styleable>
-
     <attr name="board_pane_style" format="reference"/>
     <attr name="board_pane_left_style" format="reference"/>
     <attr name="board_pane_right_style" format="reference"/>
