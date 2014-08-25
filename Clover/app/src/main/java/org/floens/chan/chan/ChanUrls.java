@@ -48,6 +48,14 @@ public class ChanUrls {
         return "https://t.4cdn.org/" + board + "/" + code + "s.jpg";
     }
 
+    public static String getSpoilerUrl() {
+        return "https://s.4cdn.org/image/spoiler.png";
+    }
+
+    public static String getCustomSpoilerUrl(String board, int value) {
+        return "https://s.4cdn.org/image/spoiler-" + board + value + ".png";
+    }
+
     public static String getCountryFlagUrl(String countryCode) {
         return "https://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
     }
@@ -55,7 +63,6 @@ public class ChanUrls {
     public static String getTrollCountryFlagUrl(String countryCode) {
         return "https://s.4cdn.org/image/country/troll/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
     }
-
 
     public static String getBoardsUrl() {
         return "https://a.4cdn.org/boards.json";

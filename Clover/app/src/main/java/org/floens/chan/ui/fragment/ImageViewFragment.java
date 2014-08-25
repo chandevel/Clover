@@ -111,7 +111,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
                     imageView.setThumbnail(post.thumbnailUrl);
 
-                    if (ChanPreferences.getImageAutoLoad()) {
+                    if (ChanPreferences.getImageAutoLoad() && !post.spoiler) {
                         load();
                     } else {
                         tapToLoad = true;

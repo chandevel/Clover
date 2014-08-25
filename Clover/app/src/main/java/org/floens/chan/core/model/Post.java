@@ -28,11 +28,14 @@ import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Contains all data needed to represent a single post.
  */
 public class Post {
+    private static final Random random = new Random();
+
     public String board;
     public int no = -1;
     public int resto = -1;
@@ -64,6 +67,7 @@ public class Post {
     public int images = -1;
     public String rawComment;
     public String countryUrl;
+    public boolean spoiler = false;
 
     public boolean deleted = false;
 
@@ -127,9 +131,19 @@ public class Post {
             if (filename == null || ext == null || imageWidth <= 0 || imageHeight <= 0 || tim < 0)
                 return false;
 
-            thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
             imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
             filename = Parser.unescapeEntities(filename, false);
+
+            if (spoiler) {
+                Board b = ChanApplication.getBoardManager().getBoardByValue(board);
+                if (b.customSpoilers >= 0) {
+                    thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);
+                } else {
+                    thumbnailUrl = ChanUrls.getSpoilerUrl();
+                }
+            } else {
+                thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
+            }
         }
 
         if (!TextUtils.isEmpty(country)) {
