@@ -28,3 +28,8 @@ ALTER TABLE board ADD COLUMN countryFlags INTEGER;
 ALTER TABLE board ADD COLUMN trollFlags INTEGER;
 ALTER TABLE board ADD COLUMN mathTags INTEGER;
 
+
+Changes in version 13:
+ALTER TABLE pin ADD COLUMN isError SMALLINT;
+ALTER TABLE board ADD COLUMN thumbnailUrl VARCHAR;
+

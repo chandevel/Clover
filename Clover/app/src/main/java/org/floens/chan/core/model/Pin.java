@@ -46,9 +46,11 @@ public class Pin {
     @DatabaseField
     public int quoteNewCount = 0;
 
+    @DatabaseField
     public boolean isError = false;
 
-    public Post opPost;
+    @DatabaseField
+    public String thumbnailUrl = null;
 
     private PinWatcher pinWatcher;
 

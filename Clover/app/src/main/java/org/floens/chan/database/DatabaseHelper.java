@@ -40,7 +40,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -114,6 +114,15 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                     boardsDao.delete(list);
                     Logger.i(TAG, "Deleted f board");
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (oldVersion < 13) {
+            try {
+                boardsDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN isError SMALLINT;");
+                boardsDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN thumbnailUrl VARCHAR;");
             } catch (SQLException e) {
                 e.printStackTrace();
             }

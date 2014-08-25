@@ -114,16 +114,14 @@ public class PinnedAdapter extends BaseAdapter {
                 final Pin pin = getItem(position);
 
                 if (convertView == null) {
-                    convertView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.pin_item, null);
+                    convertView = LayoutInflater.from(context).inflate(R.layout.pin_item, null);
                 }
 
                 CustomNetworkImageView imageView = (CustomNetworkImageView) convertView.findViewById(R.id.pin_image);
-                if (pin.opPost != null && pin.opPost.hasImage) {
+                if (pin.thumbnailUrl != null) {
                     imageView.setVisibility(View.VISIBLE);
-                    imageView.setFadeIn(100);
-                    if (imageView.getUrl() == null || !imageView.getUrl().equals(pin.opPost.thumbnailUrl)) {
-                        imageView.setImageUrl(pin.opPost.thumbnailUrl, ChanApplication.getVolleyImageLoader());
-                    }
+                    imageView.setFadeIn(0);
+                    imageView.setImageUrl(pin.thumbnailUrl, ChanApplication.getVolleyImageLoader());
                 } else {
                     imageView.setVisibility(View.GONE);
                 }
