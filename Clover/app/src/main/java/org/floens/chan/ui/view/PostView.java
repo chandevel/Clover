@@ -44,7 +44,6 @@ import com.android.volley.toolbox.NetworkImageView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
@@ -211,7 +210,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
             repliesCountView.setOnClickListener(null);
         }
 
-        boolean showCountryFlag = isList() && !TextUtils.isEmpty(post.country);
+        boolean showCountryFlag = isList() && !TextUtils.isEmpty(post.country) && !TextUtils.isEmpty(post.countryUrl);
         boolean showStickyIcon = isList() && post.sticky;
         boolean showClosedIcon = isList() && post.closed;
         boolean showDeletedIcon = isList() && post.deleted;
@@ -223,7 +222,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         deletedView.setVisibility(showDeletedIcon ? View.VISIBLE : View.GONE);
         if (showCountryFlag) {
             countryView.setVisibility(View.VISIBLE);
-            countryView.setImageUrl(ChanUrls.getCountryFlagUrl(post.country), ChanApplication.getVolleyImageLoader());
+            countryView.setImageUrl(post.countryUrl, ChanApplication.getVolleyImageLoader());
         } else {
             countryView.setVisibility(View.GONE);
             countryView.setImageUrl(null, null);

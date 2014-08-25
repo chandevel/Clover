@@ -29,7 +29,9 @@ import org.floens.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoardManager {
     private static final String TAG = "BoardManager";
@@ -41,12 +43,17 @@ public class BoardManager {
     };
 
     private List<Board> allBoards;
+    private Map<String, Board> allBoardsByValue = new HashMap<>();
 
     private List<BoardChangeListener> listeners = new ArrayList<>();
 
     public BoardManager() {
         loadBoards();
         loadFromServer();
+    }
+
+    public Board getBoardByValue(String value) {
+        return allBoardsByValue.get(value);
     }
 
     public List<Board> getAllBoards() {
@@ -99,10 +106,13 @@ public class BoardManager {
     private void storeBoards() {
         Logger.d(TAG, "Storing boards in database");
 
+        allBoardsByValue.clear();
         for (Board test : allBoards) {
             if (test.saved) {
                 Logger.d(TAG, "Board with value " + test.value + " saved");
             }
+
+            allBoardsByValue.put(test.value, test);
         }
 
         ChanApplication.getDatabaseManager().setBoards(allBoards);

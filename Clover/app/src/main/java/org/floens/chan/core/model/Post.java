@@ -18,7 +18,9 @@
 package org.floens.chan.core.model;
 
 import android.text.SpannableString;
+import android.text.TextUtils;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.loader.ChanParser;
 import org.floens.chan.ui.view.PostView;
@@ -61,6 +63,7 @@ public class Post {
     public int fileSize;
     public int images = -1;
     public String rawComment;
+    public String countryUrl;
 
     public boolean deleted = false;
 
@@ -129,10 +132,13 @@ public class Post {
             filename = Parser.unescapeEntities(filename, false);
         }
 
+        if (!TextUtils.isEmpty(country)) {
+            Board b = ChanApplication.getBoardManager().getBoardByValue(board);
+            countryUrl = b.trollFlags ? ChanUrls.getTrollCountryFlagUrl(country) : ChanUrls.getCountryFlagUrl(country);
+        }
+
         ChanParser.getInstance().parse(this);
 
         return true;
     }
-
-
 }

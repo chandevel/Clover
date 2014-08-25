@@ -52,6 +52,11 @@ public class ChanUrls {
         return "https://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
     }
 
+    public static String getTrollCountryFlagUrl(String countryCode) {
+        return "https://s.4cdn.org/image/country/troll/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
+    }
+
+
     public static String getBoardsUrl() {
         return "https://a.4cdn.org/boards.json";
     }
