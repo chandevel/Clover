@@ -219,24 +219,11 @@ public class BoardEditor extends Activity {
         }
 
         // Unknown
-        String message = getString(R.string.board_add_unknown).replace("CODE", value);
-        final String finalValue = value;
-        new AlertDialog.Builder(this).setTitle(R.string.board_add_unknown_title).setMessage(message)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (list != null) {
-                            Board b = new Board(finalValue, finalValue, true, true);
-                            list.add(b);
-                            adapter.notifyDataSetChanged();
-                            boardManager.getAllBoards().add(b);
-                        }
-                    }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        }).create().show();
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.board_add_unknown_title)
+                .setMessage(getString(R.string.board_add_unknown, value))
+                .setPositiveButton(R.string.ok, null)
+                .show();
     }
 
     private void showAddBoardDialog() {
