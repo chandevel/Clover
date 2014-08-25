@@ -44,7 +44,10 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
                 reader.beginArray();
 
                 while (reader.hasNext()) {
-                    list.add(readBoardEntry(reader));
+                    Board board = readBoardEntry(reader);
+                    if (board != null) {
+                        list.add(board);
+                    }
                 }
 
                 reader.endArray();
@@ -72,16 +75,86 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
 
             switch (key) {
                 case "title":
-                    // Post number
                     board.key = reader.nextString();
                     break;
                 case "board":
                     board.value = reader.nextString();
                     break;
                 case "ws_board":
-                    if (reader.nextInt() == 1) {
-                        board.workSafe = true;
+                    board.workSafe = reader.nextInt() == 1;
+                    break;
+                case "per_page":
+                    board.perPage = reader.nextInt();
+                    break;
+                case "pages":
+                    board.pages = reader.nextInt();
+                    break;
+                case "max_filesize":
+                    board.maxFileSize = reader.nextInt();
+                    break;
+                case "max_webm_filesize":
+                    board.maxWebmSize = reader.nextInt();
+                    break;
+                case "max_comment_chars":
+                    board.maxCommentChars = reader.nextInt();
+                    break;
+                case "bump_limit":
+                    board.bumpLimit = reader.nextInt();
+                    break;
+                case "image_limit":
+                    board.imageLimit = reader.nextInt();
+                    break;
+                case "cooldowns":
+                    reader.beginObject();
+
+                    while (reader.hasNext()) {
+                        switch (reader.nextName()) {
+                            case "threads":
+                                board.cooldownThreads = reader.nextInt();
+                                break;
+                            case "replies":
+                                board.cooldownReplies = reader.nextInt();
+                                break;
+                            case "images":
+                                board.cooldownImages = reader.nextInt();
+                                break;
+                            case "replies_intra":
+                                board.cooldownRepliesIntra = reader.nextInt();
+                                break;
+                            case "images_intra":
+                                board.cooldownImagesIntra = reader.nextInt();
+                                break;
+                            default:
+                                reader.skipValue();
+                                break;
+                        }
                     }
+
+                    reader.endObject();
+                    break;
+                case "spoilers":
+                    board.spoilers = reader.nextInt() == 1;
+                    break;
+                case "custom_spoilers":
+                    board.customSpoilers = reader.nextInt();
+                    break;
+                case "user_ids":
+                    board.userIds = reader.nextInt() == 1;
+                    break;
+                case "code_tags":
+                    board.codeTags = reader.nextInt() == 1;
+                    break;
+                case "preupload_captcha":
+                    board.preuploadCaptcha = reader.nextInt() == 1;
+                    break;
+                case "country_flags":
+                    board.countryFlags = reader.nextInt() == 1;
+                    break;
+                case "troll_flags":
+                    board.trollFlags = reader.nextInt() == 1;
+                    break;
+                case "math_tags":
+                    board.mathTags = reader.nextInt() == 1;
                     break;
                 default:
                     reader.skipValue();
@@ -92,7 +165,8 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
         reader.endObject();
 
         if (!board.finish()) {
-            throw new IOException("Invalid data received about boards.");
+            // Invalid data, ignore
+            return null;
         }
 
         return board;

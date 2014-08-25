@@ -40,23 +40,65 @@ public class Board {
      */
     @DatabaseField
     public String key;
+
     /**
      * Name of the url, e.g. lit
      */
     @DatabaseField
     public String value;
-
-    @DatabaseField
-    public boolean workSafe = false;
-
     @DatabaseField
     public boolean saved = false;
-
     @DatabaseField
     public int order;
+    @DatabaseField
+    public boolean workSafe = false;
+    @DatabaseField
+    public int perPage = -1;
+    @DatabaseField
+    public int pages = -1;
+    @DatabaseField
+    public int maxFileSize = -1;
+    @DatabaseField
+    public int maxWebmSize = -1;
+    @DatabaseField
+    public int maxCommentChars = -1;
+    @DatabaseField
+    public int bumpLimit = -1;
+    @DatabaseField
+    public int imageLimit = -1;
+    @DatabaseField
+    public int cooldownThreads = -1;
+    @DatabaseField
+    public int cooldownReplies = -1;
+    @DatabaseField
+    public int cooldownImages = -1;
+    @DatabaseField
+    public int cooldownRepliesIntra = -1;
+    @DatabaseField
+    public int cooldownImagesIntra = -1;
+    @DatabaseField
+    public boolean spoilers = false;
+    @DatabaseField
+    public int customSpoilers = -1;
+    @DatabaseField
+    public boolean userIds = false;
+    @DatabaseField
+    public boolean codeTags = false;
+    @DatabaseField
+    public boolean preuploadCaptcha = false;
+    @DatabaseField
+    public boolean countryFlags = false;
+    @DatabaseField
+    public boolean trollFlags = false;
+    @DatabaseField
+    public boolean mathTags = false;
 
     public boolean finish() {
-        if (key == null || value == null)
+        if (key == null || value == null || perPage < 0 || pages < 0)
+            return false;
+
+        // Also filters out /f/, it can't be viewed anyway
+        if (cooldownThreads < 0 || cooldownReplies < 0 || cooldownImages < 0 || cooldownRepliesIntra < 0 || cooldownImagesIntra < 0)
             return false;
 
         return true;
@@ -65,9 +107,5 @@ public class Board {
     @Override
     public String toString() {
         return key;
-    }
-
-    public boolean valueEquals(Board other) {
-        return value.equals(other.value);
     }
 }

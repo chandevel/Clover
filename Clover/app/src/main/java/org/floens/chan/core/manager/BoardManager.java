@@ -42,8 +42,7 @@ public class BoardManager {
 
     private List<Board> allBoards;
 
-    private final List<String> savedKeys = new ArrayList<>();
-    private final List<String> savedValues = new ArrayList<>();
+    private List<BoardChangeListener> listeners = new ArrayList<>();
 
     public BoardManager() {
         loadBoards();
@@ -67,14 +66,6 @@ public class BoardManager {
         return saved;
     }
 
-    public List<String> getSavedKeys() {
-        return savedKeys;
-    }
-
-    public List<String> getSavedValues() {
-        return savedValues;
-    }
-
     public boolean getBoardExists(String board) {
         for (Board e : getAllBoards()) {
             if (e.value.equals(board)) {
@@ -85,32 +76,23 @@ public class BoardManager {
         return false;
     }
 
-    public String getBoardKey(String value) {
-        for (Board e : allBoards) {
-            if (e.value.equals(value)) {
-                return e.key;
-            }
-        }
-
-        return null;
-    }
-
     public void updateSavedBoards() {
         ChanApplication.getDatabaseManager().updateBoards(allBoards);
-        reloadSavedKeysValues();
+
+        notifyChanged();
     }
 
-    private void reloadSavedKeysValues() {
-        List<Board> saved = getSavedBoards();
+    public void addListener(BoardChangeListener listener) {
+        listeners.add(listener);
+    }
 
-        savedKeys.clear();
-        for (Board board : saved) {
-            savedKeys.add(board.key);
-        }
+    public void removeListener(BoardChangeListener listener) {
+        listeners.remove(listener);
+    }
 
-        savedValues.clear();
-        for (Board board : saved) {
-            savedValues.add(board.value);
+    private void notifyChanged() {
+        for (BoardChangeListener l : listeners) {
+            l.onBoardsChanged();
         }
     }
 
@@ -124,6 +106,7 @@ public class BoardManager {
         }
 
         ChanApplication.getDatabaseManager().setBoards(allBoards);
+        notifyChanged();
     }
 
     private void loadBoards() {
@@ -133,16 +116,22 @@ public class BoardManager {
             allBoards = getDefaultBoards();
             storeBoards();
         }
-
-        reloadSavedKeysValues();
     }
 
-    private void setBoardsFromServer(List<Board> list) {
-        boolean changed = false;
-        for (Board serverBoard : list) {
-            boolean has = false;
-            for (Board b : allBoards) {
-                if (b.valueEquals(serverBoard)) {
+    private void setBoardsFromServer(List<Board> serverList) {
+        boolean has;
+        for (Board serverBoard : serverList) {
+            has = false;
+            for (int i = 0; i < allBoards.size(); i++) {
+                if (allBoards.get(i).value.equals(serverBoard.value)) {
+                    Logger.d(TAG, "Replaced board " + serverBoard.value + " with the server one");
+
+                    Board old = allBoards.get(i);
+                    serverBoard.id = old.id;
+                    serverBoard.saved = old.saved;
+                    serverBoard.order = old.order;
+                    allBoards.set(i, serverBoard);
+
                     has = true;
                     break;
                 }
@@ -156,14 +145,10 @@ public class BoardManager {
                 }
 
                 allBoards.add(serverBoard);
-                changed = true;
             }
         }
 
-        if (changed) {
-            storeBoards();
-            reloadSavedKeysValues();
-        }
+        storeBoards();
     }
 
     private void loadFromServer() {
@@ -191,5 +176,9 @@ public class BoardManager {
         list.add(new Board("Comics & Cartoons", "co", true, true));
         list.add(new Board("International", "int", true, true));
         return list;
+    }
+
+    public interface BoardChangeListener {
+        public void onBoardsChanged();
     }
 }

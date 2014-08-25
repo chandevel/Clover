@@ -1,0 +1,91 @@
+┌───────────────────┬────────────────────────┬─────────────────────────────┬─────────────────────────────────────────────────┐
+│ Key               │ Example                │ Required?                   │ Used on                                         │
+│                   │ (min - max)            │ (usage / total)             │                                                 │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ board             │ "y"                    │ Required 63/63              │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,f,  │
+│                   │                        │                             │ fa,fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,  │
+│                   │                        │                             │ lit,m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,  │
+│                   │                        │                             │ soc,sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,   │
+│                   │                        │                             │ x,y                                             │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ title             │ "Yaoi"                 │ Required 63/63              │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,f,  │
+│                   │                        │                             │ fa,fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,  │
+│                   │                        │                             │ lit,m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,  │
+│                   │                        │                             │ soc,sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,   │
+│                   │                        │                             │ x,y                                             │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ ws_board          │ 0 - 1                  │ Required 63/63              │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,f,  │
+│                   │                        │                             │ fa,fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,  │
+│                   │                        │                             │ lit,m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,  │
+│                   │                        │                             │ soc,sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,   │
+│                   │                        │                             │ x,y                                             │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ per_page          │ 15 - 30                │ Required 63/63              │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,f,  │
+│                   │                        │                             │ fa,fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,  │
+│                   │                        │                             │ lit,m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,  │
+│                   │                        │                             │ soc,sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,   │
+│                   │                        │                             │ x,y                                             │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ pages             │ 1 - 10                 │ Required 63/63              │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,f,  │
+│                   │                        │                             │ fa,fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,  │
+│                   │                        │                             │ lit,m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,  │
+│                   │                        │                             │ soc,sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,   │
+│                   │                        │                             │ x,y                                             │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ max_filesize      │ 2097152 - 8388608      │ Semi-required (/f/ missing) │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,fa, │
+│                   │                        │ 62/63                       │ fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,lit, │
+│                   │                        │                             │ m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,soc,  │
+│                   │                        │                             │ sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,x,     │
+│                   │                        │                             │ y                                               │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ max_webm_filesize │ 3145728                │ Semi-required (/f/ missing) │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,fa, │
+│                   │                        │ 62/63                       │ fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,lit, │
+│                   │                        │                             │ m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,soc,  │
+│                   │                        │                             │ sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,x,     │
+│                   │                        │                             │ y                                               │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ max_comment_chars │ 2000 - 3000            │ Semi-required (/f/ missing) │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,fa, │
+│                   │                        │ 62/63                       │ fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,lit, │
+│                   │                        │                             │ m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,soc,  │
+│                   │                        │                             │ sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,x,     │
+│                   │                        │                             │ y                                               │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ bump_limit        │ 300 - 750              │ Semi-required (/f/ missing) │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,fa, │
+│                   │                        │ 62/63                       │ fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,lit, │
+│                   │                        │                             │ m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,soc,  │
+│                   │                        │                             │ sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,x,     │
+│                   │                        │                             │ y                                               │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ image_limit       │ 150 - 300              │ Semi-required (/f/ missing) │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,fa, │
+│                   │                        │ 62/63                       │ fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,lit, │
+│                   │                        │                             │ m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,soc,  │
+│                   │                        │                             │ sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,x,     │
+│                   │                        │                             │ y                                               │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ cooldowns         │ {                      │ Semi-required (/f/ missing) │ 3,a,adv,an,asp,b,biz,c,cgl,ck,cm,co,d,diy,e,fa, │
+│                   │   "threads": 600,      │ 62/63                       │ fit,g,gd,gif,h,hc,hm,hr,i,ic,int,jp,k,lgbt,lit, │
+│                   │   "replies": 60,       │                             │ m,mlp,mu,n,o,out,p,po,pol,r,r9k,s,s4s,sci,soc,  │
+│                   │   "images": 60,        │                             │ sp,t,tg,toy,trv,tv,u,v,vg,vp,vr,w,wg,wsg,x,     │
+│                   │   "replies_intra": 60, │                             │ y                                               │
+│                   │   "images_intra": 30   │                             │                                                 │
+│                   │ }                      │                             │                                                 │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ spoilers          │ 1                      │ Optional 14/63              │ a,co,jp,lit,m,mlp,r9k,tg,tv,u,v,vg,vp,vr        │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ custom_spoilers   │ 1 - 5                  │ Optional 12/63              │ a,co,jp,lit,m,mlp,tg,tv,v,vg,vp,vr              │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ user_ids          │ 1                      │ Optional 3/63               │ b,biz,soc                                       │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ code_tags         │ 1                      │ Optional 1/63               │ g                                               │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ preupload_captcha │ 1                      │ Optional 1/63               │ hr                                              │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ country_flags     │ 1                      │ Optional 2/63               │ int,sp                                          │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ troll_flags       │ 1                      │ Optional 1/63               │ pol                                             │
+├───────────────────┼────────────────────────┼─────────────────────────────┼─────────────────────────────────────────────────┤
+│ math_tags         │ 1                      │ Optional 1/63               │ sci                                             │
+└───────────────────┴────────────────────────┴─────────────────────────────┴─────────────────────────────────────────────────┘
+
+
+

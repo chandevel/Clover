@@ -45,7 +45,9 @@ import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.loader.Loader;
+import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -55,7 +57,7 @@ import org.floens.chan.utils.Utils;
 
 import java.util.List;
 
-public class BoardActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
+public class BoardActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, BoardManager.BoardChangeListener {
     private static final String TAG = "BoardActivity";
 
     private Loadable boardLoadable;
@@ -70,6 +72,8 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ChanApplication.getBoardManager().addListener(this);
 
         boardLoadable = new Loadable();
         threadLoadable = new Loadable();
@@ -113,9 +117,9 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             }
 
             if (boardLoadable.mode == Loadable.Mode.INVALID) {
-                List<String> savedValues = ChanApplication.getBoardManager().getSavedValues();
+                List<Board> savedValues = ChanApplication.getBoardManager().getSavedBoards();
                 if (savedValues.size() > 0) {
-                    startLoadingBoard(new Loadable(savedValues.get(0)));
+                    startLoadingBoard(new Loadable(savedValues.get(0).value));
                 }
             }
         }
@@ -163,6 +167,13 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         super.onPause();
 
         ChanApplication.getWatchManager().updateDatabase();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        ChanApplication.getBoardManager().removeListener(this);
     }
 
     @Override
@@ -240,6 +251,12 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
     @Override
     public void onPanelOpened(View view) {
         updateActionBarState();
+    }
+
+    @Override
+    public void onBoardsChanged() {
+        spinnerAdapter.setBoards();
+        spinnerAdapter.notifyDataSetChanged();
     }
 
     private void handleExtraBundle(Bundle extras) {
@@ -621,20 +638,22 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         private Context context;
         private Spinner spinner;
-        private List<String> keys;
-        private List<String> values;
+        private List<Board> boards;
         private int lastSelectedPosition = 0;
 
         public BoardSpinnerAdapter(Context context, Spinner spinner) {
             this.context = context;
             this.spinner = spinner;
-            keys = ChanApplication.getBoardManager().getSavedKeys();
-            values = ChanApplication.getBoardManager().getSavedValues();
+            setBoards();
+        }
+
+        public void setBoards() {
+            boards = ChanApplication.getBoardManager().getSavedBoards();
         }
 
         public void setBoard(String boardValue) {
-            for (int i = 0; i < values.size(); i++) {
-                if (values.get(i).equals(boardValue)) {
+            for (int i = 0; i < boards.size(); i++) {
+                if (boards.get(i).value.equals(boardValue)) {
                     spinner.setSelection(i);
                     return;
                 }
@@ -642,8 +661,8 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         }
 
         public void onItemSelected(int position) {
-            if (position >= 0 && position < values.size()) {
-                Loadable board = new Loadable(values.get(position));
+            if (position >= 0 && position < boards.size()) {
+                Loadable board = new Loadable(boards.get(position).value);
 
                 // onItemSelected is called after the view initializes,
                 // ignore if it's the same board
@@ -661,7 +680,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
         @Override
         public int getCount() {
-            return keys.size() + 1;
+            return boards.size() + 1;
         }
 
         @Override
@@ -683,7 +702,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
         public String getItem(final int position) {
             switch (getItemViewType(position)) {
                 case VIEW_TYPE_ITEM:
-                    return keys.get(position);
+                    return boards.get(position).key;
                 case VIEW_TYPE_ADD:
                     return context.getString(R.string.board_select_add);
                 default:

@@ -1,0 +1,30 @@
+Database version 11:
+CREATE TABLE android_metadata (locale TEXT);
+CREATE TABLE `board` (`key` VARCHAR , `value` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `order` INTEGER , `saved` SMALLINT , `workSafe` SMALLINT );
+CREATE TABLE `loadable` (`board` VARCHAR , `title` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `listViewIndex` INTEGER , `listViewTop` INTEGER , `mode` INTEGER , `no` INTEGER );
+CREATE TABLE `pin` (`loadable_id` INTEGER NOT NULL , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `quoteLastCount` INTEGER , `quoteNewCount` INTEGER , `watchLastCount` INTEGER , `watchNewCount` INTEGER , `watching` SMALLINT );
+CREATE TABLE `savedreply` (`board` VARCHAR , `password` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `no` INTEGER );
+
+
+Changes in version 12:
+ALTER TABLE board ADD COLUMN perPage INTEGER;
+ALTER TABLE board ADD COLUMN pages INTEGER;
+ALTER TABLE board ADD COLUMN maxFileSize INTEGER;
+ALTER TABLE board ADD COLUMN maxWebmSize INTEGER;
+ALTER TABLE board ADD COLUMN maxCommentChars INTEGER;
+ALTER TABLE board ADD COLUMN bumpLimit INTEGER;
+ALTER TABLE board ADD COLUMN imageLimit INTEGER;
+ALTER TABLE board ADD COLUMN cooldownThreads INTEGER;
+ALTER TABLE board ADD COLUMN cooldownReplies INTEGER;
+ALTER TABLE board ADD COLUMN cooldownImages INTEGER;
+ALTER TABLE board ADD COLUMN cooldownRepliesIntra INTEGER;
+ALTER TABLE board ADD COLUMN cooldownImagesIntra INTEGER;
+ALTER TABLE board ADD COLUMN spoilers INTEGER;
+ALTER TABLE board ADD COLUMN customSpoilers INTEGER;
+ALTER TABLE board ADD COLUMN userIds INTEGER;
+ALTER TABLE board ADD COLUMN codeTags INTEGER;
+ALTER TABLE board ADD COLUMN preuploadCaptcha INTEGER;
+ALTER TABLE board ADD COLUMN countryFlags INTEGER;
+ALTER TABLE board ADD COLUMN trollFlags INTEGER;
+ALTER TABLE board ADD COLUMN mathTags INTEGER;
+
