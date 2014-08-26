@@ -511,6 +511,10 @@ public class ThreadManager implements Loader.LoaderListener {
         currentPopupFragment = null;
     }
 
+    public boolean arePostRepliesOpen() {
+        return popupQueue.size() > 0;
+    }
+
     private void deletePost(final Post post) {
         final CheckBox checkBox = new CheckBox(activity);
         checkBox.setText(R.string.delete_image_only);

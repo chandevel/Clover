@@ -33,6 +33,7 @@ import android.widget.ProgressBar;
 import org.floens.chan.R;
 import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.adapter.PostAdapter;
@@ -53,10 +54,12 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
     private static PostAdapter postAdapter;
     private static int selectedId = -1;
+    private static ThreadManager threadManagerStatic;
 
     private ViewPager viewPager;
     private ImageViewAdapter adapter;
     private ProgressBar progressBar;
+    private ThreadManager threadManager;
 
     private int currentPosition;
 
@@ -66,9 +69,10 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
      * @param adapter  the adapter to get image data from
      * @param selected the no that the user clicked on
      */
-    public static void setAdapter(PostAdapter adapter, int selected) {
+    public static void setAdapter(PostAdapter adapter, int selected, ThreadManager threadManager) {
         postAdapter = adapter;
         selectedId = selected;
+        threadManagerStatic = threadManager;
     }
 
     @Override
@@ -84,6 +88,8 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
             finish();
             return;
         }
+
+        threadManager = threadManagerStatic;
 
         ThemeHelper.setTheme(this);
 
@@ -170,7 +176,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         }
 
         Post post = adapter.getPost(position);
-        if (postAdapter != null) {
+        if (postAdapter != null && !threadManager.arePostRepliesOpen()) {
             postAdapter.scrollToPost(post.no);
         }
     }
