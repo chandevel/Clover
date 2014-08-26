@@ -99,6 +99,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="post_info">Info</string>
     <string-array name="post_options">
         <item>Quote</item>
+        <item>Quote text</item>
         <item>Info</item>
         <item>Show clickables</item>
         <item>Copy text</item>
