@@ -23,8 +23,10 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.Selection;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -81,6 +83,9 @@ public class ReplyFragment extends DialogFragment {
     private boolean gettingCaptcha = false;
     private String captchaChallenge = "";
 
+    private int defaultTextColor;
+    private int maxCommentCount;
+
     // Views
     private View container;
     private ViewFlipper flipper;
@@ -97,6 +102,10 @@ public class ReplyFragment extends DialogFragment {
     private LoadView captchaContainer;
     private TextView captchaInput;
     private LoadView responseContainer;
+    private Button insertInline;
+    private Button insertSpoiler;
+    private Button insertCode;
+    private TextView commentCountView;
 
     private Activity context;
 
@@ -179,6 +188,31 @@ public class ReplyFragment extends DialogFragment {
                 emailView.setVisibility(View.GONE);
                 subjectView.setVisibility(View.GONE);
             }
+
+            defaultTextColor = commentView.getCurrentTextColor();
+
+            Board b = ChanApplication.getBoardManager().getBoardByValue(loadable.board);
+            if (b != null) {
+                insertSpoiler.setVisibility(b.spoilers ? View.VISIBLE : View.GONE);
+                insertCode.setVisibility(b.codeTags ? View.VISIBLE : View.GONE);
+                maxCommentCount = b.maxCommentChars;
+            }
+
+            commentView.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    showCommentCount();
+                }
+            });
+            showCommentCount();
 
             getCaptcha();
         } else {
@@ -297,6 +331,32 @@ public class ReplyFragment extends DialogFragment {
             }
         });
 
+        insertInline = (Button) container.findViewById(R.id.insert_inline);
+        insertInline.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertAtCursor(">", "");
+            }
+        });
+
+        insertSpoiler = (Button) container.findViewById(R.id.insert_spoiler);
+        insertSpoiler.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertAtCursor("[spoiler]", "[/spoiler]");
+            }
+        });
+
+        insertCode = (Button) container.findViewById(R.id.insert_code);
+        insertCode.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertAtCursor("[code]", "[/code]");
+            }
+        });
+
+        commentCountView = (TextView) container.findViewById(R.id.reply_comment_counter);
+
         return container;
     }
 
@@ -308,6 +368,24 @@ public class ReplyFragment extends DialogFragment {
             return false;
         } else {
             return true;
+        }
+    }
+
+    private void insertAtCursor(String before, String after) {
+        int pos = commentView.getSelectionStart();
+        String text = commentView.getText().toString();
+        text = new StringBuilder(text).insert(pos, before + after).toString();
+        commentView.setText(text);
+        commentView.setSelection(pos + before.length());
+    }
+
+    private void showCommentCount() {
+        int count = commentView.getText().length();
+        commentCountView.setText(count + "/" + maxCommentCount);
+        if (count > maxCommentCount) {
+            commentCountView.setTextColor(0xffff0000);
+        } else {
+            commentCountView.setTextColor(defaultTextColor);
         }
     }
 
