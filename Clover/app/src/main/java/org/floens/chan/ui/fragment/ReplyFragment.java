@@ -105,6 +105,7 @@ public class ReplyFragment extends DialogFragment {
     private Button insertSpoiler;
     private Button insertCode;
     private TextView commentCountView;
+    private TextView fileStatusView;
 
     private Activity context;
 
@@ -357,6 +358,8 @@ public class ReplyFragment extends DialogFragment {
 
         commentCountView = (TextView) container.findViewById(R.id.reply_comment_counter);
 
+        fileStatusView = (TextView) container.findViewById(R.id.reply_file_status);
+
         return container;
     }
 
@@ -457,6 +460,7 @@ public class ReplyFragment extends DialogFragment {
             fileNameView.setVisibility(View.GONE);
             spoilerImageView.setVisibility(View.GONE);
             spoilerImageView.setChecked(false);
+            fileStatusView.setVisibility(View.GONE);
         } else {
             fileButton.setImageResource(ThemeHelper.getInstance().getTheme().isLightTheme ? R.drawable.ic_action_cancel : R.drawable.ic_action_cancel_dark);
             fileNameView.setVisibility(View.VISIBLE);
@@ -464,6 +468,20 @@ public class ReplyFragment extends DialogFragment {
 
             Board b = ChanApplication.getBoardManager().getBoardByValue(loadable.board);
             spoilerImageView.setVisibility(b != null && b.spoilers ? View.VISIBLE : View.GONE);
+
+            if (b != null) {
+                boolean probablyWebm = name.endsWith(".webm");
+                int maxSize = probablyWebm ? b.maxWebmSize : b.maxFileSize;
+                if (file.length() > maxSize) {
+                    String fileSize = Utils.getReadableFileSize((int) file.length(), false);
+                    String maxSizeString = Utils.getReadableFileSize(maxSize, false);
+                    String text = getString(probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big, fileSize, maxSizeString);
+                    fileStatusView.setVisibility(View.VISIBLE);
+                    fileStatusView.setText(text);
+                } else {
+                    fileStatusView.setVisibility(View.GONE);
+                }
+            }
 
             imageViewContainer.setVisibility(View.VISIBLE);
             imageViewContainer.setView(null);

@@ -116,6 +116,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply_subject">Subject</string>
     <string name="reply_comment">Comment</string>
     <string name="reply_file_name">File name</string>
+    <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
+    <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
     <string name="reply_spoiler_image">Spoiler image</string>
     <string name="reply_no_preview">No preview available</string>
 

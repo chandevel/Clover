@@ -67,9 +67,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/reply_comment_counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="8dp"
             android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:paddingRight="8dp" />
 
     </RelativeLayout>
 
@@ -132,6 +132,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/reply_file_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:textSize="14sp" />
 
     <CheckBox
         android:id="@+id/reply_spoiler_image"
