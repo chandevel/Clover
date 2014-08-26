@@ -97,6 +97,13 @@ public class BoardManager {
         listeners.remove(listener);
     }
 
+    private void updateByValueMap() {
+        allBoardsByValue.clear();
+        for (Board test : allBoards) {
+            allBoardsByValue.put(test.value, test);
+        }
+    }
+
     private void notifyChanged() {
         for (BoardChangeListener l : listeners) {
             l.onBoardsChanged();
@@ -106,14 +113,12 @@ public class BoardManager {
     private void storeBoards() {
         Logger.d(TAG, "Storing boards in database");
 
-        allBoardsByValue.clear();
         for (Board test : allBoards) {
             if (test.saved) {
                 Logger.d(TAG, "Board with value " + test.value + " saved");
             }
-
-            allBoardsByValue.put(test.value, test);
         }
+        updateByValueMap();
 
         ChanApplication.getDatabaseManager().setBoards(allBoards);
         notifyChanged();
@@ -126,6 +131,7 @@ public class BoardManager {
             allBoards = getDefaultBoards();
             storeBoards();
         }
+        updateByValueMap();
     }
 
     private void setBoardsFromServer(List<Board> serverList) {

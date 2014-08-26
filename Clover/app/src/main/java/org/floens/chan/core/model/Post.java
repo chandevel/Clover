@@ -136,7 +136,7 @@ public class Post {
 
             if (spoiler) {
                 Board b = ChanApplication.getBoardManager().getBoardByValue(board);
-                if (b.customSpoilers >= 0) {
+                if (b != null && b.customSpoilers >= 0) {
                     thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);
                 } else {
                     thumbnailUrl = ChanUrls.getSpoilerUrl();
