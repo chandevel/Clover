@@ -36,4 +36,5 @@ public class Reply {
     public String password = "";
     public boolean usePass = false;
     public String passId = "";
+    public boolean spoilerImage = false;
 }

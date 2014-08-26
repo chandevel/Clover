@@ -32,7 +32,6 @@ import android.widget.VideoView;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
@@ -134,25 +133,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
             @Override
             public void onSuccess(File file) {
-                final CustomScaleImageView image = new CustomScaleImageView(getContext());
-                image.setImageFile(file.getAbsolutePath());
-                image.setOnClickListener(ThumbnailImageView.this);
-
-                addView(image);
-
-                image.setInitCallback(new CustomScaleImageView.InitedCallback() {
-                    @Override
-                    public void onInit() {
-                        Utils.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                removeAllViews();
-                                addView(image);
-                                callback.setProgress(false);
-                            }
-                        });
-                    }
-                });
+                setBigImageFile(file);
             }
 
             @Override
@@ -162,6 +143,28 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 } else {
                     onError();
                 }
+            }
+        });
+    }
+
+    public void setBigImageFile(File file) {
+        final CustomScaleImageView image = new CustomScaleImageView(getContext());
+        image.setImageFile(file.getAbsolutePath());
+        image.setOnClickListener(ThumbnailImageView.this);
+
+        addView(image);
+
+        image.setInitCallback(new CustomScaleImageView.InitedCallback() {
+            @Override
+            public void onInit() {
+                Utils.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        removeAllViews();
+                        addView(image);
+                        callback.setProgress(false);
+                    }
+                });
             }
         });
     }
@@ -187,19 +190,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
             @Override
             public void onSuccess(File file) {
-                GifDrawable drawable;
-                try {
-                    drawable = new GifDrawable(file.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    onError();
-                    return;
-                }
-
-                GifImageView view = new GifImageView(getContext());
-                view.setImageDrawable(drawable);
-                view.setLayoutParams(Utils.MATCH_PARAMS);
-                setView(view, false);
+                setGifFile(file);
             }
 
             @Override
@@ -211,6 +202,22 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 }
             }
         });
+    }
+
+    public void setGifFile(File file) {
+        GifDrawable drawable;
+        try {
+            drawable = new GifDrawable(file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            onError();
+            return;
+        }
+
+        GifImageView view = new GifImageView(getContext());
+        view.setImageDrawable(drawable);
+        view.setLayoutParams(Utils.MATCH_PARAMS);
+        setView(view, false);
     }
 
     public void setVideo(String videoUrl) {
@@ -228,48 +235,8 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             }
 
             @Override
-            public void onSuccess(final File file) {
-                if (ChanPreferences.getVideoExternal()) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.fromFile(file), "video/*");
-
-                    try {
-                        getContext().startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(getContext(), R.string.open_link_failed, Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    videoView = new VideoView(getContext());
-                    videoView.setZOrderOnTop(true);
-                    videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                            LayoutParams.MATCH_PARENT));
-                    videoView.setLayoutParams(Utils.MATCH_PARAMS);
-                    LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-                    par.gravity = Gravity.CENTER;
-                    videoView.setLayoutParams(par);
-
-                    videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            mp.setLooping(true);
-                            callback.onVideoLoaded();
-                        }
-                    });
-                    videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                        @Override
-                        public boolean onError(MediaPlayer mp, int what, int extra) {
-                            callback.onVideoError(file);
-
-                            return true;
-                        }
-                    });
-
-                    videoView.setVideoPath(file.getAbsolutePath());
-
-                    setView(videoView, false);
-
-                    videoView.start();
-                }
+            public void onSuccess(File file) {
+                setVideoFile(file);
             }
 
             @Override
@@ -281,6 +248,50 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 }
             }
         });
+    }
+
+    public void setVideoFile(final File file) {
+        if (ChanPreferences.getVideoExternal()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(file), "video/*");
+
+            try {
+                getContext().startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(getContext(), R.string.open_link_failed, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            videoView = new VideoView(getContext());
+            videoView.setZOrderOnTop(true);
+            videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT));
+            videoView.setLayoutParams(Utils.MATCH_PARAMS);
+            LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            par.gravity = Gravity.CENTER;
+            videoView.setLayoutParams(par);
+
+            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.setLooping(true);
+                    callback.onVideoLoaded();
+                }
+            });
+            videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    callback.onVideoError(file);
+
+                    return true;
+                }
+            });
+
+            videoView.setVideoPath(file.getAbsolutePath());
+
+            setView(videoView, false);
+
+            videoView.start();
+        }
     }
 
     public VideoView getVideoView() {

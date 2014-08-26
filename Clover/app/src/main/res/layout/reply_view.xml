@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -16,8 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:divider="?android:attr/dividerHorizontal"
@@ -41,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <include layout="@layout/reply_input"/>
+            <include layout="@layout/reply_input" />
         </ScrollView>
 
         <!-- captcha view: -->
@@ -50,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <include layout="@layout/reply_captcha"/>
+            <include layout="@layout/reply_captcha" />
         </ScrollView>
 
         <!-- response view: -->
@@ -59,8 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/reply_response"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-        </org.floens.chan.ui.view.LoadView>
+            android:orientation="vertical" />
     </ViewFlipper>
 
     <LinearLayout
@@ -75,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/cancel"/>
+            android:text="@string/cancel" />
 
         <Button
             android:id="@+id/reply_submit"
@@ -83,7 +80,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/reply_submit"/>
+            android:text="@string/reply_submit" />
     </LinearLayout>
 
 </LinearLayout>

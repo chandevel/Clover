@@ -346,6 +346,10 @@ public class ReplyManager {
             entity.addTextBody("resto", Integer.toString(reply.resto));
         }
 
+        if (reply.spoilerImage) {
+            entity.addTextBody("spoiler", "on");
+        }
+
         entity.addTextBody("recaptcha_challenge_field", reply.captchaChallenge);
         entity.addTextBody("recaptcha_response_field", reply.captchaResponse, TEXT_UTF_8);
 

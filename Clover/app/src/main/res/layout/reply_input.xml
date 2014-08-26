@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -16,35 +15,38 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:floatlabel="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/reply_data"
-    style="?android:attr/buttonBarStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
 
     <EditText
         android:id="@+id/reply_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/reply_name"
-        android:textSize="16sp"/>
+        android:minHeight="48dp"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/reply_subject"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/reply_subject"
-        android:textSize="16sp"/>
+        android:minHeight="48dp"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/reply_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/reply_email"
-        android:textSize="16sp"/>
+        android:minHeight="48dp"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/reply_comment"
@@ -54,40 +56,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:imeActionLabel="@string/reply_submit"
         android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
         android:minLines="4"
-        android:textSize="16sp"/>
+        android:textSize="16sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/reply_file_name"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/reply_file"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/reply_file"/>
-
-            <Button
-                android:id="@+id/reply_file_delete"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/reply_file_delete"/>
-        </LinearLayout>
-
-        <org.floens.chan.ui.view.LoadView
-            android:id="@+id/reply_image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
+            android:layout_weight="1"
+            android:hint="@string/reply_file_name"
             android:minHeight="48dp"
-            android:scaleType="centerCrop"/>
+            android:textSize="16sp" />
+
+        <ImageButton
+            android:id="@+id/reply_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
+    <CheckBox
+        android:id="@+id/reply_spoiler_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/reply_spoiler_image" />
+
+    <org.floens.chan.ui.view.LoadView
+        android:id="@+id/reply_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

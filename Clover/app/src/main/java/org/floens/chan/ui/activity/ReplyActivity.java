@@ -18,6 +18,7 @@
 package org.floens.chan.ui.activity;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -46,13 +47,21 @@ public class ReplyActivity extends Activity {
             getActionBar().setDisplayHomeAsUpEnabled(true);
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(android.R.id.content, ReplyFragment.newInstance(loadable, false));
+            ft.replace(android.R.id.content, ReplyFragment.newInstance(loadable, false), "reply");
             ft.commitAllowingStateLoss();
 
             loadable = null;
         } else if (savedInstanceState == null) {
             Logger.e(TAG, "ThreadFragment was null, exiting!");
             finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment f = getFragmentManager().findFragmentByTag("reply");
+        if (f != null && ((ReplyFragment)f).onBackPressed()) {
+            super.onBackPressed();
         }
     }
 

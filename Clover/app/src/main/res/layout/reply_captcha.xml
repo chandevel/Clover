@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -16,31 +15,30 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/reply_captcha_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/reply_captcha_tap_to_reload"
-        android:textSize="16sp"/>
+        android:textSize="16sp" />
 
     <org.floens.chan.ui.view.LoadView
         android:id="@+id/reply_captcha_container"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center" />
 
     <EditText
         android:id="@+id/reply_captcha"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/reply_captcha"
-        android:inputType="textNoSuggestions|textVisiblePassword"/>
+        android:inputType="textNoSuggestions|textVisiblePassword" />
 
 </LinearLayout>

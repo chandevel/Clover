@@ -32,14 +32,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -56,12 +55,14 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.ui.ViewFlipperAnimations;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
 import java.io.File;
@@ -84,14 +85,14 @@ public class ReplyFragment extends DialogFragment {
     private View container;
     private ViewFlipper flipper;
     private Button cancelButton;
-    private Button fileButton;
-    private Button fileDeleteButton;
+    private ImageButton fileButton;
     private Button submitButton;
     private EditText nameView;
     private EditText emailView;
     private EditText subjectView;
     private EditText commentView;
     private EditText fileNameView;
+    private CheckBox spoilerImageView;
     private LoadView imageViewContainer;
     private LoadView captchaContainer;
     private TextView captchaInput;
@@ -142,10 +143,7 @@ public class ReplyFragment extends DialogFragment {
                     @Override
                     public boolean onKey(DialogInterface dialogInterface, int keyCode, KeyEvent event) {
                         if (keyCode == KeyEvent.KEYCODE_BACK) {
-                            if (page == 1)
-                                flipPage(0);
-                            else if (page == 2)
-                                closeReply();
+                            onBackPressed();
                             return true;
                         } else
                             return false;
@@ -170,6 +168,7 @@ public class ReplyFragment extends DialogFragment {
             // To the end of the comment
             Selection.setSelection(commentView.getText(), commentView.getText().length());
             setFile(draft.fileName, draft.file);
+            spoilerImageView.setChecked(draft.spoilerImage);
 
             if (loadable.isThreadMode()) {
                 subjectView.setVisibility(View.GONE);
@@ -199,10 +198,8 @@ public class ReplyFragment extends DialogFragment {
             draft.email = emailView.getText().toString();
             draft.subject = subjectView.getText().toString();
             draft.comment = commentView.getText().toString();
-
-            if (fileNameView != null) {
-                draft.fileName = fileNameView.getText().toString();
-            }
+            draft.fileName = fileNameView.getText().toString();
+            draft.spoilerImage = spoilerImageView.isChecked();
 
             replyManager.setReplyDraft(draft);
         } else {
@@ -232,6 +229,8 @@ public class ReplyFragment extends DialogFragment {
         subjectView = (EditText) container.findViewById(R.id.reply_subject);
         commentView = (EditText) container.findViewById(R.id.reply_comment);
         commentView.requestFocus();
+        fileNameView = (EditText) container.findViewById(R.id.reply_file_name);
+        spoilerImageView = (CheckBox) container.findViewById(R.id.reply_spoiler_image);
 
         imageViewContainer = (LoadView) container.findViewById(R.id.reply_image);
         responseContainer = (LoadView) container.findViewById(R.id.reply_response);
@@ -262,29 +261,26 @@ public class ReplyFragment extends DialogFragment {
             }
         });
 
-        fileButton = (Button) container.findViewById(R.id.reply_file);
+        fileButton = (ImageButton) container.findViewById(R.id.reply_file);
         fileButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                ChanApplication.getReplyManager().pickFile(new ReplyManager.FileListener() {
-                    @Override
-                    public void onFile(String name, File file) {
-                        setFile(name, file);
-                    }
+                if (draft.file == null) {
+                    ChanApplication.getReplyManager().pickFile(new ReplyManager.FileListener() {
+                        @Override
+                        public void onFile(String name, File file) {
+                            setFile(name, file);
+                        }
 
-                    @Override
-                    public void onFileLoading() {
-                        imageViewContainer.setView(null);
-                    }
-                });
-            }
-        });
-
-        fileDeleteButton = (Button) container.findViewById(R.id.reply_file_delete);
-        fileDeleteButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setFile(null, null);
+                        @Override
+                        public void onFileLoading() {
+                            imageViewContainer.setVisibility(View.VISIBLE);
+                            imageViewContainer.setView(null);
+                        }
+                    });
+                } else {
+                    setFile(null, null);
+                }
             }
         });
 
@@ -302,6 +298,17 @@ public class ReplyFragment extends DialogFragment {
         });
 
         return container;
+    }
+
+    public boolean onBackPressed() {
+        if (page == 1) {
+            flipPage(0);
+            return false;
+        } else if (page == 2) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     private void closeReply() {
@@ -365,54 +372,70 @@ public class ReplyFragment extends DialogFragment {
         draft.fileName = name;
 
         if (file == null) {
-            fileDeleteButton.setEnabled(false);
+            fileButton.setImageResource(ThemeHelper.getInstance().getTheme().isLightTheme ? R.drawable.ic_action_attachment : R.drawable.ic_action_attachment_dark);
             imageViewContainer.removeAllViews();
-            fileNameView = null;
+            imageViewContainer.setVisibility(View.GONE);
+            fileNameView.setText("");
+            fileNameView.setVisibility(View.GONE);
+            spoilerImageView.setVisibility(View.GONE);
+            spoilerImageView.setChecked(false);
         } else {
-            fileDeleteButton.setEnabled(true);
-
-            LinearLayout wrapper = new LinearLayout(context);
-            wrapper.setLayoutParams(Utils.MATCH_WRAP_PARAMS);
-            wrapper.setOrientation(LinearLayout.VERTICAL);
-
-            fileNameView = new EditText(context);
-            fileNameView.setSingleLine();
-            fileNameView.setHint(R.string.reply_file_name);
-            fileNameView.setTextSize(16f);
+            fileButton.setImageResource(ThemeHelper.getInstance().getTheme().isLightTheme ? R.drawable.ic_action_cancel : R.drawable.ic_action_cancel_dark);
+            fileNameView.setVisibility(View.VISIBLE);
             fileNameView.setText(name);
-            wrapper.addView(fileNameView);
 
-            final ImageView imageView = new ImageView(context);
-            imageView.setScaleType(ScaleType.CENTER_INSIDE);
-            wrapper.addView(imageView);
+            Board b = ChanApplication.getBoardManager().getBoardByValue(loadable.board);
+            spoilerImageView.setVisibility(b != null && b.spoilers ? View.VISIBLE : View.GONE);
 
-            imageViewContainer.setView(wrapper);
+            imageViewContainer.setVisibility(View.VISIBLE);
+            imageViewContainer.setView(null);
+            imageViewContainer.post(new Runnable() {
+                public void run() {
+                    if (file.length() < 10 * 1024 * 1024) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (context == null)
+                                    return;
 
-            String extension = MimeTypeMap.getFileExtensionFromUrl(name);
-            if (extension != null) {
-                String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                if (mimeType != null && mimeType.contains("image")) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (context == null)
-                                return;
+                                final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), imageViewContainer.getWidth());
 
-                            final Bitmap bitmap = ImageDecoder.decodeFile(file, imageViewContainer.getWidth(), 3000);
-
-                            context.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (context != null && bitmap != null) {
-                                        imageView.setImageBitmap(bitmap);
+                                context.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (context != null) {
+                                            if (bitmap != null) {
+                                                ImageView imageView = new ImageView(context);
+                                                imageViewContainer.setView(imageView);
+                                                imageView.setAdjustViewBounds(true);
+                                                imageView.setMaxWidth(imageViewContainer.getWidth());
+                                                imageView.setMaxHeight(imageViewContainer.getWidth());
+                                                imageView.setImageBitmap(bitmap);
+                                            } else {
+                                                noPreview(imageViewContainer);
+                                            }
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    }).start();
+                                });
+                            }
+                        }).start();
+                    } else {
+                        noPreview(imageViewContainer);
+                    }
                 }
-            }
+            });
         }
+    }
+
+    private void noPreview(LoadView loadView) {
+        TextView text = new TextView(context);
+        text.setLayoutParams(Utils.MATCH_WRAP_PARAMS);
+        text.setGravity(Gravity.CENTER);
+        text.setText(R.string.reply_no_preview);
+        text.setTextSize(16f);
+        int padding = Utils.dp(16);
+        text.setPadding(padding, padding, padding, padding);
+        loadView.setView(text);
     }
 
     private void getCaptcha() {
@@ -476,11 +499,9 @@ public class ReplyFragment extends DialogFragment {
         draft.captchaResponse = captchaInput.getText().toString();
 
         draft.fileName = "image";
-        if (fileNameView != null) {
-            String n = fileNameView.getText().toString();
-            if (!TextUtils.isEmpty(n)) {
-                draft.fileName = n;
-            }
+        String n = fileNameView.getText().toString();
+        if (!TextUtils.isEmpty(n)) {
+            draft.fileName = n;
         }
 
         draft.resto = loadable.isThreadMode() ? loadable.no : -1;
@@ -490,6 +511,9 @@ public class ReplyFragment extends DialogFragment {
             draft.usePass = true;
             draft.passId = ChanPreferences.getPassId();
         }
+
+        Board b = ChanApplication.getBoardManager().getBoardByValue(loadable.board);
+        draft.spoilerImage = b != null && b.spoilers && spoilerImageView.isChecked();
 
         ChanApplication.getReplyManager().sendReply(draft, new ReplyManager.ReplyListener() {
             @Override
