@@ -124,6 +124,7 @@ public class PostRepliesFragment extends DialogFragment {
                     final Post p = getItem(position);
 
                     postView.setPost(p, manager);
+                    postView.setHighlightQuotesWithNo(repliesPopup.forNo);
                     postView.setOnClickListeners(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

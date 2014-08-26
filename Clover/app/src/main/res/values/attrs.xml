@@ -36,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="subject_color" format="color"/>
         <attr name="date_color" format="color"/>
         <attr name="quote_color" format="color"/>
+        <attr name="highlight_quote_color" format="color"/>
         <attr name="link_color" format="color"/>
         <attr name="spoiler_color" format="color"/>
         <attr name="capcode_color" format="color"/>

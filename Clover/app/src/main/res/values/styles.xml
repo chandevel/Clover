@@ -114,6 +114,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="subject_color">#ff0F0C5D</item>
         <item name="date_color">#ff646464</item>
         <item name="quote_color">#ffDD0000</item>
+        <item name="highlight_quote_color">#ff950000</item>
         <item name="link_color">#ff0000B4</item>
         <item name="spoiler_color">#ff000000</item>
         <item name="capcode_color">#ffff0000</item>

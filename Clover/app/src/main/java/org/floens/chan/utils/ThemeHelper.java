@@ -44,6 +44,7 @@ public class ThemeHelper {
     private static ThemeHelper instance;
     private Context context;
     private int quoteColor;
+    private int highlightQuoteColor;
     private int linkColor;
     private int spoilerColor;
     private int inlineQuoteColor;
@@ -92,6 +93,7 @@ public class ThemeHelper {
         this.context = context;
         TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
         quoteColor = ta.getColor(R.styleable.PostView_quote_color, 0);
+        highlightQuoteColor = ta.getColor(R.styleable.PostView_highlight_quote_color, 0);
         linkColor = ta.getColor(R.styleable.PostView_link_color, 0);
         spoilerColor = ta.getColor(R.styleable.PostView_spoiler_color, 0);
         inlineQuoteColor = ta.getColor(R.styleable.PostView_inline_quote_color, 0);
@@ -102,6 +104,10 @@ public class ThemeHelper {
 
     public int getQuoteColor() {
         return quoteColor;
+    }
+
+    public int getHighlightQuoteColor() {
+        return highlightQuoteColor;
     }
 
     public int getLinkColor() {

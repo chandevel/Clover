@@ -65,6 +65,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
     private ThreadManager manager;
     private Post post;
+    private int highlightQuotesNo = -1;
 
     private boolean isBuild = false;
     private LinearLayout full;
@@ -114,6 +115,9 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     public void setPost(final Post post, final ThreadManager manager) {
         this.post = post;
         this.manager = manager;
+
+        highlightQuotesNo = -1;
+
         boolean boardCatalogMode = manager.getLoadable().isBoardMode() || manager.getLoadable().isCatalogMode();
 
         TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
@@ -240,6 +244,14 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         } else {
             lastSeen.setVisibility(View.GONE);
         }
+    }
+
+    public void setHighlightQuotesWithNo(int no) {
+        highlightQuotesNo = no;
+    }
+
+    public int getHighlightQuotesWithNo() {
+        return highlightQuotesNo;
     }
 
     private void buildView(final Context context, TypedArray ta) {

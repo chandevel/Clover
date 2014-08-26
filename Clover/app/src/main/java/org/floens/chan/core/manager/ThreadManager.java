@@ -411,6 +411,7 @@ public class ThreadManager implements Loader.LoaderListener {
             }
         }
         l.posts = p;
+        l.forNo = post.no;
         if (p.size() > 0) {
             showPostsRepliesFragment(l);
         }
@@ -430,6 +431,7 @@ public class ThreadManager implements Loader.LoaderListener {
             Post post = findPostById((Integer) linkable.value);
             if (post != null) {
                 RepliesPopup l = new RepliesPopup();
+                l.forNo = (Integer) linkable.value;
                 l.posts.add(post);
                 showPostsRepliesFragment(l);
             }
@@ -597,5 +599,6 @@ public class ThreadManager implements Loader.LoaderListener {
         public List<Post> posts = new ArrayList<>();
         public int listViewIndex;
         public int listViewTop;
+        public int forNo = -1;
     }
 }
