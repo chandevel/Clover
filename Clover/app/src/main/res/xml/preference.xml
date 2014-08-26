@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:title="@string/preference_theme" />
 
         <ListPreference
-            android:defaultValue="15"
+            android:defaultValue="14"
             android:dialogTitle="@string/preference_font"
             android:entries="@array/preference_fonts"
             android:entryValues="@array/preference_fonts_values"
