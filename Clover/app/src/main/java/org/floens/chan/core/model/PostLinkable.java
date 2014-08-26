@@ -36,6 +36,8 @@ public class PostLinkable extends ClickableSpan {
     public final Object value;
     public final Type type;
 
+    private boolean clicked = false;
+
     public PostLinkable(Post post, String key, Object value, Type type) {
         this.post = post;
         this.key = key;
@@ -48,6 +50,7 @@ public class PostLinkable extends ClickableSpan {
         if (post.getLinkableListener() != null) {
             post.getLinkableListener().onLinkableClick(this);
         }
+        clicked = true;
     }
 
     @Override
@@ -56,9 +59,11 @@ public class PostLinkable extends ClickableSpan {
             ds.setColor(type == Type.LINK ? ThemeHelper.getInstance().getLinkColor() : ThemeHelper.getInstance().getQuoteColor());
             ds.setUnderlineText(true);
         } else if (type == Type.SPOILER) {
-            ds.setColor(ThemeHelper.getInstance().getSpoilerColor());
-            ds.bgColor = ThemeHelper.getInstance().getSpoilerColor();
-            ds.setUnderlineText(false);
+            if (!clicked) {
+                ds.setColor(ThemeHelper.getInstance().getSpoilerColor());
+                ds.bgColor = ThemeHelper.getInstance().getSpoilerColor();
+                ds.setUnderlineText(false);
+            }
         }
     }
 

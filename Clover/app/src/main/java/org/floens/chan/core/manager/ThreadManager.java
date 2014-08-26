@@ -449,8 +449,6 @@ public class ThreadManager implements Loader.LoaderListener {
             } else {
                 Utils.openLink(activity, (String) linkable.value);
             }
-        } else if (linkable.type == PostLinkable.Type.SPOILER) {
-            new AlertDialog.Builder(activity).setMessage((String) linkable.value).show();
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             final PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
             final Loadable thread = new Loadable(link.board, link.threadId);

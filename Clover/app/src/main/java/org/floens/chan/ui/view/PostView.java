@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.Layout;
-import android.text.Selection;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -476,14 +475,12 @@ public class PostView extends LinearLayout implements View.OnClickListener {
                 if (link.length != 0) {
                     if (action == MotionEvent.ACTION_UP) {
                         link[0].onClick(widget);
-                    } else if (action == MotionEvent.ACTION_DOWN) {
-                        Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]));
                     }
+
+                    commentView.invalidate();
 
                     return true;
                 } else {
-                    Selection.removeSelection(buffer);
-
                     // Changed this to propagate events
                     PostView.this.onTouchEvent(event);
                     return true;
@@ -492,8 +489,6 @@ public class PostView extends LinearLayout implements View.OnClickListener {
                 PostView.this.onTouchEvent(event);
                 return true;
             }
-
-            //            return Touch.onTouchEvent(widget, buffer, event);
         }
     }
 }
