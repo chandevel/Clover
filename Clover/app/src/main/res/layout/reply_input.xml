@@ -60,8 +60,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:hint="@string/reply_comment"
             android:imeActionLabel="@string/reply_submit"
             android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-            android:paddingTop="12dp"
             android:minLines="4"
+            android:paddingTop="12dp"
             android:textSize="14sp" />
 
         <TextView
@@ -136,7 +136,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/reply_spoiler_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/reply_spoiler_image" />
+        android:text="@string/reply_spoiler_image"
+        android:textSize="14sp" />
 
     <org.floens.chan.ui.view.LoadView
         android:id="@+id/reply_image"
