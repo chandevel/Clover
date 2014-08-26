@@ -72,6 +72,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     protected SlidingPaneLayout threadPane;
 
+    private String shareUrl;
     private ShareActionProvider shareActionProvider;
     private Intent pendingShareActionProviderIntent;
 
@@ -320,6 +321,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
      * @param url
      */
     public void setShareUrl(String url) {
+        shareUrl = url;
+
         NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
 
         if (adapter != null) {
@@ -346,6 +349,12 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             shareActionProvider.setShareIntent(share);
         } else {
             pendingShareActionProviderIntent = share;
+        }
+    }
+
+    public void openInBrowser() {
+        if (shareUrl != null) {
+            showUrlOpenPicker(shareUrl);
         }
     }
 

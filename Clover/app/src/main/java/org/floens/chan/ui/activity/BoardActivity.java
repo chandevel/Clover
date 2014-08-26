@@ -367,8 +367,11 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
                 actionBar.setTitle("");
                 pinDrawerListener.setDrawerIndicatorEnabled(true);
 
-                if (boardLoadable.isBoardMode() || boardLoadable.isCatalogMode())
+                if (boardLoadable.isBoardMode()) {
                     setShareUrl(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
+                } else if (boardLoadable.isCatalogMode()) {
+                    setShareUrl(ChanUrls.getCatalogUrlDesktop(boardLoadable.board));
+                }
             } else {
                 actionBar.setDisplayShowCustomEnabled(false);
                 actionBar.setTitle(threadLoadable.title);
@@ -470,13 +473,7 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
 
                 return true;
             case R.id.action_open_browser:
-                if (threadPane.isOpen()) {
-                    showUrlOpenPicker(ChanUrls.getBoardUrlDesktop(boardLoadable.board));
-                } else {
-                    if (threadFragment.hasLoader()) {
-                        showUrlOpenPicker(ChanUrls.getThreadUrlDesktop(threadLoadable.board, threadLoadable.no));
-                    }
-                }
+                openInBrowser();
 
                 return true;
             case R.id.action_board_view_mode_grid:
