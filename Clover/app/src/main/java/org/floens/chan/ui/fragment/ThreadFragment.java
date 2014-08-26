@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -242,7 +243,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         } else {
             if (postAdapter == null) {
                 if (container != null) {
-                    container.setView(getLoadErrorTextView(error));
+                    container.setView(getLoadErrorView(error));
                 }
             } else {
                 postAdapter.setStatusMessage(getLoadErrorText(error));
@@ -372,16 +373,40 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
      * @param error
      * @return
      */
-    private TextView getLoadErrorTextView(VolleyError error) {
+    private View getLoadErrorView(VolleyError error) {
         String errorMessage = getLoadErrorText(error);
 
-        TextView view = new TextView(getActivity());
-        view.setLayoutParams(Utils.MATCH_PARAMS);
-        view.setText(errorMessage);
-        view.setTextSize(24f);
-        view.setGravity(Gravity.CENTER);
+        LinearLayout wrapper = new LinearLayout(baseActivity);
+        wrapper.setLayoutParams(Utils.MATCH_PARAMS);
+        wrapper.setGravity(Gravity.CENTER);
+        wrapper.setOrientation(LinearLayout.VERTICAL);
 
-        return view;
+        TextView text = new TextView(getActivity());
+        text.setLayoutParams(Utils.WRAP_PARAMS);
+        text.setText(errorMessage);
+        text.setTextSize(24f);
+        wrapper.addView(text);
+
+        Button retry = new Button(baseActivity);
+        retry.setText(R.string.thread_load_failed_retry);
+        retry.setLayoutParams(Utils.WRAP_PARAMS);
+        retry.setGravity(Gravity.CENTER);
+        retry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (threadManager != null) {
+                    reload();
+                }
+            }
+        });
+
+        wrapper.addView(retry);
+
+        LinearLayout.LayoutParams retryParams = (LinearLayout.LayoutParams) retry.getLayoutParams();
+        retryParams.topMargin = Utils.dp(12);
+        retry.setLayoutParams(retryParams);
+
+        return wrapper;
     }
 
     private String getLoadErrorText(VolleyError error) {
