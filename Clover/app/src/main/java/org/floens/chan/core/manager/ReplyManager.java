@@ -105,15 +105,20 @@ public class ReplyManager {
      * @param no the raw no to quote to.
      */
     public void quote(int no) {
-        draft.comment += ">>" + no + "\n";
+        String textToInsert = ">>" + no + "\n";
+        draft.comment = new StringBuilder(draft.comment).insert(draft.cursorPosition, textToInsert).toString();
+        draft.cursorPosition += textToInsert.length();
     }
 
     public void quoteInline(int no, String text) {
-        draft.comment += ">>" + no + "\n";
+        String textToInsert = ">>" + no + "\n";
         String[] lines = text.split("\n+");
         for (String line : lines) {
-            draft.comment += ">" + line + "\n";
+            textToInsert += ">" + line + "\n";
         }
+
+        draft.comment = new StringBuilder(draft.comment).insert(draft.cursorPosition, textToInsert).toString();
+        draft.cursorPosition += textToInsert.length();
     }
 
     /**

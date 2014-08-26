@@ -24,7 +24,6 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.Selection;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -174,8 +173,8 @@ public class ReplyFragment extends DialogFragment {
             emailView.setText(draft.email);
             subjectView.setText(draft.subject);
             commentView.setText(draft.comment);
-            // To the end of the comment
-            Selection.setSelection(commentView.getText(), commentView.getText().length());
+            commentView.setSelection(draft.cursorPosition);
+
             setFile(draft.fileName, draft.file);
             spoilerImageView.setChecked(draft.spoilerImage);
 
@@ -234,6 +233,7 @@ public class ReplyFragment extends DialogFragment {
             draft.comment = commentView.getText().toString();
             draft.fileName = fileNameView.getText().toString();
             draft.spoilerImage = spoilerImageView.isChecked();
+            draft.cursorPosition = commentView.getSelectionStart();
 
             replyManager.setReplyDraft(draft);
         } else {

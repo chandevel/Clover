@@ -37,4 +37,5 @@ public class Reply {
     public boolean usePass = false;
     public String passId = "";
     public boolean spoilerImage = false;
+    public int cursorPosition;
 }
