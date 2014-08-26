@@ -82,16 +82,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/insert_inline"
-            style="?android:buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="36dp"
-            android:minWidth="48dp"
-            android:text="@string/reply_insert_inline"
-            android:textSize="14sp" />
-
-        <Button
             android:id="@+id/insert_spoiler"
             style="?android:buttonBarButtonStyle"
             android:layout_width="wrap_content"

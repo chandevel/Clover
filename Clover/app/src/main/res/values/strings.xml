@@ -121,7 +121,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply_spoiler_image">Spoiler image</string>
     <string name="reply_no_preview">No preview available</string>
 
-    <string name="reply_insert_inline">&gt;</string>
     <string name="reply_insert_spoiler">[spoiler]</string>
     <string name="reply_insert_code">[code]</string>
 

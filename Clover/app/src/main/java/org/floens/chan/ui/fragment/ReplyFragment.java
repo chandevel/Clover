@@ -101,7 +101,6 @@ public class ReplyFragment extends DialogFragment {
     private LoadView captchaContainer;
     private TextView captchaInput;
     private LoadView responseContainer;
-    private Button insertInline;
     private Button insertSpoiler;
     private Button insertCode;
     private TextView commentCountView;
@@ -332,14 +331,6 @@ public class ReplyFragment extends DialogFragment {
             }
         });
 
-        insertInline = (Button) container.findViewById(R.id.insert_inline);
-        insertInline.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                insertAtCursor(">", "");
-            }
-        });
-
         insertSpoiler = (Button) container.findViewById(R.id.insert_spoiler);
         insertSpoiler.setOnClickListener(new OnClickListener() {
             @Override
@@ -366,8 +357,6 @@ public class ReplyFragment extends DialogFragment {
     public boolean onBackPressed() {
         if (page == 1) {
             flipPage(0);
-            return false;
-        } else if (page == 2) {
             return false;
         } else {
             return true;
