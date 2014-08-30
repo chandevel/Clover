@@ -29,6 +29,8 @@ import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 
+import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
@@ -127,6 +129,8 @@ public class ChanApplication extends Application {
 //            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 //            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
+
+        ChanUrls.loadScheme(ChanPreferences.getNetworkHttps());
 
         IconCache.createIcons(this);
 

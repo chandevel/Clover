@@ -203,6 +203,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </string-array>
 
     <string name="preference_image_save_location">Image save folder</string>
+    <string name="preference_network_https">Use HTTPS</string>
     <string name="preference_image_save_original">Save original filename</string>
     <string name="preference_open_link_confirmation">Ask before opening links</string>
     <string name="preference_autoplay">Start playing videos immediately</string>

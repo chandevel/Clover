@@ -25,6 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:key="preference_image_save_original"
         android:title="@string/preference_image_save_original" />
 
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="preference_network_https"
+        android:title="@string/preference_network_https" />
+
     <ListPreference
         android:defaultValue="catalog"
         android:dialogTitle="@string/preference_board_mode"

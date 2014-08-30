@@ -24,6 +24,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
 import org.floens.chan.R;
+import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.ui.fragment.FolderPickFragment;
 import org.floens.chan.utils.ThemeHelper;
@@ -103,6 +104,15 @@ public class AdvancedSettingsActivity extends Activity {
                         }
                     }, dir);
                     getActivity().getFragmentManager().beginTransaction().add(frag, null).commit();
+
+                    return true;
+                }
+            });
+
+            findPreference("preference_network_https").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    ChanUrls.loadScheme((Boolean)newValue);
 
                     return true;
                 }

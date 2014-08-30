@@ -193,4 +193,8 @@ public class ChanPreferences {
         String font = p().getString("preference_font", null);
         return font == null ? 14 : Integer.parseInt(font);
     }
+
+    public static boolean getNetworkHttps() {
+        return p().getBoolean("preference_network_https", true);
+    }
 }

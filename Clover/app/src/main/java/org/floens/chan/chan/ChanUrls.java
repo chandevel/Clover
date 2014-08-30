@@ -17,55 +17,63 @@
  */
 package org.floens.chan.chan;
 
+import org.floens.chan.core.ChanPreferences;
+
 import java.util.Locale;
 
 public class ChanUrls {
+    private static String scheme;
+
+    public static void loadScheme(boolean useHttps) {
+        scheme = useHttps ? "https" : "http";
+    }
+
     public static String getCatalogUrl(String board) {
-        return "https://a.4cdn.org/" + board + "/catalog.json";
+        return scheme + "://a.4cdn.org/" + board + "/catalog.json";
     }
 
     public static String getPageUrl(String board, int pageNumber) {
-        return "https://a.4cdn.org/" + board + "/" + (pageNumber + 1) + ".json";
+        return scheme + "://a.4cdn.org/" + board + "/" + (pageNumber + 1) + ".json";
     }
 
     public static String getThreadUrl(String board, int no) {
-        return "https://a.4cdn.org/" + board + "/thread/" + no + ".json";
+        return scheme + "://a.4cdn.org/" + board + "/thread/" + no + ".json";
     }
 
     public static String getCaptchaChallengeUrl() {
-        return "https://www.google.com/recaptcha/api/challenge?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
+        return scheme + "://www.google.com/recaptcha/api/challenge?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
     }
 
     public static String getCaptchaImageUrl(String challenge) {
-        return "https://www.google.com/recaptcha/api/image?c=" + challenge;
+        return scheme + "://www.google.com/recaptcha/api/image?c=" + challenge;
     }
 
     public static String getImageUrl(String board, String code, String extension) {
-        return "https://i.4cdn.org/" + board + "/" + code + "." + extension;
+        return scheme + "://i.4cdn.org/" + board + "/" + code + "." + extension;
     }
 
     public static String getThumbnailUrl(String board, String code) {
-        return "https://t.4cdn.org/" + board + "/" + code + "s.jpg";
+        return scheme + "://t.4cdn.org/" + board + "/" + code + "s.jpg";
     }
 
     public static String getSpoilerUrl() {
-        return "https://s.4cdn.org/image/spoiler.png";
+        return scheme + "://s.4cdn.org/image/spoiler.png";
     }
 
     public static String getCustomSpoilerUrl(String board, int value) {
-        return "https://s.4cdn.org/image/spoiler-" + board + value + ".png";
+        return scheme + "://s.4cdn.org/image/spoiler-" + board + value + ".png";
     }
 
     public static String getCountryFlagUrl(String countryCode) {
-        return "https://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
+        return scheme + "://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
     }
 
     public static String getTrollCountryFlagUrl(String countryCode) {
-        return "https://s.4cdn.org/image/country/troll/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
+        return scheme + "://s.4cdn.org/image/country/troll/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
     }
 
     public static String getBoardsUrl() {
-        return "https://a.4cdn.org/boards.json";
+        return scheme + "://a.4cdn.org/boards.json";
     }
 
     public static String getReplyUrl(String board) {
@@ -77,15 +85,15 @@ public class ChanUrls {
     }
 
     public static String getBoardUrlDesktop(String board) {
-        return "https://boards.4chan.org/" + board + "/";
+        return scheme + "://boards.4chan.org/" + board + "/";
     }
 
     public static String getThreadUrlDesktop(String board, int no) {
-        return "https://boards.4chan.org/" + board + "/thread/" + no;
+        return scheme + "://boards.4chan.org/" + board + "/thread/" + no;
     }
 
     public static String getCatalogUrlDesktop(String board) {
-        return "https://boards.4chan.org/" + board + "/catalog";
+        return scheme + "://boards.4chan.org/" + board + "/catalog";
     }
 
     public static String getPassUrl() {
