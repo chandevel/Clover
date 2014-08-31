@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.fragment;
 
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ import org.floens.chan.utils.ThemeHelper;
 public class PostRepliesFragment extends DialogFragment {
     private ListView listView;
 
+    private Activity activity;
     private ThreadManager.RepliesPopup repliesPopup;
     private ThreadManager manager;
     private boolean callback = true;
@@ -107,18 +109,20 @@ public class PostRepliesFragment extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        activity = getActivity();
+
         if (repliesPopup == null) {
             // Restoring from background.
             dismiss();
         } else {
-            ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(getActivity(), 0) {
+            ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(activity, 0) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     PostView postView;
                     if (convertView instanceof PostView) {
                         postView = (PostView) convertView;
                     } else {
-                        postView = new PostView(getActivity());
+                        postView = new PostView(activity);
                     }
 
                     final Post p = getItem(position);
