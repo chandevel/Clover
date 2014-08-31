@@ -15,6 +15,12 @@ This repo contains all the code for Clover.
 [Join this G+ community](https://plus.google.com/communities/108906508206092146956) and follow the instructions in the "About this community" box.
 
 
+## Contibuting
+See the [Clover setup guide](https://github.com/Floens/Clover/wiki/Building-Clover) when you want to make changes to the code.  
+[The issues page](https://github.com/Floens/Clover/issues) is for reporting bugs and feature requests.  
+Be sure to search for existing items on the todo list and issues page before reporting anything.
+
+
 ## Contact
 IRC: #Clover @ freenode
 
@@ -23,13 +29,6 @@ IRC: #Clover @ freenode
 [Clover todo list](https://gist.github.com/Floens/cd7937a1d8f06f5540bc)
 
 
-## Bugs / feature requests
-
-[The issues page](https://github.com/Floens/Clover/issues) is for reporting bugs and feature requests.  
-Be sure to search for existing items on the todo list and issues page before reporting anything.
-
-
 ## License
-
 * Clover is [GPLv3](https://github.com/Floens/Clover/blob/master/COPYING.txt)
-* [Licenses of the used libraries](https://rawgit.com/Floens/Clover/master/Clover/app/src/main/assets/html/licences.html).
+* [Licenses of the used libraries](https://rawgit.com/Floens/Clover/master/Clover/app/src/main/assets/html/licenses.html).
