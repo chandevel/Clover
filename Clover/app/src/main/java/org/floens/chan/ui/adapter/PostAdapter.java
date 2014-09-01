@@ -70,7 +70,6 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
     private boolean endOfLine;
     private int lastPostCount = 0;
-    private long lastViewedTime = 0;
     private String statusMessage = null;
     private String filter = "";
     private int pendingScrollToPost = -1;
@@ -298,12 +297,8 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
         if (lastPostCount != sourceList.size()) {
             lastPostCount = sourceList.size();
-            lastViewedTime = Time.get();
-        }
-
-        if (Time.get(lastViewedTime) > 1000L) {
-            lastViewedTime = Time.get();
             threadManager.bottomPostViewed();
+            notifyDataSetChanged();
         }
     }
 
