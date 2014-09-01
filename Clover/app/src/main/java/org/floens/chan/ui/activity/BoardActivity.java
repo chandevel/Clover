@@ -596,8 +596,23 @@ public class BoardActivity extends BaseActivity implements AdapterView.OnItemSel
             } catch (NumberFormatException e) {
             }
 
+            int post = -1;
+            String fragment = startUri.getFragment();
+            if (fragment != null) {
+                int index = fragment.indexOf("p");
+                if (index >= 0) {
+                    try {
+                        post = Integer.parseInt(fragment.substring(index + 1));
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+
             if (no >= 0 && ChanApplication.getBoardManager().getBoardExists(rawBoard)) {
                 startLoadingThread(new Loadable(rawBoard, no));
+                if (post >= 0) {
+                    threadFragment.highlightPost(post);
+                }
             } else {
                 handleIntentURIFallback(startUri.toString());
             }

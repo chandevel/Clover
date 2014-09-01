@@ -130,6 +130,10 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
     }
 
+    public void highlightPost(int no) {
+        highlightedPost = no;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
