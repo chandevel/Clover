@@ -176,7 +176,7 @@ public class WatchNotifier extends Service {
             }
 
             boolean showTickerText = !ChanApplication.getInstance().getApplicationInForeground() && wereNewPosts;
-            return getNotificationFor(showTickerText ? tickerText : null, title, tickerText, Integer.toString(newPostsCount), lines, makeSound, targetPin);
+            return getNotificationFor(showTickerText ? tickerText : null, title, tickerText, newPostsCount, lines, makeSound, targetPin);
         } else {
             return null;
         }
@@ -187,11 +187,11 @@ public class WatchNotifier extends Service {
         int s = watchingPins.size();
         String message = "Watching " + s + " thread" + (s != 1 ? "s" : "");
 
-        return getNotificationFor(null, message, message, "", null, false, null);
+        return getNotificationFor(null, message, message, -1, null, false, null);
     }
 
     @SuppressWarnings("deprecation")
-    private Notification getNotificationFor(String tickerText, String title, String content, String count,
+    private Notification getNotificationFor(String tickerText, String title, String content, int count,
                                             List<CharSequence> lines, boolean makeSound, Pin targetPin) {
 
         Intent intent = new Intent(this, BoardActivity.class);
@@ -214,7 +214,12 @@ public class WatchNotifier extends Service {
         builder.setTicker(tickerText);
         builder.setContentTitle(title);
         builder.setContentText(content);
-        builder.setContentInfo(count);
+
+        if (count >= 0) {
+            builder.setContentInfo(Integer.toString(count));
+            builder.setNumber(count);
+        }
+
         builder.setSmallIcon(R.drawable.ic_stat_notify);
 
         Intent pauseWatching = new Intent(this, WatchNotifier.class);
