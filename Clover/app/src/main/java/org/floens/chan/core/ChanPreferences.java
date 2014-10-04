@@ -173,6 +173,10 @@ public class ChanPreferences {
         return p().getBoolean("preference_anonymize_ids", false);
     }
 
+    public static boolean getReplyButtonsBottom() {
+        return p().getBoolean("preference_buttons_bottom", false);
+    }
+
     public static String getBoardMode() {
         return p().getString("preference_board_mode", "catalog");
     }

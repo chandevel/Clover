@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.view.PostView;
@@ -78,7 +79,12 @@ public class PostRepliesFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup unused, Bundle savedInstanceState) {
-        View container = inflater.inflate(R.layout.post_replies, null);
+        View container;
+        if (ChanPreferences.getReplyButtonsBottom()) {
+            container = inflater.inflate(R.layout.post_replies_bottombuttons, null);
+        } else {
+            container = inflater.inflate(R.layout.post_replies, null);
+        }
 
         listView = (ListView) container.findViewById(R.id.post_list);
 

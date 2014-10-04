@@ -224,6 +224,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="preference_anonymize">Make everyone Anonymous</string>
     <string name="preference_anonymize_ids">Hide IDs</string>
 
+    <string name="preference_buttons_bottom">Reply buttons on the bottom</string>
+
     <string name="open_link_confirmation">Open link?</string>
     <string name="open_thread_confirmation">Open this thread?</string>
 
