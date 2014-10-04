@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -16,67 +15,65 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minWidth="320dp"
-    android:minHeight="200dp"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:baselineAligned="false"
-        android:orientation="horizontal"
         android:divider="?android:attr/dividerVertical"
-        android:showDividers="middle"
-        android:dividerPadding="12dp">
+        android:dividerPadding="12dp"
+        android:orientation="horizontal"
+        android:showDividers="middle">
 
         <FrameLayout
-            style="?android:actionButtonStyle"
             android:id="@+id/replies_back"
+            style="?android:actionButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1">
 
             <TextView
-                style="?android:actionBarTabTextStyle"
                 android:id="@+id/replies_back_icon"
+                style="?android:actionBarTabTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:paddingRight="20dp"
                 android:drawableLeft="@drawable/ic_action_back"
                 android:drawablePadding="8dp"
                 android:gravity="center_vertical"
-                android:text="@string/back"/>
+                android:paddingRight="20dp"
+                android:text="@string/back" />
         </FrameLayout>
 
         <FrameLayout
-            style="?android:actionButtonStyle"
             android:id="@+id/replies_close"
+            style="?android:actionButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1">
 
             <TextView
-                style="?android:actionBarTabTextStyle"
                 android:id="@+id/replies_close_icon"
+                style="?android:actionBarTabTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:paddingRight="20dp"
                 android:drawableLeft="@drawable/ic_action_done"
                 android:drawablePadding="8dp"
                 android:gravity="center_vertical"
-                android:text="@string/close"/>
+                android:paddingRight="20dp"
+                android:text="@string/close" />
         </FrameLayout>
     </LinearLayout>
 
     <ListView
         android:id="@+id/post_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>
