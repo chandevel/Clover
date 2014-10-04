@@ -53,4 +53,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:key="preference_anonymize_ids"
         android:title="@string/preference_anonymize_ids" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="preference_buttons_bottom"
+        android:title="@string/preference_buttons_bottom" />
 </PreferenceScreen>
