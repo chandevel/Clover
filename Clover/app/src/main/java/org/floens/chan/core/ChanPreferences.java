@@ -103,6 +103,19 @@ public class ChanPreferences {
         return Integer.parseInt(number);
     }
 
+    public static String getWatchNotifyMode() {
+        return p().getString("preference_watch_notify_mode", "all");
+    }
+
+    public static String getWatchSound() {
+        return p().getString("preference_watch_sound", "quotes");
+    }
+
+    public static long getWatchLed() {
+        String raw = p().getString("preference_watch_led", "ffffffff");
+        return Long.parseLong(raw, 16);
+    }
+
     public static boolean getVideoAutoPlay() {
         return getImageAutoLoad() && !getVideoExternal() && p().getBoolean("preference_autoplay", false);
     }

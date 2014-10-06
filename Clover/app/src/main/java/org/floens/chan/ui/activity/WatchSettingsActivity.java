@@ -23,7 +23,6 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -147,7 +146,6 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
             }
             updateListSummary(backgroundTimeout, currentValue);
 
-            // Timeout is reset when board activity is started
             backgroundTimeout.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -156,7 +154,55 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
                 }
             });
 
-            ((CheckBoxPreference) findPreference("preference_watch_background_enabled")).setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            final ListPreference notifyMode = (ListPreference) findPreference("preference_watch_notify_mode");
+            String currentNotifyMode = notifyMode.getValue();
+            if (currentNotifyMode == null) {
+                notifyMode.setValue((String) notifyMode.getEntryValues()[0]);
+                currentNotifyMode = notifyMode.getValue();
+            }
+            updateListSummary(notifyMode, currentNotifyMode);
+
+            notifyMode.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    updateListSummary(notifyMode, newValue.toString());
+                    return true;
+                }
+            });
+
+            final ListPreference sound = (ListPreference) findPreference("preference_watch_sound");
+            String currentSound = sound.getValue();
+            if (currentSound == null) {
+                sound.setValue((String) sound.getEntryValues()[0]);
+                currentSound = sound.getValue();
+            }
+            updateListSummary(sound, currentSound);
+
+            sound.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    updateListSummary(sound, newValue.toString());
+                    return true;
+                }
+            });
+
+            final ListPreference led = (ListPreference) findPreference("preference_watch_led");
+            String currentLed = led.getValue();
+            if (currentLed == null) {
+                led.setValue((String) led.getEntryValues()[0]);
+                currentLed = led.getValue();
+            }
+            updateListSummary(led, currentLed);
+
+            led.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    updateListSummary(led, newValue.toString());
+                    return true;
+                }
+            });
+
+            findPreference("preference_watch_background_enabled").setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(final Preference preference, final Object newValue) {
                     ChanApplication.getWatchManager().onBackgroundWatchingChanged((Boolean) newValue);
@@ -170,7 +216,5 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
             int index = backgroundTimeout.findIndexOfValue(value);
             backgroundTimeout.setSummary(backgroundTimeout.getEntries()[index]);
         }
-
     }
-
 }

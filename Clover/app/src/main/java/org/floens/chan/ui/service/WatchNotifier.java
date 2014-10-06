@@ -23,17 +23,18 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.watch.PinWatcher;
 import org.floens.chan.ui.activity.BoardActivity;
+import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +44,7 @@ import java.util.List;
 public class WatchNotifier extends Service {
     private static final String TAG = "WatchNotifier";
     private static final int NOTIFICATION_ID = 1;
+    private static final PostAgeComparer POST_AGE_COMPARER = new PostAgeComparer();
 
     private NotificationManager nm;
     private WatchManager wm;
@@ -59,7 +61,7 @@ public class WatchNotifier extends Service {
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         wm = ChanApplication.getWatchManager();
 
-        startForeground(NOTIFICATION_ID, getIdleNotification());
+        startForeground(NOTIFICATION_ID, createNotification());
     }
 
     @Override
@@ -80,12 +82,7 @@ public class WatchNotifier extends Service {
     }
 
     public void updateNotification() {
-        Notification notification = createNotification();
-        if (notification != null) {
-            nm.notify(NOTIFICATION_ID, notification);
-        } else {
-            nm.notify(NOTIFICATION_ID, getIdleNotification());
-        }
+        nm.notify(NOTIFICATION_ID, createNotification());
     }
 
     public void pausePins() {
@@ -93,69 +90,89 @@ public class WatchNotifier extends Service {
     }
 
     private Notification createNotification() {
-        List<Pin> watchingPins = wm.getWatchingPins();
+        boolean notifyQuotesOnly = ChanPreferences.getWatchNotifyMode().equals("quotes");
+        boolean soundQuotesOnly = ChanPreferences.getWatchSound().equals("quotes");
 
+        List<Post> list = new ArrayList<>();
+        List<Post> listQuoting = new ArrayList<>();
         List<Pin> pins = new ArrayList<>();
-        int newPostsCount = 0;
-        int newQuotesCount = 0;
-        List<Post> posts = new ArrayList<>();
-        boolean makeSound = false;
-        boolean show = false;
-        boolean wereNewPosts = false;
+        List<Pin> subjectPins = new ArrayList<>();
 
-        for (Pin pin : watchingPins) {
+        boolean ticker = false;
+        boolean sound = false;
+
+        for (Pin pin : wm.getWatchingPins()) {
             PinWatcher watcher = pin.getPinWatcher();
             if (watcher == null || pin.isError)
                 continue;
 
-            boolean add = false;
+            pins.add(pin);
 
-            if (pin.getNewPostsCount() > 0) {
+            if (notifyQuotesOnly) {
+                list.addAll(watcher.getUnviewedQuotes());
+                listQuoting.addAll(watcher.getUnviewedQuotes());
+                if (watcher.getWereNewQuotes()) {
+                    ticker = true;
+                    sound = true;
+                }
+                if (pin.getNewQuoteCount() > 0) {
+                    subjectPins.add(pin);
+                }
+            } else {
+                list.addAll(watcher.getUnviewedPosts());
+                listQuoting.addAll(watcher.getUnviewedQuotes());
                 if (watcher.getWereNewPosts()) {
-                    wereNewPosts = true;
+                    ticker = true;
+                    if (!soundQuotesOnly) {
+                        sound = true;
+                    }
                 }
-                newPostsCount += pin.getNewPostsCount();
-                for (Post p : watcher.getNewPosts()) {
-                    p.title = pin.loadable.title;
-                    posts.add(p);
+                if (watcher.getWereNewQuotes()) {
+                    sound = true;
                 }
-
-                show = true;
-                add = true;
-            }
-
-            if (pin.getNewQuoteCount() > 0) {
-                newQuotesCount += pin.getNewQuoteCount();
-                show = true;
-                add = true;
-            }
-
-            if (watcher.getWereNewQuotes()) {
-                makeSound = true;
-            }
-
-            if (add) {
-                pins.add(pin);
+                if (pin.getNewPostCount() > 0) {
+                    subjectPins.add(pin);
+                }
             }
         }
 
-        if (show) {
-            String title = newPostsCount + " new post" + (newPostsCount != 1 ? "s" : "");
-            if (newQuotesCount > 0) {
-                title += ", " + newQuotesCount + " quoting you";
-            }
+        if (ChanApplication.getInstance().getApplicationInForeground()) {
+            ticker = false;
+            sound = false;
+        }
 
-            String tickerText = title + " in ";
-            if (pins.size() == 1) {
-                tickerText += pins.get(0).loadable.title;
+        return notifyAboutPosts(pins, subjectPins, list, listQuoting, notifyQuotesOnly, ticker, sound);
+    }
+
+    private Notification notifyAboutPosts(List<Pin> pins, List<Pin> subjectPins, List<Post> list, List<Post> listQuoting,
+                                          boolean notifyQuotesOnly, boolean makeTicker, boolean makeSound) {
+        String title = getResources().getQuantityString(R.plurals.watch_title, pins.size(), pins.size());
+
+        if (list.size() == 0) {
+            // Idle notification
+            String message = getString(R.string.watch_idle);
+            return getNotificationFor(null, title, message, -1, null, false, false, null);
+        } else {
+            // New posts notification
+            String message;
+            List<Post> notificationList;
+            if (notifyQuotesOnly) {
+                message = getResources().getQuantityString(R.plurals.watch_new_quotes, listQuoting.size(), listQuoting.size());
+                notificationList = listQuoting;
             } else {
-                tickerText += pins.size() + " thread" + (pins.size() != 1 ? "s" : "");
+                notificationList = list;
+                if (listQuoting.size() > 0) {
+                    message = getResources().getQuantityString(R.plurals.watch_new_quoting, list.size(), list.size(), listQuoting.size());
+                } else {
+                    message = getResources().getQuantityString(R.plurals.watch_new, list.size(), list.size());
+                }
             }
 
-            Collections.sort(posts, new PostAgeComparer());
-
+            Collections.sort(notificationList, POST_AGE_COMPARER);
             List<CharSequence> lines = new ArrayList<>();
-            for (Post post : posts) {
+            for (Post post : notificationList) {
+                CharSequence prefix = Utils.ellipsize(post.title, 18);
+
                 CharSequence comment;
                 if (post.comment.length() == 0) {
                     comment = "(image)";
@@ -163,48 +180,62 @@ public class WatchNotifier extends Service {
                     comment = post.comment;
                 }
 
-                if (pins.size() > 1) {
-                    lines.add(post.title + ": " + comment);
-                } else {
-                    lines.add(comment);
-                }
+                lines.add(prefix + ": " + comment);
             }
 
-            Pin targetPin = null;
-            if (pins.size() == 1) {
-                targetPin = pins.get(0);
+            Pin subject = null;
+            if (subjectPins.size() == 1) {
+                subject = subjectPins.get(0);
             }
 
-            boolean showTickerText = !ChanApplication.getInstance().getApplicationInForeground() && wereNewPosts;
-            return getNotificationFor(showTickerText ? tickerText : null, title, tickerText, newPostsCount, lines, makeSound, targetPin);
-        } else {
-            return null;
+            String ticker = null;
+            if (makeTicker) {
+                ticker = message;
+            }
+
+            return getNotificationFor(ticker, title, message, -1, lines, makeTicker, makeSound, subject);
         }
     }
 
-    private Notification getIdleNotification() {
-        List<Pin> watchingPins = wm.getWatchingPins();
-        int s = watchingPins.size();
-        String message = "Watching " + s + " thread" + (s != 1 ? "s" : "");
-
-        return getNotificationFor(null, message, message, -1, null, false, null);
-    }
-
+    /**
+     * Create a notification with the supplied parameters.
+     * The style of the big notification is InboxStyle, a list of text.
+     *
+     * @param tickerText    The tickertext to show, or null if no tickertext should be shown.
+     * @param contentTitle  The title of the notification
+     * @param contentText   The content of the small notification
+     * @param contentNumber The contentInfo and number, or -1 if not shown
+     * @param expandedLines A list of lines for the big notification, or null if not shown
+     * @param makeSound     Should the notification make a sound
+     * @param target        The target pin, or null to open the pinned pane on tap
+     * @return
+     */
     @SuppressWarnings("deprecation")
-    private Notification getNotificationFor(String tickerText, String title, String content, int count,
-                                            List<CharSequence> lines, boolean makeSound, Pin targetPin) {
-
+    private Notification getNotificationFor(String tickerText, String contentTitle, String contentText, int contentNumber,
+                                            List<CharSequence> expandedLines, boolean light, boolean makeSound, Pin target) {
         Intent intent = new Intent(this, BoardActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
-        intent.putExtra("pin_id", targetPin == null ? -1 : targetPin.id);
+        intent.putExtra("pin_id", target == null ? -1 : target.id);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        if (makeSound) {
+            builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+        }
+
+        if (light) {
+            long watchLed = ChanPreferences.getWatchLed();
+            if (watchLed >= 0) {
+                builder.setLights((int) watchLed, 1000, 1000);
+            }
+        }
+
+
         builder.setContentIntent(pendingIntent);
 
         if (tickerText != null) {
@@ -212,12 +243,12 @@ public class WatchNotifier extends Service {
         }
 
         builder.setTicker(tickerText);
-        builder.setContentTitle(title);
-        builder.setContentText(content);
+        builder.setContentTitle(contentTitle);
+        builder.setContentText(contentText);
 
-        if (count >= 0) {
-            builder.setContentInfo(Integer.toString(count));
-            builder.setNumber(count);
+        if (contentNumber >= 0) {
+            builder.setContentInfo(Integer.toString(contentNumber));
+            builder.setNumber(contentNumber);
         }
 
         builder.setSmallIcon(R.drawable.ic_stat_notify);
@@ -231,16 +262,12 @@ public class WatchNotifier extends Service {
         builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins),
                 pauseWatchingPending);
 
-        if (makeSound) {
-            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        }
-
-        if (lines != null) {
+        if (expandedLines != null) {
             NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-            for (CharSequence line : lines.subList(Math.max(0, lines.size() - 10), lines.size())) {
+            for (CharSequence line : expandedLines.subList(Math.max(0, expandedLines.size() - 10), expandedLines.size())) {
                 style.addLine(line);
             }
-            style.setBigContentTitle(title);
+            style.setBigContentTitle(contentTitle);
             builder.setStyle(style);
         }
 

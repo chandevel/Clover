@@ -123,14 +123,8 @@ public class Post {
         if (isOP && (replies < 0 || images < 0))
             return false;
 
-        if (ext != null) {
+        if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0 && tim >= 0) {
             hasImage = true;
-        }
-
-        if (hasImage) {
-            if (filename == null || ext == null || imageWidth <= 0 || imageHeight <= 0 || tim < 0)
-                return false;
-
             imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
             filename = Parser.unescapeEntities(filename, false);
 

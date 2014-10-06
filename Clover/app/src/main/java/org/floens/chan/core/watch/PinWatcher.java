@@ -37,6 +37,7 @@ public class PinWatcher implements Loader.LoaderListener {
     private Loader loader;
 
     private final List<Post> posts = new ArrayList<>();
+    private final List<Post> quotes = new ArrayList<>();
     private boolean wereNewQuotes = false;
     private boolean wereNewPosts = false;
 
@@ -63,28 +64,25 @@ public class PinWatcher implements Loader.LoaderListener {
         if (pin.watchNewCount >= 0) {
             pin.watchLastCount = pin.watchNewCount;
         }
-
-        pin.quoteLastCount = pin.quoteNewCount;
-        wereNewQuotes = false;
         wereNewPosts = false;
+
+        if (pin.quoteNewCount >= 0) {
+            pin.quoteLastCount = pin.quoteNewCount;
+        }
+        wereNewQuotes = false;
     }
 
-    public List<Post> getNewPosts() {
+    public List<Post> getUnviewedPosts() {
         if (posts.size() == 0) {
             return posts;
         } else {
-            return posts.subList(Math.max(0, posts.size() - pin.getNewPostsCount()), posts.size());
+            return posts.subList(Math.max(0, posts.size() - pin.getNewPostCount()), posts.size());
         }
     }
 
-    /* Currently not used
-    public List<Post> getNewQuotes() {
-        if (posts.size() == 0) {
-            return posts;
-        } else {
-            return posts.subList(Math.max(0, posts.size() - pin.getNewQuoteCount()), posts.size());
-        }
-    }*/
+    public List<Post> getUnviewedQuotes() {
+        return quotes.subList(Math.max(0, quotes.size() - pin.getNewQuoteCount()), quotes.size());
+    }
 
     public boolean getWereNewQuotes() {
         if (wereNewQuotes) {
@@ -133,33 +131,60 @@ public class PinWatcher implements Loader.LoaderListener {
             pin.thumbnailUrl = loader.getOP().thumbnailUrl;
         }
 
+        for (Post post : result) {
+            post.title = pin.loadable.title;
+        }
+
+        // Populate posts list
         posts.clear();
         posts.addAll(result);
 
-        int lastQuoteNewCount = pin.quoteNewCount;
-        int lastWatchNewCount = pin.watchNewCount;
+        // Populate quotes list
+        quotes.clear();
 
-        if (pin.watchLastCount < 0)
-            pin.watchLastCount = result.size();
+        // Get list of saved replies from this thread
+        List<Post> savedReplies = new ArrayList<>();
+        for (Post item : result) {
+//            saved.title = pin.loadable.title;
 
-        pin.watchNewCount = result.size();
-
-        // Get list of saved posts
-        int total = 0;
-        for (Post saved : result) {
-            if (saved.isSavedReply) {
-                total += saved.repliesFrom.size();
+            if (item.isSavedReply) {
+                savedReplies.add(item);
             }
         }
 
-        pin.quoteNewCount = total;
-
-        if (pin.quoteNewCount > lastQuoteNewCount) {
-            wereNewQuotes = true;
+        // Now get a list of posts that have a quote to a saved reply
+        for (Post post : result) {
+            for (Post saved : savedReplies) {
+                if (post.repliesTo.contains(saved.no)) {
+                    quotes.add(post);
+                }
+            }
         }
 
-        if (pin.watchNewCount > lastWatchNewCount) {
-            wereNewPosts = true;
+        boolean isFirstLoad = pin.watchNewCount < 0 || pin.quoteNewCount < 0;
+
+        // If it was more than before processing
+        int lastWatchNewCount = pin.watchNewCount;
+        int lastQuoteNewCount = pin.quoteNewCount;
+
+        if (isFirstLoad) {
+            pin.watchLastCount = posts.size();
+            pin.quoteLastCount = quotes.size();
+        }
+
+        pin.watchNewCount = posts.size();
+        pin.quoteNewCount = quotes.size();
+
+        if (!isFirstLoad) {
+            // There were new posts after processing
+            if (pin.watchNewCount > lastWatchNewCount) {
+                wereNewPosts = true;
+            }
+
+            // There were new quotes after processing
+            if (pin.quoteNewCount > lastQuoteNewCount) {
+                wereNewQuotes = true;
+            }
         }
 
         if (Logger.debugEnabled()) {

@@ -41,10 +41,10 @@ public class Pin {
     public int watchNewCount = -1;
 
     @DatabaseField
-    public int quoteLastCount = 0;
+    public int quoteLastCount = -1;
 
     @DatabaseField
-    public int quoteNewCount = 0;
+    public int quoteNewCount = -1;
 
     @DatabaseField
     public boolean isError = false;
@@ -54,7 +54,7 @@ public class Pin {
 
     private PinWatcher pinWatcher;
 
-    public int getNewPostsCount() {
+    public int getNewPostCount() {
         if (watchLastCount < 0 || watchNewCount < 0) {
             return 0;
         } else {
@@ -63,7 +63,11 @@ public class Pin {
     }
 
     public int getNewQuoteCount() {
-        return Math.max(0, quoteNewCount - quoteLastCount);
+        if (quoteNewCount < 0 || quoteLastCount < 0) {
+            return 0;
+        } else {
+            return Math.max(0, quoteNewCount - quoteLastCount);
+        }
     }
 
     public PinWatcher getPinWatcher() {

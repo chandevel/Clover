@@ -214,7 +214,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             int count = 0;
             boolean color = false;
             for (Pin p : list) {
-                count += p.getNewPostsCount();
+                count += p.getNewPostCount();
                 if (p.getNewQuoteCount() > 0) {
                     color = true;
                 }

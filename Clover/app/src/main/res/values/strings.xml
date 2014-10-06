@@ -160,11 +160,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Dark</item>
         <item>Black</item>
     </string-array>
-    <string-array name="preference_themes_values">
-        <item>light</item>
-        <item>dark</item>
-        <item>black</item>
-    </string-array>
 
     <string name="preference_font">Font size</string>
     <string-array name="preference_fonts">
@@ -173,18 +168,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>12</item>
         <item>13</item>
         <item>14 (default)</item>
-        <item>15</item>
-        <item>16</item>
-        <item>17</item>
-        <item>18</item>
-        <item>19</item>
-    </string-array>
-    <string-array name="preference_fonts_values">
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
         <item>15</item>
         <item>16</item>
         <item>17</item>
@@ -250,14 +233,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>30 minutes</item>
         <item>60 minutes</item>
     </string-array>
-    <string-array name="watch_background_timeouts_int">
-        <item>60</item>
-        <item>120</item>
-        <item>180</item>
-        <item>300</item>
-        <item>600</item>
-        <item>1800</item>
-        <item>3600</item>
+    <string name="watch_notify_mode">Notify about</string>
+    <string-array name="watch_notify_modes">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
+    </string-array>
+    <string name="watch_led">Notification light</string>
+    <string-array name="watch_leds">
+        <item>None</item>
+        <item>White</item>
+        <item>Red</item>
+        <item>Yellow</item>
+        <item>Green</item>
+        <item>Cyan</item>
+        <item>Blue</item>
+        <item>Purple</item>
+    </string-array>
+    <string name="watch_sound">Notification sound and vibrate</string>
+    <string-array name="watch_sounds">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
     </string-array>
 
     <string name="pass_info_text">4chan pass enables you to post without filling in CAPTCHAs</string>

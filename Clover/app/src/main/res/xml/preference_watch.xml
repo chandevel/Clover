@@ -38,4 +38,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:key="preference_watch_background_timeout"
         android:title="@string/watch_background_timeout_description" />
 
+    <ListPreference
+        android:defaultValue="all"
+        android:dependency="preference_watch_background_enabled"
+        android:dialogTitle="@string/watch_notify_mode"
+        android:entries="@array/watch_notify_modes"
+        android:entryValues="@array/watch_notify_modes_values"
+        android:key="preference_watch_notify_mode"
+        android:title="@string/watch_notify_mode" />
+
+    <ListPreference
+        android:defaultValue="quotes"
+        android:dependency="preference_watch_background_enabled"
+        android:dialogTitle="@string/watch_sound"
+        android:entries="@array/watch_sounds"
+        android:entryValues="@array/watch_sounds_values"
+        android:key="preference_watch_sound"
+        android:title="@string/watch_sound" />
+
+    <ListPreference
+        android:defaultValue="ffffffff"
+        android:dependency="preference_watch_background_enabled"
+        android:dialogTitle="@string/watch_led"
+        android:entries="@array/watch_leds"
+        android:entryValues="@array/watch_leds_values"
+        android:key="preference_watch_led"
+        android:title="@string/watch_led" />
+
 </PreferenceScreen>

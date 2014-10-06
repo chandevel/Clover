@@ -53,11 +53,7 @@ import java.util.regex.Pattern;
 public class ChanParser {
     private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
 
-    private static ChanParser instance;
-
-    static {
-        instance = new ChanParser();
-    }
+    private static ChanParser instance = new ChanParser();
 
     public static ChanParser getInstance() {
         return instance;

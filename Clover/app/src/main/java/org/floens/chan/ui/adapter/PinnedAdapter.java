@@ -156,7 +156,7 @@ public class PinnedAdapter extends BaseAdapter {
                     if (pin.isError) {
                         countView.setText("Err");
                     } else {
-                        int count = pin.getNewPostsCount();
+                        int count = pin.getNewPostCount();
                         String total = Integer.toString(count);
                         if (count > 999) {
                             total = "1k+";
