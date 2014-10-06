@@ -47,7 +47,7 @@ public class BadgeDrawable {
 
         RectF rect = new RectF(badgeX, badgeY, badgeX + badgeW, badgeY + badgeH);
         if (red) {
-            paint.setColor(0xffff4444);
+            paint.setColor(0xddff4444);
         } else {
             paint.setColor(0xaa000000);
         }
