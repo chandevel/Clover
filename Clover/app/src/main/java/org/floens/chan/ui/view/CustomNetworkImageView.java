@@ -28,7 +28,7 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
 
 /**
  * Custom version of NetworkImageView
- *
+ * <p/>
  * Handles fetching an image from a URL as well as the life-cycle of the
  * associated request.
  */
@@ -66,6 +66,9 @@ public class CustomNetworkImageView extends ImageView {
 
     private int mFadeTime;
 
+    private int mForcedWidth = -1;
+    private int mForcedHeight = -1;
+
     public CustomNetworkImageView(Context context) {
         this(context, null);
     }
@@ -91,6 +94,11 @@ public class CustomNetworkImageView extends ImageView {
         return mMaxScale;
     }
 
+    public void forceImageDimensions(int w, int h) {
+        mForcedWidth = w;
+        mForcedHeight = h;
+    }
+
     public String getUrl() {
         return mUrl;
     }
@@ -109,7 +117,7 @@ public class CustomNetworkImageView extends ImageView {
      * calling this will immediately either set the cached image (if available)
      * or the default image specified by
      * {@link CustomNetworkImageView#setDefaultImageResId(int)} on the view.
-     *
+     * <p/>
      * NOTE: If applicable,
      * {@link CustomNetworkImageView#setDefaultImageResId(int)} and
      * {@link CustomNetworkImageView#setErrorImageResId(int)} should be called
@@ -150,21 +158,29 @@ public class CustomNetworkImageView extends ImageView {
      * @param isInLayoutPass True if this was invoked from a layout pass, false otherwise.
      */
     void loadImageIfNecessary(final boolean isInLayoutPass) {
-        int width = getWidth();
-        int height = getHeight();
-
+        int width;
+        int height;
         boolean wrapWidth = false, wrapHeight = false;
-        if (getLayoutParams() != null) {
-            wrapWidth = getLayoutParams().width == LayoutParams.WRAP_CONTENT;
-            wrapHeight = getLayoutParams().height == LayoutParams.WRAP_CONTENT;
-        }
 
-        // if the view's bounds aren't known yet, and this is not a
-        // wrap-content/wrap-content
-        // view, hold off on loading the image.
-        boolean isFullyWrapContent = wrapWidth && wrapHeight;
-        if (width == 0 && height == 0 && !isFullyWrapContent) {
-            return;
+        if (mForcedWidth < 0 || mForcedHeight < 0) {
+            width = getWidth();
+            height = getHeight();
+
+            if (getLayoutParams() != null) {
+                wrapWidth = getLayoutParams().width == LayoutParams.WRAP_CONTENT;
+                wrapHeight = getLayoutParams().height == LayoutParams.WRAP_CONTENT;
+            }
+
+            // if the view's bounds aren't known yet, and this is not a
+            // wrap-content/wrap-content
+            // view, hold off on loading the image.
+            boolean isFullyWrapContent = wrapWidth && wrapHeight;
+            if (width == 0 && height == 0 && !isFullyWrapContent) {
+                return;
+            }
+        } else {
+            width = mForcedWidth;
+            height = mForcedHeight;
         }
 
         // if the URL to be loaded in this view is empty, cancel any old
