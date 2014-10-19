@@ -104,7 +104,7 @@ public class ImagePickActivity extends Activity {
                                 }
 
                             });
-                        } catch (IOException e) {
+                        } catch (IOException | SecurityException e) {
                             e.printStackTrace();
 
                             Utils.runOnUiThread(new Runnable() {
