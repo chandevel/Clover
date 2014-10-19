@@ -108,6 +108,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <ImageButton
+            android:id="@+id/reply_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <EditText
             android:id="@+id/reply_file_name"
             android:layout_width="0dp"
@@ -116,11 +121,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:hint="@string/reply_file_name"
             android:minHeight="48dp"
             android:textSize="14sp" />
-
-        <ImageButton
-            android:id="@+id/reply_file"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
