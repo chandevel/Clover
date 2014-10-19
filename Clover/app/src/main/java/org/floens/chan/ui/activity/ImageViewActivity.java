@@ -208,21 +208,18 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
                 finish();
                 return true;
             case R.id.action_download_album:
-                List<ImageSaver.DownloadPair> list = new ArrayList<>();
+                if (adapter.getList().size() > 0) {
+                    List<ImageSaver.DownloadPair> list = new ArrayList<>();
 
-                String name = "downloaded";
-                String filename;
-                for (Post post : adapter.getList()) {
-                    filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
-                    list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
+                    String folderName = Post.generateTitle(adapter.getList().get(0), 10);
 
-                    name = post.board + "_" + post.resto;
-                }
-
-                if (list.size() > 0) {
-                    if (!TextUtils.isEmpty(name)) {
-                        ImageSaver.getInstance().saveAll(this, name, list);
+                    String filename;
+                    for (Post post : adapter.getList()) {
+                        filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
+                        list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
                     }
+
+                    ImageSaver.getInstance().saveAll(this, folderName, list);
                 }
 
                 return true;

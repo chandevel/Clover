@@ -173,13 +173,7 @@ public class Loadable {
     }
 
     public void generateTitle(Post post) {
-        if (!TextUtils.isEmpty(post.subject)) {
-            title = post.subject;
-        } else if (!TextUtils.isEmpty(post.comment)) {
-            title = "/" + post.board + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), 100)).toString();
-        } else {
-            title = "/" + post.board + "/" + post.no;
-        }
+        title = Post.generateTitle(post);
     }
 
     public static class Mode {

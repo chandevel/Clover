@@ -44,24 +44,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ImageSaver {
     private static final String TAG = "ImageSaver";
-    private static final int NOTIFICATION_ID = 1;
-
-    private static ImageSaver instance;
+    private static final ImageSaver instance = new ImageSaver();
 
     public static ImageSaver getInstance() {
         return instance;
     }
 
-    static {
-        instance = new ImageSaver();
-    }
-
     private BroadcastReceiver receiver;
 
     public void saveAll(final Context context, String folderName, final List<DownloadPair> list) {
-        folderName = filterName(folderName);
-
-        final File subFolder = findUnused(new File(ChanPreferences.getImageSaveDirectory() + File.separator + folderName), true);
+        final File subFolder = new File(ChanPreferences.getImageSaveDirectory() + File.separator + filterName(folderName));
 
         String text = context.getString(R.string.download_confirm, Integer.toString(list.size()), subFolder.getAbsolutePath());
 
@@ -146,10 +138,8 @@ public class ImageSaver {
 
         final List<Pair> files = new ArrayList<>(list.size());
         for (DownloadPair uri : list) {
-            String name = filterName(uri.imageName);
-            // Finding unused filenames won't actually work, because the file doesn't get
-            // saved right away. The download manager will also prevent if there's a name collision.
-            File destination = findUnused(new File(subFolder, name), false);
+            File destination = new File(subFolder, filterName(uri.imageName));
+            if (destination.exists()) continue;
 
             Pair p = new Pair();
             p.uri = Uri.parse(uri.imageUrl);

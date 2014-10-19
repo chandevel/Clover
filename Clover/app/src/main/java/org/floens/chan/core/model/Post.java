@@ -36,6 +36,20 @@ import java.util.Random;
 public class Post {
     private static final Random random = new Random();
 
+    public static String generateTitle(Post post) {
+        return generateTitle(post, 100);
+    }
+
+    public static String generateTitle(Post post, int maxLength) {
+        if (!TextUtils.isEmpty(post.subject)) {
+            return post.subject;
+        } else if (!TextUtils.isEmpty(post.comment)) {
+            return "/" + post.board + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), maxLength)).toString();
+        } else {
+            return "/" + post.board + "/" + post.no;
+        }
+    }
+
     public String board;
     public int no = -1;
     public int resto = -1;
