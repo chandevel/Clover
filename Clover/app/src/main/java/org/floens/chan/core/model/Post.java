@@ -69,6 +69,7 @@ public class Post {
     public String imageUrl;
     public boolean sticky = false;
     public boolean closed = false;
+    public boolean archived = false;
     public String tripcode = "";
     public String id = "";
     public String capcode = "";

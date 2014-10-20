@@ -331,6 +331,9 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 case "closed":
                     post.closed = reader.nextInt() == 1;
                     break;
+                case "archived":
+                    post.archived = reader.nextInt() == 1;
+                    break;
                 case "trip":
                     post.tripcode = reader.nextString();
                     break;

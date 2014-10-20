@@ -18,19 +18,24 @@
 package org.floens.chan.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 
 import org.floens.chan.R;
 
 public class IconCache {
-    public static Bitmap stickyIcon;
-    public static Bitmap closedIcon;
-    public static Bitmap trashIcon;
+    public static BitmapDrawable stickyIcon;
+    public static BitmapDrawable closedIcon;
+    public static BitmapDrawable trashIcon;
+    public static BitmapDrawable archivedIcon;
 
     public static void createIcons(final Context context) {
-        stickyIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.sticky_icon);
-        closedIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.closed_icon);
-        trashIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.trash_icon);
+        Resources res = context.getResources();
+        stickyIcon = new BitmapDrawable(res, BitmapFactory.decodeResource(res, R.drawable.sticky_icon));
+        closedIcon = new BitmapDrawable(res, BitmapFactory.decodeResource(res, R.drawable.closed_icon));
+        trashIcon = new BitmapDrawable(res, BitmapFactory.decodeResource(res, R.drawable.trash_icon));
+        archivedIcon = new BitmapDrawable(res, BitmapFactory.decodeResource(res, R.drawable.archived_icon));
     }
 }
