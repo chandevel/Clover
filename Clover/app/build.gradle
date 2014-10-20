@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 19
@@ -9,7 +9,7 @@ android {
         targetSdkVersion 19
 
         versionName "v1.2.0"
-        versionCode 37
+        versionCode 38
     }
 
     compileOptions {
