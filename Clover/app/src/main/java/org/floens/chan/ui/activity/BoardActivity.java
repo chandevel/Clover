@@ -50,11 +50,6 @@ public class BoardActivity extends Activity {
 
         Intent intent = new Intent(this, ChanActivity.class);
         startActivity(intent);
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
         finish();
     }
 }
