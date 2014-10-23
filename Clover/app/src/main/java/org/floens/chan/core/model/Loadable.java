@@ -19,7 +19,6 @@ package org.floens.chan.core.model;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -168,6 +167,7 @@ public class Loadable {
         copy.title = title;
         copy.listViewIndex = listViewIndex;
         copy.listViewTop = listViewTop;
+        copy.lastViewed = lastViewed;
 
         return copy;
     }

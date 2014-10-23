@@ -39,7 +39,6 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.ScrollerRunnable;
 import org.floens.chan.ui.view.PostView;
-import org.floens.chan.utils.Time;
 import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;

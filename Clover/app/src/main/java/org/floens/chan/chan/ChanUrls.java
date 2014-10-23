@@ -17,8 +17,6 @@
  */
 package org.floens.chan.chan;
 
-import org.floens.chan.core.ChanPreferences;
-
 import java.util.Locale;
 
 public class ChanUrls {
