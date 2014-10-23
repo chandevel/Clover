@@ -99,6 +99,10 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         threadManager.requestData();
     }
 
+    public void requestNextData() {
+        threadManager.requestNextData();
+    }
+
     public void reload() {
         setEmpty();
 

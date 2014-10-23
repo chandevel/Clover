@@ -559,10 +559,13 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
             loadable = pin.loadable;
         }
 
-        threadLoadable = loadable;
-
-        threadFragment.bindLoadable(loadable);
-        threadFragment.requestData();
+        if (threadLoadable.equals(loadable)) {
+            threadFragment.requestNextData();
+        } else {
+            threadLoadable = loadable;
+            threadFragment.bindLoadable(loadable);
+            threadFragment.requestData();
+        }
 
         threadPane.closePane();
 
