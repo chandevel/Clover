@@ -59,6 +59,8 @@ import org.floens.chan.utils.Utils;
 
 import java.util.List;
 
+import javax.net.ssl.SSLException;
+
 public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener, PostAdapter.PostAdapterListener {
     private BaseActivity baseActivity;
     private ThreadManager threadManager;
@@ -416,12 +418,14 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     private String getLoadErrorText(VolleyError error) {
         String errorMessage;
 
-        if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
-            errorMessage = getActivity().getString(R.string.thread_load_failed_network);
+        if (error.getCause() instanceof SSLException) {
+            errorMessage = getString(R.string.thread_load_failed_ssl);
+        } else if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
+            errorMessage = getString(R.string.thread_load_failed_network);
         } else if (error instanceof ServerError) {
-            errorMessage = getActivity().getString(R.string.thread_load_failed_server);
+            errorMessage = getString(R.string.thread_load_failed_server);
         } else {
-            errorMessage = getActivity().getString(R.string.thread_load_failed_parsing);
+            errorMessage = getString(R.string.thread_load_failed_parsing);
         }
 
         return errorMessage;
