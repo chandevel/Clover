@@ -48,6 +48,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.loader.EndOfLineException;
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.BaseActivity;
@@ -56,8 +57,6 @@ import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
-
-import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -218,7 +217,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     @Override
-    public void onThreadLoaded(List<Post> posts, boolean append) {
+    public void onThreadLoaded(ChanThread thread) {
         if (postAdapter == null) {
             if (container != null) {
                 container.setView(createView());
@@ -226,12 +225,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
 
         postAdapter.setStatusMessage(null);
-
-        if (append) {
-            postAdapter.appendList(posts);
-        } else {
-            postAdapter.setList(posts);
-        }
+        postAdapter.setThread(thread);
 
         if (highlightedPost >= 0) {
             threadManager.highlightPost(highlightedPost);
@@ -239,7 +233,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             highlightedPost = -1;
         }
 
-        baseActivity.onThreadLoaded(loadable, posts);
+        baseActivity.onThreadLoaded(thread);
     }
 
     @Override

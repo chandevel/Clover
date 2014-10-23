@@ -48,6 +48,7 @@ import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -228,7 +229,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     }
 
     @Override
-    public void onThreadLoaded(Loadable loadable, List<Post> posts) {
+    public void onThreadLoaded(ChanThread thread) {
         updateActionBarState();
         pinnedAdapter.notifyDataSetChanged();
     }
@@ -465,8 +466,8 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
             case R.id.action_pin:
                 if (threadFragment.hasLoader()) {
                     Loader loader = threadFragment.getLoader();
-                    if (loader.getCachedPosts().size() > 0) {
-                        ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getCachedPosts().get(0));
+                    if (loader != null && loader.getLoadable().isThreadMode() && loader.getThread() != null) {
+                        ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getThread().op);
                         pinDrawer.openDrawer(pinDrawerView);
                     }
                 }

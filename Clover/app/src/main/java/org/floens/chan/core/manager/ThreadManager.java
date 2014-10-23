@@ -45,6 +45,7 @@ import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.manager.ReplyManager.DeleteListener;
 import org.floens.chan.core.manager.ReplyManager.DeleteResponse;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -92,7 +93,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
     public void onStart() {
         if (loader != null) {
-            if (shouldWatch()) {
+            if (isWatching()) {
                 loader.setAutoLoadMore(true);
                 loader.requestMoreDataAndResetTimer();
             }
@@ -111,7 +112,7 @@ public class ThreadManager implements Loader.LoaderListener {
         }
 
         loader = LoaderPool.getInstance().obtain(loadable, this);
-        if (shouldWatch()) {
+        if (isWatching()) {
             loader.setAutoLoadMore(true);
         }
     }
@@ -131,11 +132,8 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void bottomPostViewed() {
-        if (loader != null && loader.getLoadable().isThreadMode()) {
-            List<Post> posts = loader.getCachedPosts();
-            if (posts.size() > 0) {
-                loader.getLoadable().lastViewed = posts.get(posts.size() - 1).no;
-            }
+        if (loader.getLoadable().isThreadMode() && loader.getThread() != null && loader.getThread().posts.size() > 0) {
+            loader.getLoadable().lastViewed = loader.getThread().posts.get(loader.getThread().posts.size() - 1).no;
         }
 
         Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
@@ -145,12 +143,12 @@ public class ThreadManager implements Loader.LoaderListener {
         }
     }
 
-    public boolean shouldWatch() {
+    public boolean isWatching() {
         if (!loader.getLoadable().isThreadMode()) {
             return false;
         } else if (!ChanPreferences.getThreadAutoRefresh()) {
             return false;
-        } else if (loader.getCachedPosts().size() > 0 && loader.getCachedPosts().get(0).closed) {
+        } else if (loader.getThread() != null && loader.getThread().closed) {
             return false;
         } else {
             return true;
@@ -182,16 +180,16 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     @Override
-    public void onData(List<Post> result, boolean append) {
-        if (!shouldWatch()) {
+    public void onData(ChanThread thread) {
+        if (!isWatching()) {
             loader.setAutoLoadMore(false);
         }
 
-        if (result.size() > 0) {
-            lastPost = result.get(result.size() - 1).no;
+        if (thread.posts.size() > 0) {
+            lastPost = thread.posts.get(thread.posts.size() - 1).no;
         }
 
-        threadManagerListener.onThreadLoaded(result, append);
+        threadManagerListener.onThreadLoaded(thread);
     }
 
     public boolean hasLoader() {
@@ -578,7 +576,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public interface ThreadManagerListener {
-        public void onThreadLoaded(List<Post> result, boolean append);
+        public void onThreadLoaded(ChanThread thread);
 
         public void onThreadLoadError(VolleyError error);
 

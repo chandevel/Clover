@@ -48,6 +48,7 @@ import android.widget.ShareActionProvider;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -92,7 +93,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     abstract public void onOpenThread(Loadable thread);
 
-    abstract public void onThreadLoaded(Loadable loadable, List<Post> posts);
+    abstract public void onThreadLoaded(ChanThread thread);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

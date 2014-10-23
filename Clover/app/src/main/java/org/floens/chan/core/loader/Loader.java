@@ -25,6 +25,7 @@ import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.net.ChanReaderRequest;
@@ -45,11 +46,10 @@ public class Loader {
 
     private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
-    private final List<LoaderListener> listeners = new ArrayList<LoaderListener>();
+    private final List<LoaderListener> listeners = new ArrayList<>();
     private final Loadable loadable;
-    private final SparseArray<Post> postsById = new SparseArray<Post>();
-    private final List<Post> cachedPosts = new ArrayList<Post>();
-    private Post op;
+    private final SparseArray<Post> postsById = new SparseArray<>();
+    private ChanThread thread;
 
     private boolean destroyed = false;
     private boolean autoReload = false;
@@ -84,6 +84,9 @@ public class Loader {
         if (listeners.size() == 0) {
             clearTimer();
             destroyed = true;
+            if (request != null) {
+                request.cancel();
+            }
             return true;
         } else {
             return false;
@@ -133,8 +136,7 @@ public class Loader {
         }
 
         currentTimeout = 0;
-        cachedPosts.clear();
-        op = null;
+        thread = null;
 
         request = getData();
     }
@@ -186,10 +188,6 @@ public class Loader {
         return loadable;
     }
 
-    public Post getOP() {
-        return op;
-    }
-
     /**
      * Get the time in milliseconds until another loadMore is recommended
      *
@@ -204,8 +202,8 @@ public class Loader {
         }
     }
 
-    public List<Post> getCachedPosts() {
-        return cachedPosts;
+    public ChanThread getThread() {
+        return thread;
     }
 
     private void setTimer(int postCount) {
@@ -255,9 +253,10 @@ public class Loader {
     }
 
     private ChanReaderRequest getData() {
-        Logger.i(TAG, "Requested " + loadable.board + ", " + loadable.no);
+//        Logger.i(TAG, "Requested " + loadable.board + ", " + loadable.no);
 
-        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cachedPosts,
+        List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
+        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cached,
                 new Response.Listener<List<Post>>() {
                     @Override
                     public void onResponse(List<Post> list) {
@@ -282,31 +281,56 @@ public class Loader {
         if (destroyed)
             return;
 
-        cachedPosts.clear();
-
-        if (loadable.isThreadMode()) {
-            cachedPosts.addAll(result);
+        if (thread == null) {
+            thread = new ChanThread(new ArrayList<Post>());
         }
 
-        postsById.clear();
-        for (Post post : result) {
-            postsById.append(post.no, post);
+        if (loadable.isThreadMode() || loadable.isCatalogMode()) {
+            thread.posts.clear();
+            thread.posts.addAll(result);
+            postsById.clear();
+            for (Post post : result) {
+                postsById.append(post.no, post);
+            }
+        } else if (loadable.isBoardMode()) {
+            // Only add new posts
+            boolean flag;
+            for (Post post : result) {
+                flag = true;
+                for (Post cached : thread.posts) {
+                    if (post.no == cached.no) {
+                        flag = false;
+                        break;
+                    }
+                }
+
+                if (flag) {
+                    thread.posts.add(post);
+                    postsById.append(post.no, post);
+                }
+            }
         }
 
-        if (loadable.isThreadMode() && result.size() > 0) {
-            op = result.get(0);
+        if (loadable.isThreadMode() && thread.posts.size() > 0) {
+            thread.op = thread.posts.get(0);
+            thread.closed = thread.op.closed;
+            thread.archived = thread.op.archived;
         }
 
         if (TextUtils.isEmpty(loadable.title)) {
-            if (getOP() != null) {
-                loadable.generateTitle(getOP());
+            if (thread.op != null) {
+                loadable.generateTitle(thread.op);
             } else {
                 loadable.title = "/" + loadable.board + "/";
             }
         }
 
+        for (Post post : thread.posts) {
+            post.title = loadable.title;
+        }
+
         for (LoaderListener l : listeners) {
-            l.onData(result, loadable.isBoardMode());
+            l.onData(thread);
         }
 
         lastLoadTime = Time.get();
@@ -320,7 +344,7 @@ public class Loader {
         if (destroyed)
             return;
 
-        cachedPosts.clear();
+        thread = null;
 
         Logger.e(TAG, "Error loading " + error.getMessage(), error);
 
@@ -337,7 +361,7 @@ public class Loader {
     }
 
     public static interface LoaderListener {
-        public void onData(List<Post> result, boolean append);
+        public void onData(ChanThread result);
 
         public void onError(VolleyError error);
     }

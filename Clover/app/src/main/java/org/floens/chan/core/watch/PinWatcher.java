@@ -22,6 +22,7 @@ import com.android.volley.VolleyError;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.loader.LoaderPool;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.Logger;
@@ -124,27 +125,23 @@ public class PinWatcher implements Loader.LoaderListener {
     }
 
     @Override
-    public void onData(List<Post> result, boolean append) {
+    public void onData(ChanThread thread) {
         pin.isError = false;
 
-        if (pin.thumbnailUrl == null && loader.getOP() != null && loader.getOP().hasImage) {
-            pin.thumbnailUrl = loader.getOP().thumbnailUrl;
-        }
-
-        for (Post post : result) {
-            post.title = pin.loadable.title;
+        if (pin.thumbnailUrl == null && thread.op != null && thread.op.hasImage) {
+            pin.thumbnailUrl = thread.op.thumbnailUrl;
         }
 
         // Populate posts list
         posts.clear();
-        posts.addAll(result);
+        posts.addAll(thread.posts);
 
         // Populate quotes list
         quotes.clear();
 
         // Get list of saved replies from this thread
         List<Post> savedReplies = new ArrayList<>();
-        for (Post item : result) {
+        for (Post item : thread.posts) {
 //            saved.title = pin.loadable.title;
 
             if (item.isSavedReply) {
@@ -153,7 +150,7 @@ public class PinWatcher implements Loader.LoaderListener {
         }
 
         // Now get a list of posts that have a quote to a saved reply
-        for (Post post : result) {
+        for (Post post : thread.posts) {
             for (Post saved : savedReplies) {
                 if (post.repliesTo.contains(saved.no)) {
                     quotes.add(post);

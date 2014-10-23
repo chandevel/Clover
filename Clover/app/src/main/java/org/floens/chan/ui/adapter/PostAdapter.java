@@ -35,6 +35,7 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.ScrollerRunnable;
@@ -72,6 +73,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     private String statusMessage = null;
     private String filter = "";
     private int pendingScrollToPost = -1;
+    private String statusPrefix = "";
 
     public PostAdapter(Context activity, ThreadManager threadManager, AbsListView listView, PostAdapterListener listener) {
         context = activity;
@@ -203,38 +205,18 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
-    public void appendList(List<Post> list) {
+    public void setThread(ChanThread thread) {
         synchronized (lock) {
-            boolean flag;
-            for (Post post : list) {
-                flag = true;
-                for (Post own : sourceList) {
-                    if (post.no == own.no) {
-                        flag = false;
-                        break;
-                    }
-                }
-
-                if (flag) {
-                    sourceList.add(post);
-                }
-            }
-
-            if (!isFiltering()) {
-                displayList.clear();
-                displayList.addAll(sourceList);
+            if (thread.archived) {
+                statusPrefix = context.getString(R.string.thread_archived) + " - ";
+            } else if (thread.closed) {
+                statusPrefix = context.getString(R.string.thread_closed) + " - ";
             } else {
-                setFilter(filter);
+                statusPrefix = "";
             }
-        }
 
-        notifyDataSetChanged();
-    }
-
-    public void setList(List<Post> list) {
-        synchronized (lock) {
             sourceList.clear();
-            sourceList.addAll(list);
+            sourceList.addAll(thread.posts);
 
             if (!isFiltering()) {
                 displayList.clear();
@@ -338,7 +320,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
         public void init() {
             Loader loader = threadManager.getLoader();
-            if (loader == null || loader.getLoadable() == null)
+            if (loader == null)
                 return;
 
             setGravity(Gravity.CENTER);
@@ -349,22 +331,12 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                 if (error != null) {
                     setText(error);
                 } else {
-                    String prefix = "";
-                    Post op = threadManager.getLoader().getOP();
-                    if (op != null) {
-                        if (op.archived) {
-                            prefix = context.getString(R.string.thread_archived) + " - ";
-                        } else if (op.closed) {
-                            prefix = context.getString(R.string.thread_closed) + " - ";
-                        }
-                    }
-
-                    if (threadManager.shouldWatch()) {
+                    if (threadManager.isWatching()) {
                         long time = loader.getTimeUntilLoadMore() / 1000L;
                         if (time == 0) {
-                            setText(prefix + context.getString(R.string.thread_refresh_now));
+                            setText(statusPrefix + context.getString(R.string.thread_refresh_now));
                         } else {
-                            setText(prefix + context.getString(R.string.thread_refresh_countdown, time));
+                            setText(statusPrefix + context.getString(R.string.thread_refresh_countdown, time));
                         }
 
                         new Handler().postDelayed(new Runnable() {
@@ -377,9 +349,9 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                         }, 1000);
                     } else {
                         if (loader.getTimeUntilLoadMore() == 0) {
-                            setText(prefix + context.getString(R.string.thread_refresh_now));
+                            setText(statusPrefix + context.getString(R.string.thread_refresh_now));
                         } else {
-                            setText(prefix + context.getString(R.string.thread_refresh_bar_inactive));
+                            setText(statusPrefix + context.getString(R.string.thread_refresh_bar_inactive));
                         }
                     }
 
