@@ -74,6 +74,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_refresh_now">Loading</string>
     <string name="thread_refresh_countdown">Loading in %1$d</string>
     <string name="thread_load_failed_retry">Retry</string>
+    <string name="thread_archived">Archived</string>
+    <string name="thread_closed">Closed</string>
 
     <string name="board_edit">Board editor</string>
     <string name="board_add">Add board</string>

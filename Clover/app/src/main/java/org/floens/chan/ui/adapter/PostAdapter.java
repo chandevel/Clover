@@ -350,12 +350,22 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                 if (error != null) {
                     setText(error);
                 } else {
+                    String prefix = "";
+                    Post op = threadManager.getLoader().getOP();
+                    if (op != null) {
+                        if (op.archived) {
+                            prefix = context.getString(R.string.thread_archived) + " - ";
+                        } else if (op.closed) {
+                            prefix = context.getString(R.string.thread_closed) + " - ";
+                        }
+                    }
+
                     if (threadManager.shouldWatch()) {
                         long time = loader.getTimeUntilLoadMore() / 1000L;
                         if (time == 0) {
-                            setText(context.getString(R.string.thread_refresh_now));
+                            setText(prefix + context.getString(R.string.thread_refresh_now));
                         } else {
-                            setText(context.getString(R.string.thread_refresh_countdown, time));
+                            setText(prefix + context.getString(R.string.thread_refresh_countdown, time));
                         }
 
                         new Handler().postDelayed(new Runnable() {
@@ -368,9 +378,9 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                         }, 1000);
                     } else {
                         if (loader.getTimeUntilLoadMore() == 0) {
-                            setText(context.getString(R.string.thread_refresh_now));
+                            setText(prefix + context.getString(R.string.thread_refresh_now));
                         } else {
-                            setText(context.getString(R.string.thread_refresh_bar_inactive));
+                            setText(prefix + context.getString(R.string.thread_refresh_bar_inactive));
                         }
                     }
 
