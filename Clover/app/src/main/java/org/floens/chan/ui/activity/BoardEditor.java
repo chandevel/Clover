@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -237,6 +238,7 @@ public class BoardEditor extends Activity {
         text.setThreshold(1);
         text.setDropDownHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         text.setHint(R.string.board_add_hint);
+        text.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
