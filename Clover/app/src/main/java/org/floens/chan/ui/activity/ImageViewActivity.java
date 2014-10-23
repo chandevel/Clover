@@ -19,6 +19,7 @@ package org.floens.chan.ui.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
@@ -51,15 +52,16 @@ import java.util.List;
 public class ImageViewActivity extends Activity implements ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewActivity";
 
-    private static PostAdapter postAdapter;
-    private static int selectedId = -1;
+    private static PostAdapter postAdapterStatic;
+    private static int selectedIdStatic = -1;
     private static ThreadManager threadManagerStatic;
 
-    private ViewPager viewPager;
-    private ImageViewAdapter adapter;
-    private ProgressBar progressBar;
+    private PostAdapter postAdapter;
     private ThreadManager threadManager;
 
+    private ImageViewAdapter adapter;
+    private ViewPager viewPager;
+    private ProgressBar progressBar;
     private int currentPosition;
 
     /**
@@ -68,10 +70,14 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
      * @param adapter  the adapter to get image data from
      * @param selected the no that the user clicked on
      */
-    public static void setAdapter(PostAdapter adapter, int selected, ThreadManager threadManager) {
-        postAdapter = adapter;
-        selectedId = selected;
+    public static void launch(Activity activity, PostAdapter adapter, int selected, ThreadManager threadManager) {
+        postAdapterStatic = adapter;
+        selectedIdStatic = selected;
         threadManagerStatic = threadManager;
+
+        Intent intent = new Intent(activity, ImageViewActivity.class);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     @Override
@@ -82,13 +88,18 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
         super.onCreate(savedInstanceState);
 
-        if (postAdapter == null) {
-            Logger.e(TAG, "Posts in ImageViewActivity was null");
+        if (postAdapterStatic == null || threadManagerStatic == null) {
+            Logger.e(TAG, "postadapter or threadmanager null");
             finish();
             return;
         }
 
         threadManager = threadManagerStatic;
+        threadManagerStatic = null;
+        postAdapter = postAdapterStatic;
+        postAdapterStatic = null;
+        int selectedId = selectedIdStatic;
+        selectedIdStatic = -1;
 
         ThemeHelper.setTheme(this);
 
@@ -147,7 +158,6 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     public void finish() {
         super.finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        postAdapter = null;
     }
 
     @Override
@@ -175,7 +185,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         }
 
         Post post = adapter.getPost(position);
-        if (postAdapter != null && !threadManager.arePostRepliesOpen()) {
+        if (!threadManager.arePostRepliesOpen()) {
             postAdapter.scrollToPost(post.no);
         }
     }

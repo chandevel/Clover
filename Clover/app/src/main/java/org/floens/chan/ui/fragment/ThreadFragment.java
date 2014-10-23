@@ -183,11 +183,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public void onThumbnailClicked(Post source) {
         if (postAdapter != null) {
-            ImageViewActivity.setAdapter(postAdapter, source.no, threadManager);
-
-            Intent intent = new Intent(baseActivity, ImageViewActivity.class);
-            baseActivity.startActivity(intent);
-            baseActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            ImageViewActivity.launch(baseActivity, postAdapter, source.no, threadManager);
         }
     }
 
