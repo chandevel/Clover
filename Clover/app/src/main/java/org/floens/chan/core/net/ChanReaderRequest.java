@@ -56,8 +56,10 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         }
 
         ChanReaderRequest request = new ChanReaderRequest(url, listener, errorListener);
-        request.loadable = loadable;
-        request.cached = cached;
+
+        // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
+        request.loadable = loadable.copy();
+        request.cached = new ArrayList<>(cached);
 
         return request;
     }
