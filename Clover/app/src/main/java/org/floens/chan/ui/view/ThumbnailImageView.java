@@ -19,6 +19,7 @@ package org.floens.chan.ui.view;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -261,7 +262,9 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 Toast.makeText(getContext(), R.string.open_link_failed, Toast.LENGTH_SHORT).show();
             }
         } else {
-            videoView = new VideoView(getContext());
+            Context proxyContext = new NoMusicServiceCommandContext(getContext());
+
+            videoView = new VideoView(proxyContext);
             videoView.setZOrderOnTop(true);
             videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                     LayoutParams.MATCH_PARENT));
@@ -334,5 +337,20 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         public void onVideoLoaded();
 
         public void onVideoError(File video);
+    }
+
+    public static class NoMusicServiceCommandContext extends ContextWrapper {
+        public NoMusicServiceCommandContext(Context base) {
+            super(base);
+        }
+
+        @Override
+        public void sendBroadcast(Intent intent) {
+            // Only allow broadcasts when it's not a music service command
+            // Prevents pause intents from broadcasting
+            if (!"com.android.music.musicservicecommand".equals(intent.getAction())) {
+                super.sendBroadcast(intent);
+            }
+        }
     }
 }
