@@ -379,7 +379,7 @@ public class ReplyFragment extends DialogFragment {
 
     private void closeReply() {
         if (getDialog() != null) {
-            dismiss();
+            dismissAllowingStateLoss();
         } else {
             context.finish();
         }
