@@ -105,8 +105,9 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         Uri startUri = startIntent.getData();
 
         if (savedInstanceState != null) {
-            threadLoadable.readFromBundle(this, "thread", savedInstanceState);
-            startLoadingThread(threadLoadable);
+            Loadable threadTmp = new Loadable();
+            threadTmp.readFromBundle(this, "thread", savedInstanceState);
+            startLoadingThread(threadTmp);
 
             // Reset page etc.
             Loadable tmp = new Loadable();
