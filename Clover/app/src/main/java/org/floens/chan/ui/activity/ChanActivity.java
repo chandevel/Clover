@@ -649,9 +649,6 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     }
 
     private class BoardSpinnerAdapter extends BaseAdapter {
-        private static final int VIEW_TYPE_ITEM = 0;
-        private static final int VIEW_TYPE_ADD = 1;
-
         private Context context;
         private Spinner spinner;
         private List<Board> boards;
@@ -700,58 +697,30 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         }
 
         @Override
-        public int getViewTypeCount() {
-            return 2;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return position == getCount() - 1 ? VIEW_TYPE_ADD : VIEW_TYPE_ITEM;
-        }
-
-        @Override
         public long getItemId(final int position) {
             return position;
         }
 
         @Override
         public String getItem(final int position) {
-            switch (getItemViewType(position)) {
-                case VIEW_TYPE_ITEM:
-                    return boards.get(position).key;
-                case VIEW_TYPE_ADD:
-                    return context.getString(R.string.board_select_add);
-                default:
-                    return "";
+            if (position == getCount() - 1) {
+                return context.getString(R.string.board_select_add);
+            } else {
+                return boards.get(position).key;
             }
         }
 
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
-            switch (getItemViewType(position)) {
-                case VIEW_TYPE_ITEM: {
-                    if (convertView == null || (Integer) convertView.getTag() != VIEW_TYPE_ITEM) {
-                        convertView = LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
-                        convertView.setTag(VIEW_TYPE_ITEM);
-                    }
-
-                    TextView textView = (TextView) convertView;
-                    textView.setText(getItem(position));
-                    return textView;
-                }
-                case VIEW_TYPE_ADD: {
-                    if (convertView == null || (Integer) convertView.getTag() != VIEW_TYPE_ADD) {
-                        convertView = LayoutInflater.from(context).inflate(R.layout.board_select_add, null);
-                        convertView.setTag(VIEW_TYPE_ADD);
-                    }
-
-                    TextView textView = (TextView) convertView;
-                    textView.setText(getItem(position));
-                    return textView;
-                }
+            if (position == getCount() - 1) {
+                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_add, null);
+                textView.setText(getItem(position));
+                return textView;
+            } else {
+                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
+                textView.setText(getItem(position));
+                return textView;
             }
-
-            return null;
         }
     }
 }
