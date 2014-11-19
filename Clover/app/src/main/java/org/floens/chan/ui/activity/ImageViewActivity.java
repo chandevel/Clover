@@ -266,7 +266,9 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
     }
 
     private ImageViewFragment getFragment(int i) {
-        if (i >= 0 && i < adapter.getCount()) {
+        if (adapter == null) {
+            return null;
+        } else if (i >= 0 && i < adapter.getCount()) {
             Object o = adapter.instantiateItem(viewPager, i);
             if (o instanceof ImageViewFragment) {
                 return (ImageViewFragment) o;
