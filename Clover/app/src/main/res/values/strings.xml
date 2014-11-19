@@ -61,6 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="image_play_state">Start / stop playing</string>
 
     <string name="image_preview_failed">Failed to show image</string>
+    <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
     <string name="image_not_found">Image not found</string>
     <string name="image_open_failed">Failed to open image</string>
 

@@ -1028,6 +1028,10 @@ public class SubsamplingScaleImageView extends View {
             } catch (OutOfMemoryError e) {
                 Log.e(TAG, "OOM in decode tile", e);
                 System.gc();
+                final SubsamplingScaleImageView view = viewRef.get();
+                if (view != null) {
+                    view.onOutOfMemory();
+                }
             }
             return null;
         }
@@ -1092,6 +1096,10 @@ public class SubsamplingScaleImageView extends View {
             } catch (OutOfMemoryError e) {
                 Log.e(TAG, "OOM in decode tile", e);
                 System.gc();
+                final SubsamplingScaleImageView view = viewRef.get();
+                if (view != null) {
+                    view.onOutOfMemory();
+                }
             }
             return null;
         }
@@ -1535,6 +1543,10 @@ public class SubsamplingScaleImageView extends View {
      * skip their own rendering until the base layer (and its scale and translate) are known.
      */
     protected void onImageReady() {
+
+    }
+
+    protected void onOutOfMemory() {
 
     }
 

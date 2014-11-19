@@ -158,14 +158,14 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         image.setInitCallback(new CustomScaleImageView.InitedCallback() {
             @Override
             public void onInit() {
-                Utils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        removeAllViews();
-                        addView(image);
-                        callback.setProgress(false);
-                    }
-                });
+                removeAllViews();
+                addView(image);
+                callback.setProgress(false);
+            }
+
+            @Override
+            public void onOutOfMemory() {
+                onOutOfMemoryError();
             }
         });
     }
@@ -212,6 +212,11 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         } catch (IOException e) {
             e.printStackTrace();
             onError();
+            return;
+        } catch (OutOfMemoryError e) {
+            System.gc();
+            e.printStackTrace();
+            onOutOfMemoryError();
             return;
         }
 
@@ -302,12 +307,17 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     }
 
     public void onError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
         callback.setProgress(false);
     }
 
     public void onNotFoundError() {
         Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_LONG).show();
+        callback.setProgress(false);
+    }
+
+    public void onOutOfMemoryError() {
+        Toast.makeText(getContext(), R.string.image_preview_failed_oom, Toast.LENGTH_SHORT).show();
         callback.setProgress(false);
     }
 
