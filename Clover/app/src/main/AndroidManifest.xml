@@ -123,7 +123,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:name="org.floens.chan.ui.activity.ImageViewActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.ImageList" />
+            android:theme="@style/Chan.ImageView" />
         <activity android:name="org.floens.chan.ui.activity.ImagePickActivity" />
         <activity android:name="org.floens.chan.ui.activity.DeveloperActivity" />
         <activity

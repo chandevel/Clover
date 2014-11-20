@@ -125,7 +125,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
-                    callback.setLinearProgress(0, 0, true);
+//                    callback.setLinearProgress(0, 0, true);
                     thumbnailNeeded = false;
                 } else {
                     callback.setLinearProgress(downloaded, total, false);

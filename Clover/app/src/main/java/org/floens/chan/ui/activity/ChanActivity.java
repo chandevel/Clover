@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -26,7 +25,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -89,7 +89,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         ft.replace(R.id.right_pane, threadFragment);
         ft.commitAllowingStateLoss();
 
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
 
         boardSpinner = new Spinner(actionBar.getThemedContext());
         spinnerAdapter = new BoardSpinnerAdapter(this, boardSpinner);
@@ -180,9 +180,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
     @Override
     protected void initDrawer() {
-        pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer, R.drawable.ic_drawer, R.string.drawer_open,
-                R.string.drawer_close) {
-        };
+        pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer, R.string.drawer_open, R.string.drawer_close);
 
         super.initDrawer();
     }
@@ -360,7 +358,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     }
 
     private void updateActionBarStateCallback() {
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
 
         if (threadPane.isSlideable()) {
             if (threadPane.isOpen()) {

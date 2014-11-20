@@ -82,7 +82,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
             imageView = new ThumbnailImageView(context);
             imageView.setCallback(this);
-            int padding = Utils.dp(8);
+            int padding = getResources().getDimensionPixelSize(R.dimen.image_view_padding);
             imageView.setPadding(padding, padding, padding, padding);
 
             return imageView;
@@ -177,10 +177,10 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         activity.setProgressBarIndeterminateVisibility(showProgressBar);
 
         String filename = post.filename + "." + post.ext;
-        activity.getActionBar().setTitle(filename);
+        activity.getSupportActionBar().setTitle(filename);
 
         String text = (position + 1) + "/" + adapter.getCount();
-        activity.getActionBar().setSubtitle(text);
+        activity.getSupportActionBar().setSubtitle(text);
 
         activity.invalidateActionBar();
 

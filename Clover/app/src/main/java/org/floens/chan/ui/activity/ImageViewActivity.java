@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,8 +25,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.Window;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import org.floens.chan.R;
@@ -35,12 +32,12 @@ import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.fragment.ImageViewFragment;
 import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,15 +46,16 @@ import java.util.List;
  * An fragment pager that contains images. Call setPosts first, and then start
  * the activity with startActivity()
  */
-public class ImageViewActivity extends Activity implements ViewPager.OnPageChangeListener {
+public class ImageViewActivity extends ThemeActivity implements ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewActivity";
 
     private static PostAdapter postAdapterStatic;
-    private static int selectedIdStatic = -1;
+    private static int selectedNoStatic = -1;
     private static ThreadManager threadManagerStatic;
 
     private PostAdapter postAdapter;
     private ThreadManager threadManager;
+    private int selectedNo;
 
     private ImageViewAdapter adapter;
     private ViewPager viewPager;
@@ -72,7 +70,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
      */
     public static void launch(Activity activity, PostAdapter adapter, int selected, ThreadManager threadManager) {
         postAdapterStatic = adapter;
-        selectedIdStatic = selected;
+        selectedNoStatic = selected;
         threadManagerStatic = threadManager;
 
         Intent intent = new Intent(activity, ImageViewActivity.class);
@@ -82,44 +80,36 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP);
-
-        super.onCreate(savedInstanceState);
-
         if (postAdapterStatic == null || threadManagerStatic == null) {
             Logger.e(TAG, "postadapter or threadmanager null");
             finish();
             return;
         }
 
+        super.onCreate(savedInstanceState);
+
         threadManager = threadManagerStatic;
         threadManagerStatic = null;
         postAdapter = postAdapterStatic;
         postAdapterStatic = null;
-        int selectedId = selectedIdStatic;
-        selectedIdStatic = -1;
+        selectedNo = selectedNoStatic;
+        selectedNoStatic = -1;
 
-        ThemeHelper.setTheme(this);
+        setContentView(R.layout.image_view);
+        setToolbar();
 
-        progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-        progressBar.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-        progressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar_no_bg));
+        initProgressBar();
+        initPager();
+    }
+
+    private void initProgressBar() {
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+//        progressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar_no_bg));
         progressBar.setIndeterminate(false);
         progressBar.setMax(1000000);
+    }
 
-        final FrameLayout decorView = (FrameLayout) getWindow().getDecorView();
-        decorView.addView(progressBar);
-
-        progressBar.post(new Runnable() {
-            @Override
-            public void run() {
-                View contentView = decorView.findViewById(android.R.id.content);
-                progressBar.setY(contentView.getY() - progressBar.getHeight() / 2);
-            }
-        });
-
+    private void initPager() {
         // Get the posts with images
         ArrayList<Post> imagePosts = new ArrayList<>();
         for (Post post : postAdapter.getList()) {
@@ -129,7 +119,6 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
         }
 
         // Setup our pages and adapter
-        setContentView(R.layout.image_pager);
         viewPager = (ViewPager) findViewById(R.id.image_pager);
         adapter = new ImageViewAdapter(getFragmentManager(), this);
         adapter.setList(imagePosts);
@@ -138,7 +127,7 @@ public class ImageViewActivity extends Activity implements ViewPager.OnPageChang
 
         // Select the right image
         for (int i = 0; i < imagePosts.size(); i++) {
-            if (imagePosts.get(i).no == selectedId) {
+            if (imagePosts.get(i).no == selectedNo) {
                 viewPager.setCurrentItem(i);
                 onPageSelected(i);
                 break;
