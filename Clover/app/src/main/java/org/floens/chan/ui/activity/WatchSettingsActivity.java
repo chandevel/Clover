@@ -17,56 +17,52 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
-import android.view.Gravity;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.utils.ThemeHelper;
-import org.floens.chan.utils.Utils;
+import org.floens.chan.ui.ThemeActivity;
 
-public class WatchSettingsActivity extends Activity implements OnCheckedChangeListener {
-    private Switch watchSwitch;
+public class WatchSettingsActivity extends ThemeActivity implements OnCheckedChangeListener {
+    private SwitchCompat watchSwitch;
+    private TextView toggleStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
+        setTheme();
+        setContentView(R.layout.header_switch_layout);
+        setToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        setFragment(ChanPreferences.getWatchEnabled());
-    }
+        findViewById(R.id.toggle_bar).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                watchSwitch.toggle();
+            }
+        });
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar_switch, menu);
-
-        watchSwitch = (Switch) menu.findItem(R.id.action_bar_switch).getActionView();
+        toggleStatus = (TextView) findViewById(R.id.toggle_status);
+        watchSwitch = (SwitchCompat) findViewById(R.id.toggle);
         watchSwitch.setOnCheckedChangeListener(this);
-        watchSwitch.setPadding(0, 0, Utils.dp(14), 0);
-
         setSwitch(ChanPreferences.getWatchEnabled());
 
-        return true;
+        setFragment(ChanPreferences.getWatchEnabled());
     }
 
     @Override
@@ -77,30 +73,20 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
 
     private void setSwitch(boolean enabled) {
         watchSwitch.setChecked(enabled);
+        toggleStatus.setText(enabled ? R.string.on : R.string.off);
 
         ChanPreferences.setWatchEnabled(enabled);
-
-        watchSwitch.setEnabled(false);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                watchSwitch.setEnabled(true);
-            }
-        }, 500);
     }
 
     private void setFragment(boolean enabled) {
+        FragmentTransaction t = getFragmentManager().beginTransaction();
         if (enabled) {
-            FragmentTransaction t = getFragmentManager().beginTransaction();
-            t.replace(android.R.id.content, new WatchSettingsFragment());
-            t.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            t.commit();
+            t.replace(R.id.content, new WatchSettingsFragment());
         } else {
-            FragmentTransaction t = getFragmentManager().beginTransaction();
-            t.replace(android.R.id.content, TextFragment.newInstance(R.string.watch_info_text));
-            t.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            t.commit();
+            t.replace(R.id.content, TextFragment.newInstance(R.string.watch_info_text));
         }
+        t.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        t.commit();
     }
 
     public static class TextFragment extends Fragment {
@@ -114,18 +100,10 @@ public class WatchSettingsActivity extends Activity implements OnCheckedChangeLi
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle savedInstanceState) {
-            LinearLayout container = new LinearLayout(inflater.getContext());
+            ViewGroup container = (ViewGroup) inflater.inflate(R.layout.watch_description, null);
 
-            int p = Utils.dp(14);
-            container.setPadding(p, p, p, p);
-
-            TextView text = new TextView(inflater.getContext());
-            text.setTextSize(20);
+            TextView text = (TextView) container.findViewById(R.id.text);
             text.setText(getArguments().getInt("text_resource"));
-            text.setGravity(Gravity.CENTER);
-
-            container.setGravity(Gravity.CENTER);
-            container.addView(text);
 
             return container;
         }

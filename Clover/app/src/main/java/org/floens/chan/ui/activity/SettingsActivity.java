@@ -17,17 +17,17 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import org.floens.chan.R;
+import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.fragment.SettingsFragment;
 import org.floens.chan.utils.ThemeHelper;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends ThemeActivity {
     private static boolean doingThemeRestart = false;
     private static ThemeHelper.Theme lastTheme;
 
@@ -35,15 +35,18 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTheme();
+        setContentView(R.layout.toolbar_activity);
+        setToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         if (!doingThemeRestart) {
             lastTheme = ThemeHelper.getInstance().getTheme();
         }
 
-        ThemeHelper.setTheme(this);
-
         SettingsFragment frag = new SettingsFragment();
         frag.setArguments(getIntent().getExtras());
-        getFragmentManager().beginTransaction().replace(android.R.id.content, frag).commit();
+        getFragmentManager().beginTransaction().replace(R.id.content, frag).commit();
     }
 
     public void restart(Intent intent) {
@@ -76,6 +79,9 @@ public class SettingsActivity extends Activity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         if (item.getItemId() == R.id.action_settings_advanced) {
             startActivity(new Intent(this, AdvancedSettingsActivity.class));
+            return true;
+        } else if (item.getItemId() == android.R.id.home) {
+            finish();
             return true;
         } else {
             return super.onOptionsItemSelected(item);

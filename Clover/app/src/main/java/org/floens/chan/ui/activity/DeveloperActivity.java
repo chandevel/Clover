@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -25,17 +24,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.ThemeActivity;
 
 import java.util.Random;
 
-public class DeveloperActivity extends Activity {
+public class DeveloperActivity extends ThemeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
+        setTheme();
+        setContentView(R.layout.toolbar_activity);
+        setToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         LinearLayout wrapper = new LinearLayout(this);
         wrapper.setOrientation(LinearLayout.VERTICAL);

@@ -15,19 +15,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:gravity="center">
 
-    <item
-        android:id="@+id/action_add_board"
-        android:icon="@drawable/ic_action_new"
-        app:showAsAction="always"
-        android:title="@string/board_add" />
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        style="?android:attr/textAppearanceMedium" />
 
-    <item
-        android:id="@+id/action_show_filler"
-        app:showAsAction="never"
-        android:checkable="true"
-        android:title="@string/board_edit_enable_filler" />
-
-</menu>
+</LinearLayout>

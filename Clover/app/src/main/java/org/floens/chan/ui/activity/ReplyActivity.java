@@ -45,14 +45,13 @@ public class ReplyActivity extends ThemeActivity {
         staticLoadable = null;
 
         if (loadable != null && savedInstanceState == null) {
-            setContentView(R.layout.reply_activity);
             setTheme();
+            setContentView(R.layout.toolbar_activity);
             setToolbar();
-
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.reply_fragment, ReplyFragment.newInstance(loadable, false), "reply");
+            ft.replace(R.id.content, ReplyFragment.newInstance(loadable, false), "reply");
             ft.commitAllowingStateLoss();
         } else if (savedInstanceState == null) {
             Logger.e(TAG, "Loadable was null, exiting!");

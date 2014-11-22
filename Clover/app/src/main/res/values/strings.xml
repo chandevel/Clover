@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="close">Close</string>
     <string name="back">Back</string>
     <string name="ok">OK</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
 
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
