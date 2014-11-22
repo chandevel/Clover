@@ -240,6 +240,12 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     }
 
     @Override
+    public void removePin(Pin pin) {
+        super.removePin(pin);
+        updateActionBarState();
+    }
+
+    @Override
     public void onNothingSelected(final AdapterView<?> parent) {
     }
 
@@ -422,6 +428,16 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         setMenuItemEnabled(menu.findItem(R.id.action_search), slidable);
         setMenuItemEnabled(menu.findItem(R.id.action_search_tablet), !slidable);
 
+        boolean bookmarkedFilled = false;
+        if (threadLoadable.mode == Loadable.Mode.THREAD) {
+            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(threadLoadable);
+            if (pin != null) {
+                bookmarkedFilled = true;
+            }
+        }
+
+        menu.findItem(R.id.action_pin).setIcon(bookmarkedFilled ? R.drawable.ic_bookmark_filled : R.drawable.ic_bookmark);
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -468,6 +484,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                     if (loader != null && loader.getLoadable().isThreadMode() && loader.getThread() != null) {
                         ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getThread().op);
                         pinDrawer.openDrawer(pinDrawerView);
+                        updateActionBarState();
                     }
                 }
 
