@@ -15,12 +15,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_reload_tablet"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="1"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/action_reload">
         <menu>
             <item
@@ -36,28 +37,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_reload_board"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="1"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/action_reload_board" />
 
     <item
         android:id="@+id/action_pin"
         android:icon="@drawable/ic_action_make_available_offline"
         android:orderInCategory="2"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/action_pin" />
 
     <item
         android:id="@+id/action_reply"
-        android:icon="@drawable/ic_action_chat"
+        android:icon="@drawable/ic_action_write"
         android:orderInCategory="4"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/action_reply" />
 
     <item
         android:id="@+id/action_reply_tablet"
-        android:icon="@drawable/ic_action_chat"
+        android:icon="@drawable/ic_action_write"
         android:orderInCategory="4"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/action_reply">
         <menu>
             <item
@@ -74,7 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_reload_thread"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="5"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_reload" />
 
     <item
@@ -85,7 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item
         android:id="@+id/action_search_tablet"
         android:orderInCategory="6"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_search">
         <menu>
             <item
@@ -102,19 +103,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_share"
         android:actionProviderClass="android.widget.ShareActionProvider"
         android:orderInCategory="7"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_share" />
 
     <item
         android:id="@+id/action_open_browser"
         android:orderInCategory="8"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_open_browser" />
 
     <item
         android:id="@+id/action_board_view_mode"
         android:orderInCategory="9"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_board_view_mode">
         <menu>
             <group android:checkableBehavior="single">
@@ -131,7 +132,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_settings" />
 
 </menu>

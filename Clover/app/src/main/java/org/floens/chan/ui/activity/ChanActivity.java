@@ -710,13 +710,23 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         }
 
         @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return createView(position, convertView, parent, true);
+        }
+
+        @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
+            return createView(position, convertView, parent, false);
+        }
+
+        private View createView(int position, View convertView, ViewGroup parent, boolean dropDown) {
             if (position == getCount() - 1) {
-                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_add, null);
+                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_add, parent, false);
                 textView.setText(getItem(position));
                 return textView;
             } else {
-                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
+                TextView textView = (TextView) LayoutInflater.from(context).inflate(
+                        dropDown ? R.layout.board_select_spinner_dropdown : R.layout.board_select_spinner, parent, false);
                 textView.setText(getItem(position));
                 return textView;
             }
