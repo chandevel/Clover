@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <color name="primary">#ff43a047</color>
-    <color name="primary_dark">#ff2e7d32</color>
+    <color name="primary">#ff4caf50</color>
+    <color name="primary_dark">#ff388e3c</color>
 
     <color name="holo_blue_dark">#ff0099cc</color>
 

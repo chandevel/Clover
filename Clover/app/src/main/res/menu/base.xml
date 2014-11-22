@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <item
         android:id="@+id/action_pin"
-        android:icon="@drawable/ic_action_make_available_offline"
+        android:icon="@drawable/ic_bookmark"
         android:orderInCategory="2"
         app:showAsAction="always"
         android:title="@string/action_pin" />

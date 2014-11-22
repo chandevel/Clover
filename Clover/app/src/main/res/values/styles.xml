@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent_material_light</item>
+
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
     <style name="Chan.ImageView" parent="Theme.AppCompat.NoActionBar">
@@ -38,6 +40,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_style">@style/PostView</item>
 
         <item name="board_edit_item_style">@style/BoardEditItem</item>
+
+        <item name="android:textColor">#ff000000</item>
     </style>
 
 
