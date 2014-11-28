@@ -171,6 +171,10 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         container = new LoadView(inflater.getContext());
+        if (loadable == null) {
+            container.setView(getCenteredMessageView(R.string.thread_not_specified));
+        }
+
         return container;
     }
 
@@ -423,6 +427,16 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
 
         return errorMessage;
+    }
+
+    private View getCenteredMessageView(int stringResourceId) {
+        LinearLayout layout = new LinearLayout(baseActivity);
+        layout.setGravity(Gravity.CENTER);
+        TextView messageView = new TextView(baseActivity);
+        messageView.setText(getString(stringResourceId));
+        layout.addView(messageView);
+
+        return layout;
     }
 
     private static class SkipLogic {
