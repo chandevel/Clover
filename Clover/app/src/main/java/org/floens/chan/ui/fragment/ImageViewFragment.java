@@ -53,7 +53,6 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     private ThumbnailImageView imageView;
 
     private Post post;
-    private boolean showProgressBar = true;
     private boolean isVideo = false;
     private boolean videoVisible = false;
     private boolean videoSetIconToPause = false;
@@ -174,8 +173,6 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     public void onSelected(ImageViewAdapter adapter, int position) {
-        activity.setProgressBarIndeterminateVisibility(showProgressBar);
-
         String filename = post.filename + "." + post.ext;
         activity.getActionBar().setTitle(filename);
 
@@ -305,7 +302,6 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     public void showProgressBar(boolean e) {
-        showProgressBar = e;
         activity.updateActionBarIfSelected(this);
     }
 
