@@ -41,14 +41,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             style="?board_pane_right_style"/>
     </android.support.v4.widget.SlidingPaneLayout>
 
-    <ListView
+    <FrameLayout
         android:id="@+id/left_drawer"
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#444"
-        android:choiceMode="singleChoice"
-        android:divider="#333"
-        android:dividerHeight="1dp"/>
+        android:background="#444">
+
+        <ListView
+            android:id="@+id/pin_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:choiceMode="singleChoice"
+            android:divider="#333"
+            android:dividerHeight="1dp"/>
+
+        </FrameLayout>
 
 </android.support.v4.widget.DrawerLayout>
