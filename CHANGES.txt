@@ -1,3 +1,7 @@
+New in 1.2.3 (2014-12-08)
+- Hotfix for captchas
+
+
 New in 1.2.2 (2014-10-26)
 - Fixed HTTPS errors on Android below Android 4.4
 
