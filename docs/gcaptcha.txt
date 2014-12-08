@@ -1,0 +1,20 @@
+
+
+4chan key:
+6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc
+
+https://www.google.com/recaptcha/api/fallback?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc
+
+
+Clover supports the fallback method (for now)
+
+Stuff
+https://www.google.com/recaptcha/api/fallback?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc
+into an iframe
+
+
+add an input field named
+g-recaptcha-response
+
+
+

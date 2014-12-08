@@ -364,7 +364,7 @@ public class ReplyManager {
         }
 
         entity.addTextBody("recaptcha_challenge_field", reply.captchaChallenge);
-        entity.addTextBody("recaptcha_response_field", reply.captchaResponse, TEXT_UTF_8);
+        entity.addTextBody("g-recaptcha-response", reply.captchaResponse, TEXT_UTF_8);
 
         entity.addTextBody("mode", "regist");
         entity.addTextBody("pwd", reply.password);
