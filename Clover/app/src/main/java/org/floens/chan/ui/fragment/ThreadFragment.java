@@ -19,7 +19,6 @@ package org.floens.chan.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -281,7 +280,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         } else if (viewMode == ThreadManager.ViewMode.GRID) {
             GridView grid = new GridView(getActivity());
             grid.setNumColumns(GridView.AUTO_FIT);
-            int postGridWidth = baseActivity.getResources().getDimensionPixelSize(R.dimen.post_grid_width);
+            int postGridWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.post_grid_width);
             grid.setColumnWidth(postGridWidth);
             listView = grid;
             postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
