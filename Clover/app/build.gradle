@@ -47,7 +47,7 @@ android {
             if (doSign) {
                 signingConfig signingConfigs.release
             }
-            runProguard true
+            minifyEnabled true
             proguardFiles 'proguard.cfg'
         }
 
