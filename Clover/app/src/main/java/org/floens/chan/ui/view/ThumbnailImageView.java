@@ -19,6 +19,7 @@ package org.floens.chan.ui.view;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -157,14 +158,14 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         image.setInitCallback(new CustomScaleImageView.InitedCallback() {
             @Override
             public void onInit() {
-                Utils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        removeAllViews();
-                        addView(image);
-                        callback.setProgress(false);
-                    }
-                });
+                removeAllViews();
+                addView(image);
+                callback.setProgress(false);
+            }
+
+            @Override
+            public void onOutOfMemory() {
+                onOutOfMemoryError();
             }
         });
     }
@@ -211,6 +212,11 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         } catch (IOException e) {
             e.printStackTrace();
             onError();
+            return;
+        } catch (OutOfMemoryError e) {
+            System.gc();
+            e.printStackTrace();
+            onOutOfMemoryError();
             return;
         }
 
@@ -261,7 +267,9 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 Toast.makeText(getContext(), R.string.open_link_failed, Toast.LENGTH_SHORT).show();
             }
         } else {
-            videoView = new VideoView(getContext());
+            Context proxyContext = new NoMusicServiceCommandContext(getContext());
+
+            videoView = new VideoView(proxyContext);
             videoView.setZOrderOnTop(true);
             videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                     LayoutParams.MATCH_PARENT));
@@ -299,12 +307,17 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     }
 
     public void onError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
         callback.setProgress(false);
     }
 
     public void onNotFoundError() {
         Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_LONG).show();
+        callback.setProgress(false);
+    }
+
+    public void onOutOfMemoryError() {
+        Toast.makeText(getContext(), R.string.image_preview_failed_oom, Toast.LENGTH_SHORT).show();
         callback.setProgress(false);
     }
 
@@ -334,5 +347,20 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         public void onVideoLoaded();
 
         public void onVideoError(File video);
+    }
+
+    public static class NoMusicServiceCommandContext extends ContextWrapper {
+        public NoMusicServiceCommandContext(Context base) {
+            super(base);
+        }
+
+        @Override
+        public void sendBroadcast(Intent intent) {
+            // Only allow broadcasts when it's not a music service command
+            // Prevents pause intents from broadcasting
+            if (!"com.android.music.musicservicecommand".equals(intent.getAction())) {
+                super.sendBroadcast(intent);
+            }
+        }
     }
 }

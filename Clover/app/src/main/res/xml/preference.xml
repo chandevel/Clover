@@ -91,9 +91,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <EditTextPreference
             android:key="preference_default_name"
             android:title="@string/preference_default_name" />
-        <EditTextPreference
-            android:key="preference_default_email"
-            android:title="@string/preference_default_email" />
 
         <CheckBoxPreference
             android:defaultValue="false"

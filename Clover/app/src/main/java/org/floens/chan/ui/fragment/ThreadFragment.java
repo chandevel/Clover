@@ -19,7 +19,6 @@ package org.floens.chan.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -61,7 +60,6 @@ import org.floens.chan.utils.Utils;
 import javax.net.ssl.SSLException;
 
 public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener, PostAdapter.PostAdapterListener {
-    private BaseActivity baseActivity;
     private ThreadManager threadManager;
     private Loadable loadable;
 
@@ -78,7 +76,6 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     public static ThreadFragment newInstance(BaseActivity activity) {
         ThreadFragment fragment = new ThreadFragment();
-        fragment.baseActivity = activity;
         fragment.threadManager = new ThreadManager(activity, fragment);
 
         return fragment;
@@ -171,13 +168,17 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         container = new LoadView(inflater.getContext());
+        if (loadable == null) {
+            container.setView(getCenteredMessageView(R.string.thread_not_specified));
+        }
+
         return container;
     }
 
     @Override
     public void onPostClicked(Post post) {
         if (loadable.isBoardMode() || loadable.isCatalogMode()) {
-            baseActivity.onOPClicked(post);
+            ((BaseActivity) getActivity()).onOPClicked(post);
         } else if (loadable.isThreadMode() && isFiltering) {
             filterView.clearSearch();
             postAdapter.scrollToPost(post.no);
@@ -187,7 +188,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public void onThumbnailClicked(Post source) {
         if (postAdapter != null) {
-            ImageViewActivity.launch(baseActivity, postAdapter, source.no, threadManager);
+            ImageViewActivity.launch(getActivity(), postAdapter, source.no, threadManager);
         }
     }
 
@@ -207,7 +208,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     @Override
     public void onOpenThread(final Loadable thread, int highlightedPost) {
-        baseActivity.onOpenThread(thread);
+        ((BaseActivity) getActivity()).onOpenThread(thread);
         this.highlightedPost = highlightedPost;
     }
 
@@ -233,7 +234,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             highlightedPost = -1;
         }
 
-        baseActivity.onThreadLoaded(thread);
+        ((BaseActivity) getActivity()).onThreadLoaded(thread);
     }
 
     @Override
@@ -262,25 +263,25 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     private RelativeLayout createView() {
-        RelativeLayout compound = new RelativeLayout(baseActivity);
+        RelativeLayout compound = new RelativeLayout(getActivity());
 
-        LinearLayout listViewContainer = new LinearLayout(baseActivity);
+        LinearLayout listViewContainer = new LinearLayout(getActivity());
         listViewContainer.setOrientation(LinearLayout.VERTICAL);
 
-        filterView = new FilterView(baseActivity);
+        filterView = new FilterView(getActivity());
         filterView.setVisibility(View.GONE);
         listViewContainer.addView(filterView, Utils.MATCH_WRAP_PARAMS);
 
         if (viewMode == ThreadManager.ViewMode.LIST) {
-            ListView list = new ListView(baseActivity);
+            ListView list = new ListView(getActivity());
             listView = list;
-            postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
+            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
             listView.setAdapter(postAdapter);
             list.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
         } else if (viewMode == ThreadManager.ViewMode.GRID) {
-            GridView grid = new GridView(baseActivity);
+            GridView grid = new GridView(getActivity());
             grid.setNumColumns(GridView.AUTO_FIT);
-            TypedArray ta = baseActivity.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
+            TypedArray ta = getActivity().obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
             int postGridWidth = ta.getDimensionPixelSize(R.styleable.PostView_grid_width, 0);
             int postGridSpacing = ta.getDimensionPixelSize(R.styleable.PostView_grid_spacing, 0);
             ta.recycle();
@@ -288,7 +289,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             grid.setVerticalSpacing(postGridSpacing);
             grid.setHorizontalSpacing(postGridSpacing);
             listView = grid;
-            postAdapter = new PostAdapter(baseActivity, threadManager, listView, this);
+            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
             listView.setAdapter(postAdapter);
             listView.setSelection(loadable.listViewIndex);
         }
@@ -327,7 +328,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         compound.addView(listViewContainer, Utils.MATCH_PARAMS);
 
         if (loadable.isThreadMode()) {
-            skip = new ImageView(baseActivity);
+            skip = new ImageView(getActivity());
             skip.setImageResource(R.drawable.skip_arrow_down);
             skip.setVisibility(View.GONE);
             compound.addView(skip, Utils.WRAP_PARAMS);
@@ -376,7 +377,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     private View getLoadErrorView(VolleyError error) {
         String errorMessage = getLoadErrorText(error);
 
-        LinearLayout wrapper = new LinearLayout(baseActivity);
+        LinearLayout wrapper = new LinearLayout(getActivity());
         wrapper.setLayoutParams(Utils.MATCH_PARAMS);
         wrapper.setGravity(Gravity.CENTER);
         wrapper.setOrientation(LinearLayout.VERTICAL);
@@ -387,7 +388,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         text.setTextSize(24f);
         wrapper.addView(text);
 
-        Button retry = new Button(baseActivity);
+        Button retry = new Button(getActivity());
         retry.setText(R.string.thread_load_failed_retry);
         retry.setLayoutParams(Utils.WRAP_PARAMS);
         retry.setGravity(Gravity.CENTER);
@@ -423,6 +424,16 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
 
         return errorMessage;
+    }
+
+    private View getCenteredMessageView(int stringResourceId) {
+        LinearLayout layout = new LinearLayout(getActivity());
+        layout.setGravity(Gravity.CENTER);
+        TextView messageView = new TextView(getActivity());
+        messageView.setText(getString(stringResourceId));
+        layout.addView(messageView);
+
+        return layout;
     }
 
     private static class SkipLogic {

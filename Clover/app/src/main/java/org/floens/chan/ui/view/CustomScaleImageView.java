@@ -20,6 +20,8 @@ import android.util.AttributeSet;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
+import org.floens.chan.utils.Utils;
+
 public class CustomScaleImageView extends SubsamplingScaleImageView {
     private InitedCallback initCallback;
 
@@ -39,12 +41,33 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
     protected void onImageReady() {
         super.onImageReady();
 
-        if (initCallback != null) {
-            initCallback.onInit();
-        }
+        Utils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (initCallback != null) {
+                    initCallback.onInit();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onOutOfMemory() {
+        super.onOutOfMemory();
+
+        Utils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (initCallback != null) {
+                    initCallback.onOutOfMemory();
+                }
+            }
+        });
     }
 
     public interface InitedCallback {
         public void onInit();
+
+        public void onOutOfMemory();
     }
 }

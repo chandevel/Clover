@@ -37,10 +37,6 @@ public class ChanPreferences {
         return p().getString("preference_default_name", "");
     }
 
-    public static String getDefaultEmail() {
-        return p().getString("preference_default_email", "");
-    }
-
     public static boolean getPinOnPost() {
         return p().getBoolean("preference_pin_on_post", false);
     }

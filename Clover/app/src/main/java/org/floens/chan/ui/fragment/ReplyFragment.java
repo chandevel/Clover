@@ -165,10 +165,6 @@ public class ReplyFragment extends DialogFragment {
                 draft.name = ChanPreferences.getDefaultName();
             }
 
-            if (TextUtils.isEmpty(draft.email)) {
-                draft.email = ChanPreferences.getDefaultEmail();
-            }
-
             nameView.setText(draft.name);
             emailView.setText(draft.email);
             subjectView.setText(draft.subject);
@@ -383,7 +379,7 @@ public class ReplyFragment extends DialogFragment {
 
     private void closeReply() {
         if (getDialog() != null) {
-            dismiss();
+            dismissAllowingStateLoss();
         } else {
             context.finish();
         }
