@@ -75,7 +75,7 @@ public class FileCache {
                         public void onCompleted(Exception e, Response<File> result) {
                             callback.onProgress(0, 0, true);
 
-                            if (result != null && result.getHeaders() != null && result.getHeaders().getResponseCode() / 100 != 2) {
+                            if (result != null && result.getHeaders() != null && result.getHeaders().code() / 100 != 2) {
                                 if (result.getResult() != null) {
                                     delete(result.getResult());
                                 }
