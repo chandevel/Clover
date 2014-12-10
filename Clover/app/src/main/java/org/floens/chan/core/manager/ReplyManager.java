@@ -29,6 +29,9 @@ import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.ui.activity.ImagePickActivity;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
@@ -333,6 +336,37 @@ public class ReplyManager {
         public String responseData = "";
     }
 
+    private void getCaptchaHash(final CaptchaHashListener listener, String challenge, String response) {
+        HttpPost httpPost = new HttpPost(ChanUrls.getCaptchaFallback());
+
+        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+
+        entity.addTextBody("c", challenge, TEXT_UTF_8);
+        entity.addTextBody("response", response, TEXT_UTF_8);
+
+        httpPost.setEntity(entity.build());
+
+        sendHttpPost(httpPost, new HttpPostSendListener() {
+            @Override
+            public void onResponse(String responseString, HttpClient client, HttpResponse response) {
+                if (responseString != null) {
+                    Document document = Jsoup.parseBodyFragment(responseString);
+                    Elements verificationToken = document.select("div.fbc-verification-token textarea");
+                    String hash = verificationToken.text();
+                    if (hash.length() > 0) {
+                        listener.onHash(hash);
+                        return;
+                    }
+                }
+                listener.onHash(null);
+            }
+        });
+    }
+
+    private interface CaptchaHashListener {
+        public void onHash(String hash);
+    }
+
     /**
      * Send an reply off to the server.
      *
@@ -343,96 +377,111 @@ public class ReplyManager {
     public void sendReply(final Reply reply, final ReplyListener listener) {
         Logger.i(TAG, "Sending reply request: " + reply.board + ", " + reply.resto);
 
-        HttpPost httpPost = new HttpPost(ChanUrls.getReplyUrl(reply.board));
-
-        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
-
-        reply.password = Long.toHexString(random.nextLong());
-
-        entity.addTextBody("name", reply.name, TEXT_UTF_8);
-        entity.addTextBody("email", reply.email, TEXT_UTF_8);
-
-        entity.addTextBody("sub", reply.subject, TEXT_UTF_8);
-        entity.addTextBody("com", reply.comment, TEXT_UTF_8);
-
-        if (reply.resto >= 0) {
-            entity.addTextBody("resto", Integer.toString(reply.resto));
-        }
-
-        if (reply.spoilerImage) {
-            entity.addTextBody("spoiler", "on");
-        }
-
-        entity.addTextBody("recaptcha_challenge_field", reply.captchaChallenge);
-        entity.addTextBody("g-recaptcha-response", reply.captchaResponse, TEXT_UTF_8);
-
-        entity.addTextBody("mode", "regist");
-        entity.addTextBody("pwd", reply.password);
-
-        if (reply.usePass) {
-            httpPost.addHeader("Cookie", "pass_id=" + reply.passId);
-        }
-
-        if (reply.file != null) {
-            entity.addBinaryBody("upfile", reply.file, ContentType.APPLICATION_OCTET_STREAM, reply.fileName);
-        }
-
-        httpPost.setEntity(entity.build());
-
-        sendHttpPost(httpPost, new HttpPostSendListener() {
+        CaptchaHashListener captchaHashListener = new CaptchaHashListener() {
             @Override
-            public void onResponse(String responseString, HttpClient client, HttpResponse response) {
-                ReplyResponse e = new ReplyResponse();
-
-                if (responseString == null) {
-                    e.isNetworkError = true;
-                } else {
-                    e.responseData = responseString;
-
-                    if (responseString.contains("No file selected")) {
-                        e.isUserError = true;
-                        e.isFileError = true;
-                    } else if (responseString.contains("You forgot to solve the CAPTCHA")
-                            || responseString.contains("You seem to have mistyped the CAPTCHA")) {
-                        e.isUserError = true;
-                        e.isCaptchaError = true;
-                    } else if (responseString.toLowerCase(Locale.ENGLISH).contains("post successful")) {
-                        e.isSuccessful = true;
-                    }
+            public void onHash(String captchaHash) {
+                if (captchaHash == null) {
+                    // Could not find a hash in the response html
+                    ReplyResponse e = new ReplyResponse();
+                    e.isUserError = true;
+                    e.isCaptchaError = true;
+                    listener.onResponse(e);
+                    return;
                 }
 
-                if (e.isSuccessful) {
-                    Matcher matcher = responsePattern.matcher(e.responseData);
+                HttpPost httpPost = new HttpPost(ChanUrls.getReplyUrl(reply.board));
 
-                    int threadNo = -1;
-                    int no = -1;
-                    if (matcher.find()) {
-                        try {
-                            threadNo = Integer.parseInt(matcher.group(1));
-                            no = Integer.parseInt(matcher.group(2));
-                        } catch (NumberFormatException err) {
-                            err.printStackTrace();
+                MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+
+                reply.password = Long.toHexString(random.nextLong());
+
+                entity.addTextBody("name", reply.name, TEXT_UTF_8);
+                entity.addTextBody("email", reply.email, TEXT_UTF_8);
+
+                entity.addTextBody("sub", reply.subject, TEXT_UTF_8);
+                entity.addTextBody("com", reply.comment, TEXT_UTF_8);
+
+                if (reply.resto >= 0) {
+                    entity.addTextBody("resto", Integer.toString(reply.resto));
+                }
+
+                if (reply.spoilerImage) {
+                    entity.addTextBody("spoiler", "on");
+                }
+
+                entity.addTextBody("g-recaptcha-response", captchaHash, TEXT_UTF_8);
+
+                entity.addTextBody("mode", "regist");
+                entity.addTextBody("pwd", reply.password);
+
+                if (reply.usePass) {
+                    httpPost.addHeader("Cookie", "pass_id=" + reply.passId);
+                }
+
+                if (reply.file != null) {
+                    entity.addBinaryBody("upfile", reply.file, ContentType.APPLICATION_OCTET_STREAM, reply.fileName);
+                }
+
+                httpPost.setEntity(entity.build());
+
+                sendHttpPost(httpPost, new HttpPostSendListener() {
+                    @Override
+                    public void onResponse(String responseString, HttpClient client, HttpResponse response) {
+                        ReplyResponse e = new ReplyResponse();
+
+                        if (responseString == null) {
+                            e.isNetworkError = true;
+                        } else {
+                            e.responseData = responseString;
+
+                            if (responseString.contains("No file selected")) {
+                                e.isUserError = true;
+                                e.isFileError = true;
+                            } else if (responseString.contains("You forgot to solve the CAPTCHA")
+                                    || responseString.contains("You seem to have mistyped the CAPTCHA")) {
+                                e.isUserError = true;
+                                e.isCaptchaError = true;
+                            } else if (responseString.toLowerCase(Locale.ENGLISH).contains("post successful")) {
+                                e.isSuccessful = true;
+                            }
                         }
+
+                        if (e.isSuccessful) {
+                            Matcher matcher = responsePattern.matcher(e.responseData);
+
+                            int threadNo = -1;
+                            int no = -1;
+                            if (matcher.find()) {
+                                try {
+                                    threadNo = Integer.parseInt(matcher.group(1));
+                                    no = Integer.parseInt(matcher.group(2));
+                                } catch (NumberFormatException err) {
+                                    err.printStackTrace();
+                                }
+                            }
+
+                            if (threadNo >= 0 && no >= 0) {
+                                SavedReply savedReply = new SavedReply();
+                                savedReply.board = reply.board;
+                                savedReply.no = no;
+                                savedReply.password = reply.password;
+
+                                ChanApplication.getDatabaseManager().saveReply(savedReply);
+
+                                e.threadNo = threadNo;
+                                e.no = no;
+                            } else {
+                                Logger.w(TAG, "No thread & no in the response");
+                            }
+                        }
+
+                        listener.onResponse(e);
                     }
-
-                    if (threadNo >= 0 && no >= 0) {
-                        SavedReply savedReply = new SavedReply();
-                        savedReply.board = reply.board;
-                        savedReply.no = no;
-                        savedReply.password = reply.password;
-
-                        ChanApplication.getDatabaseManager().saveReply(savedReply);
-
-                        e.threadNo = threadNo;
-                        e.no = no;
-                    } else {
-                        Logger.w(TAG, "No thread & no in the response");
-                    }
-                }
-
-                listener.onResponse(e);
+                });
             }
-        });
+        };
+
+        getCaptchaHash(captchaHashListener, reply.captchaChallenge, reply.captchaResponse);
     }
 
     public static interface ReplyListener {
