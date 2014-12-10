@@ -15,7 +15,7 @@ This repo contains all the code for Clover.
 [Join this G+ community](https://plus.google.com/communities/108906508206092146956) and follow the instructions in the "About this community" box.
 
 
-## Contibuting
+## Contributing
 See the [Clover setup guide](https://github.com/Floens/Clover/wiki/Building-Clover) when you want to make changes to the code.  
 [The issues page](https://github.com/Floens/Clover/issues) is for reporting bugs and feature requests.  
 Be sure to search for existing items on the todo list and issues page before reporting anything.
