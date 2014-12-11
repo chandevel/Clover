@@ -380,7 +380,7 @@ public class ReplyManager {
         CaptchaHashListener captchaHashListener = new CaptchaHashListener() {
             @Override
             public void onHash(String captchaHash) {
-                if (captchaHash == null) {
+                if (captchaHash == null && !reply.usePass) {
                     // Could not find a hash in the response html
                     ReplyResponse e = new ReplyResponse();
                     e.isUserError = true;
@@ -409,7 +409,9 @@ public class ReplyManager {
                     entity.addTextBody("spoiler", "on");
                 }
 
-                entity.addTextBody("g-recaptcha-response", captchaHash, TEXT_UTF_8);
+                if (!reply.usePass) {
+                    entity.addTextBody("g-recaptcha-response", captchaHash, TEXT_UTF_8);
+                }
 
                 entity.addTextBody("mode", "regist");
                 entity.addTextBody("pwd", reply.password);
@@ -481,7 +483,11 @@ public class ReplyManager {
             }
         };
 
-        getCaptchaHash(captchaHashListener, reply.captchaChallenge, reply.captchaResponse);
+        if (reply.usePass) {
+            captchaHashListener.onHash(null);
+        } else {
+            getCaptchaHash(captchaHashListener, reply.captchaChallenge, reply.captchaResponse);
+        }
     }
 
     public static interface ReplyListener {
