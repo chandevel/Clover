@@ -72,7 +72,7 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.android.support:support-v13:18.0.0'
     compile 'com.koushikdutta.ion:ion:2.0.1'
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.0.12'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.0'
 
     compile files('libs/httpclientandroidlib-1.2.1.jar')
 }
