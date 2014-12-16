@@ -68,7 +68,8 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
     protected PinnedAdapter pinnedAdapter;
     protected DrawerLayout pinDrawer;
-    protected ListView pinDrawerView;
+    protected View pinDrawerView;
+    protected ListView pinList;
     protected ActionBarDrawerToggle pinDrawerListener;
 
     protected SlidingPaneLayout threadPane;
@@ -153,13 +154,14 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         pinDrawer.setDrawerListener(pinDrawerListener);
         pinDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        pinDrawerView = (ListView) findViewById(R.id.left_drawer);
+        pinDrawerView = findViewById(R.id.left_drawer);
+        pinList = (ListView) findViewById(R.id.pin_list);
 
-        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext(), pinDrawerView); // Get the dark theme, not the light one
+        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext(), pinList); // Get the dark theme, not the light one
         pinnedAdapter.reload();
-        pinDrawerView.setAdapter(pinnedAdapter);
+        pinList.setAdapter(pinnedAdapter);
 
-        pinDrawerView.setOnItemClickListener(new OnItemClickListener() {
+        pinList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Pin pin = pinnedAdapter.getItem(position);
@@ -169,7 +171,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             }
         });
 
-        pinDrawerView.setOnItemLongClickListener(new OnItemLongClickListener() {
+        pinList.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Pin post = pinnedAdapter.getItem(position);
@@ -182,7 +184,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
             }
         });
 
-        SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(pinDrawerView,
+        SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(pinList,
                 new DismissCallbacks() {
                     @Override
                     public void onDismiss(ListView listView, int[] reverseSortedPositions) {
@@ -198,9 +200,9 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                 }
         );
 
-        pinDrawerView.setOnTouchListener(touchListener);
-        pinDrawerView.setOnScrollListener(touchListener.makeScrollListener());
-        pinDrawerView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        pinList.setOnTouchListener(touchListener);
+        pinList.setOnScrollListener(touchListener.makeScrollListener());
+        pinList.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
     }
 
     @Override
