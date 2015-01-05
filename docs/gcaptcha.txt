@@ -1,20 +1,31 @@
-
-
-4chan key:
+4chan captcha key:
 6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc
 
+Google supports a noscript version of the new recaptcha, described here https://developers.google.com/recaptcha/docs/faq
+
 https://www.google.com/recaptcha/api/fallback?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc
+Put this in an iframe and when the user has successfully filled in the captcha the user is told to copy paste the key into the real website field (outside the iframe, g-captcha-response)
 
+https://www.google.com/recaptcha/api/challenge?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc
+contains the key 'challenge'
 
-Clover supports the fallback method (for now)
+Now load the image
+https://www.google.com/recaptcha/api2/payload?c=CHALLENGE
 
-Stuff
+after the user has solved the image, do a POST to
+
 https://www.google.com/recaptcha/api/fallback?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc
-into an iframe
+POST:
+c = CHALLENGE
+response = USER_RESPONSE
+
+You'll have to get hash inside the textarea of div.fbc-verification-token
+
+next send off the reply to 4chan
+POST:
+g-captcha-response: HASH
 
 
-add an input field named
-g-recaptcha-response
 
 
 

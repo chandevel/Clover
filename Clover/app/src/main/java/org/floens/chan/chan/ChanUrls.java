@@ -43,7 +43,11 @@ public class ChanUrls {
     }
 
     public static String getCaptchaImageUrl(String challenge) {
-        return scheme + "://www.google.com/recaptcha/api/image?c=" + challenge;
+        return scheme + "://www.google.com/recaptcha/api2/payload?c=" + challenge;
+    }
+
+    public static String getCaptchaFallback() {
+        return scheme + "://www.google.com/recaptcha/api/fallback?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
     }
 
     public static String getImageUrl(String board, String code, String extension) {

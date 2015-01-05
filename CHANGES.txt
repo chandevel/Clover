@@ -1,3 +1,12 @@
+New in 1.2.5 (2014-12-11)
+- Fix 4chan pass
+
+
+New in 1.2.4 (2014-12-10)
+- Properly fixed captchas
+- Other bug fixes
+
+
 New in 1.2.3 (2014-12-08)
 - Hotfix for captchas
 
