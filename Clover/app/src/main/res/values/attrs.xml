@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -17,60 +16,63 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <attr name="board_pane_style" format="reference"/>
-    <attr name="board_pane_left_style" format="reference"/>
-    <attr name="board_pane_right_style" format="reference"/>
+    <attr name="toolbar_theme" format="reference" />
+    <attr name="toolbar_popup_theme" format="reference" />
+
+    <attr name="board_pane_style" format="reference" />
+    <attr name="board_pane_left_style" format="reference" />
+    <attr name="board_pane_right_style" format="reference" />
 
     <declare-styleable name="BoardPane">
-        <attr name="fade_color" format="color"/>
+        <attr name="fade_color" format="color" />
     </declare-styleable>
 
-    <attr name="post_style" format="reference"/>
+    <attr name="post_style" format="reference" />
 
     <declare-styleable name="PostView">
-        <attr name="thumbnail_background" format="color"/>
-        <attr name="saved_reply_color" format="color"/>
-        <attr name="highlighted_color" format="color"/>
-        <attr name="reply_count_color" format="color"/>
-        <attr name="name_color" format="color"/>
-        <attr name="subject_color" format="color"/>
-        <attr name="date_color" format="color"/>
-        <attr name="quote_color" format="color"/>
-        <attr name="highlight_quote_color" format="color"/>
-        <attr name="link_color" format="color"/>
-        <attr name="spoiler_color" format="color"/>
-        <attr name="capcode_color" format="color"/>
-        <attr name="id_background_light" format="color"/>
-        <attr name="id_background_dark" format="color"/>
-        <attr name="inline_quote_color" format="color"/>
+        <attr name="thumbnail_background" format="color" />
+        <attr name="saved_reply_color" format="color" />
+        <attr name="highlighted_color" format="color" />
+        <attr name="reply_count_color" format="color" />
+        <attr name="name_color" format="color" />
+        <attr name="subject_color" format="color" />
+        <attr name="date_color" format="color" />
+        <attr name="quote_color" format="color" />
+        <attr name="highlight_quote_color" format="color" />
+        <attr name="link_color" format="color" />
+        <attr name="spoiler_color" format="color" />
+        <attr name="capcode_color" format="color" />
+        <attr name="id_background_light" format="color" />
+        <attr name="id_background_dark" format="color" />
+        <attr name="inline_quote_color" format="color" />
 
-        <attr name="title_size" format="dimension"/>
-        <attr name="detail_size" format="dimension"/>
-        <attr name="icon_padding" format="dimension"/>
-        <attr name="icon_width" format="dimension"/>
-        <attr name="icon_height" format="dimension"/>
-        <attr name="options_spacing" format="dimension"/>
-        <attr name="options_left_padding" format="dimension"/>
-        <attr name="options_top_padding" format="dimension"/>
-        <attr name="options_right_padding" format="dimension"/>
-        <attr name="options_bottom_padding" format="dimension"/>
-        <attr name="last_seen_height" format="dimension"/>
-        <attr name="grid_padding" format="dimension"/>
-        <attr name="grid_image_size" format="dimension"/>
-        <attr name="grid_comment_padding" format="dimension"/>
-        <attr name="grid_replies_count_size" format="dimension"/>
-        <attr name="list_comment_max_height" format="dimension"/>
-        <attr name="list_padding" format="dimension"/>
-        <attr name="list_image_size" format="dimension"/>
-        <attr name="list_comment_padding" format="dimension"/>
-        <attr name="list_replies_count_size" format="dimension"/>
-        <attr name="grid_width" format="dimension"/>
-        <attr name="grid_height" format="dimension"/>
-        <attr name="grid_spacing" format="dimension"/>
+        <attr name="title_size" format="dimension" />
+        <attr name="detail_size" format="dimension" />
+        <attr name="icon_padding" format="dimension" />
+        <attr name="icon_width" format="dimension" />
+        <attr name="icon_height" format="dimension" />
+        <attr name="options_spacing" format="dimension" />
+        <attr name="options_left_padding" format="dimension" />
+        <attr name="options_top_padding" format="dimension" />
+        <attr name="options_right_padding" format="dimension" />
+        <attr name="options_bottom_padding" format="dimension" />
+        <attr name="last_seen_height" format="dimension" />
+        <attr name="grid_padding" format="dimension" />
+        <attr name="grid_image_size" format="dimension" />
+        <attr name="grid_comment_padding" format="dimension" />
+        <attr name="grid_replies_count_size" format="dimension" />
+        <attr name="list_comment_max_height" format="dimension" />
+        <attr name="list_padding" format="dimension" />
+        <attr name="list_image_size" format="dimension" />
+        <attr name="list_comment_padding" format="dimension" />
+        <attr name="list_replies_count_size" format="dimension" />
+        <attr name="grid_width" format="dimension" />
+        <attr name="grid_height" format="dimension" />
+        <attr name="grid_spacing" format="dimension" />
 
-        <attr name="code_tag_size" format="dimension"/>
+        <attr name="code_tag_size" format="dimension" />
 
     </declare-styleable>
 
-    <attr name="board_edit_item_style" format="reference"/>
+    <attr name="board_edit_item_style" format="reference" />
 </resources>

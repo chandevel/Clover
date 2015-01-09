@@ -42,8 +42,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="board_edit_item_style">@style/BoardEditItem</item>
 
         <item name="android:textColor">#ff000000</item>
-    </style>
 
+        <item name="toolbar_theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="toolbar_popup_theme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
 
     <!-- Dark theme -->
     <style name="AppTheme.Dark" parent="android:Theme.Holo">
@@ -81,7 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="BoardRightPane">
-        <item name="android:background">#FFE5E5E5</item>
+        <item name="android:background">#FFFFFFFF</item>
     </style>
 
     <style name="PostView">

@@ -91,7 +91,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
         final ActionBar actionBar = getSupportActionBar();
 
-        boardSpinner = new Spinner(actionBar.getThemedContext());
+        boardSpinner = new Spinner(this, null, R.attr.test_spinner_style);
         spinnerAdapter = new BoardSpinnerAdapter(this, boardSpinner);
         boardSpinner.setAdapter(spinnerAdapter);
         boardSpinner.setOnItemSelectedListener(this);
