@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -44,6 +45,7 @@ import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.loader.EndOfLineException;
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
@@ -54,8 +56,12 @@ import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -148,6 +154,13 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
 
@@ -183,6 +196,39 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             filterView.clearSearch();
             postAdapter.scrollToPost(post.no);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (loadable.isThreadMode()) {
+            switch (item.getItemId()) {
+                case R.id.action_download_album:
+                    // Get the posts with images
+                    ArrayList<Post> imagePosts = new ArrayList<>();
+                    for (Post post : postAdapter.getList()) {
+                        if (post.hasImage) {
+                            imagePosts.add(post);
+                        }
+                    }
+                    if (imagePosts.size() > 0) {
+                        List<ImageSaver.DownloadPair> list = new ArrayList<>();
+
+                        String folderName = Post.generateTitle(imagePosts.get(0), 10);
+
+                        String filename;
+                        for (Post post : imagePosts) {
+                            filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
+                            list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
+                        }
+
+                        ImageSaver.getInstance().saveAll(getActivity(), folderName, list);
+                    }
+
+                    return true;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
