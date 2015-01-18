@@ -69,6 +69,10 @@ public class ChanPreferences {
         return p().getBoolean("preference_image_save_original", false);
     }
 
+    public static boolean getImageShareUrl() {
+        return p().getBoolean("preference_image_share_url", false);
+    }
+
     public static boolean getWatchEnabled() {
         return p().getBoolean("preference_watch_enabled", false);
     }
