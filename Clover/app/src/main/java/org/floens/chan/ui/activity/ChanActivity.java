@@ -37,6 +37,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -201,10 +202,14 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
     @Override
     public void onBackPressed() {
-        if (threadPane.isOpen()) {
-            super.onBackPressed();
+        if(pinDrawer.isDrawerOpen(pinDrawerView)) {
+            pinDrawer.closeDrawer(pinDrawerView);
         } else {
-            threadPane.openPane();
+            if (threadPane.isOpen()) {
+                super.onBackPressed();
+            } else {
+                threadPane.openPane();
+            }
         }
     }
 
