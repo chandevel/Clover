@@ -114,7 +114,7 @@ public class AdvancedSettingsActivity extends ThemeActivity {
             findPreference("preference_network_https").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    ChanUrls.loadScheme((Boolean)newValue);
+                    ChanUrls.loadScheme((Boolean) newValue);
 
                     return true;
                 }

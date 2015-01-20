@@ -115,7 +115,7 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
 
     @Override
     public void onBackPressed() {
-        if(pinDrawer.isDrawerOpen(pinDrawerView)) {
+        if (pinDrawer.isDrawerOpen(pinDrawerView)) {
             pinDrawer.closeDrawer(pinDrawerView);
         } else {
             super.onBackPressed();

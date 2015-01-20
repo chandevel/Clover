@@ -57,7 +57,7 @@ public class PostLinkable extends ClickableSpan {
     public void updateDrawState(TextPaint ds) {
         if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD) {
             if (type == Type.QUOTE) {
-                if (value instanceof Integer && post.getLinkableListener() != null && (Integer)value == post.getLinkableListener().getHighlightQuotesWithNo()) {
+                if (value instanceof Integer && post.getLinkableListener() != null && (Integer) value == post.getLinkableListener().getHighlightQuotesWithNo()) {
                     ds.setColor(ThemeHelper.getInstance().getHighlightQuoteColor());
                 } else {
                     ds.setColor(ThemeHelper.getInstance().getQuoteColor());

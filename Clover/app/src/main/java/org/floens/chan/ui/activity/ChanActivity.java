@@ -201,7 +201,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
     @Override
     public void onBackPressed() {
-        if(pinDrawer.isDrawerOpen(pinDrawerView)) {
+        if (pinDrawer.isDrawerOpen(pinDrawerView)) {
             pinDrawer.closeDrawer(pinDrawerView);
         } else {
             if (threadPane.isOpen()) {
@@ -487,7 +487,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                     Loader loader = threadFragment.getLoader();
                     if (loader != null && loader.getLoadable().isThreadMode() && loader.getThread() != null) {
                         Pin pin = ChanApplication.getWatchManager().findPinByLoadable(threadLoadable);
-                        if(pin != null) {
+                        if (pin != null) {
                             ChanApplication.getWatchManager().removePin(pin);
                         } else {
                             ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getThread().op);

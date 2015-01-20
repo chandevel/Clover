@@ -62,7 +62,7 @@ public class ReplyActivity extends ThemeActivity {
     @Override
     public void onBackPressed() {
         Fragment f = getFragmentManager().findFragmentByTag("reply");
-        if (f != null && ((ReplyFragment)f).onBackPressed()) {
+        if (f != null && ((ReplyFragment) f).onBackPressed()) {
             super.onBackPressed();
         }
     }

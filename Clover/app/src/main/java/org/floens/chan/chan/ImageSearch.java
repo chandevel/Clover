@@ -26,7 +26,9 @@ public abstract class ImageSearch {
     public static final List<ImageSearch> engines = new ArrayList<>();
 
     public abstract int getId();
+
     public abstract String getName();
+
     public abstract String getUrl(String imageUrl);
 
     static {
