@@ -263,9 +263,9 @@ public class ThreadManager implements Loader.LoaderListener {
                         break;
                     case 2: // Share
                         if (loader.getLoadable().isThreadMode()) {
-                            Utils.shareLink(activity, ChanUrls.getPostUrlDesktop(post.board, post.threadId, post.no));
+                            Utils.shareLink(activity, ChanUrls.getPostUrlDesktop(post.board, loader.getLoadable().no, post.no));
                         } else {
-                            Utils.shareLink(activity, ChanUrls.getThreadUrlDesktop(post.board, post.threadId));
+                            Utils.shareLink(activity, ChanUrls.getThreadUrlDesktop(post.board, post.no));
                         }
                         break;
                     case 3: // Info
