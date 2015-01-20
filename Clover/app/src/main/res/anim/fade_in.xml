@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -20,5 +19,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <alpha
         android:fromAlpha="0.0"
         android:toAlpha="1.0"
-        android:duration="200"/>
+        android:duration="200" />
 </set>

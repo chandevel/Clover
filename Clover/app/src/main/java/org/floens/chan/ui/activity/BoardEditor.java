@@ -152,7 +152,7 @@ public class BoardEditor extends ThemeActivity {
             }
         });
 
-        ((ViewGroup)findViewById(R.id.content)).addView(listView);
+        ((ViewGroup) findViewById(R.id.content)).addView(listView);
     }
 
     @Override

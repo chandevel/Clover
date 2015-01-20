@@ -114,6 +114,15 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
     }
 
     @Override
+    public void onBackPressed() {
+        if (pinDrawer.isDrawerOpen(pinDrawerView)) {
+            pinDrawer.closeDrawer(pinDrawerView);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
@@ -364,12 +373,9 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
      * @param url
      */
     public void showUrlOpenPicker(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-
-        Intent pickIntent = new Intent(Intent.ACTION_PICK_ACTIVITY);
-        pickIntent.putExtra(Intent.EXTRA_INTENT, intent);
-
-        startActivityForResult(pickIntent, ACTION_OPEN_URL);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
     }
 
     /**

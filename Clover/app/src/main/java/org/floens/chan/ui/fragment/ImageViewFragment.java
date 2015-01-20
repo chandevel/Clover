@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -241,9 +242,13 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 break;
             case R.id.action_image_save:
             case R.id.action_share:
-                ImageSaver.getInstance().saveImage(context, post.imageUrl,
-                        ChanPreferences.getImageSaveOriginalFilename() ? Long.toString(post.tim) : post.filename, post.ext,
-                        item.getItemId() == R.id.action_share);
+                if (ChanPreferences.getImageShareUrl()) {
+                    shareImageUrl(post.imageUrl);
+                } else {
+                    ImageSaver.getInstance().saveImage(context, post.imageUrl,
+                            ChanPreferences.getImageSaveOriginalFilename() ? Long.toString(post.tim) : post.filename, post.ext,
+                            item.getItemId() == R.id.action_share);
+                }
                 break;
             default:
                 // Search if it was an ImageSearch item
@@ -256,6 +261,13 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
                 break;
         }
+    }
+
+    private void shareImageUrl(String url) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, url);
+        context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
     }
 
     public void onVideoError(File video) {
