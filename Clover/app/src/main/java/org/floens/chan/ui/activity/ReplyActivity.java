@@ -17,42 +17,44 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import org.floens.chan.R;
 import org.floens.chan.core.model.Loadable;
+import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.fragment.ReplyFragment;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.ThemeHelper;
 
-public class ReplyActivity extends Activity {
+public class ReplyActivity extends ThemeActivity {
     private static final String TAG = "ReplyActivity";
 
-    private static Loadable loadable;
+    private static Loadable staticLoadable;
 
     public static void setLoadable(Loadable l) {
-        loadable = l;
+        staticLoadable = l;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
+        Loadable loadable = staticLoadable;
+        staticLoadable = null;
 
         if (loadable != null && savedInstanceState == null) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+            setTheme();
+            setContentView(R.layout.toolbar_activity);
+            setToolbar();
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
             FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(android.R.id.content, ReplyFragment.newInstance(loadable, false), "reply");
+            ft.replace(R.id.content, ReplyFragment.newInstance(loadable, false), "reply");
             ft.commitAllowingStateLoss();
-
-            loadable = null;
         } else if (savedInstanceState == null) {
-            Logger.e(TAG, "ThreadFragment was null, exiting!");
+            Logger.e(TAG, "Loadable was null, exiting!");
             finish();
         }
     }
@@ -60,7 +62,7 @@ public class ReplyActivity extends Activity {
     @Override
     public void onBackPressed() {
         Fragment f = getFragmentManager().findFragmentByTag("reply");
-        if (f != null && ((ReplyFragment)f).onBackPressed()) {
+        if (f != null && ((ReplyFragment) f).onBackPressed()) {
             super.onBackPressed();
         }
     }

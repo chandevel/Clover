@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -20,15 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <EditTextPreference
         android:key="preference_pass_token"
-        android:title="@string/pass_token"/>
+        android:title="@string/pass_token" />
 
     <EditTextPreference
         android:key="preference_pass_pin"
         android:title="@string/pass_pin"
-        android:inputType="numberPassword"/>
+        android:inputType="numberPassword" />
 
     <Preference
         android:key="preference_pass_login"
-        android:title="@string/pass_login"/>
+        android:title="@string/pass_login" />
 
 </PreferenceScreen>

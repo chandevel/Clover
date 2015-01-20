@@ -17,18 +17,21 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.R;
+import org.floens.chan.ui.ThemeActivity;
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends ThemeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
+        setTheme();
+        setContentView(R.layout.toolbar_activity);
+        setToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         WebView webView = new WebView(this);
         webView.loadUrl("file:///android_asset/html/licenses.html");

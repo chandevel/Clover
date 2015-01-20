@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -26,7 +25,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -89,9 +89,9 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         ft.replace(R.id.right_pane, threadFragment);
         ft.commitAllowingStateLoss();
 
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
 
-        boardSpinner = new Spinner(actionBar.getThemedContext());
+        boardSpinner = new Spinner(this);
         spinnerAdapter = new BoardSpinnerAdapter(this, boardSpinner);
         boardSpinner.setAdapter(spinnerAdapter);
         boardSpinner.setOnItemSelectedListener(this);
@@ -180,9 +180,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
     @Override
     protected void initDrawer() {
-        pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer, R.drawable.ic_drawer, R.string.drawer_open,
-                R.string.drawer_close) {
-        };
+        pinDrawerListener = new ActionBarDrawerToggle(this, pinDrawer, R.string.drawer_open, R.string.drawer_close);
 
         super.initDrawer();
     }
@@ -203,10 +201,14 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
     @Override
     public void onBackPressed() {
-        if (threadPane.isOpen()) {
-            super.onBackPressed();
+        if (pinDrawer.isDrawerOpen(pinDrawerView)) {
+            pinDrawer.closeDrawer(pinDrawerView);
         } else {
-            threadPane.openPane();
+            if (threadPane.isOpen()) {
+                super.onBackPressed();
+            } else {
+                threadPane.openPane();
+            }
         }
     }
 
@@ -238,6 +240,12 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     @Override
     public void updatePin(Pin pin) {
         super.updatePin(pin);
+        updateActionBarState();
+    }
+
+    @Override
+    public void removePin(Pin pin) {
+        super.removePin(pin);
         updateActionBarState();
     }
 
@@ -360,7 +368,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     }
 
     private void updateActionBarStateCallback() {
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
 
         if (threadPane.isSlideable()) {
             if (threadPane.isOpen()) {
@@ -425,6 +433,16 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         setMenuItemEnabled(menu.findItem(R.id.action_search), slidable);
         setMenuItemEnabled(menu.findItem(R.id.action_search_tablet), !slidable);
 
+        boolean bookmarkedFilled = false;
+        if (threadLoadable.mode == Loadable.Mode.THREAD) {
+            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(threadLoadable);
+            if (pin != null) {
+                bookmarkedFilled = true;
+            }
+        }
+
+        menu.findItem(R.id.action_pin).setIcon(bookmarkedFilled ? R.drawable.ic_bookmark_filled : R.drawable.ic_bookmark);
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -469,8 +487,13 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                 if (threadFragment.hasLoader()) {
                     Loader loader = threadFragment.getLoader();
                     if (loader != null && loader.getLoadable().isThreadMode() && loader.getThread() != null) {
-                        ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getThread().op);
-                        pinDrawer.openDrawer(pinDrawerView);
+                        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(threadLoadable);
+                        if (pin != null) {
+                            ChanApplication.getWatchManager().removePin(pin);
+                        } else {
+                            ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getThread().op);
+                        }
+                        updateActionBarState();
                     }
                 }
 
@@ -713,13 +736,23 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         }
 
         @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return createView(position, convertView, parent, true);
+        }
+
+        @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
+            return createView(position, convertView, parent, false);
+        }
+
+        private View createView(int position, View convertView, ViewGroup parent, boolean dropDown) {
             if (position == getCount() - 1) {
-                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_add, null);
+                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_add, parent, false);
                 textView.setText(getItem(position));
                 return textView;
             } else {
-                TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.board_select_spinner, null);
+                TextView textView = (TextView) LayoutInflater.from(context).inflate(
+                        dropDown ? R.layout.board_select_spinner_dropdown : R.layout.board_select_spinner, parent, false);
                 textView.setText(getItem(position));
                 return textView;
             }

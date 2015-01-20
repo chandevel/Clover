@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -18,17 +17,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
 
-    <style name="Theme.ImageList" parent="AppTheme">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
+    <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent_material_light</item>
+
+        <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <color name="image_list_background">#88000000</color>
-
+    <style name="Chan.ImageView" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/image_view_background</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <!--<item name="android:backgroundDimEnabled">true</item>-->
+    </style>
 
     <!-- Light theme -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+    <style name="AppTheme" parent="Chan.Theme">
         <item name="board_pane_style">@style/BoardPane</item>
         <item name="board_pane_left_style">@style/BoardLeftPane</item>
         <item name="board_pane_right_style">@style/BoardRightPane</item>
@@ -36,8 +40,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_style">@style/PostView</item>
 
         <item name="board_edit_item_style">@style/BoardEditItem</item>
-    </style>
 
+        <item name="android:textColor">#ff000000</item>
+
+        <item name="toolbar_theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="toolbar_popup_theme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
 
     <!-- Dark theme -->
     <style name="AppTheme.Dark" parent="android:Theme.Holo">
@@ -75,14 +83,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="BoardRightPane">
-        <item name="android:background">#FFE5E5E5</item>
+        <item name="android:background">#FFFFFFFF</item>
     </style>
 
     <style name="PostView">
-        <item name="grid_width">90dp</item>
-        <item name="grid_height">300dp</item>
-        <item name="grid_spacing">0dp</item>
-
         <item name="title_size">14sp</item>
         <item name="detail_size">10sp</item>
         <item name="icon_padding">6dp</item>

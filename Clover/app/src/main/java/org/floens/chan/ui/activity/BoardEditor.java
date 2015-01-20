@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,14 +51,14 @@ import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class BoardEditor extends Activity {
+public class BoardEditor extends ThemeActivity {
     private final BoardManager boardManager = ChanApplication.getBoardManager();
 
     private List<Board> list;
@@ -70,7 +69,10 @@ public class BoardEditor extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
+        setTheme();
+        setContentView(R.layout.toolbar_activity);
+        setToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         list = boardManager.getSavedBoards();
 
@@ -150,7 +152,7 @@ public class BoardEditor extends Activity {
             }
         });
 
-        setContentView(listView);
+        ((ViewGroup) findViewById(R.id.content)).addView(listView);
     }
 
     @Override
@@ -185,6 +187,9 @@ public class BoardEditor extends Activity {
             case R.id.action_show_filler:
                 ChanPreferences.setBoardEditorFillerEnabled(!ChanPreferences.getBoardEditorFillerEnabled());
                 item.setChecked(ChanPreferences.getBoardEditorFillerEnabled());
+                return true;
+            case android.R.id.home:
+                finish();
                 return true;
         }
 

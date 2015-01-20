@@ -17,12 +17,12 @@
  */
 package org.floens.chan.ui.fragment;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -106,7 +106,7 @@ public class ReplyFragment extends DialogFragment {
     private TextView commentCountView;
     private TextView fileStatusView;
 
-    private Activity context;
+    private ActionBarActivity context;
 
     public static ReplyFragment newInstance(Loadable loadable, boolean quickMode) {
         ReplyFragment reply = new ReplyFragment();
@@ -127,7 +127,7 @@ public class ReplyFragment extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        context = getActivity();
+        context = (ActionBarActivity) getActivity();
 
         if (loadable == null && savedInstanceState != null) {
             loadable = new Loadable();
@@ -142,7 +142,7 @@ public class ReplyFragment extends DialogFragment {
             String title = (loadable.isThreadMode() ? context.getString(R.string.reply) : context.getString(R.string.reply_to_board)) + " " + loadable.title;
 
             if (dialog == null) {
-                context.getActionBar().setTitle(title);
+                context.getSupportActionBar().setTitle(title);
             } else {
                 dialog.setTitle(title);
                 // todo move elsewhere

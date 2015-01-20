@@ -67,10 +67,13 @@ android {
 }
 
 dependencies {
+    compile 'com.android.support:support-v13:21.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:support-v13:18.0.0'
+
     compile 'org.jsoup:jsoup:1.8.1'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'com.j256.ormlite:ormlite-android:4.48'
-    compile 'com.android.support:support-v13:18.0.0'
     compile 'com.koushikdutta.ion:ion:2.0.1'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.0'
 

@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -26,19 +25,22 @@ import android.preference.PreferenceFragment;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.fragment.FolderPickFragment;
-import org.floens.chan.utils.ThemeHelper;
 
 import java.io.File;
 
-public class AdvancedSettingsActivity extends Activity {
+public class AdvancedSettingsActivity extends ThemeActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
+        setTheme();
+        setContentView(R.layout.toolbar_activity);
+        setToolbar();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new AdvancedSettingsFragment()).commit();
+        getFragmentManager().beginTransaction().replace(R.id.content, new AdvancedSettingsFragment()).commit();
     }
 
     public static class AdvancedSettingsFragment extends PreferenceFragment {
@@ -112,7 +114,7 @@ public class AdvancedSettingsActivity extends Activity {
             findPreference("preference_network_https").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    ChanUrls.loadScheme((Boolean)newValue);
+                    ChanUrls.loadScheme((Boolean) newValue);
 
                     return true;
                 }

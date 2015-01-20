@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 Clover - 4chan browser https://github.com/Floens/Clover/
 Copyright (C) 2014  Floens
 
@@ -17,5 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
+    <color name="primary">#ff4caf50</color>
+    <color name="primary_dark">#ff388e3c</color>
+
     <color name="holo_blue_dark">#ff0099cc</color>
+
+    <color name="image_view_background">#bb000000</color>
 </resources>

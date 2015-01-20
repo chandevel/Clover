@@ -17,22 +17,21 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,7 +42,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ShareActionProvider;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -52,16 +50,14 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.BadgeDrawable;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener.DismissCallbacks;
+import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.adapter.PinnedAdapter;
 import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
-import java.util.List;
-
-public abstract class BaseActivity extends Activity implements PanelSlideListener, WatchManager.PinListener {
+public abstract class BaseActivity extends ThemeActivity implements PanelSlideListener, WatchManager.PinListener {
     public static boolean doRestartOnResume = false;
 
     private final static int ACTION_OPEN_URL = 1;
@@ -99,10 +95,12 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.setTheme(this);
         ThemeHelper.getInstance().reloadPostViewColors(this);
 
         setContentView(R.layout.activity_base);
+
+        setTheme();
+        setToolbar();
 
         pinDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         initDrawer();
@@ -113,6 +111,15 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
         ChanApplication.getWatchManager().addPinListener(this);
 
         updateIcon();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pinDrawer.isDrawerOpen(pinDrawerView)) {
+            pinDrawer.closeDrawer(pinDrawerView);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -155,7 +162,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
         pinDrawerView = (ListView) findViewById(R.id.left_drawer);
 
-        pinnedAdapter = new PinnedAdapter(getActionBar().getThemedContext(), pinDrawerView); // Get the dark theme, not the light one
+        pinnedAdapter = new PinnedAdapter(getSupportActionBar().getThemedContext(), pinDrawerView); // Get the dark theme, not the light one
         pinnedAdapter.reload();
         pinDrawerView.setAdapter(pinnedAdapter);
 
@@ -210,7 +217,7 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     }
 
     private void updateIcon() {
-        List<Pin> list = ChanApplication.getWatchManager().getWatchingPins();
+        /*List<Pin> list = ChanApplication.getWatchManager().getWatchingPins();
         if (list.size() > 0) {
             int count = 0;
             boolean color = false;
@@ -223,13 +230,13 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
 
             if (count > 0) {
                 Drawable icon = BadgeDrawable.get(getResources(), R.drawable.ic_launcher, count, color);
-                getActionBar().setIcon(icon);
+                getSupportActionBar().setIcon(icon);
             } else {
-                getActionBar().setIcon(R.drawable.ic_launcher);
+                getSupportActionBar().setIcon(R.drawable.ic_launcher);
             }
         } else {
-            getActionBar().setIcon(R.drawable.ic_launcher);
-        }
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        }*/
     }
 
     public void removePin(Pin pin) {
@@ -295,11 +302,11 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.base, menu);
-        shareActionProvider = (ShareActionProvider) menu.findItem(R.id.action_share).getActionProvider();
+        /*shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menu.findItem(R.id.action_share));
         if (pendingShareActionProviderIntent != null) {
             shareActionProvider.setShareIntent(pendingShareActionProviderIntent);
             pendingShareActionProviderIntent = null;
-        }
+        }*/
 
         return true;
     }
@@ -366,12 +373,9 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
      * @param url
      */
     public void showUrlOpenPicker(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-
-        Intent pickIntent = new Intent(Intent.ACTION_PICK_ACTIVITY);
-        pickIntent.putExtra(Intent.EXTRA_INTENT, intent);
-
-        startActivityForResult(pickIntent, ACTION_OPEN_URL);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
     }
 
     /**
