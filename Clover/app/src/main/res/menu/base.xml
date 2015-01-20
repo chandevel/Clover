@@ -106,14 +106,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:title="@string/action_share" />
 
     <item
-        android:id="@+id/action_open_browser"
+        android:id="@+id/action_download_album"
         android:orderInCategory="8"
+        android:showAsAction="never"
+        android:title="@string/action_download_album" />
+
+    <item
+        android:id="@+id/action_open_browser"
+        android:orderInCategory="9"
         android:showAsAction="never"
         android:title="@string/action_open_browser" />
 
     <item
         android:id="@+id/action_board_view_mode"
-        android:orderInCategory="9"
+        android:orderInCategory="10"
         android:showAsAction="never"
         android:title="@string/action_board_view_mode">
         <menu>
