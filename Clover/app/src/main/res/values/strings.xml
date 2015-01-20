@@ -53,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="open_unknown_title">Unsupported link</string>
     <string name="open_unknown">Clover can\'t open this link. Opening it in your browser instead.</string>
     <string name="open_link_failed">No applications found to open link</string>
+    <string name="share_link_failed">No applications found to share link</string>
 
     <string name="image_save">Save image</string>
     <string name="image_save_succeeded">Saved image to</string>
@@ -107,6 +108,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string-array name="post_options">
         <item>Quote</item>
         <item>Quote text</item>
+        <item>Share</item>
         <item>Info</item>
         <item>Show clickables</item>
         <item>Copy text</item>

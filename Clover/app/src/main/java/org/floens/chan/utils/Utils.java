@@ -111,6 +111,18 @@ public class Utils {
         }
     }
 
+    public static void shareLink(Context context, String link) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, link);
+            context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
+        } catch (ActivityNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(context, R.string.share_link_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
     public static String getReadableFileSize(int bytes, boolean si) {
         int unit = si ? 1000 : 1024;
         if (bytes < unit)
