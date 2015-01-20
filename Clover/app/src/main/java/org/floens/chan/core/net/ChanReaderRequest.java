@@ -189,9 +189,17 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             if (key.equals("posts")) {
                 reader.beginArray();
                 // Thread array
+                int threadId = 0;
+
                 while (reader.hasNext()) {
                     // Thread object
-                    list.add(readPostObject(reader));
+                    Post p = readPostObject(reader);
+                    if(p.resto == 0) {
+                        threadId = p.no;
+                    }
+                    p.threadId = threadId;
+
+                    list.add(p);
                 }
                 reader.endArray();
             } else {

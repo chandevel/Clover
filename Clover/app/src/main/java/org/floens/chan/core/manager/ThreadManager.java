@@ -225,70 +225,76 @@ public class ThreadManager implements Loader.LoaderListener {
     public void showPostOptions(final Post post, PopupMenu popupMenu) {
         Menu menu = popupMenu.getMenu();
 
-        if (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode()) {
-            menu.add(Menu.NONE, 9, Menu.NONE, activity.getString(R.string.action_pin));
-        }
-
-        if (loader.getLoadable().isThreadMode()) {
-            menu.add(Menu.NONE, 10, Menu.NONE, activity.getString(R.string.post_quick_reply));
-        }
-
         String[] baseOptions = activity.getResources().getStringArray(R.array.post_options);
         for (int i = 0; i < baseOptions.length; i++) {
             menu.add(Menu.NONE, i, Menu.NONE, baseOptions[i]);
         }
 
         if (!TextUtils.isEmpty(post.id)) {
-            menu.add(Menu.NONE, 6, Menu.NONE, activity.getString(R.string.post_highlight_id));
+            menu.add(Menu.NONE, 7, Menu.NONE, activity.getString(R.string.post_highlight_id));
         }
 
         // Only add the delete option when the post is a saved reply
         if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
-            menu.add(Menu.NONE, 7, Menu.NONE, activity.getString(R.string.delete));
+            menu.add(Menu.NONE, 8, Menu.NONE, activity.getString(R.string.delete));
         }
 
         if (ChanPreferences.getDeveloper()) {
-            menu.add(Menu.NONE, 8, Menu.NONE, "Make this a saved reply");
+            menu.add(Menu.NONE, 9, Menu.NONE, "Make this a saved reply");
+        }
+
+        if (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode()) {
+            menu.add(Menu.NONE, 10, Menu.NONE, activity.getString(R.string.action_pin));
+        }
+
+        if (loader.getLoadable().isThreadMode()) {
+            menu.add(Menu.NONE, 11, Menu.NONE, activity.getString(R.string.post_quick_reply));
         }
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(final MenuItem item) {
                 switch (item.getItemId()) {
-                    case 10: // Quick reply
-                        openReply(false);
-                        // Pass through
                     case 0: // Quote
                         ChanApplication.getReplyManager().quote(post.no);
                         break;
                     case 1: // Quote inline
                         ChanApplication.getReplyManager().quoteInline(post.no, post.comment.toString());
                         break;
-                    case 2: // Info
+                    case 2: // Share
+                        if (loader.getLoadable().isThreadMode()) {
+                            Utils.shareLink(activity, ChanUrls.getPostUrlDesktop(post.board, post.threadId, post.no));
+                        } else {
+                            Utils.shareLink(activity, ChanUrls.getThreadUrlDesktop(post.board, post.threadId));
+                        }
+                        break;
+                    case 3: // Info
                         showPostInfo(post);
                         break;
-                    case 3: // Show clickables
+                    case 4: // Show clickables
                         showPostLinkables(post);
                         break;
-                    case 4: // Copy text
+                    case 5: // Copy text
                         copyToClipboard(post.comment.toString());
                         break;
-                    case 5: // Report
+                    case 6: // Report
                         Utils.openLink(activity, ChanUrls.getReportUrl(post.board, post.no));
                         break;
-                    case 6: // Id
+                    case 7: // Id
                         highlightedId = post.id;
                         threadManagerListener.onRefreshView();
                         break;
-                    case 7: // Delete
+                    case 8: // Delete
                         deletePost(post);
                         break;
-                    case 8: // Save reply
+                    case 9: // Save reply
                         ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
                         break;
-                    case 9: // Pin
+                    case 10: // Pin
                         ChanApplication.getWatchManager().addPin(post);
                         break;
+                    case 11: // Quick reply
+                        openReply(false); // Pass through
                 }
                 return false;
             }
