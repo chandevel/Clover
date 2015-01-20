@@ -499,7 +499,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
                 return true;
             case R.id.action_open_browser:
-                openInBrowser();
+                Utils.openLink(this, ChanUrls.getCatalogUrlDesktop(boardLoadable.board));
 
                 return true;
             case R.id.action_board_view_mode_grid:
@@ -646,7 +646,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                 handleIntentURIFallback(startUri.toString());
             }
         } else {
-            showUrlOpenPicker(startUri.toString());
+            Utils.openLink(this, startUri.toString());
         }
     }
 
@@ -660,7 +660,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                 }).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                showUrlOpenPicker(url);
+                Utils.openLink(ChanActivity.this, url);
             }
         }).setCancelable(false).create().show();
     }

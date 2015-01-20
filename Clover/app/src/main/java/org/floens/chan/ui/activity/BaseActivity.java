@@ -294,6 +294,11 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
+            case R.id.action_share:
+                if(shareUrl != null) {
+                    Utils.shareLink(this, shareUrl);
+                }
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -302,12 +307,6 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.base, menu);
-        /*shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menu.findItem(R.id.action_share));
-        if (pendingShareActionProviderIntent != null) {
-            shareActionProvider.setShareIntent(pendingShareActionProviderIntent);
-            pendingShareActionProviderIntent = null;
-        }*/
-
         return true;
     }
 
@@ -360,27 +359,6 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
         }
     }
 
-    public void openInBrowser() {
-        if (shareUrl != null) {
-            showUrlOpenPicker(shareUrl);
-        }
-    }
-
-    /**
-     * Let the user choose between all activities that can open the url. This is
-     * done to prevent "open in browser" opening the url in our own app.
-     *
-     * @param url
-     */
-    public void showUrlOpenPicker(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(url));
-        startActivity(intent);
-    }
-
-    /**
-     * Used for showUrlOpenPicker
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
