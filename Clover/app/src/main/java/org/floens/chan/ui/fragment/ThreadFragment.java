@@ -199,7 +199,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (loadable.isThreadMode()) {
+        if (loadable != null && loadable.isThreadMode()) {
             switch (item.getItemId()) {
                 case R.id.action_download_album:
                     // Get the posts with images
