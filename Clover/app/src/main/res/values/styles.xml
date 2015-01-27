@@ -22,7 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent_material_light</item>
 
+        <item name="android:windowBackground">@android:color/white</item>
+
+        <item name="dropDownListViewStyle">@style/ToolbarDropDownListViewStyle</item>
         <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <!-- For the toolbar dropdown list -->
+    <style name="ToolbarDropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:background">#ffffffff</item>
     </style>
 
     <style name="Chan.ImageView" parent="Theme.AppCompat.NoActionBar">

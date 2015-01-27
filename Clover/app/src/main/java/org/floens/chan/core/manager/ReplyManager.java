@@ -27,8 +27,8 @@ import org.floens.chan.core.model.Pass;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.ui.activity.ImagePickActivity;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Utils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -559,7 +559,7 @@ public class ReplyManager {
                 try {
                     final CloseableHttpResponse response = client.execute(post);
                     final String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-                    Utils.runOnUiThread(new Runnable() {
+                    AndroidUtils.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             listener.onResponse(responseString, client, response);
@@ -567,7 +567,7 @@ public class ReplyManager {
                     });
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Utils.runOnUiThread(new Runnable() {
+                    AndroidUtils.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             listener.onResponse(null, client, null);

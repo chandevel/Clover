@@ -61,12 +61,14 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.ui.ViewFlipperAnimations;
 import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ThemeHelper;
-import org.floens.chan.utils.Utils;
 
 import java.io.File;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class ReplyFragment extends DialogFragment {
     private static final String TAG = "ReplyFragment";
@@ -458,8 +460,8 @@ public class ReplyFragment extends DialogFragment {
                 boolean probablyWebm = name.endsWith(".webm");
                 int maxSize = probablyWebm ? b.maxWebmSize : b.maxFileSize;
                 if (file.length() > maxSize) {
-                    String fileSize = Utils.getReadableFileSize((int) file.length(), false);
-                    String maxSizeString = Utils.getReadableFileSize(maxSize, false);
+                    String fileSize = AndroidUtils.getReadableFileSize((int) file.length(), false);
+                    String maxSizeString = AndroidUtils.getReadableFileSize(maxSize, false);
                     String text = getString(probablyWebm ? R.string.reply_webm_too_big : R.string.reply_file_too_big, fileSize, maxSizeString);
                     fileStatusView.setVisibility(View.VISIBLE);
                     fileStatusView.setText(text);
@@ -510,11 +512,11 @@ public class ReplyFragment extends DialogFragment {
 
     private void noPreview(LoadView loadView) {
         TextView text = new TextView(context);
-        text.setLayoutParams(Utils.MATCH_WRAP_PARAMS);
+        text.setLayoutParams(AndroidUtils.MATCH_WRAP_PARAMS);
         text.setGravity(Gravity.CENTER);
         text.setText(R.string.reply_no_preview);
         text.setTextSize(16f);
-        int padding = Utils.dp(16);
+        int padding = dp(16);
         text.setPadding(padding, padding, padding, padding);
         loadView.setView(text);
     }

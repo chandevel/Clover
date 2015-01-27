@@ -18,6 +18,7 @@
 package org.floens.chan;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.ViewConfiguration;
@@ -36,6 +37,7 @@ import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.IconCache;
 import org.floens.chan.utils.Logger;
@@ -52,6 +54,8 @@ public class ChanApplication extends Application {
     private static final String FILE_CACHE_NAME = "filecache";
     private static final int VOLLEY_LRU_CACHE_SIZE = 8 * 1024 * 1024; // 8mb
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024; // 8mb
+
+    public static Context con;
 
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
@@ -113,6 +117,8 @@ public class ChanApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        con = this;
+
         // Force the overflow button to show, even on devices that have a
         // physical button.
         try {
@@ -129,6 +135,8 @@ public class ChanApplication extends Application {
 //            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
 //            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
+
+        AndroidUtils.init();
 
         ChanUrls.loadScheme(ChanPreferences.getNetworkHttps());
 

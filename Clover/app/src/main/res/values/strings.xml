@@ -103,7 +103,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="multiple_images">images</string>
     <string name="one_post">post</string>
     <string name="multiple_posts">posts</string>
-    <string name="post_info">Info</string>
+    <string name="post_info">Post info</string>
     <string-array name="post_options">
         <item>Quote</item>
         <item>Quote text</item>

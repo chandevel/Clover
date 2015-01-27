@@ -42,10 +42,12 @@ import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.view.ThumbnailImageView;
 import org.floens.chan.ui.view.ThumbnailImageView.ThumbnailImageViewCallback;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageSaver;
-import org.floens.chan.utils.Utils;
 
 import java.io.File;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class ImageViewFragment extends Fragment implements ThumbnailImageViewCallback {
     private Context context;
@@ -238,7 +240,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 activity.invalidateActionBar();
                 break;
             case R.id.action_open_browser:
-                Utils.openLink(context, post.imageUrl);
+                AndroidUtils.openLink(post.imageUrl);
                 break;
             case R.id.action_image_save:
             case R.id.action_share:
@@ -254,7 +256,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 // Search if it was an ImageSearch item
                 for (ImageSearch engine : ImageSearch.engines) {
                     if (item.getItemId() == engine.getId()) {
-                        Utils.openLink(context, engine.getUrl(post.imageUrl));
+                        AndroidUtils.openLink(engine.getUrl(post.imageUrl));
                         break;
                     }
                 }
@@ -285,13 +287,13 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         TextView noticeText = new TextView(context);
         noticeText.setText(R.string.video_playback_warning);
         noticeText.setTextSize(16f);
-        notice.addView(noticeText, Utils.MATCH_WRAP_PARAMS);
+        notice.addView(noticeText, AndroidUtils.MATCH_WRAP_PARAMS);
 
         final CheckBox dontShowAgain = new CheckBox(context);
         dontShowAgain.setText(R.string.video_playback_ignore);
-        notice.addView(dontShowAgain, Utils.MATCH_WRAP_PARAMS);
+        notice.addView(dontShowAgain, AndroidUtils.MATCH_WRAP_PARAMS);
 
-        int padding = Utils.dp(16f);
+        int padding = dp(16f);
         notice.setPadding(padding, padding, padding, padding);
 
         new AlertDialog.Builder(context)

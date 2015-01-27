@@ -60,7 +60,7 @@ public class FileCache {
                     .progress(new ProgressCallback() {
                         @Override
                         public void onProgress(final long downloaded, final long total) {
-                            Utils.runOnUiThread(new Runnable() {
+                            AndroidUtils.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     callback.onProgress(downloaded, total, false);

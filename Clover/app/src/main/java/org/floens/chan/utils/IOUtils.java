@@ -17,6 +17,7 @@
  */
 package org.floens.chan.utils;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,43 +27,47 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 public class IOUtils {
+    private static final int DEFAULT_BUFFER_SIZE = 4096;
+
     public static String readString(InputStream is) {
-        StringWriter sw = new StringWriter();
+        InputStreamReader reader = new InputStreamReader(is);
+        StringWriter writer = new StringWriter();
 
         try {
-            copy(new InputStreamReader(is), sw);
-            is.close();
-            sw.close();
+            copy(reader, writer);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            closeQuietly(writer);
+            closeQuietly(reader);
         }
 
-        return sw.toString();
+        return writer.toString();
     }
 
-    /**
-     * Copies the inputstream to the outputstream and closes both streams.
-     *
-     * @param is
-     * @param os
-     * @throws IOException
-     */
     public static void copy(InputStream is, OutputStream os) throws IOException {
         int read;
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         while ((read = is.read(buffer)) != -1) {
             os.write(buffer, 0, read);
         }
-
-        is.close();
-        os.close();
     }
 
     public static void copy(Reader input, Writer output) throws IOException {
-        char[] buffer = new char[4096];
+        char[] buffer = new char[DEFAULT_BUFFER_SIZE];
         int read;
         while ((read = input.read(buffer)) != -1) {
             output.write(buffer, 0, read);
+        }
+    }
+
+    public static void closeQuietly(Closeable stream) {
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 }

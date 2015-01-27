@@ -42,7 +42,7 @@ import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.PassResponse;
 import org.floens.chan.core.model.Pass;
 import org.floens.chan.ui.ThemeActivity;
-import org.floens.chan.utils.Utils;
+import org.floens.chan.utils.AndroidUtils;
 
 public class PassSettingsActivity extends ThemeActivity implements OnCheckedChangeListener {
     private SwitchCompat onSwitch;
@@ -118,7 +118,7 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
             link.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Utils.openLink(v.getContext(), v.getContext().getString(R.string.pass_info_link));
+                    AndroidUtils.openLink(v.getContext().getString(R.string.pass_info_link));
                 }
             });
 

@@ -175,7 +175,7 @@ public class ImageViewActivity extends ThemeActivity implements ViewPager.OnPage
 
         Post post = adapter.getPost(position);
         if (!threadManager.arePostRepliesOpen()) {
-            postAdapter.scrollToPost(post.no);
+//            postAdapter.scrollToPost(post.no); //TODO
         }
     }
 

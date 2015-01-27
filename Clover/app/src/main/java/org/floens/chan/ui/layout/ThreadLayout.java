@@ -1,0 +1,157 @@
+package org.floens.chan.ui.layout;
+
+import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.util.AttributeSet;
+import android.widget.Toast;
+
+import com.android.volley.VolleyError;
+
+import org.floens.chan.R;
+import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.model.ChanThread;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.presenter.ThreadPresenter;
+import org.floens.chan.ui.helper.PostPopupHelper;
+import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.AndroidUtils;
+
+import java.util.List;
+
+/**
+ * Wrapper around ThreadListLayout, so that it cleanly manages between loadbar and listview.
+ */
+public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPresenterCallback {
+    private ThreadLayoutCallback callback;
+    private ThreadPresenter presenter;
+
+    private ThreadListLayout threadListLayout;
+    private PostPopupHelper postPopupHelper;
+    private boolean visible;
+
+    public ThreadLayout(Context context) {
+        super(context);
+        init();
+    }
+
+    public ThreadLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    public ThreadLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
+        presenter = new ThreadPresenter(this);
+
+        threadListLayout = new ThreadListLayout(getContext());
+        threadListLayout.setCallbacks(presenter, presenter);
+
+        postPopupHelper = new PostPopupHelper(getContext(), presenter);
+
+        switchVisible(false);
+    }
+
+    public void setCallback(ThreadLayoutCallback callback) {
+        this.callback = callback;
+    }
+
+    public ThreadPresenter getPresenter() {
+        return presenter;
+    }
+
+    @Override
+    public void showPosts(ChanThread thread) {
+        threadListLayout.showPosts(thread, !visible);
+        switchVisible(true);
+    }
+
+    @Override
+    public void showError(VolleyError error) {
+        switchVisible(true);
+        threadListLayout.showError(error);
+    }
+
+    @Override
+    public void showLoading() {
+        switchVisible(false);
+    }
+
+    public void showPostInfo(String info) {
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.post_info)
+                .setMessage(info)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+    }
+
+    public void showPostLinkables(final List<PostLinkable> linkables) {
+        String[] keys = new String[linkables.size()];
+        for (int i = 0; i < linkables.size(); i++) {
+            keys[i] = linkables.get(i).key;
+        }
+
+        new AlertDialog.Builder(getContext())
+                .setItems(keys, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onPostLinkableClicked(linkables.get(which));
+                    }
+                })
+                .show();
+    }
+
+    public void clipboardPost(Post post) {
+        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppRes().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Post text", post.comment.toString());
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(getContext(), R.string.post_text_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void openLink(final String link) {
+        if (ChanPreferences.getOpenLinkConfirmation()) {
+            new AlertDialog.Builder(getContext())
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AndroidUtils.openLink(link);
+                        }
+                    })
+                    .setTitle(R.string.open_link_confirmation)
+                    .setMessage(link)
+                    .show();
+        } else {
+            AndroidUtils.openLink(link);
+        }
+    }
+
+    @Override
+    public void showThread(Loadable threadLoadable) {
+        callback.openThread(threadLoadable);
+    }
+
+    public void showPostsPopup(Post forPost, List<Post> posts) {
+        postPopupHelper.showPosts(forPost, posts);
+    }
+
+    private void switchVisible(boolean visible) {
+        if (this.visible != visible) {
+            this.visible = visible;
+            setView(visible ? threadListLayout : null);
+        }
+    }
+
+    public interface ThreadLayoutCallback {
+        public void openThread(Loadable threadLoadable);
+    }
+}

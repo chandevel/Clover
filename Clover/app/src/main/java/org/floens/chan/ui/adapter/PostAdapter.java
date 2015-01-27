@@ -18,13 +18,11 @@
 package org.floens.chan.ui.adapter;
 
 import android.content.Context;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -33,18 +31,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.loader.Loader;
-import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.ScrollerRunnable;
 import org.floens.chan.ui.view.PostView;
-import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class PostAdapter extends BaseAdapter implements Filterable {
     private static final int VIEW_TYPE_ITEM = 0;
@@ -53,10 +49,9 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     private final Object lock = new Object();
 
     private final Context context;
-    private final AbsListView listView;
 
-    private final ThreadManager threadManager;
-    private final PostAdapterListener listener;
+    private final PostAdapterCallback postAdapterCallback;
+    private final PostView.PostViewCallback postViewCallback;
 
     /**
      * The list with the original data
@@ -75,11 +70,10 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     private int pendingScrollToPost = -1;
     private String statusPrefix = "";
 
-    public PostAdapter(Context activity, ThreadManager threadManager, AbsListView listView, PostAdapterListener listener) {
-        context = activity;
-        this.threadManager = threadManager;
-        this.listView = listView;
-        this.listener = listener;
+    public PostAdapter(Context context, PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback) {
+        this.postAdapterCallback = postAdapterCallback;
+        this.context = context;
+        this.postViewCallback = postViewCallback;
     }
 
     @Override
@@ -130,7 +124,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                 }
 
                 PostView postView = (PostView) convertView;
-                postView.setPost(getItem(position), threadManager);
+                postView.setPost(getItem(position), postViewCallback);
 
                 return postView;
             }
@@ -185,16 +179,11 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                     displayList.addAll((List<Post>) results.values);
                 }
                 notifyDataSetChanged();
-                listener.onFilterResults(filter, ((List<Post>) results.values).size(), TextUtils.isEmpty(filter));
+                postAdapterCallback.onFilteredResults(filter, ((List<Post>) results.values).size(), TextUtils.isEmpty(filter));
                 if (pendingScrollToPost >= 0) {
                     final int to = pendingScrollToPost;
                     pendingScrollToPost = -1;
-                    listView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            scrollToPost(to);
-                        }
-                    });
+                    postAdapterCallback.scrollTo(to);
                 }
             }
         };
@@ -239,6 +228,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
+    /* TODO
     public void scrollToPost(int no) {
         if (isFiltering()) {
             pendingScrollToPost = no;
@@ -260,7 +250,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                 }
             }
         }
-    }
+    }*/
 
     public void setStatusMessage(String loadMessage) {
         this.statusMessage = loadMessage;
@@ -271,20 +261,20 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     }
 
     private void onGetBottomView() {
-        if (threadManager.getLoadable().isBoardMode() && !endOfLine) {
+        /*if (postAdapterCallback.getLoadable().isBoardMode() && !endOfLine) {
             // Try to load more posts
             threadManager.requestNextData();
-        }
+        }*/
 
         if (lastPostCount != sourceList.size()) {
             lastPostCount = sourceList.size();
-            threadManager.bottomPostViewed();
+            postAdapterCallback.onListScrolledToBottom();
             notifyDataSetChanged();
         }
     }
 
     private boolean showStatusView() {
-        Loadable l = threadManager.getLoadable();
+        Loadable l = postAdapterCallback.getLoadable();
         if (l != null) {
             return l.isBoardMode() || l.isThreadMode();
         } else {
@@ -296,8 +286,16 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         return !TextUtils.isEmpty(filter);
     }
 
-    public interface PostAdapterListener {
-        public void onFilterResults(String filter, int count, boolean all);
+    public interface PostAdapterCallback {
+        public void onFilteredResults(String filter, int count, boolean all);
+
+        public Loadable getLoadable();
+
+        public void onListScrolledToBottom();
+
+        public void onListStatusClicked();
+
+        public void scrollTo(int position);
     }
 
     public class StatusView extends LinearLayout {
@@ -319,20 +317,22 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         }
 
         public void init() {
-            Loader loader = threadManager.getLoader();
-            if (loader == null)
+            // TODO
+            /*
+            ChanLoader chanLoader = threadManager.getChanLoader();
+            if (chanLoader == null)
                 return;
 
             setGravity(Gravity.CENTER);
 
-            Loadable loadable = loader.getLoadable();
+            Loadable loadable = chanLoader.getLoadable();
             if (loadable.isThreadMode()) {
                 String error = getStatusMessage();
                 if (error != null) {
                     setText(error);
                 } else {
                     if (threadManager.isWatching()) {
-                        long time = loader.getTimeUntilLoadMore() / 1000L;
+                        long time = chanLoader.getTimeUntilLoadMore() / 1000L;
                         if (time == 0) {
                             setText(statusPrefix + context.getString(R.string.thread_refresh_now));
                         } else {
@@ -348,7 +348,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                             }
                         }, 1000);
                     } else {
-                        if (loader.getTimeUntilLoadMore() == 0) {
+                        if (chanLoader.getTimeUntilLoadMore() == 0) {
                             setText(statusPrefix + context.getString(R.string.thread_refresh_now));
                         } else {
                             setText(statusPrefix + context.getString(R.string.thread_refresh_bar_inactive));
@@ -358,9 +358,9 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                     setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Loader loader = threadManager.getLoader();
-                            if (loader != null) {
-                                loader.requestMoreDataAndResetTimer();
+                            ChanLoader chanLoader = threadManager.getChanLoader();
+                            if (chanLoader != null) {
+                                chanLoader.requestMoreDataAndResetTimer();
                                 setText(context.getString(R.string.thread_refresh_now));
                             }
 
@@ -376,7 +376,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                 } else {
                     setProgressBar();
                 }
-            }
+            }*/
         }
 
         @Override
@@ -389,7 +389,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
             TextView text = new TextView(context);
             text.setText(string);
             text.setGravity(Gravity.CENTER);
-            addView(text, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(48)));
+            addView(text, new LayoutParams(LayoutParams.MATCH_PARENT, dp(48)));
         }
 
         private void setProgressBar() {

@@ -26,8 +26,8 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.service.WatchNotifier;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -314,7 +314,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         ScheduledFuture scheduledFuture = executor.schedule(new Runnable() {
             @Override
             public void run() {
-                Utils.runOnUiThread(new Runnable() {
+                AndroidUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         timerFired();

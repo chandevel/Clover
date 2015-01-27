@@ -176,6 +176,14 @@ public class Loadable {
         title = Post.generateTitle(post);
     }
 
+    public void generateTitle() {
+        if (mode == Mode.CATALOG) {
+            title = "/" + board + "/";
+        } else {
+            title = "/" + board + "/" + no;
+        }
+    }
+
     public static class Mode {
         public static final int INVALID = -1;
         public static final int THREAD = 0;

@@ -52,7 +52,7 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener;
 import org.floens.chan.ui.ThemeActivity;
-import org.floens.chan.utils.Utils;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -261,7 +261,7 @@ public class BoardEditor extends ThemeActivity {
                     }
                 }).setTitle(R.string.board_add).setView(text).create();
 
-        Utils.requestKeyboardFocus(dialog, text);
+        AndroidUtils.requestKeyboardFocus(dialog, text);
 
         dialog.show();
     }

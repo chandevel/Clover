@@ -38,9 +38,9 @@ import com.koushikdutta.async.future.Future;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,7 +107,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 if (response.getBitmap() != null && thumbnailNeeded) {
                     ImageView thumbnail = new ImageView(getContext());
                     thumbnail.setImageBitmap(response.getBitmap());
-                    thumbnail.setLayoutParams(Utils.MATCH_PARAMS);
+                    thumbnail.setLayoutParams(AndroidUtils.MATCH_PARAMS);
                     setView(thumbnail, false);
                 }
             }
@@ -222,7 +222,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
-        view.setLayoutParams(Utils.MATCH_PARAMS);
+        view.setLayoutParams(AndroidUtils.MATCH_PARAMS);
         setView(view, false);
     }
 
@@ -273,7 +273,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             videoView.setZOrderOnTop(true);
             videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                     LayoutParams.MATCH_PARENT));
-            videoView.setLayoutParams(Utils.MATCH_PARAMS);
+            videoView.setLayoutParams(AndroidUtils.MATCH_PARAMS);
             LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             par.gravity = Gravity.CENTER;
             videoView.setLayoutParams(par);
