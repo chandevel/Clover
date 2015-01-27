@@ -22,6 +22,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -185,7 +187,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
         activity.invalidateActionBar();
 
-        if (isVideo && ChanPreferences.getVideoAutoPlay() && imageView != null) {
+        if (isVideo && shouldPlayVideo() && imageView != null) {
             if (!videoVisible) {
                 startVideo();
             } else {
@@ -319,6 +321,25 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     public void showProgressBar(boolean e) {
         showProgressBar = e;
         activity.updateActionBarIfSelected(this);
+    }
+
+    public boolean shouldPlayVideo() {
+        int autoPlaySetting = ChanPreferences.getVideoAutoPlay();
+
+        if(autoPlaySetting == 3) {
+            return true;
+        } else if(autoPlaySetting != 0) {
+            ConnectivityManager conMan = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo.State mobile = conMan.getNetworkInfo(0).getState();
+            NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
+
+            if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING) {
+                return autoPlaySetting == 1;
+            } else if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
+                return autoPlaySetting == 2;
+            }
+        }
+        return false;
     }
 
     @Override

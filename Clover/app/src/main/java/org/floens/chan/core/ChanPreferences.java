@@ -116,8 +116,16 @@ public class ChanPreferences {
         return Long.parseLong(raw, 16);
     }
 
-    public static boolean getVideoAutoPlay() {
-        return getImageAutoLoad() && !getVideoExternal() && p().getBoolean("preference_autoplay", false);
+    public static int getVideoAutoPlay() {
+        // 0 = Never
+        // 1 = Mobile data
+        // 2 = Wifi
+        // 3 = Always
+        if(getImageAutoLoad() && !getVideoExternal()) {
+            String type = p().getString("preference_autoplay_type", "0");
+            return type == null ? 0 : Integer.parseInt(type);
+        }
+        return 0;
     }
 
     public static boolean getThreadAutoRefresh() {

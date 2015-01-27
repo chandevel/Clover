@@ -193,12 +193,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>pages</item>
     </string-array>
 
+    <string name="preference_autoplay_type">Automatically play videos</string>
+    <string-array name="preference_autoplay_types">
+        <item>Never</item>
+        <item>Mobile data</item>
+        <item>Wifi</item>
+        <item>Always</item>
+    </string-array>
+
     <string name="preference_image_save_location">Image save folder</string>
     <string name="preference_network_https">Use HTTPS</string>
     <string name="preference_image_save_original">Save original filename</string>
     <string name="preference_image_share_url">Share url to image</string>
     <string name="preference_open_link_confirmation">Ask before opening links</string>
-    <string name="preference_autoplay">Start playing videos immediately</string>
     <string name="preference_auto_refresh_thread">Auto refresh threads</string>
     <string name="preference_image_auto_load">Auto load images</string>
 
