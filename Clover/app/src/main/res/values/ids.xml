@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
     <!-- placeholder id's for when programmatically xml is needed -->
-    <item type="id" name="action_0" />
-    <item type="id" name="action_1" />
-    <item type="id" name="action_2" />
-    <item type="id" name="action_3" />
-    <item type="id" name="action_4" />
-    <item type="id" name="action_5" />
-    <item type="id" name="action_6" />
-    <item type="id" name="action_7" />
-    <item type="id" name="action_8" />
-    <item type="id" name="action_9" />
+    <item name="action_0" type="id" />
+    <item name="action_1" type="id" />
+    <item name="action_2" type="id" />
+    <item name="action_3" type="id" />
+    <item name="action_4" type="id" />
+    <item name="action_5" type="id" />
+    <item name="action_6" type="id" />
+    <item name="action_7" type="id" />
+    <item name="action_8" type="id" />
+    <item name="action_9" type="id" />
 </resources>

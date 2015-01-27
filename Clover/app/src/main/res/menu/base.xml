@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_reload_tablet"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="1"
-        app:showAsAction="always"
-        android:title="@string/action_reload">
+        android:title="@string/action_reload"
+        app:showAsAction="always">
         <menu>
             <item
                 android:id="@+id/action_reload_tablet_board"
@@ -37,29 +37,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_reload_board"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="1"
-        app:showAsAction="always"
-        android:title="@string/action_reload_board" />
+        android:title="@string/action_reload_board"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_pin"
         android:icon="@drawable/ic_bookmark"
         android:orderInCategory="2"
-        app:showAsAction="always"
-        android:title="@string/action_pin" />
+        android:title="@string/action_pin"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_reply"
         android:icon="@drawable/ic_action_write"
         android:orderInCategory="4"
-        app:showAsAction="ifRoom"
-        android:title="@string/action_reply" />
+        android:title="@string/action_reply"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_reply_tablet"
         android:icon="@drawable/ic_action_write"
         android:orderInCategory="4"
-        app:showAsAction="ifRoom"
-        android:title="@string/action_reply">
+        android:title="@string/action_reply"
+        app:showAsAction="ifRoom">
         <menu>
             <item
                 android:id="@+id/action_reply_board"
@@ -75,8 +75,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_reload_thread"
         android:icon="@drawable/ic_action_refresh"
         android:orderInCategory="5"
-        app:showAsAction="never"
-        android:title="@string/action_reload" />
+        android:title="@string/action_reload"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_search"
@@ -86,8 +86,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item
         android:id="@+id/action_search_tablet"
         android:orderInCategory="6"
-        app:showAsAction="never"
-        android:title="@string/action_search">
+        android:title="@string/action_search"
+        app:showAsAction="never">
         <menu>
             <item
                 android:id="@+id/action_search_board"
@@ -103,26 +103,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_share"
         android:actionProviderClass="android.widget.ShareActionProvider"
         android:orderInCategory="7"
-        app:showAsAction="never"
-        android:title="@string/action_share" />
+        android:title="@string/action_share"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_download_album"
         android:orderInCategory="8"
-        app:showAsAction="never"
-        android:title="@string/action_download_album" />
+        android:title="@string/action_download_album"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_open_browser"
         android:orderInCategory="9"
-        app:showAsAction="never"
-        android:title="@string/action_open_browser" />
+        android:title="@string/action_open_browser"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_board_view_mode"
         android:orderInCategory="10"
-        app:showAsAction="never"
-        android:title="@string/action_board_view_mode">
+        android:title="@string/action_board_view_mode"
+        app:showAsAction="never">
         <menu>
             <group android:checkableBehavior="single">
                 <item
@@ -138,7 +138,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        app:showAsAction="never"
-        android:title="@string/action_settings" />
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
 
 </menu>

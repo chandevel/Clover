@@ -1,3 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
@@ -5,17 +22,17 @@
 
     <LinearLayout
         android:id="@+id/root_layout"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffffff">
+        android:background="#ffffffff"
+        android:orientation="vertical">
 
         <org.floens.chan.ui.toolbar.Toolbar
-            android:elevation="8dp"
             android:id="@+id/toolbar"
-            android:background="@color/primary"
             android:layout_width="match_parent"
-            android:layout_height="56dp" />
+            android:layout_height="56dp"
+            android:background="@color/primary"
+            android:elevation="8dp" />
 
         <FrameLayout
             android:id="@+id/container"
@@ -26,17 +43,17 @@
     </LinearLayout>
 
     <FrameLayout
-        android:background="#ffffff00"
         android:id="@+id/drawer"
-        android:layout_gravity="left"
         android:layout_width="200dp"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="#ffffff00">
 
         <TextView
-            android:text="Hello, world!"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="Hello, world!" />
 
-        </FrameLayout>
+    </FrameLayout>
 
 </android.support.v4.widget.DrawerLayout>

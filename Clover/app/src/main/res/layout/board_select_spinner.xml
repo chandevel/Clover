@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:id="@android:id/text1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="16sp"
-    android:textColor="#ffffffff"
+    android:ellipsize="end"
     android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-    android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:singleLine="true"
-    android:ellipsize="end" />
+    android:textColor="#ffffffff"
+    android:textSize="16sp" />
