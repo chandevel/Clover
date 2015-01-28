@@ -10,7 +10,7 @@ https://www.google.com/recaptcha/api/challenge?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTL
 contains the key 'challenge'
 
 Now load the image
-https://www.google.com/recaptcha/api2/payload?c=CHALLENGE
+https://www.google.com/recaptcha/api2/payload?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc&c=CHALLENGE
 
 after the user has solved the image, do a POST to
 
