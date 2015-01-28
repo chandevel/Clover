@@ -1,3 +1,7 @@
+New in 1.2.6 (2015-01-28)
+- Fix for captcha image not loading
+
+
 New in 1.2.5 (2014-12-11)
 - Fix 4chan pass
 
