@@ -54,6 +54,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     private ImageViewActivity activity;
 
     private ThumbnailImageView imageView;
+    private ConnectivityManager conManager;
 
     private Post post;
     private boolean showProgressBar = true;
@@ -71,6 +72,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         ImageViewFragment imageViewFragment = new ImageViewFragment();
         imageViewFragment.post = post;
         imageViewFragment.activity = activity;
+        imageViewFragment.conManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return imageViewFragment;
     }
@@ -329,9 +331,8 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         if(autoPlaySetting == 3) {
             return true;
         } else if(autoPlaySetting != 0) {
-            ConnectivityManager conMan = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo.State mobile = conMan.getNetworkInfo(0).getState();
-            NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
+            NetworkInfo.State mobile = conManager.getNetworkInfo(0).getState();
+            NetworkInfo.State wifi = conManager.getNetworkInfo(1).getState();
 
             if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING) {
                 return autoPlaySetting == 1;
