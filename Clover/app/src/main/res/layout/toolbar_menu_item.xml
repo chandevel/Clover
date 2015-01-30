@@ -6,4 +6,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:textColor="#ff000000"
-    android:textSize="16sp" />
+    android:textSize="16sp"
+    android:singleLine="true"
+    android:lines="1"
+    android:ellipsize="end" />

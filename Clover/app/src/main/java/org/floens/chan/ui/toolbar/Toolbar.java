@@ -23,12 +23,13 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.Color;
+import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.text.TextUtils;
+import android.support.v4.view.GravityCompat;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -38,6 +39,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
+import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -70,6 +72,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         init();
     }
 
+    public void updateNavigation() {
+        setNavigationItem(false, false, navigationItem);
+    }
+
     public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item) {
         if (item.menu != null) {
             AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
@@ -100,6 +106,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         arrowMenuDrawable.setProgress(progress);
     }
 
+    public void onConfigurationChanged(Configuration newConfig) {
+    }
+
     private void init() {
         setOrientation(HORIZONTAL);
 
@@ -128,11 +137,18 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     }
 
     private void setNavigationItemView(boolean animate, boolean pushing, NavigationItem toItem) {
+        final NavigationItem fromItem = navigationItem;
+
+        if (!animate) {
+            if (fromItem != null) {
+                removeNavigationItem(fromItem);
+            }
+            setArrowMenuProgress(toItem.hasBack ? 1f : 0f);
+        }
+
         toItem.view = createNavigationItemView(toItem);
 
         navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-
-        final NavigationItem fromItem = navigationItem;
 
         final int duration = 300;
         final int offset = dp(16);
@@ -191,12 +207,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             set.setStartDelay(pushing ? 0 : 100);
             set.playTogether(animations);
             set.start();
-        } else {
-            // No animation
-            if (fromItem != null) {
-                removeNavigationItem(fromItem);
-            }
-            setArrowMenuProgress(toItem.hasBack ? 1f : 0f);
         }
 
         navigationItem = toItem;
@@ -208,25 +218,41 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         item.view = null;
     }
 
-    private LinearLayout createNavigationItemView(NavigationItem item) {
-        LinearLayout wrapper = new LinearLayout(getContext());
+    private LinearLayout createNavigationItemView(final NavigationItem item) {
+        LinearLayout wrapper = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
+        wrapper.setGravity(Gravity.CENTER_VERTICAL);
 
-        TextView titleView = new TextView(getContext());
-        titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
-//        titleView.setTextColor(Color.argb((int)(0.87 * 255.0), 0, 0, 0));
-        titleView.setTextColor(Color.argb(255, 255, 255, 255));
-        titleView.setGravity(Gravity.CENTER_VERTICAL);
-        titleView.setSingleLine(true);
-        titleView.setLines(1);
-        titleView.setEllipsize(TextUtils.TruncateAt.END);
-        titleView.setPadding(dp(16), 0, 0, 0);
+        final TextView titleView = (TextView) wrapper.findViewById(R.id.title);
         titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
         titleView.setText(item.title);
-        wrapper.addView(titleView, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
+        // black: titleView.setTextColor(Color.argb((int)(0.87 * 255.0), 0, 0, 0));
+
+        if (item.middleMenu != null) {
+            item.middleMenu.setAnchor(titleView, GravityCompat.END | Gravity.TOP, dp(5), dp(5)); // TODO gravity left doesn't work
+
+            Drawable drawable = new DropdownArrowDrawable();
+            titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+
+            titleView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    item.middleMenu.show();
+                }
+            });
+        }
 
         if (item.menu != null) {
             wrapper.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
         }
+
+        AndroidUtils.waitForMeasure(titleView, new AndroidUtils.OnMeasuredCallback() {
+            @Override
+            public void onMeasured(View view, int width, int height) {
+                if (item.middleMenu != null) {
+                    item.middleMenu.setPopupWidth(Math.max(dp(150), titleView.getWidth()));
+                }
+            }
+        });
 
         return wrapper;
     }

@@ -145,6 +145,8 @@ public abstract class NavigationController extends Controller implements Control
         for (Controller controller : controllerList) {
             controller.onConfigurationChanged(newConfig);
         }
+
+        toolbar.onConfigurationChanged(newConfig);
     }
 
     public void initWithController(final Controller controller) {

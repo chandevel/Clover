@@ -91,7 +91,7 @@ public class ToolbarMenuItem implements View.OnClickListener, ToolbarMenuSubMenu
     }
 
     @Override
-    public void onSubMenuItemClicked(ToolbarMenuSubItem item) {
+    public void onSubMenuItemClicked(ToolbarMenuSubMenu menu, ToolbarMenuSubItem item) {
         callback.onSubMenuItemClicked(this, item);
     }
 

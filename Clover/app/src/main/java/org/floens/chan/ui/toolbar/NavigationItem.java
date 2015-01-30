@@ -24,4 +24,5 @@ public class NavigationItem {
     public ToolbarMenu menu;
     public boolean hasBack = true;
     public LinearLayout view;
+    public ToolbarMenuSubMenu middleMenu;
 }
