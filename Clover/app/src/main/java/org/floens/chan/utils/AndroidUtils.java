@@ -52,9 +52,11 @@ public class AndroidUtils {
     private static HashMap<String, Typeface> typefaceCache = new HashMap<>();
 
     public static Typeface ROBOTO_MEDIUM;
+    public static Typeface ROBOTO_MEDIUM_ITALIC;
 
     public static void init() {
         ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
+        ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
     }
 
     public static Resources getRes() {

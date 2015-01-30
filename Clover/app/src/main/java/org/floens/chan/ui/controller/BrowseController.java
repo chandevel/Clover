@@ -17,8 +17,8 @@
  */
 package org.floens.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -199,21 +199,18 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         }
 
         @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
+            // No recycling, can't use itemtypes
+            @SuppressLint("ViewHolder")
             TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.toolbar_menu_item, parent, false);
             textView.setText(getItem(position));
             if (position < items.size()) {
                 textView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
             } else {
-                textView.setTypeface(AndroidUtils.ROBOTO_MEDIUM, Typeface.ITALIC);
+                textView.setTypeface(AndroidUtils.ROBOTO_MEDIUM_ITALIC);
             }
 
             return textView;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return getDropDownView(position, convertView, parent);
         }
 
         @Override

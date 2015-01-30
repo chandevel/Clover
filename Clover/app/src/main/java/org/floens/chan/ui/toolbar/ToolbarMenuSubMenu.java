@@ -176,7 +176,7 @@ public class ToolbarMenuSubMenu {
         }
 
         @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu_item, parent, false);
             }
