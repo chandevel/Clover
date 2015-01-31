@@ -312,7 +312,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     }
 
     public void onNotFoundError() {
-        Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_SHORT).show();
         callback.setProgress(false);
     }
 

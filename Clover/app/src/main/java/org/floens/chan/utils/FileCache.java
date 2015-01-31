@@ -2,6 +2,7 @@ package org.floens.chan.utils;
 
 import android.util.Log;
 
+import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -145,6 +146,8 @@ public class FileCache {
 
         private Closeable downloadInput;
         private Closeable downloadOutput;
+        private Call call;
+        private ResponseBody body;
 
         public FileCacheDownloader(FileCache fileCache, String url, File output, DownloadedCallback callback) {
             this.fileCache = fileCache;
@@ -158,9 +161,14 @@ public class FileCache {
                 execute();
             } catch (InterruptedIOException | InterruptedException e) {
                 cancelDueToCancellation(e);
+                return;
             } catch (Exception e) {
                 cancelDueToException(e);
+                return;
             }
+
+            finish();
+            success();
         }
 
         private void cancelDueToException(Exception e) {
@@ -170,7 +178,7 @@ public class FileCache {
             Log.w(TAG, "IOException downloading file", e);
 
             purgeOutput();
-            closeStreams();
+            finish();
 
             post(new Runnable() {
                 @Override
@@ -188,7 +196,7 @@ public class FileCache {
             Log.w(TAG, "Cancel due to http error, code: " + code);
 
             purgeOutput();
-            closeStreams();
+            finish();
 
             post(new Runnable() {
                 @Override
@@ -206,14 +214,22 @@ public class FileCache {
             Log.d(TAG, "Cancel due to cancellation");
 
             purgeOutput();
-            closeStreams();
+            finish();
 
             // No callback
         }
 
-        private void closeStreams() {
+        private void finish() {
             Util.closeQuietly(downloadInput);
             Util.closeQuietly(downloadOutput);
+
+            if (call != null) {
+                call.cancel();
+            }
+
+            if (body != null) {
+                Util.closeQuietly(body);
+            }
         }
 
         private void purgeOutput() {
@@ -260,13 +276,14 @@ public class FileCache {
         private void execute() throws Exception {
             Request request = new Request.Builder().url(url).build();
 
-            Response response = fileCache.httpClient.newCall(request).execute();
+            call = fileCache.httpClient.newCall(request);
+            Response response = call.execute();
             if (!response.isSuccessful()) {
                 cancelDueToHttpError(response.code());
                 return;
             }
 
-            ResponseBody body = response.body();
+            body = response.body();
             long contentLength = body.contentLength();
             BufferedSource source = body.source();
             OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(output));
@@ -289,10 +306,6 @@ public class FileCache {
 
                 if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
             }
-
-            closeStreams();
-
-            success();
         }
     }
 }
