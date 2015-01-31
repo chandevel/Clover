@@ -33,7 +33,6 @@ import android.widget.VideoView;
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -44,6 +43,7 @@ import org.floens.chan.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -61,7 +61,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     private boolean thumbnailNeeded = true;
 
     private Request<?> imageRequest;
-    private Future<?> ionRequest;
+    private Future<?> request;
     private VideoView videoView;
     private GifDrawable gifDrawable;
 
@@ -121,7 +121,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         }
 
         callback.setProgress(true);
-        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), imageUrl, new FileCache.DownloadedCallback() {
+        request = ChanApplication.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
@@ -177,7 +177,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         }
 
         callback.setProgress(true);
-        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), gifUrl, new FileCache.DownloadedCallback() {
+        request = ChanApplication.getFileCache().downloadFile(gifUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
@@ -228,7 +228,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
     public void setVideo(String videoUrl) {
         callback.setProgress(true);
-        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), videoUrl, new FileCache.DownloadedCallback() {
+        request = ChanApplication.getFileCache().downloadFile(videoUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
@@ -327,8 +327,8 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             imageRequest = null;
         }
 
-        if (ionRequest != null) {
-            ionRequest.cancel(true);
+        if (request != null) {
+            request.cancel(true);
         }
     }
 

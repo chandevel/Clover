@@ -9,7 +9,7 @@ android {
         targetSdkVersion 21
 
         versionName "v1.2.6"
-        versionCode 44
+        versionCode 45
     }
 
     compileOptions {
@@ -71,8 +71,8 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.android.support:support-v13:18.0.0'
-    compile 'com.koushikdutta.ion:ion:2.0.5'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.0.12'
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
 
     compile files('libs/httpclientandroidlib-1.2.1.jar')
 }
