@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 21
 
-        versionName "v1.2.6"
-        versionCode 45
+        versionName "v1.2.7"
+        versionCode 46
     }
 
     compileOptions {
