@@ -73,6 +73,7 @@ dependencies {
     compile 'com.android.support:support-v13:18.0.0'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.0.12'
     compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'com.nispok:snackbar:2.7.5'
 
     compile files('libs/httpclientandroidlib-1.2.1.jar')
 }
