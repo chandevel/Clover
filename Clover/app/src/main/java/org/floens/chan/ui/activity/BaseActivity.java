@@ -19,6 +19,7 @@ package org.floens.chan.ui.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -44,6 +45,11 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ShareActionProvider;
+import android.widget.Toast;
+
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.SnackbarManager;
+import com.nispok.snackbar.listeners.ActionClickListener;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -187,7 +193,9 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
                     @Override
                     public void onDismiss(ListView listView, int[] reverseSortedPositions) {
                         for (int position : reverseSortedPositions) {
-                            removePin(pinnedAdapter.getItem(position));
+                            Pin pin = pinnedAdapter.getItem(position);
+                            removePin(pin);
+                            showUndoRemove(pin);
                         }
                     }
 
@@ -235,6 +243,21 @@ public abstract class BaseActivity extends Activity implements PanelSlideListene
     public void removePin(Pin pin) {
         ChanApplication.getWatchManager().removePin(pin);
     }
+
+    public void showUndoRemove(final Pin pin) {
+        SnackbarManager.show(
+                Snackbar.with(getApplicationContext())
+                        .text(getString(R.string.removed_pin, pin.loadable.title))
+                        .actionLabel(R.string.undo)
+                        .actionColor(0xFFFF5722)
+                        .actionListener(new ActionClickListener() {
+                            @Override
+                            public void onActionClicked(Snackbar snackbar) {
+                                ChanApplication.getWatchManager().addPin(pin);
+                            }
+                        }), BaseActivity.this);
+    }
+
 
     public void updatePin(Pin pin) {
         ChanApplication.getWatchManager().updatePin(pin);
