@@ -76,7 +76,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     private String statusPrefix = "";
 
     public PostAdapter(Context activity, ThreadManager threadManager, AbsListView listView, PostAdapterListener listener) {
-        context = activity;
+        this.context = activity;
         this.threadManager = threadManager;
         this.listView = listView;
         this.listener = listener;
@@ -103,9 +103,8 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public Post getItem(int position) {
-        int realPosition = position;
-        if (realPosition >= 0 && realPosition < displayList.size()) {
-            return displayList.get(realPosition);
+        if (position >= 0 && position < displayList.size()) {
+            return displayList.get(position);
         } else {
             return null;
         }
