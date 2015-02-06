@@ -161,14 +161,11 @@ public class FileCache {
                 execute();
             } catch (InterruptedIOException | InterruptedException e) {
                 cancelDueToCancellation(e);
-                return;
             } catch (Exception e) {
                 cancelDueToException(e);
-                return;
+            } finally {
+                finish();
             }
-
-            finish();
-            success();
         }
 
         private void cancelDueToException(Exception e) {
@@ -178,7 +175,6 @@ public class FileCache {
             Log.w(TAG, "IOException downloading file", e);
 
             purgeOutput();
-            finish();
 
             post(new Runnable() {
                 @Override
@@ -196,7 +192,6 @@ public class FileCache {
             Log.w(TAG, "Cancel due to http error, code: " + code);
 
             purgeOutput();
-            finish();
 
             post(new Runnable() {
                 @Override
@@ -214,9 +209,21 @@ public class FileCache {
             Log.d(TAG, "Cancel due to cancellation");
 
             purgeOutput();
-            finish();
 
             // No callback
+        }
+
+        private void success() {
+            fileCache.put(output);
+
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onProgress(0, 0, true);
+                    callback.onSuccess(output);
+                }
+            });
+            call = null;
         }
 
         private void finish() {
@@ -225,10 +232,12 @@ public class FileCache {
 
             if (call != null) {
                 call.cancel();
+                call = null;
             }
 
             if (body != null) {
                 Util.closeQuietly(body);
+                body = null;
             }
         }
 
@@ -255,18 +264,6 @@ public class FileCache {
             progressTotal = total;
             progressDone = done;
             post(progressRunnable);
-        }
-
-        private void success() {
-            fileCache.put(output);
-
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onProgress(0, 0, true);
-                    callback.onSuccess(output);
-                }
-            });
         }
 
         private void post(Runnable runnable) {
@@ -303,9 +300,11 @@ public class FileCache {
                     totalLast = total;
                     progress(total, contentLength, false);
                 }
-
-                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
             }
+
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
+
+            success();
         }
     }
 }
