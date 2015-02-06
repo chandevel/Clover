@@ -44,15 +44,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.android.volley.Request.Method;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.NetworkImageView;
-import com.android.volley.toolbox.StringRequest;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
@@ -209,7 +204,7 @@ public class ReplyFragment extends DialogFragment {
             });
             showCommentCount();
 
-            getCaptcha();
+            getCaptcha(null);
         } else {
             Logger.e(TAG, "Loadable in ReplyFragment was null");
             closeReply();
@@ -268,7 +263,7 @@ public class ReplyFragment extends DialogFragment {
         captchaContainer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                getCaptcha();
+                getCaptcha(null);
             }
         });
         captchaInput = (TextView) container.findViewById(R.id.reply_captcha);
@@ -519,7 +514,7 @@ public class ReplyFragment extends DialogFragment {
         loadView.setView(text);
     }
 
-    private void getCaptcha() {
+    private void getCaptcha(String reuseHtml) {
         if (gettingCaptcha)
             return;
         gettingCaptcha = true;
@@ -527,29 +522,22 @@ public class ReplyFragment extends DialogFragment {
         captchaContainer.setView(null);
         captchaInput.setText("");
 
-        String url = ChanUrls.getCaptchaChallengeUrl();
-
-        ChanApplication.getVolleyRequestQueue().add(new StringRequest(Method.GET, url, new Response.Listener<String>() {
+        ChanApplication.getReplyManager().getCaptchaChallenge(new ReplyManager.CaptchaChallengeListener() {
             @Override
-            public void onResponse(String result) {
+            public void onChallenge(String imageUrl, String challenge) {
+                gettingCaptcha = false;
+
                 if (context != null) {
-                    String challenge = ReplyManager.getChallenge(result);
-                    if (challenge != null) {
-                        captchaChallenge = challenge;
-                        String imageUrl = ChanUrls.getCaptchaImageUrl(challenge);
+                    captchaChallenge = challenge;
 
-                        NetworkImageView captchaImage = new NetworkImageView(context);
-                        captchaImage.setImageUrl(imageUrl, ChanApplication.getVolleyImageLoader());
-                        captchaContainer.setView(captchaImage);
-
-                        gettingCaptcha = false;
-                    }
+                    NetworkImageView captchaImage = new NetworkImageView(context);
+                    captchaImage.setImageUrl(imageUrl, ChanApplication.getVolleyImageLoader());
+                    captchaContainer.setView(captchaImage);
                 }
             }
-        }, new Response.ErrorListener() {
+
             @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
+            public void onError() {
                 gettingCaptcha = false;
 
                 if (context != null) {
@@ -559,7 +547,7 @@ public class ReplyFragment extends DialogFragment {
                     captchaContainer.setView(text);
                 }
             }
-        }));
+        }, reuseHtml);
     }
 
     /**
@@ -621,7 +609,7 @@ public class ReplyFragment extends DialogFragment {
             cancelButton.setEnabled(true);
             setClosable(true);
             flipPage(1);
-            getCaptcha();
+            getCaptcha(response.captchaHtml);
             captchaInput.setText("");
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;

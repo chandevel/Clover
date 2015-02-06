@@ -19,6 +19,7 @@ package org.floens.chan.core.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -31,6 +32,7 @@ import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
@@ -60,7 +62,6 @@ import ch.boye.httpclientandroidlib.util.EntityUtils;
 public class ReplyManager {
     private static final String TAG = "ReplyManager";
 
-    private static final Pattern challengePattern = Pattern.compile("challenge.?:.?'([\\w-]+)'");
     private static final Pattern responsePattern = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
     private static final int POST_TIMEOUT = 10000;
 
@@ -168,22 +169,6 @@ public class ReplyManager {
         public abstract void onFile(String name, File file);
 
         public abstract void onFileLoading();
-    }
-
-    /**
-     * Get the CAPTCHA challenge hash from an JSON response.
-     *
-     * @param total The total response from the server
-     * @return The pattern, or null when none was found.
-     */
-    public static String getChallenge(String total) {
-        Matcher matcher = challengePattern.matcher(total);
-
-        if (matcher.find() && matcher.groupCount() == 1) {
-            return matcher.group(1);
-        } else {
-            return null;
-        }
     }
 
     public void sendPass(Pass pass, final PassListener listener) {
@@ -336,6 +321,49 @@ public class ReplyManager {
         public String responseData = "";
     }
 
+    public void getCaptchaChallenge(final CaptchaChallengeListener listener, String reuseHtml) {
+        HttpPost httpPost = new HttpPost(ChanUrls.getCaptchaFallback());
+
+        HttpPostSendListener postListener = new HttpPostSendListener() {
+            @Override
+            public void onResponse(String responseString, HttpClient client, HttpResponse response) {
+                if (responseString != null) {
+                    Document document = Jsoup.parseBodyFragment(responseString, ChanUrls.getCaptchaDomain());
+                    Elements images = document.select("div.fbc-challenge img");
+                    String imageUrl = images.first() == null ? "" : images.first().absUrl("src");
+
+                    Elements inputs = document.select("div.fbc-challenge input");
+                    String challenge = "";
+                    for (Element input : inputs) {
+                        if (input.attr("name").equals("c")) {
+                            challenge = input.attr("value");
+                            break;
+                        }
+                    }
+
+                    if (!TextUtils.isEmpty(imageUrl) && !TextUtils.isEmpty(challenge)) {
+                        listener.onChallenge(imageUrl, challenge);
+                        return;
+                    }
+                }
+                listener.onError();
+            }
+        };
+
+        if (TextUtils.isEmpty(reuseHtml)) {
+            sendHttpPost(httpPost, postListener);
+        } else {
+            Logger.i(TAG, "Reusing html " + reuseHtml);
+            postListener.onResponse(reuseHtml, null, null);
+        }
+    }
+
+    public interface CaptchaChallengeListener {
+        public void onChallenge(String imageUrl, String challenge);
+
+        public void onError();
+    }
+
     private void getCaptchaHash(final CaptchaHashListener listener, String challenge, String response) {
         HttpPost httpPost = new HttpPost(ChanUrls.getCaptchaFallback());
 
@@ -354,17 +382,17 @@ public class ReplyManager {
                     Elements verificationToken = document.select("div.fbc-verification-token textarea");
                     String hash = verificationToken.text();
                     if (hash.length() > 0) {
-                        listener.onHash(hash);
+                        listener.onHash(hash, responseString);
                         return;
                     }
                 }
-                listener.onHash(null);
+                listener.onHash(null, responseString);
             }
         });
     }
 
     private interface CaptchaHashListener {
-        public void onHash(String hash);
+        public void onHash(String hash, String html);
     }
 
     /**
@@ -379,12 +407,13 @@ public class ReplyManager {
 
         CaptchaHashListener captchaHashListener = new CaptchaHashListener() {
             @Override
-            public void onHash(String captchaHash) {
+            public void onHash(String captchaHash, String captchaHtml) {
                 if (captchaHash == null && !reply.usePass) {
                     // Could not find a hash in the response html
                     ReplyResponse e = new ReplyResponse();
                     e.isUserError = true;
                     e.isCaptchaError = true;
+                    e.captchaHtml = captchaHtml;
                     listener.onResponse(e);
                     return;
                 }
@@ -484,7 +513,7 @@ public class ReplyManager {
         };
 
         if (reply.usePass) {
-            captchaHashListener.onHash(null);
+            captchaHashListener.onHash(null, null);
         } else {
             getCaptchaHash(captchaHashListener, reply.captchaChallenge, reply.captchaResponse);
         }
@@ -535,6 +564,8 @@ public class ReplyManager {
          * The thread no the post has
          */
         public int threadNo = -1;
+
+        public String captchaHtml;
     }
 
     /**
