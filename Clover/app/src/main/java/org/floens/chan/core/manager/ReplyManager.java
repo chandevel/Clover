@@ -353,7 +353,6 @@ public class ReplyManager {
         if (TextUtils.isEmpty(reuseHtml)) {
             sendHttpPost(httpPost, postListener);
         } else {
-            Logger.i(TAG, "Reusing html " + reuseHtml);
             postListener.onResponse(reuseHtml, null, null);
         }
     }
