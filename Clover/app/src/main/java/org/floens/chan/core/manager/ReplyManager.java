@@ -321,8 +321,9 @@ public class ReplyManager {
         public String responseData = "";
     }
 
-    public void getCaptchaChallenge(final CaptchaChallengeListener listener, String reuseHtml) {
+    public void getCaptchaChallenge(final CaptchaChallengeListener listener) {
         HttpPost httpPost = new HttpPost(ChanUrls.getCaptchaFallback());
+        httpPost.addHeader("User-Agent", "Android");
 
         HttpPostSendListener postListener = new HttpPostSendListener() {
             @Override
@@ -350,11 +351,7 @@ public class ReplyManager {
             }
         };
 
-        if (TextUtils.isEmpty(reuseHtml)) {
-            sendHttpPost(httpPost, postListener);
-        } else {
-            postListener.onResponse(reuseHtml, null, null);
-        }
+        sendHttpPost(httpPost, postListener);
     }
 
     public interface CaptchaChallengeListener {
@@ -381,17 +378,17 @@ public class ReplyManager {
                     Elements verificationToken = document.select("div.fbc-verification-token textarea");
                     String hash = verificationToken.text();
                     if (hash.length() > 0) {
-                        listener.onHash(hash, responseString);
+                        listener.onHash(hash);
                         return;
                     }
                 }
-                listener.onHash(null, responseString);
+                listener.onHash(null);
             }
         });
     }
 
     private interface CaptchaHashListener {
-        public void onHash(String hash, String html);
+        public void onHash(String hash);
     }
 
     /**
@@ -406,13 +403,12 @@ public class ReplyManager {
 
         CaptchaHashListener captchaHashListener = new CaptchaHashListener() {
             @Override
-            public void onHash(String captchaHash, String captchaHtml) {
+            public void onHash(String captchaHash) {
                 if (captchaHash == null && !reply.usePass) {
                     // Could not find a hash in the response html
                     ReplyResponse e = new ReplyResponse();
                     e.isUserError = true;
                     e.isCaptchaError = true;
-                    e.captchaHtml = captchaHtml;
                     listener.onResponse(e);
                     return;
                 }
@@ -512,7 +508,7 @@ public class ReplyManager {
         };
 
         if (reply.usePass) {
-            captchaHashListener.onHash(null, null);
+            captchaHashListener.onHash(null);
         } else {
             getCaptchaHash(captchaHashListener, reply.captchaChallenge, reply.captchaResponse);
         }
@@ -563,8 +559,6 @@ public class ReplyManager {
          * The thread no the post has
          */
         public int threadNo = -1;
-
-        public String captchaHtml;
     }
 
     /**

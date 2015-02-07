@@ -204,7 +204,7 @@ public class ReplyFragment extends DialogFragment {
             });
             showCommentCount();
 
-            getCaptcha(null);
+            getCaptcha();
         } else {
             Logger.e(TAG, "Loadable in ReplyFragment was null");
             closeReply();
@@ -263,7 +263,7 @@ public class ReplyFragment extends DialogFragment {
         captchaContainer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                getCaptcha(null);
+                getCaptcha();
             }
         });
         captchaInput = (TextView) container.findViewById(R.id.reply_captcha);
@@ -514,7 +514,7 @@ public class ReplyFragment extends DialogFragment {
         loadView.setView(text);
     }
 
-    private void getCaptcha(String reuseHtml) {
+    private void getCaptcha() {
         if (gettingCaptcha)
             return;
         gettingCaptcha = true;
@@ -547,7 +547,7 @@ public class ReplyFragment extends DialogFragment {
                     captchaContainer.setView(text);
                 }
             }
-        }, reuseHtml);
+        });
     }
 
     /**
@@ -609,7 +609,7 @@ public class ReplyFragment extends DialogFragment {
             cancelButton.setEnabled(true);
             setClosable(true);
             flipPage(1);
-            getCaptcha(response.captchaHtml);
+            getCaptcha();
             captchaInput.setText("");
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
