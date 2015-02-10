@@ -19,6 +19,7 @@ package org.floens.chan.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -367,7 +368,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
         compound.addView(listViewContainer, Utils.MATCH_PARAMS);
 
-        if (loadable.isThreadMode()) {
+        if (loadable.isThreadMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             skip = new ImageView(getActivity());
             skip.setImageResource(R.drawable.skip_arrow_down);
             skip.setVisibility(View.GONE);
