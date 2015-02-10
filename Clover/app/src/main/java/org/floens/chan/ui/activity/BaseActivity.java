@@ -54,8 +54,10 @@ import org.floens.chan.ui.SwipeDismissListViewTouchListener;
 import org.floens.chan.ui.SwipeDismissListViewTouchListener.DismissCallbacks;
 import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.adapter.PinnedAdapter;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ThemeHelper;
-import org.floens.chan.utils.Utils;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public abstract class BaseActivity extends ThemeActivity implements PanelSlideListener, WatchManager.PinListener {
     public static boolean doRestartOnResume = false;
@@ -141,7 +143,7 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
 
     private void initPane() {
         threadPane.setPanelSlideListener(this);
-        threadPane.setParallaxDistance(Utils.dp(100));
+        threadPane.setParallaxDistance(dp(100));
         threadPane.setShadowResource(R.drawable.panel_shadow);
 
         TypedArray ta = obtainStyledAttributes(null, R.styleable.BoardPane, R.attr.board_pane_style, 0);
@@ -281,7 +283,7 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
                             }
                         }).setTitle(R.string.drawer_pinned_change_title).setView(text).create();
 
-                Utils.requestKeyboardFocus(titleDialog, text);
+                AndroidUtils.requestKeyboardFocus(titleDialog, text);
 
                 titleDialog.show();
             }

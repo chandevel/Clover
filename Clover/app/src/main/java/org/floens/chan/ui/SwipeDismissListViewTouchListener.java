@@ -38,7 +38,7 @@ import java.util.List;
  * because by default it handles touches for its list items... i.e. it's in
  * charge of drawing the pressed state (the list selector), handling list item
  * clicks, etc.
- *
+ * <p/>
  * <p>
  * After creating the listener, the caller should also call
  * {@link ListView#setOnScrollListener(android.widget.AbsListView.OnScrollListener)}
@@ -48,11 +48,11 @@ import java.util.List;
  * {@link SwipeDismissListViewTouchListener} is paused during list view
  * scrolling.
  * </p>
- *
+ * <p/>
  * <p>
  * Example usage:
  * </p>
- *
+ * <p/>
  * <pre>
  * SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(listView,
  *         new SwipeDismissListViewTouchListener.OnDismissCallback() {
@@ -66,7 +66,7 @@ import java.util.List;
  * listView.setOnTouchListener(touchListener);
  * listView.setOnScrollListener(touchListener.makeScrollListener());
  * </pre>
- *
+ * <p/>
  * <p>
  * This class Requires API level 12 or later due to use of
  * {@link android.view.ViewPropertyAnimator}.

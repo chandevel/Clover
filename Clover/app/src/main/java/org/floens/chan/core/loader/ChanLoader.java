@@ -29,9 +29,9 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.net.ChanReaderRequest;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
-import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +40,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class Loader {
+public class ChanLoader {
     private static final String TAG = "Loader";
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
-    private final List<LoaderListener> listeners = new ArrayList<>();
+    private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
     private final SparseArray<Post> postsById = new SparseArray<>();
     private ChanThread thread;
@@ -60,7 +60,7 @@ public class Loader {
     private long lastLoadTime;
     private ScheduledFuture<?> pendingFuture;
 
-    public Loader(Loadable loadable) {
+    public ChanLoader(Loadable loadable) {
         this.loadable = loadable;
     }
 
@@ -69,7 +69,7 @@ public class Loader {
      *
      * @param l the listener to add
      */
-    public void addListener(LoaderListener l) {
+    public void addListener(ChanLoaderCallback l) {
         listeners.add(l);
     }
 
@@ -79,7 +79,7 @@ public class Loader {
      * @param l the listener to remove
      * @return true if there are no more listeners, false otherwise
      */
-    public boolean removeListener(LoaderListener l) {
+    public boolean removeListener(ChanLoaderCallback l) {
         listeners.remove(l);
         if (listeners.size() == 0) {
             clearTimer();
@@ -228,7 +228,7 @@ public class Loader {
             Runnable pendingRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Utils.runOnUiThread(new Runnable() {
+                    AndroidUtils.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             pendingFuture = null;
@@ -260,13 +260,13 @@ public class Loader {
                 new Response.Listener<List<Post>>() {
                     @Override
                     public void onResponse(List<Post> list) {
-                        Loader.this.request = null;
+                        ChanLoader.this.request = null;
                         onData(list);
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Loader.this.request = null;
+                        ChanLoader.this.request = null;
                         onError(error);
                     }
                 }
@@ -329,8 +329,8 @@ public class Loader {
             post.title = loadable.title;
         }
 
-        for (LoaderListener l : listeners) {
-            l.onData(thread);
+        for (ChanLoaderCallback l : listeners) {
+            l.onChanLoaderData(thread);
         }
 
         lastLoadTime = Time.get();
@@ -353,16 +353,16 @@ public class Loader {
             error = new EndOfLineException();
         }
 
-        for (LoaderListener l : listeners) {
-            l.onError(error);
+        for (ChanLoaderCallback l : listeners) {
+            l.onChanLoaderError(error);
         }
 
         clearTimer();
     }
 
-    public static interface LoaderListener {
-        public void onData(ChanThread result);
+    public static interface ChanLoaderCallback {
+        public void onChanLoaderData(ChanThread result);
 
-        public void onError(VolleyError error);
+        public void onChanLoaderError(VolleyError error);
     }
 }

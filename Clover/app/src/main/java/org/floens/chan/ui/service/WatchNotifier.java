@@ -34,7 +34,7 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.watch.PinWatcher;
 import org.floens.chan.ui.activity.ChanActivity;
-import org.floens.chan.utils.Utils;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -171,7 +171,7 @@ public class WatchNotifier extends Service {
             Collections.sort(notificationList, POST_AGE_COMPARER);
             List<CharSequence> lines = new ArrayList<>();
             for (Post post : notificationList) {
-                CharSequence prefix = Utils.ellipsize(post.title, 18);
+                CharSequence prefix = AndroidUtils.ellipsize(post.title, 18);
 
                 CharSequence comment;
                 if (post.comment.length() == 0) {

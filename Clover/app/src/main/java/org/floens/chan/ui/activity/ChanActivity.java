@@ -49,7 +49,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.loader.Loader;
+import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Board;
@@ -59,9 +59,10 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.fragment.ThreadFragment;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Utils;
 
 import java.util.List;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class ChanActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, BoardManager.BoardChangeListener {
     private static final String TAG = "ChanActivity";
@@ -334,25 +335,25 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         // Nexus 10 is 800 x 1280 dp
 
         if (ChanPreferences.getForcePhoneLayout()) {
-            leftParams.width = width - Utils.dp(30);
+            leftParams.width = width - dp(30);
             rightParams.width = width;
             isSlidable = true;
         } else {
-            if (width < Utils.dp(400)) {
-                leftParams.width = width - Utils.dp(30);
+            if (width < dp(400)) {
+                leftParams.width = width - dp(30);
                 rightParams.width = width;
                 isSlidable = true;
-            } else if (width < Utils.dp(800)) {
-                leftParams.width = width - Utils.dp(60);
+            } else if (width < dp(800)) {
+                leftParams.width = width - dp(60);
                 rightParams.width = width;
                 isSlidable = true;
-            } else if (width < Utils.dp(1000)) {
-                leftParams.width = Utils.dp(300);
-                rightParams.width = width - Utils.dp(300);
+            } else if (width < dp(1000)) {
+                leftParams.width = dp(300);
+                rightParams.width = width - dp(300);
                 isSlidable = false;
             } else {
-                leftParams.width = Utils.dp(400);
-                rightParams.width = width - Utils.dp(400);
+                leftParams.width = dp(400);
+                rightParams.width = width - dp(400);
                 isSlidable = false;
             }
         }
@@ -366,10 +367,10 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
         LayoutParams drawerParams = pinDrawerView.getLayoutParams();
 
-        if (width < Utils.dp(340)) {
-            drawerParams.width = Utils.dp(280);
+        if (width < dp(340)) {
+            drawerParams.width = dp(280);
         } else {
-            drawerParams.width = Utils.dp(320);
+            drawerParams.width = dp(320);
         }
 
         pinDrawerView.setLayoutParams(drawerParams);
@@ -516,13 +517,13 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                 return true;
             case R.id.action_pin:
                 if (threadFragment.hasLoader()) {
-                    Loader loader = threadFragment.getLoader();
-                    if (loader != null && loader.getLoadable().isThreadMode() && loader.getThread() != null) {
+                    ChanLoader chanLoader = threadFragment.getLoader();
+                    if (chanLoader != null && chanLoader.getLoadable().isThreadMode() && chanLoader.getThread() != null) {
                         Pin pin = ChanApplication.getWatchManager().findPinByLoadable(threadLoadable);
                         if (pin != null) {
                             ChanApplication.getWatchManager().removePin(pin);
                         } else {
-                            ChanApplication.getWatchManager().addPin(loader.getLoadable(), loader.getThread().op);
+                            ChanApplication.getWatchManager().addPin(chanLoader.getLoadable(), chanLoader.getThread().op);
                         }
                         updateActionBarState();
                     }

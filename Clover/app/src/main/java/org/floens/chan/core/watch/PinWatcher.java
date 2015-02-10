@@ -20,22 +20,22 @@ package org.floens.chan.core.watch;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.core.loader.Loader;
+import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PinWatcher implements Loader.LoaderListener {
+public class PinWatcher implements ChanLoader.ChanLoaderCallback {
     private static final String TAG = "PinWatcher";
 
     private final Pin pin;
-    private Loader loader;
+    private ChanLoader chanLoader;
 
     private final List<Post> posts = new ArrayList<>();
     private final List<Post> quotes = new ArrayList<>();
@@ -45,19 +45,19 @@ public class PinWatcher implements Loader.LoaderListener {
     public PinWatcher(Pin pin) {
         this.pin = pin;
 
-        loader = LoaderPool.getInstance().obtain(pin.loadable, this);
+        chanLoader = LoaderPool.getInstance().obtain(pin.loadable, this);
     }
 
     public void destroy() {
-        if (loader != null) {
-            LoaderPool.getInstance().release(loader, this);
-            loader = null;
+        if (chanLoader != null) {
+            LoaderPool.getInstance().release(chanLoader, this);
+            chanLoader = null;
         }
     }
 
     public void update() {
         if (!pin.isError) {
-            loader.loadMoreIfTime();
+            chanLoader.loadMoreIfTime();
         }
     }
 
@@ -104,19 +104,19 @@ public class PinWatcher implements Loader.LoaderListener {
     }
 
     public long getTimeUntilNextLoad() {
-        return loader.getTimeUntilLoadMore();
+        return chanLoader.getTimeUntilLoadMore();
     }
 
     public boolean isLoading() {
-        return loader.isLoading();
+        return chanLoader.isLoading();
     }
 
     @Override
-    public void onError(VolleyError error) {
+    public void onChanLoaderError(VolleyError error) {
         Logger.e(TAG, "PinWatcher onError: ", error);
         pin.isError = true;
 
-        Utils.runOnUiThread(new Runnable() {
+        AndroidUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ChanApplication.getWatchManager().onPinsChanged();
@@ -125,7 +125,7 @@ public class PinWatcher implements Loader.LoaderListener {
     }
 
     @Override
-    public void onData(ChanThread thread) {
+    public void onChanLoaderData(ChanThread thread) {
         pin.isError = false;
 
         if (pin.thumbnailUrl == null && thread.op != null && thread.op.hasImage) {
@@ -189,7 +189,7 @@ public class PinWatcher implements Loader.LoaderListener {
                     pin.watchLastCount, pin.watchNewCount, wereNewPosts, pin.quoteLastCount, pin.quoteNewCount, wereNewQuotes));
         }
 
-        Utils.runOnUiThread(new Runnable() {
+        AndroidUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ChanApplication.getWatchManager().onPinsChanged();

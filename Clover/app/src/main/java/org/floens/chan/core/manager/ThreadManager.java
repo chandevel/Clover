@@ -54,18 +54,21 @@ import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.ui.activity.ReplyActivity;
 import org.floens.chan.ui.fragment.PostRepliesFragment;
 import org.floens.chan.ui.fragment.ReplyFragment;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.dp;
+
 /**
  * All PostView's need to have this referenced. This manages some things like
  * pages, starting and stopping of loading, handling linkables, replies popups
  * etc. onDestroy, onStart and onStop must be called from the activity/fragment
  */
-public class ThreadManager implements Loader.LoaderListener {
+public class ThreadManager implements ChanLoader.ChanLoaderCallback {
     public static enum ViewMode {
         LIST, GRID
     }
@@ -80,7 +83,7 @@ public class ThreadManager implements Loader.LoaderListener {
     private int lastPost = -1;
     private String highlightedId = null;
 
-    private Loader loader;
+    private ChanLoader chanLoader;
 
     public ThreadManager(Activity activity, final ThreadManagerListener listener) {
         this.activity = activity;
@@ -92,36 +95,36 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void onStart() {
-        if (loader != null) {
+        if (chanLoader != null) {
             if (isWatching()) {
-                loader.setAutoLoadMore(true);
-                loader.requestMoreDataAndResetTimer();
+                chanLoader.setAutoLoadMore(true);
+                chanLoader.requestMoreDataAndResetTimer();
             }
         }
     }
 
     public void onStop() {
-        if (loader != null) {
-            loader.setAutoLoadMore(false);
+        if (chanLoader != null) {
+            chanLoader.setAutoLoadMore(false);
         }
     }
 
     public void bindLoader(Loadable loadable) {
-        if (loader != null) {
+        if (chanLoader != null) {
             unbindLoader();
         }
 
-        loader = LoaderPool.getInstance().obtain(loadable, this);
+        chanLoader = LoaderPool.getInstance().obtain(loadable, this);
         if (isWatching()) {
-            loader.setAutoLoadMore(true);
+            chanLoader.setAutoLoadMore(true);
         }
     }
 
     public void unbindLoader() {
-        if (loader != null) {
-            loader.setAutoLoadMore(false);
-            LoaderPool.getInstance().release(loader, this);
-            loader = null;
+        if (chanLoader != null) {
+            chanLoader.setAutoLoadMore(false);
+            LoaderPool.getInstance().release(chanLoader, this);
+            chanLoader = null;
         } else {
             Logger.e(TAG, "Loader already unbinded");
         }
@@ -132,11 +135,11 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void bottomPostViewed() {
-        if (loader.getLoadable().isThreadMode() && loader.getThread() != null && loader.getThread().posts.size() > 0) {
-            loader.getLoadable().lastViewed = loader.getThread().posts.get(loader.getThread().posts.size() - 1).no;
+        if (chanLoader.getLoadable().isThreadMode() && chanLoader.getThread() != null && chanLoader.getThread().posts.size() > 0) {
+            chanLoader.getLoadable().lastViewed = chanLoader.getThread().posts.get(chanLoader.getThread().posts.size() - 1).no;
         }
 
-        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loader.getLoadable());
+        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(chanLoader.getLoadable());
         if (pin != null) {
             pin.onBottomPostViewed();
             ChanApplication.getWatchManager().onPinsChanged();
@@ -144,11 +147,11 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public boolean isWatching() {
-        if (!loader.getLoadable().isThreadMode()) {
+        if (!chanLoader.getLoadable().isThreadMode()) {
             return false;
         } else if (!ChanPreferences.getThreadAutoRefresh()) {
             return false;
-        } else if (loader.getThread() != null && loader.getThread().closed) {
+        } else if (chanLoader.getThread() != null && chanLoader.getThread().closed) {
             return false;
         } else {
             return true;
@@ -156,8 +159,8 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void requestData() {
-        if (loader != null) {
-            loader.requestData();
+        if (chanLoader != null) {
+            chanLoader.requestData();
         } else {
             Logger.e(TAG, "Loader null in requestData");
         }
@@ -167,22 +170,22 @@ public class ThreadManager implements Loader.LoaderListener {
      * Called by postadapter and threadwatchcounterview.onclick
      */
     public void requestNextData() {
-        if (loader != null) {
-            loader.requestMoreData();
+        if (chanLoader != null) {
+            chanLoader.requestMoreData();
         } else {
             Logger.e(TAG, "Loader null in requestData");
         }
     }
 
     @Override
-    public void onError(VolleyError error) {
+    public void onChanLoaderError(VolleyError error) {
         threadManagerListener.onThreadLoadError(error);
     }
 
     @Override
-    public void onData(ChanThread thread) {
+    public void onChanLoaderData(ChanThread thread) {
         if (!isWatching()) {
-            loader.setAutoLoadMore(false);
+            chanLoader.setAutoLoadMore(false);
         }
 
         if (thread.posts.size() > 0) {
@@ -193,23 +196,23 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public boolean hasLoader() {
-        return loader != null;
+        return chanLoader != null;
     }
 
     public Post findPostById(int id) {
-        if (loader == null)
+        if (chanLoader == null)
             return null;
-        return loader.findPostById(id);
+        return chanLoader.findPostById(id);
     }
 
     public Loadable getLoadable() {
-        if (loader == null)
+        if (chanLoader == null)
             return null;
-        return loader.getLoadable();
+        return chanLoader.getLoadable();
     }
 
-    public Loader getLoader() {
-        return loader;
+    public ChanLoader getChanLoader() {
+        return chanLoader;
     }
 
     public void onThumbnailClicked(Post post) {
@@ -217,13 +220,21 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void onPostClicked(Post post) {
-        if (loader != null) {
+        if (chanLoader != null) {
             threadManagerListener.onPostClicked(post);
         }
     }
 
     public void showPostOptions(final Post post, PopupMenu popupMenu) {
         Menu menu = popupMenu.getMenu();
+
+        if (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode()) {
+            menu.add(Menu.NONE, 9, Menu.NONE, activity.getString(R.string.action_pin));
+        }
+
+        if (loader.getLoadable().isThreadMode()) {
+            menu.add(Menu.NONE, 10, Menu.NONE, activity.getString(R.string.post_quick_reply));
+        }
 
         String[] baseOptions = activity.getResources().getStringArray(R.array.post_options);
         for (int i = 0; i < baseOptions.length; i++) {
@@ -302,15 +313,15 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public void openReply(boolean startInActivity) {
-        if (loader == null)
+        if (chanLoader == null)
             return;
 
         if (startInActivity) {
-            ReplyActivity.setLoadable(loader.getLoadable());
+            ReplyActivity.setLoadable(chanLoader.getLoadable());
             Intent i = new Intent(activity, ReplyActivity.class);
             activity.startActivity(i);
         } else {
-            ReplyFragment reply = ReplyFragment.newInstance(loader.getLoadable(), true);
+            ReplyFragment reply = ReplyFragment.newInstance(chanLoader.getLoadable(), true);
             reply.show(activity.getFragmentManager(), "replyDialog");
         }
     }
@@ -332,7 +343,7 @@ public class ThreadManager implements Loader.LoaderListener {
     }
 
     public boolean isPostLastSeen(Post post) {
-        return post.no == loader.getLoadable().lastViewed && post.no != lastPost;
+        return post.no == chanLoader.getLoadable().lastViewed && post.no != lastPost;
     }
 
     private void copyToClipboard(String comment) {
@@ -347,7 +358,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
         if (post.hasImage) {
             text += "File: " + post.filename + "." + post.ext + " \nDimensions: " + post.imageWidth + "x"
-                    + post.imageHeight + "\nSize: " + Utils.getReadableFileSize(post.fileSize, false) + "\n\n";
+                    + post.imageHeight + "\nSize: " + AndroidUtils.getReadableFileSize(post.fileSize, false) + "\n\n";
         }
 
         text += "Time: " + post.date;
@@ -446,14 +457,14 @@ public class ThreadManager implements Loader.LoaderListener {
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Utils.openLink(activity, (String) linkable.value);
+                                AndroidUtils.openLink((String) linkable.value);
                             }
                         })
                         .setTitle(R.string.open_link_confirmation)
                         .setMessage((String) linkable.value)
                         .show();
             } else {
-                Utils.openLink(activity, (String) linkable.value);
+                AndroidUtils.openLink((String) linkable.value);
             }
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             final PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
@@ -482,8 +493,8 @@ public class ThreadManager implements Loader.LoaderListener {
             currentPopupFragment.dismissNoCallback();
         }
 
-        PostRepliesFragment popup = PostRepliesFragment.newInstance(repliesPopup, this);
-
+//        PostRepliesFragment popup = PostRepliesFragment.newInstance(repliesPopup, this);
+        PostRepliesFragment popup = null;
         FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.add(popup, "postPopup");
         ft.commitAllowingStateLoss();
@@ -498,8 +509,8 @@ public class ThreadManager implements Loader.LoaderListener {
         popupQueue.remove(popupQueue.size() - 1);
 
         if (popupQueue.size() > 0) {
-            PostRepliesFragment popup = PostRepliesFragment.newInstance(popupQueue.get(popupQueue.size() - 1), this);
-
+//            PostRepliesFragment popup = PostRepliesFragment.newInstance(popupQueue.get(popupQueue.size() - 1), this);
+            PostRepliesFragment popup = null;
             FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
             ft.add(popup, "postPopup");
             ft.commit();
@@ -525,7 +536,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
         LinearLayout wrapper = new LinearLayout(activity);
         wrapper.addView(checkBox);
-        int padding = Utils.dp(8f);
+        int padding = dp(8f);
         wrapper.setPadding(padding, padding, padding, padding);
 
         new AlertDialog.Builder(activity).setTitle(R.string.delete_confirm).setView(wrapper)

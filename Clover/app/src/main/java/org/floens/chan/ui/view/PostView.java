@@ -31,6 +31,8 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -43,13 +45,14 @@ import com.android.volley.toolbox.NetworkImageView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.manager.ThreadManager;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.utils.IconCache;
 import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Time;
-import org.floens.chan.utils.Utils;
+
+import static org.floens.chan.utils.AndroidUtils.setPressedDrawable;
 
 public class PostView extends LinearLayout implements View.OnClickListener {
     private final static LinearLayout.LayoutParams matchParams = new LinearLayout.LayoutParams(
@@ -63,8 +66,9 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
     private final Activity context;
 
-    private ThreadManager manager;
     private Post post;
+    private PostViewCallback callback;
+    private Loadable loadable;
     private int highlightQuotesNo = -1;
 
     private boolean isBuild = false;
@@ -113,13 +117,14 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         }
     }
 
-    public void setPost(final Post post, final ThreadManager manager) {
+    public void setPost(final Post post, final PostViewCallback callback) {
         this.post = post;
-        this.manager = manager;
+        this.callback = callback;
+        this.loadable = callback.getLoadable();
 
         highlightQuotesNo = -1;
 
-        boolean boardCatalogMode = manager.getLoadable().isBoardMode() || manager.getLoadable().isCatalogMode();
+        boolean boardCatalogMode = loadable.isBoardMode() || loadable.isCatalogMode();
 
         TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
 
@@ -167,7 +172,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
         commentView.setText(post.comment);
 
-        if (manager.getLoadable().isThreadMode()) {
+        if (loadable.isThreadMode()) {
             post.setLinkableListener(this);
             commentView.setMovementMethod(new PostViewMovementMethod());
             commentView.setOnClickListener(this);
@@ -199,11 +204,11 @@ public class PostView extends LinearLayout implements View.OnClickListener {
                 }
             }
 
-            if (manager.getLoadable().isThreadMode()) {
+            if (loadable.isThreadMode()) {
                 repliesCountView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        manager.showPostReplies(post);
+                        callback.onShowPostReplies(post);
                     }
                 });
             }
@@ -236,13 +241,13 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
         if (post.isSavedReply) {
             full.setBackgroundColor(savedReplyColor);
-        } else if (manager.isPostHightlighted(post)) {
+        } else if (callback.isPostHightlighted(post)) {
             full.setBackgroundColor(highlightedColor);
         } else {
             full.setBackgroundColor(0x00000000);
         }
 
-        if (manager.isPostLastSeen(post)) {
+        if (callback.isPostLastSeen(post)) {
             lastSeen.setVisibility(View.VISIBLE);
         } else {
             lastSeen.setVisibility(View.GONE);
@@ -318,7 +323,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                manager.onThumbnailClicked(post);
+                callback.onThumbnailClicked(post);
             }
         });
 
@@ -382,7 +387,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         if (isList()) {
             commentView.setPadding(postPadding, commentPadding, postPadding, commentPadding);
 
-            if (manager.getLoadable().isBoardMode() || manager.getLoadable().isCatalogMode()) {
+            if (loadable.isBoardMode() || loadable.isCatalogMode()) {
                 commentView.setMaxHeight(postListMaxHeight);
             }
         } else if (isGrid()) {
@@ -398,7 +403,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         }
 
         repliesCountView = new TextView(context);
-        Utils.setPressedDrawable(repliesCountView);
+        setPressedDrawable(repliesCountView);
         repliesCountView.setTextColor(replyCountColor);
         repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
         repliesCountView.setTextSize(TypedValue.COMPLEX_UNIT_PX, repliesCountSize);
@@ -410,21 +415,28 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         lastSeen.setBackgroundColor(0xffff0000);
         contentContainer.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, lastSeenHeight));
 
-        if (!manager.getLoadable().isThreadMode()) {
-            Utils.setPressedDrawable(contentContainer);
+        if (!loadable.isThreadMode()) {
+            setPressedDrawable(contentContainer);
         }
 
         full.addView(contentContainer, matchWrapParams);
 
         optionsView = new ImageView(context);
         optionsView.setImageResource(R.drawable.ic_overflow);
-        Utils.setPressedDrawable(optionsView);
+        setPressedDrawable(optionsView);
         optionsView.setPadding(optionsLeftPadding, optionsTopPadding, optionsRightPadding, optionsBottomPadding);
         optionsView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
                 PopupMenu popupMenu = new PopupMenu(context, v);
-                manager.showPostOptions(post, popupMenu);
+                callback.onPopulatePostOptions(post, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        callback.onPostOptionClicked(post, item.getItemId());
+                        return true;
+                    }
+                });
                 popupMenu.show();
                 if (ThemeHelper.getInstance().getTheme().isLightTheme) {
                     optionsView.setImageResource(R.drawable.ic_overflow_black);
@@ -454,20 +466,44 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     }
 
     public void onLinkableClick(PostLinkable linkable) {
-        manager.onPostLinkableClicked(linkable);
+        callback.onPostLinkableClicked(linkable);
     }
 
     @Override
     public void onClick(View v) {
-        manager.onPostClicked(post);
+        callback.onPostClicked(post);
     }
 
     private boolean isList() {
-        return manager.getViewMode() == ThreadManager.ViewMode.LIST;
+        return true;
+        // TODO
+//        return callback.getViewMode() == ThreadManager.ViewMode.LIST;
     }
 
     private boolean isGrid() {
-        return manager.getViewMode() == ThreadManager.ViewMode.GRID;
+        return false;
+        // TODO
+//        return callback.getViewMode() == ThreadManager.ViewMode.GRID;
+    }
+
+    public interface PostViewCallback {
+        public Loadable getLoadable();
+
+        public void onPostClicked(Post post);
+
+        public void onThumbnailClicked(Post post);
+
+        public void onShowPostReplies(Post post);
+
+        public void onPopulatePostOptions(Post post, Menu menu);
+
+        public void onPostOptionClicked(Post post, int id);
+
+        public void onPostLinkableClicked(PostLinkable linkable);
+
+        public boolean isPostHightlighted(Post post);
+
+        public boolean isPostLastSeen(Post post);
     }
 
     private class PostViewMovementMethod extends LinkMovementMethod {

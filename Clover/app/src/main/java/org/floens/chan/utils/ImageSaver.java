@@ -38,6 +38,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -120,7 +122,7 @@ public class ImageSaver {
     }
 
     private void showToast(final Context context, final String message) {
-        Utils.runOnUiThread(new Runnable() {
+        AndroidUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
@@ -250,11 +252,16 @@ public class ImageSaver {
 
     private boolean storeImage(final File source, final File destination) {
         boolean res = true;
-
+        InputStream is = null;
+        OutputStream os = null;
         try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(destination);
             IOUtils.copy(new FileInputStream(source), new FileOutputStream(destination));
         } catch (IOException e) {
             res = false;
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(os);
         }
 
         return res;
@@ -265,7 +272,7 @@ public class ImageSaver {
                 new MediaScannerConnection.OnScanCompletedListener() {
                     @Override
                     public void onScanCompleted(String unused, final Uri uri) {
-                        Utils.runOnUiThread(new Runnable() {
+                        AndroidUtils.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Logger.i(TAG, "Media scan succeeded: " + uri);

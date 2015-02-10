@@ -29,8 +29,8 @@ import android.widget.Toast;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
-import org.floens.chan.utils.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,6 +96,8 @@ public class ImagePickActivity extends Activity {
                             FileInputStream is = new FileInputStream(fileDescriptor.getFileDescriptor());
                             FileOutputStream os = new FileOutputStream(cacheFile);
                             IOUtils.copy(is, os);
+                            IOUtils.closeQuietly(is);
+                            IOUtils.closeQuietly(os);
 
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -107,7 +109,7 @@ public class ImagePickActivity extends Activity {
                         } catch (IOException | SecurityException e) {
                             e.printStackTrace();
 
-                            Utils.runOnUiThread(new Runnable() {
+                            AndroidUtils.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     ChanApplication.getReplyManager()._onPickedFile("", null);

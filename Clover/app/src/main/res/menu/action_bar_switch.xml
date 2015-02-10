@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <item
         android:id="@+id/action_bar_switch"
-        android:title=""
         android:actionViewClass="android.widget.Switch"
+        android:title=""
         app:showAsAction="always" />
 
 </menu>

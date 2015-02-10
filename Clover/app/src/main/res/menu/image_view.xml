@@ -22,34 +22,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/action_image_play_state"
         android:icon="@drawable/ic_action_play"
         android:orderInCategory="1"
-        app:showAsAction="always"
-        android:title="@string/image_play_state" />
+        android:title="@string/image_play_state"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_image_save"
         android:orderInCategory="2"
-        app:showAsAction="never"
-        android:title="@string/image_save" />
+        android:title="@string/image_save"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_open_browser"
         android:orderInCategory="3"
-        app:showAsAction="never"
-        android:title="@string/action_open_browser" />
+        android:title="@string/action_open_browser"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_share"
         android:orderInCategory="4"
-        app:showAsAction="never"
-        android:title="@string/action_share" />
+        android:title="@string/action_share"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_image_search"
         android:orderInCategory="5"
-        app:showAsAction="never"
-        android:title="@string/action_search_image">
+        android:title="@string/action_search_image"
+        app:showAsAction="never">
         <menu></menu>
     </item>
     <item
         android:id="@+id/action_download_album"
         android:orderInCategory="6"
-        app:showAsAction="never"
-        android:title="@string/action_download_album" />
+        android:title="@string/action_download_album"
+        app:showAsAction="never" />
 
 </menu>

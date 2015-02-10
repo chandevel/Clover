@@ -20,6 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item
         android:id="@+id/action_settings_advanced"
         android:orderInCategory="1"
-        app:showAsAction="never"
-        android:title="@string/action_settings_advanced" />
+        android:title="@string/action_settings_advanced"
+        app:showAsAction="never" />
 </menu>

@@ -35,10 +35,11 @@ import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.view.CustomNetworkImageView;
-import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class PinnedAdapter extends BaseAdapter {
     private final static int VIEW_TYPE_ITEM = 0;
@@ -122,7 +123,7 @@ public class PinnedAdapter extends BaseAdapter {
                 if (pin.thumbnailUrl != null) {
                     imageView.setVisibility(View.VISIBLE);
                     imageView.setFadeIn(0);
-                    imageView.forceImageDimensions(Utils.dp(48), Utils.dp(48));
+                    imageView.forceImageDimensions(dp(48), dp(48));
                     imageView.setImageUrl(pin.thumbnailUrl, ChanApplication.getVolleyImageLoader());
                 } else {
                     imageView.setVisibility(View.GONE);

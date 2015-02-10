@@ -46,8 +46,8 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.EndOfLineException;
-import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
@@ -56,16 +56,19 @@ import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.ThemeHelper;
-import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.SSLException;
 
-public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener, PostAdapter.PostAdapterListener {
+import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.setPressedDrawable;
+
+public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener, PostAdapter.PostAdapterCallback {
     private ThreadManager threadManager;
     private Loadable loadable;
 
@@ -126,8 +129,8 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         this.viewMode = viewMode;
     }
 
-    public Loader getLoader() {
-        return threadManager.getLoader();
+    public ChanLoader getLoader() {
+        return threadManager.getChanLoader();
     }
 
     public void startFiltering() {
@@ -194,7 +197,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             ((BaseActivity) getActivity()).onOPClicked(post);
         } else if (loadable.isThreadMode() && isFiltering) {
             filterView.clearSearch();
-            postAdapter.scrollToPost(post.no);
+//            postAdapter.scrollToPost(post.no);
         }
     }
 
@@ -241,7 +244,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public void onScrollTo(int post) {
         if (postAdapter != null) {
-            postAdapter.scrollToPost(post);
+//            postAdapter.scrollToPost(post);
         }
     }
 
@@ -276,7 +279,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
         if (highlightedPost >= 0) {
             threadManager.highlightPost(highlightedPost);
-            postAdapter.scrollToPost(highlightedPost);
+//            postAdapter.scrollToPost(highlightedPost);
             highlightedPost = -1;
         }
 
@@ -300,12 +303,32 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         highlightedPost = -1;
     }
 
-    public void onFilterResults(String filter, int count, boolean all) {
+    public void onFilteredResults(String filter, int count, boolean all) {
         isFiltering = !all;
 
         if (filterView != null) {
             filterView.setText(filter, count, all);
         }
+    }
+
+    @Override
+    public Loadable getLoadable() {
+        return loadable;
+    }
+
+    @Override
+    public void onListScrolledToBottom() {
+
+    }
+
+    @Override
+    public void onListStatusClicked() {
+
+    }
+
+    @Override
+    public void scrollTo(int position) {
+
     }
 
     private RelativeLayout createView() {
@@ -316,12 +339,12 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
         filterView = new FilterView(getActivity());
         filterView.setVisibility(View.GONE);
-        listViewContainer.addView(filterView, Utils.MATCH_WRAP_PARAMS);
+        listViewContainer.addView(filterView, AndroidUtils.MATCH_WRAP_PARAMS);
 
         if (viewMode == ThreadManager.ViewMode.LIST) {
             ListView list = new ListView(getActivity());
             listView = list;
-            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
+//            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
             listView.setAdapter(postAdapter);
             list.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
         } else if (viewMode == ThreadManager.ViewMode.GRID) {
@@ -330,7 +353,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             int postGridWidth = getActivity().getResources().getDimensionPixelSize(R.dimen.post_grid_width);
             grid.setColumnWidth(postGridWidth);
             listView = grid;
-            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
+//            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
             listView.setAdapter(postAdapter);
             listView.setSelection(loadable.listViewIndex);
         }
@@ -364,20 +387,20 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             }
         });
 
-        listViewContainer.addView(listView, Utils.MATCH_PARAMS);
+        listViewContainer.addView(listView, AndroidUtils.MATCH_PARAMS);
 
-        compound.addView(listViewContainer, Utils.MATCH_PARAMS);
+        compound.addView(listViewContainer, AndroidUtils.MATCH_PARAMS);
 
         if (loadable.isThreadMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             skip = new ImageView(getActivity());
             skip.setImageResource(R.drawable.skip_arrow_down);
             skip.setVisibility(View.GONE);
-            compound.addView(skip, Utils.WRAP_PARAMS);
+            compound.addView(skip, AndroidUtils.WRAP_PARAMS);
 
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) skip.getLayoutParams();
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            params.setMargins(0, 0, Utils.dp(8), Utils.dp(8));
+            params.setMargins(0, 0, dp(8), dp(8));
             skip.setLayoutParams(params);
 
             skipLogic = new SkipLogic(skip, listView);
@@ -419,19 +442,19 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         String errorMessage = getLoadErrorText(error);
 
         LinearLayout wrapper = new LinearLayout(getActivity());
-        wrapper.setLayoutParams(Utils.MATCH_PARAMS);
+        wrapper.setLayoutParams(AndroidUtils.MATCH_PARAMS);
         wrapper.setGravity(Gravity.CENTER);
         wrapper.setOrientation(LinearLayout.VERTICAL);
 
         TextView text = new TextView(getActivity());
-        text.setLayoutParams(Utils.WRAP_PARAMS);
+        text.setLayoutParams(AndroidUtils.WRAP_PARAMS);
         text.setText(errorMessage);
         text.setTextSize(24f);
         wrapper.addView(text);
 
         Button retry = new Button(getActivity());
         retry.setText(R.string.thread_load_failed_retry);
-        retry.setLayoutParams(Utils.WRAP_PARAMS);
+        retry.setLayoutParams(AndroidUtils.WRAP_PARAMS);
         retry.setGravity(Gravity.CENTER);
         retry.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -445,7 +468,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         wrapper.addView(retry);
 
         LinearLayout.LayoutParams retryParams = (LinearLayout.LayoutParams) retry.getLayoutParams();
-        retryParams.topMargin = Utils.dp(12);
+        retryParams.topMargin = dp(12);
         retry.setLayoutParams(retryParams);
 
         return wrapper;
@@ -587,11 +610,11 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             searchViewContainer.addView(closeButton);
             closeButton.setImageResource(ThemeHelper.getInstance().getTheme().isLightTheme ? R.drawable.ic_action_cancel : R.drawable.ic_action_cancel_dark);
             LinearLayout.LayoutParams closeButtonParams = (LinearLayout.LayoutParams) closeButton.getLayoutParams();
-            searchViewParams.width = Utils.dp(48);
+            searchViewParams.width = dp(48);
             searchViewParams.height = LayoutParams.MATCH_PARENT;
             closeButton.setLayoutParams(closeButtonParams);
-            Utils.setPressedDrawable(closeButton);
-            int padding = Utils.dp(8);
+            setPressedDrawable(closeButton);
+            int padding = dp(8);
             closeButton.setPadding(padding, padding, padding, padding);
 
             closeButton.setOnClickListener(new OnClickListener() {
@@ -601,7 +624,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
                 }
             });
 
-            addView(searchViewContainer, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(48)));
+            addView(searchViewContainer, new LayoutParams(LayoutParams.MATCH_PARENT, dp(48)));
 
             searchView.setQueryHint(getString(R.string.search_hint));
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -620,7 +643,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
             textView = new TextView(getContext());
             textView.setGravity(Gravity.CENTER);
-            addView(textView, new LayoutParams(LayoutParams.MATCH_PARENT, Utils.dp(28)));
+            addView(textView, new LayoutParams(LayoutParams.MATCH_PARENT, dp(28)));
         }
 
         private void setText(String filter, int count, boolean all) {

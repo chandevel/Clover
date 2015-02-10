@@ -18,10 +18,13 @@
 package org.floens.chan.ui.activity;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
-import org.floens.chan.utils.Logger;
+import org.floens.chan.controller.NavigationController;
+import org.floens.chan.ui.controller.BrowseController;
+import org.floens.chan.ui.controller.RootNavigationController;
+import org.floens.chan.utils.ThemeHelper;
 
 /**
  * Not called StartActivity because than the launcher icon would disappear.
@@ -30,6 +33,37 @@ import org.floens.chan.utils.Logger;
 public class BoardActivity extends Activity {
     private static final String TAG = "StartActivity";
 
+    private RootNavigationController rootNavigationController;
+    private NavigationController navigationController;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ThemeHelper.getInstance().reloadPostViewColors(this);
+
+        rootNavigationController = new RootNavigationController(this, new BrowseController(this));
+        setContentView(rootNavigationController.view);
+
+        // Prevent overdraw
+        // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable
+        getWindow().setBackgroundDrawable(null);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        rootNavigationController.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!rootNavigationController.onBack()) {
+            super.onBackPressed();
+        }
+    }
+
+    /*
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,5 +85,5 @@ public class BoardActivity extends Activity {
         Intent intent = new Intent(this, ChanActivity.class);
         startActivity(intent);
         finish();
-    }
+    }*/
 }

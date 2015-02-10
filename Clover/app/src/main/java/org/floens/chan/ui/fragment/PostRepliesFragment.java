@@ -31,8 +31,9 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.presenter.ThreadPresenter;
+import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.utils.ThemeHelper;
 
@@ -44,20 +45,21 @@ public class PostRepliesFragment extends DialogFragment {
     private ListView listView;
 
     private Activity activity;
-    private ThreadManager.RepliesPopup repliesPopup;
-    private ThreadManager manager;
-    private boolean callback = true;
+    private PostPopupHelper.RepliesData repliesData;
+    private PostPopupHelper postPopupHelper;
+    private ThreadPresenter presenter;
 
-    public static PostRepliesFragment newInstance(ThreadManager.RepliesPopup repliesPopup, ThreadManager manager) {
+    public static PostRepliesFragment newInstance(PostPopupHelper.RepliesData repliesData, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
         PostRepliesFragment fragment = new PostRepliesFragment();
-        fragment.repliesPopup = repliesPopup;
-        fragment.manager = manager;
+        fragment.repliesData = repliesData;
+        fragment.postPopupHelper = postPopupHelper;
+        fragment.presenter = presenter;
 
         return fragment;
     }
 
     public void dismissNoCallback() {
-        callback = false;
+        postPopupHelper = null;
         dismiss();
     }
 
@@ -72,8 +74,8 @@ public class PostRepliesFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
 
-        if (callback && manager != null) {
-            manager.onPostRepliesPop();
+        if (postPopupHelper != null) {
+            postPopupHelper.onPostRepliesPop();
         }
     }
 
@@ -98,8 +100,9 @@ public class PostRepliesFragment extends DialogFragment {
         container.findViewById(R.id.replies_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                manager.closeAllPostFragments();
-                dismiss();
+                if (postPopupHelper != null) {
+                    postPopupHelper.closeAllPostFragments();
+                }
             }
         });
 
@@ -117,7 +120,7 @@ public class PostRepliesFragment extends DialogFragment {
 
         activity = getActivity();
 
-        if (repliesPopup == null) {
+        if (repliesData == null) {
             // Restoring from background.
             dismiss();
         } else {
@@ -133,15 +136,15 @@ public class PostRepliesFragment extends DialogFragment {
 
                     final Post p = getItem(position);
 
-                    postView.setPost(p, manager);
-                    postView.setHighlightQuotesWithNo(repliesPopup.forNo);
+                    postView.setPost(p, presenter);
+                    postView.setHighlightQuotesWithNo(repliesData.forPost.no);
                     postView.setOnClickListeners(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            manager.closeAllPostFragments();
+                            if (postPopupHelper != null) {
+                                postPopupHelper.postClicked(p);
+                            }
                             dismiss();
-                            manager.highlightPost(p.no);
-                            manager.scrollToPost(p.no);
                         }
                     });
 
@@ -149,10 +152,10 @@ public class PostRepliesFragment extends DialogFragment {
                 }
             };
 
-            adapter.addAll(repliesPopup.posts);
+            adapter.addAll(repliesData.posts);
             listView.setAdapter(adapter);
 
-            listView.setSelectionFromTop(repliesPopup.listViewIndex, repliesPopup.listViewTop);
+            listView.setSelectionFromTop(repliesData.listViewIndex, repliesData.listViewTop);
             listView.setOnScrollListener(new AbsListView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -160,10 +163,10 @@ public class PostRepliesFragment extends DialogFragment {
 
                 @Override
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (repliesPopup != null) {
-                        repliesPopup.listViewIndex = view.getFirstVisiblePosition();
+                    if (repliesData != null) {
+                        repliesData.listViewIndex = view.getFirstVisiblePosition();
                         View v = view.getChildAt(0);
-                        repliesPopup.listViewTop = (v == null) ? 0 : v.getTop();
+                        repliesData.listViewTop = (v == null) ? 0 : v.getTop();
                     }
                 }
             });

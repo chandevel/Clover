@@ -34,16 +34,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <FrameLayout
                 android:id="@+id/left_pane"
+                style="?board_pane_left_style"
                 android:layout_width="100dp"
-                android:layout_height="match_parent"
-                style="?board_pane_left_style" />
+                android:layout_height="match_parent" />
 
             <FrameLayout
                 android:id="@+id/right_pane"
+                style="?board_pane_right_style"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                style="?board_pane_right_style" />
+                android:layout_weight="1" />
         </android.support.v4.widget.SlidingPaneLayout>
 
     </LinearLayout>

@@ -22,9 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:title="@string/pass_token" />
 
     <EditTextPreference
+        android:inputType="numberPassword"
         android:key="preference_pass_pin"
-        android:title="@string/pass_pin"
-        android:inputType="numberPassword" />
+        android:title="@string/pass_pin" />
 
     <Preference
         android:key="preference_pass_login"

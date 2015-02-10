@@ -21,13 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item
         android:id="@+id/action_add_board"
         android:icon="@drawable/ic_action_new"
-        app:showAsAction="always"
-        android:title="@string/board_add" />
+        android:title="@string/board_add"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_show_filler"
-        app:showAsAction="never"
         android:checkable="true"
-        android:title="@string/board_edit_enable_filler" />
+        android:title="@string/board_edit_enable_filler"
+        app:showAsAction="never" />
 
 </menu>

@@ -15,28 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.utils;
+package org.floens.chan.ui.controller;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
+import android.content.Context;
 
-/**
- * Extends AnimatorListener with no-op methods.
- */
-public class SimpleAnimatorListener implements AnimatorListener {
-    @Override
-    public void onAnimationCancel(Animator animation) {
+import org.floens.chan.R;
+import org.floens.chan.controller.Controller;
+
+public class SettingsController extends Controller {
+    public SettingsController(Context context) {
+        super(context);
     }
 
     @Override
-    public void onAnimationEnd(Animator animation) {
-    }
+    public void onCreate() {
+        super.onCreate();
 
-    @Override
-    public void onAnimationRepeat(Animator animation) {
-    }
+        navigationItem.title = context.getString(R.string.action_settings);
 
-    @Override
-    public void onAnimationStart(Animator animation) {
+        view = inflateRes(R.layout.settings_layout);
     }
 }

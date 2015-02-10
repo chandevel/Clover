@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:layout_gravity="center_vertical"
+    android:baselineAligned="false">
+
+    <FrameLayout
+        android:id="@+id/title_container"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="20dp"
+            android:textColor="#ffffffff"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:lines="1"
+            android:ellipsize="end"
+            android:minWidth="150dp"
+            android:paddingLeft="16dp"
+            android:drawablePadding="16dp" />
+    </FrameLayout>
+
+    <!-- menu inserted here
+     TODO: make this layout relative and make a ViewStub but with programatically added views -->
+
+</LinearLayout>

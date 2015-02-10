@@ -27,7 +27,7 @@ public class LoaderPool {
 
     private static LoaderPool instance;
 
-    private static Map<Loadable, Loader> loaders = new HashMap<>();
+    private static Map<Loadable, ChanLoader> loaders = new HashMap<>();
 
     public static LoaderPool getInstance() {
         if (instance == null) {
@@ -37,33 +37,33 @@ public class LoaderPool {
         return instance;
     }
 
-    public Loader obtain(Loadable loadable, Loader.LoaderListener listener) {
-        Loader loader = loaders.get(loadable);
-        if (loader == null) {
-            loader = new Loader(loadable);
-            loaders.put(loadable, loader);
+    public ChanLoader obtain(Loadable loadable, ChanLoader.ChanLoaderCallback listener) {
+        ChanLoader chanLoader = loaders.get(loadable);
+        if (chanLoader == null) {
+            chanLoader = new ChanLoader(loadable);
+            loaders.put(loadable, chanLoader);
         }
 
-        loader.addListener(listener);
+        chanLoader.addListener(listener);
 
-        return loader;
+        return chanLoader;
     }
 
-    public void release(Loader loader, Loader.LoaderListener listener) {
-        Loader foundLoader = null;
+    public void release(ChanLoader chanLoader, ChanLoader.ChanLoaderCallback listener) {
+        ChanLoader foundChanLoader = null;
         for (Loadable l : loaders.keySet()) {
-            if (loader.getLoadable().equals(l)) {
-                foundLoader = loaders.get(l);
+            if (chanLoader.getLoadable().equals(l)) {
+                foundChanLoader = loaders.get(l);
                 break;
             }
         }
 
-        if (foundLoader == null) {
+        if (foundChanLoader == null) {
             throw new RuntimeException("The released loader does not exist");
         }
 
-        if (loader.removeListener(listener)) {
-            loaders.remove(loader.getLoadable());
+        if (chanLoader.removeListener(listener)) {
+            loaders.remove(chanLoader.getLoadable());
         }
     }
 }

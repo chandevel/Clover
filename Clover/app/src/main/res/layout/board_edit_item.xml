@@ -22,13 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <org.floens.chan.ui.view.DragGripView
         android:id="@+id/drag_handle"
+        style="?attr/board_edit_item_style"
         android:layout_width="64dp"
         android:layout_height="match_parent"
         android:layout_gravity="fill_vertical|start"
         android:paddingBottom="12dp"
         android:paddingLeft="16dp"
-        android:paddingTop="12dp"
-        style="?attr/board_edit_item_style" />
+        android:paddingTop="12dp" />
 
     <TextView
         android:id="@+id/text"
