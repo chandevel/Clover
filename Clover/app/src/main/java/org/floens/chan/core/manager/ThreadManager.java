@@ -41,7 +41,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
-import org.floens.chan.core.loader.ChanLoader;
+import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.manager.ReplyManager.DeleteListener;
 import org.floens.chan.core.manager.ReplyManager.DeleteResponse;
@@ -56,6 +56,7 @@ import org.floens.chan.ui.fragment.PostRepliesFragment;
 import org.floens.chan.ui.fragment.ReplyFragment;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -227,11 +228,11 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
     public void showPostOptions(final Post post, PopupMenu popupMenu) {
         Menu menu = popupMenu.getMenu();
 
-        if (chanLoader.getLoadable().isBoardMode() || chanLoader.getLoadable().isCatalogMode()) {
+        if (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode()) {
             menu.add(Menu.NONE, 9, Menu.NONE, activity.getString(R.string.action_pin));
         }
 
-        if (chanLoader.getLoadable().isThreadMode()) {
+        if (loader.getLoadable().isThreadMode()) {
             menu.add(Menu.NONE, 10, Menu.NONE, activity.getString(R.string.post_quick_reply));
         }
 
@@ -241,56 +242,70 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
         }
 
         if (!TextUtils.isEmpty(post.id)) {
-            menu.add(Menu.NONE, 6, Menu.NONE, activity.getString(R.string.post_highlight_id));
+            menu.add(Menu.NONE, 7, Menu.NONE, activity.getString(R.string.post_highlight_id));
         }
 
         // Only add the delete option when the post is a saved reply
         if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
-            menu.add(Menu.NONE, 7, Menu.NONE, activity.getString(R.string.delete));
+            menu.add(Menu.NONE, 8, Menu.NONE, activity.getString(R.string.delete));
         }
 
         if (ChanPreferences.getDeveloper()) {
-            menu.add(Menu.NONE, 8, Menu.NONE, "Make this a saved reply");
+            menu.add(Menu.NONE, 9, Menu.NONE, "Make this a saved reply");
+        }
+
+        if (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode()) {
+            menu.add(Menu.NONE, 10, Menu.NONE, activity.getString(R.string.action_pin));
+        }
+
+        if (loader.getLoadable().isThreadMode()) {
+            menu.add(Menu.NONE, 11, Menu.NONE, activity.getString(R.string.post_quick_reply));
         }
 
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(final MenuItem item) {
                 switch (item.getItemId()) {
-                    case 10: // Quick reply
-                        openReply(false);
-                        // Pass through
                     case 0: // Quote
                         ChanApplication.getReplyManager().quote(post.no);
                         break;
                     case 1: // Quote inline
                         ChanApplication.getReplyManager().quoteInline(post.no, post.comment.toString());
                         break;
-                    case 2: // Info
+                    case 2: // Share
+                        if (loader.getLoadable().isThreadMode()) {
+                            Utils.shareLink(activity, ChanUrls.getPostUrlDesktop(post.board, loader.getLoadable().no, post.no));
+                        } else {
+                            Utils.shareLink(activity, ChanUrls.getThreadUrlDesktop(post.board, post.no));
+                        }
+                        break;
+                    case 3: // Info
                         showPostInfo(post);
                         break;
-                    case 3: // Show clickables
+                    case 4: // Show clickables
                         showPostLinkables(post);
                         break;
-                    case 4: // Copy text
+                    case 5: // Copy text
                         copyToClipboard(post.comment.toString());
                         break;
-                    case 5: // Report
-                        AndroidUtils.openLink(ChanUrls.getReportUrl(post.board, post.no));
+                    case 6: // Report
+                        Utils.openLink(activity, ChanUrls.getReportUrl(post.board, post.no));
                         break;
-                    case 6: // Id
+                    case 7: // Id
                         highlightedId = post.id;
                         threadManagerListener.onRefreshView();
                         break;
-                    case 7: // Delete
+                    case 8: // Delete
                         deletePost(post);
                         break;
-                    case 8: // Save reply
+                    case 9: // Save reply
                         ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
                         break;
-                    case 9: // Pin
+                    case 10: // Pin
                         ChanApplication.getWatchManager().addPin(post);
                         break;
+                    case 11: // Quick reply
+                        openReply(false); // Pass through
                 }
                 return false;
             }

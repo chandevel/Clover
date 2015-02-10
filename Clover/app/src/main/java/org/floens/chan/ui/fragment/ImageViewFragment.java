@@ -22,6 +22,8 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,6 +56,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     private ImageViewActivity activity;
 
     private ThumbnailImageView imageView;
+    private ConnectivityManager conManager;
 
     private Post post;
     private boolean showProgressBar = true;
@@ -71,6 +74,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         ImageViewFragment imageViewFragment = new ImageViewFragment();
         imageViewFragment.post = post;
         imageViewFragment.activity = activity;
+        imageViewFragment.conManager = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         return imageViewFragment;
     }
@@ -187,7 +191,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
         activity.invalidateActionBar();
 
-        if (isVideo && ChanPreferences.getVideoAutoPlay() && imageView != null) {
+        if (isVideo && shouldPlayVideo() && imageView != null) {
             if (!videoVisible) {
                 startVideo();
             } else {
@@ -243,6 +247,10 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 AndroidUtils.openLink(post.imageUrl);
                 break;
             case R.id.action_image_save:
+                ImageSaver.getInstance().saveImage(context, post.imageUrl,
+                        ChanPreferences.getImageSaveOriginalFilename() ? Long.toString(post.tim) : post.filename, post.ext,
+                        item.getItemId() == R.id.action_share);
+                break;
             case R.id.action_share:
                 if (ChanPreferences.getImageShareUrl()) {
                     shareImageUrl(post.imageUrl);
@@ -321,6 +329,24 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     public void showProgressBar(boolean e) {
         showProgressBar = e;
         activity.updateActionBarIfSelected(this);
+    }
+
+    public boolean shouldPlayVideo() {
+        int autoPlaySetting = ChanPreferences.getVideoAutoPlay();
+
+        if(autoPlaySetting == 3) {
+            return true;
+        } else if(autoPlaySetting != 0) {
+            NetworkInfo.State mobile = conManager.getNetworkInfo(0).getState();
+            NetworkInfo.State wifi = conManager.getNetworkInfo(1).getState();
+
+            if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING) {
+                return autoPlaySetting == 1;
+            } else if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
+                return autoPlaySetting == 2;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -35,6 +35,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>19</item>
     </string-array>
 
+    <string-array name="preference_autoplay_types_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
     <string-array name="watch_background_timeouts_int">
         <item>60</item>
         <item>120</item>

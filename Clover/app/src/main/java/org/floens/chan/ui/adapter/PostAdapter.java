@@ -18,11 +18,13 @@
 package org.floens.chan.ui.adapter;
 
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -31,10 +33,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.core.loader.Loader;
+import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.ScrollerRunnable;
 import org.floens.chan.ui.view.PostView;
+import org.floens.chan.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +55,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     private final Object lock = new Object();
 
     private final Context context;
+    private final AbsListView listView;
 
     private final PostAdapterCallback postAdapterCallback;
     private final PostView.PostViewCallback postViewCallback;
@@ -97,9 +104,8 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public Post getItem(int position) {
-        int realPosition = position;
-        if (realPosition >= 0 && realPosition < displayList.size()) {
-            return displayList.get(realPosition);
+        if (position >= 0 && position < displayList.size()) {
+            return displayList.get(position);
         } else {
             return null;
         }

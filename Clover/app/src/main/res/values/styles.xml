@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent_material_light</item>
+        <item name="colorAccent">@color/primary_accent</item>
 
         <item name="android:windowBackground">@android:color/white</item>
 

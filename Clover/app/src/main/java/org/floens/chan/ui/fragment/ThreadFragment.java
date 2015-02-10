@@ -19,6 +19,7 @@ package org.floens.chan.ui.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -202,7 +203,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (loadable.isThreadMode()) {
+        if (loadable != null && loadable.isThreadMode()) {
             switch (item.getItemId()) {
                 case R.id.action_download_album:
                     // Get the posts with images
@@ -390,7 +391,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
         compound.addView(listViewContainer, AndroidUtils.MATCH_PARAMS);
 
-        if (loadable.isThreadMode()) {
+        if (loadable.isThreadMode() && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             skip = new ImageView(getActivity());
             skip.setImageResource(R.drawable.skip_arrow_down);
             skip.setVisibility(View.GONE);

@@ -101,7 +101,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <item
         android:id="@+id/action_share"
-        android:actionProviderClass="android.widget.ShareActionProvider"
         android:orderInCategory="7"
         android:title="@string/action_share"
         app:showAsAction="never" />
