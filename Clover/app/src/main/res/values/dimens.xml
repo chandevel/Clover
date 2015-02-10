@@ -22,4 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <dimen name="post_grid_width">90dp</dimen>
     <!--<dimen name="post_grid_height">300dp</dimen>-->
+
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="button_elevation">2dp</dimen>
+    <dimen name="button_press_elevation">4dp</dimen>
 </resources>

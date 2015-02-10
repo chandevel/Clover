@@ -1,0 +1,21 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ImageButton
+        android:id="@+id/fab"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ripple"
+        android:stateListAnimator="@anim/float_animation"
+        android:src="@drawable/ic_action_write"
+        android:elevation="4dp"/>
+
+</RelativeLayout>

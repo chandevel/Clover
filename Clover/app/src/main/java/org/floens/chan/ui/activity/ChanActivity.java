@@ -17,13 +17,16 @@
  */
 package org.floens.chan.ui.activity;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Outline;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -34,9 +37,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -131,6 +136,8 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         }
 
         ignoreNextOnItemSelected = true;
+
+        setFloatButton();
     }
 
     @Override
@@ -267,6 +274,30 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     public void onBoardsChanged() {
         spinnerAdapter.setBoards();
         spinnerAdapter.notifyDataSetChanged();
+    }
+
+    public void setFloatButton() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            MenuItem item = menu.findItem(R.id.addAction);
+
+            ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    // Or read size directly from the view's width/height
+                    int size = getResources().getDimensionPixelSize(R.dimen.fab_size);
+                    outline.setOval(0, 0, size, size);
+                }
+            };
+            ImageButton float_button = (ImageButton) findViewById(R.id.fab);
+            float_button.setOutlineProvider(viewOutlineProvider);
+            float_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    boardFragment.openReply();
+                }
+            });
+        }
     }
 
     private void handleExtraBundle(Bundle extras) {
