@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -278,8 +279,6 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
     public void setFloatButton() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            MenuItem item = menu.findItem(R.id.addAction);
-
             ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
                 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
@@ -294,7 +293,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
             float_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    boardFragment.openReply();
+                    reply();
                 }
             });
         }
@@ -500,11 +499,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                 threadFragment.reload();
                 return true;
             case R.id.action_reply:
-                if (threadPane.isOpen()) {
-                    boardFragment.openReply();
-                } else {
-                    threadFragment.openReply();
-                }
+                reply();
                 return true;
             case R.id.action_reply_board:
                 boardFragment.openReply();
@@ -567,6 +562,18 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void reply() {
+        Loader loader = null;
+        if (threadFragment.hasLoader()) {
+            loader = threadFragment.getLoader();
+        }
+        if (threadPane.isOpen() || loader == null) {
+            boardFragment.openReply();
+        } else {
+            threadFragment.openReply();
+        }
     }
 
     @Override
