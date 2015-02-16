@@ -25,9 +25,6 @@ import android.view.ViewConfiguration;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.builder.Builders;
-import com.koushikdutta.ion.builder.LoadBuilder;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
@@ -101,10 +98,6 @@ public class ChanApplication extends Application {
         return fileCache;
     }
 
-    public static LoadBuilder<Builders.Any.B> getIon() {
-        return Ion.getDefault(getInstance()).build(getInstance());
-    }
-
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(instance);
     }
@@ -133,9 +126,6 @@ public class ChanApplication extends Application {
         ChanUrls.loadScheme(ChanPreferences.getNetworkHttps());
 
         IconCache.createIcons(this);
-
-        Ion.getDefault(getInstance()).getCache().clear();
-        Ion.getDefault(getInstance()).getCache().setMaxSize(1 * 1024 * 1024);
 
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
 

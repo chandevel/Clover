@@ -44,15 +44,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.android.volley.Request.Method;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.NetworkImageView;
-import com.android.volley.toolbox.StringRequest;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
@@ -79,6 +74,7 @@ public class ReplyFragment extends DialogFragment {
     private final Reply draft = new Reply();
     private boolean shouldSaveDraft = true;
 
+    private boolean gotInitialCaptcha = false;
     private boolean gettingCaptcha = false;
     private String captchaChallenge = "";
 
@@ -208,8 +204,6 @@ public class ReplyFragment extends DialogFragment {
                 }
             });
             showCommentCount();
-
-            getCaptcha();
         } else {
             Logger.e(TAG, "Loadable in ReplyFragment was null");
             closeReply();
@@ -273,12 +267,6 @@ public class ReplyFragment extends DialogFragment {
         });
         captchaInput = (TextView) container.findViewById(R.id.reply_captcha);
 
-        if (ChanPreferences.getPassEnabled()) {
-            ((TextView) container.findViewById(R.id.reply_captcha_text)).setText(R.string.pass_using);
-            container.findViewById(R.id.reply_captcha_container).setVisibility(View.GONE);
-            container.findViewById(R.id.reply_captcha).setVisibility(View.GONE);
-        }
-
         cancelButton = (Button) container.findViewById(R.id.reply_cancel);
         cancelButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -318,11 +306,11 @@ public class ReplyFragment extends DialogFragment {
         submitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (page == 0) {
-                    flipPage(1);
-                } else if (page == 1) {
+                if (page == 1 || ChanPreferences.getPassEnabled()) {
                     flipPage(2);
                     submit();
+                } else {
+                    flipPage(1);
                 }
             }
         });
@@ -410,12 +398,11 @@ public class ReplyFragment extends DialogFragment {
         if (flipBack) {
             flipper.setInAnimation(ViewFlipperAnimations.BACK_IN);
             flipper.setOutAnimation(ViewFlipperAnimations.BACK_OUT);
-            flipper.showPrevious();
         } else {
             flipper.setInAnimation(ViewFlipperAnimations.NEXT_IN);
             flipper.setOutAnimation(ViewFlipperAnimations.NEXT_OUT);
-            flipper.showNext();
         }
+        flipper.setDisplayedChild(position);
 
         if (page == 0) {
             cancelButton.setText(R.string.cancel);
@@ -423,6 +410,11 @@ public class ReplyFragment extends DialogFragment {
             cancelButton.setText(R.string.back);
         } else if (page == 2) {
             cancelButton.setText(R.string.close);
+        }
+
+        if (page == 1 && !gotInitialCaptcha) {
+            gotInitialCaptcha = true;
+            getCaptcha();
         }
     }
 
@@ -527,29 +519,22 @@ public class ReplyFragment extends DialogFragment {
         captchaContainer.setView(null);
         captchaInput.setText("");
 
-        String url = ChanUrls.getCaptchaChallengeUrl();
-
-        ChanApplication.getVolleyRequestQueue().add(new StringRequest(Method.GET, url, new Response.Listener<String>() {
+        ChanApplication.getReplyManager().getCaptchaChallenge(new ReplyManager.CaptchaChallengeListener() {
             @Override
-            public void onResponse(String result) {
+            public void onChallenge(String imageUrl, String challenge) {
+                gettingCaptcha = false;
+
                 if (context != null) {
-                    String challenge = ReplyManager.getChallenge(result);
-                    if (challenge != null) {
-                        captchaChallenge = challenge;
-                        String imageUrl = ChanUrls.getCaptchaImageUrl(challenge);
+                    captchaChallenge = challenge;
 
-                        NetworkImageView captchaImage = new NetworkImageView(context);
-                        captchaImage.setImageUrl(imageUrl, ChanApplication.getVolleyImageLoader());
-                        captchaContainer.setView(captchaImage);
-
-                        gettingCaptcha = false;
-                    }
+                    NetworkImageView captchaImage = new NetworkImageView(context);
+                    captchaImage.setImageUrl(imageUrl, ChanApplication.getVolleyImageLoader());
+                    captchaContainer.setView(captchaImage);
                 }
             }
-        }, new Response.ErrorListener() {
+
             @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
+            public void onError() {
                 gettingCaptcha = false;
 
                 if (context != null) {
@@ -559,7 +544,7 @@ public class ReplyFragment extends DialogFragment {
                     captchaContainer.setView(text);
                 }
             }
-        }));
+        });
     }
 
     /**
@@ -620,7 +605,11 @@ public class ReplyFragment extends DialogFragment {
             submitButton.setEnabled(true);
             cancelButton.setEnabled(true);
             setClosable(true);
-            flipPage(1);
+            if (ChanPreferences.getPassEnabled()) {
+                flipPage(0);
+            } else {
+                flipPage(1);
+            }
             getCaptcha();
             captchaInput.setText("");
         } else if (response.isSuccessful) {

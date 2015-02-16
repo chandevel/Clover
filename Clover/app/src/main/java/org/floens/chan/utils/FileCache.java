@@ -1,20 +1,32 @@
 package org.floens.chan.utils;
 
-import android.content.Context;
 import android.util.Log;
 
-import com.koushikdutta.async.future.Future;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.ProgressCallback;
-import com.koushikdutta.ion.Response;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
+import com.squareup.okhttp.internal.Util;
 
-import org.floens.chan.ChanApplication;
-
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
-import java.util.concurrent.CancellationException;
+import java.io.FileOutputStream;
+import java.io.InterruptedIOException;
+import java.io.OutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import okio.BufferedSource;
 
 public class FileCache {
     private static final String TAG = "FileCache";
+
+    private static final ExecutorService executor = Executors.newFixedThreadPool(2);
+
+    private OkHttpClient httpClient;
 
     private final File directory;
     private final long maxSize;
@@ -24,6 +36,8 @@ public class FileCache {
     public FileCache(File directory, long maxSize) {
         this.directory = directory;
         this.maxSize = maxSize;
+
+        httpClient = new OkHttpClient();
 
         makeDir();
         calculateSize();
@@ -47,57 +61,16 @@ public class FileCache {
         return file.delete();
     }
 
-    public Future<Response<File>> downloadFile(Context context, String url, final DownloadedCallback callback) {
-        File file = get(url);
+    public Future<?> downloadFile(final String urlString, final DownloadedCallback callback) {
+        File file = get(urlString);
         if (file.exists()) {
             file.setLastModified(Time.get());
             callback.onProgress(0, 0, true);
             callback.onSuccess(file);
             return null;
         } else {
-            return ChanApplication.getIon()
-                    .load(url)
-                    .progress(new ProgressCallback() {
-                        @Override
-                        public void onProgress(final long downloaded, final long total) {
-                            Utils.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    callback.onProgress(downloaded, total, false);
-                                }
-                            });
-                        }
-                    })
-                    .write(file)
-                    .withResponse()
-                    .setCallback(new FutureCallback<Response<File>>() {
-                        @Override
-                        public void onCompleted(Exception e, Response<File> result) {
-                            callback.onProgress(0, 0, true);
-
-                            if (result != null && result.getHeaders() != null && result.getHeaders().code() / 100 != 2) {
-                                if (result.getResult() != null) {
-                                    delete(result.getResult());
-                                }
-                                callback.onFail(true);
-                                return;
-                            }
-
-                            if (e != null && !(e instanceof CancellationException)) {
-                                e.printStackTrace();
-                                if (result != null && result.getResult() != null) {
-                                    delete(result.getResult());
-                                }
-                                callback.onFail(false);
-                                return;
-                            }
-
-                            if (result != null && result.getResult() != null) {
-                                put(result.getResult());
-                                callback.onSuccess(result.getResult());
-                            }
-                        }
-                    });
+            FileCacheDownloader downloader = new FileCacheDownloader(this, urlString, file, callback);
+            return executor.submit(downloader);
         }
     }
 
@@ -162,5 +135,176 @@ public class FileCache {
         public void onSuccess(File file);
 
         public void onFail(boolean notFound);
+    }
+
+    private static class FileCacheDownloader implements Runnable {
+        private final FileCache fileCache;
+        private final String url;
+        private final File output;
+        private final DownloadedCallback callback;
+        private boolean cancelled = false;
+
+        private Closeable downloadInput;
+        private Closeable downloadOutput;
+        private Call call;
+        private ResponseBody body;
+
+        public FileCacheDownloader(FileCache fileCache, String url, File output, DownloadedCallback callback) {
+            this.fileCache = fileCache;
+            this.url = url;
+            this.output = output;
+            this.callback = callback;
+        }
+
+        public void run() {
+            try {
+                execute();
+            } catch (InterruptedIOException | InterruptedException e) {
+                cancelDueToCancellation(e);
+            } catch (Exception e) {
+                cancelDueToException(e);
+            } finally {
+                finish();
+            }
+        }
+
+        private void cancelDueToException(Exception e) {
+            if (cancelled) return;
+            cancelled = true;
+
+            Log.w(TAG, "IOException downloading file", e);
+
+            purgeOutput();
+
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onProgress(0, 0, true);
+                    callback.onFail(false);
+                }
+            });
+        }
+
+        private void cancelDueToHttpError(final int code) {
+            if (cancelled) return;
+            cancelled = true;
+
+            Log.w(TAG, "Cancel due to http error, code: " + code);
+
+            purgeOutput();
+
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onProgress(0, 0, true);
+                    callback.onFail(code == 404);
+                }
+            });
+        }
+
+        private void cancelDueToCancellation(Exception e) {
+            if (cancelled) return;
+            cancelled = true;
+
+            Log.d(TAG, "Cancel due to cancellation");
+
+            purgeOutput();
+
+            // No callback
+        }
+
+        private void success() {
+            fileCache.put(output);
+
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onProgress(0, 0, true);
+                    callback.onSuccess(output);
+                }
+            });
+            call = null;
+        }
+
+        private void finish() {
+            Util.closeQuietly(downloadInput);
+            Util.closeQuietly(downloadOutput);
+
+            if (call != null) {
+                call.cancel();
+                call = null;
+            }
+
+            if (body != null) {
+                Util.closeQuietly(body);
+                body = null;
+            }
+        }
+
+        private void purgeOutput() {
+            if (output.exists()) {
+                if (!output.delete()) {
+                    Log.w(TAG, "Could not delete the file in purgeOutput");
+                }
+            }
+        }
+
+        private long progressDownloaded;
+        private long progressTotal;
+        private boolean progressDone;
+        private final Runnable progressRunnable = new Runnable() {
+            @Override
+            public void run() {
+                callback.onProgress(progressDownloaded, progressTotal, progressDone);
+            }
+        };
+
+        private void progress(long downloaded, long total, boolean done) {
+            progressDownloaded = downloaded;
+            progressTotal = total;
+            progressDone = done;
+            post(progressRunnable);
+        }
+
+        private void post(Runnable runnable) {
+            Utils.runOnUiThread(runnable);
+        }
+
+        private void execute() throws Exception {
+            Request request = new Request.Builder().url(url).build();
+
+            call = fileCache.httpClient.newCall(request);
+            Response response = call.execute();
+            if (!response.isSuccessful()) {
+                cancelDueToHttpError(response.code());
+                return;
+            }
+
+            body = response.body();
+            long contentLength = body.contentLength();
+            BufferedSource source = body.source();
+            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(output));
+
+            downloadInput = source;
+            downloadOutput = outputStream;
+
+            int read;
+            long total = 0;
+            long totalLast = 0;
+            byte[] buffer = new byte[4096];
+            while ((read = source.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+                total += read;
+
+                if (total >= totalLast + 16384) {
+                    totalLast = total;
+                    progress(total, contentLength, false);
+                }
+            }
+
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
+
+            success();
+        }
     }
 }
