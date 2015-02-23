@@ -29,7 +29,7 @@ import android.widget.ProgressBar;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ImageSearch;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.ThemeActivity;

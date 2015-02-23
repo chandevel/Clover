@@ -44,7 +44,7 @@ import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.EndOfLineException;
 import org.floens.chan.core.manager.ThreadManager;

@@ -15,24 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.ui.controller;
+package org.floens.chan.ui.view;
 
-import android.content.Context;
+public class FloatingMenuItem {
+    private Object id;
+    private String text;
 
-import org.floens.chan.R;
-import org.floens.chan.controller.Controller;
-
-public class SettingsController extends Controller {
-    public SettingsController(Context context) {
-        super(context);
+    public FloatingMenuItem(Object id, String text) {
+        this.id = id;
+        this.text = text;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    public Object getId() {
+        return id;
+    }
 
-        navigationItem.title = context.getString(R.string.action_settings);
-
-        view = inflateRes(R.layout.settings_layout);
+    public String getText() {
+        return text;
     }
 }

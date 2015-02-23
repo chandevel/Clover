@@ -24,7 +24,7 @@ import android.preference.PreferenceFragment;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.fragment.FolderPickFragment;
 

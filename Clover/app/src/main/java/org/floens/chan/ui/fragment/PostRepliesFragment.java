@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.helper.PostPopupHelper;

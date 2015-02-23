@@ -19,10 +19,12 @@ package org.floens.chan.ui.toolbar;
 
 import android.widget.LinearLayout;
 
+import org.floens.chan.ui.view.FloatingMenu;
+
 public class NavigationItem {
     public String title = "";
     public ToolbarMenu menu;
     public boolean hasBack = true;
     public LinearLayout view;
-    public ToolbarMenuSubMenu middleMenu;
+    public FloatingMenu middleMenu;
 }

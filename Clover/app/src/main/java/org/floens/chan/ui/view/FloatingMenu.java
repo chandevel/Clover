@@ -15,10 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.ui.toolbar;
+package org.floens.chan.ui.view;
 
 import android.content.Context;
-import android.support.v4.view.GravityCompat;
 import android.support.v7.widget.ListPopupWindow;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,31 +38,34 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class ToolbarMenuSubMenu {
+public class FloatingMenu {
+    public static final int POPUP_WIDTH_AUTO = -1;
+    public static final int POPUP_WIDTH_ANCHOR = -2;
+
     private final Context context;
     private View anchor;
-    private int anchorGravity;
+    private int anchorGravity = Gravity.LEFT;
     private int anchorOffsetX;
     private int anchorOffsetY;
-    private int popupWidth = -1;
-    private List<ToolbarMenuSubItem> items;
-    private ToolbarMenuSubItem selectedItem;
+    private int popupWidth = POPUP_WIDTH_AUTO;
+    private List<FloatingMenuItem> items;
+    private FloatingMenuItem selectedItem;
     private ListAdapter adapter;
     private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener;
 
     private ListPopupWindow popupWindow;
-    private ToolbarMenuItemSubMenuCallback callback;
+    private FloatingMenuCallback callback;
 
-    public ToolbarMenuSubMenu(Context context, View anchor, List<ToolbarMenuSubItem> items) {
+    public FloatingMenu(Context context, View anchor, List<FloatingMenuItem> items) {
         this.context = context;
         this.anchor = anchor;
-        anchorGravity = Gravity.RIGHT | Gravity.TOP;
         anchorOffsetX = -dp(5);
         anchorOffsetY = dp(5);
+        anchorGravity = Gravity.RIGHT;
         this.items = items;
     }
 
-    public ToolbarMenuSubMenu(Context context) {
+    public FloatingMenu(Context context) {
         this.context = context;
     }
 
@@ -81,14 +83,14 @@ public class ToolbarMenuSubMenu {
         }
     }
 
-    public void setItems(List<ToolbarMenuSubItem> items) {
+    public void setItems(List<FloatingMenuItem> items) {
         this.items = items;
         if (popupWindow != null) {
             popupWindow.dismiss();
         }
     }
 
-    public void setSelectedItem(ToolbarMenuSubItem item) {
+    public void setSelectedItem(FloatingMenuItem item) {
         this.selectedItem = item;
     }
 
@@ -96,7 +98,7 @@ public class ToolbarMenuSubMenu {
         this.adapter = adapter;
     }
 
-    public void setCallback(ToolbarMenuItemSubMenuCallback callback) {
+    public void setCallback(FloatingMenuCallback callback) {
         this.callback = callback;
     }
 
@@ -104,13 +106,15 @@ public class ToolbarMenuSubMenu {
         popupWindow = new ListPopupWindow(context);
         popupWindow.setAnchorView(anchor);
         popupWindow.setModal(true);
-        popupWindow.setDropDownGravity(GravityCompat.END | Gravity.TOP);
+        popupWindow.setDropDownGravity(anchorGravity);
         popupWindow.setVerticalOffset(-anchor.getHeight() + anchorOffsetY);
         popupWindow.setHorizontalOffset(anchorOffsetX);
-        if (popupWidth > 0) {
-            popupWindow.setContentWidth(popupWidth);
-        } else {
+        if (popupWidth == POPUP_WIDTH_ANCHOR) {
+            popupWindow.setContentWidth(Math.min(dp(4 * 56), anchor.getWidth()));
+        } else if (popupWidth == POPUP_WIDTH_AUTO) {
             popupWindow.setContentWidth(dp(3 * 56));
+        } else {
+            popupWindow.setContentWidth(popupWidth);
         }
 
         List<String> stringItems = new ArrayList<>(items.size());
@@ -125,17 +129,17 @@ public class ToolbarMenuSubMenu {
         if (adapter != null) {
             popupWindow.setAdapter(adapter);
         } else {
-            popupWindow.setAdapter(new SubMenuArrayAdapter(context, R.layout.toolbar_menu_item, stringItems));
+            popupWindow.setAdapter(new FloatingMenuArrayAdapter(context, R.layout.toolbar_menu_item, stringItems));
         }
 
         popupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 0 && position < items.size()) {
-                    callback.onSubMenuItemClicked(ToolbarMenuSubMenu.this, items.get(position));
+                    callback.onFloatingMenuItemClicked(FloatingMenu.this, items.get(position));
                     popupWindow.dismiss();
                 } else {
-                    callback.onSubMenuItemClicked(ToolbarMenuSubMenu.this, null);
+                    callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
                 }
             }
         });
@@ -166,12 +170,12 @@ public class ToolbarMenuSubMenu {
         popupWindow.setSelection(selectedPosition);
     }
 
-    public interface ToolbarMenuItemSubMenuCallback {
-        public void onSubMenuItemClicked(ToolbarMenuSubMenu menu, ToolbarMenuSubItem item);
+    public interface FloatingMenuCallback {
+        public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item);
     }
 
-    private static class SubMenuArrayAdapter extends ArrayAdapter<String> {
-        public SubMenuArrayAdapter(Context context, int resource, List<String> objects) {
+    private static class FloatingMenuArrayAdapter extends ArrayAdapter<String> {
+        public FloatingMenuArrayAdapter(Context context, int resource, List<String> objects) {
             super(context, resource, objects);
         }
 

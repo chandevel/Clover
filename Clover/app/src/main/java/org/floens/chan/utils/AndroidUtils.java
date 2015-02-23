@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
@@ -28,6 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +40,9 @@ import android.widget.Toast;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class AndroidUtils {
     public final static ViewGroup.LayoutParams MATCH_PARAMS = new ViewGroup.LayoutParams(
@@ -65,6 +69,10 @@ public class AndroidUtils {
 
     public static Context getAppRes() {
         return ChanApplication.con;
+    }
+
+    public static SharedPreferences getPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(ChanApplication.con);
     }
 
     public static void openLink(String link) {
@@ -208,5 +216,22 @@ public class AndroidUtils {
 
         arr.recycle();
         view.setBackgroundDrawable(drawable);
+    }
+
+    public static List<View> findViewsById(ViewGroup root, int id) {
+        List<View> views = new ArrayList<>();
+        int childCount = root.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = root.getChildAt(i);
+            if (child instanceof ViewGroup) {
+                views.addAll(findViewsById((ViewGroup) child, id));
+            }
+
+            if (child.getId() == id) {
+                views.add(child);
+            }
+        }
+
+        return views;
     }
 }

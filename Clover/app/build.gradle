@@ -17,6 +17,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     /*
     If you want to sign releases, make a file in app/keys.properties with the following content:
     keystoreFile=yourkey.store

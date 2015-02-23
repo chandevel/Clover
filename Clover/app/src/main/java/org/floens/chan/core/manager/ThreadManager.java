@@ -40,7 +40,7 @@ import com.android.volley.VolleyError;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.manager.ReplyManager.DeleteListener;

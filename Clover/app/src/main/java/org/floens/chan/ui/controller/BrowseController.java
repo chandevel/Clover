@@ -35,14 +35,14 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.toolbar.ToolbarMenuSubItem;
-import org.floens.chan.ui.toolbar.ToolbarMenuSubMenu;
+import org.floens.chan.ui.view.FloatingMenu;
+import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowseController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, ToolbarMenuSubMenu.ToolbarMenuItemSubMenuCallback, BoardManager.BoardChangeListener {
+public class BrowseController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, BoardManager.BoardChangeListener {
     private static final int REFRESH_ID = 1;
     private static final int POST_ID = 2;
     private static final int SEARCH_ID = 101;
@@ -50,7 +50,7 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
     private static final int SETTINGS_ID = 103;
 
     private ThreadLayout threadLayout;
-    private List<ToolbarMenuSubItem> boardItems;
+    private List<FloatingMenuItem> boardItems;
 
     public BrowseController(Context context) {
         super(context);
@@ -62,7 +62,7 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
 
         ChanApplication.getBoardManager().addListener(this);
 
-        navigationItem.middleMenu = new ToolbarMenuSubMenu(context);
+        navigationItem.middleMenu = new FloatingMenu(context);
         navigationItem.middleMenu.setCallback(this);
         loadBoards();
 
@@ -76,12 +76,12 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
 
         ToolbarMenuItem overflow = menu.createOverflow(this);
 
-        List<ToolbarMenuSubItem> items = new ArrayList<>();
-        items.add(new ToolbarMenuSubItem(SEARCH_ID, context.getString(R.string.action_search)));
-        items.add(new ToolbarMenuSubItem(SHARE_ID, context.getString(R.string.action_share)));
-        items.add(new ToolbarMenuSubItem(SETTINGS_ID, context.getString(R.string.action_settings)));
+        List<FloatingMenuItem> items = new ArrayList<>();
+        items.add(new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)));
+        items.add(new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)));
+        items.add(new FloatingMenuItem(SETTINGS_ID, context.getString(R.string.action_settings)));
 
-        overflow.setSubMenu(new ToolbarMenuSubMenu(context, overflow.getView(), items));
+        overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
 
         threadLayout = new ThreadLayout(context);
         threadLayout.setCallback(this);
@@ -111,8 +111,8 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
     }
 
     @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, ToolbarMenuSubItem item) {
-        switch (item.getId()) {
+    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+        switch ((Integer) item.getId()) {
             case SEARCH_ID:
                 // TODO
                 break;
@@ -121,17 +121,17 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
                 AndroidUtils.shareLink(link);
                 break;
             case SETTINGS_ID:
-                SettingsController settingsController = new SettingsController(context);
-                navigationController.pushController(settingsController);
+                MainSettingsController mainSettingsController = new MainSettingsController(context);
+                navigationController.pushController(mainSettingsController);
                 break;
         }
     }
 
     @Override
-    public void onSubMenuItemClicked(ToolbarMenuSubMenu menu, ToolbarMenuSubItem item) {
+    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
         if (menu == navigationItem.middleMenu) {
-            if (item instanceof ToolbarMenuSubItemBoard) {
-                loadBoard(((ToolbarMenuSubItemBoard) item).board);
+            if (item instanceof FloatingMenuItemBoard) {
+                loadBoard(((FloatingMenuItemBoard) item).board);
                 navigationController.toolbar.updateNavigation();
             } else {
                 // TODO start board editor
@@ -161,8 +161,8 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         threadLayout.getPresenter().bindLoadable(loadable);
         threadLayout.getPresenter().requestData();
 
-        for (ToolbarMenuSubItem item : boardItems) {
-            if (((ToolbarMenuSubItemBoard) item).board == board) {
+        for (FloatingMenuItem item : boardItems) {
+            if (((FloatingMenuItemBoard) item).board == board) {
                 navigationItem.middleMenu.setSelectedItem(item);
             }
         }
@@ -172,7 +172,7 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         List<Board> boards = ChanApplication.getBoardManager().getSavedBoards();
         boardItems = new ArrayList<>();
         for (Board board : boards) {
-            ToolbarMenuSubItem item = new ToolbarMenuSubItemBoard(board);
+            FloatingMenuItem item = new FloatingMenuItemBoard(board);
             boardItems.add(item);
         }
 
@@ -180,10 +180,10 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         navigationItem.middleMenu.setAdapter(new BoardsAdapter(context, boardItems));
     }
 
-    private static class ToolbarMenuSubItemBoard extends ToolbarMenuSubItem {
+    private static class FloatingMenuItemBoard extends FloatingMenuItem {
         public Board board;
 
-        public ToolbarMenuSubItemBoard(Board board) {
+        public FloatingMenuItemBoard(Board board) {
             super(board.id, board.key);
             this.board = board;
         }
@@ -191,9 +191,9 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
 
     private static class BoardsAdapter extends BaseAdapter {
         private final Context context;
-        private List<ToolbarMenuSubItem> items;
+        private List<FloatingMenuItem> items;
 
-        public BoardsAdapter(Context context, List<ToolbarMenuSubItem> items) {
+        public BoardsAdapter(Context context, List<FloatingMenuItem> items) {
             this.context = context;
             this.items = items;
         }

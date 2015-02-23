@@ -28,7 +28,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;

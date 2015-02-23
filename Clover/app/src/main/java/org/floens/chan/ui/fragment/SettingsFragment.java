@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.ui.activity.AboutActivity;
 import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.SettingsActivity;

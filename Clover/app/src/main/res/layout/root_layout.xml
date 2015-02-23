@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@color/primary"
-            android:elevation="8dp" />
+            android:elevation="4dp" />
 
         <FrameLayout
             android:id="@+id/container"

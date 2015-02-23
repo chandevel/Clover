@@ -22,7 +22,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 
 import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 
 public class ThemeHelper {
     public enum Theme {

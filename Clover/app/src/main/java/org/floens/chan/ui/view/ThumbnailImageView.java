@@ -37,7 +37,7 @@ import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.ChanPreferences;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.Logger;

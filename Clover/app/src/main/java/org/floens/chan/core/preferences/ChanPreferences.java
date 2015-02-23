@@ -15,18 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core;
+package org.floens.chan.core.preferences;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
 
 public class ChanPreferences {
+    public static StringPreference defaultName;
+    public static StringPreference testTheme;
+
+    static {
+        SharedPreferences p = AndroidUtils.getPreferences();
+        defaultName = new StringPreference(p, "preference_default_name", "");
+        testTheme = new StringPreference(p, "preference_test_theme", "dark");
+    }
+
     private static SharedPreferences p() {
-        return ChanApplication.getPreferences();
+        return AndroidUtils.getPreferences();
     }
 
     public static boolean getOpenLinkConfirmation() {

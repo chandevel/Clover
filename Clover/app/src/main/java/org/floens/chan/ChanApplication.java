@@ -19,8 +19,6 @@ package org.floens.chan;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.view.ViewConfiguration;
 
 import com.android.volley.RequestQueue;
@@ -31,11 +29,11 @@ import com.koushikdutta.ion.builder.Builders;
 import com.koushikdutta.ion.builder.LoadBuilder;
 
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
+import org.floens.chan.core.preferences.ChanPreferences;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.FileCache;
@@ -71,6 +69,7 @@ public class ChanApplication extends Application {
 
     public ChanApplication() {
         instance = this;
+        con = this;
     }
 
     public static ChanApplication getInstance() {
@@ -109,15 +108,9 @@ public class ChanApplication extends Application {
         return Ion.getDefault(getInstance()).build(getInstance());
     }
 
-    public static SharedPreferences getPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(instance);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-
-        con = this;
 
         // Force the overflow button to show, even on devices that have a
         // physical button.

@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v4.view.GravityCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -228,7 +227,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         // black: titleView.setTextColor(Color.argb((int)(0.87 * 255.0), 0, 0, 0));
 
         if (item.middleMenu != null) {
-            item.middleMenu.setAnchor(titleView, GravityCompat.END | Gravity.TOP, dp(5), dp(5)); // TODO gravity left doesn't work
+            item.middleMenu.setAnchor(titleView, Gravity.LEFT, dp(5), dp(5));
 
             Drawable drawable = new DropdownArrowDrawable();
             titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);

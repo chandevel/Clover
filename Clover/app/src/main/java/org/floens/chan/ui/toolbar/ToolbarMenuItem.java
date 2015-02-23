@@ -25,14 +25,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.floens.chan.R;
+import org.floens.chan.ui.view.FloatingMenu;
+import org.floens.chan.ui.view.FloatingMenuItem;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
 
-public class ToolbarMenuItem implements View.OnClickListener, ToolbarMenuSubMenu.ToolbarMenuItemSubMenuCallback {
+public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.FloatingMenuCallback {
     private ToolbarMenuItemCallback callback;
     private int id;
-    private ToolbarMenuSubMenu subMenu;
+    private FloatingMenu subMenu;
 
     private ImageView imageView;
 
@@ -65,7 +67,7 @@ public class ToolbarMenuItem implements View.OnClickListener, ToolbarMenuSubMenu
         }
     }
 
-    public void setSubMenu(ToolbarMenuSubMenu subMenu) {
+    public void setSubMenu(FloatingMenu subMenu) {
         this.subMenu = subMenu;
         subMenu.setCallback(this);
     }
@@ -91,13 +93,13 @@ public class ToolbarMenuItem implements View.OnClickListener, ToolbarMenuSubMenu
     }
 
     @Override
-    public void onSubMenuItemClicked(ToolbarMenuSubMenu menu, ToolbarMenuSubItem item) {
+    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
         callback.onSubMenuItemClicked(this, item);
     }
 
     public interface ToolbarMenuItemCallback {
         public void onMenuItemClicked(ToolbarMenuItem item);
 
-        public void onSubMenuItemClicked(ToolbarMenuItem parent, ToolbarMenuSubItem item);
+        public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item);
     }
 }
