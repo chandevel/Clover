@@ -308,7 +308,6 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
         LinearLayout imageContainer = new LinearLayout(context);
         imageContainer.setOrientation(VERTICAL);
-        imageContainer.setBackgroundColor(thumbnailBackground);
 
         // Create thumbnail
         imageView = new CustomNetworkImageView(context);
