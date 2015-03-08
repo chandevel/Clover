@@ -20,6 +20,7 @@ package org.floens.chan.database;
 import android.content.Context;
 
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.Hide;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.utils.Logger;
@@ -35,6 +36,9 @@ public class DatabaseManager {
 
     private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
+
+    private static final long HIDE_TRIM_TRIGGER = 1000;
+    private static final long HIDE_TRIM_COUNT = 200;
 
     private final DatabaseHelper helper;
     private List<SavedReply> savedReplies;
@@ -166,6 +170,62 @@ public class DatabaseManager {
         return list;
     }
 
+    private void trimHideTable(long limit) {
+        try {
+            Logger.i(TAG, "Trimming the length of the hide table for " + limit + " rows, was " + helper.hideDao.countOf());
+            helper.hideDao.executeRaw("DELETE FROM hide WHERE id IN " +
+                    "(SELECT id FROM hide ORDER BY id ASC LIMIT ?)", Long.toString(limit));
+            Logger.i(TAG, "The hide table now has " + helper.hideDao.countOf() + " rows");
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error trimming hide table", e);
+        }
+    }
+
+
+    public void resetHides(String board) {
+        try {
+            Logger.i(TAG, "Resetting hides on board "+board);
+            helper.hideDao.executeRaw("DELETE FROM hide WHERE board=?", board);
+            Logger.i(TAG, "Done resetting hides on board "+board);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error resetting hides on "+board + "!");
+        }
+    }
+
+    public List<Hide> getHidden() {
+        maybeTrimHiddenThreads();
+        List<Hide> list = null;
+        try {
+            list = helper.hideDao.queryForAll();
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error getting hides from db", e);
+        }
+        return list;
+    }
+
+    private void maybeTrimHiddenThreads() {
+        try {
+            long countHide = helper.hideDao.countOf();
+            if (countHide >= HIDE_TRIM_TRIGGER) {
+                trimHideTable(HIDE_TRIM_COUNT + (countHide - HIDE_TRIM_TRIGGER));
+            }
+        } catch(SQLException e) {
+            Logger.e(TAG, "Error loading hidden threads", e);
+        }
+    }
+
+    public void addHide(Hide hide) {
+        Logger.i(TAG, "Adding Hide for " + hide.board + ", " + hide.no + " to db");
+
+        try {
+            helper.hideDao.create(hide);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error adding hide", e);
+        }
+
+        maybeTrimHiddenThreads();
+    }
+
     public void setBoards(final List<Board> boards) {
         try {
             helper.boardsDao.callBatchTasks(new Callable<Void>() {
@@ -222,6 +282,7 @@ public class DatabaseManager {
             o += "Pin rows: " + helper.pinDao.countOf() + "\n";
             o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
             o += "Board rows: " + helper.boardsDao.countOf() + "\n";
+            o += "Hide rows: " + helper.hideDao.countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }

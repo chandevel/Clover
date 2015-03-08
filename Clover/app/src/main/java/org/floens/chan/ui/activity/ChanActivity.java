@@ -423,6 +423,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
         setMenuItemEnabled(menu.findItem(R.id.action_search), slidable);
         setMenuItemEnabled(menu.findItem(R.id.action_search_tablet), !slidable);
+        setMenuItemEnabled(menu.findItem(R.id.action_clear_hidden), !slidable || open);
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -499,6 +500,10 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                     threadFragment.startFiltering();
                 }
                 return true;
+            case R.id.action_clear_hidden:
+                ChanApplication.getHideManager().resetBoard(boardLoadable.board);
+                boardFragment.onRefreshView();
+                break;
             case R.id.action_search_board:
                 boardFragment.startFiltering();
                 return true;
