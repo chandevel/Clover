@@ -129,6 +129,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </item>
 
     <item
+        android:id="@+id/action_clear_hidden"
+        android:orderInCategory="10"
+        android:showAsAction="never"
+        android:title="@string/action_reset_hidden"/>
+
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"

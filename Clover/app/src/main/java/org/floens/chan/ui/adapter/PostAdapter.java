@@ -40,7 +40,6 @@ import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.ScrollerRunnable;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.utils.Utils;
 
@@ -59,6 +58,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
     private final ThreadManager threadManager;
     private final PostAdapterListener listener;
+    private final HideManager hideManager;
 
     /**
      * The list with the original data
@@ -82,6 +82,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         this.threadManager = threadManager;
         this.listView = listView;
         this.listener = listener;
+        this.hideManager = ChanApplication.getHideManager();
     }
 
     @Override
@@ -149,19 +150,16 @@ public class PostAdapter extends BaseAdapter implements Filterable {
             @Override
             protected FilterResults performFiltering(CharSequence constraintRaw) {
                 FilterResults results = new FilterResults();
+                List<Post> afterFilter;
+
+                List<Post> all;
+                synchronized (lock) {
+                    all = new ArrayList<>(sourceList);
+                }
 
                 if (TextUtils.isEmpty(constraintRaw)) {
-                    ArrayList<Post> tmp;
-                    synchronized (lock) {
-                        tmp = new ArrayList<>(sourceList);
-                    }
-                    results.values = tmp;
+                    afterFilter = all;
                 } else {
-                    List<Post> all;
-                    synchronized (lock) {
-                        all = new ArrayList<>(sourceList);
-                    }
-
                     List<Post> accepted = new ArrayList<>();
                     String constraint = constraintRaw.toString().toLowerCase(Locale.ENGLISH);
 
@@ -172,9 +170,23 @@ public class PostAdapter extends BaseAdapter implements Filterable {
                         }
                     }
 
-                    results.values = accepted;
+                    afterFilter = accepted;
                 }
 
+                List<Post> afterHide;
+                Loadable l = threadManager.getLoadable();
+                if (l == null || l.isThreadMode()) {
+                    afterHide = afterFilter;
+                } else {
+                    afterHide = new ArrayList<>();
+                    for (Post post : afterFilter) {
+                        if (!hideManager.isHidden(post)) {
+                            afterHide.add(post);
+                        }
+                    }
+                }
+
+                results.values = afterHide;
                 return results;
             }
 
@@ -207,6 +219,10 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
+    public void reperformFilter() {
+        setFilter(filter);
+    }
+
     public void setThread(ChanThread thread) {
         synchronized (lock) {
             if (thread.archived) {
@@ -220,16 +236,10 @@ public class PostAdapter extends BaseAdapter implements Filterable {
             sourceList.clear();
             sourceList.addAll(thread.posts);
 
-            if (!isFiltering()) {
-                displayList.clear();
-                HideManager hm = ChanApplication.getHideManager();
-                for (Post post : sourceList) {
-                    if (!hm.isHidden(post)) {
-                        displayList.add(post);
-                    }
-                }
-                setFilter(filter);
-            }
+            displayList.clear();
+            displayList.addAll(thread.posts);
+            setFilter(filter);
+
         }
 
         notifyDataSetChanged();
@@ -246,26 +256,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     }
 
     public void scrollToPost(int no) {
-        if (isFiltering()) {
-            pendingScrollToPost = no;
-        } else {
-            notifyDataSetChanged();
-
-            synchronized (lock) {
-                for (int i = 0; i < displayList.size(); i++) {
-                    if (displayList.get(i).no == no) {
-                        if (Math.abs(i - listView.getFirstVisiblePosition()) > 20 || listView.getChildCount() == 0) {
-                            listView.setSelection(i);
-                        } else {
-                            ScrollerRunnable r = new ScrollerRunnable(listView);
-                            r.start(i);
-                        }
-
-                        break;
-                    }
-                }
-            }
-        }
+        pendingScrollToPost = no;
     }
 
     public void setStatusMessage(String loadMessage) {
@@ -296,10 +287,6 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         } else {
             return false;
         }
-    }
-
-    private boolean isFiltering() {
-        return !TextUtils.isEmpty(filter);
     }
 
     public interface PostAdapterListener {

@@ -202,7 +202,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public void onRefreshView() {
         if (postAdapter != null) {
-            postAdapter.notifyDataSetChanged();
+            postAdapter.reperformFilter();
         }
     }
 

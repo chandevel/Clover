@@ -170,14 +170,25 @@ public class DatabaseManager {
         return list;
     }
 
-    public void trimHideTable(long limit) {
+    private void trimHideTable(long limit) {
         try {
             Logger.i(TAG, "Trimming the length of the hide table for " + limit + " rows, was " + helper.hideDao.countOf());
-            helper.savedDao.executeRaw("DELETE FROM hide WHERE id IN " +
+            helper.hideDao.executeRaw("DELETE FROM hide WHERE id IN " +
                     "(SELECT id FROM hide ORDER BY id ASC LIMIT ?)", Long.toString(limit));
             Logger.i(TAG, "The hide table now has " + helper.hideDao.countOf() + " rows");
         } catch (SQLException e) {
             Logger.e(TAG, "Error trimming hide table", e);
+        }
+    }
+
+
+    public void resetHides(String board) {
+        try {
+            Logger.i(TAG, "Resetting hides on board "+board);
+            helper.hideDao.executeRaw("DELETE FROM hide WHERE board=?", board);
+            Logger.i(TAG, "Done resetting hides on board "+board);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error resetting hides on "+board + "!");
         }
     }
 

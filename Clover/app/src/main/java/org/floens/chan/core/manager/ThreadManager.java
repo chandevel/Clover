@@ -292,6 +292,8 @@ public class ThreadManager implements Loader.LoaderListener {
                         break;
                     case 11: // Hide
                         ChanApplication.getHideManager().addHide(post);
+                        threadManagerListener.onRefreshView();
+                        break;
             }
                 return false;
             }
