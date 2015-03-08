@@ -29,6 +29,7 @@ import com.android.volley.toolbox.Volley;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.manager.HideManager;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
@@ -56,6 +57,7 @@ public class ChanApplication extends Application {
     private static BoardManager boardManager;
     private static WatchManager watchManager;
     private static ReplyManager replyManager;
+    private static HideManager hideManager;
     private static DatabaseManager databaseManager;
     private static FileCache fileCache;
 
@@ -93,6 +95,8 @@ public class ChanApplication extends Application {
     public static DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
+
+    public static HideManager getHideManager() { return hideManager; }
 
     public static FileCache getFileCache() {
         return fileCache;
@@ -138,6 +142,7 @@ public class ChanApplication extends Application {
         boardManager = new BoardManager();
         watchManager = new WatchManager(this);
         replyManager = new ReplyManager(this);
+        hideManager = new HideManager();
     }
 
     public void activityEnteredForeground() {

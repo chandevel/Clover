@@ -32,7 +32,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.manager.HideManager;
 import org.floens.chan.core.loader.Loader;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.ChanThread;
@@ -220,8 +222,12 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
             if (!isFiltering()) {
                 displayList.clear();
-                displayList.addAll(sourceList);
-            } else {
+                HideManager hm = ChanApplication.getHideManager();
+                for (Post post : sourceList) {
+                    if (!hm.isHidden(post)) {
+                        displayList.add(post);
+                    }
+                }
                 setFilter(filter);
             }
         }

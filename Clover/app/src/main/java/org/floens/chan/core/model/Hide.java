@@ -1,0 +1,46 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.floens.chan.core.model;
+
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+import java.util.Date;
+
+@DatabaseTable
+public class Hide {
+    public Hide() {
+    }
+
+    public Hide(String board, int no) {
+        this.board = board;
+        this.no = no;
+        this.timestamp = new Date();
+    }
+
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    @DatabaseField
+    public String board = "";
+
+    @DatabaseField
+    public int no;
+
+    @DatabaseField
+    public Date timestamp;
+}

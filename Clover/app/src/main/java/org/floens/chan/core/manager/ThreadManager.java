@@ -227,6 +227,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
         if (loader.getLoadable().isBoardMode() || loader.getLoadable().isCatalogMode()) {
             menu.add(Menu.NONE, 9, Menu.NONE, activity.getString(R.string.action_pin));
+            menu.add(Menu.NONE, 11, Menu.NONE, "Hide");
         }
 
         if (loader.getLoadable().isThreadMode()) {
@@ -289,7 +290,9 @@ public class ThreadManager implements Loader.LoaderListener {
                     case 9: // Pin
                         ChanApplication.getWatchManager().addPin(post);
                         break;
-                }
+                    case 11: // Hide
+                        ChanApplication.getHideManager().addHide(post);
+            }
                 return false;
             }
         });
