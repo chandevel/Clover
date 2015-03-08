@@ -37,7 +37,7 @@ import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.Logger;
@@ -257,7 +257,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     }
 
     public void setVideoFile(final File file) {
-        if (ChanPreferences.getVideoExternal()) {
+        if (ChanSettings.getVideoExternal()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "video/*");
 

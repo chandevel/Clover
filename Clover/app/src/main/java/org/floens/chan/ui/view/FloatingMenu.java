@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -147,9 +148,13 @@ public class FloatingMenu {
         globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (popupWindow.isShowing()) {
-                    // Recalculate anchor position
-                    popupWindow.show();
+                if (popupWindow == null) {
+                    Logger.w("FloatingMenu", "popupWindow null in layout listener");
+                } else {
+                    if (popupWindow.isShowing()) {
+                        // Recalculate anchor position
+                        popupWindow.show();
+                    }
                 }
             }
         };
@@ -168,6 +173,10 @@ public class FloatingMenu {
 
         popupWindow.show();
         popupWindow.setSelection(selectedPosition);
+    }
+
+    public boolean isShowing() {
+        return popupWindow != null && popupWindow.isShowing();
     }
 
     public interface FloatingMenuCallback {

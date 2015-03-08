@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,17 +18,14 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class PreferencesController extends Controller implements AndroidUtils.OnMeasuredCallback {
+public class SettingsController extends Controller implements AndroidUtils.OnMeasuredCallback {
     protected LinearLayout content;
-    protected List<PreferenceGroup> groups = new ArrayList<>();
+    protected List<SettingsGroup> groups = new ArrayList<>();
 
-    public PreferencesController(Context context) {
+    private boolean built = false;
+
+    public SettingsController(Context context) {
         super(context);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
     }
 
     @Override
@@ -44,12 +42,12 @@ public class PreferencesController extends Controller implements AndroidUtils.On
     }
 
     @Override
-    public void onMeasured(View view, int width, int height) {
+    public void onMeasured(View view) {
         setMargins();
     }
 
-    public void onPreferenceChange(PreferenceItem item) {
-        if (item instanceof ListPreference) {
+    public void onPreferenceChange(SettingView item) {
+        if ((item instanceof ListSettingView) || (item instanceof StringSettingView)) {
             setDescriptionText(item.view, item.getTopDescription(), item.getBottomDescription());
         }
     }
@@ -84,8 +82,8 @@ public class PreferencesController extends Controller implements AndroidUtils.On
     protected void buildPreferences() {
         LayoutInflater inf = LayoutInflater.from(context);
         boolean firstGroup = true;
-        for (PreferenceGroup group : groups) {
-            LinearLayout groupLayout = (LinearLayout) inf.inflate(R.layout.preference_group, content, false);
+        for (SettingsGroup group : groups) {
+            LinearLayout groupLayout = (LinearLayout) inf.inflate(R.layout.setting_group, content, false);
             ((TextView) groupLayout.findViewById(R.id.header)).setText(group.name);
 
             if (firstGroup) {
@@ -95,42 +93,63 @@ public class PreferencesController extends Controller implements AndroidUtils.On
 
             content.addView(groupLayout);
 
-            for (int i = 0; i < group.preferenceItems.size(); i++) {
-                PreferenceItem preferenceItem = group.preferenceItems.get(i);
+            for (int i = 0; i < group.settingViews.size(); i++) {
+                SettingView settingView = group.settingViews.get(i);
 
                 ViewGroup preferenceView = null;
-                String topValue = preferenceItem.getTopDescription();
-                String bottomValue = preferenceItem.getBottomDescription();
+                String topValue = settingView.getTopDescription();
+                String bottomValue = settingView.getBottomDescription();
 
-                if ((preferenceItem instanceof ListPreference) || (preferenceItem instanceof LinkPreference)) {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.preference_link, groupLayout, false);
-                } else if (preferenceItem instanceof BooleanPreference) {
-                    preferenceView = (ViewGroup) inf.inflate(R.layout.preference_boolean, groupLayout, false);
+                if ((settingView instanceof ListSettingView) || (settingView instanceof LinkSettingView) || (settingView instanceof StringSettingView)) {
+                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_link, groupLayout, false);
+                } else if (settingView instanceof BooleanSettingView) {
+                    preferenceView = (ViewGroup) inf.inflate(R.layout.setting_boolean, groupLayout, false);
                 }
 
                 setDescriptionText(preferenceView, topValue, bottomValue);
 
                 groupLayout.addView(preferenceView);
 
-                preferenceItem.setView(preferenceView);
+                settingView.setView(preferenceView);
 
-                if (i < group.preferenceItems.size() - 1) {
-                    inf.inflate(R.layout.preference_divider, groupLayout, true);
+                if (i < group.settingViews.size() - 1) {
+                    inf.inflate(R.layout.setting_divider, groupLayout, true);
                 }
             }
         }
+
+        built = true;
     }
 
     private void setDescriptionText(View view, String topText, String bottomText) {
         ((TextView) view.findViewById(R.id.top)).setText(topText);
 
-        TextView bottom = ((TextView) view.findViewById(R.id.bottom));
+        final TextView bottom = ((TextView) view.findViewById(R.id.bottom));
         if (bottom != null) {
-            if (bottomText == null) {
-                ViewGroup parent = (ViewGroup) bottom.getParent();
-                parent.removeView(bottom);
+            if (built) {
+                if (bottomText != null) {
+                    bottom.setText(bottomText);
+                }
+
+                AndroidUtils.animateHeight(bottom, bottomText != null);
+
+                bottom.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        bottom.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
             } else {
                 bottom.setText(bottomText);
+                bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);
             }
         }
     }

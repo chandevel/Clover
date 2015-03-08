@@ -28,7 +28,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -135,7 +135,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     @Override
     public void openLink(final String link) {
-        if (ChanPreferences.getOpenLinkConfirmation()) {
+        if (ChanSettings.getOpenLinkConfirmation()) {
             new AlertDialog.Builder(getContext())
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

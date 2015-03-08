@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.ThemeActivity;
 
 public class WatchSettingsActivity extends ThemeActivity implements OnCheckedChangeListener {
@@ -60,9 +60,9 @@ public class WatchSettingsActivity extends ThemeActivity implements OnCheckedCha
         toggleStatus = (TextView) findViewById(R.id.toggle_status);
         watchSwitch = (SwitchCompat) findViewById(R.id.toggle);
         watchSwitch.setOnCheckedChangeListener(this);
-        setSwitch(ChanPreferences.getWatchEnabled());
+        setSwitch(ChanSettings.getWatchEnabled());
 
-        setFragment(ChanPreferences.getWatchEnabled());
+        setFragment(ChanSettings.getWatchEnabled());
     }
 
     @Override
@@ -75,7 +75,7 @@ public class WatchSettingsActivity extends ThemeActivity implements OnCheckedCha
         watchSwitch.setChecked(enabled);
         toggleStatus.setText(enabled ? R.string.on : R.string.off);
 
-        ChanPreferences.setWatchEnabled(enabled);
+        ChanSettings.setWatchEnabled(enabled);
     }
 
     private void setFragment(boolean enabled) {

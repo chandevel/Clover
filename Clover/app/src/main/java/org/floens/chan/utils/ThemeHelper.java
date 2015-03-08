@@ -22,7 +22,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 
 public class ThemeHelper {
     public enum Theme {
@@ -67,7 +67,7 @@ public class ThemeHelper {
     }
 
     public Theme getTheme() {
-        String themeName = ChanPreferences.getTheme();
+        String themeName = ChanSettings.getTheme();
 
         Theme theme = null;
         switch (themeName) {
@@ -98,7 +98,7 @@ public class ThemeHelper {
         spoilerColor = ta.getColor(R.styleable.PostView_spoiler_color, 0);
         inlineQuoteColor = ta.getColor(R.styleable.PostView_inline_quote_color, 0);
         codeTagSize = ta.getDimensionPixelSize(R.styleable.PostView_code_tag_size, 0);
-        fontSize = ChanPreferences.getFontSize();
+        fontSize = ChanSettings.getFontSize();
         ta.recycle();
     }
 

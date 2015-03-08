@@ -15,7 +15,7 @@
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <include layout="@layout/preference_description" />
+        <include layout="@layout/setting_description" />
 
     </LinearLayout>
 

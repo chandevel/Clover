@@ -36,7 +36,7 @@ import android.widget.VideoView;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ImageSearch;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
@@ -114,7 +114,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
                     imageView.setThumbnail(post.thumbnailUrl);
 
-                    if (ChanPreferences.getImageAutoLoad() && !post.spoiler) {
+                    if (ChanSettings.getImageAutoLoad() && !post.spoiler) {
                         load();
                     } else {
                         tapToLoad = true;
@@ -187,7 +187,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
 
         activity.invalidateActionBar();
 
-        if (isVideo && ChanPreferences.getVideoAutoPlay() && imageView != null) {
+        if (isVideo && ChanSettings.getVideoAutoPlay() && imageView != null) {
             if (!videoVisible) {
                 startVideo();
             } else {
@@ -244,11 +244,11 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                 break;
             case R.id.action_image_save:
             case R.id.action_share:
-                if (ChanPreferences.getImageShareUrl()) {
+                if (ChanSettings.getImageShareUrl()) {
                     shareImageUrl(post.imageUrl);
                 } else {
                     ImageSaver.getInstance().saveImage(context, post.imageUrl,
-                            ChanPreferences.getImageSaveOriginalFilename() ? Long.toString(post.tim) : post.filename, post.ext,
+                            ChanSettings.getImageSaveOriginalFilename() ? Long.toString(post.tim) : post.filename, post.ext,
                             item.getItemId() == R.id.action_share);
                 }
                 break;
@@ -273,7 +273,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     public void onVideoError(File video) {
-        if (ChanPreferences.getVideoErrorIgnore()) {
+        if (ChanSettings.getVideoErrorIgnore()) {
             Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
         } else {
             showVideoWarning();
@@ -303,7 +303,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (dontShowAgain.isChecked()) {
-                            ChanPreferences.setVideoErrorIgnore(true);
+                            ChanSettings.setVideoErrorIgnore(true);
                         }
                     }
                 })

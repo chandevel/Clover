@@ -17,9 +17,13 @@
  */
 package org.floens.chan.ui.toolbar;
 
+import android.content.Context;
 import android.widget.LinearLayout;
 
 import org.floens.chan.ui.view.FloatingMenu;
+import org.floens.chan.ui.view.FloatingMenuItem;
+
+import java.util.List;
 
 public class NavigationItem {
     public String title = "";
@@ -27,4 +31,11 @@ public class NavigationItem {
     public boolean hasBack = true;
     public LinearLayout view;
     public FloatingMenu middleMenu;
+
+    public FloatingMenu createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
+        ToolbarMenuItem overflow = menu.createOverflow(callback);
+        FloatingMenu overflowMenu = new FloatingMenu(context, overflow.getView(), items);
+        overflow.setSubMenu(overflowMenu);
+        return overflowMenu;
+    }
 }

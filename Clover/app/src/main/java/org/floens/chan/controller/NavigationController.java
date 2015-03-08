@@ -46,7 +46,7 @@ public abstract class NavigationController extends Controller implements Control
     public boolean pushController(final Controller to) {
         if (blockingInput) return false;
 
-        if (this.controllerTransition != null) {
+        if (controllerTransition != null) {
             throw new IllegalArgumentException("Cannot push controller while a transition is in progress.");
         }
 
@@ -64,7 +64,7 @@ public abstract class NavigationController extends Controller implements Control
         container.addView(to.view, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         AndroidUtils.waitForMeasure(to.view, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view, int width, int height) {
+            public void onMeasured(View view) {
                 to.onShow();
 
                 doTransition(true, from, to, controllerTransition);
@@ -77,7 +77,7 @@ public abstract class NavigationController extends Controller implements Control
     public boolean popController() {
         if (blockingInput) return false;
 
-        if (this.controllerTransition != null) {
+        if (controllerTransition != null) {
             throw new IllegalArgumentException("Cannot pop controller while a transition is in progress.");
         }
 
@@ -94,7 +94,7 @@ public abstract class NavigationController extends Controller implements Control
         container.addView(to.view, 0, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         AndroidUtils.waitForMeasure(to.view, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view, int width, int height) {
+            public void onMeasured(View view) {
                 to.onShow();
 
                 doTransition(false, from, to, controllerTransition);
@@ -158,7 +158,7 @@ public abstract class NavigationController extends Controller implements Control
 
         AndroidUtils.waitForMeasure(controller.view, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view, int width, int height) {
+            public void onMeasured(View view) {
                 onCreate();
                 onShow();
 

@@ -8,6 +8,6 @@
     android:paddingTop="16dp"
     android:paddingBottom="16dp">
 
-    <include layout="@layout/preference_description" />
+    <include layout="@layout/setting_description" />
 
 </LinearLayout>

@@ -2,13 +2,13 @@ package org.floens.chan.ui.preferences;
 
 import android.view.View;
 
-public abstract class PreferenceItem {
-    public PreferencesController preferencesController;
+public abstract class SettingView {
+    public SettingsController settingsController;
     public final String name;
     public View view;
 
-    public PreferenceItem(PreferencesController preferencesController, String name) {
-        this.preferencesController = preferencesController;
+    public SettingView(SettingsController settingsController, String name) {
+        this.settingsController = settingsController;
         this.name = name;
     }
 

@@ -47,10 +47,10 @@ import com.mobeta.android.dslv.DragSortListView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
-import org.floens.chan.ui.SwipeDismissListViewTouchListener;
+import org.floens.chan.ui.animation.SwipeDismissListViewTouchListener;
 import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -173,7 +173,7 @@ public class BoardEditor extends ThemeActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.board_edit, menu);
 
-        menu.findItem(R.id.action_show_filler).setChecked(ChanPreferences.getBoardEditorFillerEnabled());
+        menu.findItem(R.id.action_show_filler).setChecked(ChanSettings.getBoardEditorFillerEnabled());
 
         return true;
     }
@@ -185,8 +185,8 @@ public class BoardEditor extends ThemeActivity {
                 showAddBoardDialog();
                 return true;
             case R.id.action_show_filler:
-                ChanPreferences.setBoardEditorFillerEnabled(!ChanPreferences.getBoardEditorFillerEnabled());
-                item.setChecked(ChanPreferences.getBoardEditorFillerEnabled());
+                ChanSettings.setBoardEditorFillerEnabled(!ChanSettings.getBoardEditorFillerEnabled());
+                item.setChecked(ChanSettings.getBoardEditorFillerEnabled());
                 return true;
             case android.R.id.home:
                 finish();
@@ -297,7 +297,7 @@ public class BoardEditor extends ThemeActivity {
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     filtered.clear();
 
-                    if (ChanPreferences.getBoardEditorFillerEnabled()) {
+                    if (ChanSettings.getBoardEditorFillerEnabled()) {
                         if (results.values != null) {
                             filtered.addAll((List<Board>) results.values);
                         } else {

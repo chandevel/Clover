@@ -28,7 +28,7 @@ import android.support.v4.app.NotificationCompat;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -90,8 +90,8 @@ public class WatchNotifier extends Service {
     }
 
     private Notification createNotification() {
-        boolean notifyQuotesOnly = ChanPreferences.getWatchNotifyMode().equals("quotes");
-        boolean soundQuotesOnly = ChanPreferences.getWatchSound().equals("quotes");
+        boolean notifyQuotesOnly = ChanSettings.getWatchNotifyMode().equals("quotes");
+        boolean soundQuotesOnly = ChanSettings.getWatchSound().equals("quotes");
 
         List<Post> list = new ArrayList<>();
         List<Post> listQuoting = new ArrayList<>();
@@ -229,7 +229,7 @@ public class WatchNotifier extends Service {
         }
 
         if (light) {
-            long watchLed = ChanPreferences.getWatchLed();
+            long watchLed = ChanSettings.getWatchLed();
             if (watchLed >= 0) {
                 builder.setLights((int) watchLed, 1000, 1000);
             }

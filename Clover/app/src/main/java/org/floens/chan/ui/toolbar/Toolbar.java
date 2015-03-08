@@ -79,7 +79,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         if (item.menu != null) {
             AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
                 @Override
-                public void onMeasured(View view, int width, int height) {
+                public void onMeasured(View view) {
                     setNavigationItemView(animate, pushing, item);
                 }
             });
@@ -246,7 +246,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         AndroidUtils.waitForMeasure(titleView, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view, int width, int height) {
+            public void onMeasured(View view) {
                 if (item.middleMenu != null) {
                     item.middleMenu.setPopupWidth(Math.max(dp(150), titleView.getWidth()));
                 }

@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
-import org.floens.chan.controller.NavigationController;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
 import org.floens.chan.utils.ThemeHelper;
@@ -34,7 +33,6 @@ public class BoardActivity extends Activity {
     private static final String TAG = "StartActivity";
 
     private RootNavigationController rootNavigationController;
-    private NavigationController navigationController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

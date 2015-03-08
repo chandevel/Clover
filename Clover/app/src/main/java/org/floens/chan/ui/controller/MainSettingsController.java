@@ -17,22 +17,37 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
-import org.floens.chan.ui.preferences.LinkPreference;
-import org.floens.chan.ui.preferences.ListPreference;
-import org.floens.chan.ui.preferences.PreferenceGroup;
-import org.floens.chan.ui.preferences.PreferenceItem;
-import org.floens.chan.ui.preferences.PreferencesController;
+import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.preferences.BooleanSettingView;
+import org.floens.chan.ui.preferences.LinkSettingView;
+import org.floens.chan.ui.preferences.ListSettingView;
+import org.floens.chan.ui.preferences.SettingView;
+import org.floens.chan.ui.preferences.SettingsController;
+import org.floens.chan.ui.preferences.SettingsGroup;
+import org.floens.chan.ui.preferences.StringSettingView;
+import org.floens.chan.ui.toolbar.ToolbarMenu;
+import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.utils.AndroidUtils;
 
-public class MainSettingsController extends PreferencesController {
-    private ListPreference theme;
-    private LinkPreference link;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback {
+    private static final int ADVANCED_SETTINGS = 1;
+    private SettingView imageAutoLoadView;
+    private SettingView videoAutoLoadView;
+
+    private int clickCount;
+    private SettingView developerView;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -42,9 +57,11 @@ public class MainSettingsController extends PreferencesController {
     public void onCreate() {
         super.onCreate();
 
-        //TODO correct header colors, background, themeing
-
-        navigationItem.title = context.getString(R.string.action_settings);
+        navigationItem.title = s(R.string.action_settings);
+        navigationItem.menu = new ToolbarMenu(context);
+        navigationItem.createOverflow(context, this, Arrays.asList(
+                new FloatingMenuItem(ADVANCED_SETTINGS, s(R.string.action_settings_advanced))
+        ));
 
         view = inflateRes(R.layout.settings_layout);
         content = (LinearLayout) view.findViewById(R.id.scrollview_content);
@@ -52,55 +69,134 @@ public class MainSettingsController extends PreferencesController {
         populatePreferences();
 
         buildPreferences();
+
+        onPreferenceChange(imageAutoLoadView);
+
+        if (!ChanSettings.developer.get()) {
+            developerView.view.getLayoutParams().height = 0;
+        }
     }
 
     @Override
-    public void onPreferenceChange(PreferenceItem item) {
+    public void onMenuItemClicked(ToolbarMenuItem item) {
+    }
+
+    @Override
+    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+        if (((Integer) item.getId()) == ADVANCED_SETTINGS) {
+            navigationController.pushController(new AdvancedSettingsController(context));
+        }
+    }
+
+    @Override
+    public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
 
-        if (item == theme) {
-            link.setEnabled(((ListPreference)item).getPreference().get().equals("dark"));
+        if (item == imageAutoLoadView) {
+            videoAutoLoadView.setEnabled(ChanSettings.imageAutoLoad.get());
         }
     }
 
     private void populatePreferences() {
-        PreferenceGroup settings = new PreferenceGroup("Settings");
-
-        ListPreference.Item[] themeItems = new ListPreference.Item[2];
-        themeItems[0] = new ListPreference.Item<>("Light", "light");
-        themeItems[1] = new ListPreference.Item<>("Dark", "dark");
-        theme = new ListPreference(this, ChanPreferences.testTheme, "Theme", themeItems);
-        settings.preferenceItems.add(theme);
-
-//        BooleanPreference bool = new BooleanPreference(p, "A name", "akey", false);
-//        settings.preferenceItems.add(bool);
-
-        link = new LinkPreference(this, "A link", new View.OnClickListener() {
+        // General group
+        SettingsGroup general = new SettingsGroup(s(R.string.settings_group_general));
+        general.add(new LinkSettingView(this, s(R.string.settings_board_edit), null, new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(context).setMessage("click").setPositiveButton(R.string.ok, null).show();
+
             }
-        });
-        settings.preferenceItems.add(link);
+        }));
 
-        groups.add(settings);
+        general.add(new LinkSettingView(this, s(R.string.settings_watch), null, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        /*PreferenceGroup posting = new PreferenceGroup("Posting");
+            }
+        }));
 
-        ListPreference.Item[] postItems = new ListPreference.Item[4];
-        postItems[0] = new ListPreference.Item<>("Top", "one");
-        postItems[1] = new ListPreference.Item<>("Top", "two");
-        postItems[2] = new ListPreference.Item<>("Top", "three");
-        postItems[3] = new ListPreference.Item<>("Top", "four");
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
-        posting.preferenceItems.add(new ListPreference(p, "Something", "something", postItems));
+        general.add(new LinkSettingView(this, s(R.string.settings_pass), null, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        groups.add(posting);*/
+            }
+        }));
+
+        groups.add(general);
+
+        // Browsing group
+        SettingsGroup browsing = new SettingsGroup(s(R.string.settings_group_browsing));
+
+        browsing.add(new ListSettingView(this, ChanSettings.theme, s(R.string.setting_theme), new ListSettingView.Item[]{
+                new ListSettingView.Item<>(s(R.string.setting_theme_light), "light"),
+                new ListSettingView.Item<>(s(R.string.setting_theme_dark), "dark"),
+                new ListSettingView.Item<>(s(R.string.setting_theme_black), "black")
+        }));
+
+        List<ListSettingView.Item> fontSizes = new ArrayList<>();
+        for (int size = 10; size <= 19; size++) {
+            String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " " + s(R.string.setting_font_size_default) : "");
+            fontSizes.add(new ListSettingView.Item<>(name, String.valueOf(size)));
+        }
+
+        browsing.add(new ListSettingView(this, ChanSettings.fontSize, s(R.string.setting_font_size), fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
+
+        browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, s(R.string.setting_open_link_confirmation), null));
+        browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, s(R.string.setting_auto_refresh_thread), null));
+        imageAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.imageAutoLoad, s(R.string.setting_image_auto_load), null));
+        videoAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.videoAutoLoad, s(R.string.setting_video_auto_load), null));
+        browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, s(R.string.setting_video_open_external), s(R.string.setting_video_open_external_description)));
+
+        groups.add(browsing);
+
+        // Posting group
+        SettingsGroup posting = new SettingsGroup(s(R.string.settings_group_posting));
+        posting.add(new StringSettingView(this, ChanSettings.postDefaultName, s(R.string.setting_post_default_name), s(R.string.setting_post_default_name)));
+        posting.add(new BooleanSettingView(this, ChanSettings.postPinThread, s(R.string.setting_post_pin), null));
+
+        groups.add(posting);
+
+        // About group
+        SettingsGroup about = new SettingsGroup(s(R.string.settings_group_about));
+        about.add(new LinkSettingView(this, s(R.string.settings_about_licenses), s(R.string.settings_about_licences_description), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        }));
+
+        String version = "";
+        try {
+            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        about.add(new LinkSettingView(this, s(R.string.app_name), version, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if ((++clickCount) % 5 == 0) {
+                    boolean developer = !ChanSettings.developer.get();
+
+                    ChanSettings.developer.set(developer);
+
+                    Toast.makeText(context, (developer ? "Enabled" : "Disabled") + " developer options", Toast.LENGTH_LONG).show();
+
+                    AndroidUtils.animateHeight(developerView.view, developer);
+                }
+            }
+        }));
+
+        developerView = about.add(new LinkSettingView(this, s(R.string.settings_developer), null, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        }));
+
+        groups.add(about);
+    }
+
+    private String s(int id) {
+        return string(id);
     }
 }

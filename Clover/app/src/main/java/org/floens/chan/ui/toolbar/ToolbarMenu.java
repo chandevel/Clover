@@ -51,18 +51,6 @@ public class ToolbarMenu extends LinearLayout {
     private void init() {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
-
-//        overflowItem = new ToolbarMenuItem(getContext(), this, 100, R.drawable.ic_more_vert_white_24dp, 10 + 32);
-//
-//        List<ToolbarMenuItemSubMenu.SubItem> subItems = new ArrayList<>();
-//        subItems.add(new ToolbarMenuItemSubMenu.SubItem(1, "Sub 1"));
-//        subItems.add(new ToolbarMenuItemSubMenu.SubItem(2, "Sub 2"));
-//        subItems.add(new ToolbarMenuItemSubMenu.SubItem(3, "Sub 3"));
-//
-//        ToolbarMenuItemSubMenu sub = new ToolbarMenuItemSubMenu(getContext(), overflowItem.getView(), subItems);
-//        overflowItem.setSubMenu(sub);
-//
-//        addItem(overflowItem);
     }
 
     public ToolbarMenuItem addItem(ToolbarMenuItem item) {
@@ -78,10 +66,8 @@ public class ToolbarMenu extends LinearLayout {
     public ToolbarMenuItem createOverflow(ToolbarMenuItem.ToolbarMenuItemCallback callback) {
         ToolbarMenuItem overflow = addItem(new ToolbarMenuItem(getContext(), callback, 100, R.drawable.ic_more));
         ImageView overflowImage = overflow.getView();
-        // 36dp
         overflowImage.setLayoutParams(new LinearLayout.LayoutParams(dp(36), dp(54)));
-        int p = dp(16);
-        overflowImage.setPadding(0, 0, p, 0);
+        overflowImage.setPadding(0, 0, dp(16), 0);
 
         return overflow;
     }

@@ -31,7 +31,7 @@ import android.text.style.TypefaceSpan;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.utils.ThemeHelper;
@@ -88,8 +88,8 @@ public class ChanParser {
     }
 
     private void parseSpans(Post post, TypedArray ta) {
-        boolean anonymize = ChanPreferences.getAnonymize();
-        boolean anonymizeIds = ChanPreferences.getAnonymizeIds();
+        boolean anonymize = ChanSettings.getAnonymize();
+        boolean anonymizeIds = ChanSettings.getAnonymizeIds();
 
         if (anonymize) {
             post.name = ChanApplication.getInstance().getString(R.string.default_name);

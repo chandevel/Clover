@@ -8,7 +8,7 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:singleLine="true"
-        android:textColor="#ff000000"
+        android:textColor="@drawable/preference_description_top"
         android:textSize="16sp" />
 
     <TextView
@@ -20,6 +20,6 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:singleLine="true"
-        android:textColor="#89000000"
+        android:textColor="@drawable/preference_description_bottom"
         android:textSize="14sp" />
 </merge>

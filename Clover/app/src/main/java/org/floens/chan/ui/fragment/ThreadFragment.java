@@ -44,7 +44,7 @@ import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.EndOfLineException;
 import org.floens.chan.core.manager.ThreadManager;
@@ -219,7 +219,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
                         String filename;
                         for (Post post : imagePosts) {
-                            filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
+                            filename = (ChanSettings.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
                             list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
                         }
 

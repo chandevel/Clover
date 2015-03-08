@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.ui;
+package org.floens.chan.ui.animation;
 
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;

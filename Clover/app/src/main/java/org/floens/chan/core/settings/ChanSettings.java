@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.preferences;
+package org.floens.chan.core.settings;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
@@ -25,14 +25,35 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
 
-public class ChanPreferences {
-    public static StringPreference defaultName;
-    public static StringPreference testTheme;
+public class ChanSettings {
+    public static StringSetting theme;
+    public static StringSetting fontSize;
+    public static BooleanSetting openLinkConfirmation;
+    public static BooleanSetting autoRefreshThread;
+    public static BooleanSetting imageAutoLoad;
+    public static BooleanSetting videoAutoLoad;
+    public static BooleanSetting videoOpenExternal;
+
+    public static StringSetting postDefaultName;
+    public static BooleanSetting postPinThread;
+
+    public static BooleanSetting developer;
 
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
-        defaultName = new StringPreference(p, "preference_default_name", "");
-        testTheme = new StringPreference(p, "preference_test_theme", "dark");
+
+        theme = new StringSetting(p, "preference_theme", "light");
+        fontSize = new StringSetting(p, "preference_font", "14");
+        openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", true);
+        autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
+        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
+        videoAutoLoad = new BooleanSetting(p, "preference_autoplay", false);
+        videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
+
+        postDefaultName = new StringSetting(p, "preference_default_name", "");
+        postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
+
+        developer = new BooleanSetting(p, "preference_developer", false);
     }
 
     private static SharedPreferences p() {

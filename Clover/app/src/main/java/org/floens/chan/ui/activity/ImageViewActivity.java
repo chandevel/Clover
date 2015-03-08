@@ -29,7 +29,7 @@ import android.widget.ProgressBar;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ImageSearch;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.ThemeActivity;
@@ -213,7 +213,7 @@ public class ImageViewActivity extends ThemeActivity implements ViewPager.OnPage
 
                     String filename;
                     for (Post post : adapter.getList()) {
-                        filename = (ChanPreferences.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
+                        filename = (ChanSettings.getImageSaveOriginalFilename() ? post.tim : post.filename) + "." + post.ext;
                         list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
                     }
 

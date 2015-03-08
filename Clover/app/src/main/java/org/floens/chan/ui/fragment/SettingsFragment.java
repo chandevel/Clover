@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.AboutActivity;
 import org.floens.chan.ui.activity.BaseActivity;
 import org.floens.chan.ui.activity.SettingsActivity;
@@ -68,8 +68,8 @@ public class SettingsFragment extends PreferenceFragment {
                     if (++clickCount >= 5) {
                         clickCount = 0;
 
-                        boolean enabled = !ChanPreferences.getDeveloper();
-                        ChanPreferences.setDeveloper(enabled);
+                        boolean enabled = !ChanSettings.getDeveloper();
+                        ChanSettings.setDeveloper(enabled);
                         updateDeveloperPreference();
 
                         Toast.makeText(getActivity(), (enabled ? "Enabled " : "Disabled ") + "developer options",
@@ -158,13 +158,13 @@ public class SettingsFragment extends PreferenceFragment {
 
         final Preference watchPreference = findPreference("watch_settings");
         if (watchPreference != null) {
-            watchPreference.setSummary(ChanPreferences.getWatchEnabled() ? R.string.watch_summary_enabled
+            watchPreference.setSummary(ChanSettings.getWatchEnabled() ? R.string.watch_summary_enabled
                     : R.string.watch_summary_disabled);
         }
 
         final Preference passPreference = findPreference("pass_settings");
         if (passPreference != null) {
-            passPreference.setSummary(ChanPreferences.getPassEnabled() ? R.string.pass_summary_enabled
+            passPreference.setSummary(ChanSettings.getPassEnabled() ? R.string.pass_summary_enabled
                     : R.string.pass_summary_disabled);
         }
     }
@@ -174,7 +174,7 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     private void updateDeveloperPreference() {
-        if (ChanPreferences.getDeveloper()) {
+        if (ChanSettings.getDeveloper()) {
             ((PreferenceGroup) findPreference("group_about")).addPreference(developerPreference);
         } else {
             ((PreferenceGroup) findPreference("group_about")).removePreference(developerPreference);

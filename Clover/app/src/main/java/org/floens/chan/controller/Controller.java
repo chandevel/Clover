@@ -58,4 +58,8 @@ public abstract class Controller {
     public boolean onBack() {
         return false;
     }
+
+    public String string(int id) {
+        return context.getString(id);
+    }
 }

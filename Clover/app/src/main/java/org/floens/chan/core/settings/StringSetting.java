@@ -1,9 +1,9 @@
-package org.floens.chan.core.preferences;
+package org.floens.chan.core.settings;
 
 import android.content.SharedPreferences;
 
-public class StringPreference extends Preference<String> {
-    public StringPreference(SharedPreferences sharedPreferences, String key, String def) {
+public class StringSetting extends Setting<String> {
+    public StringSetting(SharedPreferences sharedPreferences, String key, String def) {
         super(sharedPreferences, key, def);
     }
 

@@ -43,7 +43,7 @@ import android.widget.TextView;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ThreadManager;
@@ -303,7 +303,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         // Nexus 7 is 600 x 960 dp
         // Nexus 10 is 800 x 1280 dp
 
-        if (ChanPreferences.getForcePhoneLayout()) {
+        if (ChanSettings.getForcePhoneLayout()) {
             leftParams.width = width - dp(30);
             rightParams.width = width;
             isSlidable = true;
@@ -425,9 +425,9 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
         setMenuItemEnabled(menu.findItem(R.id.action_board_view_mode), !slidable || open);
 
-        if (ChanPreferences.getBoardViewMode().equals("list")) {
+        if (ChanSettings.getBoardViewMode().equals("list")) {
             menu.findItem(R.id.action_board_view_mode_list).setChecked(true);
-        } else if (ChanPreferences.getBoardViewMode().equals("grid")) {
+        } else if (ChanSettings.getBoardViewMode().equals("grid")) {
             menu.findItem(R.id.action_board_view_mode_grid).setChecked(true);
         }
 
@@ -504,15 +504,15 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
                 return true;
             case R.id.action_board_view_mode_grid:
-                if (!ChanPreferences.getBoardViewMode().equals("grid")) {
-                    ChanPreferences.setBoardViewMode("grid");
+                if (!ChanSettings.getBoardViewMode().equals("grid")) {
+                    ChanSettings.setBoardViewMode("grid");
                     setBoardFragmentViewMode();
                     startLoadingBoard(boardLoadable);
                 }
                 return true;
             case R.id.action_board_view_mode_list:
-                if (!ChanPreferences.getBoardViewMode().equals("list")) {
-                    ChanPreferences.setBoardViewMode("list");
+                if (!ChanSettings.getBoardViewMode().equals("list")) {
+                    ChanSettings.setBoardViewMode("list");
                     setBoardFragmentViewMode();
                     startLoadingBoard(boardLoadable);
                 }
@@ -556,9 +556,9 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
 
         boardLoadable = loadable;
 
-        if (ChanPreferences.getBoardMode().equals("catalog")) {
+        if (ChanSettings.getBoardMode().equals("catalog")) {
             boardLoadable.mode = Loadable.Mode.CATALOG;
-        } else if (ChanPreferences.getBoardMode().equals("pages")) {
+        } else if (ChanSettings.getBoardMode().equals("pages")) {
             boardLoadable.mode = Loadable.Mode.BOARD;
         }
 
@@ -667,9 +667,9 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     }
 
     private void setBoardFragmentViewMode() {
-        if (ChanPreferences.getBoardViewMode().equals("list")) {
+        if (ChanSettings.getBoardViewMode().equals("list")) {
             boardFragment.setViewMode(ThreadManager.ViewMode.LIST);
-        } else if (ChanPreferences.getBoardViewMode().equals("grid")) {
+        } else if (ChanSettings.getBoardViewMode().equals("grid")) {
             boardFragment.setViewMode(ThreadManager.ViewMode.GRID);
         }
     }

@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.ui.animation.HeightAnimation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,7 +167,7 @@ public class AndroidUtils {
     }
 
     public interface OnMeasuredCallback {
-        void onMeasured(View view, int width, int height);
+        void onMeasured(View view);
     }
 
     /**
@@ -187,7 +188,7 @@ public class AndroidUtils {
         int height = view.getHeight();
 
         if (returnIfZero && width > 0 && height > 0) {
-            callback.onMeasured(view, width, height);
+            callback.onMeasured(view);
         } else {
             view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
@@ -198,7 +199,7 @@ public class AndroidUtils {
                     }
 
                     try {
-                        callback.onMeasured(view, view.getWidth(), view.getHeight());
+                        callback.onMeasured(view);
                     } catch (Exception e) {
                         Log.i("AndroidUtils", "Exception in onMeasured", e);
                     }
@@ -233,5 +234,23 @@ public class AndroidUtils {
         }
 
         return views;
+    }
+
+    public static void animateHeight(View view, boolean expand) {
+        if ((view.getHeight() > 0 && expand) || (view.getHeight() == 0 && !expand)) {
+            return;
+        }
+
+        view.clearAnimation();
+        HeightAnimation heightAnimation;
+        if (expand) {
+            view.measure(
+                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            heightAnimation = new HeightAnimation(view, 0, view.getMeasuredHeight(), 300);
+        } else {
+            heightAnimation = new HeightAnimation(view, view.getHeight(), 0, 300);
+        }
+        view.startAnimation(heightAnimation);
     }
 }

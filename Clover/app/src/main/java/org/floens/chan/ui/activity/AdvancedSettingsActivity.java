@@ -24,7 +24,7 @@ import android.preference.PreferenceFragment;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.fragment.FolderPickFragment;
 
@@ -95,13 +95,13 @@ public class AdvancedSettingsActivity extends ThemeActivity {
             saveLocation.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    File dir = ChanPreferences.getImageSaveDirectory();
+                    File dir = ChanSettings.getImageSaveDirectory();
                     dir.mkdirs();
 
                     FolderPickFragment frag = FolderPickFragment.newInstance(new FolderPickFragment.FolderPickListener() {
                         @Override
                         public void folderPicked(File path) {
-                            ChanPreferences.setImageSaveDirectory(path);
+                            ChanSettings.setImageSaveDirectory(path);
                             reloadSavePath();
                         }
                     }, dir);
@@ -123,7 +123,7 @@ public class AdvancedSettingsActivity extends ThemeActivity {
 
         private void reloadSavePath() {
             Preference saveLocation = findPreference("preference_image_save_location");
-            saveLocation.setSummary(ChanPreferences.getImageSaveDirectory().getAbsolutePath());
+            saveLocation.setSummary(ChanSettings.getImageSaveDirectory().getAbsolutePath());
         }
 
         private void updateSummary(ListPreference list, String value) {

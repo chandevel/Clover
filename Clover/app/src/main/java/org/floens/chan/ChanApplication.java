@@ -33,7 +33,7 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.FileCache;
@@ -131,7 +131,7 @@ public class ChanApplication extends Application {
 
         AndroidUtils.init();
 
-        ChanUrls.loadScheme(ChanPreferences.getNetworkHttps());
+        ChanUrls.loadScheme(ChanSettings.getNetworkHttps());
 
         IconCache.createIcons(this);
 

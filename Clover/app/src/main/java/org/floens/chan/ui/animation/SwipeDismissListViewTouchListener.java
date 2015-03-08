@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.floens.chan.ui;
+package org.floens.chan.ui.animation;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

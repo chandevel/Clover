@@ -37,7 +37,7 @@ import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.PassResponse;
 import org.floens.chan.core.model.Pass;
@@ -67,17 +67,17 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
         toggleStatus = (TextView) findViewById(R.id.toggle_status);
         onSwitch = (SwitchCompat) findViewById(R.id.toggle);
         onSwitch.setOnCheckedChangeListener(this);
-        setSwitch(ChanPreferences.getPassEnabled());
+        setSwitch(ChanSettings.getPassEnabled());
 
-        setFragment(ChanPreferences.getPassEnabled());
+        setFragment(ChanSettings.getPassEnabled());
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        if (TextUtils.isEmpty(ChanPreferences.getPassId())) {
-            ChanPreferences.setPassEnabled(false);
+        if (TextUtils.isEmpty(ChanSettings.getPassId())) {
+            ChanSettings.setPassEnabled(false);
             setSwitch(false);
         }
     }
@@ -92,7 +92,7 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
         onSwitch.setChecked(enabled);
         toggleStatus.setText(enabled ? R.string.on : R.string.off);
 
-        ChanPreferences.setPassEnabled(enabled);
+        ChanSettings.setPassEnabled(enabled);
     }
 
     private void setFragment(boolean enabled) {
@@ -137,7 +137,7 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
             login.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    Pass pass = new Pass(ChanPreferences.getPassToken(), ChanPreferences.getPassPin());
+                    Pass pass = new Pass(ChanSettings.getPassToken(), ChanSettings.getPassPin());
                     onLoginClick(pass);
 
                     return true;
@@ -148,11 +148,11 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
         }
 
         private void updateLoginButton() {
-            findPreference("preference_pass_login").setTitle(TextUtils.isEmpty(ChanPreferences.getPassId()) ? R.string.pass_login : R.string.pass_logout);
+            findPreference("preference_pass_login").setTitle(TextUtils.isEmpty(ChanSettings.getPassId()) ? R.string.pass_login : R.string.pass_logout);
         }
 
         private void onLoginClick(Pass pass) {
-            if (TextUtils.isEmpty(ChanPreferences.getPassId())) {
+            if (TextUtils.isEmpty(ChanSettings.getPassId())) {
                 // Login
                 final ProgressDialog dialog = ProgressDialog.show(getActivity(), null, "Logging in");
 
@@ -175,7 +175,7 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
                         } else {
                             new AlertDialog.Builder(getActivity()).setMessage(response.message)
                                     .setNeutralButton(R.string.ok, null).show();
-                            ChanPreferences.setPassId(response.passId);
+                            ChanSettings.setPassId(response.passId);
                         }
 
                         updateLoginButton();
@@ -183,7 +183,7 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
                 });
             } else {
                 // Logout
-                ChanPreferences.setPassId("");
+                ChanSettings.setPassId("");
                 updateLoginButton();
             }
         }

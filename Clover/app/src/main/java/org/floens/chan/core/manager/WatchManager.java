@@ -21,7 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -92,7 +92,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     }
 
     public List<Pin> getWatchingPins() {
-        if (ChanPreferences.getWatchEnabled()) {
+        if (ChanSettings.getWatchEnabled()) {
             List<Pin> l = new ArrayList<>();
 
             for (Pin p : pins) {
@@ -242,11 +242,11 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     }
 
     public boolean getWatchBackgroundEnabled() {
-        return ChanPreferences.getWatchBackgroundEnabled();
+        return ChanSettings.getWatchBackgroundEnabled();
     }
 
     private void updatePinWatchers() {
-        updatePinWatchers(ChanPreferences.getWatchEnabled());
+        updatePinWatchers(ChanSettings.getWatchEnabled());
     }
 
     private void updatePinWatchers(boolean watchEnabled) {
@@ -282,7 +282,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
                 setTimer(invokeLoadNow ? 1 : FOREGROUND_TIME);
             } else {
                 if (backgroundEnabled) {
-                    setTimer(ChanPreferences.getWatchBackgroundTimeout());
+                    setTimer(ChanSettings.getWatchBackgroundTimeout());
                 } else {
                     if (pendingTimer != null) {
                         pendingTimer.cancel();

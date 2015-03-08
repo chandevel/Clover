@@ -25,7 +25,7 @@ import com.android.volley.VolleyError;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.model.ChanThread;
@@ -161,7 +161,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             menu.add(Menu.NONE, 7, Menu.NONE, AndroidUtils.getRes().getString(R.string.delete));
         }
 
-        if (ChanPreferences.getDeveloper()) {
+        if (ChanSettings.getDeveloper()) {
             menu.add(Menu.NONE, 8, Menu.NONE, "Make this a saved reply");
         }
     }

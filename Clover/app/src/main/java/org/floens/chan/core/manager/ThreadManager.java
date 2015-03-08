@@ -40,7 +40,7 @@ import com.android.volley.VolleyError;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.manager.ReplyManager.DeleteListener;
@@ -148,7 +148,7 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
     public boolean isWatching() {
         if (!chanLoader.getLoadable().isThreadMode()) {
             return false;
-        } else if (!ChanPreferences.getThreadAutoRefresh()) {
+        } else if (!ChanSettings.getThreadAutoRefresh()) {
             return false;
         } else if (chanLoader.getThread() != null && chanLoader.getThread().closed) {
             return false;
@@ -249,7 +249,7 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
             menu.add(Menu.NONE, 7, Menu.NONE, activity.getString(R.string.delete));
         }
 
-        if (ChanPreferences.getDeveloper()) {
+        if (ChanSettings.getDeveloper()) {
             menu.add(Menu.NONE, 8, Menu.NONE, "Make this a saved reply");
         }
 
@@ -436,7 +436,7 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
                 showPostsRepliesFragment(l);
             }
         } else if (linkable.type == PostLinkable.Type.LINK) {
-            if (ChanPreferences.getOpenLinkConfirmation()) {
+            if (ChanSettings.getOpenLinkConfirmation()) {
                 new AlertDialog.Builder(activity)
                         .setNegativeButton(R.string.cancel, null)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

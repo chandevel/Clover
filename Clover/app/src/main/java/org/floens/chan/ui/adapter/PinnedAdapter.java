@@ -32,7 +32,7 @@ import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.view.CustomNetworkImageView;
 
@@ -133,11 +133,11 @@ public class PinnedAdapter extends BaseAdapter {
 
                 FrameLayout timeContainer = (FrameLayout) convertView.findViewById(R.id.pin_time_container);
                 FrameLayout countContainer = (FrameLayout) convertView.findViewById(R.id.pin_count_container);
-                if (ChanPreferences.getWatchEnabled()) {
+                if (ChanSettings.getWatchEnabled()) {
                     countContainer.setVisibility(View.VISIBLE);
 
                     TextView timeView = (TextView) convertView.findViewById(R.id.pin_time);
-                    if (pin.watching && pin.getPinWatcher() != null && ChanPreferences.getWatchCountdownVisibleEnabled()) {
+                    if (pin.watching && pin.getPinWatcher() != null && ChanSettings.getWatchCountdownVisibleEnabled()) {
                         timeContainer.setVisibility(View.VISIBLE);
                         long timeRaw = pin.getPinWatcher().getTimeUntilNextLoad();
                         long time = 0;

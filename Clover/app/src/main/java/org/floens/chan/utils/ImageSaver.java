@@ -32,7 +32,7 @@ import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,7 +55,7 @@ public class ImageSaver {
     private BroadcastReceiver receiver;
 
     public void saveAll(final Context context, String folderName, final List<DownloadPair> list) {
-        final File subFolder = new File(ChanPreferences.getImageSaveDirectory() + File.separator + filterName(folderName));
+        final File subFolder = new File(ChanSettings.getImageSaveDirectory() + File.separator + filterName(folderName));
 
         String text = context.getString(R.string.download_confirm, Integer.toString(list.size()), subFolder.getAbsolutePath());
 
@@ -99,7 +99,7 @@ public class ImageSaver {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    File saveDir = ChanPreferences.getImageSaveDirectory();
+                    File saveDir = ChanSettings.getImageSaveDirectory();
 
                     if (!saveDir.isDirectory() && !saveDir.mkdirs()) {
                         showToast(context, context.getString(R.string.image_save_directory_error));

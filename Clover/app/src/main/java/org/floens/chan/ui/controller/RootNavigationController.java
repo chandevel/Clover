@@ -53,7 +53,7 @@ public class RootNavigationController extends NavigationController {
 
         AndroidUtils.waitForLayout(drawer, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view, int width, int height) {
+            public void onMeasured(View view) {
                 setDrawerWidth();
             }
         });

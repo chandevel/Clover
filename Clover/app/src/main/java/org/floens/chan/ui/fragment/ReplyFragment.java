@@ -53,13 +53,13 @@ import com.android.volley.toolbox.StringRequest;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
-import org.floens.chan.ui.ViewFlipperAnimations;
+import org.floens.chan.ui.animation.ViewFlipperAnimations;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageDecoder;
@@ -164,7 +164,7 @@ public class ReplyFragment extends DialogFragment {
             Reply draft = ChanApplication.getReplyManager().getReplyDraft();
 
             if (TextUtils.isEmpty(draft.name)) {
-                draft.name = ChanPreferences.getDefaultName();
+                draft.name = ChanSettings.getDefaultName();
             }
 
             nameView.setText(draft.name);
@@ -275,7 +275,7 @@ public class ReplyFragment extends DialogFragment {
         });
         captchaInput = (TextView) container.findViewById(R.id.reply_captcha);
 
-        if (ChanPreferences.getPassEnabled()) {
+        if (ChanSettings.getPassEnabled()) {
             ((TextView) container.findViewById(R.id.reply_captcha_text)).setText(R.string.pass_using);
             container.findViewById(R.id.reply_captcha_container).setVisibility(View.GONE);
             container.findViewById(R.id.reply_captcha).setVisibility(View.GONE);
@@ -590,9 +590,9 @@ public class ReplyFragment extends DialogFragment {
         draft.resto = loadable.isThreadMode() ? loadable.no : -1;
         draft.board = loadable.board;
 
-        if (ChanPreferences.getPassEnabled()) {
+        if (ChanSettings.getPassEnabled()) {
             draft.usePass = true;
-            draft.passId = ChanPreferences.getPassId();
+            draft.passId = ChanSettings.getPassId();
         }
 
         Board b = ChanApplication.getBoardManager().getBoardByValue(loadable.board);
@@ -630,7 +630,7 @@ public class ReplyFragment extends DialogFragment {
             Toast.makeText(context, R.string.reply_success, Toast.LENGTH_SHORT).show();
 
             // Pin thread on successful post
-            if (ChanPreferences.getPinOnPost() && loadable.isThreadMode()) {
+            if (ChanSettings.getPinOnPost() && loadable.isThreadMode()) {
                 ChanApplication.getWatchManager().addPin(loadable);
             }
 

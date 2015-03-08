@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.preferences.ChanPreferences;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.helper.PostPopupHelper;
@@ -82,7 +82,7 @@ public class PostRepliesFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup unused, Bundle savedInstanceState) {
         View container;
-        if (ChanPreferences.getReplyButtonsBottom()) {
+        if (ChanSettings.getReplyButtonsBottom()) {
             container = inflater.inflate(R.layout.post_replies_bottombuttons, null);
         } else {
             container = inflater.inflate(R.layout.post_replies, null);
