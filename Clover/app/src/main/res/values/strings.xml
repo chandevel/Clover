@@ -41,7 +41,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_board_view_mode">View mode</string>
     <string name="action_board_view_mode_list">List</string>
     <string name="action_board_view_mode_grid">Grid</string>
-    <string name="action_settings_advanced">Advanced</string>
     <string name="action_search">Search</string>
     <string name="action_search_board">Search board</string>
     <string name="action_search_thread">Search thread</string>
@@ -152,6 +151,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="folder_pick_ok">Choose</string>
 
+    <string name="settings_screen">Settings</string>
     <string name="settings_group_general">General</string>
     <string name="settings_board_edit">Edit boards</string>
     <string name="settings_watch">Thread watcher settings</string>
@@ -179,6 +179,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="settings_about_licenses">Open Source Licenses</string>
     <string name="settings_about_licences_description">Legal information about licenses</string>
     <string name="settings_developer">Developer settings</string>
+
+    <string name="settings_screen_advanced">Advanced settings</string>
+    <string name="settings_group_advanced">Advanced settings</string>
+    <string name="setting_save_folder">File save folder</string>
+    <string name="setting_save_folder_error_create_folder">Error creating save folder</string>
+    <string name="setting_save_original_filename">Save original filename</string>
+    <string name="setting_share_url">Share url to image</string>
+    <string name="setting_share_url_description">Share the url to the image instead of the image itself</string>
+    <string name="setting_network_https">Use HTTPS</string>
+    <string name="setting_network_https_description">Use HTTPS for all network requests</string>
+    <string name="setting_force_phone_layout">Force phone layout</string>
+    <string name="setting_anonymize">Make everyone Anonymous</string>
+    <string name="setting_anonymize_ids">Hide IDs</string>
+    <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
+
+    <string name="settings_screen_watch">Watcher settings</string>
+    <string name="settings_group_watch">Watcher settings</string>
+    <string name="setting_watch_countdown">Show countdown</string>
+    <string name="setting_watch_countdown_description">Show a countdown left of the new post counter</string>
+    <string name="setting_watch_enable_background">Enable in the background</string>
+    <string name="setting_watch_enable_background_description">Watch pins when Clover is in the background</string>
+
+
+
 
 
     <string name="preference_board_edit">Edit boards</string>

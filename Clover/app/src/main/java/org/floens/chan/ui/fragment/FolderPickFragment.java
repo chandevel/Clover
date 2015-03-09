@@ -66,12 +66,12 @@ public class FolderPickFragment extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup unused, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         if (listener == null || currentPath == null) {
             return null;
         }
 
-        View container = inflater.inflate(R.layout.folder_pick, null);
+        View container = inflater.inflate(R.layout.folder_pick, parent);
 
         statusPath = (TextView) container.findViewById(R.id.folder_status);
         listView = (ListView) container.findViewById(R.id.folder_list);

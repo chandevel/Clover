@@ -3,8 +3,12 @@ package org.floens.chan.core.settings;
 import android.content.SharedPreferences;
 
 public class BooleanSetting extends Setting<Boolean> {
-    public BooleanSetting(SharedPreferences sharedPreferences, String key, boolean def) {
+    public BooleanSetting(SharedPreferences sharedPreferences, String key, Boolean def) {
         super(sharedPreferences, key, def);
+    }
+
+    public BooleanSetting(SharedPreferences sharedPreferences, String key, Boolean def, SettingCallback<Boolean> callback) {
+        super(sharedPreferences, key, def, callback);
     }
 
     @Override
@@ -14,6 +18,9 @@ public class BooleanSetting extends Setting<Boolean> {
 
     @Override
     public void set(Boolean value) {
-        sharedPreferences.edit().putBoolean(key, value).apply();
+        if (!value.equals(get())) {
+            sharedPreferences.edit().putBoolean(key, value).apply();
+            onValueChanged();
+        }
     }
 }

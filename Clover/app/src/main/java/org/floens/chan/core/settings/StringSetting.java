@@ -7,6 +7,10 @@ public class StringSetting extends Setting<String> {
         super(sharedPreferences, key, def);
     }
 
+    public StringSetting(SharedPreferences sharedPreferences, String key, String def, SettingCallback<String> callback) {
+        super(sharedPreferences, key, def, callback);
+    }
+
     @Override
     public String get() {
         return sharedPreferences.getString(key, def);
@@ -14,6 +18,9 @@ public class StringSetting extends Setting<String> {
 
     @Override
     public void set(String value) {
-        sharedPreferences.edit().putString(key, value).apply();
+        if (!value.equals(get())) {
+            sharedPreferences.edit().putString(key, value).apply();
+            onValueChanged();
+        }
     }
 }

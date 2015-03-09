@@ -6,7 +6,8 @@ import org.floens.chan.R;
 
 public class LinkSettingView extends SettingView {
     private final View.OnClickListener clickListener;
-    private final String description;
+    private String description;
+    private boolean built = false;
 
     public LinkSettingView(SettingsController settingsController, String name, String description, View.OnClickListener clickListener) {
         super(settingsController, name);
@@ -18,6 +19,7 @@ public class LinkSettingView extends SettingView {
     public void setView(View view) {
         super.setView(view);
         view.setOnClickListener(clickListener);
+        built = true;
     }
 
     @Override
@@ -32,6 +34,13 @@ public class LinkSettingView extends SettingView {
         View bottom = view.findViewById(R.id.bottom);
         if (bottom != null) {
             bottom.setEnabled(enabled);
+        }
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+        if (built) {
+            settingsController.onPreferenceChange(this);
         }
     }
 }

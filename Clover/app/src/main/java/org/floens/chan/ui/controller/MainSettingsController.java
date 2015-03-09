@@ -57,10 +57,10 @@ public class MainSettingsController extends SettingsController implements Toolba
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.title = s(R.string.action_settings);
+        navigationItem.title = s(R.string.settings_screen);
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.createOverflow(context, this, Arrays.asList(
-                new FloatingMenuItem(ADVANCED_SETTINGS, s(R.string.action_settings_advanced))
+                new FloatingMenuItem(ADVANCED_SETTINGS, s(R.string.settings_screen_advanced))
         ));
 
         view = inflateRes(R.layout.settings_layout);
@@ -110,7 +110,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         general.add(new LinkSettingView(this, s(R.string.settings_watch), null, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                navigationController.pushController(new WatchSettingsController(context));
             }
         }));
 

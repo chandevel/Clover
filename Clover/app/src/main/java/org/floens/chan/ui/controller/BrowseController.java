@@ -79,7 +79,7 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)));
         items.add(new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)));
-        items.add(new FloatingMenuItem(SETTINGS_ID, context.getString(R.string.action_settings)));
+        items.add(new FloatingMenuItem(SETTINGS_ID, context.getString(R.string.settings_screen)));
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
 

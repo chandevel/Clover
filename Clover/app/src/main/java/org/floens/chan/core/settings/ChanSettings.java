@@ -39,6 +39,18 @@ public class ChanSettings {
 
     public static BooleanSetting developer;
 
+    public static StringSetting saveLocation;
+    public static BooleanSetting saveOriginalFilename;
+    public static BooleanSetting shareUrl;
+    public static BooleanSetting networkHttps;
+    public static BooleanSetting forcePhoneLayout;
+    public static BooleanSetting anonymize;
+    public static BooleanSetting anonymizeIds;
+    public static BooleanSetting repliesButtonsBottom;
+
+    public static BooleanSetting watchCountdown;
+    public static BooleanSetting watchBackground;
+
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
 
@@ -54,6 +66,18 @@ public class ChanSettings {
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
 
         developer = new BooleanSetting(p, "preference_developer", false);
+
+        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover");
+        saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
+        shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
+        networkHttps = new BooleanSetting(p, "preference_network_https", true);
+        forcePhoneLayout = new BooleanSetting(p, "preference_force_phone_layout", false);
+        anonymize = new BooleanSetting(p, "preference_anonymize", false);
+        anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
+        repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
+
+        watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
+        watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
     }
 
     private static SharedPreferences p() {
