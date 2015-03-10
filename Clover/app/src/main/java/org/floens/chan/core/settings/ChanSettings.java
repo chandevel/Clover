@@ -50,6 +50,10 @@ public class ChanSettings {
 
     public static BooleanSetting watchCountdown;
     public static BooleanSetting watchBackground;
+    public static StringSetting watchBackgroundTimeout;
+    public static StringSetting watchNotifyMode;
+    public static StringSetting watchSound;
+    public static StringSetting watchLed;
 
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
@@ -78,6 +82,10 @@ public class ChanSettings {
 
         watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
+        watchBackgroundTimeout = new StringSetting(p, "preference_watch_background_timeout", "60");
+        watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
+        watchSound = new StringSetting(p, "preference_watch_sound", "all");
+        watchLed = new StringSetting(p, "preference_watch_led", "ffffffff");
     }
 
     private static SharedPreferences p() {

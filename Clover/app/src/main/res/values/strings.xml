@@ -27,6 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="on">On</string>
     <string name="off">Off</string>
 
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
     <string name="action_reload_board">Reload board</string>
@@ -200,7 +205,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_watch_countdown_description">Show a countdown left of the new post counter</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
     <string name="setting_watch_enable_background_description">Watch pins when Clover is in the background</string>
-
+    <string name="setting_watch_background_timeout">Time between loads in background</string>
+    <string name="setting_watch_notify_mode">Notify about</string>
+    <string-array name="setting_watch_notify_modes">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
+    </string-array>
+    <string name="setting_watch_sound">Notification sound and vibrate</string>
+    <string-array name="setting_watch_sounds">
+        <item>All posts</item>
+        <item>Only posts quoting you</item>
+    </string-array>
+    <string name="setting_watch_led">Notification light</string>
+    <string-array name="setting_watch_leds">
+        <item>None</item>
+        <item>White</item>
+        <item>Red</item>
+        <item>Yellow</item>
+        <item>Green</item>
+        <item>Cyan</item>
+        <item>Blue</item>
+        <item>Purple</item>
+    </string-array>
 
 
 

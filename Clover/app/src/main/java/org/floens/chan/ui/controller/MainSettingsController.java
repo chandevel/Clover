@@ -127,15 +127,15 @@ public class MainSettingsController extends SettingsController implements Toolba
         SettingsGroup browsing = new SettingsGroup(s(R.string.settings_group_browsing));
 
         browsing.add(new ListSettingView(this, ChanSettings.theme, s(R.string.setting_theme), new ListSettingView.Item[]{
-                new ListSettingView.Item<>(s(R.string.setting_theme_light), "light"),
-                new ListSettingView.Item<>(s(R.string.setting_theme_dark), "dark"),
-                new ListSettingView.Item<>(s(R.string.setting_theme_black), "black")
+                new ListSettingView.Item(s(R.string.setting_theme_light), "light"),
+                new ListSettingView.Item(s(R.string.setting_theme_dark), "dark"),
+                new ListSettingView.Item(s(R.string.setting_theme_black), "black")
         }));
 
         List<ListSettingView.Item> fontSizes = new ArrayList<>();
         for (int size = 10; size <= 19; size++) {
             String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " " + s(R.string.setting_font_size_default) : "");
-            fontSizes.add(new ListSettingView.Item<>(name, String.valueOf(size)));
+            fontSizes.add(new ListSettingView.Item(name, String.valueOf(size)));
         }
 
         browsing.add(new ListSettingView(this, ChanSettings.fontSize, s(R.string.setting_font_size), fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));

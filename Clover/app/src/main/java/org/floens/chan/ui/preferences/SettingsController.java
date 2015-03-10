@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -132,23 +131,6 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 }
 
                 AndroidUtils.animateHeight(bottom, bottomText != null);
-
-                if (bottom.getAnimation() != null) {
-                    bottom.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                            bottom.setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-                        }
-                    });
-                }
             } else {
                 bottom.setText(bottomText);
                 bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);

@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -236,8 +237,8 @@ public class AndroidUtils {
         return views;
     }
 
-    public static void animateHeight(View view, boolean expand) {
-        if ((view.getHeight() > 0 && expand) || (view.getHeight() == 0 && !expand)) {
+    public static void animateHeight(final View view, boolean expand) {
+        if (view.getAnimation() == null && ((view.getHeight() > 0 && expand) || (view.getHeight() == 0 && !expand))) {
             return;
         }
 
@@ -252,5 +253,21 @@ public class AndroidUtils {
             heightAnimation = new HeightAnimation(view, view.getHeight(), 0, 300);
         }
         view.startAnimation(heightAnimation);
+        view.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 }

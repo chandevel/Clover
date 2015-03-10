@@ -20,6 +20,19 @@ public class ListSettingView extends SettingView implements FloatingMenu.Floatin
 
     private int selected;
 
+    public ListSettingView(SettingsController settingsController, Setting<String> setting, String name, String[] itemNames, String[] keys) {
+        super(settingsController, name);
+
+        this.setting = setting;
+
+        items = new Item[itemNames.length];
+        for (int i = 0; i < itemNames.length; i++) {
+            items[i] = new Item(itemNames[i], keys[i]);
+        }
+
+        selectItem();
+    }
+
     public ListSettingView(SettingsController settingsController, Setting<String> setting, String name, Item[] items) {
         super(settingsController, name);
         this.setting = setting;
@@ -86,11 +99,11 @@ public class ListSettingView extends SettingView implements FloatingMenu.Floatin
         }
     }
 
-    public static class Item<T> {
+    public static class Item {
         public final String name;
-        public final T key;
+        public final String key;
 
-        public Item(String name, T key) {
+        public Item(String name, String key) {
             this.name = name;
             this.key = key;
         }
