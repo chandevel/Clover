@@ -35,17 +35,19 @@ import org.floens.chan.ui.preferences.StringSettingView;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
-import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback {
+public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener, PassSettingsController.PassSettingControllerListener {
     private static final int ADVANCED_SETTINGS = 1;
     private SettingView imageAutoLoadView;
     private SettingView videoAutoLoadView;
 
+    private LinkSettingView watchLink;
+    private LinkSettingView passLink;
     private int clickCount;
     private SettingView developerView;
 
@@ -67,6 +69,9 @@ public class MainSettingsController extends SettingsController implements Toolba
         content = (LinearLayout) view.findViewById(R.id.scrollview_content);
 
         populatePreferences();
+
+        onWatchEnabledChanged(ChanSettings.watchEnabled.get());
+        onPassEnabledChanged(ChanSettings.passLoggedIn());
 
         buildPreferences();
 
@@ -97,6 +102,16 @@ public class MainSettingsController extends SettingsController implements Toolba
         }
     }
 
+    @Override
+    public void onWatchEnabledChanged(boolean enabled) {
+        watchLink.setDescription(s(enabled ? R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled));
+    }
+
+    @Override
+    public void onPassEnabledChanged(boolean enabled) {
+        passLink.setDescription(s(enabled ? R.string.setting_pass_summary_enabled : R.string.setting_pass_summary_disabled));
+    }
+
     private void populatePreferences() {
         // General group
         SettingsGroup general = new SettingsGroup(s(R.string.settings_group_general));
@@ -107,17 +122,17 @@ public class MainSettingsController extends SettingsController implements Toolba
             }
         }));
 
-        general.add(new LinkSettingView(this, s(R.string.settings_watch), null, new View.OnClickListener() {
+        watchLink = (LinkSettingView) general.add(new LinkSettingView(this, s(R.string.settings_watch), null, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new WatchSettingsController(context));
             }
         }));
 
-        general.add(new LinkSettingView(this, s(R.string.settings_pass), null, new View.OnClickListener() {
+        passLink = (LinkSettingView) general.add(new LinkSettingView(this, s(R.string.settings_pass), null, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                navigationController.pushController(new PassSettingsController(context));
             }
         }));
 
@@ -181,7 +196,7 @@ public class MainSettingsController extends SettingsController implements Toolba
 
                     Toast.makeText(context, (developer ? "Enabled" : "Disabled") + " developer options", Toast.LENGTH_LONG).show();
 
-                    AndroidUtils.animateHeight(developerView.view, developer);
+                    AnimationUtils.animateHeight(developerView.view, developer);
                 }
             }
         }));

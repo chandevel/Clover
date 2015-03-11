@@ -18,6 +18,7 @@
 package org.floens.chan.ui.toolbar;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import org.floens.chan.ui.view.FloatingMenu;
@@ -31,6 +32,7 @@ public class NavigationItem {
     public boolean hasBack = true;
     public LinearLayout view;
     public FloatingMenu middleMenu;
+    public View rightView;
 
     public FloatingMenu createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
         ToolbarMenuItem overflow = menu.createOverflow(callback);

@@ -26,34 +26,39 @@ import org.floens.chan.utils.AndroidUtils;
 import java.io.File;
 
 public class ChanSettings {
-    public static StringSetting theme;
-    public static StringSetting fontSize;
-    public static BooleanSetting openLinkConfirmation;
-    public static BooleanSetting autoRefreshThread;
-    public static BooleanSetting imageAutoLoad;
-    public static BooleanSetting videoAutoLoad;
-    public static BooleanSetting videoOpenExternal;
+    public static final StringSetting theme;
+    public static final StringSetting fontSize;
+    public static final BooleanSetting openLinkConfirmation;
+    public static final BooleanSetting autoRefreshThread;
+    public static final BooleanSetting imageAutoLoad;
+    public static final BooleanSetting videoAutoLoad;
+    public static final BooleanSetting videoOpenExternal;
 
-    public static StringSetting postDefaultName;
-    public static BooleanSetting postPinThread;
+    public static final StringSetting postDefaultName;
+    public static final BooleanSetting postPinThread;
 
-    public static BooleanSetting developer;
+    public static final BooleanSetting developer;
 
-    public static StringSetting saveLocation;
-    public static BooleanSetting saveOriginalFilename;
-    public static BooleanSetting shareUrl;
-    public static BooleanSetting networkHttps;
-    public static BooleanSetting forcePhoneLayout;
-    public static BooleanSetting anonymize;
-    public static BooleanSetting anonymizeIds;
-    public static BooleanSetting repliesButtonsBottom;
+    public static final StringSetting saveLocation;
+    public static final BooleanSetting saveOriginalFilename;
+    public static final BooleanSetting shareUrl;
+    public static final BooleanSetting networkHttps;
+    public static final BooleanSetting forcePhoneLayout;
+    public static final BooleanSetting anonymize;
+    public static final BooleanSetting anonymizeIds;
+    public static final BooleanSetting repliesButtonsBottom;
 
-    public static BooleanSetting watchCountdown;
-    public static BooleanSetting watchBackground;
-    public static StringSetting watchBackgroundTimeout;
-    public static StringSetting watchNotifyMode;
-    public static StringSetting watchSound;
-    public static StringSetting watchLed;
+    public static final BooleanSetting watchEnabled;
+    public static final BooleanSetting watchCountdown;
+    public static final BooleanSetting watchBackground;
+    public static final StringSetting watchBackgroundTimeout;
+    public static final StringSetting watchNotifyMode;
+    public static final StringSetting watchSound;
+    public static final StringSetting watchLed;
+
+    public static final StringSetting passToken;
+    public static final StringSetting passPin;
+    public static final StringSetting passId;
 
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
@@ -80,16 +85,25 @@ public class ChanSettings {
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
 
+        watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
         watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
         watchBackgroundTimeout = new StringSetting(p, "preference_watch_background_timeout", "60");
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "all");
         watchLed = new StringSetting(p, "preference_watch_led", "ffffffff");
+
+        passToken = new StringSetting(p, "preference_pass_token", "");
+        passPin = new StringSetting(p, "preference_pass_pin", "");
+        passId = new StringSetting(p, "preference_pass_id", "");
     }
 
     private static SharedPreferences p() {
         return AndroidUtils.getPreferences();
+    }
+
+    public static boolean passLoggedIn() {
+        return passId.get().length() > 0;
     }
 
     public static boolean getOpenLinkConfirmation() {

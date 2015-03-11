@@ -1,7 +1,8 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
+import android.support.v7.widget.SwitchCompat;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 
 import org.floens.chan.R;
@@ -11,33 +12,58 @@ import org.floens.chan.ui.preferences.ListSettingView;
 import org.floens.chan.ui.preferences.SettingView;
 import org.floens.chan.ui.preferences.SettingsController;
 import org.floens.chan.ui.preferences.SettingsGroup;
-import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.ui.view.CrossfadeView;
 
-public class WatchSettingsController extends SettingsController {
-    public WatchSettingsController(Context context) {
-        super(context);
-    }
+public class WatchSettingsController extends SettingsController implements CompoundButton.OnCheckedChangeListener {
+    private CrossfadeView crossfadeView;
 
     private SettingView enableBackground;
+
     private SettingView backgroundTimeout;
     private SettingView notifyMode;
     private SettingView soundMode;
     private SettingView ledMode;
 
+    public WatchSettingsController(Context context) {
+        super(context);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.title = string(R.string.settings_screen_advanced);
+        boolean enabled = ChanSettings.watchEnabled.get();
 
-        view = inflateRes(R.layout.settings_layout);
+        navigationItem.title = string(R.string.settings_screen_watch);
+
+        view = inflateRes(R.layout.settings_watch);
         content = (LinearLayout) view.findViewById(R.id.scrollview_content);
+        crossfadeView = (CrossfadeView) view.findViewById(R.id.crossfade);
+
+        crossfadeView.toggle(enabled, false);
+
+        SwitchCompat globalSwitch = new SwitchCompat(context);
+        globalSwitch.setChecked(enabled);
+        globalSwitch.setOnCheckedChangeListener(this);
+        navigationItem.rightView = globalSwitch;
 
         populatePreferences();
 
         buildPreferences();
 
-        setEnabledHeights();
+        if (!ChanSettings.watchBackground.get()) {
+            setSettingViewVisibility(backgroundTimeout, false, false);
+            setSettingViewVisibility(notifyMode, false, false);
+            setSettingViewVisibility(soundMode, false, false);
+            setSettingViewVisibility(ledMode, false, false);
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        ChanSettings.watchEnabled.set(isChecked);
+        ((WatchSettingControllerListener) navigationController.getPreviousSibling(this)).onWatchEnabledChanged(isChecked);
+        crossfadeView.toggle(isChecked, true);
     }
 
     @Override
@@ -46,19 +72,10 @@ public class WatchSettingsController extends SettingsController {
 
         if (item == enableBackground) {
             boolean enabled = ChanSettings.watchBackground.get();
-            AndroidUtils.animateHeight(backgroundTimeout.view, enabled);
-            AndroidUtils.animateHeight(notifyMode.view, enabled);
-            AndroidUtils.animateHeight(soundMode.view, enabled);
-            AndroidUtils.animateHeight(ledMode.view, enabled);
-        }
-    }
-
-    private void setEnabledHeights() {
-        if (!ChanSettings.watchBackground.get()) {
-            backgroundTimeout.view.setVisibility(View.GONE);
-            notifyMode.view.setVisibility(View.GONE);
-            soundMode.view.setVisibility(View.GONE);
-            ledMode.view.setVisibility(View.GONE);
+            setSettingViewVisibility(backgroundTimeout, enabled, true);
+            setSettingViewVisibility(notifyMode, enabled, true);
+            setSettingViewVisibility(soundMode, enabled, true);
+            setSettingViewVisibility(ledMode, enabled, true);
         }
     }
 
@@ -87,5 +104,9 @@ public class WatchSettingsController extends SettingsController {
                 new String[]{"-1", "ffffffff", "ffff0000", "ffffff00", "ff00ff00", "ff00ffff", "ff0000ff", "ffff00ff"}));
 
         groups.add(settings);
+    }
+
+    public interface WatchSettingControllerListener {
+        public void onWatchEnabledChanged(boolean enabled);
     }
 }

@@ -201,6 +201,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="settings_screen_watch">Watcher settings</string>
     <string name="settings_group_watch">Watcher settings</string>
+    <string name="setting_watch_info">To watch pins for new posts, turn the thread watcher on.</string>
+    <string name="setting_watch_summary_enabled">Watching pinned threads</string>
+    <string name="setting_watch_summary_disabled">Off</string>
     <string name="setting_watch_countdown">Show countdown</string>
     <string name="setting_watch_countdown_description">Show a countdown left of the new post counter</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
@@ -228,8 +231,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Purple</item>
     </string-array>
 
-
-
+    <string name="settings_screen_pass">4chan pass</string>
+    <string name="setting_pass_token">Token</string>
+    <string name="setting_pass_pin">PIN</string>
+    <string name="setting_pass_authenticated">Device authorized!</string>
+    <string name="setting_pass_login">Submit</string>
+    <string name="setting_pass_logout">Logout</string>
+    <string name="setting_pass_logging_in">Loading&#8230;</string>
+    <string name="setting_pass_authenticate_success">Success! Your device is now authorized.</string>
+    <string name="setting_pass_bottom_description">
+"Forgot your 4chan Pass login details?&lt;br>
+&lt;a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.&lt;/a>&lt;&lt;br>
+&lt;br>
+Don't have a 4chan Pass?&lt;br>
+&lt;a href=\"https://www.4chan.org/pass\">Click here to learn more.&lt;/a>"
+    </string>
+    <string name="setting_pass_summary_enabled">Using 4chan pass</string>
+    <string name="setting_pass_summary_disabled">Off</string>
 
     <string name="preference_board_edit">Edit boards</string>
     <string name="preference_board_edit_summary">Add or remove boards</string>

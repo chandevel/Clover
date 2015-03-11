@@ -34,13 +34,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.ui.animation.HeightAnimation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,11 +141,15 @@ public class AndroidUtils {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(
-                        Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService( Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(view, 0);
             }
         });
+    }
+
+    public static void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public static String getReadableFileSize(int bytes, boolean si) {
@@ -184,11 +186,11 @@ public class AndroidUtils {
         waitForMeasure(false, view, callback);
     }
 
-    private static void waitForMeasure(boolean returnIfZero, final View view, final OnMeasuredCallback callback) {
+    private static void waitForMeasure(boolean returnIfNotZero, final View view, final OnMeasuredCallback callback) {
         int width = view.getWidth();
         int height = view.getHeight();
 
-        if (returnIfZero && width > 0 && height > 0) {
+        if (returnIfNotZero && width > 0 && height > 0) {
             callback.onMeasured(view);
         } else {
             view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
@@ -237,37 +239,4 @@ public class AndroidUtils {
         return views;
     }
 
-    public static void animateHeight(final View view, boolean expand) {
-        if (view.getAnimation() == null && ((view.getHeight() > 0 && expand) || (view.getHeight() == 0 && !expand))) {
-            return;
-        }
-
-        view.clearAnimation();
-        HeightAnimation heightAnimation;
-        if (expand) {
-            view.measure(
-                    View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-            heightAnimation = new HeightAnimation(view, 0, view.getMeasuredHeight(), 300);
-        } else {
-            heightAnimation = new HeightAnimation(view, view.getHeight(), 0, 300);
-        }
-        view.startAnimation(heightAnimation);
-        view.getAnimation().setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                view.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-    }
 }

@@ -104,6 +104,15 @@ public abstract class NavigationController extends Controller implements Control
         return true;
     }
 
+    public Controller getPreviousSibling(Controller controller) {
+        int index = controllerList.indexOf(controller);
+        if (index > 0) {
+            return controllerList.get(index - 1);
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public void onControllerTransitionCompleted() {
         if (controllerTransition instanceof PushControllerTransition) {

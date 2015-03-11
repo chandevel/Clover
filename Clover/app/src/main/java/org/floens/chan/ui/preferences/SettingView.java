@@ -6,6 +6,7 @@ public abstract class SettingView {
     public SettingsController settingsController;
     public final String name;
     public View view;
+    public View divider;
 
     public SettingView(SettingsController settingsController, String name) {
         this.settingsController = settingsController;

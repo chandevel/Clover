@@ -11,6 +11,7 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +79,18 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
         }
     }
 
+    protected void setSettingViewVisibility(SettingView settingView, boolean visible, boolean animated) {
+        if (animated) {
+            AnimationUtils.animateHeight(settingView.view, visible);
+        } else {
+            settingView.view.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+
+        if (settingView.divider != null) {
+            settingView.divider.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
+
     protected void buildPreferences() {
         LayoutInflater inf = LayoutInflater.from(context);
         boolean firstGroup = true;
@@ -112,7 +125,8 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 settingView.setView(preferenceView);
 
                 if (i < group.settingViews.size() - 1) {
-                    inf.inflate(R.layout.setting_divider, groupLayout, true);
+                    settingView.divider = inf.inflate(R.layout.setting_divider, groupLayout, false);
+                    groupLayout.addView(settingView.divider);
                 }
             }
         }
@@ -130,7 +144,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                     bottom.setText(bottomText);
                 }
 
-                AndroidUtils.animateHeight(bottom, bottomText != null);
+                AnimationUtils.animateHeight(bottom, bottomText != null);
             } else {
                 bottom.setText(bottomText);
                 bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);

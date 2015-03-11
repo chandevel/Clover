@@ -30,4 +30,6 @@
     <!-- menu inserted here
      TODO: make this layout relative and make a ViewStub but with programatically added views -->
 
+    <!-- rightView inserted here -->
+
 </LinearLayout>
