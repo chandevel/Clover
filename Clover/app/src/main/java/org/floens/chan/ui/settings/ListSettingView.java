@@ -1,4 +1,4 @@
-package org.floens.chan.ui.preferences;
+package org.floens.chan.ui.settings;
 
 import android.view.Gravity;
 import android.view.View;

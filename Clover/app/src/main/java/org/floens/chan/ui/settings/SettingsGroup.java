@@ -1,4 +1,4 @@
-package org.floens.chan.ui.preferences;
+package org.floens.chan.ui.settings;
 
 import java.util.ArrayList;
 import java.util.List;

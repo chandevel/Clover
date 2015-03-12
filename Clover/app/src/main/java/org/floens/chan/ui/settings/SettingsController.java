@@ -1,4 +1,4 @@
-package org.floens.chan.ui.preferences;
+package org.floens.chan.ui.settings;
 
 import android.content.Context;
 import android.content.res.Configuration;

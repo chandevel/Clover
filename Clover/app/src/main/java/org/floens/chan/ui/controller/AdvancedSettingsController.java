@@ -9,10 +9,10 @@ import android.widget.LinearLayout;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.fragment.FolderPickFragment;
-import org.floens.chan.ui.preferences.BooleanSettingView;
-import org.floens.chan.ui.preferences.LinkSettingView;
-import org.floens.chan.ui.preferences.SettingsController;
-import org.floens.chan.ui.preferences.SettingsGroup;
+import org.floens.chan.ui.settings.BooleanSettingView;
+import org.floens.chan.ui.settings.LinkSettingView;
+import org.floens.chan.ui.settings.SettingsController;
+import org.floens.chan.ui.settings.SettingsGroup;
 
 import java.io.File;
 
