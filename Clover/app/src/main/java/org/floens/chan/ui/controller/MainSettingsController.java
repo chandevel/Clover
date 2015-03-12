@@ -175,7 +175,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         about.add(new LinkSettingView(this, s(R.string.settings_about_licenses), s(R.string.settings_about_licences_description), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                navigationController.pushController(new LicensesController(context));
             }
         }));
 
@@ -204,7 +204,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         developerView = about.add(new LinkSettingView(this, s(R.string.settings_developer), null, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                navigationController.pushController(new DeveloperSettingsController(context));
             }
         }));
 

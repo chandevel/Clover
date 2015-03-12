@@ -248,6 +248,9 @@ Don't have a 4chan Pass?&lt;br>
     </string>
     <string name="setting_pass_summary_enabled">Using 4chan pass</string>
     <string name="setting_pass_summary_disabled">Off</string>
+    <string name="setting_screen_licenses">Open Source Licenses</string>
+
+
 
     <string name="preference_board_edit">Edit boards</string>
     <string name="preference_board_edit_summary">Add or remove boards</string>
