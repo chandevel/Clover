@@ -118,7 +118,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         general.add(new LinkSettingView(this, s(R.string.settings_board_edit), null, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                navigationController.pushController(new BoardEditController(context));
             }
         }));
 
