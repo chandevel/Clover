@@ -83,7 +83,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
                 crossfadeView.toggle(true, true);
                 button.setText(R.string.setting_pass_login);
                 hideError();
-                ((PassSettingControllerListener) previousSibling).onPassEnabledChanged(false);
+                ((PassSettingControllerListener) previousSiblingController).onPassEnabledChanged(false);
             } else {
                 auth();
             }
@@ -124,7 +124,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
                     button.setText(R.string.setting_pass_logout);
                     ChanSettings.passId.set(response.passId);
                     authenticated.setText(response.message);
-                    ((PassSettingControllerListener) previousSibling).onPassEnabledChanged(true);
+                    ((PassSettingControllerListener) previousSiblingController).onPassEnabledChanged(true);
                 }
 
                 button.setEnabled(true);

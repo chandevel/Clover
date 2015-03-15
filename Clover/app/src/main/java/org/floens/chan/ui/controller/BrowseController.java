@@ -149,7 +149,8 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
 
     @Override
     public void showImages(List<PostImage> images, int index) {
-
+        ImageViewController imageViewController = new ImageViewController(context);
+        presentController(imageViewController);
     }
 
     @Override

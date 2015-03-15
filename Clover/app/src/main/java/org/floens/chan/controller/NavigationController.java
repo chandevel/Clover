@@ -58,7 +58,7 @@ public abstract class NavigationController extends Controller implements Control
 
         final Controller from = controllerList.size() > 0 ? controllerList.get(controllerList.size() - 1) : null;
         to.navigationController = this;
-        to.previousSibling = from;
+        to.previousSiblingController = from;
 
         controllerList.add(to);
 
@@ -67,10 +67,10 @@ public abstract class NavigationController extends Controller implements Control
             this.controllerTransition = controllerTransition;
             controllerTransition.setCallback(this);
 
-            ControllerLogic.startTransition(from, to, false, true, container, true, controllerTransition);
+            ControllerLogic.startTransition(from, to, false, true, container, controllerTransition);
             toolbar.setNavigationItem(true, true, to.navigationItem);
         } else {
-            ControllerLogic.transition(from, to, false, true, container, true);
+            ControllerLogic.transition(from, to, false, true, container);
             toolbar.setNavigationItem(false, true, to.navigationItem);
         }
 
@@ -104,10 +104,10 @@ public abstract class NavigationController extends Controller implements Control
             this.controllerTransition = controllerTransition;
             controllerTransition.setCallback(this);
 
-            ControllerLogic.startTransition(from, to, true, false, container, false, controllerTransition);
+            ControllerLogic.startTransition(from, to, true, false, container, controllerTransition);
             toolbar.setNavigationItem(true, false, to.navigationItem);
         } else {
-            ControllerLogic.transition(from, to, true, false, container, false);
+            ControllerLogic.transition(from, to, true, false, container);
             toolbar.setNavigationItem(false, false, to.navigationItem);
         }
 

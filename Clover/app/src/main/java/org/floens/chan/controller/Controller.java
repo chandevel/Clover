@@ -21,7 +21,9 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
+import org.floens.chan.ui.activity.BoardActivity;
 import org.floens.chan.ui.toolbar.NavigationItem;
 
 public abstract class Controller {
@@ -29,8 +31,13 @@ public abstract class Controller {
     public View view;
 
     public NavigationItem navigationItem = new NavigationItem();
-    public Controller previousSibling;
+
+    // NavigationControllers members
+    public Controller previousSiblingController;
     public NavigationController navigationController;
+
+    // Controller (for presenting) members
+    public Controller presentingController;
 
     public Controller(Context context) {
         this.context = context;
@@ -60,7 +67,32 @@ public abstract class Controller {
     }
 
     public void presentController(Controller controller) {
+        ViewGroup contentView = ((BoardActivity) context).getContentView();
+        controller.presentingController = this;
 
+        ControllerTransition transition = new FadeInTransition();
+        transition.setCallback(new ControllerTransition.Callback() {
+            @Override
+            public void onControllerTransitionCompleted(ControllerTransition transition) {
+                ControllerLogic.finishTransition(transition);
+            }
+        });
+        ControllerLogic.startTransition(null, controller, false, true, contentView, transition);
+        ((BoardActivity) context).addController(controller);
+    }
+
+    public void stopPresenting() {
+        ViewGroup contentView = ((BoardActivity) context).getContentView();
+
+        ControllerTransition transition = new FadeOutTransition();
+        transition.setCallback(new ControllerTransition.Callback() {
+            @Override
+            public void onControllerTransitionCompleted(ControllerTransition transition) {
+                ControllerLogic.finishTransition(transition);
+            }
+        });
+        ControllerLogic.startTransition(this, null, true, false, contentView, transition);
+        ((BoardActivity) context).removeController(Controller.this);
     }
 
     public View inflateRes(int resId) {
