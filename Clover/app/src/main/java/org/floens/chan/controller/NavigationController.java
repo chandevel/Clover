@@ -20,11 +20,9 @@ package org.floens.chan.controller;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import org.floens.chan.ui.toolbar.Toolbar;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,47 +35,60 @@ public abstract class NavigationController extends Controller implements Control
 
     private List<Controller> controllerList = new ArrayList<>();
     private ControllerTransition controllerTransition;
-    private boolean blockingInput = true;
+    private boolean blockingInput = false;
 
-    public NavigationController(Context context, final Controller startController) {
+    public NavigationController(Context context) {
         super(context);
     }
 
     public boolean pushController(final Controller to) {
+        return pushController(to, true);
+    }
+
+    public boolean pushController(final Controller to, boolean animated) {
+        return pushController(to, animated ? new PushControllerTransition() : null);
+    }
+
+    public boolean pushController(final Controller to, ControllerTransition controllerTransition) {
         if (blockingInput) return false;
 
-        if (controllerTransition != null) {
+        if (this.controllerTransition != null) {
             throw new IllegalArgumentException("Cannot push controller while a transition is in progress.");
         }
 
-        blockingInput = true;
-
-        final Controller from = controllerList.get(controllerList.size() - 1);
-
-        to.stackSiblingController = from;
+        final Controller from = controllerList.size() > 0 ? controllerList.get(controllerList.size() - 1) : null;
         to.navigationController = this;
-        to.onCreate();
+        to.previousSibling = from;
 
         controllerList.add(to);
 
-        this.controllerTransition = new PushControllerTransition();
-        container.addView(to.view, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        AndroidUtils.waitForMeasure(to.view, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public void onMeasured(View view) {
-                to.onShow();
+        if (controllerTransition != null) {
+            blockingInput = true;
+            this.controllerTransition = controllerTransition;
+            controllerTransition.setCallback(this);
 
-                doTransition(true, from, to, controllerTransition);
-            }
-        });
+            ControllerLogic.startTransition(from, to, false, true, container, true, controllerTransition);
+            toolbar.setNavigationItem(true, true, to.navigationItem);
+        } else {
+            ControllerLogic.transition(from, to, false, true, container, true);
+            toolbar.setNavigationItem(false, true, to.navigationItem);
+        }
 
         return true;
     }
 
     public boolean popController() {
+        return popController(true);
+    }
+
+    public boolean popController(boolean animated) {
+        return popController(animated ? new PopControllerTransition() : null);
+    }
+
+    public boolean popController(ControllerTransition controllerTransition) {
         if (blockingInput) return false;
 
-        if (controllerTransition != null) {
+        if (this.controllerTransition != null) {
             throw new IllegalArgumentException("Cannot pop controller while a transition is in progress.");
         }
 
@@ -85,46 +96,36 @@ public abstract class NavigationController extends Controller implements Control
             throw new IllegalArgumentException("Cannot pop with 1 controller left");
         }
 
-        blockingInput = true;
-
         final Controller from = controllerList.get(controllerList.size() - 1);
         final Controller to = controllerList.get(controllerList.size() - 2);
 
-        this.controllerTransition = new PopControllerTransition();
-        container.addView(to.view, 0, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        AndroidUtils.waitForMeasure(to.view, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public void onMeasured(View view) {
-                to.onShow();
+        if (controllerTransition != null) {
+            blockingInput = true;
+            this.controllerTransition = controllerTransition;
+            controllerTransition.setCallback(this);
 
-                doTransition(false, from, to, controllerTransition);
-            }
-        });
+            ControllerLogic.startTransition(from, to, true, false, container, false, controllerTransition);
+            toolbar.setNavigationItem(true, false, to.navigationItem);
+        } else {
+            ControllerLogic.transition(from, to, true, false, container, false);
+            toolbar.setNavigationItem(false, false, to.navigationItem);
+        }
 
         return true;
     }
 
-    public Controller getPreviousSibling(Controller controller) {
-        int index = controllerList.indexOf(controller);
-        if (index > 0) {
-            return controllerList.get(index - 1);
-        } else {
-            return null;
-        }
+    public void setControllerList(List<Controller> controllers) {
+
     }
 
     @Override
-    public void onControllerTransitionCompleted() {
-        if (controllerTransition instanceof PushControllerTransition) {
-            controllerTransition.from.onHide();
-            container.removeView(controllerTransition.from.view);
-        } else if (controllerTransition instanceof PopControllerTransition) {
-            controllerList.remove(controllerTransition.from);
+    public void onControllerTransitionCompleted(ControllerTransition transition) {
+        ControllerLogic.finishTransition(transition);
 
-            controllerTransition.from.onHide();
-            container.removeView(controllerTransition.from.view);
-            controllerTransition.from.onDestroy();
+        if (transition.destroyFrom) {
+            controllerList.remove(transition.from);
         }
+
         this.controllerTransition = null;
         blockingInput = false;
     }
@@ -158,40 +159,12 @@ public abstract class NavigationController extends Controller implements Control
         toolbar.onConfigurationChanged(newConfig);
     }
 
-    public void initWithController(final Controller controller) {
-        controllerList.add(controller);
-        controller.navigationController = this;
-        controller.onCreate();
-        toolbar.setNavigationItem(false, true, controller.navigationItem);
-        container.addView(controller.view, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-
-        AndroidUtils.waitForMeasure(controller.view, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public void onMeasured(View view) {
-                onCreate();
-                onShow();
-
-                controller.onShow();
-                blockingInput = false;
-            }
-        });
-    }
-
     public void onMenuClicked() {
 
     }
 
-    private void doTransition(boolean pushing, Controller from, Controller to, ControllerTransition transition) {
-        transition.setCallback(this);
-        transition.from = from;
-        transition.to = to;
-        transition.perform();
-
-        toolbar.setNavigationItem(true, pushing, to.navigationItem);
-    }
-
     @Override
-    public void onMenuBackClicked(boolean isArrow) {
+    public void onMenuOrBackClicked(boolean isArrow) {
         if (isArrow) {
             onBack();
         } else {

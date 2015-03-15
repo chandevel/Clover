@@ -62,7 +62,7 @@ public class WatchSettingsController extends SettingsController implements Compo
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         ChanSettings.watchEnabled.set(isChecked);
-        ((WatchSettingControllerListener) navigationController.getPreviousSibling(this)).onWatchEnabledChanged(isChecked);
+        ((WatchSettingControllerListener) previousSibling).onWatchEnabledChanged(isChecked);
         crossfadeView.toggle(isChecked, true);
     }
 

@@ -22,11 +22,13 @@ public abstract class ControllerTransition {
 
     public Controller from;
     public Controller to;
+    public boolean destroyFrom;
+    public boolean viewOver;
 
     public abstract void perform();
 
     public void onCompleted() {
-        this.callback.onControllerTransitionCompleted();
+        this.callback.onControllerTransitionCompleted(this);
     }
 
     public void setCallback(Callback callback) {
@@ -34,6 +36,6 @@ public abstract class ControllerTransition {
     }
 
     public interface Callback {
-        public void onControllerTransitionCompleted();
+        public void onControllerTransitionCompleted(ControllerTransition transition);
     }
 }

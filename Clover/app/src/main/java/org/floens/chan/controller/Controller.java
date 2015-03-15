@@ -28,28 +28,28 @@ public abstract class Controller {
     public Context context;
     public View view;
 
-    public Controller stackSiblingController;
-    public NavigationController navigationController;
     public NavigationItem navigationItem = new NavigationItem();
+    public Controller previousSibling;
+    public NavigationController navigationController;
 
     public Controller(Context context) {
         this.context = context;
     }
 
     public void onCreate() {
+//        Logger.test(getClass().getSimpleName() + " onCreate");
     }
 
     public void onShow() {
+//        Logger.test(getClass().getSimpleName() + " onShow");
     }
 
     public void onHide() {
+//        Logger.test(getClass().getSimpleName() + " onHide");
     }
 
     public void onDestroy() {
-    }
-
-    public View inflateRes(int resId) {
-        return LayoutInflater.from(context).inflate(resId, null);
+//        Logger.test(getClass().getSimpleName() + " onDestroy");
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
@@ -57,6 +57,14 @@ public abstract class Controller {
 
     public boolean onBack() {
         return false;
+    }
+
+    public void presentController(Controller controller) {
+
+    }
+
+    public View inflateRes(int resId) {
+        return LayoutInflater.from(context).inflate(resId, null);
     }
 
     public String string(int id) {

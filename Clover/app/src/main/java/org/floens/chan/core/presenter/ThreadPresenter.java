@@ -25,14 +25,15 @@ import com.android.volley.VolleyError;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.utils.AndroidUtils;
@@ -134,7 +135,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void onThumbnailClicked(Post post) {
+        List<PostImage> images = new ArrayList<>();
+        int index = -1;
+        for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
+            Post item = chanLoader.getThread().posts.get(i);
+            if (item.hasImage) {
+                images.add(new PostImage(item.thumbnailUrl, item.imageUrl, item.filename, item.imageWidth, item.imageHeight));
+                if (item.no == post.no) {
+                    index = i;
+                }
+            }
+        }
 
+        threadPresenterCallback.showImages(images, index);
     }
 
     @Override
@@ -312,5 +325,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         public void openLink(String link);
 
         public void showPostsPopup(Post forPost, List<Post> posts);
+
+        public void showImages(List<PostImage> images, int index);
     }
 }

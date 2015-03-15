@@ -42,8 +42,9 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     }
 
     @Override
-    public void onMeasured(View view) {
+    public boolean onMeasured(View view) {
         setMargins();
+        return true;
     }
 
     public void onPreferenceChange(SettingView item) {

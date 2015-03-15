@@ -21,11 +21,9 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import org.floens.chan.R;
-import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.utils.AndroidUtils;
@@ -33,8 +31,13 @@ import org.floens.chan.utils.AndroidUtils;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class RootNavigationController extends NavigationController {
-    public RootNavigationController(Context context, Controller startController) {
-        super(context, startController);
+    public RootNavigationController(Context context) {
+        super(context);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
         view = inflateRes(R.layout.root_layout);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
@@ -44,7 +47,12 @@ public class RootNavigationController extends NavigationController {
 
         toolbar.setCallback(this);
 
-        initWithController(startController);
+        AndroidUtils.waitForMeasure(drawer, new AndroidUtils.OnMeasuredCallback() {
+            @Override
+            public boolean onMeasured(View view) {
+                return setDrawerWidth();
+            }
+        });
     }
 
     @Override
@@ -53,15 +61,10 @@ public class RootNavigationController extends NavigationController {
 
         AndroidUtils.waitForLayout(drawer, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view) {
-                setDrawerWidth();
+            public boolean onMeasured(View view) {
+                return setDrawerWidth();
             }
         });
-    }
-
-    @Override
-    public void onCreate() {
-        setDrawerWidth();
     }
 
     @Override
@@ -71,12 +74,14 @@ public class RootNavigationController extends NavigationController {
         drawerLayout.openDrawer(drawer);
     }
 
-    private void setDrawerWidth() {
+    private boolean setDrawerWidth() {
         int width = Math.min(view.getWidth() - dp(56), dp(56) * 6);
         if (drawer.getWidth() != width) {
-            ViewGroup.LayoutParams params = drawer.getLayoutParams();
-            params.width = width;
-            drawer.setLayoutParams(params);
+            drawer.getLayoutParams().width = width;
+            drawer.requestLayout();
+            return true;
+        } else {
+            return false;
         }
     }
 }

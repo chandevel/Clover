@@ -66,10 +66,11 @@ public class PassSettingsController extends Controller implements View.OnClickLi
 
         AndroidUtils.waitForLayout(view, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view) {
+            public boolean onMeasured(View view) {
                 crossfadeView.getLayoutParams().height = crossfadeView.getHeight();
                 crossfadeView.requestLayout();
                 crossfadeView.toggle(!loggedIn, false);
+                return true;
             }
         });
     }
@@ -82,7 +83,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
                 crossfadeView.toggle(true, true);
                 button.setText(R.string.setting_pass_login);
                 hideError();
-                ((PassSettingControllerListener) navigationController.getPreviousSibling(PassSettingsController.this)).onPassEnabledChanged(false);
+                ((PassSettingControllerListener) previousSibling).onPassEnabledChanged(false);
             } else {
                 auth();
             }
@@ -123,7 +124,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
                     button.setText(R.string.setting_pass_logout);
                     ChanSettings.passId.set(response.passId);
                     authenticated.setText(response.message);
-                    ((PassSettingControllerListener) navigationController.getPreviousSibling(PassSettingsController.this)).onPassEnabledChanged(true);
+                    ((PassSettingControllerListener) previousSibling).onPassEnabledChanged(true);
                 }
 
                 button.setEnabled(true);

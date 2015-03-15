@@ -32,6 +32,7 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -144,6 +145,11 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         ViewThreadController viewThreadController = new ViewThreadController(context);
         viewThreadController.setLoadable(threadLoadable);
         navigationController.pushController(viewThreadController);
+    }
+
+    @Override
+    public void showImages(List<PostImage> images, int index) {
+
     }
 
     @Override

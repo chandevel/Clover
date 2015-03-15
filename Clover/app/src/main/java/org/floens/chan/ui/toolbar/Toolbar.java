@@ -79,8 +79,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         if (item.menu != null) {
             AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
                 @Override
-                public void onMeasured(View view) {
+                public boolean onMeasured(View view) {
                     setNavigationItemView(animate, pushing, item);
+                    return true;
                 }
             });
         } else {
@@ -96,7 +97,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     public void onClick(View v) {
         if (v == arrowMenuView) {
             if (callback != null) {
-                callback.onMenuBackClicked(arrowMenuDrawable.getProgress() == 1f);
+                callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f);
             }
         }
     }
@@ -251,10 +252,11 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         AndroidUtils.waitForMeasure(titleView, new AndroidUtils.OnMeasuredCallback() {
             @Override
-            public void onMeasured(View view) {
+            public boolean onMeasured(View view) {
                 if (item.middleMenu != null) {
                     item.middleMenu.setPopupWidth(Math.max(dp(150), titleView.getWidth()));
                 }
+                return false;
             }
         });
 
@@ -262,6 +264,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     }
 
     public interface ToolbarCallback {
-        public void onMenuBackClicked(boolean isArrow);
+        public void onMenuOrBackClicked(boolean isArrow);
     }
 }

@@ -170,7 +170,7 @@ public class AndroidUtils {
     }
 
     public interface OnMeasuredCallback {
-        void onMeasured(View view);
+        boolean onMeasured(View view);
     }
 
     /**
@@ -201,13 +201,14 @@ public class AndroidUtils {
                         observer.removeOnPreDrawListener(this);
                     }
 
+                    boolean ret = false;
                     try {
-                        callback.onMeasured(view);
+                        ret = callback.onMeasured(view);
                     } catch (Exception e) {
                         Log.i("AndroidUtils", "Exception in onMeasured", e);
                     }
 
-                    return true;
+                    return ret;
                 }
             });
         }
@@ -239,4 +240,12 @@ public class AndroidUtils {
         return views;
     }
 
+    public static boolean removeFromParentView(View view) {
+        if (view.getParent() instanceof ViewGroup) {
+            ((ViewGroup) view.getParent()).removeView(view);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -40,8 +40,14 @@ public class BoardActivity extends Activity {
 
         ThemeHelper.getInstance().reloadPostViewColors(this);
 
-        rootNavigationController = new RootNavigationController(this, new BrowseController(this));
+        rootNavigationController = new RootNavigationController(this);
+        rootNavigationController.onCreate();
+
         setContentView(rootNavigationController.view);
+
+        rootNavigationController.pushController(new BrowseController(this), false);
+
+        rootNavigationController.onShow();
 
         // Prevent overdraw
         // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable

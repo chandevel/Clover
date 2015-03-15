@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
@@ -161,6 +162,11 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         postPopupHelper.showPosts(forPost, posts);
     }
 
+    @Override
+    public void showImages(List<PostImage> images, int index) {
+        callback.showImages(images, index);
+    }
+
     private void switchVisible(boolean visible) {
         if (this.visible != visible) {
             this.visible = visible;
@@ -170,5 +176,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     public interface ThreadLayoutCallback {
         public void openThread(Loadable threadLoadable);
+
+        public void showImages(List<PostImage> images, int index);
     }
 }
