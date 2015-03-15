@@ -23,18 +23,19 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
-import org.floens.chan.core.model.PostImage;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.presenter.ThreadPresenter;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
@@ -163,8 +164,8 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     }
 
     @Override
-    public void showImages(List<PostImage> images, int index) {
-        callback.showImages(images, index);
+    public void showImages(List<PostImage> images, int index, ImageView thumbnail) {
+        callback.showImages(images, index, thumbnail);
     }
 
     private void switchVisible(boolean visible) {
@@ -177,6 +178,6 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     public interface ThreadLayoutCallback {
         public void openThread(Loadable threadLoadable);
 
-        public void showImages(List<PostImage> images, int index);
+        public void showImages(List<PostImage> images, int index, ImageView thumbnail);
     }
 }

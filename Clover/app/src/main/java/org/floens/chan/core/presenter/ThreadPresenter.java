@@ -19,6 +19,7 @@ package org.floens.chan.core.presenter;
 
 import android.text.TextUtils;
 import android.view.Menu;
+import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 
@@ -134,7 +135,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public void onThumbnailClicked(Post post) {
+    public void onThumbnailClicked(Post post, ImageView thumbnail) {
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
@@ -147,7 +148,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
-        threadPresenterCallback.showImages(images, index);
+        threadPresenterCallback.showImages(images, index, thumbnail);
     }
 
     @Override
@@ -326,6 +327,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         public void showPostsPopup(Post forPost, List<Post> posts);
 
-        public void showImages(List<PostImage> images, int index);
+        public void showImages(List<PostImage> images, int index, ImageView thumbnail);
     }
 }

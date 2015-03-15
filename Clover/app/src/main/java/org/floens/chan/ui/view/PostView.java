@@ -323,7 +323,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onThumbnailClicked(post);
+                callback.onThumbnailClicked(post, imageView);
             }
         });
 
@@ -491,7 +491,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
 
         public void onPostClicked(Post post);
 
-        public void onThumbnailClicked(Post post);
+        public void onThumbnailClicked(Post post, ImageView thumbnail);
 
         public void onShowPostReplies(Post post);
 

@@ -38,6 +38,7 @@ public abstract class Controller {
 
     // Controller (for presenting) members
     public Controller presentingController;
+    public Controller presentedController;
 
     public Controller(Context context) {
         this.context = context;
@@ -67,32 +68,49 @@ public abstract class Controller {
     }
 
     public void presentController(Controller controller) {
+        presentController(controller, true);
+    }
+
+    public void presentController(Controller controller, boolean animated) {
         ViewGroup contentView = ((BoardActivity) context).getContentView();
+        presentedController = controller;
         controller.presentingController = this;
 
-        ControllerTransition transition = new FadeInTransition();
-        transition.setCallback(new ControllerTransition.Callback() {
-            @Override
-            public void onControllerTransitionCompleted(ControllerTransition transition) {
-                ControllerLogic.finishTransition(transition);
-            }
-        });
-        ControllerLogic.startTransition(null, controller, false, true, contentView, transition);
+        if (animated) {
+            ControllerTransition transition = new FadeInTransition();
+            transition.setCallback(new ControllerTransition.Callback() {
+                @Override
+                public void onControllerTransitionCompleted(ControllerTransition transition) {
+                    ControllerLogic.finishTransition(transition);
+                }
+            });
+            ControllerLogic.startTransition(null, controller, false, true, contentView, transition);
+        } else {
+            ControllerLogic.transition(null, controller, false, true, contentView);
+        }
         ((BoardActivity) context).addController(controller);
     }
 
     public void stopPresenting() {
+        stopPresenting(true);
+    }
+
+    public void stopPresenting(boolean animated) {
         ViewGroup contentView = ((BoardActivity) context).getContentView();
 
-        ControllerTransition transition = new FadeOutTransition();
-        transition.setCallback(new ControllerTransition.Callback() {
-            @Override
-            public void onControllerTransitionCompleted(ControllerTransition transition) {
-                ControllerLogic.finishTransition(transition);
-            }
-        });
-        ControllerLogic.startTransition(this, null, true, false, contentView, transition);
-        ((BoardActivity) context).removeController(Controller.this);
+        if (animated) {
+            ControllerTransition transition = new FadeOutTransition();
+            transition.setCallback(new ControllerTransition.Callback() {
+                @Override
+                public void onControllerTransitionCompleted(ControllerTransition transition) {
+                    ControllerLogic.finishTransition(transition);
+                }
+            });
+            ControllerLogic.startTransition(this, null, true, false, contentView, transition);
+        } else {
+            ControllerLogic.transition(this, null, true, false, contentView);
+        }
+        ((BoardActivity) context).removeController(this);
     }
 
     public View inflateRes(int resId) {

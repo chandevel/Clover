@@ -61,6 +61,23 @@ public class AnimationUtils {
         return startScale;
     }
 
+    public static void getClippingBounds(Rect clipStartBounds, ImageView view, Rect out, float progress) {
+        float[] f = new float[9];
+        view.getImageMatrix().getValues(f);
+        float imageWidth = view.getDrawable().getIntrinsicWidth() * f[Matrix.MSCALE_X];
+        float imageHeight = view.getDrawable().getIntrinsicHeight() * f[Matrix.MSCALE_Y];
+        float imageWidthDiff = (view.getWidth() - imageWidth) / 2f;
+        float imageHeightDiff = (view.getHeight() - imageHeight) / 2f;
+
+        float offsetWidth = ((imageWidth - clipStartBounds.right) / 2f) * progress;
+        float offsetHeight = ((imageHeight - clipStartBounds.bottom) / 2f) * progress;
+
+        out.set((int) (offsetWidth + imageWidthDiff),
+                (int) (offsetHeight + imageHeightDiff),
+                (int) (view.getWidth() - offsetWidth - imageWidthDiff),
+                (int) (view.getHeight() - offsetHeight - imageHeightDiff));
+    }
+
     public static void adjustImageViewBoundsToDrawableBounds(ImageView imageView, Rect bounds) {
         float[] f = new float[9];
         imageView.getImageMatrix().getValues(f);

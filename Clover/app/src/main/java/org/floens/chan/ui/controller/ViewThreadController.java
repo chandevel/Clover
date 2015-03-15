@@ -22,15 +22,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 
 import org.floens.chan.R;
-import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.layout.ThreadLayout;
 
-import java.util.List;
-
-public class ViewThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback {
-    private ThreadLayout threadLayout;
+public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback {
     private Loadable loadable;
 
     public ViewThreadController(Context context) {
@@ -45,9 +40,6 @@ public class ViewThreadController extends Controller implements ThreadLayout.Thr
     public void onCreate() {
         super.onCreate();
 
-        threadLayout = new ThreadLayout(context);
-        threadLayout.setCallback(this);
-        view = threadLayout;
         view.setBackgroundColor(0xffffffff);
 
         threadLayout.getPresenter().bindLoadable(loadable);
@@ -70,10 +62,5 @@ public class ViewThreadController extends Controller implements ThreadLayout.Thr
                 .setTitle(R.string.open_thread_confirmation)
                 .setMessage("/" + threadLoadable.board + "/" + threadLoadable.no)
                 .show();
-    }
-
-    @Override
-    public void showImages(List<PostImage> images, int index) {
-
     }
 }

@@ -28,11 +28,9 @@ import android.widget.TextView;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -43,14 +41,13 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowseController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, BoardManager.BoardChangeListener {
+public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, BoardManager.BoardChangeListener {
     private static final int REFRESH_ID = 1;
     private static final int POST_ID = 2;
     private static final int SEARCH_ID = 101;
     private static final int SHARE_ID = 102;
     private static final int SETTINGS_ID = 103;
 
-    private ThreadLayout threadLayout;
     private List<FloatingMenuItem> boardItems;
 
     public BrowseController(Context context) {
@@ -83,11 +80,6 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         items.add(new FloatingMenuItem(SETTINGS_ID, context.getString(R.string.settings_screen)));
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
-
-        threadLayout = new ThreadLayout(context);
-        threadLayout.setCallback(this);
-
-        view = threadLayout;
 
         loadBoard(ChanApplication.getBoardManager().getSavedBoards().get(0));
     }
@@ -145,12 +137,6 @@ public class BrowseController extends Controller implements ToolbarMenuItem.Tool
         ViewThreadController viewThreadController = new ViewThreadController(context);
         viewThreadController.setLoadable(threadLoadable);
         navigationController.pushController(viewThreadController);
-    }
-
-    @Override
-    public void showImages(List<PostImage> images, int index) {
-        ImageViewController imageViewController = new ImageViewController(context);
-        presentController(imageViewController);
     }
 
     @Override
