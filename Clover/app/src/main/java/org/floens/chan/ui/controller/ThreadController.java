@@ -7,11 +7,10 @@ import android.widget.ImageView;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.layout.ThreadLayout;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewController.Callback {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.Callback {
     protected ThreadLayout threadLayout;
     private ImageView presentingImageView;
 
@@ -28,24 +27,18 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         presentingImageView = thumbnail;
         presentingImageView.setVisibility(View.INVISIBLE);
 
-        final ImageViewController imageViewController = new ImageViewController(context);
-        presentController(imageViewController, false);
-        AndroidUtils.waitForMeasure(imageViewController.view, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public boolean onMeasured(View view) {
-                imageViewController.setImage(ThreadController.this, thumbnail);
-                return true;
-            }
-        });
+        final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
+        presentController(imageViewerNavigationController, false);
+        imageViewerNavigationController.setImage(this, thumbnail);
     }
 
     @Override
-    public ImageView getImageView(ImageViewController imageViewController) {
+    public ImageView getPreviewImageStartView(ImageViewerController imageViewerController) {
         return presentingImageView;
     }
 
     @Override
-    public void onImageViewLayoutDestroy(ImageViewController imageViewController) {
+    public void onPreviewDestroy(ImageViewerController imageViewerController) {
         presentingImageView.setVisibility(View.VISIBLE);
         presentingImageView = null;
     }

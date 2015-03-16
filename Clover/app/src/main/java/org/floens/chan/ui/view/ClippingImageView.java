@@ -31,7 +31,11 @@ public class ClippingImageView extends ImageView {
     }
 
     public void clip(Rect rect) {
-        clipRect.set(rect);
+        if (rect == null) {
+            clipRect.setEmpty();
+        } else {
+            clipRect.set(rect);
+        }
         invalidate();
     }
 }

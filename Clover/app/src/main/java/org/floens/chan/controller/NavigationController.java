@@ -19,7 +19,6 @@ package org.floens.chan.controller;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.support.v4.widget.DrawerLayout;
 import android.widget.FrameLayout;
 
 import org.floens.chan.ui.toolbar.Toolbar;
@@ -30,8 +29,6 @@ import java.util.List;
 public abstract class NavigationController extends Controller implements ControllerTransition.Callback, Toolbar.ToolbarCallback {
     public Toolbar toolbar;
     public FrameLayout container;
-    public DrawerLayout drawerLayout;
-    public FrameLayout drawer;
 
     private List<Controller> controllerList = new ArrayList<>();
     private ControllerTransition controllerTransition;
@@ -39,6 +36,15 @@ public abstract class NavigationController extends Controller implements Control
 
     public NavigationController(Context context) {
         super(context);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        while (controllerList.size() > 0) {
+            popController(false);
+        }
     }
 
     public boolean pushController(final Controller to) {
@@ -92,12 +98,12 @@ public abstract class NavigationController extends Controller implements Control
             throw new IllegalArgumentException("Cannot pop controller while a transition is in progress.");
         }
 
-        if (controllerList.size() == 1) {
-            throw new IllegalArgumentException("Cannot pop with 1 controller left");
+        if (controllerList.size() == 0) {
+            throw new IllegalArgumentException("Cannot pop with no controllers left");
         }
 
         final Controller from = controllerList.get(controllerList.size() - 1);
-        final Controller to = controllerList.get(controllerList.size() - 2);
+        final Controller to = controllerList.size() > 1 ? controllerList.get(controllerList.size() - 2) : null;
 
         if (controllerTransition != null) {
             blockingInput = true;
@@ -105,17 +111,18 @@ public abstract class NavigationController extends Controller implements Control
             controllerTransition.setCallback(this);
 
             ControllerLogic.startTransition(from, to, true, false, container, controllerTransition);
-            toolbar.setNavigationItem(true, false, to.navigationItem);
+            if (to != null) {
+                toolbar.setNavigationItem(true, false, to.navigationItem);
+            }
         } else {
             ControllerLogic.transition(from, to, true, false, container);
-            toolbar.setNavigationItem(false, false, to.navigationItem);
+            if (to != null) {
+                toolbar.setNavigationItem(false, false, to.navigationItem);
+            }
+            controllerList.remove(from);
         }
 
         return true;
-    }
-
-    public void setControllerList(List<Controller> controllers) {
-
     }
 
     @Override

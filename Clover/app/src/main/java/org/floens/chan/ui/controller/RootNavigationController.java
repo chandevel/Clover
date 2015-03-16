@@ -31,6 +31,9 @@ import org.floens.chan.utils.AndroidUtils;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class RootNavigationController extends NavigationController {
+    public DrawerLayout drawerLayout;
+    public FrameLayout drawer;
+
     public RootNavigationController(Context context) {
         super(context);
     }
@@ -39,7 +42,7 @@ public class RootNavigationController extends NavigationController {
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.root_layout);
+        view = inflateRes(R.layout.controller_navigation_drawer);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         container = (FrameLayout) view.findViewById(R.id.container);
         drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);

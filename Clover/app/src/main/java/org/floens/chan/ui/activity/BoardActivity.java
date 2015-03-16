@@ -88,8 +88,17 @@ public class BoardActivity extends Activity {
     @Override
     public void onBackPressed() {
         if (!stackTop().onBack()) {
+            // Don't destroy the view, let Android do that or it'll create artifacts
+            stackTop().onHide();
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        stackTop().onDestroy();
     }
 
     private Controller stackTop() {
