@@ -25,16 +25,19 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public void showImages(List<PostImage> images, int index, final ImageView thumbnail) {
         presentingImageView = thumbnail;
-        presentingImageView.setVisibility(View.INVISIBLE);
 
         final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
         presentController(imageViewerNavigationController, false);
-        imageViewerNavigationController.setImage(this, thumbnail);
+        imageViewerNavigationController.showImages(images, index, this);
     }
 
     @Override
     public ImageView getPreviewImageStartView(ImageViewerController imageViewerController) {
         return presentingImageView;
+    }
+
+    public void onPreviewCreate(ImageViewerController imageViewerController) {
+        presentingImageView.setVisibility(View.INVISIBLE);
     }
 
     @Override

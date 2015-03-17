@@ -4,8 +4,14 @@
     android:layout_height="match_parent">
 
     <org.floens.chan.ui.view.ClippingImageView
-        android:id="@+id/image"
+        android:id="@+id/preview_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 
 </FrameLayout>

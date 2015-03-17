@@ -30,13 +30,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.koushikdutta.async.future.Future;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.FileCache;
@@ -48,34 +48,28 @@ import java.io.IOException;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
-public class ThumbnailImageView extends LoadView implements View.OnClickListener {
-    private static final String TAG = "ThumbnailImageView";
+public class MultiImageView extends LoadView implements View.OnClickListener {
+    private static final String TAG = "MultiImageView";
 
-    private ThumbnailImageViewCallback callback;
-
-    /**
-     * Max amount to scale the image inside the view
-     */
-    private final float maxScale = 3f;
+    private PostImage postImage;
+    private Callback callback;
 
     private boolean thumbnailNeeded = true;
 
-    private Request<?> imageRequest;
-    private Future<?> ionRequest;
+    private Future<?> request;
     private VideoView videoView;
-    private GifDrawable gifDrawable;
 
-    public ThumbnailImageView(Context context) {
+    public MultiImageView(Context context) {
         super(context);
         init();
     }
 
-    public ThumbnailImageView(Context context, AttributeSet attrs) {
+    public MultiImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ThumbnailImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MultiImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -84,10 +78,21 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         setOnClickListener(this);
     }
 
-    public void setCallback(ThumbnailImageViewCallback callback) {
+    public void bindPostImage(PostImage postImage, Callback callback) {
+        this.postImage = postImage;
         this.callback = callback;
     }
 
+    public void loadLowRes() {
+    }
+
+    public void loadHighRes() {
+
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
 
     public void setThumbnail(String thumbnailUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
@@ -120,15 +125,15 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             return;
         }
 
-        callback.setProgress(true);
-        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), imageUrl, new FileCache.DownloadedCallback() {
+        callback.setProgress(this, true);
+        request = ChanApplication.getFileCache().downloadFile(getContext(), imageUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
 //                    callback.setLinearProgress(0, 0, true);
                     thumbnailNeeded = false;
                 } else {
-                    callback.setLinearProgress(downloaded, total, false);
+                    callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
                 }
             }
 
@@ -151,7 +156,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     public void setBigImageFile(File file) {
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
         image.setImageFile(file.getAbsolutePath());
-        image.setOnClickListener(ThumbnailImageView.this);
+        image.setOnClickListener(MultiImageView.this);
 
         addView(image);
 
@@ -160,7 +165,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             public void onInit() {
                 removeAllViews();
                 addView(image);
-                callback.setProgress(false);
+                callback.setProgress(MultiImageView.this, false);
             }
 
             @Override
@@ -176,16 +181,16 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
             return;
         }
 
-        callback.setProgress(true);
-        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), gifUrl, new FileCache.DownloadedCallback() {
+        callback.setProgress(this, true);
+        request = ChanApplication.getFileCache().downloadFile(getContext(), gifUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
-                    callback.setProgress(false);
-                    callback.setLinearProgress(0, 0, true);
+                    callback.setProgress(MultiImageView.this, false);
+                    callback.setLinearProgress(MultiImageView.this, 0, 0, true);
                     thumbnailNeeded = false;
                 } else {
-                    callback.setLinearProgress(downloaded, total, false);
+                    callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
                 }
             }
 
@@ -227,16 +232,16 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     }
 
     public void setVideo(String videoUrl) {
-        callback.setProgress(true);
-        ionRequest = ChanApplication.getFileCache().downloadFile(getContext(), videoUrl, new FileCache.DownloadedCallback() {
+        callback.setProgress(this, true);
+        request = ChanApplication.getFileCache().downloadFile(getContext(), videoUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
-                    callback.setProgress(false);
-                    callback.setLinearProgress(0, 0, true);
+                    callback.setProgress(MultiImageView.this, false);
+                    callback.setLinearProgress(MultiImageView.this, 0, 0, true);
                     thumbnailNeeded = false;
                 } else {
-                    callback.setLinearProgress(downloaded, total, false);
+                    callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
                 }
             }
 
@@ -282,13 +287,13 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mp.setLooping(true);
-                    callback.onVideoLoaded();
+                    callback.onVideoLoaded(MultiImageView.this);
                 }
             });
             videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    callback.onVideoError(file);
+                    callback.onVideoError(MultiImageView.this, file);
 
                     return true;
                 }
@@ -308,45 +313,40 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
 
     public void onError() {
         Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
-        callback.setProgress(false);
+        callback.setProgress(this, false);
     }
 
     public void onNotFoundError() {
         Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_LONG).show();
-        callback.setProgress(false);
+        callback.setProgress(this, false);
     }
 
     public void onOutOfMemoryError() {
         Toast.makeText(getContext(), R.string.image_preview_failed_oom, Toast.LENGTH_SHORT).show();
-        callback.setProgress(false);
+        callback.setProgress(this, false);
     }
 
     public void cancelLoad() {
-        if (imageRequest != null) {
-            imageRequest.cancel();
-            imageRequest = null;
-        }
-
-        if (ionRequest != null) {
-            ionRequest.cancel(true);
+        if (request != null) {
+            request.cancel(true);
         }
     }
 
     @Override
     public void onClick(View v) {
-        callback.onTap();
+        callback.onTap(this);
     }
 
-    public static interface ThumbnailImageViewCallback {
-        public void onTap();
+    public static interface Callback {
+        public void onTap(MultiImageView multiImageView);
 
-        public void setProgress(boolean progress);
+        public void setProgress(MultiImageView multiImageView, boolean progress);
 
-        public void setLinearProgress(long current, long total, boolean done);
+        public void setLinearProgress(MultiImageView multiImageView, long current, long total, boolean done);
 
-        public void onVideoLoaded();
+        public void onVideoLoaded(MultiImageView multiImageView);
 
-        public void onVideoError(File video);
+        public void onVideoError(MultiImageView multiImageView, File video);
     }
 
     public static class NoMusicServiceCommandContext extends ContextWrapper {

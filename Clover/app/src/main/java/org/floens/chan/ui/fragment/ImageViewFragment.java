@@ -40,8 +40,8 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
-import org.floens.chan.ui.view.ThumbnailImageView;
-import org.floens.chan.ui.view.ThumbnailImageView.ThumbnailImageViewCallback;
+import org.floens.chan.ui.view.MultiImageView;
+import org.floens.chan.ui.view.MultiImageView.Callback;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageSaver;
 
@@ -49,11 +49,11 @@ import java.io.File;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class ImageViewFragment extends Fragment implements ThumbnailImageViewCallback {
+public class ImageViewFragment extends Fragment implements Callback {
     private Context context;
     private ImageViewActivity activity;
 
-    private ThumbnailImageView imageView;
+    private MultiImageView imageView;
 
     private Post post;
     private boolean showProgressBar = true;
@@ -83,7 +83,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         } else {
             context = inflater.getContext();
 
-            imageView = new ThumbnailImageView(context);
+            imageView = new MultiImageView(context);
             imageView.setCallback(this);
             int padding = getResources().getDimensionPixelSize(R.dimen.image_view_padding);
             imageView.setPadding(padding, padding, padding, padding);
@@ -272,7 +272,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
         context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
     }
 
-    public void onVideoError(File video) {
+    public void onVideoError(MultiImageView view, File video) {
         if (ChanSettings.getVideoErrorIgnore()) {
             Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
         } else {
@@ -324,7 +324,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     @Override
-    public void onTap() {
+    public void onTap(MultiImageView view) {
         if (tapToLoad) {
             if (loaded) {
                 activity.finish();
@@ -337,12 +337,12 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     @Override
-    public void setProgress(boolean progress) {
+    public void setProgress(MultiImageView view, boolean progress) {
         showProgressBar(progress);
     }
 
     @Override
-    public void setLinearProgress(long current, long total, boolean done) {
+    public void setLinearProgress(MultiImageView view, long current, long total, boolean done) {
         progressCurrent = current;
         progressTotal = total;
         progressDone = done;
@@ -350,7 +350,7 @@ public class ImageViewFragment extends Fragment implements ThumbnailImageViewCal
     }
 
     @Override
-    public void onVideoLoaded() {
+    public void onVideoLoaded(MultiImageView view) {
         videoSetIconToPause = true;
         activity.invalidateActionBar();
     }

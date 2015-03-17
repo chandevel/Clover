@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
@@ -18,52 +19,70 @@ import android.widget.ImageView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.presenter.ImageViewerPresenter;
+import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ClippingImageView;
 import org.floens.chan.utils.AnimationUtils;
-import org.floens.chan.utils.Logger;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AnimationUtils.calculateBoundsAnimation;
 
-public class ImageViewerController extends Controller implements View.OnClickListener {
+public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback {
     private static final int TRANSITION_DURATION = 200; //165;
     private static final int TRANSITION_CLIP_DURATION = (int) (TRANSITION_DURATION * 0.5f);
     private static final float TRANSITION_FINAL_ALPHA = 0.80f;
-
-    private ClippingImageView previewImage;
-    private Callback callback;
 
     private int statusBarColorPrevious;
     private AnimatorSet startPreviewAnimation;
     private AnimatorSet endAnimation;
 
-    public ImageViewerController(Context context) {
+    private Callback callback;
+    private ImageViewerPresenter presenter;
+
+    private final Toolbar toolbar;
+    private ClippingImageView previewImage;
+    private ViewPager pager;
+
+    public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
+        this.toolbar = toolbar;
+
+        presenter = new ImageViewerPresenter(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        navigationItem.title = "Image title here";
+
         view = inflateRes(R.layout.controller_image_viewer);
-        previewImage = (ClippingImageView) view.findViewById(R.id.image);
         view.setOnClickListener(this);
+        previewImage = (ClippingImageView) view.findViewById(R.id.preview_image);
+        pager = (ViewPager) view.findViewById(R.id.pager);
     }
 
     @Override
     public void onClick(View v) {
-        startPreviewOutTransition();
+        presenter.onExit();
     }
 
     @Override
     public boolean onBack() {
-        startPreviewOutTransition();
+        presenter.onExit();
         return true;
     }
 
-    public void startPreviewInTransition(Callback callback, final ImageView previewImageView) {
+    public void setCallback(Callback callback) {
         this.callback = callback;
+    }
 
+    public ImageViewerPresenter getPresenter() {
+        return presenter;
+    }
+
+    public void startPreviewInTransition() {
+        ImageView previewImageView = callback.getPreviewImageStartView(this);
         previewImage.setImageDrawable(previewImageView.getDrawable());
 
         Rect startBounds = getImageViewBounds(previewImageView);
@@ -128,6 +147,11 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         startPreviewAnimation.setInterpolator(new DecelerateInterpolator());
         startPreviewAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
+            public void onAnimationStart(Animator animation) {
+                callback.onPreviewCreate(ImageViewerController.this);
+            }
+
+            @Override
             public void onAnimationEnd(Animator animation) {
                 previewImage.setX(0f);
                 previewImage.setY(0f);
@@ -135,6 +159,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
                 previewImage.setScaleY(1f);
                 previewImage.clip(null);
                 startPreviewAnimation = null;
+                presenter.onInTransitionEnd();
             }
         });
         startPreviewAnimation.start();
@@ -220,23 +245,27 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     private void previewOutAnimationEnded() {
-        setStatusBarColor(statusBarColorPrevious);
+        setBackgroundAlpha(0f);
 
         callback.onPreviewDestroy(this);
         navigationController.stopPresenting(false);
     }
 
     private void setBackgroundAlpha(float alpha) {
-        alpha *= TRANSITION_FINAL_ALPHA;
-        view.setBackgroundColor(Color.argb((int) (alpha * 255f), 0, 0, 0));
+        view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f), 0, 0, 0));
 
         if (Build.VERSION.SDK_INT >= 21) {
-            int r = (int) ((1f - alpha) * Color.red(statusBarColorPrevious));
-            int g = (int) ((1f - alpha) * Color.green(statusBarColorPrevious));
-            int b = (int) ((1f - alpha) * Color.blue(statusBarColorPrevious));
-
-            setStatusBarColor(Color.argb(255, r, g, b));
+            if (alpha == 0f) {
+                setStatusBarColor(statusBarColorPrevious);
+            } else {
+                int r = (int) ((1f - alpha) * Color.red(statusBarColorPrevious));
+                int g = (int) ((1f - alpha) * Color.green(statusBarColorPrevious));
+                int b = (int) ((1f - alpha) * Color.blue(statusBarColorPrevious));
+                setStatusBarColor(Color.argb(255, r, g, b));
+            }
         }
+
+        setToolbarBackgroundAlpha(alpha);
     }
 
     private void setStatusBarColor(int color) {
@@ -245,12 +274,15 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         }
     }
 
+    private void setToolbarBackgroundAlpha(float alpha) {
+        toolbar.setAlpha(alpha);
+    }
+
     private Rect getImageViewBounds(ImageView image) {
         Rect startBounds = new Rect();
         if (image.getGlobalVisibleRect(startBounds) && !startBounds.isEmpty()) {
             AnimationUtils.adjustImageViewBoundsToDrawableBounds(image, startBounds);
             if (!startBounds.isEmpty()) {
-                Logger.test(startBounds.toShortString());
                 return startBounds;
             } else {
                 return null;
@@ -270,6 +302,8 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     public interface Callback {
         public ImageView getPreviewImageStartView(ImageViewerController imageViewerController);
+
+        public void onPreviewCreate(ImageViewerController imageViewerController);
 
         public void onPreviewDestroy(ImageViewerController imageViewerController);
     }
