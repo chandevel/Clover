@@ -49,14 +49,20 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 public class MultiImageView extends LoadView implements View.OnClickListener {
+    public enum Mode {
+        UNLOADED, LOWRES, BIGIMAGE
+    }
+
     private static final String TAG = "MultiImageView";
 
     private PostImage postImage;
     private Callback callback;
 
-    private boolean thumbnailNeeded = true;
+    private Mode mode = Mode.UNLOADED;
 
+    private boolean thumbnailNeeded = true;
     private Future<?> request;
+
     private VideoView videoView;
 
     public MultiImageView(Context context) {
@@ -83,11 +89,36 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         this.callback = callback;
     }
 
-    public void loadLowRes() {
+    public PostImage getPostImage() {
+        return postImage;
     }
 
-    public void loadHighRes() {
+    public void setMode(Mode mode) {
+        if (this.mode != mode) {
+            this.mode = mode;
+            if (mode == Mode.LOWRES) {
+                Logger.d(TAG, "Changing mode to LOWRES for " + postImage.thumbnailUrl);
+                AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
+                    @Override
+                    public boolean onMeasured(View view) {
+                        setThumbnail(postImage.thumbnailUrl);
+                        return false;
+                    }
+                });
+            } else if (mode == Mode.BIGIMAGE) {
+                Logger.d(TAG, "Changing mode to BIGIMAGE for " + postImage.thumbnailUrl);
+                // Always done after at least LOWRES, so the view is measured
+                if (postImage.type == PostImage.Type.STATIC) {
+                    setBigImage(postImage.imageUrl);
+                } else {
+                    Logger.e(TAG, "postImage type not STATIC, not changing to BIGIMAGE mode!");
+                }
+            }
+        }
+    }
 
+    public Mode getMode() {
+        return mode;
     }
 
     public void setCallback(Callback callback) {
@@ -114,6 +145,7 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
                     thumbnail.setImageBitmap(response.getBitmap());
                     thumbnail.setLayoutParams(AndroidUtils.MATCH_PARAMS);
                     setView(thumbnail, false);
+                    callback.onModeLoaded(MultiImageView.this, Mode.LOWRES);
                 }
             }
         }, getWidth(), getHeight());
@@ -121,7 +153,7 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
 
     public void setBigImage(String imageUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
-            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
+            Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
             return;
         }
 
@@ -166,6 +198,7 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
                 removeAllViews();
                 addView(image);
                 callback.setProgress(MultiImageView.this, false);
+                callback.onModeLoaded(MultiImageView.this, Mode.BIGIMAGE);
             }
 
             @Override
@@ -347,6 +380,8 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         public void onVideoLoaded(MultiImageView multiImageView);
 
         public void onVideoError(MultiImageView multiImageView, File video);
+
+        public void onModeLoaded(MultiImageView multiImageView, Mode mode);
     }
 
     public static class NoMusicServiceCommandContext extends ContextWrapper {

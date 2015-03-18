@@ -9,12 +9,16 @@ import org.floens.chan.utils.AndroidUtils;
 public abstract class ViewPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        return getView(position);
+        View view = getView(position);
+
+        container.addView(view);
+
+        return view;
     }
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        AndroidUtils.removeFromParentView((View) object);
+        container.removeView((View)object);
     }
 
     public boolean isViewFromObject(View view, Object object) {

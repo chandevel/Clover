@@ -280,6 +280,11 @@ public class ImageViewFragment extends Fragment implements Callback {
         }
     }
 
+    @Override
+    public void onModeLoaded(MultiImageView multiImageView, MultiImageView.Mode mode) {
+
+    }
+
     private void showVideoWarning() {
         LinearLayout notice = new LinearLayout(context);
         notice.setOrientation(LinearLayout.VERTICAL);

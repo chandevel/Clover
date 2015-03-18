@@ -19,10 +19,16 @@ import android.widget.ImageView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
+import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ClippingImageView;
+import org.floens.chan.ui.view.MultiImageView;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
+
+import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AnimationUtils.calculateBoundsAnimation;
@@ -36,7 +42,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     private AnimatorSet startPreviewAnimation;
     private AnimatorSet endAnimation;
 
-    private Callback callback;
+    private PreviewCallback previewCallback;
     private ImageViewerPresenter presenter;
 
     private final Toolbar toolbar;
@@ -60,6 +66,15 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         view.setOnClickListener(this);
         previewImage = (ClippingImageView) view.findViewById(R.id.preview_image);
         pager = (ViewPager) view.findViewById(R.id.pager);
+        pager.setOnPageChangeListener(presenter);
+
+        AndroidUtils.waitForMeasure(view, new AndroidUtils.OnMeasuredCallback() {
+            @Override
+            public boolean onMeasured(View view) {
+                presenter.onViewMeasured();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -73,16 +88,38 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         return true;
     }
 
-    public void setCallback(Callback callback) {
-        this.callback = callback;
+    public void setPreviewCallback(PreviewCallback previewCallback) {
+        this.previewCallback = previewCallback;
     }
 
     public ImageViewerPresenter getPresenter() {
         return presenter;
     }
 
+    public void setPreviewVisibility(boolean visible) {
+        previewImage.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    public void setPagerVisiblity(boolean visible) {
+        pager.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    public void setPagerItems(List<PostImage> images, int initialIndex) {
+        ImageViewerAdapter adapter = new ImageViewerAdapter(context, images, presenter);
+        pager.setAdapter(adapter);
+        pager.setCurrentItem(initialIndex);
+    }
+
+    public void setImageMode(PostImage postImage, MultiImageView.Mode mode) {
+        ((ImageViewerAdapter) pager.getAdapter()).setMode(postImage, mode);
+    }
+
+    public MultiImageView.Mode getImageMode(PostImage postImage) {
+        return ((ImageViewerAdapter) pager.getAdapter()).getMode(postImage);
+    }
+
     public void startPreviewInTransition() {
-        ImageView previewImageView = callback.getPreviewImageStartView(this);
+        ImageView previewImageView = previewCallback.getPreviewImageStartView(this);
         previewImage.setImageDrawable(previewImageView.getDrawable());
 
         Rect startBounds = getImageViewBounds(previewImageView);
@@ -148,7 +185,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         startPreviewAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                callback.onPreviewCreate(ImageViewerController.this);
+                previewCallback.onPreviewCreate(ImageViewerController.this);
             }
 
             @Override
@@ -247,7 +284,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     private void previewOutAnimationEnded() {
         setBackgroundAlpha(0f);
 
-        callback.onPreviewDestroy(this);
+        previewCallback.onPreviewDestroy(this);
         navigationController.stopPresenting(false);
     }
 
@@ -293,14 +330,14 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     private ImageView getStartImageView() {
-        return callback.getPreviewImageStartView(this);
+        return previewCallback.getPreviewImageStartView(this);
     }
 
     private Window getWindow() {
         return ((Activity) context).getWindow();
     }
 
-    public interface Callback {
+    public interface PreviewCallback {
         public ImageView getPreviewImageStartView(ImageViewerController imageViewerController);
 
         public void onPreviewCreate(ImageViewerController imageViewerController);

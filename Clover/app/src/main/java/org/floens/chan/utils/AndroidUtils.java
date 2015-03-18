@@ -201,11 +201,12 @@ public class AndroidUtils {
                         observer.removeOnPreDrawListener(this);
                     }
 
-                    boolean ret = false;
+                    boolean ret;
                     try {
                         ret = callback.onMeasured(view);
                     } catch (Exception e) {
                         Log.i("AndroidUtils", "Exception in onMeasured", e);
+                        throw e;
                     }
 
                     return ret;

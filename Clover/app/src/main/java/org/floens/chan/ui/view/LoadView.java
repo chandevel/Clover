@@ -81,43 +81,54 @@ public class LoadView extends FrameLayout {
             newView = progressBar;
         }
 
-        // Readded while still running a add/remove animation for the new view
-        // This also removes the new view from this view
-        AnimatorSet out = animatorsOut.remove(newView);
-        if (out != null) {
-            out.cancel();
-        }
+        if (animate) {
+            // Readded while still running a add/remove animation for the new view
+            // This also removes the new view from this view
+            AnimatorSet out = animatorsOut.remove(newView);
+            if (out != null) {
+                out.cancel();
+            }
 
-        AnimatorSet in = animatorsIn.remove(newView);
-        if (in != null) {
-            in.cancel();
-        }
+            AnimatorSet in = animatorsIn.remove(newView);
+            if (in != null) {
+                in.cancel();
+            }
 
-        // Add fade out animations for all remaining view
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            if (child != null) {
-                AnimatorSet inSet = animatorsIn.remove(child);
-                if (inSet != null) {
-                    inSet.cancel();
-                }
+            // Add fade out animations for all remaining view
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                if (child != null) {
+                    AnimatorSet inSet = animatorsIn.remove(child);
+                    if (inSet != null) {
+                        inSet.cancel();
+                    }
 
-                if (!animatorsOut.containsKey(child)) {
-                    animateViewOut(child);
+                    if (!animatorsOut.containsKey(child)) {
+                        animateViewOut(child);
+                    }
                 }
             }
-        }
 
-        addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-        if (animate) {
             // Fade view in
             if (newView.getAlpha() == 1f) {
                 newView.setAlpha(0f);
             }
             animateViewIn(newView);
         } else {
-            newView.setAlpha(1f);
+            for (AnimatorSet set : animatorsIn.values()) {
+                set.cancel();
+            }
+            animatorsIn.clear();
+
+            for (AnimatorSet set : animatorsOut.values()) {
+                set.cancel();
+            }
+            animatorsOut.clear();
+
+            removeAllViews();
+            addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         }
     }
 

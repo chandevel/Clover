@@ -10,7 +10,7 @@ import org.floens.chan.ui.layout.ThreadLayout;
 
 import java.util.List;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.Callback {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback {
     protected ThreadLayout threadLayout;
     private ImageView presentingImageView;
 
@@ -24,11 +24,14 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     @Override
     public void showImages(List<PostImage> images, int index, final ImageView thumbnail) {
-        presentingImageView = thumbnail;
+        // Just ignore the showImages request when the image is not loaded
+        if (thumbnail.getDrawable() != null) {
+            presentingImageView = thumbnail;
 
-        final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
-        presentController(imageViewerNavigationController, false);
-        imageViewerNavigationController.showImages(images, index, this);
+            final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
+            presentController(imageViewerNavigationController, false);
+            imageViewerNavigationController.showImages(images, index, this);
+        }
     }
 
     @Override

@@ -1,14 +1,12 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.FrameLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.toolbar.Toolbar;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
@@ -33,14 +31,8 @@ public class ImageViewerNavigationController extends NavigationController {
         pushController(imageViewerController, false);
     }
 
-    public void showImages(final List<PostImage> images, final int index, final ImageViewerController.Callback callback) {
-        AndroidUtils.waitForMeasure(imageViewerController.view, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public boolean onMeasured(View view) {
-                imageViewerController.setCallback(callback);
-                imageViewerController.getPresenter().showImages(images, index);
-                return true;
-            }
-        });
+    public void showImages(final List<PostImage> images, final int index, final ImageViewerController.PreviewCallback previewCallback) {
+        imageViewerController.setPreviewCallback(previewCallback);
+        imageViewerController.getPresenter().showImages(images, index);
     }
 }
