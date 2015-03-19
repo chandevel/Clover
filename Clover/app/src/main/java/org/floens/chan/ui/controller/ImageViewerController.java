@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
@@ -24,6 +23,7 @@ import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ClippingImageView;
+import org.floens.chan.ui.view.OptionalSwipeViewPager;
 import org.floens.chan.ui.view.MultiImageView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
@@ -47,7 +47,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     private final Toolbar toolbar;
     private ClippingImageView previewImage;
-    private ViewPager pager;
+    private OptionalSwipeViewPager pager;
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
@@ -65,7 +65,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         view = inflateRes(R.layout.controller_image_viewer);
         view.setOnClickListener(this);
         previewImage = (ClippingImageView) view.findViewById(R.id.preview_image);
-        pager = (ViewPager) view.findViewById(R.id.pager);
+        pager = (OptionalSwipeViewPager) view.findViewById(R.id.pager);
         pager.setOnPageChangeListener(presenter);
 
         AndroidUtils.waitForMeasure(view, new AndroidUtils.OnMeasuredCallback() {
@@ -102,6 +102,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     public void setPagerVisiblity(boolean visible) {
         pager.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        pager.setSwipingEnabled(visible);
     }
 
     public void setPagerItems(List<PostImage> images, int initialIndex) {

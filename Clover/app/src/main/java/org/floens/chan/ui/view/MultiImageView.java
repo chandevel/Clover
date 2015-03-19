@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -33,6 +34,7 @@ import android.widget.VideoView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.koushikdutta.async.future.Future;
+import com.koushikdutta.ion.Response;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -48,7 +50,7 @@ import java.io.IOException;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
-public class MultiImageView extends LoadView implements View.OnClickListener {
+public class MultiImageView extends FrameLayout implements View.OnClickListener {
     public enum Mode {
         UNLOADED, LOWRES, BIGIMAGE
     }
@@ -61,7 +63,11 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
     private Mode mode = Mode.UNLOADED;
 
     private boolean thumbnailNeeded = true;
-    private Future<?> request;
+    private boolean hasContent = false;
+    private ImageContainer thumbnailRequest;
+    private Future<Response<File>> bigImageRequest;
+    private Future<Response<File>> gifRequest;
+    private Future<Response<File>> videoRequest;
 
     private VideoView videoView;
 
@@ -95,9 +101,10 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
 
     public void setMode(Mode mode) {
         if (this.mode != mode) {
+            final Mode previousTargetMode = this.mode;
             this.mode = mode;
+            Logger.d(TAG, "Changing mode from " + previousTargetMode + "to " + mode + " for " + postImage.thumbnailUrl);
             if (mode == Mode.LOWRES) {
-                Logger.d(TAG, "Changing mode to LOWRES for " + postImage.thumbnailUrl);
                 AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
                     @Override
                     public boolean onMeasured(View view) {
@@ -106,10 +113,14 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
                     }
                 });
             } else if (mode == Mode.BIGIMAGE) {
-                Logger.d(TAG, "Changing mode to BIGIMAGE for " + postImage.thumbnailUrl);
-                // Always done after at least LOWRES, so the view is measured
                 if (postImage.type == PostImage.Type.STATIC) {
-                    setBigImage(postImage.imageUrl);
+                    AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
+                        @Override
+                        public boolean onMeasured(View view) {
+                            setBigImage(postImage.imageUrl);
+                            return false;
+                        }
+                    });
                 } else {
                     Logger.e(TAG, "postImage type not STATIC, not changing to BIGIMAGE mode!");
                 }
@@ -132,23 +143,30 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         }
 
         // Also use volley for the thumbnails
-        ChanApplication.getVolleyImageLoader().get(thumbnailUrl, new com.android.volley.toolbox.ImageLoader.ImageListener() {
+        thumbnailRequest = ChanApplication.getVolleyImageLoader().get(thumbnailUrl, new com.android.volley.toolbox.ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                thumbnailRequest = null;
                 onError();
             }
 
             @Override
             public void onResponse(ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null && thumbnailNeeded) {
+                thumbnailRequest = null;
+                if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
                     ImageView thumbnail = new ImageView(getContext());
                     thumbnail.setImageBitmap(response.getBitmap());
-                    thumbnail.setLayoutParams(AndroidUtils.MATCH_PARAMS);
-                    setView(thumbnail, false);
-                    callback.onModeLoaded(MultiImageView.this, Mode.LOWRES);
+                    onModeLoaded(Mode.LOWRES, thumbnail);
                 }
             }
         }, getWidth(), getHeight());
+    }
+
+    private void cancelThumbnail() {
+        if (thumbnailRequest != null) {
+            thumbnailRequest.cancelRequest();
+            thumbnailRequest = null;
+        }
     }
 
     public void setBigImage(String imageUrl) {
@@ -158,7 +176,7 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         }
 
         callback.setProgress(this, true);
-        request = ChanApplication.getFileCache().downloadFile(getContext(), imageUrl, new FileCache.DownloadedCallback() {
+        bigImageRequest = ChanApplication.getFileCache().downloadFile(getContext(), imageUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
@@ -171,11 +189,13 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
 
             @Override
             public void onSuccess(File file) {
+                bigImageRequest = null;
                 setBigImageFile(file);
             }
 
             @Override
             public void onFail(boolean notFound) {
+                bigImageRequest = null;
                 if (notFound) {
                     onNotFoundError();
                 } else {
@@ -195,10 +215,10 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         image.setInitCallback(new CustomScaleImageView.InitedCallback() {
             @Override
             public void onInit() {
-                removeAllViews();
-                addView(image);
-                callback.setProgress(MultiImageView.this, false);
-                callback.onModeLoaded(MultiImageView.this, Mode.BIGIMAGE);
+                if (!hasContent || mode == Mode.BIGIMAGE) {
+                    callback.setProgress(MultiImageView.this, false);
+                    onModeLoaded(Mode.BIGIMAGE, image);
+                }
             }
 
             @Override
@@ -208,6 +228,13 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         });
     }
 
+    private void cancelBigImage() {
+        if (bigImageRequest != null) {
+            bigImageRequest.cancel();
+            bigImageRequest = null;
+        }
+    }
+
     public void setGif(String gifUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
@@ -215,7 +242,7 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         }
 
         callback.setProgress(this, true);
-        request = ChanApplication.getFileCache().downloadFile(getContext(), gifUrl, new FileCache.DownloadedCallback() {
+        gifRequest = ChanApplication.getFileCache().downloadFile(getContext(), gifUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
@@ -229,11 +256,13 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
 
             @Override
             public void onSuccess(File file) {
+                gifRequest = null;
                 setGifFile(file);
             }
 
             @Override
             public void onFail(boolean notFound) {
+                gifRequest = null;
                 if (notFound) {
                     onNotFoundError();
                 } else {
@@ -261,12 +290,12 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
         view.setLayoutParams(AndroidUtils.MATCH_PARAMS);
-        setView(view, false);
+        setView(view);
     }
 
     public void setVideo(String videoUrl) {
         callback.setProgress(this, true);
-        request = ChanApplication.getFileCache().downloadFile(getContext(), videoUrl, new FileCache.DownloadedCallback() {
+        videoRequest = ChanApplication.getFileCache().downloadFile(getContext(), videoUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
@@ -280,11 +309,13 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
 
             @Override
             public void onSuccess(File file) {
+                videoRequest = null;
                 setVideoFile(file);
             }
 
             @Override
             public void onFail(boolean notFound) {
+                videoRequest = null;
                 if (notFound) {
                     onNotFoundError();
                 } else {
@@ -334,7 +365,7 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
 
             videoView.setVideoPath(file.getAbsolutePath());
 
-            setView(videoView, false);
+            setView(videoView);
 
             videoView.start();
         }
@@ -360,14 +391,38 @@ public class MultiImageView extends LoadView implements View.OnClickListener {
     }
 
     public void cancelLoad() {
-        if (request != null) {
-            request.cancel(true);
+        if (bigImageRequest != null) {
+            bigImageRequest.cancel();
+        }
+        if (gifRequest != null) {
+            gifRequest.cancel();
+        }
+        if (videoRequest != null) {
+            videoRequest.cancel();
         }
     }
 
     @Override
     public void onClick(View v) {
         callback.onTap(this);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        cancelLoad();
+    }
+
+    private void setView(View view) {
+        removeAllViews();
+        addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    }
+
+    private void onModeLoaded(Mode mode, View view) {
+        removeAllViews();
+        addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        hasContent = true;
+        callback.onModeLoaded(this, mode);
     }
 
     public static interface Callback {

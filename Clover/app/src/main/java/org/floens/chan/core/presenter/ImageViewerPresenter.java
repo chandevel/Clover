@@ -1,16 +1,20 @@
 package org.floens.chan.core.presenter;
 
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
+import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
+    private static final String TAG = "ImageViewerPresenter";
+
     private final Callback callback;
 
     private final boolean imageAutoLoad = ChanSettings.imageAutoLoad.get();
@@ -18,21 +22,25 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private boolean entering = true;
     private boolean exiting = false;
     private List<PostImage> images;
-    private int selectedIndex;
-    private boolean initalLowResLoaded = false;
+    private int selectedPosition;
+
+    // Disables swiping until the view pager is visible
+    private boolean viewPagerVisible = false;
     private boolean changeViewsOnInTransitionEnd = false;
 
     public ImageViewerPresenter(Callback callback) {
         this.callback = callback;
     }
 
-    public void showImages(List<PostImage> images, int index) {
+    public void showImages(List<PostImage> images, int position) {
         this.images = images;
-        selectedIndex = index;
+        selectedPosition = position;
+
+        Logger.test("showImages position " + position);
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
-        callback.setPagerItems(images, selectedIndex);
-        callback.setImageMode(images.get(selectedIndex), MultiImageView.Mode.LOWRES);
+        callback.setPagerItems(images, selectedPosition);
+        callback.setImageMode(images.get(selectedPosition), MultiImageView.Mode.LOWRES);
     }
 
     public void onViewMeasured() {
@@ -60,14 +68,15 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     @Override
     public void onPageSelected(int position) {
-        selectedIndex = position;
-        if (initalLowResLoaded) {
-            for (PostImage other : getOther(selectedIndex)) {
-                callback.setImageMode(other, MultiImageView.Mode.LOWRES);
-            }
-            callback.setImageMode(images.get(selectedIndex), MultiImageView.Mode.LOWRES);
+        Logger.test("onPageSelected " + selectedPosition + ", " + position);
+
+        if (!viewPagerVisible) {
+            return;
         }
-        // onModeLoaded will handle the else case
+
+        selectedPosition = position;
+
+        onPageSwipedTo(position);
     }
 
     @Override
@@ -83,8 +92,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         if (mode == MultiImageView.Mode.LOWRES) {
             // lowres is requested at the beginning of the transition,
             // the lowres is loaded before the in transition or after
-            if (!initalLowResLoaded) {
-                initalLowResLoaded = true;
+            if (!viewPagerVisible) {
+                viewPagerVisible = true;
                 if (!entering) {
                     // Entering transition was already ended, switch now
                     callback.setPreviewVisibility(false);
@@ -94,24 +103,49 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                     changeViewsOnInTransitionEnd = true;
                 }
                 // Transition ended or not, request loading the other side views to lowres
-                for (PostImage other : getOther(selectedIndex)) {
+                for (PostImage other : getOther(selectedPosition, false)) {
                     callback.setImageMode(other, MultiImageView.Mode.LOWRES);
                 }
-                // selectedIndex can be different than the initial one because of page changes before onModeLoaded was called,
-                // request a load of the current selectedIndex one here
-                callback.setImageMode(images.get(selectedIndex), MultiImageView.Mode.LOWRES);
+                onLowResInCenter();
+            } else {
+                if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+                    Log.i(TAG, "Loading high res from a onModeLoaded");
+                    onLowResInCenter();
+                }
             }
+        }
+    }
 
-            // Initial load or not, transitioning or not, load the high res when the user setting says so after the low res
-            if (imageAutoLoad) {
-                multiImageView.setMode(MultiImageView.Mode.BIGIMAGE);
-            }
+    private void onPageSwipedTo(int position) {
+        for (PostImage other : getOther(position, false)) {
+            callback.setImageMode(other, MultiImageView.Mode.LOWRES);
+        }
+
+        // Already in LOWRES mode
+        if (callback.getImageMode(images.get(selectedPosition)) == MultiImageView.Mode.LOWRES) {
+            Log.i(TAG, "Loading high res from a swipe");
+            onLowResInCenter();
+        }
+        // Else let onModeChange handle it
+    }
+
+    // Called from either a page swipe caused a lowres image to the center or an
+    // onModeLoaded when a unloaded image was swiped to the center earlier
+    private void onLowResInCenter() {
+        PostImage postImage = images.get(selectedPosition);
+        if (postImage.type == PostImage.Type.STATIC) {
+            callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE);
+        } else {
+            // todo
         }
     }
 
     @Override
     public void onTap(MultiImageView multiImageView) {
-        onExit();
+        // Don't mistake a swipe from a user when the pager is disabled as a tap
+        if (viewPagerVisible) {
+            onExit();
+        }
     }
 
     @Override
@@ -134,10 +168,13 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     }
 
-    private List<PostImage> getOther(int position) {
-        List<PostImage> other = new ArrayList<>(2);
+    private List<PostImage> getOther(int position, boolean all) {
+        List<PostImage> other = new ArrayList<>(3);
         if (position - 1 >= 0) {
             other.add(images.get(position - 1));
+        }
+        if (all) {
+            other.add(images.get(position));
         }
         if (position + 1 < images.size()) {
             other.add(images.get(position + 1));
