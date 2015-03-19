@@ -16,7 +16,7 @@ public class PostImage {
     public PostImage(String thumbnailUrl, String imageUrl, String filename, String extension, int imageWidth, int imageHeight) {
         this.thumbnailUrl = thumbnailUrl;
         this.imageUrl = imageUrl;
-        this.filename = filename;
+        this.filename = filename + "." + extension;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
 

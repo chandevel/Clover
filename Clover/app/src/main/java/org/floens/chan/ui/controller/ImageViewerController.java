@@ -60,8 +60,6 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.title = "Image title here";
-
         view = inflateRes(R.layout.controller_image_viewer);
         view.setOnClickListener(this);
         previewImage = (ClippingImageView) view.findViewById(R.id.preview_image);
@@ -117,6 +115,11 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     public MultiImageView.Mode getImageMode(PostImage postImage) {
         return ((ImageViewerAdapter) pager.getAdapter()).getMode(postImage);
+    }
+
+    public void setTitle(PostImage postImage) {
+        navigationItem.title = postImage.filename;
+        toolbar.setNavigationItem(false, false, navigationItem);
     }
 
     public void startPreviewInTransition() {
