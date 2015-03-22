@@ -24,9 +24,6 @@ import android.view.ViewConfiguration;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.builder.Builders;
-import com.koushikdutta.ion.builder.LoadBuilder;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.BoardManager;
@@ -104,10 +101,6 @@ public class ChanApplication extends Application {
         return fileCache;
     }
 
-    public static LoadBuilder<Builders.Any.B> getIon() {
-        return Ion.getDefault(getInstance()).build(getInstance());
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -135,8 +128,7 @@ public class ChanApplication extends Application {
 
         IconCache.createIcons(this);
 
-        Ion.getDefault(getInstance()).getCache().clear();
-        Ion.getDefault(getInstance()).getCache().setMaxSize(1 * 1024 * 1024);
+        cleanupOutdated();
 
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
 
@@ -188,6 +180,23 @@ public class ChanApplication extends Application {
 
     public void removeForegroundChangedListener(ForegroundChangedListener listener) {
         foregroundChangedListeners.remove(listener);
+    }
+
+    private void cleanupOutdated() {
+        File ionCacheFolder = new File(getCacheDir() + "/ion");
+        if (ionCacheFolder.exists() && ionCacheFolder.isDirectory()) {
+            Logger.i(TAG, "Clearing old ion folder");
+            for (File file : ionCacheFolder.listFiles()) {
+                if (!file.delete()) {
+                    Logger.i(TAG, "Could not delete old ion file " + file.getName());
+                }
+            }
+            if (!ionCacheFolder.delete()) {
+                Logger.i(TAG, "Could not delete old ion folder");
+            } else {
+                Logger.i(TAG, "Deleted old ion folder");
+            }
+        }
     }
 
     public static interface ForegroundChangedListener {

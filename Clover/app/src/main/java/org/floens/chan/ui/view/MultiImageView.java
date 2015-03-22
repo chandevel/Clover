@@ -33,8 +33,6 @@ import android.widget.VideoView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.koushikdutta.async.future.Future;
-import com.koushikdutta.ion.Response;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -46,6 +44,7 @@ import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -62,12 +61,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private Mode mode = Mode.UNLOADED;
 
-    private boolean thumbnailNeeded = true;
     private boolean hasContent = false;
     private ImageContainer thumbnailRequest;
-    private Future<Response<File>> bigImageRequest;
-    private Future<Response<File>> gifRequest;
-    private Future<Response<File>> videoRequest;
+    private Future bigImageRequest;
+    private Future gifRequest;
+    private Future videoRequest;
 
     private VideoView videoView;
 
@@ -162,13 +160,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }, getWidth(), getHeight());
     }
 
-    private void cancelThumbnail() {
-        if (thumbnailRequest != null) {
-            thumbnailRequest.cancelRequest();
-            thumbnailRequest = null;
-        }
-    }
-
     public void setBigImage(String imageUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
@@ -176,12 +167,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.setProgress(this, true);
-        bigImageRequest = ChanApplication.getFileCache().downloadFile(getContext(), imageUrl, new FileCache.DownloadedCallback() {
+        bigImageRequest = ChanApplication.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
 //                    callback.setLinearProgress(0, 0, true);
-                    thumbnailNeeded = false;
                 } else {
                     callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
                 }
@@ -228,13 +218,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         });
     }
 
-    private void cancelBigImage() {
-        if (bigImageRequest != null) {
-            bigImageRequest.cancel();
-            bigImageRequest = null;
-        }
-    }
-
     public void setGif(String gifUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
@@ -242,13 +225,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.setProgress(this, true);
-        gifRequest = ChanApplication.getFileCache().downloadFile(getContext(), gifUrl, new FileCache.DownloadedCallback() {
+        gifRequest = ChanApplication.getFileCache().downloadFile(gifUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
                     callback.setProgress(MultiImageView.this, false);
                     callback.setLinearProgress(MultiImageView.this, 0, 0, true);
-                    thumbnailNeeded = false;
                 } else {
                     callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
                 }
@@ -295,13 +277,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setVideo(String videoUrl) {
         callback.setProgress(this, true);
-        videoRequest = ChanApplication.getFileCache().downloadFile(getContext(), videoUrl, new FileCache.DownloadedCallback() {
+        videoRequest = ChanApplication.getFileCache().downloadFile(videoUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 if (done) {
                     callback.setProgress(MultiImageView.this, false);
                     callback.setLinearProgress(MultiImageView.this, 0, 0, true);
-                    thumbnailNeeded = false;
                 } else {
                     callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
                 }
@@ -381,8 +362,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     public void onNotFoundError() {
-        Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_LONG).show();
         callback.setProgress(this, false);
+        Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_SHORT).show();
     }
 
     public void onOutOfMemoryError() {
@@ -392,13 +373,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void cancelLoad() {
         if (bigImageRequest != null) {
-            bigImageRequest.cancel();
+            bigImageRequest.cancel(true);
         }
         if (gifRequest != null) {
-            gifRequest.cancel();
+            gifRequest.cancel(true);
         }
         if (videoRequest != null) {
-            videoRequest.cancel();
+            videoRequest.cancel(true);
         }
     }
 

@@ -372,7 +372,6 @@ Don't have a 4chan Pass?&lt;br>
     <string name="pass_error">Connection error</string>
     <string name="pass_summary_enabled">Using 4chan pass</string>
     <string name="pass_summary_disabled">Off</string>
-    <string name="pass_using">Using 4chan pass</string>
 
     <string name="download_confirm">%1$s images will be downloaded to %2$s</string>
 

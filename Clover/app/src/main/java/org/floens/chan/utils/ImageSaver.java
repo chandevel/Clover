@@ -28,8 +28,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.widget.Toast;
 
-import com.koushikdutta.async.future.Future;
-
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
@@ -69,7 +67,7 @@ public class ImageSaver {
     }
 
     public void saveImage(final Context context, String imageUrl, final String name, final String extension, final boolean share) {
-        Future<?> ionRequest = ChanApplication.getFileCache().downloadFile(context, imageUrl, new FileCache.DownloadedCallback() {
+        ChanApplication.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
             @SuppressWarnings("deprecation")
             public void onProgress(long downloaded, long total, boolean done) {
