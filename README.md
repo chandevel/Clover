@@ -21,10 +21,6 @@ See the [Clover setup guide](https://github.com/Floens/Clover/wiki/Building-Clov
 Be sure to search for existing items on the todo list and issues page before reporting anything.
 
 
-## Contact
-IRC: #Clover @ freenode
-
-
 ## TODO
 [Clover todo list](https://gist.github.com/Floens/cd7937a1d8f06f5540bc)
 
