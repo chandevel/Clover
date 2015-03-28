@@ -19,12 +19,16 @@ package org.floens.chan.ui.layout;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import com.android.volley.VolleyError;
 
 import org.floens.chan.core.model.ChanThread;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.PostView;
 
@@ -92,5 +96,25 @@ public class ThreadListLayout extends RelativeLayout {
 
     public void showError(VolleyError error) {
 
+    }
+
+    public ImageView getThumbnail(PostImage postImage) {
+        ImageView thumbnail = null;
+        for (int i = 0; i < listView.getChildCount(); i++) {
+            View view = listView.getChildAt(i);
+            if (view instanceof PostView) {
+                PostView postView = (PostView) view;
+                Post post = postView.getPost();
+                if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
+                    thumbnail = postView.getThumbnail();
+                    break;
+                }
+            }
+        }
+        return thumbnail;
+    }
+
+    public void scrollTo(int position) {
+        listView.smoothScrollToPosition(position);
     }
 }

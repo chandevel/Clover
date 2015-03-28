@@ -168,6 +168,15 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         callback.showImages(images, index, thumbnail);
     }
 
+    @Override
+    public void scrollTo(int position) {
+        threadListLayout.scrollTo(position);
+    }
+
+    public ImageView getThumbnail(PostImage postImage) {
+        return threadListLayout.getThumbnail(postImage);
+    }
+
     private void switchVisible(boolean visible) {
         if (this.visible != visible) {
             this.visible = visible;

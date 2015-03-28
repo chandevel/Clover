@@ -119,7 +119,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void scrollTo(int position) {
+        threadPresenterCallback.scrollTo(position);
+    }
 
+    public void scrollTo(PostImage postImage) {
+        int position = -1;
+        for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
+            Post post = chanLoader.getThread().posts.get(i);
+            if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
+                position = i;
+                break;
+            }
+        }
+        scrollTo(position);
     }
 
     /*
@@ -328,5 +340,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         public void showPostsPopup(Post forPost, List<Post> posts);
 
         public void showImages(List<PostImage> images, int index, ImageView thumbnail);
+
+        public void scrollTo(int position);
     }
 }

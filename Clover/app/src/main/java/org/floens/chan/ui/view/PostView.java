@@ -254,6 +254,14 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         }
     }
 
+    public Post getPost() {
+        return post;
+    }
+
+    public ImageView getThumbnail() {
+        return imageView;
+    }
+
     public void setHighlightQuotesWithNo(int no) {
         highlightQuotesNo = no;
     }
