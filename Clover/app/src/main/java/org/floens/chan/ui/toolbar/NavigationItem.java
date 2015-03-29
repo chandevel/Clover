@@ -34,10 +34,10 @@ public class NavigationItem {
     public FloatingMenu middleMenu;
     public View rightView;
 
-    public FloatingMenu createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
+    public ToolbarMenuItem createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
         ToolbarMenuItem overflow = menu.createOverflow(callback);
         FloatingMenu overflowMenu = new FloatingMenu(context, overflow.getView(), items);
         overflow.setSubMenu(overflowMenu);
-        return overflowMenu;
+        return overflow;
     }
 }

@@ -13,6 +13,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -25,27 +26,42 @@ import com.davemorrissey.labs.subscaleview.ImageViewState;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
+import org.floens.chan.ui.toolbar.ToolbarMenu;
+import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.CustomScaleImageView;
+import org.floens.chan.ui.view.FloatingMenu;
+import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.LoadingBar;
 import org.floens.chan.ui.view.MultiImageView;
 import org.floens.chan.ui.view.OptionalSwipeViewPager;
 import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.ImageSaver;
 import org.floens.chan.utils.Logger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback {
+public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 200;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
+
+    private static final int SAVE_ID = 101;
+    private static final int OPEN_BROWSER_ID = 102;
+    private static final int SHARE_ID = 103;
+    private static final int SEARCH_ID = 104;
+    private static final int SAVE_ALBUM = 105;
 
     private int statusBarColorPrevious;
     private AnimatorSet startAnimation;
@@ -59,6 +75,8 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     private OptionalSwipeViewPager pager;
     private LoadingBar loadingBar;
 
+    private ToolbarMenuItem overflowMenuItem;
+
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
         this.toolbar = toolbar;
@@ -69,6 +87,15 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     @Override
     public void onCreate() {
         super.onCreate();
+
+        navigationItem.menu = new ToolbarMenu(context);
+        overflowMenuItem = navigationItem.createOverflow(context, this, Arrays.asList(
+                new FloatingMenuItem(SAVE_ID, string(R.string.image_save)),
+                new FloatingMenuItem(OPEN_BROWSER_ID, string(R.string.action_open_browser)),
+                new FloatingMenuItem(SHARE_ID, string(R.string.action_share)),
+                new FloatingMenuItem(SEARCH_ID, string(R.string.action_search_image)),
+                new FloatingMenuItem(SAVE_ALBUM, string(R.string.action_download_album))
+        ));
 
         view = inflateRes(R.layout.controller_image_viewer);
         view.setOnClickListener(this);
@@ -84,6 +111,67 @@ public class ImageViewerController extends Controller implements View.OnClickLis
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onMenuItemClicked(ToolbarMenuItem item) {
+    }
+
+    @Override
+    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+        PostImage postImage = presenter.getCurrentPostImage();
+        switch ((Integer) item.getId()) {
+            case SAVE_ID:
+            case SHARE_ID:
+                if (ChanSettings.shareUrl.get()) {
+                    AndroidUtils.shareLink(postImage.imageUrl);
+                } else {
+                    ImageSaver.getInstance().saveImage(context, postImage.imageUrl,
+                            ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename,
+                            postImage.extension,
+                            ((Integer) item.getId()) == SHARE_ID);
+                }
+                break;
+            case OPEN_BROWSER_ID:
+                AndroidUtils.openLink(postImage.imageUrl);
+                break;
+            case SEARCH_ID:
+                List<FloatingMenuItem> items = new ArrayList<>();
+                for (ImageSearch imageSearch : ImageSearch.engines) {
+                    items.add(new FloatingMenuItem(imageSearch.getId(), imageSearch.getName()));
+                }
+                FloatingMenu menu = new FloatingMenu(context, overflowMenuItem.getView(), items);
+                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+                    @Override
+                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                        for (ImageSearch imageSearch : ImageSearch.engines) {
+                            if (((Integer) item.getId()) == imageSearch.getId()) {
+                                AndroidUtils.openLink(imageSearch.getUrl(presenter.getCurrentPostImage().imageUrl));
+                                break;
+                            }
+                        }
+                    }
+                });
+                menu.show();
+                break;
+            case SAVE_ALBUM:
+                List<PostImage> all = presenter.getAllPostImages();
+                List<ImageSaver.DownloadPair> list = new ArrayList<>();
+
+                String folderName = presenter.getLoadable().title;
+                if (TextUtils.isEmpty(folderName)) {
+                    folderName = String.valueOf(presenter.getLoadable().no);
+                }
+
+                String filename;
+                for (PostImage post : all) {
+                    filename = (ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename) + "." + post.extension;
+                    list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
+                }
+
+                ImageSaver.getInstance().saveAll(context, folderName, list);
+                break;
+        }
     }
 
     @Override
@@ -130,7 +218,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     public void setTitle(PostImage postImage) {
         navigationItem.title = postImage.filename;
-        toolbar.setNavigationItem(false, false, navigationItem);
+        toolbar.updateTitle(navigationItem);
     }
 
     public void scrollTo(PostImage postImage) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.layout.ThreadLayout;
 
@@ -21,12 +22,12 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     }
 
     @Override
-    public void showImages(List<PostImage> images, int index, final ImageView thumbnail) {
+    public void showImages(List<PostImage> images, int index, Loadable loadable, final ImageView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
         if (thumbnail.getDrawable() != null && thumbnail.getDrawable().getIntrinsicWidth() > 0 && thumbnail.getDrawable().getIntrinsicHeight() > 0) {
             final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
             presentController(imageViewerNavigationController, false);
-            imageViewerNavigationController.showImages(images, index, this);
+            imageViewerNavigationController.showImages(images, index, loadable, this);
         }
     }
 

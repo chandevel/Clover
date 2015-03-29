@@ -164,8 +164,8 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     }
 
     @Override
-    public void showImages(List<PostImage> images, int index, ImageView thumbnail) {
-        callback.showImages(images, index, thumbnail);
+    public void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail) {
+        callback.showImages(images, index, loadable, thumbnail);
     }
 
     @Override
@@ -187,6 +187,6 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     public interface ThreadLayoutCallback {
         public void openThread(Loadable threadLoadable);
 
-        public void showImages(List<PostImage> images, int index, ImageView thumbnail);
+        public void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail);
     }
 }

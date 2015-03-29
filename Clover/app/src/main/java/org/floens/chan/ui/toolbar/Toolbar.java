@@ -89,6 +89,15 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
     }
 
+    public void updateTitle(NavigationItem item) {
+        if (item.view != null) {
+            TextView title = (TextView) item.view.findViewById(R.id.title);
+            if (title != null) {
+                title.setText(item.title);
+            }
+        }
+    }
+
     public void setCallback(ToolbarCallback callback) {
         this.callback = callback;
     }

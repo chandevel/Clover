@@ -5,6 +5,7 @@ import android.widget.FrameLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.NavigationController;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.toolbar.Toolbar;
 
@@ -31,8 +32,8 @@ public class ImageViewerNavigationController extends NavigationController {
         pushController(imageViewerController, false);
     }
 
-    public void showImages(final List<PostImage> images, final int index, final ImageViewerController.PreviewCallback previewCallback) {
+    public void showImages(final List<PostImage> images, final int index, final Loadable loadable, final ImageViewerController.PreviewCallback previewCallback) {
         imageViewerController.setPreviewCallback(previewCallback);
-        imageViewerController.getPresenter().showImages(images, index);
+        imageViewerController.getPresenter().showImages(images, index, loadable);
     }
 }

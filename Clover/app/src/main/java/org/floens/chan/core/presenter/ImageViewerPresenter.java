@@ -2,6 +2,7 @@ package org.floens.chan.core.presenter;
 
 import android.support.v4.view.ViewPager;
 
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
@@ -23,6 +24,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private List<PostImage> images;
     private List<Float> progress;
     private int selectedPosition;
+    private Loadable loadable;
 
     // Disables swiping until the view pager is visible
     private boolean viewPagerVisible = false;
@@ -32,9 +34,10 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         this.callback = callback;
     }
 
-    public void showImages(List<PostImage> images, int position) {
+    public void showImages(List<PostImage> images, int position, Loadable loadable) {
         this.images = images;
         selectedPosition = position;
+        this.loadable = loadable;
 
         progress = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
@@ -69,6 +72,18 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(images.get(selectedPosition));
         callback.showProgress(false);
+    }
+
+    public List<PostImage> getAllPostImages() {
+        return images;
+    }
+
+    public PostImage getCurrentPostImage() {
+        return images.get(selectedPosition);
+    }
+
+    public Loadable getLoadable() {
+        return loadable;
     }
 
     @Override
