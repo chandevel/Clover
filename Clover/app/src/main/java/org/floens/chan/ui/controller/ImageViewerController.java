@@ -7,35 +7,39 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
-import org.floens.chan.ui.view.ClippingImageView;
-import org.floens.chan.ui.view.OptionalSwipeViewPager;
 import org.floens.chan.ui.view.MultiImageView;
+import org.floens.chan.ui.view.OptionalSwipeViewPager;
+import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.AnimationUtils;
 
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AnimationUtils.calculateBoundsAnimation;
 
 public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback {
-    private static final int TRANSITION_DURATION = 200; //165;
-    private static final int TRANSITION_CLIP_DURATION = (int) (TRANSITION_DURATION * 0.5f);
+    private static final String TAG = "ImageViewerController";
+    private static final int TRANSITION_DURATION = 200;
     private static final float TRANSITION_FINAL_ALPHA = 0.80f;
 
     private int statusBarColorPrevious;
@@ -46,7 +50,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     private ImageViewerPresenter presenter;
 
     private final Toolbar toolbar;
-    private ClippingImageView previewImage;
+    private TransitionImageView previewImage;
     private OptionalSwipeViewPager pager;
 
     public ImageViewerController(Context context, Toolbar toolbar) {
@@ -62,7 +66,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
         view = inflateRes(R.layout.controller_image_viewer);
         view.setOnClickListener(this);
-        previewImage = (ClippingImageView) view.findViewById(R.id.preview_image);
+        previewImage = (TransitionImageView) view.findViewById(R.id.preview_image);
         pager = (OptionalSwipeViewPager) view.findViewById(R.id.pager);
         pager.setOnPageChangeListener(presenter);
 
@@ -95,7 +99,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     public void setPreviewVisibility(boolean visible) {
-        previewImage.setVisibility(visible ? View.VISIBLE : View.GONE);
+        previewImage.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
     public void setPagerVisiblity(boolean visible) {
@@ -122,69 +126,34 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         toolbar.setNavigationItem(false, false, navigationItem);
     }
 
-    public void startPreviewInTransition() {
-        ImageView previewImageView = previewCallback.getPreviewImageStartView(this);
-        previewImage.setImageDrawable(previewImageView.getDrawable());
+    public void scrollTo(PostImage postImage) {
+        previewCallback.scrollTo(postImage);
+    }
 
-        Rect startBounds = getImageViewBounds(previewImageView);
-        final Rect endBounds = new Rect();
-        final Point globalOffset = new Point();
-        view.getGlobalVisibleRect(endBounds, globalOffset);
-        float startScale = calculateBoundsAnimation(startBounds, endBounds, globalOffset);
+    public void startPreviewInTransition(PostImage postImage) {
+        ImageView startImageView = getTransitionImageView(postImage);
 
-        previewImage.setPivotX(0f);
-        previewImage.setPivotY(0f);
-        previewImage.setX(startBounds.left);
-        previewImage.setY(startBounds.top);
-        previewImage.setScaleX(startScale);
-        previewImage.setScaleY(startScale);
-
-        Rect clipStartBounds = new Rect(0, 0, (int) (previewImageView.getWidth() / startScale), (int) (previewImageView.getHeight() / startScale));
+        if (!setTransitionViewData(startImageView)) {
+            return; // TODO
+        }
 
         if (Build.VERSION.SDK_INT >= 21) {
             statusBarColorPrevious = getWindow().getStatusBarColor();
         }
 
-        doPreviewInTransition(startBounds, endBounds, startScale, clipStartBounds);
-    }
-
-    public void startPreviewOutTransition() {
-        if (startPreviewAnimation != null || endAnimation != null) {
-            return;
-        }
-
-        doPreviewOutAnimation();
-    }
-
-    private void doPreviewInTransition(Rect startBounds, Rect finalBounds, float startScale, final Rect clipStartBounds) {
         startPreviewAnimation = new AnimatorSet();
 
-        ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(0f, 1f);
-        backgroundAlpha.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        ValueAnimator progress = ValueAnimator.ofFloat(0f, 1f);
+        progress.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 setBackgroundAlpha((float) animation.getAnimatedValue());
+                previewImage.setProgress((float) animation.getAnimatedValue());
             }
         });
 
-        final Rect clipRect = new Rect();
-        ValueAnimator clip = ValueAnimator.ofFloat(1f, 0f);
-        clip.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                AnimationUtils.getClippingBounds(clipStartBounds, previewImage, clipRect, (float) animation.getAnimatedValue());
-                previewImage.clip(clipRect);
-            }
-        });
-
-        startPreviewAnimation
-                .play(ObjectAnimator.ofFloat(previewImage, View.X, startBounds.left, finalBounds.left).setDuration(TRANSITION_DURATION))
-                .with(ObjectAnimator.ofFloat(previewImage, View.Y, startBounds.top, finalBounds.top).setDuration(TRANSITION_DURATION))
-                .with(ObjectAnimator.ofFloat(previewImage, View.SCALE_X, startScale, 1f).setDuration(TRANSITION_DURATION))
-                .with(ObjectAnimator.ofFloat(previewImage, View.SCALE_Y, startScale, 1f).setDuration(TRANSITION_DURATION))
-                .with(backgroundAlpha.setDuration(TRANSITION_DURATION))
-                .with(clip.setDuration(TRANSITION_CLIP_DURATION));
-
+        startPreviewAnimation.play(progress);
+        startPreviewAnimation.setDuration(TRANSITION_DURATION);
         startPreviewAnimation.setInterpolator(new DecelerateInterpolator());
         startPreviewAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -194,11 +163,6 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                previewImage.setX(0f);
-                previewImage.setY(0f);
-                previewImage.setScaleX(1f);
-                previewImage.setScaleY(1f);
-                previewImage.clip(null);
                 startPreviewAnimation = null;
                 presenter.onInTransitionEnd();
             }
@@ -206,13 +170,30 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         startPreviewAnimation.start();
     }
 
-    private void doPreviewOutAnimation() {
-        ImageView startImage = getStartImageView();
-        Rect startBounds = null;
-        if (startImage != null) {
-            startBounds = getImageViewBounds(startImage);
+    public void startPreviewOutTransition(final PostImage postImage) {
+        if (startPreviewAnimation != null || endAnimation != null) {
+            return;
         }
-        if (startBounds == null) {
+
+        // Should definitely be loaded
+        ChanApplication.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");
+                doPreviewOutAnimation(postImage, null);
+            }
+
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                doPreviewOutAnimation(postImage, response.getBitmap());
+            }
+        }, previewImage.getWidth(), previewImage.getHeight());
+    }
+
+    private void doPreviewOutAnimation(PostImage postImage, Bitmap bitmap) {
+        ImageView startImage = getTransitionImageView(postImage);
+
+        if (!setTransitionViewData(startImage) || bitmap == null) {
             endAnimation = new AnimatorSet();
 
             ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
@@ -238,44 +219,26 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             });
             endAnimation.start();
         } else {
-            final Rect endBounds = new Rect();
-            final Point globalOffset = new Point();
-            view.getGlobalVisibleRect(endBounds, globalOffset);
-            float startScale = calculateBoundsAnimation(startBounds, endBounds, globalOffset);
-
             endAnimation = new AnimatorSet();
 
-            ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
-            backgroundAlpha.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            ValueAnimator progress = ValueAnimator.ofFloat(1f, 0f);
+            progress.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
                     setBackgroundAlpha((float) animation.getAnimatedValue());
+                    previewImage.setProgress((float) animation.getAnimatedValue());
                 }
             });
 
-            final Rect clipStartBounds = new Rect(0, 0, (int) (startImage.getWidth() / startScale), (int) (startImage.getHeight() / startScale));
-            final Rect clipRect = new Rect();
-            ValueAnimator clip = ValueAnimator.ofFloat(0f, 1f);
-            clip.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    AnimationUtils.getClippingBounds(clipStartBounds, previewImage, clipRect, (float) animation.getAnimatedValue());
-                    previewImage.clip(clipRect);
-                }
-            });
-            clip.setStartDelay(TRANSITION_DURATION - TRANSITION_CLIP_DURATION);
-            clip.setDuration(TRANSITION_CLIP_DURATION);
-
-            endAnimation
-                    .play(ObjectAnimator.ofFloat(previewImage, View.X, startBounds.left).setDuration(TRANSITION_DURATION))
-                    .with(ObjectAnimator.ofFloat(previewImage, View.Y, startBounds.top).setDuration(TRANSITION_DURATION))
-                    .with(ObjectAnimator.ofFloat(previewImage, View.SCALE_X, 1f, startScale).setDuration(TRANSITION_DURATION))
-                    .with(ObjectAnimator.ofFloat(previewImage, View.SCALE_Y, 1f, startScale).setDuration(TRANSITION_DURATION))
-                    .with(backgroundAlpha.setDuration(TRANSITION_DURATION))
-                    .with(clip);
-
+            endAnimation.play(progress);
+            endAnimation.setDuration(TRANSITION_DURATION);
             endAnimation.setInterpolator(new DecelerateInterpolator());
             endAnimation.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    previewCallback.onPreviewCreate(ImageViewerController.this);
+                }
+
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     previewOutAnimationEnded();
@@ -290,6 +253,24 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
         previewCallback.onPreviewDestroy(this);
         navigationController.stopPresenting(false);
+    }
+
+    private boolean setTransitionViewData(ImageView startView) {
+        if (startView == null || startView.getWindowToken() == null) {
+            return false;
+        }
+
+        Bitmap bitmap = ((BitmapDrawable) startView.getDrawable()).getBitmap();
+        if (bitmap == null) {
+            return false;
+        }
+
+        int[] loc = new int[2];
+        startView.getLocationInWindow(loc);
+        Point windowLocation = new Point(loc[0], loc[1]);
+        Point size = new Point(startView.getWidth(), startView.getHeight());
+        previewImage.setSourceImageView(windowLocation, size, bitmap);
+        return true;
     }
 
     private void setBackgroundAlpha(float alpha) {
@@ -319,22 +300,8 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         toolbar.setAlpha(alpha);
     }
 
-    private Rect getImageViewBounds(ImageView image) {
-        Rect startBounds = new Rect();
-        if (image.getGlobalVisibleRect(startBounds) && !startBounds.isEmpty()) {
-            AnimationUtils.adjustImageViewBoundsToDrawableBounds(image, startBounds);
-            if (!startBounds.isEmpty()) {
-                return startBounds;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-
-    private ImageView getStartImageView() {
-        return previewCallback.getPreviewImageStartView(this);
+    private ImageView getTransitionImageView(PostImage postImage) {
+        return previewCallback.getPreviewImageTransitionView(this, postImage);
     }
 
     private Window getWindow() {
@@ -342,10 +309,12 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     public interface PreviewCallback {
-        public ImageView getPreviewImageStartView(ImageViewerController imageViewerController);
+        public ImageView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage);
 
         public void onPreviewCreate(ImageViewerController imageViewerController);
 
         public void onPreviewDestroy(ImageViewerController imageViewerController);
+
+        public void scrollTo(PostImage postImage);
     }
 }

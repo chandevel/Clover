@@ -1,7 +1,6 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.ImageView;
 
 import org.floens.chan.controller.Controller;
@@ -12,7 +11,6 @@ import java.util.List;
 
 public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback {
     protected ThreadLayout threadLayout;
-    private ImageView presentingImageView;
 
     public ThreadController(Context context) {
         super(context);
@@ -25,9 +23,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public void showImages(List<PostImage> images, int index, final ImageView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
-        if (thumbnail.getDrawable() != null) {
-            presentingImageView = thumbnail;
-
+        if (thumbnail.getDrawable() != null && thumbnail.getDrawable().getIntrinsicWidth() > 0 && thumbnail.getDrawable().getIntrinsicHeight() > 0) {
             final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
             presentController(imageViewerNavigationController, false);
             imageViewerNavigationController.showImages(images, index, this);
@@ -35,17 +31,21 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     }
 
     @Override
-    public ImageView getPreviewImageStartView(ImageViewerController imageViewerController) {
-        return presentingImageView;
+    public ImageView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage) {
+        return threadLayout.getThumbnail(postImage);
     }
 
     public void onPreviewCreate(ImageViewerController imageViewerController) {
-        presentingImageView.setVisibility(View.INVISIBLE);
+//        presentingImageView.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onPreviewDestroy(ImageViewerController imageViewerController) {
-        presentingImageView.setVisibility(View.VISIBLE);
-        presentingImageView = null;
+//        presentingImageView.setVisibility(View.VISIBLE);
+//        presentingImageView = null;
+    }
+
+    public void scrollTo(PostImage postImage) {
+        threadLayout.getPresenter().scrollTo(postImage);
     }
 }

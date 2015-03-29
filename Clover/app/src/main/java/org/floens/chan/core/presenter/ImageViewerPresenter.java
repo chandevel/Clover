@@ -45,7 +45,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     public void onViewMeasured() {
         // Pager is measured, but still invisible
-        callback.startPreviewInTransition();
+        callback.startPreviewInTransition(images.get(selectedPosition));
         callback.setTitle(images.get(selectedPosition));
     }
 
@@ -64,7 +64,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
-        callback.startPreviewOutTransition();
+        callback.startPreviewOutTransition(images.get(selectedPosition));
     }
 
     @Override
@@ -119,6 +119,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private void onPageSwipedTo(int position) {
         callback.setTitle(images.get(selectedPosition));
+        callback.scrollTo(images.get(selectedPosition));
 
         for (PostImage other : getOther(position, false)) {
             callback.setImageMode(other, MultiImageView.Mode.LOWRES);
@@ -186,9 +187,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     public interface Callback {
-        public void startPreviewInTransition();
+        public void startPreviewInTransition(PostImage postImage);
 
-        public void startPreviewOutTransition();
+        public void startPreviewOutTransition(PostImage postImage);
 
         public void setPreviewVisibility(boolean visible);
 
@@ -199,6 +200,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         public void setImageMode(PostImage postImage, MultiImageView.Mode mode);
 
         public void setTitle(PostImage postImage);
+
+        public void scrollTo(PostImage postImage);
 
         public MultiImageView.Mode getImageMode(PostImage postImage);
     }
