@@ -18,6 +18,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private final Callback callback;
 
     private final boolean imageAutoLoad = ChanSettings.imageAutoLoad.get();
+    private final boolean movieAutoLoad = imageAutoLoad && ChanSettings.videoAutoLoad.get();
 
     private boolean entering = true;
     private boolean exiting = false;
@@ -137,18 +138,45 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     // onModeLoaded when a unloaded image was swiped to the center earlier
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
-        if (postImage.type == PostImage.Type.STATIC) {
-            callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE);
-        } else {
-            // todo
+
+        if (imageAutoLoad) {
+            if (postImage.type == PostImage.Type.STATIC) {
+                callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE);
+            } else if (postImage.type == PostImage.Type.GIF) {
+                callback.setImageMode(postImage, MultiImageView.Mode.GIF);
+            } else if (postImage.type == PostImage.Type.MOVIE && movieAutoLoad) {
+                callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
+            }
         }
     }
 
     @Override
     public void onTap(MultiImageView multiImageView) {
-        // Don't mistake a swipe from a user when the pager is disabled as a tap
+        // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
-            onExit();
+            PostImage postImage = images.get(selectedPosition);
+            if (imageAutoLoad) {
+                if (movieAutoLoad) {
+                    onExit();
+                } else {
+                    if (postImage.type == PostImage.Type.MOVIE) {
+                        callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
+                    } else {
+                        onExit();
+                    }
+                }
+            } else {
+                MultiImageView.Mode currentMode = callback.getImageMode(postImage);
+                if (postImage.type == PostImage.Type.STATIC && currentMode != MultiImageView.Mode.BIGIMAGE) {
+                    callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE);
+                } else if (postImage.type == PostImage.Type.GIF && currentMode != MultiImageView.Mode.GIF) {
+                    callback.setImageMode(postImage, MultiImageView.Mode.GIF);
+                } else if (postImage.type == PostImage.Type.MOVIE && currentMode != MultiImageView.Mode.MOVIE) {
+                    callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
+                } else {
+                    onExit();
+                }
+            }
         }
     }
 

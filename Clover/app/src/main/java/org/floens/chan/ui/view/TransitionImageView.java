@@ -23,6 +23,10 @@ public class TransitionImageView extends View {
     private PointF sourceOverlap = new PointF();
     private RectF destClip = new RectF();
     private float progress;
+    private float stateScale;
+    private float stateBitmapScaleDiff;
+    private PointF stateBitmapSize;
+    private PointF statePos;
 
     public TransitionImageView(Context context) {
         super(context);
@@ -43,15 +47,19 @@ public class TransitionImageView extends View {
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
 
+        if (stateBitmapSize != null) {
+            stateBitmapScaleDiff = stateBitmapSize.x / bitmap.getWidth();
+        }
+
         int[] myLoc = new int[2];
         getLocationInWindow(myLoc);
         float globalOffsetX = windowLocation.x - myLoc[0];
         float globalOffsetY = windowLocation.y - myLoc[1];
 
         // Get the coords in the image view with the center crop method
-        float scaleX = (float) viewSize.x / (float) bitmap.getWidth();
-        float scaleY = (float) viewSize.y / (float) bitmap.getHeight();
-        float scale = scaleX > scaleY ? scaleX : scaleY;
+        float scale = Math.max(
+                (float) viewSize.x / (float) bitmap.getWidth(),
+                (float) viewSize.y / (float) bitmap.getHeight());
         float scaledX = bitmap.getWidth() * scale;
         float scaledY = bitmap.getHeight() * scale;
         float offsetX = (scaledX - viewSize.x) * 0.5f;
@@ -66,30 +74,53 @@ public class TransitionImageView extends View {
                 scaledY - offsetY + globalOffsetY);
     }
 
+    public void setState(float stateScale, PointF statePos, PointF stateBitmapSize) {
+        this.stateScale = stateScale;
+        this.statePos = statePos;
+        this.stateBitmapSize = stateBitmapSize;
+    }
+
     public void setProgress(float progress) {
         this.progress = progress;
 
-        // Center inside method
-        float destScale = Math.min(
-                (float) getWidth() / (float) bitmap.getWidth(),
-                (float) getHeight() / (float) bitmap.getHeight());
-        float destOffsetX = (getWidth() - bitmap.getWidth() * destScale) * 0.5f;
-        float destOffsetY = (getHeight() - bitmap.getHeight() * destScale) * 0.5f;
-        float destRight = bitmap.getWidth() * destScale + destOffsetX;
-        float destBottom = bitmap.getHeight() * destScale + destOffsetY;
+        RectF output;
+        if (statePos != null) {
+            // Use scale and translate from ssiv
+            output = new RectF(-statePos.x * stateScale, -statePos.y * stateScale, 0, 0);
+            output.right = output.left + bitmap.getWidth() * stateBitmapScaleDiff * stateScale;
+            output.bottom = output.top + bitmap.getHeight() * stateBitmapScaleDiff * stateScale;
+        } else {
+            // Center inside method
+            float selfWidth = getWidth();
+            float selfHeight = getHeight();
 
-        float left = sourceImageRect.left + (destOffsetX - sourceImageRect.left) * progress;
-        float top = sourceImageRect.top + (destOffsetY - sourceImageRect.top) * progress;
-        float right = sourceImageRect.right + (destRight - sourceImageRect.right) * progress;
-        float bottom = sourceImageRect.bottom + (destBottom - sourceImageRect.bottom) * progress;
+            float destScale = Math.min(
+                    selfWidth / (float) bitmap.getWidth(),
+                    selfHeight / (float) bitmap.getHeight());
 
-        destRect.set(left, top, right, bottom);
+            output = new RectF(
+                    (selfWidth - bitmap.getWidth() * destScale) * 0.5f,
+                    (selfHeight - bitmap.getHeight() * destScale) * 0.5f, 0, 0);
+
+            output.right = bitmap.getWidth() * destScale + output.left;
+            output.bottom = bitmap.getHeight() * destScale + output.top;
+        }
+
+        // Linear interpolate between start bounds and calculated final bounds
+        output.left = lerp(sourceImageRect.left, output.left, progress);
+        output.top = lerp(sourceImageRect.top, output.top, progress);
+        output.right = lerp(sourceImageRect.right, output.right, progress);
+        output.bottom = lerp(sourceImageRect.bottom, output.bottom, progress);
+
+        destRect.set(output);
+
+        matrix.setRectToRect(bitmapRect, destRect, Matrix.ScaleToFit.FILL);
 
         destClip.set(
-                left + sourceOverlap.x * (1f - progress),
-                top + sourceOverlap.y * (1f - progress),
-                right - sourceOverlap.x * (1f - progress),
-                bottom - sourceOverlap.y * (1f - progress)
+                output.left + sourceOverlap.x * (1f - progress),
+                output.top + sourceOverlap.y * (1f - progress),
+                output.right - sourceOverlap.x * (1f - progress),
+                output.bottom - sourceOverlap.y * (1f - progress)
         );
 
         invalidate();
@@ -100,7 +131,6 @@ public class TransitionImageView extends View {
         super.onDraw(canvas);
 
         if (bitmap != null) {
-            matrix.setRectToRect(bitmapRect, destRect, Matrix.ScaleToFit.FILL);
             canvas.save();
             if (progress < 1f) {
                 canvas.clipRect(destClip);
@@ -113,5 +143,9 @@ public class TransitionImageView extends View {
     private void init() {
         paint.setAntiAlias(true);
         paint.setFilterBitmap(true);
+    }
+
+    private float lerp(float a, float b, float x) {
+        return a + (b - a) * x;
     }
 }

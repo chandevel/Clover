@@ -10,6 +10,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.davemorrissey.labs.subscaleview.ImageViewState;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -28,10 +30,12 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
+import org.floens.chan.ui.view.CustomScaleImageView;
 import org.floens.chan.ui.view.MultiImageView;
 import org.floens.chan.ui.view.OptionalSwipeViewPager;
 import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.Logger;
 
 import java.util.List;
 
@@ -40,10 +44,10 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 200;
-    private static final float TRANSITION_FINAL_ALPHA = 0.80f;
+    private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
     private int statusBarColorPrevious;
-    private AnimatorSet startPreviewAnimation;
+    private AnimatorSet startAnimation;
     private AnimatorSet endAnimation;
 
     private PreviewCallback previewCallback;
@@ -134,6 +138,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         ImageView startImageView = getTransitionImageView(postImage);
 
         if (!setTransitionViewData(startImageView)) {
+            Logger.test("Oops");
             return; // TODO
         }
 
@@ -141,7 +146,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             statusBarColorPrevious = getWindow().getStatusBarColor();
         }
 
-        startPreviewAnimation = new AnimatorSet();
+        startAnimation = new AnimatorSet();
 
         ValueAnimator progress = ValueAnimator.ofFloat(0f, 1f);
         progress.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -152,10 +157,10 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             }
         });
 
-        startPreviewAnimation.play(progress);
-        startPreviewAnimation.setDuration(TRANSITION_DURATION);
-        startPreviewAnimation.setInterpolator(new DecelerateInterpolator());
-        startPreviewAnimation.addListener(new AnimatorListenerAdapter() {
+        startAnimation.play(progress);
+        startAnimation.setDuration(TRANSITION_DURATION);
+        startAnimation.setInterpolator(new DecelerateInterpolator());
+        startAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 previewCallback.onPreviewCreate(ImageViewerController.this);
@@ -163,15 +168,15 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                startPreviewAnimation = null;
+                startAnimation = null;
                 presenter.onInTransitionEnd();
             }
         });
-        startPreviewAnimation.start();
+        startAnimation.start();
     }
 
     public void startPreviewOutTransition(final PostImage postImage) {
-        if (startPreviewAnimation != null || endAnimation != null) {
+        if (startAnimation != null || endAnimation != null) {
             return;
         }
 
@@ -191,11 +196,22 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     private void doPreviewOutAnimation(PostImage postImage, Bitmap bitmap) {
+        // Find translation and scale if the current displayed image was a bigimage
+        MultiImageView multiImageView = ((ImageViewerAdapter) pager.getAdapter()).find(postImage);
+        CustomScaleImageView customScaleImageView = multiImageView.findScaleImageView();
+        if (customScaleImageView != null) {
+            ImageViewState state = customScaleImageView.getState();
+            if (state != null) {
+                PointF p = customScaleImageView.viewToSourceCoord(0f, 0f);
+                PointF bitmapSize = new PointF(customScaleImageView.getSWidth(), customScaleImageView.getSHeight());
+                previewImage.setState(state.getScale(), p, bitmapSize);
+            }
+        }
+
         ImageView startImage = getTransitionImageView(postImage);
 
+        endAnimation = new AnimatorSet();
         if (!setTransitionViewData(startImage) || bitmap == null) {
-            endAnimation = new AnimatorSet();
-
             ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
             backgroundAlpha.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -209,18 +225,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
                     .with(ObjectAnimator.ofFloat(previewImage, View.ALPHA, 1f, 0f))
                     .with(backgroundAlpha);
 
-            endAnimation.setDuration(TRANSITION_DURATION);
-            endAnimation.setInterpolator(new DecelerateInterpolator());
-            endAnimation.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    previewOutAnimationEnded();
-                }
-            });
-            endAnimation.start();
         } else {
-            endAnimation = new AnimatorSet();
-
             ValueAnimator progress = ValueAnimator.ofFloat(1f, 0f);
             progress.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
@@ -231,21 +236,16 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             });
 
             endAnimation.play(progress);
-            endAnimation.setDuration(TRANSITION_DURATION);
-            endAnimation.setInterpolator(new DecelerateInterpolator());
-            endAnimation.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    previewCallback.onPreviewCreate(ImageViewerController.this);
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    previewOutAnimationEnded();
-                }
-            });
-            endAnimation.start();
         }
+        endAnimation.setDuration(TRANSITION_DURATION);
+        endAnimation.setInterpolator(new DecelerateInterpolator());
+        endAnimation.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                previewOutAnimationEnded();
+            }
+        });
+        endAnimation.start();
     }
 
     private void previewOutAnimationEnded() {

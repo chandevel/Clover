@@ -1,18 +1,3 @@
-/**
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.floens.chan.ui.view;
 
 import android.content.Context;
@@ -20,54 +5,72 @@ import android.util.AttributeSet;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
-import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.Logger;
 
 public class CustomScaleImageView extends SubsamplingScaleImageView {
-    private InitedCallback initCallback;
+    private static final String TAG = "CustomScaleImageView";
+
+    private Callback callback;
 
     public CustomScaleImageView(Context context, AttributeSet attr) {
         super(context, attr);
+        init();
     }
 
     public CustomScaleImageView(Context context) {
         super(context);
+        init();
     }
 
-    public void setInitCallback(InitedCallback initCallback) {
-        this.initCallback = initCallback;
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
-    @Override
-    protected void onImageReady() {
-        super.onImageReady();
-
-        AndroidUtils.runOnUiThread(new Runnable() {
+    private void init() {
+        setOnImageEventListener(new OnImageEventListener() {
             @Override
-            public void run() {
-                if (initCallback != null) {
-                    initCallback.onInit();
+            public void onReady() {
+                float scale = Math.min(getWidth() / (float) getSWidth(), getHeight() / (float) getSHeight());
+                setMinScale(scale);
+
+                if (getMaxScale() < scale * 2f) {
+                    setMaxScale(scale * 2f);
+                }
+                setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+
+                if (callback != null) {
+                    callback.onReady();
+                }
+            }
+
+            @Override
+            public void onImageLoaded() {
+            }
+
+            @Override
+            public void onPreviewLoadError(Exception e) {
+            }
+
+            @Override
+            public void onImageLoadError(Exception e) {
+                Logger.w(TAG, "onImageLoadError", e);
+                if (callback != null) {
+                    callback.onError(true);
+                }
+            }
+
+            @Override
+            public void onTileLoadError(Exception e) {
+                Logger.w(TAG, "onTileLoadError", e);
+                if (callback != null) {
+                    callback.onError(false);
                 }
             }
         });
     }
 
-    @Override
-    protected void onOutOfMemory() {
-        super.onOutOfMemory();
-
-        AndroidUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (initCallback != null) {
-                    initCallback.onOutOfMemory();
-                }
-            }
-        });
-    }
-
-    public interface InitedCallback {
-        public void onInit();
-
-        public void onOutOfMemory();
+    public interface Callback {
+        public void onReady();
+        public void onError(boolean wasInitial);
     }
 }

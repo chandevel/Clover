@@ -33,6 +33,7 @@ import android.widget.VideoView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
+import com.davemorrissey.labs.subscaleview.ImageSource;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -51,7 +52,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener {
     public enum Mode {
-        UNLOADED, LOWRES, BIGIMAGE
+        UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE
     }
 
     private static final String TAG = "MultiImageView";
@@ -97,32 +98,31 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return postImage;
     }
 
-    public void setMode(Mode mode) {
-        if (this.mode != mode) {
-            final Mode previousTargetMode = this.mode;
-            this.mode = mode;
-            Logger.d(TAG, "Changing mode from " + previousTargetMode + "to " + mode + " for " + postImage.thumbnailUrl);
-            if (mode == Mode.LOWRES) {
-                AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
-                    @Override
-                    public boolean onMeasured(View view) {
-                        setThumbnail(postImage.thumbnailUrl);
-                        return false;
-                    }
-                });
-            } else if (mode == Mode.BIGIMAGE) {
-                if (postImage.type == PostImage.Type.STATIC) {
-                    AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
-                        @Override
-                        public boolean onMeasured(View view) {
+    public void setMode(final Mode newMode) {
+        if (this.mode != newMode) {
+            Logger.d(TAG, "Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
+            this.mode = newMode;
+
+            AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
+                @Override
+                public boolean onMeasured(View view) {
+                    switch (newMode) {
+                        case LOWRES:
+                            setThumbnail(postImage.thumbnailUrl);
+                            break;
+                        case BIGIMAGE:
                             setBigImage(postImage.imageUrl);
-                            return false;
-                        }
-                    });
-                } else {
-                    Logger.e(TAG, "postImage type not STATIC, not changing to BIGIMAGE mode!");
+                            break;
+                        case GIF:
+                            setGif(postImage.imageUrl);
+                            break;
+                        case MOVIE:
+                            setVideo(postImage.imageUrl);
+                            break;
+                    }
+                    return false;
                 }
-            }
+            });
         }
     }
 
@@ -132,6 +132,16 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setCallback(Callback callback) {
         this.callback = callback;
+    }
+
+    public CustomScaleImageView findScaleImageView() {
+        CustomScaleImageView bigImage = null;
+        for (int i = 0; i < getChildCount(); i++) {
+            if (getChildAt(i) instanceof CustomScaleImageView) {
+                bigImage = (CustomScaleImageView) getChildAt(i);
+            }
+        }
+        return bigImage;
     }
 
     public void setThumbnail(String thumbnailUrl) {
@@ -154,6 +164,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
                     ImageView thumbnail = new ImageView(getContext());
                     thumbnail.setImageBitmap(response.getBitmap());
+
                     onModeLoaded(Mode.LOWRES, thumbnail);
                 }
             }
@@ -197,14 +208,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setBigImageFile(File file) {
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
-        image.setImageFile(file.getAbsolutePath());
+        image.setImage(ImageSource.uri(file.getAbsolutePath()));
         image.setOnClickListener(MultiImageView.this);
 
-        addView(image);
+        addView(image, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-        image.setInitCallback(new CustomScaleImageView.InitedCallback() {
+        image.setCallback(new CustomScaleImageView.Callback() {
             @Override
-            public void onInit() {
+            public void onReady() {
                 if (!hasContent || mode == Mode.BIGIMAGE) {
                     callback.setProgress(MultiImageView.this, false);
                     onModeLoaded(Mode.BIGIMAGE, image);
@@ -212,8 +223,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             }
 
             @Override
-            public void onOutOfMemory() {
-                onOutOfMemoryError();
+            public void onError(boolean wasInitial) {
+                onBigImageError(wasInitial);
             }
         });
     }
@@ -239,7 +250,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             @Override
             public void onSuccess(File file) {
                 gifRequest = null;
-                setGifFile(file);
+                if (!hasContent || mode == Mode.GIF) {
+                    setGifFile(file);
+                }
             }
 
             @Override
@@ -271,8 +284,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
         GifImageView view = new GifImageView(getContext());
         view.setImageDrawable(drawable);
-        view.setLayoutParams(AndroidUtils.MATCH_PARAMS);
-        setView(view);
+        onModeLoaded(Mode.GIF, view);
     }
 
     public void setVideo(String videoUrl) {
@@ -291,7 +303,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             @Override
             public void onSuccess(File file) {
                 videoRequest = null;
-                setVideoFile(file);
+                if (!hasContent || mode == Mode.MOVIE) {
+                    setVideoFile(file);
+                }
             }
 
             @Override
@@ -316,6 +330,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(), R.string.open_link_failed, Toast.LENGTH_SHORT).show();
             }
+            // TODO: check this
+            onModeLoaded(Mode.GIF, videoView);
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
 
@@ -332,7 +348,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 @Override
                 public void onPrepared(MediaPlayer mp) {
                     mp.setLooping(true);
-                    callback.onVideoLoaded(MultiImageView.this);
+                    onModeLoaded(Mode.MOVIE, videoView);
                 }
             });
             videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -346,7 +362,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             videoView.setVideoPath(file.getAbsolutePath());
 
-            setView(videoView);
+            addView(videoView, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
             videoView.start();
         }
@@ -356,22 +372,32 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return videoView;
     }
 
-    public void onError() {
+    private void onError() {
         Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
         callback.setProgress(this, false);
     }
 
-    public void onNotFoundError() {
+    private void onNotFoundError() {
         callback.setProgress(this, false);
         Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_SHORT).show();
     }
 
-    public void onOutOfMemoryError() {
+    private void onOutOfMemoryError() {
         Toast.makeText(getContext(), R.string.image_preview_failed_oom, Toast.LENGTH_SHORT).show();
         callback.setProgress(this, false);
     }
 
+    private void onBigImageError(boolean wasInitial) {
+        if (wasInitial) {
+            Toast.makeText(getContext(), R.string.image_failed_big_image, Toast.LENGTH_SHORT).show();
+            callback.setProgress(this, false);
+        }
+    }
+
     public void cancelLoad() {
+        if (thumbnailRequest != null) {
+            thumbnailRequest.cancelRequest();
+        }
         if (bigImageRequest != null) {
             bigImageRequest.cancel(true);
         }
@@ -394,14 +420,27 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         cancelLoad();
     }
 
-    private void setView(View view) {
-        removeAllViews();
-        addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    private void onModeLoaded(Mode mode) {
+        onModeLoaded(mode, null);
     }
 
     private void onModeLoaded(Mode mode, View view) {
-        removeAllViews();
-        addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        if (view != null) {
+            // Remove all other views
+            boolean alreadyAttached = false;
+            for (int i = getChildCount() - 1; i >= 0; i--) {
+                if (getChildAt(i) != view) {
+                    removeViewAt(i);
+                } else {
+                    alreadyAttached = true;
+                }
+            }
+
+            if (!alreadyAttached) {
+                addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            }
+        }
+
         hasContent = true;
         callback.onModeLoaded(this, mode);
     }
