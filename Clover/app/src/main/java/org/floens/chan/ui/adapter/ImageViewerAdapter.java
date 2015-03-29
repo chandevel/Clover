@@ -36,8 +36,6 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
 
         loadedViews.add(view);
 
-        Logger.test("getView: " + postImage.imageUrl + " " + postImage.type.toString());
-
         return view;
     }
 
@@ -45,13 +43,8 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         super.destroyItem(container, position, object);
 
-        PostImage postImage = ((MultiImageView)object).getPostImage();
-        Logger.test("destroyView: " + postImage.imageUrl + " " + postImage.type.toString());
-
         //noinspection SuspiciousMethodCalls
-        if (!loadedViews.remove((View) object)) {
-            Logger.test("Nope");
-        }
+        loadedViews.remove(object);
     }
 
     @Override
@@ -75,7 +68,6 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
     public void setMode(final PostImage postImage, MultiImageView.Mode mode) {
         MultiImageView view = find(postImage);
         if (view == null) {
-            Logger.w(TAG, "setMode view not found, scheduling it");
             pendingModeChanges.add(new ModeChange(mode, postImage));
         } else {
             view.setMode(mode);

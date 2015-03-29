@@ -100,7 +100,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setMode(final Mode newMode) {
         if (this.mode != newMode) {
-            Logger.d(TAG, "Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
+//            Logger.d(TAG, "Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
             this.mode = newMode;
 
             AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
@@ -177,14 +177,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             return;
         }
 
-        callback.setProgress(this, true);
+        callback.showProgress(this, true);
         bigImageRequest = ChanApplication.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
+                callback.onProgress(MultiImageView.this, downloaded, total);
                 if (done) {
-//                    callback.setLinearProgress(0, 0, true);
-                } else {
-                    callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
+                    callback.showProgress(MultiImageView.this, false);
                 }
             }
 
@@ -217,7 +216,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             @Override
             public void onReady() {
                 if (!hasContent || mode == Mode.BIGIMAGE) {
-                    callback.setProgress(MultiImageView.this, false);
+                    callback.showProgress(MultiImageView.this, false);
                     onModeLoaded(Mode.BIGIMAGE, image);
                 }
             }
@@ -235,15 +234,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             return;
         }
 
-        callback.setProgress(this, true);
+        callback.showProgress(this, true);
         gifRequest = ChanApplication.getFileCache().downloadFile(gifUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
+                callback.onProgress(MultiImageView.this, downloaded, total);
                 if (done) {
-                    callback.setProgress(MultiImageView.this, false);
-                    callback.setLinearProgress(MultiImageView.this, 0, 0, true);
-                } else {
-                    callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
+                    callback.showProgress(MultiImageView.this, false);
                 }
             }
 
@@ -288,15 +285,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setVideo(String videoUrl) {
-        callback.setProgress(this, true);
+        callback.showProgress(this, true);
         videoRequest = ChanApplication.getFileCache().downloadFile(videoUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
+                callback.onProgress(MultiImageView.this, downloaded, total);
                 if (done) {
-                    callback.setProgress(MultiImageView.this, false);
-                    callback.setLinearProgress(MultiImageView.this, 0, 0, true);
-                } else {
-                    callback.setLinearProgress(MultiImageView.this, downloaded, total, false);
+                    callback.showProgress(MultiImageView.this, false);
                 }
             }
 
@@ -374,23 +369,23 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private void onError() {
         Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
-        callback.setProgress(this, false);
+        callback.showProgress(this, false);
     }
 
     private void onNotFoundError() {
-        callback.setProgress(this, false);
+        callback.showProgress(this, false);
         Toast.makeText(getContext(), R.string.image_not_found, Toast.LENGTH_SHORT).show();
     }
 
     private void onOutOfMemoryError() {
         Toast.makeText(getContext(), R.string.image_preview_failed_oom, Toast.LENGTH_SHORT).show();
-        callback.setProgress(this, false);
+        callback.showProgress(this, false);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
             Toast.makeText(getContext(), R.string.image_failed_big_image, Toast.LENGTH_SHORT).show();
-            callback.setProgress(this, false);
+            callback.showProgress(this, false);
         }
     }
 
@@ -420,10 +415,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         cancelLoad();
     }
 
-    private void onModeLoaded(Mode mode) {
-        onModeLoaded(mode, null);
-    }
-
     private void onModeLoaded(Mode mode, View view) {
         if (view != null) {
             // Remove all other views
@@ -448,9 +439,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     public static interface Callback {
         public void onTap(MultiImageView multiImageView);
 
-        public void setProgress(MultiImageView multiImageView, boolean progress);
+        public void showProgress(MultiImageView multiImageView, boolean progress);
 
-        public void setLinearProgress(MultiImageView multiImageView, long current, long total, boolean done);
+        public void onProgress(MultiImageView multiImageView, long current, long total);
 
         public void onVideoLoaded(MultiImageView multiImageView);
 

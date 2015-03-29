@@ -31,6 +31,7 @@ import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.CustomScaleImageView;
+import org.floens.chan.ui.view.LoadingBar;
 import org.floens.chan.ui.view.MultiImageView;
 import org.floens.chan.ui.view.OptionalSwipeViewPager;
 import org.floens.chan.ui.view.TransitionImageView;
@@ -56,6 +57,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     private final Toolbar toolbar;
     private TransitionImageView previewImage;
     private OptionalSwipeViewPager pager;
+    private LoadingBar loadingBar;
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
@@ -73,6 +75,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         previewImage = (TransitionImageView) view.findViewById(R.id.preview_image);
         pager = (OptionalSwipeViewPager) view.findViewById(R.id.pager);
         pager.setOnPageChangeListener(presenter);
+        loadingBar = (LoadingBar) view.findViewById(R.id.loading_bar);
 
         AndroidUtils.waitForMeasure(view, new AndroidUtils.OnMeasuredCallback() {
             @Override
@@ -132,6 +135,14 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     public void scrollTo(PostImage postImage) {
         previewCallback.scrollTo(postImage);
+    }
+
+    public void showProgress(boolean show) {
+        loadingBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    public void onLoadProgress(float progress) {
+        loadingBar.setProgress(progress);
     }
 
     public void startPreviewInTransition(PostImage postImage) {

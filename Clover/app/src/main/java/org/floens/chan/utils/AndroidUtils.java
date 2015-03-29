@@ -107,6 +107,13 @@ public class AndroidUtils {
         return pixels;
     }
 
+    public static int getAttrColor(Context context, int attr) {
+        TypedArray typedArray = context.getTheme().obtainStyledAttributes(new int[]{attr});
+        int color = typedArray.getColor(0, 0);
+        typedArray.recycle();
+        return color;
+    }
+
     public static Drawable getAttrDrawable(int attr) {
         TypedArray typedArray = ChanApplication.con.getTheme().obtainStyledAttributes(new int[]{attr});
         Drawable drawable = typedArray.getDrawable(0);

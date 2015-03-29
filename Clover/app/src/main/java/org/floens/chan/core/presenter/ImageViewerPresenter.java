@@ -1,12 +1,10 @@
 package org.floens.chan.core.presenter;
 
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
-import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,6 +21,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private boolean entering = true;
     private boolean exiting = false;
     private List<PostImage> images;
+    private List<Float> progress;
     private int selectedPosition;
 
     // Disables swiping until the view pager is visible
@@ -37,7 +36,10 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         this.images = images;
         selectedPosition = position;
 
-        Logger.test("showImages position " + position);
+        progress = new ArrayList<>(images.size());
+        for (int i = 0; i < images.size(); i++) {
+            progress.add(i, -1f);
+        }
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
         callback.setPagerItems(images, selectedPosition);
@@ -66,12 +68,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(images.get(selectedPosition));
+        callback.showProgress(false);
     }
 
     @Override
     public void onPageSelected(int position) {
-        Logger.test("onPageSelected " + selectedPosition + ", " + position);
-
         if (!viewPagerVisible) {
             return;
         }
@@ -111,7 +112,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 onLowResInCenter();
             } else {
                 if (multiImageView.getPostImage() == images.get(selectedPosition)) {
-                    Log.i(TAG, "Loading high res from a onModeLoaded");
                     onLowResInCenter();
                 }
             }
@@ -128,10 +128,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         // Already in LOWRES mode
         if (callback.getImageMode(images.get(selectedPosition)) == MultiImageView.Mode.LOWRES) {
-            Log.i(TAG, "Loading high res from a swipe");
             onLowResInCenter();
         }
         // Else let onModeChange handle it
+
+        callback.showProgress(progress.get(selectedPosition) >= 0f);
+        callback.onLoadProgress(progress.get(selectedPosition));
     }
 
     // Called from either a page swipe caused a lowres image to the center or an
@@ -181,13 +183,36 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
-    public void setProgress(MultiImageView multiImageView, boolean progress) {
+    public void showProgress(MultiImageView multiImageView, boolean show) {
+        for (int i = 0; i < images.size(); i++) {
+            PostImage postImage = images.get(i);
+            if (postImage == multiImageView.getPostImage()) {
+                progress.set(i, show ? 0f : -1f);
+                break;
+            }
+        }
 
+        if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+            callback.showProgress(progress.get(selectedPosition) >= 0f);
+            if (show) {
+                callback.onLoadProgress(0f);
+            }
+        }
     }
 
     @Override
-    public void setLinearProgress(MultiImageView multiImageView, long current, long total, boolean done) {
+    public void onProgress(MultiImageView multiImageView, long current, long total) {
+        for (int i = 0; i < images.size(); i++) {
+            PostImage postImage = images.get(i);
+            if (postImage == multiImageView.getPostImage()) {
+                progress.set(i, current / (float) total);
+                break;
+            }
+        }
 
+        if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+            callback.onLoadProgress(progress.get(selectedPosition));
+        }
     }
 
     @Override
@@ -232,5 +257,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         public void scrollTo(PostImage postImage);
 
         public MultiImageView.Mode getImageMode(PostImage postImage);
+
+        public void showProgress(boolean show);
+
+        public void onLoadProgress(float progress);
     }
 }

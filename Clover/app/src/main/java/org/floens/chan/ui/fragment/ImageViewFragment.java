@@ -342,15 +342,15 @@ public class ImageViewFragment extends Fragment implements Callback {
     }
 
     @Override
-    public void setProgress(MultiImageView view, boolean progress) {
+    public void showProgress(MultiImageView view, boolean progress) {
         showProgressBar(progress);
     }
 
     @Override
-    public void setLinearProgress(MultiImageView view, long current, long total, boolean done) {
+    public void onProgress(MultiImageView view, long current, long total) {
         progressCurrent = current;
         progressTotal = total;
-        progressDone = done;
+        progressDone = true;
         activity.updateActionBarIfSelected(this);
     }
 
