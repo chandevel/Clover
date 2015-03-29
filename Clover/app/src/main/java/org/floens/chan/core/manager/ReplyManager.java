@@ -19,7 +19,16 @@ package org.floens.chan.core.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
+
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
@@ -323,7 +332,9 @@ public class ReplyManager {
 
     public void getCaptchaChallenge(final CaptchaChallengeListener listener) {
         HttpPost httpPost = new HttpPost(ChanUrls.getCaptchaFallback());
-        httpPost.addHeader("User-Agent", "Android");
+        httpPost.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36");
+        httpPost.addHeader("Referer", "https://boards.4chan.org/");
+        httpPost.addHeader("Cookie", "NID=67");
 
         HttpPostSendListener postListener = new HttpPostSendListener() {
             @Override
@@ -389,6 +400,51 @@ public class ReplyManager {
 
     private interface CaptchaHashListener {
         public void onHash(String hash);
+    }
+
+    public String getUserAgent() {
+        String version = "";
+        try {
+            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
+        return "Clover/" + version;
+    }
+
+    public void postReply(Reply reply) {
+        OkHttpClient client = new OkHttpClient();
+
+        MultipartBuilder formBuilder = new MultipartBuilder();
+        formBuilder.type(MultipartBuilder.FORM);
+        formBuilder.addFormDataPart("foo", "bar");
+        if (reply.file != null) {
+            formBuilder.addFormDataPart("file", "filename", RequestBody.create(
+                    MediaType.parse("application/octet-stream"), reply.file
+            ));
+        }
+        RequestBody form = formBuilder.build();
+
+        Request request = new Request.Builder()
+                .header("User-Agent", getUserAgent())
+                .url("")
+                .post(form)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Logger.test("Output = " + response.body().string());
+                }
+            }
+        });
     }
 
     /**

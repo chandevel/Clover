@@ -581,12 +581,13 @@ public class ReplyFragment extends DialogFragment {
         Board b = ChanApplication.getBoardManager().getBoardByValue(loadable.board);
         draft.spoilerImage = b != null && b.spoilers && spoilerImageView.isChecked();
 
-        ChanApplication.getReplyManager().sendReply(draft, new ReplyManager.ReplyListener() {
+        /*ChanApplication.getReplyManager().sendReply(draft, new ReplyManager.ReplyListener() {
             @Override
             public void onResponse(ReplyResponse response) {
                 handleSubmitResponse(response);
             }
-        });
+        });*/
+        ChanApplication.getReplyManager().postReply(draft);
     }
 
     /**

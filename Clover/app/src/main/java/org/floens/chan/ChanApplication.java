@@ -45,10 +45,10 @@ import java.util.List;
 public class ChanApplication extends Application {
     private static final String TAG = "ChanApplication";
 
-    private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024; // 50mb
+    private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
     private static final String FILE_CACHE_NAME = "filecache";
-    private static final int VOLLEY_LRU_CACHE_SIZE = 8 * 1024 * 1024; // 8mb
-    private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024; // 8mb
+    private static final int VOLLEY_LRU_CACHE_SIZE = 8 * 1024 * 1024;
+    private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
 
     private static ChanApplication instance;
     private static RequestQueue volleyRequestQueue;
