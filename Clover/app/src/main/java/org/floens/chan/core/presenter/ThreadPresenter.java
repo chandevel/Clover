@@ -28,8 +28,10 @@ import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
@@ -79,6 +81,24 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void requestData() {
         threadPresenterCallback.showLoading();
         chanLoader.requestData();
+    }
+
+    public boolean pin() {
+        if (chanLoader.getThread() != null) {
+            WatchManager wm = ChanApplication.getWatchManager();
+            Pin pin = wm.findPinByLoadable(loadable);
+            if (pin == null) {
+                Post op = chanLoader.getThread().op;
+                wm.addPin(loadable, op);
+            } else {
+                wm.removePin(pin);
+            }
+        }
+        return isPinned();
+    }
+
+    public boolean isPinned() {
+        return ChanApplication.getWatchManager().findPinByLoadable(loadable) != null;
     }
 
     @Override

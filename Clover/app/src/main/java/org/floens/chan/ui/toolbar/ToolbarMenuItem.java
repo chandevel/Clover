@@ -67,6 +67,14 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
         }
     }
 
+    public void setImage(Drawable drawable) {
+        imageView.setImageDrawable(drawable);
+    }
+
+    public void setImage(int drawable) {
+        imageView.setImageResource(drawable);
+    }
+
     public void setSubMenu(FloatingMenu subMenu) {
         this.subMenu = subMenu;
         subMenu.setCallback(this);
