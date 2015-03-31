@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.floens.chan.ui.cell.PinCell xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="48dp">
+
+    <org.floens.chan.ui.view.CustomNetworkImageView
+        android:id="@+id/pin_image"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/pin_text"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:lines="1"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="0dp"
+        android:paddingTop="8dp"
+        android:singleLine="true"
+        android:textColor="#fff"
+        android:textSize="19sp" />
+
+    <FrameLayout
+        android:id="@+id/pin_time_container"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:paddingLeft="4dp">
+
+        <TextView
+            android:id="@+id/pin_time"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:lines="1"
+            android:minWidth="36dp"
+            android:textColor="#fff"
+            android:textSize="16dp" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/pin_count_container"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/pin_icon_blue">
+
+        <TextView
+            android:id="@+id/pin_count"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textSize="16dp" />
+
+        <ProgressBar
+            android:id="@+id/pin_load"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+</org.floens.chan.ui.cell.PinCell>

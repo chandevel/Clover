@@ -33,6 +33,7 @@ public class NavigationItem {
     public LinearLayout view;
     public FloatingMenu middleMenu;
     public View rightView;
+    public boolean hasDrawer = false;
 
     public ToolbarMenuItem createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
         ToolbarMenuItem overflow = menu.createOverflow(callback);

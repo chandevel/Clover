@@ -59,6 +59,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         threadLayout.getPresenter().bindLoadable(loadable);
         threadLayout.getPresenter().requestData();
 
+        navigationItem.hasDrawer = true;
         navigationItem.title = loadable.title;
         navigationItem.menu = new ToolbarMenu(context);
 

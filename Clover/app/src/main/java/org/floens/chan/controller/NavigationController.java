@@ -80,7 +80,12 @@ public abstract class NavigationController extends Controller implements Control
             toolbar.setNavigationItem(false, true, to.navigationItem);
         }
 
+        controllerPushed(to);
+
         return true;
+    }
+
+    protected void controllerPushed(Controller controller) {
     }
 
     public boolean popController() {
@@ -122,7 +127,12 @@ public abstract class NavigationController extends Controller implements Control
             controllerList.remove(from);
         }
 
+        controllerPopped(to);
+
         return true;
+    }
+
+    protected void controllerPopped(Controller controller) {
     }
 
     @Override

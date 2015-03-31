@@ -60,11 +60,11 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
         ChanApplication.getBoardManager().addListener(this);
 
+        navigationItem.hasDrawer = true;
         navigationItem.middleMenu = new FloatingMenu(context);
         navigationItem.middleMenu.setCallback(this);
         loadBoards();
 
-        navigationItem.title = "Hello world";
         ToolbarMenu menu = new ToolbarMenu(context);
         navigationItem.menu = menu;
         navigationItem.hasBack = false;

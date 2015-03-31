@@ -20,11 +20,16 @@ package org.floens.chan.ui.controller;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import org.floens.chan.R;
+import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
+import org.floens.chan.ui.adapter.PinAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -33,6 +38,8 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 public class RootNavigationController extends NavigationController {
     public DrawerLayout drawerLayout;
     public FrameLayout drawer;
+
+    private RecyclerView recyclerView;
 
     public RootNavigationController(Context context) {
         super(context);
@@ -47,6 +54,15 @@ public class RootNavigationController extends NavigationController {
         container = (FrameLayout) view.findViewById(R.id.container);
         drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         drawer = (FrameLayout) view.findViewById(R.id.drawer);
+        recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
+
+        recyclerView.setHasFixedSize(true);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        PinAdapter adapter = new PinAdapter();
+        recyclerView.setAdapter(adapter);
 
         toolbar.setCallback(this);
 
@@ -75,6 +91,22 @@ public class RootNavigationController extends NavigationController {
         super.onMenuClicked();
 
         drawerLayout.openDrawer(drawer);
+    }
+
+    @Override
+    protected void controllerPushed(Controller controller) {
+        super.controllerPushed(controller);
+        setDrawerEnabled(controller.navigationItem.hasDrawer);
+    }
+
+    @Override
+    protected void controllerPopped(Controller controller) {
+        super.controllerPopped(controller);
+        setDrawerEnabled(controller.navigationItem.hasDrawer);
+    }
+
+    private void setDrawerEnabled(boolean enabled) {
+        drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
     }
 
     private boolean setDrawerWidth() {
