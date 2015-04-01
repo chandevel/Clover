@@ -25,7 +25,6 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import org.floens.chan.ChanApplication;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Utils;
 
@@ -49,7 +48,7 @@ public class CaptchaLayout extends WebView {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback) {
+    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, String userAgent, CaptchaCallback callback) {
         this.callback = callback;
         this.baseUrl = baseUrl;
         this.siteKey = siteKey;
@@ -57,7 +56,7 @@ public class CaptchaLayout extends WebView {
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setUserAgentString(ChanApplication.getReplyManager().getUserAgent());
+        settings.setUserAgentString(userAgent);
 
         addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
     }

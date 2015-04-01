@@ -203,7 +203,8 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
             showCommentCount();
 
             String baseUrl = loadable.isThreadMode() ? ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no) : ChanUrls.getBoardUrlDesktop(loadable.board);
-            captchaLayout.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), ThemeHelper.getInstance().getTheme().isLightTheme, this);
+            captchaLayout.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(),
+                    ThemeHelper.getInstance().getTheme().isLightTheme, ChanApplication.getReplyManager().getUserAgent(), this);
         } else {
             Logger.e(TAG, "Loadable in ReplyFragment was null");
             closeReply();
