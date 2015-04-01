@@ -19,6 +19,7 @@ package org.floens.chan;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.view.ViewConfiguration;
 
@@ -119,8 +120,8 @@ public class ChanApplication extends Application {
         }
 
         if (ChanBuild.DEVELOPER_MODE) {
-//            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
-//            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
 
         ChanUrls.loadScheme(ChanPreferences.getNetworkHttps());
@@ -129,7 +130,9 @@ public class ChanApplication extends Application {
 
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
 
-        volleyRequestQueue = Volley.newRequestQueue(this, null, new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
+        replyManager = new ReplyManager(this);
+
+        volleyRequestQueue = Volley.newRequestQueue(this, replyManager.getUserAgent(), null, new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(VOLLEY_LRU_CACHE_SIZE));
 
         fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE);
@@ -137,7 +140,7 @@ public class ChanApplication extends Application {
         databaseManager = new DatabaseManager(this);
         boardManager = new BoardManager();
         watchManager = new WatchManager(this);
-        replyManager = new ReplyManager(this);
+
     }
 
     public void activityEnteredForeground() {

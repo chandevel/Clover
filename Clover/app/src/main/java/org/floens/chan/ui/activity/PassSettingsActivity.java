@@ -42,7 +42,6 @@ import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.PassResponse;
-import org.floens.chan.core.model.Pass;
 import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Utils;
 
@@ -145,8 +144,7 @@ public class PassSettingsActivity extends Activity implements OnCheckedChangeLis
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     if (PassSettingsActivity.instance != null) {
-                        Pass pass = new Pass(ChanPreferences.getPassToken(), ChanPreferences.getPassPin());
-                        onLoginClick(pass);
+                        onLoginClick(ChanPreferences.getPassToken(), ChanPreferences.getPassPin());
                     }
                     return true;
                 }
@@ -159,12 +157,12 @@ public class PassSettingsActivity extends Activity implements OnCheckedChangeLis
             findPreference("preference_pass_login").setTitle(TextUtils.isEmpty(ChanPreferences.getPassId()) ? R.string.pass_login : R.string.pass_logout);
         }
 
-        private void onLoginClick(Pass pass) {
+        private void onLoginClick(String token, String pin) {
             if (TextUtils.isEmpty(ChanPreferences.getPassId())) {
                 // Login
                 final ProgressDialog dialog = ProgressDialog.show(getActivity(), null, "Logging in");
 
-                ChanApplication.getReplyManager().sendPass(pass, new ReplyManager.PassListener() {
+                ChanApplication.getReplyManager().postPass(token, pin, new ReplyManager.PassListener() {
                     @Override
                     public void onResponse(PassResponse response) {
                         dialog.dismiss();

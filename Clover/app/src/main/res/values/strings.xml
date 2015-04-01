@@ -133,7 +133,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply_submit">Submit</string>
     <string name="reply_captcha">Enter the text</string>
     <string name="reply_error">Error sending reply</string>
-    <string name="reply_error_captcha">Wrong captcha</string>
+    <string name="reply_error_captcha">Invalid captcha</string>
     <string name="reply_error_file">No file selected</string>
     <string name="reply_success">Post Successful</string>
     <string name="reply_captcha_load_error">Failed to load captcha</string>
