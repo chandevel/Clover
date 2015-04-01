@@ -15,14 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.ui.activity;
 
-public class Pass {
-    public String token = "";
-    public String pin = "";
+import android.app.Activity;
+import android.os.Bundle;
+import android.webkit.WebView;
 
-    public Pass(String token, String pin) {
-        this.token = token;
-        this.pin = pin;
+import org.floens.chan.utils.ThemeHelper;
+
+public class LicenseActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ThemeHelper.setTheme(this);
+
+        WebView webView = new WebView(this);
+        webView.loadUrl("file:///android_asset/html/license.html");
+
+        setContentView(webView);
     }
 }

@@ -37,10 +37,9 @@ import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.ReplyManager.PassResponse;
-import org.floens.chan.core.model.Pass;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -137,9 +136,7 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
             login.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    Pass pass = new Pass(ChanSettings.getPassToken(), ChanSettings.getPassPin());
-                    onLoginClick(pass);
-
+                    onLoginClick(ChanSettings.getPassToken(), ChanSettings.getPassPin());
                     return true;
                 }
             });
@@ -151,12 +148,12 @@ public class PassSettingsActivity extends ThemeActivity implements OnCheckedChan
             findPreference("preference_pass_login").setTitle(TextUtils.isEmpty(ChanSettings.getPassId()) ? R.string.pass_login : R.string.pass_logout);
         }
 
-        private void onLoginClick(Pass pass) {
+        private void onLoginClick(String token, String pin) {
             if (TextUtils.isEmpty(ChanSettings.getPassId())) {
                 // Login
                 final ProgressDialog dialog = ProgressDialog.show(getActivity(), null, "Logging in");
 
-                ChanApplication.getReplyManager().sendPass(pass, new ReplyManager.PassListener() {
+                ChanApplication.getReplyManager().postPass(token, pin, new ReplyManager.PassListener() {
                     @Override
                     public void onResponse(PassResponse response) {
                         dialog.dismiss();

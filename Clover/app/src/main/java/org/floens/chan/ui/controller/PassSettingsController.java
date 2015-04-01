@@ -16,7 +16,6 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.model.Pass;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.utils.AndroidUtils;
@@ -101,7 +100,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         ChanSettings.passToken.set(inputToken.getText().toString());
         ChanSettings.passPin.set(inputPin.getText().toString());
 
-        ChanApplication.getReplyManager().sendPass(new Pass(ChanSettings.passToken.get(), ChanSettings.passPin.get()), new ReplyManager.PassListener() {
+        ChanApplication.getReplyManager().postPass(ChanSettings.passToken.get(), ChanSettings.passPin.get(), new ReplyManager.PassListener() {
             @Override
             public void onResponse(ReplyManager.PassResponse response) {
                 if (response.isError) {

@@ -26,6 +26,8 @@ import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
 import com.squareup.okhttp.internal.Util;
 
+import org.floens.chan.ChanApplication;
+
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -42,8 +44,8 @@ public class FileCache {
     private static final String TAG = "FileCache";
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(2);
-
     private OkHttpClient httpClient;
+    private static String userAgent;
 
     private final File directory;
     private final long maxSize;
@@ -55,6 +57,7 @@ public class FileCache {
         this.maxSize = maxSize;
 
         httpClient = new OkHttpClient();
+        userAgent = ChanApplication.getReplyManager().getUserAgent();
 
         makeDir();
         calculateSize();
@@ -288,7 +291,10 @@ public class FileCache {
         }
 
         private void execute() throws Exception {
-            Request request = new Request.Builder().url(url).build();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .header("User-Agent", FileCache.userAgent)
+                    .build();
 
             call = fileCache.httpClient.newCall(request);
             Response response = call.execute();

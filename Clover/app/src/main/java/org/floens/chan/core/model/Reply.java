@@ -31,7 +31,6 @@ public class Reply {
     public int resto = 0;
     public File file;
     public String fileName = "";
-    public String captchaChallenge = "";
     public String captchaResponse = "";
     public String password = "";
     public boolean usePass = false;

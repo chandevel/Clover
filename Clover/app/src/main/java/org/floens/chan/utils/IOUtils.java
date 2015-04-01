@@ -17,6 +17,9 @@
  */
 package org.floens.chan.utils;
 
+
+import android.content.Context;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,20 +32,38 @@ import java.io.Writer;
 public class IOUtils {
     private static final int DEFAULT_BUFFER_SIZE = 4096;
 
+    public static String assetAsString(Context context, String assetName) {
+        String res = null;
+        try {
+            res = IOUtils.readString(context.getResources().getAssets().open(assetName));
+        } catch (IOException ignored) {
+        }
+        return res;
+    }
+
     public static String readString(InputStream is) {
-        InputStreamReader reader = new InputStreamReader(is);
-        StringWriter writer = new StringWriter();
+        Reader sr = new InputStreamReader(is);
+        Writer sw = new StringWriter();
 
         try {
-            copy(reader, writer);
+            copy(sr, sw);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            closeQuietly(writer);
-            closeQuietly(reader);
+            IOUtils.closeQuietly(sr);
+            IOUtils.closeQuietly(sw);
         }
 
-        return writer.toString();
+        return sw.toString();
+    }
+
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     public static void copy(InputStream is, OutputStream os) throws IOException {
@@ -58,16 +79,6 @@ public class IOUtils {
         int read;
         while ((read = input.read(buffer)) != -1) {
             output.write(buffer, 0, read);
-        }
-    }
-
-    public static void closeQuietly(Closeable stream) {
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                // ignore
-            }
         }
     }
 }

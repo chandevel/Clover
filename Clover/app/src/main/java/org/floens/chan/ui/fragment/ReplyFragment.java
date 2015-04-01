@@ -30,7 +30,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
@@ -44,17 +43,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.android.volley.toolbox.NetworkImageView;
-
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
+import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.manager.ReplyManager.ReplyResponse;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.animation.ViewFlipperAnimations;
+import org.floens.chan.ui.layout.CaptchaLayout;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageDecoder;
@@ -65,7 +63,7 @@ import java.io.File;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class ReplyFragment extends DialogFragment {
+public class ReplyFragment extends DialogFragment implements CaptchaLayout.CaptchaCallback {
     private static final String TAG = "ReplyFragment";
 
     private int page = 0;
@@ -76,9 +74,7 @@ public class ReplyFragment extends DialogFragment {
     private final Reply draft = new Reply();
     private boolean shouldSaveDraft = true;
 
-    private boolean gotInitialCaptcha = false;
-    private boolean gettingCaptcha = false;
-    private String captchaChallenge = "";
+    private String captchaResponse;
 
     private int defaultTextColor;
     private int maxCommentCount;
@@ -96,8 +92,7 @@ public class ReplyFragment extends DialogFragment {
     private EditText fileNameView;
     private CheckBox spoilerImageView;
     private LoadView imageViewContainer;
-    private LoadView captchaContainer;
-    private TextView captchaInput;
+    private CaptchaLayout captchaLayout;
     private LoadView responseContainer;
     private Button insertSpoiler;
     private Button insertCode;
@@ -206,6 +201,10 @@ public class ReplyFragment extends DialogFragment {
                 }
             });
             showCommentCount();
+
+            String baseUrl = loadable.isThreadMode() ? ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no) : ChanUrls.getBoardUrlDesktop(loadable.board);
+            captchaLayout.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(),
+                    ThemeHelper.getInstance().getTheme().isLightTheme, ChanApplication.getReplyManager().getUserAgent(), this);
         } else {
             Logger.e(TAG, "Loadable in ReplyFragment was null");
             closeReply();
@@ -260,17 +259,10 @@ public class ReplyFragment extends DialogFragment {
 
         imageViewContainer = (LoadView) container.findViewById(R.id.reply_image);
         responseContainer = (LoadView) container.findViewById(R.id.reply_response);
-        captchaContainer = (LoadView) container.findViewById(R.id.reply_captcha_container);
-        captchaContainer.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getCaptcha();
-            }
-        });
-        captchaInput = (TextView) container.findViewById(R.id.reply_captcha);
+        captchaLayout = (CaptchaLayout) container.findViewById(R.id.captcha_layout);
 
         cancelButton = (Button) container.findViewById(R.id.reply_cancel);
-        cancelButton.setOnClickListener(new OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (page == 1) {
@@ -282,7 +274,7 @@ public class ReplyFragment extends DialogFragment {
         });
 
         fileButton = (ImageButton) container.findViewById(R.id.reply_file);
-        fileButton.setOnClickListener(new OnClickListener() {
+        fileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (draft.file == null) {
@@ -305,7 +297,7 @@ public class ReplyFragment extends DialogFragment {
         });
 
         submitButton = (Button) container.findViewById(R.id.reply_submit);
-        submitButton.setOnClickListener(new OnClickListener() {
+        submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (page == 1 || ChanSettings.passLoggedIn()) {
@@ -318,7 +310,7 @@ public class ReplyFragment extends DialogFragment {
         });
 
         insertSpoiler = (Button) container.findViewById(R.id.insert_spoiler);
-        insertSpoiler.setOnClickListener(new OnClickListener() {
+        insertSpoiler.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 insertAtCursor("[spoiler]", "[/spoiler]");
@@ -326,7 +318,7 @@ public class ReplyFragment extends DialogFragment {
         });
 
         insertCode = (Button) container.findViewById(R.id.insert_code);
-        insertCode.setOnClickListener(new OnClickListener() {
+        insertCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 insertAtCursor("[code]", "[/code]");
@@ -346,6 +338,19 @@ public class ReplyFragment extends DialogFragment {
             return false;
         } else {
             return true;
+        }
+    }
+
+    @Override
+    public void captchaLoaded(CaptchaLayout captchaLayout) {
+    }
+
+    @Override
+    public void captchaEntered(CaptchaLayout captchaLayout, String response) {
+        captchaResponse = response;
+        if (page == 1) {
+            flipPage(2);
+            submit();
         }
     }
 
@@ -414,9 +419,11 @@ public class ReplyFragment extends DialogFragment {
             cancelButton.setText(R.string.close);
         }
 
-        if (page == 1 && !gotInitialCaptcha) {
-            gotInitialCaptcha = true;
-            getCaptcha();
+        if (page == 1) {
+            captchaLayout.load();
+            submitButton.setEnabled(captchaResponse != null);
+        } else if (page == 0) {
+            submitButton.setEnabled(true);
         }
     }
 
@@ -513,42 +520,6 @@ public class ReplyFragment extends DialogFragment {
         loadView.setView(text);
     }
 
-    private void getCaptcha() {
-        if (gettingCaptcha)
-            return;
-        gettingCaptcha = true;
-
-        captchaContainer.setView(null);
-        captchaInput.setText("");
-
-        ChanApplication.getReplyManager().getCaptchaChallenge(new ReplyManager.CaptchaChallengeListener() {
-            @Override
-            public void onChallenge(String imageUrl, String challenge) {
-                gettingCaptcha = false;
-
-                if (context != null) {
-                    captchaChallenge = challenge;
-
-                    NetworkImageView captchaImage = new NetworkImageView(context);
-                    captchaImage.setImageUrl(imageUrl, ChanApplication.getVolleyImageLoader());
-                    captchaContainer.setView(captchaImage);
-                }
-            }
-
-            @Override
-            public void onError() {
-                gettingCaptcha = false;
-
-                if (context != null) {
-                    TextView text = new TextView(context);
-                    text.setGravity(Gravity.CENTER);
-                    text.setText(R.string.reply_captcha_load_error);
-                    captchaContainer.setView(text);
-                }
-            }
-        });
-    }
-
     /**
      * Submit button clicked at page 1
      */
@@ -563,8 +534,7 @@ public class ReplyFragment extends DialogFragment {
         draft.email = emailView.getText().toString();
         draft.subject = subjectView.getText().toString();
         draft.comment = commentView.getText().toString();
-        draft.captchaChallenge = captchaChallenge;
-        draft.captchaResponse = captchaInput.getText().toString();
+        draft.captchaResponse = captchaResponse;
 
         draft.fileName = "image";
         String n = fileNameView.getText().toString();
@@ -583,9 +553,9 @@ public class ReplyFragment extends DialogFragment {
         Board b = ChanApplication.getBoardManager().getBoardByValue(loadable.board);
         draft.spoilerImage = b != null && b.spoilers && spoilerImageView.isChecked();
 
-        ChanApplication.getReplyManager().sendReply(draft, new ReplyManager.ReplyListener() {
+        ChanApplication.getReplyManager().postReply(draft, new ReplyManager.ReplyListener() {
             @Override
-            public void onResponse(ReplyResponse response) {
+            public void onResponse(ReplyManager.ReplyResponse response) {
                 handleSubmitResponse(response);
             }
         });
@@ -596,7 +566,7 @@ public class ReplyFragment extends DialogFragment {
      *
      * @param response
      */
-    private void handleSubmitResponse(ReplyResponse response) {
+    private void handleSubmitResponse(ReplyManager.ReplyResponse response) {
         if (context == null)
             return;
 
@@ -607,13 +577,13 @@ public class ReplyFragment extends DialogFragment {
             submitButton.setEnabled(true);
             cancelButton.setEnabled(true);
             setClosable(true);
+            captchaResponse = null;
             if (ChanSettings.passLoggedIn()) {
                 flipPage(0);
             } else {
+                captchaLayout.reset();
                 flipPage(1);
             }
-            getCaptcha();
-            captchaInput.setText("");
         } else if (response.isSuccessful) {
             shouldSaveDraft = false;
             Toast.makeText(context, R.string.reply_success, Toast.LENGTH_SHORT).show();
