@@ -111,6 +111,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:value="org.floens.chan.ui.activity.BoardActivity" />
         </activity>
         <activity
+            android:name="org.floens.chan.ui.activity.LicenseActivity"
+            android:label="@string/preference_about"
+            android:parentActivityName=".ui.activity.ChanActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.floens.chan.ui.activity.BoardActivity" />
+        </activity>
+        <activity
             android:name="org.floens.chan.ui.activity.BoardEditor"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/board_edit"

@@ -206,7 +206,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="preference_about">About</string>
     <string name="preference_licenses">Open Source Licenses</string>
-    <string name="preference_licences_summary">Legal information about licenses</string>
+    <string name="preference_licenses_summary">Legal information about licenses</string>
+    <string name="preference_license">Released under the GNU GPLv3 license</string>
+    <string name="preference_license_summary">Tap to see license</string>
     <string name="preference_developer">Developer options</string>
 
     <string name="preference_anonymize">Make everyone Anonymous</string>

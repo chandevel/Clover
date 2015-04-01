@@ -102,12 +102,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:key="group_about"
         android:title="@string/preference_about">
         <Preference
-            android:key="about_licences"
-            android:summary="@string/preference_licences_summary"
-            android:title="@string/preference_licenses" />
-        <Preference
             android:key="about_version"
             android:title="Chan" />
+        <Preference
+            android:key="about_license"
+            android:summary="@string/preference_license_summary"
+            android:title="@string/preference_license" />
+        <Preference
+            android:key="about_licenses"
+            android:summary="@string/preference_licenses_summary"
+            android:title="@string/preference_licenses" />
         <Preference
             android:key="about_developer"
             android:title="@string/preference_developer">

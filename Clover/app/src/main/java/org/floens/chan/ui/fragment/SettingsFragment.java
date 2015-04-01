@@ -33,6 +33,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.ChanPreferences;
 import org.floens.chan.ui.activity.AboutActivity;
 import org.floens.chan.ui.activity.BaseActivity;
+import org.floens.chan.ui.activity.LicenseActivity;
 import org.floens.chan.ui.activity.SettingsActivity;
 import org.floens.chan.utils.ThemeHelper;
 
@@ -48,12 +49,24 @@ public class SettingsFragment extends PreferenceFragment {
 
         addPreferencesFromResource(R.xml.preference);
 
-        Preference aboutLicences = findPreference("about_licences");
+        Preference aboutLicences = findPreference("about_licenses");
         if (aboutLicences != null) {
             aboutLicences.setOnPreferenceClickListener(new OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     startActivity(new Intent(getActivity(), AboutActivity.class));
+
+                    return true;
+                }
+            });
+        }
+
+        Preference aboutLicence = findPreference("about_license");
+        if (aboutLicence != null) {
+            aboutLicence.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startActivity(new Intent(getActivity(), LicenseActivity.class));
 
                     return true;
                 }
