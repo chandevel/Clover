@@ -212,9 +212,17 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
             pinDrawer.closeDrawer(pinDrawerView);
         } else {
             if (threadPane.isOpen()) {
-                super.onBackPressed();
+                if(boardFragment.isFiltering()) {
+                    boardFragment.stopFiltering();
+                } else {
+                    super.onBackPressed();
+                }
             } else {
-                threadPane.openPane();
+                if(threadFragment.isFiltering()) {
+                    threadFragment.stopFiltering();
+                } else {
+                    threadPane.openPane();
+                }
             }
         }
     }

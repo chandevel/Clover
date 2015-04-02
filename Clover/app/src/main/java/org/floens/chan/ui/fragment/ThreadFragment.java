@@ -138,6 +138,15 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
         }
     }
 
+    public void stopFiltering() {
+        if (filterView != null) {
+            isFiltering = false;
+            filterView.clearSearch();
+        }
+    }
+
+    public boolean isFiltering() { return filterView.getVisibility() == View.VISIBLE; }
+
     public void highlightPost(int no) {
         highlightedPost = no;
     }
