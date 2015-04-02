@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -449,8 +448,13 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         setMenuItemEnabled(menu.findItem(R.id.action_pin), !slidable || !open);
         setMenuItemEnabled(menu.findItem(R.id.action_download_album), !slidable || !open);
 
-        setMenuItemEnabled(menu.findItem(R.id.action_reply), slidable);
-        setMenuItemEnabled(menu.findItem(R.id.action_reply_tablet), !slidable);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setMenuItemEnabled(menu.findItem(R.id.action_reply), slidable && open);
+            setMenuItemEnabled(menu.findItem(R.id.action_reply_tablet), !slidable && open);
+        } else {
+            setMenuItemEnabled(menu.findItem(R.id.action_reply), slidable);
+            setMenuItemEnabled(menu.findItem(R.id.action_reply_tablet), !slidable);
+        }
 
         setMenuItemEnabled(menu.findItem(R.id.action_board_view_mode), !slidable || open);
 

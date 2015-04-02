@@ -41,23 +41,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:title="@string/action_reload_board" />
 
     <item
-        android:id="@+id/action_pin"
-        android:icon="@drawable/ic_bookmark"
-        android:orderInCategory="2"
-        app:showAsAction="always"
-        android:title="@string/action_pin" />
-
-    <item
         android:id="@+id/action_reply"
         android:icon="@drawable/ic_action_write"
-        android:orderInCategory="4"
+        android:orderInCategory="3"
         app:showAsAction="ifRoom"
         android:title="@string/action_reply" />
 
     <item
         android:id="@+id/action_reply_tablet"
         android:icon="@drawable/ic_action_write"
-        android:orderInCategory="4"
+        android:orderInCategory="3"
         app:showAsAction="ifRoom"
         android:title="@string/action_reply">
         <menu>
@@ -74,9 +67,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item
         android:id="@+id/action_reload_thread"
         android:icon="@drawable/ic_action_refresh"
-        android:orderInCategory="5"
-        app:showAsAction="never"
+        android:orderInCategory="4"
+        app:showAsAction="ifRoom"
         android:title="@string/action_reload" />
+
+
+    <item
+        android:id="@+id/action_pin"
+        android:icon="@drawable/ic_bookmark"
+        android:orderInCategory="5"
+        app:showAsAction="always"
+        android:title="@string/action_pin" />
 
     <item
         android:id="@+id/action_search"
