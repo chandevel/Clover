@@ -136,7 +136,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply_submit">Submit</string>
     <string name="reply_captcha">Enter the text</string>
     <string name="reply_error">Error sending reply</string>
-    <string name="reply_error_captcha">Wrong captcha</string>
+    <string name="reply_error_captcha">Invalid captcha</string>
     <string name="reply_error_file">No file selected</string>
     <string name="reply_success">Post Successful</string>
     <string name="reply_captcha_load_error">Failed to load captcha</string>
@@ -217,7 +217,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="preference_about">About</string>
     <string name="preference_licenses">Open Source Licenses</string>
-    <string name="preference_licences_summary">Legal information about licenses</string>
+    <string name="preference_licenses_summary">Legal information about licenses</string>
+    <string name="preference_license">Released under the GNU GPLv3 license</string>
+    <string name="preference_license_summary">Tap to see license</string>
     <string name="preference_developer">Developer options</string>
 
     <string name="preference_anonymize">Make everyone Anonymous</string>

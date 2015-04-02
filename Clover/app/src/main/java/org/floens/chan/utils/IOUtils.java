@@ -17,6 +17,9 @@
  */
 package org.floens.chan.utils;
 
+import android.content.Context;
+
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,18 +29,38 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 public class IOUtils {
+    public static String assetAsString(Context context, String assetName) {
+        String res = null;
+        try {
+            res = IOUtils.readString(context.getResources().getAssets().open(assetName));
+        } catch (IOException ignored) {
+        }
+        return res;
+    }
+
     public static String readString(InputStream is) {
-        StringWriter sw = new StringWriter();
+        Reader sr = new InputStreamReader(is);
+        Writer sw = new StringWriter();
 
         try {
-            copy(new InputStreamReader(is), sw);
-            is.close();
-            sw.close();
+            copy(sr, sw);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(sr);
+            IOUtils.closeQuietly(sw);
         }
 
         return sw.toString();
+    }
+
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     /**

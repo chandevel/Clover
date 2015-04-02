@@ -44,12 +44,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <!-- captcha view: -->
 
-        <ScrollView
+        <org.floens.chan.ui.layout.CaptchaLayout
+            android:id="@+id/captcha_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <include layout="@layout/reply_captcha" />
-        </ScrollView>
+            android:layout_height="match_parent" />
 
         <!-- response view: -->
 

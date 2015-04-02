@@ -553,7 +553,7 @@ public class ThreadManager implements Loader.LoaderListener {
 
         final ProgressDialog dialog = ProgressDialog.show(activity, null, activity.getString(R.string.delete_wait));
 
-        ChanApplication.getReplyManager().sendDelete(reply, onlyImageDelete, new DeleteListener() {
+        ChanApplication.getReplyManager().postDelete(reply, onlyImageDelete, new DeleteListener() {
             @Override
             public void onResponse(DeleteResponse response) {
                 dialog.dismiss();

@@ -17,8 +17,6 @@
 package com.android.volley.toolbox;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 
@@ -33,38 +31,14 @@ public class Volley {
     /** Default on-disk cache directory. */
     public static final String DEFAULT_CACHE_DIR = "volley";
 
-
-    /**
-     * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
-     *
-     * @param context A {@link Context} to use for creating the cache dir.
-     * @param stack An {@link HttpStack} to use for the network, or null for default.
-     * @return A started {@link RequestQueue} instance.
-     */
-    public static RequestQueue newRequestQueue(Context context, HttpStack stack) {
-        return newRequestQueue(context, stack, new File(context.getCacheDir(), DEFAULT_CACHE_DIR));
-    }
-
-    public static RequestQueue newRequestQueue(Context context, HttpStack stack, File cacheDir) {
-        return newRequestQueue(context, stack, cacheDir, -1);
-    }
-
-    public static RequestQueue newRequestQueue(Context context, HttpStack stack, File cacheDir, int diskCacheSize) {
-        String userAgent = "volley/0";
-        try {
-            String packageName = context.getPackageName();
-            PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
-            userAgent = packageName + "/" + info.versionCode;
-        } catch (NameNotFoundException e) {
-        }
-
+    public static RequestQueue newRequestQueue(Context context, String userAgent, HttpStack stack, File cacheDir, int diskCacheSize) {
         if (stack == null) {
             if (Build.VERSION.SDK_INT >= 9) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
                     // Use a socket factory that removes sslv3
-                    stack = new HurlStack(null, new NoSSLv3Compat.NoSSLv3Factory());
+                    stack = new HurlStack(userAgent, null, new NoSSLv3Compat.NoSSLv3Factory());
                 } else {
-                    stack = new HurlStack();
+                    stack = new HurlStack(userAgent);
                 }
             } else {
                 // Prior to Gingerbread, HttpUrlConnection was unreliable.
@@ -80,15 +54,5 @@ public class Volley {
         queue.start();
 
         return queue;
-    }
-
-    /**
-     * Creates a default instance of the worker pool and calls {@link RequestQueue#start()} on it.
-     *
-     * @param context A {@link Context} to use for creating the cache dir.
-     * @return A started {@link RequestQueue} instance.
-     */
-    public static RequestQueue newRequestQueue(Context context) {
-        return newRequestQueue(context, null);
     }
 }

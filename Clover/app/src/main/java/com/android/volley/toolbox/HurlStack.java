@@ -49,6 +49,7 @@ import javax.net.ssl.SSLSocketFactory;
 public class HurlStack implements HttpStack {
 
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    private final String mUserAgent;
 
     /**
      * An interface for transforming URLs before use.
@@ -64,22 +65,23 @@ public class HurlStack implements HttpStack {
     private final UrlRewriter mUrlRewriter;
     private final SSLSocketFactory mSslSocketFactory;
 
-    public HurlStack() {
-        this(null);
+    public HurlStack(String userAgent) {
+        this(userAgent, null);
     }
 
     /**
      * @param urlRewriter Rewriter to use for request URLs
      */
-    public HurlStack(UrlRewriter urlRewriter) {
-        this(urlRewriter, null);
+    public HurlStack(String userAgent, UrlRewriter urlRewriter) {
+        this(userAgent, urlRewriter, null);
     }
 
     /**
      * @param urlRewriter Rewriter to use for request URLs
      * @param sslSocketFactory SSL factory to use for HTTPS connections
      */
-    public HurlStack(UrlRewriter urlRewriter, SSLSocketFactory sslSocketFactory) {
+    public HurlStack(String userAgent, UrlRewriter urlRewriter, SSLSocketFactory sslSocketFactory) {
+        mUserAgent = userAgent;
         mUrlRewriter = urlRewriter;
         mSslSocketFactory = sslSocketFactory;
     }
@@ -91,6 +93,7 @@ public class HurlStack implements HttpStack {
         HashMap<String, String> map = new HashMap<String, String>();
         map.putAll(request.getHeaders());
         map.putAll(additionalHeaders);
+        map.put("User-Agent", mUserAgent);
         if (mUrlRewriter != null) {
             String rewritten = mUrlRewriter.rewriteUrl(url);
             if (rewritten == null) {

@@ -38,12 +38,8 @@ public class ChanUrls {
         return scheme + "://a.4cdn.org/" + board + "/thread/" + no + ".json";
     }
 
-    public static String getCaptchaDomain() {
-        return scheme + "://www.google.com/";
-    }
-
-    public static String getCaptchaFallback() {
-        return scheme + "://www.google.com/recaptcha/api/fallback?k=6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
+    public static String getCaptchaSiteKey() {
+        return "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
     }
 
     public static String getImageUrl(String board, String code, String extension) {
