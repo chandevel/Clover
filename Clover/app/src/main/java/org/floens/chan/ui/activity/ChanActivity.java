@@ -218,7 +218,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
                     super.onBackPressed();
                 }
             } else {
-                if(threadFragment.isFiltering()) {
+                if(threadFragment.getLoader() != null && threadFragment.isFiltering()) {
                     threadFragment.stopFiltering();
                 } else {
                     threadPane.openPane();
