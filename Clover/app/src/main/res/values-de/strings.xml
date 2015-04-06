@@ -28,8 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="action_settings">Einstellungen</string>
     <string name="action_reload">Aktualisieren</string>
-    <string name="action_reload_board">Board neuladen</string>
-    <string name="action_reload_thread">Thread neuladen</string>
+    <string name="action_reload_board">Board aktualisieren</string>
+    <string name="action_reload_thread">Thread aktualisieren</string>
     <string name="action_pin">Pin</string>
     <string name="action_reply">Antworten</string>
     <string name="action_reply_board">Reply to board</string>
