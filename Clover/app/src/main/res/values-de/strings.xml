@@ -47,11 +47,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_search_image">Bild suchen</string>
 
     <string name="search_hint">Search posts</string>
-    <string name="search_results">Found %1$s %2$s for "%3$s"</string>
+    <string name="search_results">Gefunden %1$s %2$s für "%3$s"</string>
 
-    <string name="open_unknown_title">Nicht unterstützer link</string>
-    <string name="open_unknown">Clover can\'t open this link. Opening it in your browser instead.</string>
-    <string name="open_link_failed">No applications found to open link</string>
+    <string name="open_unknown_title">Nicht unterstützter link</string>
+    <string name="open_unknown">Clover kann diesen Link nicht öffnen. Opening it in your browser instead.</string>
+    <string name="open_link_failed">Keine Applikation gefunden um den Link zu öffnen</string>
 
     <string name="image_save">Bild speichern</string>
     <string name="image_save_succeeded">Bild wurde gespeichert in</string>
@@ -72,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_load_failed_parsing">Server inaccessible</string>
     <string name="thread_load_failed_server">404 nicht gefunden</string>
     <string name="thread_load_end_of_line">No more posts</string>
-    <string name="thread_not_specified">Select a thread</string>
+    <string name="thread_not_specified">Du musst ein Thread auswählen</string>
     <string name="thread_refresh_bar_inactive">Berühren um das Thread zu aktualisieren</string>
     <string name="thread_refresh_now">Wird geladen</string>
     <string name="thread_refresh_countdown">Laden in %1$d</string>
@@ -86,7 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_add_success">Board wurde hinzugefügt</string>
     <string name="board_add_duplicate">Board ist schon vorhanden</string>
     <string name="board_add_unknown_title">Unbekannter Board Code</string>
-    <string name="board_add_unknown">The board with code %1$s is not known.</string>
+    <string name="board_add_unknown">Das Board mit dem Code %1$s ist nicht bekannt.</string>
     <string name="board_edit_enable_filler">Show filler</string>
     <string name="board_delete">Board löschen?</string>
 
@@ -109,7 +109,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Info</item>
         <item>Show clickables</item>
         <item>Text kopieren</item>
-        <item>Report</item>
+        <item>Melden</item>
     </string-array>
     <string name="post_quick_reply">Schnell antworten</string>
     <string name="post_highlight_id">ID hervorheben</string>
@@ -143,7 +143,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete_confirm">Post Löschen?</string>
     <string name="delete_wait">Post wird gelöscht…</string>
     <string name="delete_success">Post gelöscht</string>
-    <string name="delete_password_incorrect">Password inkorrekt</string>
+    <string name="delete_password_incorrect">Passwort inkorrekt</string>
     <string name="delete_too_soon">You must wait longer before deleting this post</string>
     <string name="delete_too_old">You cannot delete a post this old</string>
     <string name="delete_fail">Error deleting post</string>
@@ -151,8 +151,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="folder_pick_ok">Auswählen</string>
 
-    <string name="preference_board_edit">Edit boards</string>
-    <string name="preference_board_edit_summary">Add or remove boards</string>
+    <string name="preference_board_edit">Boards editieren</string>
+    <string name="preference_board_edit_summary">Boards hinzufügen oder löschen</string>
     <string name="preference_watch_settings">Thread Beobachter</string>
     <string name="preference_pass_settings">4chan pass</string>
 
@@ -200,8 +200,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="preference_force_phone_layout">Phone Layout erzwingen</string>
 
-    <string name="preference_default_name">Default name</string>
-    <string name="preference_default_email">Default email</string>
+    <string name="preference_default_name">Default Name</string>
+    <string name="preference_default_email">Default Email</string>
     <string name="preference_pin_on_post">Pin thread on post</string>
 
     <string name="preference_about">Über</string>
@@ -262,7 +262,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Nur Posts wo dich zitieren</item>
     </string-array>
 
-    <string name="pass_info_text">4chan pass enables you to post without filling in CAPTCHAs</string>
+    <string name="pass_info_text">Ein 4chan pass erlaubt es dir zu posten ohne CAPTCHAs zu lösen</string>
     <string name="pass_info_learn_more">Mehr erfahren</string>
     <string name="pass_info_link">https://www.4chan.org/pass</string>
     <string name="pass_token">Token</string>
@@ -282,7 +282,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="default_name">Anonymous</string>
 
     <string name="video_playback_warning_title">WebM nicht unterstützt</string>
-    <string name="video_playback_warning">Unfortunately, your hardware doesn\'t support playing WebM videos.\nYou can install an external media player that has a software decoder. Then if you installed that, enable \"Open videos external\" in the settings.</string>
+    <string name="video_playback_warning">Leider unterstützt deine Hardware nicht WebM.\nDu kannsts einen externen Media Player installieren, der einen Software Dekodierer besitzt. Wenn du ihn installiert hast, aktiviere \"Video extern öffnen\" in den Einstellungen.</string>
     <string name="video_playback_ignore">Nicht wieder anzeigen</string>
     <string name="preference_video_external">Video extern öffnen</string>
     <string name="preference_video_external_summary">Videos in einem externen Programm öffnen</string>
