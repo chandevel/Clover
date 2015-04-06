@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+    <string name="app_name">Clover</string>
+
+    <string name="cancel">Abbrechen</string>
+    <string name="change">Ändern</string>
+    <string name="add">Hinzufügen</string>
+    <string name="close">Schließen</string>
+    <string name="back">Zurück</string>
+    <string name="ok">OK</string>
+
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_reload">Aktualisieren</string>
+    <string name="action_reload_board">Board neuladen</string>
+    <string name="action_reload_thread">Thread neuladen</string>
+    <string name="action_pin">Pin</string>
+    <string name="action_reply">Antworten</string>
+    <string name="action_reply_board">Reply to board</string>
+    <string name="action_reply_thread">Reply to thread</string>
+    <string name="action_open_browser">Im Browser öffnen</string>
+    <string name="action_share">Teilen</string>
+    <string name="action_download_album">Album downloaden</string>
+    <string name="action_board_view_mode">Ansichtsmodus</string>
+    <string name="action_board_view_mode_list">Liste</string>
+    <string name="action_board_view_mode_grid">Raster</string>
+    <string name="action_settings_advanced">Erweitert</string>
+    <string name="action_search">Suchen</string>
+    <string name="action_search_board">Board durchsuchen</string>
+    <string name="action_search_thread">Thread durchsuchen</string>
+    <string name="action_search_image">Bild suchen</string>
+
+    <string name="search_hint">Search posts</string>
+    <string name="search_results">Found %1$s %2$s for "%3$s"</string>
+
+    <string name="open_unknown_title">Nicht unterstützer link</string>
+    <string name="open_unknown">Clover can\'t open this link. Opening it in your browser instead.</string>
+    <string name="open_link_failed">No applications found to open link</string>
+
+    <string name="image_save">Bild speichern</string>
+    <string name="image_save_succeeded">Bild wurde gespeichert in</string>
+    <string name="image_save_failed">Das Bild konnte nicht gespeichert werden</string>
+    <string name="image_save_directory_error">Der Ordner konnte nicht erstellt werden</string>
+    <string name="image_save_not_mounted">In das Dateisystem kann nicht geschrieben werden</string>
+    <string name="image_play_state">Start / stop playing</string>
+
+    <string name="image_preview_failed">Das Bild konnte nicht angezeigt werden</string>
+    <string name="image_preview_failed_oom">Das Bild konnte nicht angezeigt werden, es ist kein Speicher mehr verfügbar</string>
+    <string name="image_not_found">Bild nicht gefunden</string>
+    <string name="image_open_failed">Das Bild konnte nicht geöffnet werden</string>
+
+    <string name="file_open_failed">Datei konnte nicht geöffnet werden</string>
+
+    <string name="thread_load_failed_ssl">HTTPS Fehler</string>
+    <string name="thread_load_failed_network">Keine Inernetverbindung</string>
+    <string name="thread_load_failed_parsing">Server inaccessible</string>
+    <string name="thread_load_failed_server">404 nicht gefunden</string>
+    <string name="thread_load_end_of_line">No more posts</string>
+    <string name="thread_not_specified">Select a thread</string>
+    <string name="thread_refresh_bar_inactive">Berühren um das Thread zu aktualisieren</string>
+    <string name="thread_refresh_now">Wird geladen</string>
+    <string name="thread_refresh_countdown">Laden in %1$d</string>
+    <string name="thread_load_failed_retry">Nochmal Versuchen</string>
+    <string name="thread_archived">Archiviert</string>
+    <string name="thread_closed">Geschlossen</string>
+
+    <string name="board_edit">Board Editor</string>
+    <string name="board_add">Board Hinzufügen</string>
+    <string name="board_add_hint">Board Code z.B. lit</string>
+    <string name="board_add_success">Board wurde hinzugefügt</string>
+    <string name="board_add_duplicate">Board ist schon vorhanden</string>
+    <string name="board_add_unknown_title">Unbekannter Board Code</string>
+    <string name="board_add_unknown">The board with code %1$s is not known.</string>
+    <string name="board_edit_enable_filler">Show filler</string>
+    <string name="board_delete">Board löschen?</string>
+
+    <string name="drawer_open">Open drawer</string>
+    <string name="drawer_close">Close drawer</string>
+    <string name="drawer_pinned">Pinned threads</string>
+    <string name="drawer_pinned_delete">Delete pin</string>
+    <string name="drawer_pinned_change_title">Titel ändern</string>
+
+    <string name="one_reply">Antwort</string>
+    <string name="multiple_replies">Antworten</string>
+    <string name="one_image">Bild</string>
+    <string name="multiple_images">Bilder</string>
+    <string name="one_post">Post</string>
+    <string name="multiple_posts">posts</string>
+    <string name="post_info">Info</string>
+    <string-array name="post_options">
+        <item>Zitieren</item>
+        <item>Text zitieren</item>
+        <item>Info</item>
+        <item>Show clickables</item>
+        <item>Text kopieren</item>
+        <item>Report</item>
+    </string-array>
+    <string name="post_quick_reply">Schnell antworten</string>
+    <string name="post_highlight_id">ID hervorheben</string>
+    <string name="post_text_copied_to_clipboard">Text wurde in Zwischenablage kopiert</string>
+
+    <string name="reply">Antworten zu</string>
+    <string name="reply_to_board">Erstelle Thread in</string>
+    <string name="reply_name">Name</string>
+    <string name="reply_email">Optionen</string>
+    <string name="reply_subject">Subjekt</string>
+    <string name="reply_comment">Kommentar</string>
+    <string name="reply_file_name">Dateiname</string>
+    <string name="reply_file_too_big">Warnung: Datei ist zu Groß (%1$s / %2$s)</string>
+    <string name="reply_webm_too_big">Warnung: WebM ist zu Groß (%1$s / %2$s)</string>
+    <string name="reply_spoiler_image">Spoiler Bild</string>
+    <string name="reply_no_preview">Keine Vorschau verfügbar</string>
+
+    <string name="reply_insert_spoiler">[spoiler]</string>
+    <string name="reply_insert_code">[code]</string>
+
+    <string name="reply_submit">Erstellen</string>
+    <string name="reply_captcha">Text einfügen</string>
+    <string name="reply_error">Fehler, Antwort konnte nicht gesendet werden</string>
+    <string name="reply_error_captcha">Invalides Captcha</string>
+    <string name="reply_error_file">Keine Datei ausgewählt</string>
+    <string name="reply_success">Post Successful</string>
+    <string name="reply_captcha_load_error">Captcha konnte nicht geladen werden</string>
+    <string name="reply_captcha_tap_to_reload">Berühren um das Captcha zu aktualisieren</string>
+
+    <string name="delete">Löschen</string>
+    <string name="delete_confirm">Post Löschen?</string>
+    <string name="delete_wait">Post wird gelöscht…</string>
+    <string name="delete_success">Post gelöscht</string>
+    <string name="delete_password_incorrect">Password inkorrekt</string>
+    <string name="delete_too_soon">You must wait longer before deleting this post</string>
+    <string name="delete_too_old">You cannot delete a post this old</string>
+    <string name="delete_fail">Error deleting post</string>
+    <string name="delete_image_only">Nur das Bild löschen</string>
+
+    <string name="folder_pick_ok">Auswählen</string>
+
+    <string name="preference_board_edit">Edit boards</string>
+    <string name="preference_board_edit_summary">Add or remove boards</string>
+    <string name="preference_watch_settings">Thread Beobachter</string>
+    <string name="preference_pass_settings">4chan pass</string>
+
+    <string name="preference_browsing">Browsing</string>
+    <string name="preference_posting">Posting</string>
+
+    <string name="preference_theme">Thema</string>
+    <string-array name="preference_themes">
+        <item>Hell</item>
+        <item>Dunkel</item>
+        <item>Schwarz</item>
+    </string-array>
+
+    <string name="preference_font">Schriftgröße</string>
+    <string-array name="preference_fonts">
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14 (default)</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+    </string-array>
+
+    <string name="preference_board_mode">Board mode</string>
+    <string-array name="preference_board_modes">
+        <item>Catalog</item>
+        <item>Paginated</item>
+    </string-array>
+    <string-array name="preference_board_modes_values">
+        <item>catalog</item>
+        <item>pages</item>
+    </string-array>
+
+    <string name="preference_image_save_location">Speicherort für Bilder</string>
+    <string name="preference_network_https">HTTPS benutzen</string>
+    <string name="preference_image_save_original">Bilder mit originalen Dateinamen speichern</string>
+    <string name="preference_open_link_confirmation">Nachfragen wenn links geöffnet werden</string>
+    <string name="preference_autoplay">Sofort Videos abspielem</string>
+    <string name="preference_auto_refresh_thread">Threads automatisch aktualisieren</string>
+    <string name="preference_image_auto_load">Bilder automatisch laden</string>
+
+    <string name="preference_force_phone_layout">Phone Layout erzwingen</string>
+
+    <string name="preference_default_name">Default name</string>
+    <string name="preference_default_email">Default email</string>
+    <string name="preference_pin_on_post">Pin thread on post</string>
+
+    <string name="preference_about">Über</string>
+    <string name="preference_licenses">Freie Software Lizenzen</string>
+    <string name="preference_licenses_summary">Legal information about licenses</string>
+    <string name="preference_license">Veröffentlicht unter der GNU GPLv3 Lizenz</string>
+    <string name="preference_license_summary">Berühren um die Lizenz zu betrachten</string>
+    <string name="preference_developer">Entwickleroptionen</string>
+
+    <string name="preference_anonymize">Jeden als Anonymous darstellen</string>
+    <string name="preference_anonymize_ids">IDs Verstecken</string>
+
+    <string name="preference_buttons_bottom">Reply buttons on the bottom</string>
+
+    <string name="open_link_confirmation">Link öffnen?</string>
+    <string name="open_thread_confirmation">Das Thread öffnen?</string>
+
+    <string name="watch_pause_pins">Stop watching</string>
+
+    <string name="watch_summary_disabled">Aus</string>
+    <string name="watch_summary_enabled">Watching pinned threads</string>
+    <string name="watch_info_text">To watch pins for new posts, turn the thread watcher on.</string>
+
+    <string name="watch_countdown">Zeige Countdown</string>
+    <string name="watch_countdown_description">Show a countdown left of the new post counter</string>
+
+    <string name="watch_enable_background">Enable in the background</string>
+    <string name="watch_enable_background_description">Watch pins when Clover is in the background</string>
+    <string name="watch_background_timeout_description">Time between loads in background</string>
+    <string-array name="watch_background_timeouts">
+        <item>1 Minute</item>
+        <item>2 Minuten</item>
+        <item>3 Minuten</item>
+        <item>5 Minuten</item>
+        <item>10 Minuten</item>
+        <item>30 Minuten</item>
+        <item>60 Minuten</item>
+    </string-array>
+    <string name="watch_notify_mode">Benachrichtigen über</string>
+    <string-array name="watch_notify_modes">
+        <item>Alle Posts</item>
+        <item>Nur Posts wo dich zitieren</item>
+    </string-array>
+    <string name="watch_led">Benachrichtigungslicht</string>
+    <string-array name="watch_leds">
+        <item>None</item>
+        <item>Weiß</item>
+        <item>Rot</item>
+        <item>Gelb</item>
+        <item>Grün</item>
+        <item>Türkis</item>
+        <item>Blau</item>
+        <item>Lila</item>
+    </string-array>
+    <string name="watch_sound">Benachrichtigung Sound und Vibration</string>
+    <string-array name="watch_sounds">
+        <item>Alle posts</item>
+        <item>Nur Posts wo dich zitieren</item>
+    </string-array>
+
+    <string name="pass_info_text">4chan pass enables you to post without filling in CAPTCHAs</string>
+    <string name="pass_info_learn_more">Mehr erfahren</string>
+    <string name="pass_info_link">https://www.4chan.org/pass</string>
+    <string name="pass_token">Token</string>
+    <string name="pass_pin">PIN</string>
+    <string name="pass_login">Einloggen</string>
+    <string name="pass_logout">Ausloggen</string>
+    <string name="pass_error">Verbindungsfehler</string>
+    <string name="pass_summary_enabled">Using 4chan pass</string>
+    <string name="pass_summary_disabled">Aus</string>
+
+    <string name="download_confirm">%1$s Bilder werden gedownloadet zu %2$s</string>
+
+    <string name="board_select_add">Add more&#8230;</string>
+
+    <string name="settings_advanced_label">Erweiterte Einstellungen</string>
+
+    <string name="default_name">Anonymous</string>
+
+    <string name="video_playback_warning_title">WebM nicht unterstützt</string>
+    <string name="video_playback_warning">Unfortunately, your hardware doesn\'t support playing WebM videos.\nYou can install an external media player that has a software decoder. Then if you installed that, enable \"Open videos external\" in the settings.</string>
+    <string name="video_playback_ignore">Nicht wieder anzeigen</string>
+    <string name="preference_video_external">Video extern öffnen</string>
+    <string name="preference_video_external_summary">Videos in einem externen Programm öffnen</string>
+</resources>
+
+
+
+
+

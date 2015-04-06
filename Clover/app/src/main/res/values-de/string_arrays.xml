@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+    <string-array name="preference_themes_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>black</item>
+    </string-array>
+
+    <string-array name="preference_fonts_values">
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+    </string-array>
+
+    <string-array name="watch_background_timeouts_int">
+        <item>60</item>
+        <item>120</item>
+        <item>180</item>
+        <item>300</item>
+        <item>600</item>
+        <item>1800</item>
+        <item>3600</item>
+    </string-array>
+
+    <string-array name="watch_notify_modes_values">
+        <item>all</item>
+        <item>quotes</item>
+    </string-array>
+
+    <string-array name="watch_leds_values">
+        <item>-1</item>
+        <item>ffffffff</item>
+        <item>ffff0000</item>
+        <item>ffffff00</item>
+        <item>ff00ff00</item>
+        <item>ff00ffff</item>
+        <item>ff0000ff</item>
+        <item>ffff00ff</item>
+    </string-array>
+
+    <string-array name="watch_sounds_values">
+        <item>all</item>
+        <item>quotes</item>
+    </string-array>
+</resources>

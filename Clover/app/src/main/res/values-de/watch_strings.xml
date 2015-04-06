@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+    <plurals name="watch_title">
+        <item quantity="one">Watching one thread</item>
+        <item quantity="other">Watching %d threads</item>
+    </plurals>
+
+    <string name="watch_idle">No new posts</string>
+
+    <plurals name="watch_new">
+        <item quantity="one">%d new post</item>
+        <item quantity="other">%d new posts</item>
+    </plurals>
+
+    <plurals name="watch_new_quotes">
+        <item quantity="one">%d new post quoting you</item>
+        <item quantity="other">%d new posts quoting you</item>
+    </plurals>
+
+    <plurals name="watch_new_quoting">
+        <item quantity="one">%1$d new post, %2$d quoting you</item>
+        <item quantity="other">%1$d new posts, %2$d quoting you</item>
+    </plurals>
+
+</resources>
