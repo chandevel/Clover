@@ -195,6 +195,6 @@ public class BoardManager {
     }
 
     public interface BoardChangeListener {
-        public void onBoardsChanged();
+        void onBoardsChanged();
     }
 }

@@ -360,9 +360,9 @@ public class ChanLoader {
         clearTimer();
     }
 
-    public static interface ChanLoaderCallback {
-        public void onChanLoaderData(ChanThread result);
+    public interface ChanLoaderCallback {
+        void onChanLoaderData(ChanThread result);
 
-        public void onChanLoaderError(VolleyError error);
+        void onChanLoaderError(VolleyError error);
     }
 }

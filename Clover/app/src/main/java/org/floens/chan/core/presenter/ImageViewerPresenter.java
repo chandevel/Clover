@@ -255,26 +255,26 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     public interface Callback {
-        public void startPreviewInTransition(PostImage postImage);
+        void startPreviewInTransition(PostImage postImage);
 
-        public void startPreviewOutTransition(PostImage postImage);
+        void startPreviewOutTransition(PostImage postImage);
 
-        public void setPreviewVisibility(boolean visible);
+        void setPreviewVisibility(boolean visible);
 
-        public void setPagerVisiblity(boolean visible);
+        void setPagerVisiblity(boolean visible);
 
-        public void setPagerItems(List<PostImage> images, int initialIndex);
+        void setPagerItems(List<PostImage> images, int initialIndex);
 
-        public void setImageMode(PostImage postImage, MultiImageView.Mode mode);
+        void setImageMode(PostImage postImage, MultiImageView.Mode mode);
 
-        public void setTitle(PostImage postImage);
+        void setTitle(PostImage postImage);
 
-        public void scrollTo(PostImage postImage);
+        void scrollTo(PostImage postImage);
 
-        public MultiImageView.Mode getImageMode(PostImage postImage);
+        MultiImageView.Mode getImageMode(PostImage postImage);
 
-        public void showProgress(boolean show);
+        void showProgress(boolean show);
 
-        public void onLoadProgress(float progress);
+        void onLoadProgress(float progress);
     }
 }

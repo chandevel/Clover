@@ -180,7 +180,7 @@ public class FloatingMenu {
     }
 
     public interface FloatingMenuCallback {
-        public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item);
+        void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item);
     }
 
     private static class FloatingMenuArrayAdapter extends ArrayAdapter<String> {

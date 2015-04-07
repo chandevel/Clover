@@ -436,18 +436,18 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         callback.onModeLoaded(this, mode);
     }
 
-    public static interface Callback {
-        public void onTap(MultiImageView multiImageView);
+    public interface Callback {
+        void onTap(MultiImageView multiImageView);
 
-        public void showProgress(MultiImageView multiImageView, boolean progress);
+        void showProgress(MultiImageView multiImageView, boolean progress);
 
-        public void onProgress(MultiImageView multiImageView, long current, long total);
+        void onProgress(MultiImageView multiImageView, long current, long total);
 
-        public void onVideoLoaded(MultiImageView multiImageView);
+        void onVideoLoaded(MultiImageView multiImageView);
 
-        public void onVideoError(MultiImageView multiImageView, File video);
+        void onVideoError(MultiImageView multiImageView, File video);
 
-        public void onModeLoaded(MultiImageView multiImageView, Mode mode);
+        void onModeLoaded(MultiImageView multiImageView, Mode mode);
     }
 
     public static class NoMusicServiceCommandContext extends ContextWrapper {

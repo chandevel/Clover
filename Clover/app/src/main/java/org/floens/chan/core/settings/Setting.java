@@ -34,6 +34,6 @@ public abstract class Setting<T> {
     }
 
     public interface SettingCallback<T> {
-        public void onValueChange(Setting setting, T value);
+        void onValueChange(Setting setting, T value);
     }
 }

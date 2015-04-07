@@ -20,26 +20,32 @@ package org.floens.chan.ui.controller;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
+import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.adapter.PinAdapter;
+import org.floens.chan.ui.helper.SwipeListener;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.utils.AndroidUtils;
 
+import de.greenrobot.event.EventBus;
+
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class RootNavigationController extends NavigationController {
+public class RootNavigationController extends NavigationController implements PinAdapter.Callback {
     public DrawerLayout drawerLayout;
     public FrameLayout drawer;
 
     private RecyclerView recyclerView;
+    private PinAdapter pinAdapter;
 
     public RootNavigationController(Context context) {
         super(context);
@@ -49,20 +55,22 @@ public class RootNavigationController extends NavigationController {
     public void onCreate() {
         super.onCreate();
 
+        EventBus.getDefault().register(this);
+
         view = inflateRes(R.layout.controller_navigation_drawer);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         container = (FrameLayout) view.findViewById(R.id.container);
         drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         drawer = (FrameLayout) view.findViewById(R.id.drawer);
         recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
-
         recyclerView.setHasFixedSize(true);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        pinAdapter = new PinAdapter(this);
+        recyclerView.setAdapter(pinAdapter);
 
-        PinAdapter adapter = new PinAdapter();
-        recyclerView.setAdapter(adapter);
+        new SwipeListener(context, recyclerView, pinAdapter);
+
+        pinAdapter.onPinsChanged(ChanApplication.getWatchManager().getPins());
 
         toolbar.setCallback(this);
 
@@ -72,6 +80,13 @@ public class RootNavigationController extends NavigationController {
                 return setDrawerWidth();
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -103,6 +118,23 @@ public class RootNavigationController extends NavigationController {
     protected void controllerPopped(Controller controller) {
         super.controllerPopped(controller);
         setDrawerEnabled(controller.navigationItem.hasDrawer);
+    }
+
+    @Override
+    public void onPinClicked(Pin pin) {
+
+    }
+
+    public void onEvent(WatchManager.PinAddedMessage message) {
+        pinAdapter.onPinAdded(message.pin);
+    }
+
+    public void onEvent(WatchManager.PinRemovedMessage message) {
+        pinAdapter.onPinRemoved(message.pin);
+    }
+
+    public void onEvent(WatchManager.PinChangedMessage message) {
+        pinAdapter.onPinChanged(message.pin);
     }
 
     private void setDrawerEnabled(boolean enabled) {

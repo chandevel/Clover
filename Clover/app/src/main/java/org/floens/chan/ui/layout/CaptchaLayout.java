@@ -94,9 +94,9 @@ public class CaptchaLayout extends WebView {
     }
 
     public interface CaptchaCallback {
-        public void captchaLoaded(CaptchaLayout captchaLayout);
+        void captchaLoaded(CaptchaLayout captchaLayout);
 
-        public void captchaEntered(CaptchaLayout captchaLayout, String response);
+        void captchaEntered(CaptchaLayout captchaLayout, String response);
     }
 
     public static class CaptchaInterface {

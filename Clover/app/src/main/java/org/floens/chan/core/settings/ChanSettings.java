@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
@@ -79,7 +80,12 @@ public class ChanSettings {
         saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover");
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
-        networkHttps = new BooleanSetting(p, "preference_network_https", true);
+        networkHttps = new BooleanSetting(p, "preference_network_https", true, new Setting.SettingCallback<Boolean>() {
+            @Override
+            public void onValueChange(Setting setting, Boolean value) {
+                ChanUrls.loadScheme(value);
+            }
+        });
         forcePhoneLayout = new BooleanSetting(p, "preference_force_phone_layout", false);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);

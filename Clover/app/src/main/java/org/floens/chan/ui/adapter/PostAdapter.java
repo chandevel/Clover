@@ -287,15 +287,15 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     }
 
     public interface PostAdapterCallback {
-        public void onFilteredResults(String filter, int count, boolean all);
+        void onFilteredResults(String filter, int count, boolean all);
 
-        public Loadable getLoadable();
+        Loadable getLoadable();
 
-        public void onListScrolledToBottom();
+        void onListScrolledToBottom();
 
-        public void onListStatusClicked();
+        void onListStatusClicked();
 
-        public void scrollTo(int position);
+        void scrollTo(int position);
     }
 
     public class StatusView extends LinearLayout {

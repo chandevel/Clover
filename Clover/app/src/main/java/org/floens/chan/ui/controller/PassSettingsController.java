@@ -148,6 +148,6 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     }
 
     public interface PassSettingControllerListener {
-        public void onPassEnabledChanged(boolean enabled);
+        void onPassEnabledChanged(boolean enabled);
     }
 }

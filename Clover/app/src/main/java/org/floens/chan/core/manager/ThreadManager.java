@@ -578,21 +578,21 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
     }
 
     public interface ThreadManagerListener {
-        public void onThreadLoaded(ChanThread thread);
+        void onThreadLoaded(ChanThread thread);
 
-        public void onThreadLoadError(VolleyError error);
+        void onThreadLoadError(VolleyError error);
 
-        public void onPostClicked(Post post);
+        void onPostClicked(Post post);
 
-        public void onThumbnailClicked(Post post);
+        void onThumbnailClicked(Post post);
 
-        public void onScrollTo(int post);
+        void onScrollTo(int post);
 
-        public void onRefreshView();
+        void onRefreshView();
 
-        public void onOpenThread(Loadable thread, int highlightedPost);
+        void onOpenThread(Loadable thread, int highlightedPost);
 
-        public ThreadManager.ViewMode getViewMode();
+        ThreadManager.ViewMode getViewMode();
     }
 
     public static class RepliesPopup {

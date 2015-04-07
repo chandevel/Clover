@@ -11,14 +11,12 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -41,6 +39,7 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.LoadingBar;
 import org.floens.chan.ui.view.MultiImageView;
 import org.floens.chan.ui.view.OptionalSwipeViewPager;
+import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageSaver;
@@ -234,7 +233,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     public void startPreviewInTransition(PostImage postImage) {
-        ImageView startImageView = getTransitionImageView(postImage);
+        ThumbnailView startImageView = getTransitionImageView(postImage);
 
         if (!setTransitionViewData(startImageView)) {
             Logger.test("Oops");
@@ -307,7 +306,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             }
         }
 
-        ImageView startImage = getTransitionImageView(postImage);
+        ThumbnailView startImage = getTransitionImageView(postImage);
 
         endAnimation = new AnimatorSet();
         if (!setTransitionViewData(startImage) || bitmap == null) {
@@ -354,12 +353,12 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         navigationController.stopPresenting(false);
     }
 
-    private boolean setTransitionViewData(ImageView startView) {
+    private boolean setTransitionViewData(ThumbnailView startView) {
         if (startView == null || startView.getWindowToken() == null) {
             return false;
         }
 
-        Bitmap bitmap = ((BitmapDrawable) startView.getDrawable()).getBitmap();
+        Bitmap bitmap = startView.getBitmap();
         if (bitmap == null) {
             return false;
         }
@@ -399,7 +398,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         toolbar.setAlpha(alpha);
     }
 
-    private ImageView getTransitionImageView(PostImage postImage) {
+    private ThumbnailView getTransitionImageView(PostImage postImage) {
         return previewCallback.getPreviewImageTransitionView(this, postImage);
     }
 
@@ -408,12 +407,12 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     public interface PreviewCallback {
-        public ImageView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage);
+        ThumbnailView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage);
 
-        public void onPreviewCreate(ImageViewerController imageViewerController);
+        void onPreviewCreate(ImageViewerController imageViewerController);
 
-        public void onPreviewDestroy(ImageViewerController imageViewerController);
+        void onPreviewDestroy(ImageViewerController imageViewerController);
 
-        public void scrollTo(PostImage postImage);
+        void scrollTo(PostImage postImage);
     }
 }

@@ -102,8 +102,8 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
     }
 
     public interface ToolbarMenuItemCallback {
-        public void onMenuItemClicked(ToolbarMenuItem item);
+        void onMenuItemClicked(ToolbarMenuItem item);
 
-        public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item);
+        void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item);
     }
 }

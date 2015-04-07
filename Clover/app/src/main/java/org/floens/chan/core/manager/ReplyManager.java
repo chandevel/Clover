@@ -262,8 +262,8 @@ public class ReplyManager {
         });
     }
 
-    public static interface PassListener {
-        public void onResponse(PassResponse response);
+    public interface PassListener {
+        void onResponse(PassResponse response);
     }
 
     public static class PassResponse {
@@ -336,7 +336,7 @@ public class ReplyManager {
     }
 
     public interface DeleteListener {
-        public void onResponse(DeleteResponse response);
+        void onResponse(DeleteResponse response);
     }
 
     public static class DeleteResponse {
@@ -484,8 +484,8 @@ public class ReplyManager {
         AndroidUtils.runOnUiThread(runnable);
     }
 
-    public static interface ReplyListener {
-        public void onResponse(ReplyResponse response);
+    public interface ReplyListener {
+        void onResponse(ReplyResponse response);
     }
 
     public static class ReplyResponse {

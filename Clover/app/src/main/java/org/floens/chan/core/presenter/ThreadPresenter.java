@@ -19,7 +19,6 @@ package org.floens.chan.core.presenter;
 
 import android.text.TextUtils;
 import android.view.Menu;
-import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 
@@ -39,6 +38,7 @@ import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.PostView;
+import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -167,7 +167,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public void onThumbnailClicked(Post post, ImageView thumbnail) {
+    public void onThumbnailClicked(Post post, ThumbnailView thumbnail) {
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
@@ -341,26 +341,26 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     public interface ThreadPresenterCallback {
-        public void showPosts(ChanThread thread);
+        void showPosts(ChanThread thread);
 
-        public void showError(VolleyError error);
+        void showError(VolleyError error);
 
-        public void showLoading();
+        void showLoading();
 
-        public void showPostInfo(String info);
+        void showPostInfo(String info);
 
-        public void showPostLinkables(List<PostLinkable> linkables);
+        void showPostLinkables(List<PostLinkable> linkables);
 
-        public void clipboardPost(Post post);
+        void clipboardPost(Post post);
 
-        public void showThread(Loadable threadLoadable);
+        void showThread(Loadable threadLoadable);
 
-        public void openLink(String link);
+        void openLink(String link);
 
-        public void showPostsPopup(Post forPost, List<Post> posts);
+        void showPostsPopup(Post forPost, List<Post> posts);
 
-        public void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail);
+        void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
-        public void scrollTo(int position);
+        void scrollTo(int position);
     }
 }

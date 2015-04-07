@@ -107,6 +107,6 @@ public class WatchSettingsController extends SettingsController implements Compo
     }
 
     public interface WatchSettingControllerListener {
-        public void onWatchEnabledChanged(boolean enabled);
+        void onWatchEnabledChanged(boolean enabled);
     }
 }

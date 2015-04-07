@@ -20,7 +20,6 @@ package org.floens.chan.ui.layout;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -31,6 +30,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.view.PostView;
+import org.floens.chan.ui.view.ThumbnailView;
 
 /**
  * A layout that wraps around a listview to manage showing posts.
@@ -98,8 +98,8 @@ public class ThreadListLayout extends RelativeLayout {
 
     }
 
-    public ImageView getThumbnail(PostImage postImage) {
-        ImageView thumbnail = null;
+    public ThumbnailView getThumbnail(PostImage postImage) {
+        ThumbnailView thumbnail = null;
         for (int i = 0; i < listView.getChildCount(); i++) {
             View view = listView.getChildAt(i);
             if (view instanceof PostView) {

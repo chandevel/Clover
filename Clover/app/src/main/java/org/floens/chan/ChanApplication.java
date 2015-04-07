@@ -202,7 +202,7 @@ public class ChanApplication extends Application {
         }
     }
 
-    public static interface ForegroundChangedListener {
-        public void onForegroundChanged(boolean foreground);
+    public interface ForegroundChangedListener {
+        void onForegroundChanged(boolean foreground);
     }
 }

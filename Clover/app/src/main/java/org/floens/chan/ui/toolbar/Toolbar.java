@@ -273,6 +273,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     }
 
     public interface ToolbarCallback {
-        public void onMenuOrBackClicked(boolean isArrow);
+        void onMenuOrBackClicked(boolean isArrow);
     }
 }

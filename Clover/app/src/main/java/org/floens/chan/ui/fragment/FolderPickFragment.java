@@ -195,7 +195,7 @@ public class FolderPickFragment extends DialogFragment {
         adapter.notifyDataSetChanged();
     }
 
-    public static interface FolderPickListener {
-        public void folderPicked(File path);
+    public interface FolderPickListener {
+        void folderPicked(File path);
     }
 }

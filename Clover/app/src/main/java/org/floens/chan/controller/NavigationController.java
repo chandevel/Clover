@@ -127,7 +127,9 @@ public abstract class NavigationController extends Controller implements Control
             controllerList.remove(from);
         }
 
-        controllerPopped(to);
+        if (to != null) {
+            controllerPopped(to);
+        }
 
         return true;
     }

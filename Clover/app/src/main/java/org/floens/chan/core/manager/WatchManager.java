@@ -21,10 +21,10 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -36,6 +36,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import de.greenrobot.event.EventBus;
 
 public class WatchManager implements ChanApplication.ForegroundChangedListener {
     private static final String TAG = "WatchManager";
@@ -92,7 +94,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
     }
 
     public List<Pin> getWatchingPins() {
-        if (ChanSettings.getWatchEnabled()) {
+        if (ChanSettings.watchEnabled.get()) {
             List<Pin> l = new ArrayList<>();
 
             for (Pin p : pins) {
@@ -124,6 +126,8 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         ChanApplication.getDatabaseManager().addPin(pin);
 
         onPinsChanged();
+
+        EventBus.getDefault().post(new PinAddedMessage(pin));
 
         return true;
     }
@@ -161,6 +165,8 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         ChanApplication.getDatabaseManager().removePin(pin);
 
         onPinsChanged();
+
+        EventBus.getDefault().post(new PinRemovedMessage(pin));
     }
 
     /**
@@ -172,6 +178,8 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         ChanApplication.getDatabaseManager().updatePin(pin);
 
         onPinsChanged();
+
+        EventBus.getDefault().post(new PinChangedMessage(pin));
     }
 
     /**
@@ -217,6 +225,10 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
 
         onPinsChanged();
         updateDatabase();
+
+        for (Pin pin : getPins()) {
+            EventBus.getDefault().post(new PinChangedMessage(pin));
+        }
     }
 
     public void onWatchEnabledChanged(boolean watchEnabled) {
@@ -337,8 +349,32 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         updateTimerState(false);
     }
 
-    public static interface PinListener {
-        public void onPinsChanged();
+    public interface PinListener {
+        void onPinsChanged();
+    }
+
+    public static class PinAddedMessage {
+        public Pin pin;
+
+        public PinAddedMessage(Pin pin) {
+            this.pin = pin;
+        }
+    }
+
+    public static class PinRemovedMessage {
+        public Pin pin;
+
+        public PinRemovedMessage(Pin pin) {
+            this.pin = pin;
+        }
+    }
+
+    public static class PinChangedMessage {
+        public Pin pin;
+
+        public PinChangedMessage(Pin pin) {
+            this.pin = pin;
+        }
     }
 
     private static class PendingTimer {

@@ -21,13 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:orientation="horizontal">
 
     <org.floens.chan.ui.view.CustomNetworkImageView
-        android:id="@+id/pin_image"
+        android:id="@+id/image"
         android:layout_width="48dp"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
     <TextView
-        android:id="@+id/pin_text"
+        android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_weight="1"
@@ -43,13 +43,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textSize="19sp" />
 
     <FrameLayout
-        android:id="@+id/pin_time_container"
+        android:id="@+id/time_container"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:paddingLeft="4dp">
 
         <TextView
-            android:id="@+id/pin_time"
+            android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"

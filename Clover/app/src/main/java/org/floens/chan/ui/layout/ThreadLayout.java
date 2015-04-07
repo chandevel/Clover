@@ -23,7 +23,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -38,6 +37,7 @@ import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
@@ -164,7 +164,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     }
 
     @Override
-    public void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail) {
+    public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
         callback.showImages(images, index, loadable, thumbnail);
     }
 
@@ -173,7 +173,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         threadListLayout.scrollTo(position);
     }
 
-    public ImageView getThumbnail(PostImage postImage) {
+    public ThumbnailView getThumbnail(PostImage postImage) {
         return threadListLayout.getThumbnail(postImage);
     }
 
@@ -185,8 +185,8 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     }
 
     public interface ThreadLayoutCallback {
-        public void openThread(Loadable threadLoadable);
+        void openThread(Loadable threadLoadable);
 
-        public void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail);
+        void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
     }
 }

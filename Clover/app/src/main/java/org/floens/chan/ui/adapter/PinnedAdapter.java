@@ -119,7 +119,7 @@ public class PinnedAdapter extends BaseAdapter {
                     convertView = LayoutInflater.from(context).inflate(R.layout.pin_item, null);
                 }
 
-                CustomNetworkImageView imageView = (CustomNetworkImageView) convertView.findViewById(R.id.pin_image);
+                CustomNetworkImageView imageView = (CustomNetworkImageView) convertView.findViewById(R.id.image);
                 if (pin.thumbnailUrl != null) {
                     imageView.setVisibility(View.VISIBLE);
                     imageView.setFadeIn(0);
@@ -129,14 +129,14 @@ public class PinnedAdapter extends BaseAdapter {
                     imageView.setVisibility(View.GONE);
                 }
 
-                ((TextView) convertView.findViewById(R.id.pin_text)).setText(pin.loadable.title);
+                ((TextView) convertView.findViewById(R.id.text)).setText(pin.loadable.title);
 
-                FrameLayout timeContainer = (FrameLayout) convertView.findViewById(R.id.pin_time_container);
+                FrameLayout timeContainer = (FrameLayout) convertView.findViewById(R.id.time_container);
                 FrameLayout countContainer = (FrameLayout) convertView.findViewById(R.id.pin_count_container);
                 if (ChanSettings.getWatchEnabled()) {
                     countContainer.setVisibility(View.VISIBLE);
 
-                    TextView timeView = (TextView) convertView.findViewById(R.id.pin_time);
+                    TextView timeView = (TextView) convertView.findViewById(R.id.time);
                     if (pin.watching && pin.getPinWatcher() != null && ChanSettings.getWatchCountdownVisibleEnabled()) {
                         timeContainer.setVisibility(View.VISIBLE);
                         long timeRaw = pin.getPinWatcher().getTimeUntilNextLoad();

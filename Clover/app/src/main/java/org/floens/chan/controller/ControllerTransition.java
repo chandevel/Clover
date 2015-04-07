@@ -36,6 +36,6 @@ public abstract class ControllerTransition {
     }
 
     public interface Callback {
-        public void onControllerTransitionCompleted(ControllerTransition transition);
+        void onControllerTransitionCompleted(ControllerTransition transition);
     }
 }

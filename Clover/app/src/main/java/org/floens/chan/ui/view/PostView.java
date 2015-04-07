@@ -74,7 +74,8 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     private boolean isBuild = false;
     private LinearLayout full;
     private LinearLayout contentContainer;
-    private CustomNetworkImageView imageView;
+    private int imageSize;
+    private ThumbnailView thumbnailView;
     private TextView titleView;
     private TextView commentView;
     private TextView repliesCountView;
@@ -141,11 +142,11 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         ta.recycle();
 
         if (post.hasImage) {
-            imageView.setVisibility(View.VISIBLE);
-            imageView.setImageUrl(post.thumbnailUrl, ChanApplication.getVolleyImageLoader());
+            thumbnailView.setVisibility(View.VISIBLE);
+            thumbnailView.setUrl(post.thumbnailUrl, imageSize, imageSize);
         } else {
-            imageView.setVisibility(View.GONE);
-            imageView.setImageUrl(null, null);
+            thumbnailView.setVisibility(View.GONE);
+            thumbnailView.setUrl(null, 0, 0);
         }
 
         CharSequence total = new SpannableString("");
@@ -258,8 +259,8 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         return post;
     }
 
-    public ImageView getThumbnail() {
-        return imageView;
+    public ThumbnailView getThumbnail() {
+        return thumbnailView;
     }
 
     public void setHighlightQuotesWithNo(int no) {
@@ -291,7 +292,7 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         int postCommentSize = 0;
         int commentPadding = 0;
         int postPadding = 0;
-        int imageSize = 0;
+        imageSize = 0;
         int repliesCountSize = 0;
         if (isList()) {
             postCommentSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, ThemeHelper.getInstance().getFontSize(), getResources().getDisplayMetrics());
@@ -324,23 +325,20 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         imageContainer.setBackgroundColor(thumbnailBackground);
 
         // Create thumbnail
-        imageView = new CustomNetworkImageView(context);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        imageView.setFadeIn(100);
-
-        imageView.setOnClickListener(new View.OnClickListener() {
+        thumbnailView = new ThumbnailView(context);
+        thumbnailView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onThumbnailClicked(post, imageView);
+                callback.onThumbnailClicked(post, thumbnailView);
             }
         });
 
         if (isList()) {
-            imageContainer.addView(imageView, new LinearLayout.LayoutParams(imageSize, imageSize));
+            imageContainer.addView(thumbnailView, new LinearLayout.LayoutParams(imageSize, imageSize));
             full.addView(imageContainer, wrapMatchParams);
             full.setMinimumHeight(imageSize);
         } else if (isGrid()) {
-            imageContainer.addView(imageView, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, imageSize));
+            imageContainer.addView(thumbnailView, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, imageSize));
             full.addView(imageContainer, matchWrapParams);
         }
 
@@ -495,23 +493,23 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     }
 
     public interface PostViewCallback {
-        public Loadable getLoadable();
+        Loadable getLoadable();
 
-        public void onPostClicked(Post post);
+        void onPostClicked(Post post);
 
-        public void onThumbnailClicked(Post post, ImageView thumbnail);
+        void onThumbnailClicked(Post post, ThumbnailView thumbnail);
 
-        public void onShowPostReplies(Post post);
+        void onShowPostReplies(Post post);
 
-        public void onPopulatePostOptions(Post post, Menu menu);
+        void onPopulatePostOptions(Post post, Menu menu);
 
-        public void onPostOptionClicked(Post post, int id);
+        void onPostOptionClicked(Post post, int id);
 
-        public void onPostLinkableClicked(PostLinkable linkable);
+        void onPostLinkableClicked(PostLinkable linkable);
 
-        public boolean isPostHightlighted(Post post);
+        boolean isPostHightlighted(Post post);
 
-        public boolean isPostLastSeen(Post post);
+        boolean isPostLastSeen(Post post);
     }
 
     private class PostViewMovementMethod extends LinkMovementMethod {

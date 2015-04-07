@@ -21,8 +21,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -31,6 +33,8 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.Arrays;
+
+import de.greenrobot.event.EventBus;
 
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int POST_ID = 1;
@@ -54,6 +58,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onCreate() {
         super.onCreate();
 
+        EventBus.getDefault().register(this);
+
         view.setBackgroundColor(0xffffffff);
 
         threadLayout.getPresenter().bindLoadable(loadable);
@@ -72,6 +78,25 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         ));
 
         setPinIconState(threadLayout.getPresenter().isPinned());
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        EventBus.getDefault().unregister(this);
+    }
+
+    public void onEvent(WatchManager.PinAddedMessage message) {
+        setPinIconState();
+    }
+
+    public void onEvent(WatchManager.PinRemovedMessage message) {
+        setPinIconState();
+    }
+
+    public void onEvent(WatchManager.PinChangedMessage message) {
+        setPinIconState();
     }
 
     @Override
@@ -117,6 +142,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 AndroidUtils.shareLink(link);
                 break;
         }
+    }
+
+    private void setPinIconState() {
+        WatchManager wm = ChanApplication.getWatchManager();
+        setPinIconState(wm.findPinByLoadable(loadable) != null);
     }
 
     private void setPinIconState(boolean pinned) {

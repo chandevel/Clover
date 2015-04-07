@@ -150,11 +150,11 @@ public class FileCache {
     }
 
     public interface DownloadedCallback {
-        public void onProgress(long downloaded, long total, boolean done);
+        void onProgress(long downloaded, long total, boolean done);
 
-        public void onSuccess(File file);
+        void onSuccess(File file);
 
-        public void onFail(boolean notFound);
+        void onFail(boolean notFound);
     }
 
     private static class FileCacheDownloader implements Runnable {

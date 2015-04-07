@@ -70,7 +70,7 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
     }
 
     public interface Callback {
-        public void onReady();
-        public void onError(boolean wasInitial);
+        void onReady();
+        void onError(boolean wasInitial);
     }
 }
