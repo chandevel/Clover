@@ -307,9 +307,11 @@ public class SwipeListener extends RecyclerView.ItemDecoration implements Recycl
 
         if ((touchAdapterPos > dragPosition && floatingViewPos > viewAtPosition.getTop() + viewAtPosition.getHeight() / 5f) ||
                 (touchAdapterPos < dragPosition && floatingViewPos < viewAtPosition.getTop() + viewAtPosition.getHeight() * 4f / 5f)) {
-            callback.moveItem(dragPosition, touchAdapterPos);
-            dragPosition = touchAdapterPos;
-            somePositionChanged = true;
+            if (callback.isMoveable(touchAdapterPos)) {
+                callback.moveItem(dragPosition, touchAdapterPos);
+                dragPosition = touchAdapterPos;
+                somePositionChanged = true;
+            }
         }
     }
 

@@ -96,11 +96,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_edit_enable_filler">Show filler</string>
     <string name="board_delete">Remove board?</string>
 
-    <string name="drawer_open">Open drawer</string>
-    <string name="drawer_close">Close drawer</string>
-    <string name="drawer_pinned">Pinned threads</string>
+    <string name="drawer_board">Board</string>
+    <string name="drawer_catalog">Catalog</string>
+    <string name="drawer_pinned">Watching threads</string>
     <string name="drawer_pinned_delete">Delete pin</string>
     <string name="drawer_pinned_change_title">Edit title</string>
+    <string name="drawer_open">Open drawer</string>
+    <string name="drawer_close">Close drawer</string>
 
     <string name="one_reply">reply</string>
     <string name="multiple_replies">replies</string>

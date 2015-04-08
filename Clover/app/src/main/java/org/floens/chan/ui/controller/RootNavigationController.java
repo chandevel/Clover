@@ -61,6 +61,7 @@ public class RootNavigationController extends NavigationController implements Pi
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         container = (FrameLayout) view.findViewById(R.id.container);
         drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
         drawer = (FrameLayout) view.findViewById(R.id.drawer);
         recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -127,6 +128,7 @@ public class RootNavigationController extends NavigationController implements Pi
 
     public void onEvent(WatchManager.PinAddedMessage message) {
         pinAdapter.onPinAdded(message.pin);
+        drawerLayout.openDrawer(drawer);
     }
 
     public void onEvent(WatchManager.PinRemovedMessage message) {

@@ -5,19 +5,19 @@
     android:layout_height="48dp"
     android:background="?attr/selectableItemBackground">
 
-    <org.floens.chan.ui.view.ThumbnailView
-        android:id="@+id/thumb"
+    <ImageView
+        android:id="@+id/image"
         android:layout_width="56dp"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:paddingLeft="16dp"
-        android:paddingTop="4dp"
-        android:paddingRight="0dp"
-        android:paddingBottom="4dp" />
+        android:paddingRight="16dp"
+        android:scaleType="center"
+        android:layout_gravity="center_vertical" />
 
     <TextView
         android:id="@+id/text"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center_vertical"

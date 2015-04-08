@@ -52,7 +52,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <android.support.v7.widget.RecyclerView
             android:id="@+id/drawer_recycler_view"
             android:scrollbars="vertical"
-            android:paddingTop="16dp"
             android:paddingBottom="16dp"
             android:clipToPadding="false"
             android:scrollbarStyle="outsideOverlay"
