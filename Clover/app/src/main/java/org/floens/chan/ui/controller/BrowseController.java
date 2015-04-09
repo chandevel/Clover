@@ -31,6 +31,7 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -41,7 +42,7 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, BoardManager.BoardChangeListener {
+public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, BoardManager.BoardChangeListener, RootNavigationController.DrawerCallbacks {
     private static final int REFRESH_ID = 1;
     private static final int POST_ID = 2;
     private static final int SEARCH_ID = 101;
@@ -142,6 +143,16 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     @Override
     public void onBoardsChanged() {
         loadBoards();
+    }
+
+    @Override
+    public void onPinClicked(Pin pin) {
+        openThread(pin.loadable);
+    }
+
+    @Override
+    public boolean isPinCurrent(Pin pin) {
+        return false;
     }
 
     private void loadBoard(Board board) {

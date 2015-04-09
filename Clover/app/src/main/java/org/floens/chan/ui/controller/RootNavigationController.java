@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.controller.ControllerTransition;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
@@ -122,8 +123,36 @@ public class RootNavigationController extends NavigationController implements Pi
     }
 
     @Override
-    public void onPinClicked(Pin pin) {
+    public void onControllerTransitionCompleted(ControllerTransition transition) {
+        super.onControllerTransitionCompleted(transition);
+        updateHighlighted();
+    }
 
+    public void updateHighlighted() {
+        pinAdapter.updateHighlighted(recyclerView);
+    }
+
+    @Override
+    public void onPinClicked(Pin pin) {
+        Controller top = getTop();
+        if (top instanceof DrawerCallbacks) {
+            ((DrawerCallbacks) top).onPinClicked(pin);
+            drawerLayout.closeDrawer(Gravity.LEFT);
+            pinAdapter.updateHighlighted(recyclerView);
+        }
+    }
+
+    public boolean isHighlighted(Pin pin) {
+        Controller top = getTop();
+        if (top instanceof DrawerCallbacks) {
+            return ((DrawerCallbacks) top).isPinCurrent(pin);
+        }
+        return false;
+    }
+
+    @Override
+    public void onWatchCountClicked(Pin pin) {
+        ChanApplication.getWatchManager().toggleWatch(pin);
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
@@ -136,7 +165,7 @@ public class RootNavigationController extends NavigationController implements Pi
     }
 
     public void onEvent(WatchManager.PinChangedMessage message) {
-        pinAdapter.onPinChanged(message.pin);
+        pinAdapter.onPinChanged(recyclerView, message.pin);
     }
 
     private void setDrawerEnabled(boolean enabled) {
@@ -152,5 +181,11 @@ public class RootNavigationController extends NavigationController implements Pi
         } else {
             return false;
         }
+    }
+
+    public interface DrawerCallbacks {
+        void onPinClicked(Pin pin);
+
+        boolean isPinCurrent(Pin pin);
     }
 }

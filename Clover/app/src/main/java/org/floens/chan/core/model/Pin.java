@@ -20,7 +20,6 @@ package org.floens.chan.core.model;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.floens.chan.ChanApplication;
 import org.floens.chan.core.watch.PinWatcher;
 
 @DatabaseTable
@@ -80,10 +79,8 @@ public class Pin {
         }
     }
 
-    public void update() {
-        if (pinWatcher != null && watching) {
-            pinWatcher.update();
-        }
+    public boolean update() {
+        return pinWatcher != null && watching && pinWatcher.update();
     }
 
     public void createWatcher() {
@@ -97,11 +94,5 @@ public class Pin {
             pinWatcher.destroy();
             pinWatcher = null;
         }
-    }
-
-    public void toggleWatch() {
-        watching = !watching;
-        ChanApplication.getWatchManager().onPinsChanged();
-        ChanApplication.getWatchManager().invokeLoadNow();
     }
 }

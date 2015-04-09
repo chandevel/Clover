@@ -20,7 +20,9 @@ package org.floens.chan.ui.toolbar;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import org.floens.chan.R;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 
@@ -30,15 +32,25 @@ public class NavigationItem {
     public String title = "";
     public ToolbarMenu menu;
     public boolean hasBack = true;
-    public LinearLayout view;
     public FloatingMenu middleMenu;
     public View rightView;
     public boolean hasDrawer = false;
+
+    LinearLayout view;
 
     public ToolbarMenuItem createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
         ToolbarMenuItem overflow = menu.createOverflow(callback);
         FloatingMenu overflowMenu = new FloatingMenu(context, overflow.getView(), items);
         overflow.setSubMenu(overflowMenu);
         return overflow;
+    }
+
+    public void updateTitle() {
+        if (view != null) {
+            TextView titleView = (TextView) view.findViewById(R.id.title);
+            if (titleView != null) {
+                titleView.setText(title);
+            }
+        }
     }
 }

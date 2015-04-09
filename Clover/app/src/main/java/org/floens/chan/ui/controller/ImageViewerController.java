@@ -217,7 +217,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     public void setTitle(PostImage postImage) {
         navigationItem.title = postImage.filename;
-        toolbar.updateTitle(navigationItem);
+        navigationItem.updateTitle();
     }
 
     public void scrollTo(PostImage postImage) {

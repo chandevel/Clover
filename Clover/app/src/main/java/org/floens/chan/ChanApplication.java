@@ -40,8 +40,8 @@ import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 public class ChanApplication extends Application {
     private static final String TAG = "ChanApplication";
@@ -62,7 +62,6 @@ public class ChanApplication extends Application {
     private static DatabaseManager databaseManager;
     private static FileCache fileCache;
 
-    private List<ForegroundChangedListener> foregroundChangedListeners = new ArrayList<>();
     private int activityForegroundCounter = 0;
 
     public ChanApplication() {
@@ -152,9 +151,7 @@ public class ChanApplication extends Application {
         activityForegroundCounter++;
 
         if (getApplicationInForeground() != lastForeground) {
-            for (ForegroundChangedListener listener : foregroundChangedListeners) {
-                listener.onForegroundChanged(getApplicationInForeground());
-            }
+            EventBus.getDefault().post(new ForegroundChangedMessage(getApplicationInForeground()));
         }
     }
 
@@ -167,22 +164,12 @@ public class ChanApplication extends Application {
         }
 
         if (getApplicationInForeground() != lastForeground) {
-            for (ForegroundChangedListener listener : foregroundChangedListeners) {
-                listener.onForegroundChanged(getApplicationInForeground());
-            }
+            EventBus.getDefault().post(new ForegroundChangedMessage(getApplicationInForeground()));
         }
     }
 
     public boolean getApplicationInForeground() {
         return activityForegroundCounter > 0;
-    }
-
-    public void addForegroundChangedListener(ForegroundChangedListener listener) {
-        foregroundChangedListeners.add(listener);
-    }
-
-    public void removeForegroundChangedListener(ForegroundChangedListener listener) {
-        foregroundChangedListeners.remove(listener);
     }
 
     private void cleanupOutdated() {
@@ -202,7 +189,11 @@ public class ChanApplication extends Application {
         }
     }
 
-    public interface ForegroundChangedListener {
-        void onForegroundChanged(boolean foreground);
+    public static class ForegroundChangedMessage {
+        public boolean inForeground;
+
+        public ForegroundChangedMessage(boolean inForeground) {
+            this.inForeground = inForeground;
+        }
     }
 }

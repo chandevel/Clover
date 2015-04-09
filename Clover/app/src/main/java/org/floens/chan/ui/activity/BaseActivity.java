@@ -45,21 +45,20 @@ import android.widget.ListView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.animation.SwipeDismissListViewTouchListener;
-import org.floens.chan.ui.animation.SwipeDismissListViewTouchListener.DismissCallbacks;
 import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.ui.adapter.PinnedAdapter;
+import org.floens.chan.ui.animation.SwipeDismissListViewTouchListener;
+import org.floens.chan.ui.animation.SwipeDismissListViewTouchListener.DismissCallbacks;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ThemeHelper;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public abstract class BaseActivity extends ThemeActivity implements PanelSlideListener, WatchManager.PinListener {
+public abstract class BaseActivity extends ThemeActivity implements PanelSlideListener {
     public static boolean doRestartOnResume = false;
 
     private final static int ACTION_OPEN_URL = 1;
@@ -110,8 +109,6 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
         threadPane = (SlidingPaneLayout) findViewById(R.id.pane_container);
         initPane();
 
-        ChanApplication.getWatchManager().addPinListener(this);
-
         updateIcon();
     }
 
@@ -127,8 +124,6 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        ChanApplication.getWatchManager().removePinListener(this);
     }
 
     @Override
@@ -210,12 +205,6 @@ public abstract class BaseActivity extends ThemeActivity implements PanelSlideLi
         pinDrawerView.setOnTouchListener(touchListener);
         pinDrawerView.setOnScrollListener(touchListener.makeScrollListener());
         pinDrawerView.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-    }
-
-    @Override
-    public void onPinsChanged() {
-        pinnedAdapter.reload();
-        updateIcon();
     }
 
     private void updateIcon() {

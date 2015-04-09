@@ -100,13 +100,6 @@ public class AndroidUtils {
         }
     }
 
-    public static int getAttrPixel(int attr) {
-        TypedArray typedArray = ChanApplication.con.getTheme().obtainStyledAttributes(new int[]{attr});
-        int pixels = typedArray.getDimensionPixelSize(0, 0);
-        typedArray.recycle();
-        return pixels;
-    }
-
     public static int getAttrColor(Context context, int attr) {
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(new int[]{attr});
         int color = typedArray.getColor(0, 0);
@@ -114,8 +107,8 @@ public class AndroidUtils {
         return color;
     }
 
-    public static Drawable getAttrDrawable(int attr) {
-        TypedArray typedArray = ChanApplication.con.getTheme().obtainStyledAttributes(new int[]{attr});
+    public static Drawable getAttrDrawable(Context context, int attr) {
+        TypedArray typedArray = context.obtainStyledAttributes(new int[]{attr});
         Drawable drawable = typedArray.getDrawable(0);
         typedArray.recycle();
         return drawable;
@@ -148,7 +141,7 @@ public class AndroidUtils {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService( Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(view, 0);
             }
         });

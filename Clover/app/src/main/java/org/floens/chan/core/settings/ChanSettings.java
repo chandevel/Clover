@@ -91,9 +91,19 @@ public class ChanSettings {
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
 
-        watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
+        watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false, new Setting.SettingCallback<Boolean>() {
+            @Override
+            public void onValueChange(Setting setting, Boolean value) {
+                ChanApplication.getWatchManager().onWatchEnabledChanged(value);
+            }
+        });
         watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
-        watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
+        watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false, new Setting.SettingCallback<Boolean>() {
+            @Override
+            public void onValueChange(Setting setting, Boolean value) {
+                ChanApplication.getWatchManager().onBackgroundWatchingChanged(value);
+            }
+        });
         watchBackgroundTimeout = new StringSetting(p, "preference_watch_background_timeout", "60");
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "all");

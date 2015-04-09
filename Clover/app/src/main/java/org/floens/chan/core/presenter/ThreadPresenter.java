@@ -55,16 +55,13 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     public void bindLoadable(Loadable loadable) {
-        if (chanLoader == null) {
-            if (!loadable.equals(this.loadable)) {
-                if (this.loadable != null) {
-                    unbindLoadable();
-                }
-
-                this.loadable = loadable;
-
-                chanLoader = LoaderPool.getInstance().obtain(loadable, this);
+        if (!loadable.equals(this.loadable)) {
+            if (chanLoader != null) {
+                unbindLoadable();
             }
+
+            this.loadable = loadable;
+            chanLoader = LoaderPool.getInstance().obtain(loadable, this);
         }
     }
 

@@ -137,6 +137,14 @@ public abstract class NavigationController extends Controller implements Control
     protected void controllerPopped(Controller controller) {
     }
 
+    public Controller getTop() {
+        if (controllerList.size() > 0) {
+            return controllerList.get(controllerList.size() - 1);
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public void onControllerTransitionCompleted(ControllerTransition transition) {
         ControllerLogic.finishTransition(transition);

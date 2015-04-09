@@ -49,4 +49,8 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     public void scrollTo(PostImage postImage) {
         threadLayout.getPresenter().scrollTo(postImage);
     }
+
+    @Override
+    public void onShowPosts() {
+    }
 }

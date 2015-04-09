@@ -89,15 +89,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
     }
 
-    public void updateTitle(NavigationItem item) {
-        if (item.view != null) {
-            TextView title = (TextView) item.view.findViewById(R.id.title);
-            if (title != null) {
-                title.setText(item.title);
-            }
-        }
-    }
-
     public void setCallback(ToolbarCallback callback) {
         this.callback = callback;
     }
@@ -132,10 +123,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         arrowMenuView.setImageDrawable(arrowMenuDrawable);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //noinspection deprecation
-            arrowMenuView.setBackgroundDrawable(getAttrDrawable(android.R.attr.selectableItemBackgroundBorderless));
+            arrowMenuView.setBackground(getAttrDrawable(getContext(), android.R.attr.selectableItemBackgroundBorderless));
         } else {
-            //noinspection deprecation
             arrowMenuView.setBackgroundResource(R.drawable.gray_background_selector);
         }
 

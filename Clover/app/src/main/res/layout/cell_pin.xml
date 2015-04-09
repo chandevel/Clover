@@ -3,7 +3,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:background="?attr/selectableItemBackground">
+    android:background="?android:attr/selectableItemBackground">
 
     <org.floens.chan.ui.view.ThumbnailView
         android:id="@+id/thumb"
@@ -17,7 +17,7 @@
     <TextView
         android:id="@+id/text"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center_vertical"
@@ -25,6 +25,17 @@
         android:paddingRight="16dp"
         android:singleLine="true"
         android:textColor="#ff212121"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/watch_count"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:background="?android:attr/selectableItemBackground"
+        android:singleLine="true"
+        android:gravity="center"
+        android:paddingRight="16dp"
+        android:textColor="#ff000000"
         android:textSize="14sp" />
 
 </LinearLayout>

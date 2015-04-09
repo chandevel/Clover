@@ -58,10 +58,8 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
             imageView.setImageDrawable(drawable);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                //noinspection deprecation
-                imageView.setBackgroundDrawable(getAttrDrawable(android.R.attr.selectableItemBackgroundBorderless));
+                imageView.setBackground(getAttrDrawable(context, android.R.attr.selectableItemBackgroundBorderless));
             } else {
-                //noinspection deprecation
                 imageView.setBackgroundResource(R.drawable.gray_background_selector);
             }
         }

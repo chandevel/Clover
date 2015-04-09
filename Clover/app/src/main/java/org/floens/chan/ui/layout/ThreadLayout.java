@@ -91,6 +91,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     public void showPosts(ChanThread thread) {
         threadListLayout.showPosts(thread, !visible);
         switchVisible(true);
+        callback.onShowPosts();
     }
 
     @Override
@@ -188,5 +189,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         void openThread(Loadable threadLoadable);
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
+
+        void onShowPosts();
     }
 }

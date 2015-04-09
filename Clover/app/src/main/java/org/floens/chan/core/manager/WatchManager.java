@@ -39,12 +39,11 @@ import java.util.concurrent.TimeUnit;
 
 import de.greenrobot.event.EventBus;
 
-public class WatchManager implements ChanApplication.ForegroundChangedListener {
+public class WatchManager {
     private static final String TAG = "WatchManager";
     private static final int FOREGROUND_TIME = 5;
 
     private final Context context;
-    private final List<PinListener> listeners = new ArrayList<>();
     private final List<Pin> pins;
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private PendingTimer pendingTimer;
@@ -54,7 +53,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
 
         pins = ChanApplication.getDatabaseManager().getPinned();
 
-        ChanApplication.getInstance().addForegroundChangedListener(this);
+        EventBus.getDefault().register(this);
 
         updateTimerState(true);
         updateNotificationServiceState();
@@ -189,19 +188,20 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         ChanApplication.getDatabaseManager().updatePins(pins);
     }
 
-    public void addPinListener(PinListener l) {
-        listeners.add(l);
+    public void toggleWatch(Pin pin) {
+        pin.watching = !pin.watching;
+
+        EventBus.getDefault().post(new PinChangedMessage(pin));
+        ChanApplication.getWatchManager().onPinsChanged();
+        ChanApplication.getWatchManager().invokeLoadNow();
     }
 
-    public void removePinListener(PinListener l) {
-        listeners.remove(l);
+    public void pinWatcherUpdated(Pin pin) {
+        EventBus.getDefault().post(new PinChangedMessage(pin));
+        onPinsChanged();
     }
 
     public void onPinsChanged() {
-        for (PinListener l : listeners) {
-            l.onPinsChanged();
-        }
-
         updateTimerState(false);
         updateNotificationServiceState();
         updatePinWatchers();
@@ -231,21 +231,26 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         }
     }
 
+    public void onEvent(ChanApplication.ForegroundChangedMessage message) {
+        updateNotificationServiceState();
+        updateTimerState(true);
+    }
+
     public void onWatchEnabledChanged(boolean watchEnabled) {
         updateNotificationServiceState(watchEnabled, getWatchBackgroundEnabled());
         updateTimerState(watchEnabled, getWatchBackgroundEnabled(), false);
         updatePinWatchers(watchEnabled);
+        for (Pin pin : getPins()) {
+            EventBus.getDefault().post(new PinChangedMessage(pin));
+        }
     }
 
     public void onBackgroundWatchingChanged(boolean backgroundEnabled) {
         updateNotificationServiceState(getTimerEnabled(), backgroundEnabled);
         updateTimerState(getTimerEnabled(), backgroundEnabled, false);
-    }
-
-    @Override
-    public void onForegroundChanged(final boolean foreground) {
-        updateNotificationServiceState();
-        updateTimerState(true);
+        for (Pin pin : getPins()) {
+            EventBus.getDefault().post(new PinChangedMessage(pin));
+        }
     }
 
     private boolean getTimerEnabled() {
@@ -294,7 +299,7 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
                 setTimer(invokeLoadNow ? 1 : FOREGROUND_TIME);
             } else {
                 if (backgroundEnabled) {
-                    setTimer(ChanSettings.getWatchBackgroundTimeout());
+                    setTimer(Integer.parseInt(ChanSettings.watchBackgroundTimeout.get()));
                 } else {
                     if (pendingTimer != null) {
                         pendingTimer.cancel();
@@ -343,14 +348,12 @@ public class WatchManager implements ChanApplication.ForegroundChangedListener {
         pendingTimer = null;
 
         for (Pin pin : getWatchingPins()) {
-            pin.update();
+            if (pin.update()) {
+                EventBus.getDefault().post(new PinChangedMessage(pin));
+            }
         }
 
         updateTimerState(false);
-    }
-
-    public interface PinListener {
-        void onPinsChanged();
     }
 
     public static class PinAddedMessage {

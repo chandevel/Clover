@@ -55,9 +55,12 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         }
     }
 
-    public void update() {
+    public boolean update() {
         if (!pin.isError) {
             chanLoader.loadMoreIfTime();
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -192,7 +195,7 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         AndroidUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ChanApplication.getWatchManager().onPinsChanged();
+                ChanApplication.getWatchManager().pinWatcherUpdated(pin);
             }
         });
     }

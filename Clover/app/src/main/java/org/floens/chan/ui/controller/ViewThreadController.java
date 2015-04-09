@@ -26,6 +26,7 @@ import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -36,7 +37,7 @@ import java.util.Arrays;
 
 import de.greenrobot.event.EventBus;
 
-public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
+public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback, RootNavigationController.DrawerCallbacks {
     private static final int POST_ID = 1;
     private static final int PIN_ID = 2;
     private static final int REFRESH_ID = 101;
@@ -62,11 +63,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         view.setBackgroundColor(0xffffffff);
 
-        threadLayout.getPresenter().bindLoadable(loadable);
-        threadLayout.getPresenter().requestData();
-
         navigationItem.hasDrawer = true;
-        navigationItem.title = loadable.title;
         navigationItem.menu = new ToolbarMenu(context);
 
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, POST_ID, R.drawable.ic_action_write));
@@ -77,7 +74,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share))
         ));
 
-        setPinIconState(threadLayout.getPresenter().isPinned());
+        loadLoadable(loadable);
+    }
+
+    @Override
+    public void onShow() {
+        super.onShow();
+        if (navigationController instanceof RootNavigationController) {
+            ((RootNavigationController)navigationController).updateHighlighted();
+        }
     }
 
     @Override
@@ -100,19 +105,52 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     @Override
-    public void openThread(Loadable threadLoadable) {
+    public void openThread(final Loadable threadLoadable) {
         // TODO implement, scroll to post and fix title
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
-//                        threadManagerListener.onOpenThread(thread, link.postId);
+                        loadLoadable(threadLoadable);
+                        if (navigationController instanceof RootNavigationController) {
+                            ((RootNavigationController)navigationController).updateHighlighted();
+                        }
                     }
                 })
                 .setTitle(R.string.open_thread_confirmation)
                 .setMessage("/" + threadLoadable.board + "/" + threadLoadable.no)
                 .show();
+    }
+
+    @Override
+    public void onPinClicked(Pin pin) {
+        loadLoadable(pin.loadable);
+    }
+
+    @Override
+    public boolean isPinCurrent(Pin pin) {
+        return pin.loadable.equals(loadable);
+    }
+
+    private void loadLoadable(Loadable loadable) {
+        if (!loadable.equals(threadLayout.getPresenter().getLoadable())) {
+            this.loadable = loadable;
+            threadLayout.getPresenter().bindLoadable(loadable);
+            threadLayout.getPresenter().requestData();
+            navigationItem.title = loadable.title;
+            navigationItem.updateTitle();
+            setPinIconState(threadLayout.getPresenter().isPinned());
+        }
+    }
+
+    @Override
+    public void onShowPosts() {
+        super.onShowPosts();
+        if (!navigationItem.title.equals(loadable.title)) {
+            navigationItem.title = loadable.title;
+            navigationItem.updateTitle();
+        }
     }
 
     @Override

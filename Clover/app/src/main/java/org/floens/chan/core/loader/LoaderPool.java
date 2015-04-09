@@ -25,15 +25,11 @@ import java.util.Map;
 public class LoaderPool {
     //    private static final String TAG = "LoaderPool";
 
-    private static LoaderPool instance;
+    private static LoaderPool instance = new LoaderPool();
 
     private static Map<Loadable, ChanLoader> loaders = new HashMap<>();
 
     public static LoaderPool getInstance() {
-        if (instance == null) {
-            instance = new LoaderPool();
-        }
-
         return instance;
     }
 
