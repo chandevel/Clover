@@ -155,6 +155,11 @@ public class RootNavigationController extends NavigationController implements Pi
         ChanApplication.getWatchManager().toggleWatch(pin);
     }
 
+    @Override
+    public void onHeaderClicked(PinAdapter.HeaderHolder holder) {
+        pushController(new WatchSettingsController(context));
+    }
+
     public void onEvent(WatchManager.PinAddedMessage message) {
         pinAdapter.onPinAdded(message.pin);
         drawerLayout.openDrawer(drawer);

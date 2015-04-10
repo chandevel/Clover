@@ -42,7 +42,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_HEADER:
-                return new PinHeaderHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_header, parent, false));
+                return new HeaderHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_header, parent, false));
             case TYPE_PIN:
                 return new PinViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_pin, parent, false));
             case TYPE_LINK:
@@ -55,7 +55,10 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case TYPE_HEADER:
-                ((PinHeaderHolder) holder).text.setText(R.string.drawer_pinned);
+                HeaderHolder headerHolder = (HeaderHolder) holder;
+                headerHolder.text.setText(R.string.drawer_pinned);
+                headerHolder.image.setImageResource(R.drawable.ic_settings_grey600_24dp);
+
                 break;
             case TYPE_PIN:
                 final Pin pin = pins.get(position - PIN_OFFSET);
@@ -259,13 +262,26 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         }
     }
 
-    public class PinHeaderHolder extends RecyclerView.ViewHolder {
+    public class HeaderHolder extends RecyclerView.ViewHolder {
         private TextView text;
+        private ImageView image;
 
-        public PinHeaderHolder(View itemView) {
+        public HeaderHolder(View itemView) {
             super(itemView);
             text = (TextView) itemView.findViewById(R.id.text);
             text.setTypeface(ROBOTO_MEDIUM);
+            image = (ImageView) itemView.findViewById(R.id.image);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                image.setBackground(getAttrDrawable(itemView.getContext(), android.R.attr.selectableItemBackgroundBorderless));
+            } else {
+                image.setBackgroundResource(R.drawable.gray_background_selector);
+            }
+            image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    callback.onHeaderClicked(HeaderHolder.this);
+                }
+            });
         }
     }
 
@@ -292,6 +308,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         void onPinClicked(Pin pin);
 
         void onWatchCountClicked(Pin pin);
+
+        void onHeaderClicked(HeaderHolder holder);
 
         boolean isHighlighted(Pin pin);
     }
