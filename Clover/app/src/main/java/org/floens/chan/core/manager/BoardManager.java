@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.greenrobot.event.EventBus;
+
 public class BoardManager {
     private static final String TAG = "BoardManager";
     private static final Comparator<Board> savedOrder = new Comparator<Board>() {
@@ -44,8 +46,6 @@ public class BoardManager {
 
     private List<Board> allBoards;
     private Map<String, Board> allBoardsByValue = new HashMap<>();
-
-    private List<BoardChangeListener> listeners = new ArrayList<>();
 
     public BoardManager() {
         loadBoards();
@@ -89,14 +89,6 @@ public class BoardManager {
         notifyChanged();
     }
 
-    public void addListener(BoardChangeListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(BoardChangeListener listener) {
-        listeners.remove(listener);
-    }
-
     private void updateByValueMap() {
         allBoardsByValue.clear();
         for (Board test : allBoards) {
@@ -105,9 +97,7 @@ public class BoardManager {
     }
 
     private void notifyChanged() {
-        for (BoardChangeListener l : listeners) {
-            l.onBoardsChanged();
-        }
+        EventBus.getDefault().post(new BoardsChangedMessage());
     }
 
     private void storeBoards() {
@@ -194,7 +184,6 @@ public class BoardManager {
         return list;
     }
 
-    public interface BoardChangeListener {
-        void onBoardsChanged();
+    public static class BoardsChangedMessage {
     }
 }

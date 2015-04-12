@@ -42,7 +42,9 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, BoardManager.BoardChangeListener, RootNavigationController.DrawerCallbacks {
+import de.greenrobot.event.EventBus;
+
+public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, RootNavigationController.DrawerCallbacks {
     private static final int REFRESH_ID = 1;
     private static final int POST_ID = 2;
     private static final int SEARCH_ID = 101;
@@ -59,7 +61,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void onCreate() {
         super.onCreate();
 
-        ChanApplication.getBoardManager().addListener(this);
+        EventBus.getDefault().register(this);
 
         navigationItem.hasDrawer = true;
         navigationItem.middleMenu = new FloatingMenu(context);
@@ -89,7 +91,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void onDestroy() {
         super.onDestroy();
 
-        ChanApplication.getBoardManager().removeListener(this);
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -141,8 +143,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         navigationController.pushController(viewThreadController);
     }
 
-    @Override
-    public void onBoardsChanged() {
+    public void onEvent(BoardManager.BoardsChangedMessage event) {
         loadBoards();
     }
 

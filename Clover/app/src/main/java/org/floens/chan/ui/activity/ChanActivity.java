@@ -43,15 +43,14 @@ import android.widget.TextView;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.loader.ChanLoader;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.ThreadManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.fragment.ThreadFragment;
 import org.floens.chan.utils.Logger;
 
@@ -59,7 +58,7 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class ChanActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, BoardManager.BoardChangeListener {
+public class ChanActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
     private static final String TAG = "ChanActivity";
 
     private Loadable boardLoadable;
@@ -74,8 +73,6 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        ChanApplication.getBoardManager().addListener(this);
 
         boardLoadable = new Loadable();
         threadLoadable = new Loadable();
@@ -176,7 +173,7 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
     protected void onDestroy() {
         super.onDestroy();
 
-        ChanApplication.getBoardManager().removeListener(this);
+//        ChanApplication.getBoardManager().removeListener(this);
     }
 
     @Override
@@ -264,11 +261,11 @@ public class ChanActivity extends BaseActivity implements AdapterView.OnItemSele
         updateActionBarState();
     }
 
-    @Override
-    public void onBoardsChanged() {
-        spinnerAdapter.setBoards();
-        spinnerAdapter.notifyDataSetChanged();
-    }
+//    @Override
+//    public void onBoardsChanged() {
+//        spinnerAdapter.setBoards();
+//        spinnerAdapter.notifyDataSetChanged();
+//    }
 
     private void handleExtraBundle(Bundle extras) {
         int pinId = extras.getInt("pin_id", -2);
