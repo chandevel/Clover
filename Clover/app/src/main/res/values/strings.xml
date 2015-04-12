@@ -87,6 +87,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_closed">Closed</string>
 
     <string name="board_edit">Board editor</string>
+    <string name="board_edit_header">Add, remove and reorder your boards here.\nThe topmost board will be loaded automatically.</string>
     <string name="board_add">Add board</string>
     <string name="board_add_hint">Board code e.g. lit</string>
     <string name="board_add_success">Added board</string>

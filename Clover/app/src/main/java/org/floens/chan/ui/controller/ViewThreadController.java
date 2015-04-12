@@ -81,7 +81,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onShow() {
         super.onShow();
         if (navigationController instanceof RootNavigationController) {
-            ((RootNavigationController)navigationController).updateHighlighted();
+            ((RootNavigationController) navigationController).updateHighlighted();
         }
     }
 
@@ -114,7 +114,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                     public void onClick(final DialogInterface dialog, final int which) {
                         loadLoadable(threadLoadable);
                         if (navigationController instanceof RootNavigationController) {
-                            ((RootNavigationController)navigationController).updateHighlighted();
+                            ((RootNavigationController) navigationController).updateHighlighted();
                         }
                     }
                 })
@@ -155,7 +155,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Override
     public void onMenuItemClicked(ToolbarMenuItem item) {
-        switch (item.getId()) {
+        switch ((Integer) item.getId()) {
             case PIN_ID:
                 setPinIconState(threadLayout.getPresenter().pin());
                 break;

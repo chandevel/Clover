@@ -94,7 +94,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     @Override
     public void onMenuItemClicked(ToolbarMenuItem item) {
-        switch (item.getId()) {
+        switch ((Integer) item.getId()) {
             case REFRESH_ID:
                 threadLayout.getPresenter().requestData();
                 break;
@@ -128,7 +128,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 loadBoard(((FloatingMenuItemBoard) item).board);
                 navigationController.toolbar.updateNavigation();
             } else {
-                // TODO start board editor
+                navigationController.pushController(new BoardEditController(context));
+                menu.dismiss();
             }
         }
     }

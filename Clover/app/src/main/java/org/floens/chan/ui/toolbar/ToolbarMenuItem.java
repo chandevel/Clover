@@ -33,17 +33,23 @@ import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
 
 public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.FloatingMenuCallback {
     private ToolbarMenuItemCallback callback;
-    private int id;
+    private Object id;
+    private int order;
     private FloatingMenu subMenu;
 
     private ImageView imageView;
 
-    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, int id, int drawable) {
-        this(context, callback, id, context.getResources().getDrawable(drawable));
+    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, int order, int drawable) {
+        this(context, callback, order, order, context.getResources().getDrawable(drawable));
     }
 
-    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, int id, Drawable drawable) {
+    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, Object id, int order, int drawable) {
+        this(context, callback, id, order, context.getResources().getDrawable(drawable));
+    }
+
+    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, Object id, int order, Drawable drawable) {
         this.id = id;
+        this.order = order;
         this.callback = callback;
 
         if (drawable != null) {
@@ -86,8 +92,12 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
         callback.onMenuItemClicked(this);
     }
 
-    public int getId() {
+    public Object getId() {
         return id;
+    }
+
+    public int getOrder() {
+        return order;
     }
 
     public ImageView getView() {

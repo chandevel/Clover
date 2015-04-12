@@ -57,14 +57,14 @@ public class ToolbarMenu extends LinearLayout {
         items.add(item);
         ImageView icon = item.getView();
         if (icon != null) {
-            int viewIndex = Math.min(getChildCount(), item.getId());
+            int viewIndex = Math.min(getChildCount(), item.getOrder());
             addView(icon, viewIndex);
         }
         return item;
     }
 
     public ToolbarMenuItem createOverflow(ToolbarMenuItem.ToolbarMenuItemCallback callback) {
-        ToolbarMenuItem overflow = addItem(new ToolbarMenuItem(getContext(), callback, 100, R.drawable.ic_more));
+        ToolbarMenuItem overflow = addItem(new ToolbarMenuItem(getContext(), callback, 100, 100, R.drawable.ic_more));
         ImageView overflowImage = overflow.getView();
         overflowImage.setLayoutParams(new LinearLayout.LayoutParams(dp(36), dp(54)));
         overflowImage.setPadding(0, 0, dp(16), 0);

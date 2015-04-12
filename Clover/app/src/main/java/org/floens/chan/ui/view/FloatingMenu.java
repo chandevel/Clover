@@ -179,6 +179,13 @@ public class FloatingMenu {
         return popupWindow != null && popupWindow.isShowing();
     }
 
+    public void dismiss() {
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+            popupWindow = null;
+        }
+    }
+
     public interface FloatingMenuCallback {
         void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item);
     }
