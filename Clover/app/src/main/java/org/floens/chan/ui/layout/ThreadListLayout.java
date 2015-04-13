@@ -23,8 +23,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import com.android.volley.VolleyError;
-
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
@@ -92,10 +90,6 @@ public class ThreadListLayout extends RelativeLayout {
             restoreListViewTop = 0;
         }
         postAdapter.setThread(thread);
-    }
-
-    public void showError(VolleyError error) {
-
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

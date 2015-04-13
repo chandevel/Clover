@@ -75,7 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="thread_load_failed_ssl">HTTPS error</string>
     <string name="thread_load_failed_network">No network</string>
-    <string name="thread_load_failed_parsing">Server inaccessible</string>
+    <string name="thread_load_failed_parsing">API parse error</string>
     <string name="thread_load_failed_server">404 not found</string>
     <string name="thread_load_end_of_line">No more posts</string>
     <string name="thread_not_specified">Select a thread</string>

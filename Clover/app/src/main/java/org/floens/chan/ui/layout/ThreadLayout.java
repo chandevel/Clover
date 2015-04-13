@@ -23,8 +23,16 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
@@ -43,16 +51,28 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
+import javax.net.ssl.SSLException;
+
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between loadbar and listview.
  */
-public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback {
-    private ThreadLayoutCallback callback;
-    private ThreadPresenter presenter;
+public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback, View.OnClickListener {
+    private enum Visible {
+        LOADING,
+        THREAD,
+        ERROR;
+    }
 
+    private ThreadLayoutCallback callback;
+
+    private ThreadPresenter presenter;
     private ThreadListLayout threadListLayout;
+
+    private LinearLayout errorLayout;
+    private TextView errorText;
+    private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
-    private boolean visible;
+    private Visible visible;
 
     public ThreadLayout(Context context) {
         super(context);
@@ -77,7 +97,22 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
 
-        switchVisible(false);
+        errorLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_error, this, false);
+        errorText = (TextView) errorLayout.findViewById(R.id.text);
+        errorText.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+
+        errorRetryButton = (Button) errorLayout.findViewById(R.id.button);
+        errorRetryButton.setOnClickListener(this);
+
+
+        switchVisible(Visible.LOADING);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == errorRetryButton) {
+            presenter.requestData();
+        }
     }
 
     public void setCallback(ThreadLayoutCallback callback) {
@@ -90,20 +125,32 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     @Override
     public void showPosts(ChanThread thread) {
-        threadListLayout.showPosts(thread, !visible);
-        switchVisible(true);
+        threadListLayout.showPosts(thread, visible != Visible.THREAD);
+        switchVisible(Visible.THREAD);
         callback.onShowPosts();
     }
 
     @Override
     public void showError(VolleyError error) {
-        switchVisible(true);
-        threadListLayout.showError(error);
+        switchVisible(Visible.ERROR);
+
+        String errorMessage;
+        if (error.getCause() instanceof SSLException) {
+            errorMessage = getContext().getString(R.string.thread_load_failed_ssl);
+        } else if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
+            errorMessage = getContext().getString(R.string.thread_load_failed_network);
+        } else if (error instanceof ServerError) {
+            errorMessage = getContext().getString(R.string.thread_load_failed_server);
+        } else {
+            errorMessage = getContext().getString(R.string.thread_load_failed_parsing);
+        }
+
+        errorText.setText(errorMessage);
     }
 
     @Override
     public void showLoading() {
-        switchVisible(false);
+        switchVisible(Visible.LOADING);
     }
 
     public void showPostInfo(String info) {
@@ -187,10 +234,20 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         return postPopupHelper.isOpen();
     }
 
-    private void switchVisible(boolean visible) {
+    private void switchVisible(Visible visible) {
         if (this.visible != visible) {
             this.visible = visible;
-            setView(visible ? threadListLayout : null);
+            switch (visible) {
+                case LOADING:
+                    setView(null);
+                    break;
+                case THREAD:
+                    setView(threadListLayout);
+                    break;
+                case ERROR:
+                    setView(errorLayout);
+                    break;
+            }
         }
     }
 

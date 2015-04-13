@@ -113,6 +113,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void onChanLoaderError(VolleyError error) {
+        // TODO show error in status view is content is shown
         threadPresenterCallback.showError(error);
     }
 
