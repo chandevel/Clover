@@ -43,6 +43,30 @@ public class TransitionImageView extends View {
         init();
     }
 
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+        bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        // Center inside method
+        float selfWidth = getWidth();
+        float selfHeight = getHeight();
+
+        float destScale = Math.min(
+                selfWidth / (float) bitmap.getWidth(),
+                selfHeight / (float) bitmap.getHeight());
+
+        RectF output = new RectF(
+                (selfWidth - bitmap.getWidth() * destScale) * 0.5f,
+                (selfHeight - bitmap.getHeight() * destScale) * 0.5f, 0, 0);
+
+        output.right = bitmap.getWidth() * destScale + output.left;
+        output.bottom = bitmap.getHeight() * destScale + output.top;
+
+        destRect.set(output);
+
+        matrix.setRectToRect(bitmapRect, destRect, Matrix.ScaleToFit.FILL);
+    }
+
     public void setSourceImageView(Point windowLocation, Point viewSize, Bitmap bitmap) {
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());

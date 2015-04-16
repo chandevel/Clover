@@ -176,7 +176,11 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
-        return threadListLayout.getThumbnail(postImage);
+        if (postPopupHelper.isOpen()) {
+            return postPopupHelper.getThumbnail(postImage);
+        } else {
+            return threadListLayout.getThumbnail(postImage);
+        }
     }
 
     private void switchVisible(boolean visible) {

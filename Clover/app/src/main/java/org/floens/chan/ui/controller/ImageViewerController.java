@@ -310,6 +310,9 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
         endAnimation = new AnimatorSet();
         if (!setTransitionViewData(startImage) || bitmap == null) {
+            if (bitmap != null) {
+                previewImage.setBitmap(bitmap);
+            }
             ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
             backgroundAlpha.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override

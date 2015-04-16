@@ -21,8 +21,10 @@ import android.content.Context;
 
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.controller.PostRepliesController;
+import org.floens.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +69,14 @@ public class PostPopupHelper {
     public void popAll() {
         dataQueue.clear();
         dismiss();
+    }
+
+    public boolean isOpen() {
+        return presentingController != null && presentingController.alive;
+    }
+
+    public ThumbnailView getThumbnail(PostImage postImage) {
+        return presentingController.getThumbnail(postImage);
     }
 
     public void postClicked(Post p) {

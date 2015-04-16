@@ -17,11 +17,13 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.PostView;
+import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.ThemeHelper;
 
 public class PostRepliesController extends Controller {
@@ -34,6 +36,7 @@ public class PostRepliesController extends Controller {
     private boolean first = true;
 
     private LoadView loadView;
+    private ListView listView;
 
     public PostRepliesController(Context context, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
         super(context);
@@ -75,6 +78,26 @@ public class PostRepliesController extends Controller {
         }
     }
 
+    public ThumbnailView getThumbnail(PostImage postImage) {
+        if (listView == null) {
+            return null;
+        } else {
+            ThumbnailView thumbnail = null;
+            for (int i = 0; i < listView.getChildCount(); i++) {
+                View view = listView.getChildAt(i);
+                if (view instanceof PostView) {
+                    PostView postView = (PostView) view;
+                    Post post = postView.getPost();
+                    if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
+                        thumbnail = postView.getThumbnail();
+                        break;
+                    }
+                }
+            }
+            return thumbnail;
+        }
+    }
+
     public void setPostRepliesData(PostPopupHelper.RepliesData data) {
         displayData(data);
     }
@@ -87,7 +110,7 @@ public class PostRepliesController extends Controller {
             dataView = inflateRes(R.layout.post_replies);
         }
 
-        ListView listView = (ListView) dataView.findViewById(R.id.post_list);
+        listView = (ListView) dataView.findViewById(R.id.post_list);
 
         View repliesBack = dataView.findViewById(R.id.replies_back);
         repliesBack.setOnClickListener(new View.OnClickListener() {
