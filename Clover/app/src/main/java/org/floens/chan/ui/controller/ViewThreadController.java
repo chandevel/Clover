@@ -105,7 +105,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     @Override
-    public void openThread(final Loadable threadLoadable) {
+    public void showThread(final Loadable threadLoadable) {
         // TODO implement, scroll to post and fix title
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)

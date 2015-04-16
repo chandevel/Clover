@@ -23,10 +23,12 @@ import android.content.res.TypedArray;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
@@ -54,7 +56,7 @@ import org.floens.chan.utils.Time;
 
 import static org.floens.chan.utils.AndroidUtils.setPressedDrawable;
 
-public class PostView extends LinearLayout implements View.OnClickListener {
+public class PostView extends LinearLayout implements View.OnClickListener, PostLinkable.Callback {
     private final static LinearLayout.LayoutParams matchParams = new LinearLayout.LayoutParams(
             LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     private final static LinearLayout.LayoutParams wrapParams = new LinearLayout.LayoutParams(
@@ -70,6 +72,8 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     private PostViewCallback callback;
     private Loadable loadable;
     private int highlightQuotesNo = -1;
+
+    private boolean ignoreNextOnClick = false;
 
     private boolean isBuild = false;
     private LinearLayout full;
@@ -112,18 +116,23 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
-        if (post != null) {
-            post.setLinkableListener(null);
+        if (this.post != null) {
+            setPostLinkableListener(null);
         }
     }
 
     public void setPost(final Post post, final PostViewCallback callback) {
+        if (this.post != null) {
+            // Remove callbacks from the old post while it is still set
+            setPostLinkableListener(null);
+        }
+
         this.post = post;
         this.callback = callback;
         this.loadable = callback.getLoadable();
 
         highlightQuotesNo = -1;
+        setPostLinkableListener(this);
 
         boolean boardCatalogMode = loadable.isBoardMode() || loadable.isCatalogMode();
 
@@ -174,11 +183,9 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         commentView.setText(post.comment);
 
         if (loadable.isThreadMode()) {
-            post.setLinkableListener(this);
             commentView.setMovementMethod(new PostViewMovementMethod());
             commentView.setOnClickListener(this);
         } else {
-            post.setLinkableListener(null);
             commentView.setOnClickListener(null);
             commentView.setClickable(false);
             commentView.setMovementMethod(null);
@@ -267,8 +274,20 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         highlightQuotesNo = no;
     }
 
-    public int getHighlightQuotesWithNo() {
-        return highlightQuotesNo;
+    private void setPostLinkableListener(PostLinkable.Callback callback) {
+        if (post.comment instanceof SpannedString) {
+            SpannedString commentSpannable = (SpannedString) post.comment;
+            PostLinkable[] linkables = commentSpannable.getSpans(0, commentSpannable.length(), PostLinkable.class);
+            for (PostLinkable linkable : linkables) {
+                if (callback == null) {
+                    if (linkable.hasCallback(this)) {
+                        linkable.removeCallback(this);
+                    }
+                } else {
+                    linkable.addCallback(callback);
+                }
+            }
+        }
     }
 
     private void buildView(final Context context, TypedArray ta) {
@@ -466,9 +485,17 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         wrapper.setOnClickListener(this);
     }
 
-    public void setOnClickListeners(View.OnClickListener listener) {
-        commentView.setOnClickListener(listener);
-        full.setOnClickListener(listener);
+    public void setOnClickListeners(final View.OnClickListener listener) {
+        commentView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ignoreNextOnClick) {
+                    ignoreNextOnClick = false;
+                } else {
+                    listener.onClick(v);
+                }
+            }
+        });
     }
 
     public void onLinkableClick(PostLinkable linkable) {
@@ -476,8 +503,17 @@ public class PostView extends LinearLayout implements View.OnClickListener {
     }
 
     @Override
+    public int getHighlightQuotesWithNo(PostLinkable postLinkable) {
+        return highlightQuotesNo;
+    }
+
+    @Override
     public void onClick(View v) {
-        callback.onPostClicked(post);
+        if (ignoreNextOnClick) {
+            ignoreNextOnClick = false;
+        } else {
+            callback.onPostClicked(post);
+        }
     }
 
     private boolean isList() {
@@ -512,7 +548,51 @@ public class PostView extends LinearLayout implements View.OnClickListener {
         boolean isPostLastSeen(Post post);
     }
 
+    private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
+
     private class PostViewMovementMethod extends LinkMovementMethod {
+        @Override
+        public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
+            int action = event.getActionMasked();
+
+            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_DOWN) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+
+                x -= widget.getTotalPaddingLeft();
+                y -= widget.getTotalPaddingTop();
+
+                x += widget.getScrollX();
+                y += widget.getScrollY();
+
+                Layout layout = widget.getLayout();
+                int line = layout.getLineForVertical(y);
+                int off = layout.getOffsetForHorizontal(line, x);
+
+                ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+
+                if (link.length != 0) {
+                    if (action == MotionEvent.ACTION_UP) {
+                        ignoreNextOnClick = true;
+                        link[0].onClick(widget);
+                        buffer.removeSpan(BACKGROUND_SPAN);
+                    } else if (action == MotionEvent.ACTION_DOWN) {
+                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]), 0);
+                    } else if (action == MotionEvent.ACTION_CANCEL) {
+                        buffer.removeSpan(BACKGROUND_SPAN);
+                    }
+
+                    return true;
+                } else {
+                    buffer.removeSpan(BACKGROUND_SPAN);
+                }
+            }
+
+            return true;
+        }
+    }
+
+    /*private class PostViewMovementMethod extends LinkMovementMethod {
         @Override
         public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
             int action = event.getAction();
@@ -551,5 +631,5 @@ public class PostView extends LinearLayout implements View.OnClickListener {
                 return true;
             }
         }
-    }
+    }*/
 }

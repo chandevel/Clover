@@ -22,6 +22,16 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        threadLayout.getPresenter().unbindLoadable();
+    }
+
+    public void presentRepliesController(Controller controller) {
+        presentController(controller);
+    }
+
+    @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
         if (thumbnail.getBitmap() != null) {

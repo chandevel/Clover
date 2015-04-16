@@ -77,6 +77,11 @@ public class StartActivity extends Activity {
         super.onDestroy();
 
         stackTop().onDestroy();
+        stack.clear();
+        System.gc();
+        System.gc();
+        System.gc();
+        System.runFinalization();
     }
 
     @Override

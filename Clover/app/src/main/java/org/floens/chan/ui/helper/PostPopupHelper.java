@@ -17,13 +17,12 @@
  */
 package org.floens.chan.ui.helper;
 
-import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.Context;
 
+import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.presenter.ThreadPresenter;
-import org.floens.chan.ui.fragment.PostRepliesFragment;
+import org.floens.chan.ui.controller.PostRepliesController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +30,15 @@ import java.util.List;
 public class PostPopupHelper {
     private Context context;
     private ThreadPresenter presenter;
+    private final PostPopupHelperCallback callback;
 
     private final List<RepliesData> dataQueue = new ArrayList<>();
-    private PostRepliesFragment currentPopupFragment;
+    private PostRepliesController presentingController;
 
-    public PostPopupHelper(Context context, ThreadPresenter presenter) {
+    public PostPopupHelper(Context context, ThreadPresenter presenter, PostPopupHelperCallback callback) {
         this.context = context;
         this.presenter = presenter;
+        this.callback = callback;
     }
 
     public void showPosts(Post forPost, List<Post> posts) {
@@ -45,47 +46,47 @@ public class PostPopupHelper {
 
         dataQueue.add(data);
 
-        if (currentPopupFragment != null) {
-            currentPopupFragment.dismissNoCallback();
+        if (dataQueue.size() == 1) {
+            present();
         }
-
-        presentFragment(data);
+        presentingController.setPostRepliesData(data);
     }
 
-    public void onPostRepliesPop() {
-        if (dataQueue.size() == 0)
-            return;
-
-        dataQueue.remove(dataQueue.size() - 1);
+    public void pop() {
+        if (dataQueue.size() > 0) {
+            dataQueue.remove(dataQueue.size() - 1);
+        }
 
         if (dataQueue.size() > 0) {
-            presentFragment(dataQueue.get(dataQueue.size() - 1));
+            presentingController.setPostRepliesData(dataQueue.get(dataQueue.size() - 1));
         } else {
-            currentPopupFragment = null;
+            dismiss();
         }
     }
 
-    public void closeAllPostFragments() {
+    public void popAll() {
         dataQueue.clear();
-        if (currentPopupFragment != null) {
-            currentPopupFragment.dismissNoCallback();
-            currentPopupFragment = null;
-        }
+        dismiss();
     }
 
     public void postClicked(Post p) {
-        closeAllPostFragments();
+        popAll();
         presenter.highlightPost(p.no);
         presenter.scrollToPost(p.no);
     }
 
-    private void presentFragment(RepliesData data) {
-        PostRepliesFragment fragment = PostRepliesFragment.newInstance(data, this, presenter);
-        // TODO fade animations on all platforms
-        FragmentTransaction ft = ((Activity) context).getFragmentManager().beginTransaction();
-        ft.add(fragment, "postPopup");
-        ft.commitAllowingStateLoss();
-        currentPopupFragment = fragment;
+    private void dismiss() {
+        if (presentingController != null) {
+            presentingController.stopPresenting();
+            presentingController = null;
+        }
+    }
+
+    private void present() {
+        if (presentingController == null) {
+            presentingController = new PostRepliesController(context, this, presenter);
+            callback.presentRepliesController(presentingController);
+        }
     }
 
     public static class RepliesData {
@@ -98,5 +99,9 @@ public class PostPopupHelper {
             this.forPost = forPost;
             this.posts = posts;
         }
+    }
+
+    public interface PostPopupHelperCallback {
+        void presentRepliesController(Controller controller);
     }
 }

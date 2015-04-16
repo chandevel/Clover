@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.loader.ChanParser;
-import org.floens.chan.ui.view.PostView;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
@@ -105,20 +104,7 @@ public class Post {
     public SpannableString capcodeSpan;
     public CharSequence nameTripcodeIdCapcodeSpan;
 
-    /**
-     * The PostView the Post is currently bound to.
-     */
-    private PostView linkableListener;
-
     public Post() {
-    }
-
-    public void setLinkableListener(PostView listener) {
-        linkableListener = listener;
-    }
-
-    public PostView getLinkableListener() {
-        return linkableListener;
     }
 
     /**

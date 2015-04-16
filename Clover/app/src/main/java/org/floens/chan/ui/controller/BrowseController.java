@@ -137,7 +137,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     @Override
-    public void openThread(Loadable threadLoadable) {
+    public void showThread(Loadable threadLoadable) {
         ViewThreadController viewThreadController = new ViewThreadController(context);
         viewThreadController.setLoadable(threadLoadable);
         navigationController.pushController(viewThreadController);
@@ -149,7 +149,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     @Override
     public void onPinClicked(Pin pin) {
-        openThread(pin.loadable);
+        showThread(pin.loadable);
     }
 
     @Override

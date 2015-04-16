@@ -51,10 +51,10 @@ public class PostRepliesFragment extends DialogFragment {
 
     public static PostRepliesFragment newInstance(PostPopupHelper.RepliesData repliesData, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
         PostRepliesFragment fragment = new PostRepliesFragment();
+
         fragment.repliesData = repliesData;
         fragment.postPopupHelper = postPopupHelper;
         fragment.presenter = presenter;
-
         return fragment;
     }
 
@@ -75,7 +75,7 @@ public class PostRepliesFragment extends DialogFragment {
         super.onDismiss(dialog);
 
         if (postPopupHelper != null) {
-            postPopupHelper.onPostRepliesPop();
+//            postPopupHelper.onPostRepliesPop();
         }
     }
 
@@ -101,7 +101,7 @@ public class PostRepliesFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if (postPopupHelper != null) {
-                    postPopupHelper.closeAllPostFragments();
+//                    postPopupHelper.closeAllPostFragments();
                 }
             }
         });

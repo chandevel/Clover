@@ -17,17 +17,21 @@
  */
 package org.floens.chan.core.model;
 
+import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
 import org.floens.chan.utils.ThemeHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Anything that links to something in a post uses this entity.
  */
 public class PostLinkable extends ClickableSpan {
-    public static enum Type {
+    public enum Type {
         QUOTE, LINK, SPOILER, THREAD
     }
 
@@ -36,7 +40,8 @@ public class PostLinkable extends ClickableSpan {
     public final Object value;
     public final Type type;
 
-    private boolean clicked = false;
+    private List<Callback> callbacks = new ArrayList<>();
+    private boolean spoilerVisible = false;
 
     public PostLinkable(Post post, String key, Object value, Type type) {
         this.post = post;
@@ -45,19 +50,33 @@ public class PostLinkable extends ClickableSpan {
         this.type = type;
     }
 
-    @Override
-    public void onClick(View widget) {
-        if (post.getLinkableListener() != null) {
-            post.getLinkableListener().onLinkableClick(this);
-        }
-        clicked = true;
+    public void addCallback(Callback callback) {
+        callbacks.add(callback);
+    }
+
+    public void removeCallback(Callback callback) {
+        callbacks.remove(callback);
+    }
+
+    public boolean hasCallback(Callback callback) {
+        return callbacks.contains(callback);
     }
 
     @Override
-    public void updateDrawState(TextPaint ds) {
+    public void onClick(View widget) {
+        Callback top = topCallback();
+        if (top != null) {
+            top.onLinkableClick(this);
+        }
+        spoilerVisible = !spoilerVisible;
+    }
+
+    @Override
+    public void updateDrawState(@NonNull TextPaint ds) {
         if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD) {
             if (type == Type.QUOTE) {
-                if (value instanceof Integer && post.getLinkableListener() != null && (Integer) value == post.getLinkableListener().getHighlightQuotesWithNo()) {
+                Callback top = topCallback();
+                if (value instanceof Integer && top != null && (Integer) value == top.getHighlightQuotesWithNo(this)) {
                     ds.setColor(ThemeHelper.getInstance().getHighlightQuoteColor());
                 } else {
                     ds.setColor(ThemeHelper.getInstance().getQuoteColor());
@@ -70,12 +89,16 @@ public class PostLinkable extends ClickableSpan {
 
             ds.setUnderlineText(true);
         } else if (type == Type.SPOILER) {
-            if (!clicked) {
+            if (!spoilerVisible) {
                 ds.setColor(ThemeHelper.getInstance().getSpoilerColor());
                 ds.bgColor = ThemeHelper.getInstance().getSpoilerColor();
                 ds.setUnderlineText(false);
             }
         }
+    }
+
+    private Callback topCallback() {
+        return callbacks.size() > 0 ? callbacks.get(callbacks.size() - 1) : null;
     }
 
     public static class ThreadLink {
@@ -88,5 +111,11 @@ public class PostLinkable extends ClickableSpan {
             this.threadId = threadId;
             this.postId = postId;
         }
+    }
+
+    public interface Callback {
+        void onLinkableClick(PostLinkable postLinkable);
+
+        int getHighlightQuotesWithNo(PostLinkable postLinkable);
     }
 }

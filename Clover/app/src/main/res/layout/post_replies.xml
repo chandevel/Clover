@@ -15,65 +15,75 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<org.floens.chan.ui.view.LoadView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/loadview"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:minWidth="320dp"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/container"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:baselineAligned="false"
-        android:divider="?android:attr/dividerVertical"
-        android:dividerPadding="12dp"
-        android:orientation="horizontal"
-        android:showDividers="middle">
+        android:layout_gravity="center"
+        android:minWidth="320dp"
+        android:background="@drawable/dialog_full_light"
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/replies_back"
-            style="?android:actionButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:divider="?android:attr/dividerVertical"
+            android:dividerPadding="12dp"
+            android:orientation="horizontal"
+            android:showDividers="middle">
 
-            <TextView
-                android:id="@+id/replies_back_icon"
-                style="?android:actionBarTabTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:drawableLeft="@drawable/ic_action_back"
-                android:drawablePadding="8dp"
-                android:gravity="center_vertical"
-                android:paddingRight="20dp"
-                android:text="@string/back" />
-        </FrameLayout>
+            <FrameLayout
+                android:id="@+id/replies_back"
+                style="?android:actionButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
-        <FrameLayout
-            android:id="@+id/replies_close"
-            style="?android:actionButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+                <TextView
+                    android:id="@+id/replies_back_icon"
+                    style="?android:actionBarTabTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawableLeft="@drawable/ic_action_back"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:paddingRight="20dp"
+                    android:text="@string/back" />
+            </FrameLayout>
 
-            <TextView
-                android:id="@+id/replies_close_icon"
-                style="?android:actionBarTabTextStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:drawableLeft="@drawable/ic_action_done"
-                android:drawablePadding="8dp"
-                android:gravity="center_vertical"
-                android:paddingRight="20dp"
-                android:text="@string/close" />
-        </FrameLayout>
+            <FrameLayout
+                android:id="@+id/replies_close"
+                style="?android:actionButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/replies_close_icon"
+                    style="?android:actionBarTabTextStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:drawableLeft="@drawable/ic_action_done"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:paddingRight="20dp"
+                    android:text="@string/close" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/post_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/post_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-</LinearLayout>
+</org.floens.chan.ui.view.LoadView>

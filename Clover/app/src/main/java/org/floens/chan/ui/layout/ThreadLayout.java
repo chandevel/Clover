@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.R;
+import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -45,7 +46,7 @@ import java.util.List;
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between loadbar and listview.
  */
-public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPresenterCallback {
+public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback {
     private ThreadLayoutCallback callback;
     private ThreadPresenter presenter;
 
@@ -74,7 +75,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         threadListLayout = new ThreadListLayout(getContext());
         threadListLayout.setCallbacks(presenter, presenter);
 
-        postPopupHelper = new PostPopupHelper(getContext(), presenter);
+        postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
 
         switchVisible(false);
     }
@@ -157,7 +158,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     @Override
     public void showThread(Loadable threadLoadable) {
-        callback.openThread(threadLoadable);
+        callback.showThread(threadLoadable);
     }
 
     public void showPostsPopup(Post forPost, List<Post> posts) {
@@ -185,11 +186,18 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         }
     }
 
+    @Override
+    public void presentRepliesController(Controller controller) {
+        callback.presentRepliesController(controller);
+    }
+
     public interface ThreadLayoutCallback {
-        void openThread(Loadable threadLoadable);
+        void showThread(Loadable threadLoadable);
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
         void onShowPosts();
+
+        void presentRepliesController(Controller controller);
     }
 }

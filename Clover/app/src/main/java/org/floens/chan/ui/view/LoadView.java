@@ -25,6 +25,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -141,6 +142,10 @@ public class LoadView extends FrameLayout {
 
         final AnimatorSet set = new AnimatorSet();
         set.setDuration(fadeDuration);
+        if (fadeDuration > 0) {
+            set.setStartDelay(50);
+        }
+        set.setInterpolator(new LinearInterpolator());
         set.play(ObjectAnimator.ofFloat(view, View.ALPHA, 0f));
         animatorsOut.put(view, set);
         set.addListener(new AnimatorListenerAdapter() {
@@ -156,6 +161,7 @@ public class LoadView extends FrameLayout {
     private void animateViewIn(View view) {
         final AnimatorSet set = new AnimatorSet();
         set.setDuration(fadeDuration);
+        set.setInterpolator(new LinearInterpolator());
         set.play(ObjectAnimator.ofFloat(view, View.ALPHA, 1f));
         animatorsIn.put(view, set);
         set.addListener(new AnimatorListenerAdapter() {

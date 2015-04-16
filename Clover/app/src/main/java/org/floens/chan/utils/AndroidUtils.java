@@ -136,6 +136,10 @@ public class AndroidUtils {
         new Handler(Looper.getMainLooper()).post(runnable);
     }
 
+    public static void runOnUiThread(Runnable runnable, long delay) {
+        new Handler(Looper.getMainLooper()).postDelayed(runnable, delay);
+    }
+
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
         view.requestFocus();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {

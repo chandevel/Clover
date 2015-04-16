@@ -40,11 +40,14 @@ public abstract class Controller {
     public Controller presentingController;
     public Controller presentedController;
 
+    public boolean alive = false;
+
     public Controller(Context context) {
         this.context = context;
     }
 
     public void onCreate() {
+        alive = true;
 //        Logger.test(getClass().getSimpleName() + " onCreate");
     }
 
@@ -57,6 +60,7 @@ public abstract class Controller {
     }
 
     public void onDestroy() {
+        alive = false;
 //        Logger.test(getClass().getSimpleName() + " onDestroy");
     }
 
@@ -111,6 +115,7 @@ public abstract class Controller {
             ControllerLogic.transition(this, null, true, false, contentView);
         }
         ((BoardActivity) context).removeController(this);
+        presentingController.presentedController = null;
     }
 
     public View inflateRes(int resId) {
