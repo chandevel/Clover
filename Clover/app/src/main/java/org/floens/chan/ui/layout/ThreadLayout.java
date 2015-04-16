@@ -183,6 +183,10 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         }
     }
 
+    public boolean postRepliesOpen() {
+        return postPopupHelper.isOpen();
+    }
+
     private void switchVisible(boolean visible) {
         if (this.visible != visible) {
             this.visible = visible;

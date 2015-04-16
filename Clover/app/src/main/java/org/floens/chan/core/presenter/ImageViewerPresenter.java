@@ -135,7 +135,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private void onPageSwipedTo(int position) {
         callback.setTitle(images.get(selectedPosition));
-        callback.scrollTo(images.get(selectedPosition));
+        callback.scrollToImage(images.get(selectedPosition));
 
         for (PostImage other : getOther(position, false)) {
             callback.setImageMode(other, MultiImageView.Mode.LOWRES);
@@ -269,7 +269,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         void setTitle(PostImage postImage);
 
-        void scrollTo(PostImage postImage);
+        void scrollToImage(PostImage postImage);
 
         MultiImageView.Mode getImageMode(PostImage postImage);
 

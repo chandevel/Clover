@@ -220,8 +220,8 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         navigationItem.updateTitle();
     }
 
-    public void scrollTo(PostImage postImage) {
-        previewCallback.scrollTo(postImage);
+    public void scrollToImage(PostImage postImage) {
+        previewCallback.scrollToImage(postImage);
     }
 
     public void showProgress(boolean show) {
@@ -416,6 +416,6 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
         void onPreviewDestroy(ImageViewerController imageViewerController);
 
-        void scrollTo(PostImage postImage);
+        void scrollToImage(PostImage postImage);
     }
 }

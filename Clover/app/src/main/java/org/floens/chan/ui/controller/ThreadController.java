@@ -56,8 +56,10 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 //        presentingImageView = null;
     }
 
-    public void scrollTo(PostImage postImage) {
-        threadLayout.getPresenter().scrollTo(postImage);
+    public void scrollToImage(PostImage postImage) {
+        if (!threadLayout.postRepliesOpen()) {
+            threadLayout.getPresenter().scrollTo(postImage);
+        }
     }
 
     @Override
