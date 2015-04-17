@@ -7,7 +7,6 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -231,13 +230,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
-    public void onVideoLoaded(MultiImageView multiImageView) {
-
-    }
-
-    @Override
-    public void onVideoError(MultiImageView multiImageView, File video) {
-
+    public void onVideoError(MultiImageView multiImageView) {
+        callback.onVideoError(multiImageView);
     }
 
     private List<PostImage> getOther(int position, boolean all) {
@@ -276,5 +270,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void showProgress(boolean show);
 
         void onLoadProgress(float progress);
+
+        void onVideoError(MultiImageView multiImageView);
     }
 }

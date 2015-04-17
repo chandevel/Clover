@@ -6,7 +6,9 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -14,9 +16,12 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.CheckBox;
+import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -230,6 +235,29 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     public void onLoadProgress(float progress) {
         loadingBar.setProgress(progress);
+    }
+
+    public void onVideoError(MultiImageView multiImageView) {
+        if (ChanSettings.videoErrorIgnore.get()) {
+            Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
+        } else {
+            View notice = LayoutInflater.from(context).inflate(R.layout.dialog_video_error, null);
+            final CheckBox dontShowAgain = (CheckBox) notice.findViewById(R.id.checkbox);
+
+            new AlertDialog.Builder(context)
+                    .setTitle(R.string.video_playback_warning_title)
+                    .setView(notice)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (dontShowAgain.isChecked()) {
+                                ChanSettings.videoErrorIgnore.set(true);
+                            }
+                        }
+                    })
+                    .setCancelable(false)
+                    .show();
+        }
     }
 
     public void startPreviewInTransition(PostImage postImage) {

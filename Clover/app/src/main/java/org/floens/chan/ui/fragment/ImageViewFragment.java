@@ -36,16 +36,14 @@ import android.widget.VideoView;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ImageSearch;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.ImageViewActivity;
 import org.floens.chan.ui.adapter.ImageViewAdapter;
 import org.floens.chan.ui.view.MultiImageView;
 import org.floens.chan.ui.view.MultiImageView.Callback;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageSaver;
-
-import java.io.File;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -272,7 +270,7 @@ public class ImageViewFragment extends Fragment implements Callback {
         context.startActivity(Intent.createChooser(intent, context.getString(R.string.action_share)));
     }
 
-    public void onVideoError(MultiImageView view, File video) {
+    public void onVideoError(MultiImageView view) {
         if (ChanSettings.getVideoErrorIgnore()) {
             Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
         } else {
@@ -352,11 +350,5 @@ public class ImageViewFragment extends Fragment implements Callback {
         progressTotal = total;
         progressDone = true;
         activity.updateActionBarIfSelected(this);
-    }
-
-    @Override
-    public void onVideoLoaded(MultiImageView view) {
-        videoSetIconToPause = true;
-        activity.invalidateActionBar();
     }
 }

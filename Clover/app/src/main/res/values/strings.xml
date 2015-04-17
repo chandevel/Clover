@@ -387,8 +387,8 @@ Don't have a 4chan Pass?&lt;br>
 
     <string name="default_name">Anonymous</string>
 
-    <string name="video_playback_warning_title">WebM not supported</string>
-    <string name="video_playback_warning">Unfortunately, your hardware doesn\'t support playing WebM videos.\nYou can install an external media player that has a software decoder. Then if you installed that, enable \"Open videos external\" in the settings.</string>
+    <string name="video_playback_warning_title">WebM video error</string>
+    <string name="video_playback_warning">The WebM video failed to play. This might be a problem with the hardware of your phone.\n\nYou can install an external media player that has a software decoder and enable \"Open videos external\" in the settings so that the video opens externally in a software decoding app.</string>
     <string name="video_playback_ignore">Don\'t show again</string>
     <string name="preference_video_external">Open videos external</string>
     <string name="preference_video_external_summary">Open videos in external media player</string>

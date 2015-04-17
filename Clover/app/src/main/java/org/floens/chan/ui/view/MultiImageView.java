@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.view;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -28,6 +27,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -69,6 +69,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private Future videoRequest;
 
     private VideoView videoView;
+    private boolean videoError = false;
 
     public MultiImageView(Context context) {
         super(context);
@@ -320,24 +321,16 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "video/*");
 
-            try {
-                getContext().startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(getContext(), R.string.open_link_failed, Toast.LENGTH_SHORT).show();
-            }
-            // TODO: check this
-            onModeLoaded(Mode.GIF, videoView);
+            AndroidUtils.openIntent(intent);
+            onModeLoaded(Mode.MOVIE, videoView);
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
 
             videoView = new VideoView(proxyContext);
             videoView.setZOrderOnTop(true);
-            videoView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
-            videoView.setLayoutParams(AndroidUtils.MATCH_PARAMS);
-            LayoutParams par = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-            par.gravity = Gravity.CENTER;
-            videoView.setLayoutParams(par);
+            videoView.setMediaController(new MediaController(getContext()));
+
+            addView(videoView, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
             videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -346,10 +339,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                     onModeLoaded(Mode.MOVIE, videoView);
                 }
             });
+
             videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    callback.onVideoError(MultiImageView.this, file);
+                    onVideoError();
 
                     return true;
                 }
@@ -357,14 +351,24 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             videoView.setVideoPath(file.getAbsolutePath());
 
-            addView(videoView, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
-
-            videoView.start();
+            try {
+                videoView.start();
+            } catch (IllegalStateException e) {
+                Logger.e(TAG, "Video view start error", e);
+                onVideoError();
+            }
         }
     }
 
     public VideoView getVideoView() {
         return videoView;
+    }
+
+    private void onVideoError() {
+        if (!videoError) {
+            videoError = true;
+            callback.onVideoError(this);
+        }
     }
 
     private void onError() {
@@ -443,9 +447,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
         void onProgress(MultiImageView multiImageView, long current, long total);
 
-        void onVideoLoaded(MultiImageView multiImageView);
-
-        void onVideoError(MultiImageView multiImageView, File video);
+        void onVideoError(MultiImageView multiImageView);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
     }

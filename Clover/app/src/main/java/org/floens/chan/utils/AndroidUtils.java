@@ -77,7 +77,7 @@ public class AndroidUtils {
 
     public static void openLink(String link) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         if (intent.resolveActivity(getAppRes().getPackageManager()) != null) {
             getAppRes().startActivity(intent);
@@ -91,10 +91,19 @@ public class AndroidUtils {
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, link);
         Intent chooser = Intent.createChooser(intent, getRes().getString(R.string.action_share));
-        chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         if (chooser.resolveActivity(getAppRes().getPackageManager()) != null) {
             getAppRes().startActivity(chooser);
+        } else {
+            Toast.makeText(getAppRes(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static void openIntent(Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (intent.resolveActivity(getAppRes().getPackageManager()) != null) {
+            getAppRes().startActivity(intent);
         } else {
             Toast.makeText(getAppRes(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
         }

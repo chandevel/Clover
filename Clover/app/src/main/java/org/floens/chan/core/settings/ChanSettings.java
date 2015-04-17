@@ -34,6 +34,7 @@ public class ChanSettings {
     public static final BooleanSetting imageAutoLoad;
     public static final BooleanSetting videoAutoLoad;
     public static final BooleanSetting videoOpenExternal;
+    public static final BooleanSetting videoErrorIgnore;
 
     public static final StringSetting postDefaultName;
     public static final BooleanSetting postPinThread;
@@ -71,6 +72,7 @@ public class ChanSettings {
         imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
         videoAutoLoad = new BooleanSetting(p, "preference_autoplay", false);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
+        videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
 
         postDefaultName = new StringSetting(p, "preference_default_name", "");
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
