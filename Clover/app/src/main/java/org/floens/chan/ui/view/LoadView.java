@@ -19,18 +19,14 @@ package org.floens.chan.ui.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a
@@ -38,8 +34,6 @@ import java.util.Map;
  */
 public class LoadView extends FrameLayout {
     private int fadeDuration = 200;
-    private Map<View, AnimatorSet> animatorsIn = new HashMap<>();
-    private Map<View, AnimatorSet> animatorsOut = new HashMap<>();
 
     public LoadView(Context context) {
         super(context);
@@ -60,22 +54,32 @@ public class LoadView extends FrameLayout {
         setView(null, false);
     }
 
+    /**
+     * Set the duration of the fades in ms
+     * @param fadeDuration the duration of the fade animation in ms
+     */
     public void setFadeDuration(int fadeDuration) {
         this.fadeDuration = fadeDuration;
     }
 
     /**
-     * Set the content of this container. It will fade the old one out with the
+     * Set the content of this container. It will fade the attached views out with the
      * new one. Set view to null to show the progressbar.
      *
-     * @param view the view or null for a progressbar.
+     * @param newView the view or null for a progressbar.
      */
-    public void setView(View view) {
-        setView(view, true);
+    public void setView(View newView) {
+        setView(newView, true);
     }
 
+    /**
+     * Set the content of this container. It will fade the attached views out with the
+     * new one. Set view to null to show the progressbar.
+     *
+     * @param newView the view or null for a progressbar.
+     * @param animate should it be animated
+     */
     public void setView(View newView, boolean animate) {
-        // Passing null means showing a progressbar
         if (newView == null) {
             FrameLayout progressBar = new FrameLayout(getContext());
             progressBar.addView(new ProgressBar(getContext()), new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
@@ -83,93 +87,55 @@ public class LoadView extends FrameLayout {
         }
 
         if (animate) {
-            // Readded while still running a add/remove animation for the new view
-            // This also removes the new view from this view
-            AnimatorSet out = animatorsOut.remove(newView);
-            if (out != null) {
-                out.cancel();
-            }
-
-            AnimatorSet in = animatorsIn.remove(newView);
-            if (in != null) {
-                in.cancel();
-            }
-
-            // Add fade out animations for all remaining view
+            // Fade all attached views out
             for (int i = 0; i < getChildCount(); i++) {
-                View child = getChildAt(i);
-                if (child != null) {
-                    AnimatorSet inSet = animatorsIn.remove(child);
-                    if (inSet != null) {
-                        inSet.cancel();
+                final View child = getChildAt(i);
+                final ViewPropertyAnimator childAnimation = child.animate()
+                        .setInterpolator(new LinearInterpolator())
+                        .setDuration(fadeDuration)
+                        .alpha(0f);
+                childAnimation.setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+                        // Canceled because it is being animated in again.
+                        // Don't let this listener call removeView on the in animation.
+                        childAnimation.setListener(null);
                     }
 
-                    if (!animatorsOut.containsKey(child)) {
-                        animateViewOut(child);
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        // Animation ended without interruptions, remove listener for future animations.
+                        childAnimation.setListener(null);
+                        removeView(child);
                     }
-                }
+                }).start();
             }
 
-            addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-            // Fade view in
+            // Assume no running animations
             if (newView.getAlpha() == 1f) {
                 newView.setAlpha(0f);
             }
-            animateViewIn(newView);
+
+            // Fade our new view in
+            newView.animate()
+                    .setInterpolator(new LinearInterpolator())
+                    .setDuration(fadeDuration)
+                    .alpha(1f)
+                    .start();
+
+            // Assume view already attached to this view (fading out)
+            if (newView.getParent() == null) {
+                addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            }
         } else {
-            for (AnimatorSet set : animatorsIn.values()) {
-                set.cancel();
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                child.clearAnimation();
             }
-            animatorsIn.clear();
-
-            for (AnimatorSet set : animatorsOut.values()) {
-                set.cancel();
-            }
-            animatorsOut.clear();
-
             removeAllViews();
+            newView.clearAnimation();
+            newView.setAlpha(1f);
             addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         }
-    }
-
-    private void animateViewOut(final View view) {
-        // Cancel any fade in animations
-        AnimatorSet fadeIn = animatorsIn.remove(view);
-        if (fadeIn != null) {
-            fadeIn.cancel();
-        }
-
-        final AnimatorSet set = new AnimatorSet();
-        set.setDuration(fadeDuration);
-        if (fadeDuration > 0) {
-            set.setStartDelay(50);
-        }
-        set.setInterpolator(new LinearInterpolator());
-        set.play(ObjectAnimator.ofFloat(view, View.ALPHA, 0f));
-        animatorsOut.put(view, set);
-        set.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                removeView(view);
-                animatorsOut.remove(set);
-            }
-        });
-        set.start();
-    }
-
-    private void animateViewIn(View view) {
-        final AnimatorSet set = new AnimatorSet();
-        set.setDuration(fadeDuration);
-        set.setInterpolator(new LinearInterpolator());
-        set.play(ObjectAnimator.ofFloat(view, View.ALPHA, 1f));
-        animatorsIn.put(view, set);
-        set.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                animatorsIn.remove(set);
-            }
-        });
-        set.start();
     }
 }

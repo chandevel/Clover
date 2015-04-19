@@ -176,7 +176,7 @@ public class PostRepliesController extends Controller {
             }
         });
 
-        loadView.setFadeDuration(first ? 0 : 200);
+        loadView.setFadeDuration(first ? 0 : 150);
         first = false;
         loadView.setView(dataView);
     }
