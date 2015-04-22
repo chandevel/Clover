@@ -17,94 +17,183 @@
  */
 package org.floens.chan.ui.adapter;
 
-import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.view.Gravity;
-import android.view.View;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.PostView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import static org.floens.chan.utils.AndroidUtils.dp;
-
-public class PostAdapter extends BaseAdapter implements Filterable {
-    private static final int VIEW_TYPE_ITEM = 0;
-    private static final int VIEW_TYPE_STATUS = 1;
-
-    private final Object lock = new Object();
-
-    private final Context context;
+public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int TYPE_POST = 0;
+    private static final int TYPE_STATUS = 1;
 
     private final PostAdapterCallback postAdapterCallback;
     private final PostView.PostViewCallback postViewCallback;
+    private final ThreadStatusCell.Callback statusCellCallback;
+    private RecyclerView recyclerView;
 
-    /**
-     * The list with the original data
-     */
     private final List<Post> sourceList = new ArrayList<>();
-
-    /**
-     * The list that is displayed (filtered)
-     */
     private final List<Post> displayList = new ArrayList<>();
-
-    private boolean endOfLine;
     private int lastPostCount = 0;
-    private String statusMessage = null;
+    private String error = null;
     private String filter = "";
     private int pendingScrollToPost = -1;
-    private String statusPrefix = "";
+    private Post highlightedPost;
+    private String highlightedPostId;
 
-    public PostAdapter(Context context, PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback) {
+    public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback, ThreadStatusCell.Callback statusCellCallback) {
+        this.recyclerView = recyclerView;
         this.postAdapterCallback = postAdapterCallback;
-        this.context = context;
         this.postViewCallback = postViewCallback;
+        this.statusCellCallback = statusCellCallback;
+
+        setHasStableIds(true);
     }
 
     @Override
-    public int getCount() {
-        return displayList.size() + (showStatusView() ? 1 : 0);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == TYPE_POST) {
+            PostView postView = new PostView(parent.getContext());
+            return new PostViewHolder(postView);
+        } else {
+            StatusViewHolder statusViewHolder = new StatusViewHolder((ThreadStatusCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_thread_status, parent, false));
+            statusViewHolder.threadStatusCell.setCallback(statusCellCallback);
+            statusViewHolder.threadStatusCell.setError(error);
+            return statusViewHolder;
+        }
     }
 
     @Override
-    public int getViewTypeCount() {
-        return 2;
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (getItemViewType(position) == TYPE_POST) {
+            PostViewHolder postViewHolder = (PostViewHolder) holder;
+            Post post = displayList.get(position);
+            boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId);
+            postViewHolder.postView.setPost(post, postViewCallback, highlight);
+        } else if (getItemViewType(position) == TYPE_STATUS) {
+            ((StatusViewHolder)holder).threadStatusCell.update();
+            onScrolledToBottom();
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        if (showStatusView()) {
+            return displayList.size() + 1;
+        } else {
+            return displayList.size();
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == getCount() - 1) {
-            return showStatusView() ? VIEW_TYPE_STATUS : VIEW_TYPE_ITEM;
+        if (showStatusView()) {
+            if (position == getItemCount() - 1) {
+                return TYPE_STATUS;
+            } else {
+                return TYPE_POST;
+            }
         } else {
-            return VIEW_TYPE_ITEM;
+            return TYPE_POST;
         }
     }
 
     @Override
-    public Post getItem(int position) {
-        int realPosition = position;
-        if (realPosition >= 0 && realPosition < displayList.size()) {
-            return displayList.get(realPosition);
+    public long getItemId(int position) {
+        if (getItemViewType(position) != TYPE_POST) {
+            return -1;
         } else {
-            return null;
+            return displayList.get(position).no;
         }
     }
 
+    public void setThread(ChanThread thread) {
+        showError(null);
+        sourceList.clear();
+        sourceList.addAll(thread.posts);
+
+        displayList.clear();
+        displayList.addAll(sourceList);
+
+        // Update all, recyclerview will figure out all the animations
+        notifyDataSetChanged();
+    }
+
+    public void cleanup() {
+        highlightedPost = null;
+        sourceList.clear();
+        displayList.clear();
+        lastPostCount = 0;
+    }
+
+    public void showError(String error) {
+        this.error = error;
+        if (showStatusView()) {
+            RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(getItemCount() - 1);
+            // Recyclerview did not sync yet
+            if (viewHolder instanceof StatusViewHolder) {
+                ThreadStatusCell threadStatusCell = ((StatusViewHolder) viewHolder).threadStatusCell;
+                threadStatusCell.setError(error);
+                threadStatusCell.update();
+            }
+        }
+    }
+
+    public void highlightPost(Post post) {
+        highlightedPostId = null;
+        highlightedPost = post;
+        notifyDataSetChanged();
+    }
+
+    public void highlightPostId(String id) {
+        highlightedPost = null;
+        highlightedPostId = id;
+        notifyDataSetChanged();
+    }
+
+    private void onScrolledToBottom() {
+        if (lastPostCount != sourceList.size()) {
+            lastPostCount = sourceList.size();
+            postAdapterCallback.onListScrolledToBottom();
+        }
+    }
+
+    private boolean showStatusView() {
+        return postAdapterCallback.getLoadable().isThreadMode();
+    }
+
+    private boolean isFiltering() {
+        return !TextUtils.isEmpty(filter);
+    }
+
+    public static class PostViewHolder extends RecyclerView.ViewHolder {
+        private PostView postView;
+
+        public PostViewHolder(PostView postView) {
+            super(postView);
+            this.postView = postView;
+        }
+    }
+
+    public static class StatusViewHolder extends RecyclerView.ViewHolder {
+        private ThreadStatusCell threadStatusCell;
+
+        public StatusViewHolder(ThreadStatusCell threadStatusCell) {
+            super(threadStatusCell);
+            this.threadStatusCell = threadStatusCell;
+        }
+    }
+
+/*
     @Override
     public long getItemId(int position) {
         return position;
@@ -113,7 +202,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position >= getCount() - 1) {
-            onGetBottomView();
+            onScrolledToBottom();
         }
 
         switch (getItemViewType(position)) {
@@ -216,75 +305,7 @@ public class PostAdapter extends BaseAdapter implements Filterable {
         }
 
         notifyDataSetChanged();
-    }
-
-    public List<Post> getList() {
-        return sourceList;
-    }
-
-    public void setEndOfLine(boolean endOfLine) {
-        this.endOfLine = endOfLine;
-
-        notifyDataSetChanged();
-    }
-
-    /* TODO
-    public void scrollToPost(int no) {
-        if (isFiltering()) {
-            pendingScrollToPost = no;
-        } else {
-            notifyDataSetChanged();
-
-            synchronized (lock) {
-                for (int i = 0; i < displayList.size(); i++) {
-                    if (displayList.get(i).no == no) {
-                        if (Math.abs(i - listView.getFirstVisiblePosition()) > 20 || listView.getChildCount() == 0) {
-                            listView.setSelection(i);
-                        } else {
-                            ScrollerRunnable r = new ScrollerRunnable(listView);
-                            r.start(i);
-                        }
-
-                        break;
-                    }
-                }
-            }
-        }
     }*/
-
-    public void setStatusMessage(String loadMessage) {
-        this.statusMessage = loadMessage;
-    }
-
-    public String getStatusMessage() {
-        return statusMessage;
-    }
-
-    private void onGetBottomView() {
-        /*if (postAdapterCallback.getLoadable().isBoardMode() && !endOfLine) {
-            // Try to load more posts
-            threadManager.requestNextData();
-        }*/
-
-        if (lastPostCount != sourceList.size()) {
-            lastPostCount = sourceList.size();
-            postAdapterCallback.onListScrolledToBottom();
-            notifyDataSetChanged();
-        }
-    }
-
-    private boolean showStatusView() {
-        Loadable l = postAdapterCallback.getLoadable();
-        if (l != null) {
-            return l.isBoardMode() || l.isThreadMode();
-        } else {
-            return false;
-        }
-    }
-
-    private boolean isFiltering() {
-        return !TextUtils.isEmpty(filter);
-    }
 
     public interface PostAdapterCallback {
         void onFilteredResults(String filter, int count, boolean all);
@@ -293,107 +314,6 @@ public class PostAdapter extends BaseAdapter implements Filterable {
 
         void onListScrolledToBottom();
 
-        void onListStatusClicked();
-
         void scrollTo(int position);
-    }
-
-    public class StatusView extends LinearLayout {
-        boolean detached = false;
-
-        public StatusView(Context activity) {
-            super(activity);
-            init();
-        }
-
-        public StatusView(Context activity, AttributeSet attr) {
-            super(activity, attr);
-            init();
-        }
-
-        public StatusView(Context activity, AttributeSet attr, int style) {
-            super(activity, attr, style);
-            init();
-        }
-
-        public void init() {
-            // TODO
-            /*
-            ChanLoader chanLoader = threadManager.getChanLoader();
-            if (chanLoader == null)
-                return;
-
-            setGravity(Gravity.CENTER);
-
-            Loadable loadable = chanLoader.getLoadable();
-            if (loadable.isThreadMode()) {
-                String error = getStatusMessage();
-                if (error != null) {
-                    setText(error);
-                } else {
-                    if (threadManager.isWatching()) {
-                        long time = chanLoader.getTimeUntilLoadMore() / 1000L;
-                        if (time == 0) {
-                            setText(statusPrefix + context.getString(R.string.thread_refresh_now));
-                        } else {
-                            setText(statusPrefix + context.getString(R.string.thread_refresh_countdown, time));
-                        }
-
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!detached) {
-                                    notifyDataSetChanged();
-                                }
-                            }
-                        }, 1000);
-                    } else {
-                        if (chanLoader.getTimeUntilLoadMore() == 0) {
-                            setText(statusPrefix + context.getString(R.string.thread_refresh_now));
-                        } else {
-                            setText(statusPrefix + context.getString(R.string.thread_refresh_bar_inactive));
-                        }
-                    }
-
-                    setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            ChanLoader chanLoader = threadManager.getChanLoader();
-                            if (chanLoader != null) {
-                                chanLoader.requestMoreDataAndResetTimer();
-                                setText(context.getString(R.string.thread_refresh_now));
-                            }
-
-                            notifyDataSetChanged();
-                        }
-                    });
-                }
-
-                Utils.setPressedDrawable(this);
-            } else if (loadable.isBoardMode()) {
-                if (endOfLine) {
-                    setText(context.getString(R.string.thread_load_end_of_line));
-                } else {
-                    setProgressBar();
-                }
-            }*/
-        }
-
-        @Override
-        protected void onDetachedFromWindow() {
-            super.onDetachedFromWindow();
-            detached = true;
-        }
-
-        private void setText(String string) {
-            TextView text = new TextView(context);
-            text.setText(string);
-            text.setGravity(Gravity.CENTER);
-            addView(text, new LayoutParams(LayoutParams.MATCH_PARENT, dp(48)));
-        }
-
-        private void setProgressBar() {
-            addView(new ProgressBar(context));
-        }
     }
 }

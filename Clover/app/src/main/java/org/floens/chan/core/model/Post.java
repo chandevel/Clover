@@ -82,6 +82,7 @@ public class Post {
     public String rawComment;
     public String countryUrl;
     public boolean spoiler = false;
+    public int uniqueIps = 1;
 
     public boolean deleted = false;
 

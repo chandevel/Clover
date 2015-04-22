@@ -85,6 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
+    <string name="thread_stats">%1$sR / %2$sI / %3$sP</string>
 
     <string name="board_edit">Board editor</string>
     <string name="board_edit_header">Add, remove and reorder your boards here.\nThe topmost board will be loaded automatically.</string>
@@ -116,7 +117,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Quote</item>
         <item>Quote text</item>
         <item>Info</item>
-        <item>Show clickables</item>
+        <item>Show links</item>
         <item>Copy text</item>
         <item>Report</item>
     </string-array>

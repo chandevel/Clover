@@ -35,8 +35,6 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.Arrays;
 
-import de.greenrobot.event.EventBus;
-
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback, RootNavigationController.DrawerCallbacks {
     private static final int POST_ID = 1;
     private static final int PIN_ID = 2;
@@ -58,8 +56,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onCreate() {
         super.onCreate();
-
-        EventBus.getDefault().register(this);
 
         view.setBackgroundColor(0xffffffff);
 
@@ -88,8 +84,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        EventBus.getDefault().unregister(this);
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
@@ -106,7 +100,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Override
     public void showThread(final Loadable threadLoadable) {
-        // TODO implement, scroll to post and fix title
+        // TODO implement, scroll to post
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

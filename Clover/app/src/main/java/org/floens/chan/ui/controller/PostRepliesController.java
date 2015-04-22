@@ -146,7 +146,7 @@ public class PostRepliesController extends Controller {
 
                 final Post p = getItem(position);
 
-                postView.setPost(p, presenter);
+                postView.setPost(p, presenter, false);
                 postView.setHighlightQuotesWithNo(data.forPost.no);
                 postView.setOnClickListeners(new View.OnClickListener() {
                     @Override

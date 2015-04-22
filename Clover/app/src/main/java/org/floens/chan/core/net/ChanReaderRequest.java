@@ -41,8 +41,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         super(url, listener, errorListener);
     }
 
-    public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener,
-                                                ErrorListener errorListener) {
+    public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener, ErrorListener errorListener) {
         String url;
 
         if (loadable.isBoardMode()) {
@@ -126,6 +125,11 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 }
             }
 
+            // Replace OPs
+            if (totalList.get(0).isOP && serverList.size() > 0 && serverList.get(0).isOP) {
+                totalList.set(0, serverList.get(0));
+            }
+
             // Sort if it got out of order due to posts disappearing/reappearing
             /*if (loadable.isThreadMode()) {
                 Collections.sort(totalList, new Comparator<Post>() {
@@ -140,7 +144,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             totalList.addAll(serverList);
         }
 
-        Set<Integer> invalidatedPosts = new HashSet<>();
+        Set<Integer> postsReplyingToDeleted = new HashSet<>();
         for (Post post : totalList) {
             if (!post.deleted) {
                 post.repliesFrom.clear();
@@ -154,14 +158,14 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 post.repliesTo.clear();
 
                 for (int no : post.repliesFrom) {
-                    invalidatedPosts.add(no);
+                    postsReplyingToDeleted.add(no);
                 }
 
                 post.repliesFrom.clear();
             }
         }
 
-        for (int no : invalidatedPosts) {
+        for (int no : postsReplyingToDeleted) {
             for (Post post : totalList) {
                 if (post.no == no) {
                     if (!post.finish()) {
@@ -357,6 +361,9 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 case "spoiler":
                     post.spoiler = reader.nextInt() == 1;
                     break;
+                case "unique_ips":
+                    post.uniqueIps = reader.nextInt();
+                    break;
                 default:
                     // Unknown/ignored key
                     //                log("Unknown/ignored key: " + key + ".");
@@ -367,10 +374,13 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         reader.endObject();
 
         Post cachedResult = null;
-        for (Post possibleCached : cached) {
-            if (possibleCached.no == post.no) {
-                cachedResult = possibleCached;
-                break;
+        // Do not cache OPs to make sure the archived, replies etc. are updated
+        if (post.resto != 0) {
+            for (Post possibleCached : cached) {
+                if (possibleCached.no == post.no) {
+                    cachedResult = possibleCached;
+                    break;
+                }
             }
         }
 

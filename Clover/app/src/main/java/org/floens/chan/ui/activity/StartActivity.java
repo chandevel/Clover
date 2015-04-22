@@ -1,8 +1,8 @@
 package org.floens.chan.ui.activity;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 
 import org.floens.chan.ChanApplication;
@@ -14,7 +14,7 @@ import org.floens.chan.utils.ThemeHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StartActivity extends Activity {
+public class StartActivity extends AppCompatActivity {
     private static final String TAG = "StartActivity";
 
     private ViewGroup contentView;

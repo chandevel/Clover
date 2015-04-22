@@ -182,7 +182,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         if (ChanSettings.watchEnabled.get()) {
             String count;
             if (pin.isError) {
-                count = "Err";
+                count = "E";
             } else {
                 int c = pin.getNewPostCount();
                 if (c > 999) {

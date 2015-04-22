@@ -207,11 +207,11 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
                 case R.id.action_download_album:
                     // Get the posts with images
                     ArrayList<Post> imagePosts = new ArrayList<>();
-                    for (Post post : postAdapter.getList()) {
-                        if (post.hasImage) {
-                            imagePosts.add(post);
-                        }
-                    }
+//                    for (Post post : postAdapter.getList()) {
+//                        if (post.hasImage) {
+//                            imagePosts.add(post);
+//                        }
+//                    }
                     if (imagePosts.size() > 0) {
                         List<ImageSaver.DownloadPair> list = new ArrayList<>();
 
@@ -273,7 +273,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             }
         }
 
-        postAdapter.setStatusMessage(null);
+//        postAdapter.setError(null);
         postAdapter.setThread(thread);
 
         if (highlightedPost >= 0) {
@@ -288,14 +288,14 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     @Override
     public void onThreadLoadError(VolleyError error) {
         if (error instanceof EndOfLineException) {
-            postAdapter.setEndOfLine(true);
+//            postAdapter.setEndOfLine(true);
         } else {
             if (postAdapter == null) {
                 if (container != null) {
                     container.setView(getLoadErrorView(error));
                 }
             } else {
-                postAdapter.setStatusMessage(getLoadErrorText(error));
+//                postAdapter.setError(getLoadErrorText(error));
             }
         }
 
@@ -321,11 +321,6 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
     }
 
     @Override
-    public void onListStatusClicked() {
-
-    }
-
-    @Override
     public void scrollTo(int position) {
 
     }
@@ -344,7 +339,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             ListView list = new ListView(getActivity());
             listView = list;
 //            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
-            listView.setAdapter(postAdapter);
+//            listView.setAdapter(postAdapter);
             list.setSelectionFromTop(loadable.listViewIndex, loadable.listViewTop);
         } else if (viewMode == ThreadManager.ViewMode.GRID) {
             GridView grid = new GridView(getActivity());
@@ -353,7 +348,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             grid.setColumnWidth(postGridWidth);
             listView = grid;
 //            postAdapter = new PostAdapter(getActivity(), threadManager, listView, this);
-            listView.setAdapter(postAdapter);
+//            listView.setAdapter(postAdapter);
             listView.setSelection(loadable.listViewIndex);
         }
 
@@ -427,7 +422,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     private void doFilter(String filter) {
         if (postAdapter != null) {
-            postAdapter.setFilter(filter);
+//            postAdapter.setFilter(filter);
         }
     }
 

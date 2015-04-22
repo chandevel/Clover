@@ -37,6 +37,7 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -44,7 +45,7 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostView.PostViewCallback {
+public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostView.PostViewCallback, ThreadStatusCell.Callback {
     private ThreadPresenterCallback threadPresenterCallback;
 
     private Loadable loadable;
@@ -80,6 +81,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         chanLoader.requestData();
     }
 
+    public void onForegroundChanged(boolean foreground) {
+        if (chanLoader != null) {
+            if (foreground) {
+                if (isWatching()) {
+                    chanLoader.setAutoLoadMore(true);
+                    chanLoader.requestMoreDataAndResetTimer();
+                }
+            } else {
+                chanLoader.setAutoLoadMore(false);
+            }
+        }
+    }
+
     public boolean pin() {
         if (chanLoader.getThread() != null) {
             WatchManager wm = ChanApplication.getWatchManager();
@@ -108,12 +122,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
      */
     @Override
     public void onChanLoaderData(ChanThread result) {
+        chanLoader.setAutoLoadMore(isWatching());
         threadPresenterCallback.showPosts(result);
     }
 
     @Override
     public void onChanLoaderError(VolleyError error) {
-        // TODO show error in status view is content is shown
         threadPresenterCallback.showError(error);
     }
 
@@ -127,12 +141,16 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void onListScrolledToBottom() {
+        if (loadable.isThreadMode()) {
+            List<Post> posts = chanLoader.getThread().posts;
+            loadable.lastViewed = posts.get(posts.size() - 1).no;
+        }
 
-    }
-
-    @Override
-    public void onListStatusClicked() {
-
+        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loadable);
+        if (pin != null) {
+            pin.onBottomPostViewed();
+            ChanApplication.getWatchManager().updatePin(pin);
+        }
     }
 
     @Override
@@ -150,6 +168,22 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
         scrollTo(position);
+    }
+
+    public void scrollToPost(Post needle) {
+        int position = -1;
+        for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
+            Post post = chanLoader.getThread().posts.get(i);
+            if (post.no == needle.no) {
+                position = i;
+                break;
+            }
+        }
+        scrollTo(position);
+    }
+
+    public void highlightPost(Post post) {
+        threadPresenterCallback.highlightPost(post);
     }
 
     /*
@@ -236,9 +270,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 AndroidUtils.openLink(ChanUrls.getReportUrl(post.board, post.no));
                 break;
             case 6: // Id
-                //TODO
-//                highlightedId = post.id;
-//                threadManagerListener.onRefreshView();
+                threadPresenterCallback.highlightPostId(post.id);
                 break;
             case 7: // Delete
 //                deletePost(post); TODO
@@ -285,19 +317,31 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public boolean isPostHightlighted(Post post) {
+    public boolean isPostLastSeen(Post post) {
         return false;
     }
 
-    public void highlightPost(int no) {
-    }
-
-    public void scrollToPost(int no) {
+    /*
+     * ThreadStatusCell callbacks
+     */
+    @Override
+    public long getTimeUntilLoadMore() {
+        return chanLoader.getTimeUntilLoadMore();
     }
 
     @Override
-    public boolean isPostLastSeen(Post post) {
-        return false;
+    public boolean isWatching() {
+        return loadable.isThreadMode() && ChanSettings.autoRefreshThread.get() && !chanLoader.getThread().closed && !chanLoader.getThread().archived;
+    }
+
+    @Override
+    public ChanThread getChanThread() {
+        return chanLoader.getThread();
+    }
+
+    @Override
+    public void onListStatusClicked() {
+        chanLoader.requestMoreDataAndResetTimer();
     }
 
     private void showPostInfo(Post post) {
@@ -360,5 +404,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
         void scrollTo(int position);
+
+        void highlightPost(Post post);
+
+        void highlightPostId(String id);
     }
 }

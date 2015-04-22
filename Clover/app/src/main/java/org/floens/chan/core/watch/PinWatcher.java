@@ -116,7 +116,7 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
 
     @Override
     public void onChanLoaderError(VolleyError error) {
-        Logger.e(TAG, "PinWatcher onError: ", error);
+        Logger.e(TAG, "PinWatcher onError");
         pin.isError = true;
 
         AndroidUtils.runOnUiThread(new Runnable() {

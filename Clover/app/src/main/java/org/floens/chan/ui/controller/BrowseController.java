@@ -42,8 +42,6 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
-
 public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, RootNavigationController.DrawerCallbacks {
     private static final int REFRESH_ID = 1;
     private static final int POST_ID = 2;
@@ -60,8 +58,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     @Override
     public void onCreate() {
         super.onCreate();
-
-        EventBus.getDefault().register(this);
 
         navigationItem.hasDrawer = true;
         navigationItem.middleMenu = new FloatingMenu(context);
@@ -85,13 +81,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
 
         loadBoard(ChanApplication.getBoardManager().getSavedBoards().get(0));
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        EventBus.getDefault().unregister(this);
     }
 
     @Override

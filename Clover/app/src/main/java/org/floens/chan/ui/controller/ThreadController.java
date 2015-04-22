@@ -2,6 +2,7 @@ package org.floens.chan.ui.controller;
 
 import android.content.Context;
 
+import org.floens.chan.ChanApplication;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
@@ -10,11 +11,20 @@ import org.floens.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback {
     protected ThreadLayout threadLayout;
 
     public ThreadController(Context context) {
         super(context);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        EventBus.getDefault().register(this);
 
         threadLayout = new ThreadLayout(context);
         threadLayout.setCallback(this);
@@ -24,7 +34,14 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         threadLayout.getPresenter().unbindLoadable();
+
+        EventBus.getDefault().unregister(this);
+    }
+
+    public void onEvent(ChanApplication.ForegroundChangedMessage message) {
+        threadLayout.getPresenter().onForegroundChanged(message.inForeground);
     }
 
     public void presentRepliesController(Controller controller) {

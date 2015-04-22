@@ -253,7 +253,7 @@ public class ChanLoader {
     }
 
     private ChanReaderRequest getData() {
-//        Logger.i(TAG, "Requested " + loadable.board + ", " + loadable.no);
+        Logger.i(TAG, "Requested " + loadable.board + ", " + loadable.no);
 
         List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
         ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cached,
@@ -329,22 +329,20 @@ public class ChanLoader {
             post.title = loadable.title;
         }
 
-        for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderData(thread);
-        }
-
         lastLoadTime = Time.get();
 
         if (loadable.isThreadMode()) {
             setTimer(result.size());
+        }
+
+        for (ChanLoaderCallback l : listeners) {
+            l.onChanLoaderData(thread);
         }
     }
 
     private void onError(VolleyError error) {
         if (destroyed)
             return;
-
-        thread = null;
 
         Logger.e(TAG, "Error loading " + error.getMessage(), error);
 
@@ -353,11 +351,11 @@ public class ChanLoader {
             error = new EndOfLineException();
         }
 
+        clearTimer();
+
         for (ChanLoaderCallback l : listeners) {
             l.onChanLoaderError(error);
         }
-
-        clearTimer();
     }
 
     public interface ChanLoaderCallback {

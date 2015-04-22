@@ -18,84 +18,75 @@
 package org.floens.chan.ui.layout;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
 
 /**
- * A layout that wraps around a listview to manage showing posts.
+ * A layout that wraps around a {@link RecyclerView} to manage showing posts.
  */
 public class ThreadListLayout extends RelativeLayout {
-    private ListView listView;
+    private RecyclerView recyclerView;
     private PostAdapter postAdapter;
     private PostAdapter.PostAdapterCallback postAdapterCallback;
     private PostView.PostViewCallback postViewCallback;
 
-    private int restoreListViewIndex;
-    private int restoreListViewTop;
-
-    public ThreadListLayout(Context context) {
-        super(context);
-        init();
-    }
-
     public ThreadListLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
-    }
-
-    public ThreadListLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
     }
 
     @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        restoreListViewIndex = listView.getFirstVisiblePosition();
-        restoreListViewTop = listView.getChildAt(0) == null ? 0 : listView.getChildAt(0).getTop();
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        LinearLayoutManager lm = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(lm);
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        listView.setSelectionFromTop(restoreListViewIndex, restoreListViewTop);
-    }
-
-    private void init() {
-        listView = new ListView(getContext());
-        addView(listView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-    }
-
-    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback) {
+    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback, ThreadStatusCell.Callback statusCellCallback) {
         this.postAdapterCallback = postAdapterCallback;
         this.postViewCallback = postViewCallback;
-
-        postAdapter = new PostAdapter(getContext(), postAdapterCallback, postViewCallback);
-        listView.setAdapter(postAdapter);
+        postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postViewCallback, statusCellCallback);
+        recyclerView.setAdapter(postAdapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            }
+        });
     }
 
     public void showPosts(ChanThread thread, boolean initial) {
         if (initial) {
-            listView.setSelectionFromTop(0, 0);
-            restoreListViewIndex = 0;
-            restoreListViewTop = 0;
+            recyclerView.scrollToPosition(0);
         }
         postAdapter.setThread(thread);
     }
 
+    public void showError(String error) {
+        postAdapter.showError(error);
+    }
+
+    public void cleanup() {
+        postAdapter.cleanup();
+    }
+
     public ThumbnailView getThumbnail(PostImage postImage) {
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+
         ThumbnailView thumbnail = null;
-        for (int i = 0; i < listView.getChildCount(); i++) {
-            View view = listView.getChildAt(i);
+        for (int i = 0; i < layoutManager.getChildCount(); i++) {
+            View view = layoutManager.getChildAt(i);
             if (view instanceof PostView) {
                 PostView postView = (PostView) view;
                 Post post = postView.getPost();
@@ -109,6 +100,14 @@ public class ThreadListLayout extends RelativeLayout {
     }
 
     public void scrollTo(int position) {
-        listView.smoothScrollToPosition(position);
+        recyclerView.smoothScrollToPosition(position);
+    }
+
+    public void highlightPost(Post post) {
+        postAdapter.highlightPost(post);
+    }
+
+    public void highlightPostId(String id) {
+        postAdapter.highlightPostId(id);
     }
 }

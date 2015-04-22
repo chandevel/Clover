@@ -121,7 +121,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, Post
         }
     }
 
-    public void setPost(final Post post, final PostViewCallback callback) {
+    public void setPost(final Post post, final PostViewCallback callback, boolean highlighted) {
         if (this.post != null) {
             // Remove callbacks from the old post while it is still set
             setPostLinkableListener(null);
@@ -249,7 +249,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, Post
 
         if (post.isSavedReply) {
             full.setBackgroundColor(savedReplyColor);
-        } else if (callback.isPostHightlighted(post)) {
+        } else if (highlighted) {
             full.setBackgroundColor(highlightedColor);
         } else {
             full.setBackgroundColor(0x00000000);
@@ -542,8 +542,6 @@ public class PostView extends LinearLayout implements View.OnClickListener, Post
         void onPostOptionClicked(Post post, int id);
 
         void onPostLinkableClicked(PostLinkable linkable);
-
-        boolean isPostHightlighted(Post post);
 
         boolean isPostLastSeen(Post post);
     }

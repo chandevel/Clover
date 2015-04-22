@@ -17,14 +17,14 @@
  */
 package org.floens.chan.ui;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import org.floens.chan.R;
 import org.floens.chan.utils.ThemeHelper;
 
-public class ThemeActivity extends ActionBarActivity {
+public class ThemeActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     public void setTheme() {

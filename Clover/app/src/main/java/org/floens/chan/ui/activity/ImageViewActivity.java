@@ -112,11 +112,11 @@ public class ImageViewActivity extends ThemeActivity implements ViewPager.OnPage
     private void initPager() {
         // Get the posts with images
         ArrayList<Post> imagePosts = new ArrayList<>();
-        for (Post post : postAdapter.getList()) {
-            if (post.hasImage) {
-                imagePosts.add(post);
-            }
-        }
+//        for (Post post : postAdapter.getList()) {
+//            if (post.hasImage) {
+//                imagePosts.add(post);
+//            }
+//        }
 
         // Setup our pages and adapter
         viewPager = (ViewPager) findViewById(R.id.image_pager);

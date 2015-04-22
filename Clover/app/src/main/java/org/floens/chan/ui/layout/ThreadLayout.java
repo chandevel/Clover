@@ -72,7 +72,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     private TextView errorText;
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
-    private Visible visible;
+    private Visible visible = Visible.LOADING;
 
     public ThreadLayout(Context context) {
         super(context);
@@ -92,8 +92,8 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     private void init() {
         presenter = new ThreadPresenter(this);
 
-        threadListLayout = new ThreadListLayout(getContext());
-        threadListLayout.setCallbacks(presenter, presenter);
+        threadListLayout = (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
+        threadListLayout.setCallbacks(presenter, presenter, presenter);
 
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
 
@@ -103,7 +103,6 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
         errorRetryButton = (Button) errorLayout.findViewById(R.id.button);
         errorRetryButton.setOnClickListener(this);
-
 
         switchVisible(Visible.LOADING);
     }
@@ -132,8 +131,6 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     @Override
     public void showError(VolleyError error) {
-        switchVisible(Visible.ERROR);
-
         String errorMessage;
         if (error.getCause() instanceof SSLException) {
             errorMessage = getContext().getString(R.string.thread_load_failed_ssl);
@@ -145,7 +142,12 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
             errorMessage = getContext().getString(R.string.thread_load_failed_parsing);
         }
 
-        errorText.setText(errorMessage);
+        if (visible == Visible.THREAD) {
+            threadListLayout.showError(errorMessage);
+        } else {
+            switchVisible(Visible.ERROR);
+            errorText.setText(errorMessage);
+        }
     }
 
     @Override
@@ -222,6 +224,16 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         threadListLayout.scrollTo(position);
     }
 
+    @Override
+    public void highlightPost(Post post) {
+        threadListLayout.highlightPost(post);
+    }
+
+    @Override
+    public void highlightPostId(String id) {
+        threadListLayout.highlightPostId(id);
+    }
+
     public ThumbnailView getThumbnail(PostImage postImage) {
         if (postPopupHelper.isOpen()) {
             return postPopupHelper.getThumbnail(postImage);
@@ -236,6 +248,12 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     private void switchVisible(Visible visible) {
         if (this.visible != visible) {
+            switch (this.visible) {
+                case THREAD:
+                    threadListLayout.cleanup();
+                    break;
+            }
+
             this.visible = visible;
             switch (visible) {
                 case LOADING:
