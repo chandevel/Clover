@@ -1,12 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <org.floens.chan.ui.layout.ThreadListLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/search_status"
+        android:visibility="gone"
+        android:gravity="center"
+        android:textColor="#ff757575"
+        android:background="#ffffffff"
+        android:singleLine="true"
+        android:elevation="4dp"
+        android:padding="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:scrollbars="vertical"
+        android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp" />
 
 </org.floens.chan.ui.layout.ThreadListLayout>

@@ -188,9 +188,34 @@ public class RootNavigationController extends NavigationController implements Pi
         }
     }
 
+    @Override
+    public String getSearchHint() {
+        return context.getString(R.string.search_hint);
+    }
+
+    @Override
+    public void onSearchVisibilityChanged(boolean visible) {
+        Controller top = getTop();
+        if (top instanceof DrawerCallbacks) {
+            ((DrawerCallbacks) top).onSearchVisibilityChanged(visible);
+        }
+    }
+
+    @Override
+    public void onSearchEntered(String entered) {
+        Controller top = getTop();
+        if (top instanceof DrawerCallbacks) {
+            ((DrawerCallbacks) top).onSearchEntered(entered);
+        }
+    }
+
     public interface DrawerCallbacks {
         void onPinClicked(Pin pin);
 
         boolean isPinCurrent(Pin pin);
+
+        void onSearchVisibilityChanged(boolean visible);
+
+        void onSearchEntered(String entered);
     }
 }

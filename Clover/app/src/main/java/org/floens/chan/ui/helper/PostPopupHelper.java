@@ -82,7 +82,7 @@ public class PostPopupHelper {
     public void postClicked(Post p) {
         popAll();
         presenter.highlightPost(p);
-        presenter.scrollToPost(p);
+        presenter.scrollToPost(p, true);
     }
 
     private void dismiss() {

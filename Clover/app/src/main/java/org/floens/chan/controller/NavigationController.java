@@ -160,6 +160,10 @@ public abstract class NavigationController extends Controller implements Control
     public boolean onBack() {
         if (blockingInput) return true;
 
+        if (toolbar.closeSearch()) {
+            return true;
+        }
+
         if (controllerList.size() > 0) {
             Controller top = controllerList.get(controllerList.size() - 1);
             if (top.onBack()) {
@@ -190,6 +194,10 @@ public abstract class NavigationController extends Controller implements Control
 
     }
 
+    public void showSearch() {
+        toolbar.showSearch();
+    }
+
     @Override
     public void onMenuOrBackClicked(boolean isArrow) {
         if (isArrow) {
@@ -197,5 +205,18 @@ public abstract class NavigationController extends Controller implements Control
         } else {
             onMenuClicked();
         }
+    }
+
+    @Override
+    public void onSearchVisibilityChanged(boolean visible) {
+    }
+
+    @Override
+    public String getSearchHint() {
+        return "";
+    }
+
+    @Override
+    public void onSearchEntered(String entered) {
     }
 }

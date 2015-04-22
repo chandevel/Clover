@@ -44,12 +44,14 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostView.PostViewCallback, ThreadStatusCell.Callback {
     private ThreadPresenterCallback threadPresenterCallback;
 
     private Loadable loadable;
     private ChanLoader chanLoader;
+    private boolean searchOpen = false;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -112,6 +114,21 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         return ChanApplication.getWatchManager().findPinByLoadable(loadable) != null;
     }
 
+    public void onSearchVisibilityChanged(boolean visible) {
+        searchOpen = visible;
+        threadPresenterCallback.showSearch(visible);
+    }
+
+    public void onSearchEntered(String entered) {
+        if (chanLoader.getThread() != null) {
+            if (TextUtils.isEmpty(entered)) {
+                threadPresenterCallback.filterList(null, null, true, true, false);
+            } else {
+                processSearch(chanLoader.getThread().posts, entered);
+            }
+        }
+    }
+
     @Override
     public Loadable getLoadable() {
         return loadable;
@@ -135,11 +152,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
      * PostAdapter callbacks
      */
     @Override
-    public void onFilteredResults(String filter, int count, boolean all) {
-
-    }
-
-    @Override
     public void onListScrolledToBottom() {
         if (loadable.isThreadMode()) {
             List<Post> posts = chanLoader.getThread().posts;
@@ -153,24 +165,25 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
     }
 
-    @Override
-    public void scrollTo(int position) {
-        threadPresenterCallback.scrollTo(position);
+    public void scrollTo(int position, boolean smooth) {
+        threadPresenterCallback.scrollTo(position, smooth);
     }
 
-    public void scrollTo(PostImage postImage) {
-        int position = -1;
-        for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
-            Post post = chanLoader.getThread().posts.get(i);
-            if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
-                position = i;
-                break;
+    public void scrollToImage(PostImage postImage, boolean smooth) {
+        if (!searchOpen) {
+            int position = -1;
+            for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
+                Post post = chanLoader.getThread().posts.get(i);
+                if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
+                    position = i;
+                    break;
+                }
             }
+            scrollTo(position, smooth);
         }
-        scrollTo(position);
     }
 
-    public void scrollToPost(Post needle) {
+    public void scrollToPost(Post needle, boolean smooth) {
         int position = -1;
         for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
             Post post = chanLoader.getThread().posts.get(i);
@@ -179,7 +192,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 break;
             }
         }
-        scrollTo(position);
+        scrollTo(position, smooth);
     }
 
     public void highlightPost(Post post) {
@@ -195,6 +208,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             Loadable threadLoadable = new Loadable(post.board, post.no);
             threadLoadable.generateTitle(post);
             threadPresenterCallback.showThread(threadLoadable);
+        } else {
+            if (searchOpen) {
+                threadPresenterCallback.filterList(null, null, true, false, true);
+                highlightPost(post);
+                scrollToPost(post, false);
+            }
         }
     }
 
@@ -304,6 +323,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void onShowPostReplies(Post post) {
+
         List<Post> posts = new ArrayList<>();
         for (int no : post.repliesFrom) {
             Post replyPost = findPostById(no);
@@ -382,6 +402,31 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         return null;
     }
 
+    private void processSearch(List<Post> all, String originalQuery) {
+        List<Post> filtered = new ArrayList<>();
+
+        String query = originalQuery.toLowerCase(Locale.ENGLISH);
+
+        boolean add;
+        for (Post item : all) {
+            add = false;
+            if (item.comment.toString().toLowerCase(Locale.ENGLISH).contains(query)) {
+                add = true;
+            } else if (item.subject.toLowerCase(Locale.ENGLISH).contains(query)) {
+                add = true;
+            } else if (item.name.toLowerCase(Locale.ENGLISH).contains(query)) {
+                add = true;
+            } else if (item.filename != null && item.filename.toLowerCase(Locale.ENGLISH).contains(query)) {
+                add = true;
+            }
+            if (add) {
+                filtered.add(item);
+            }
+        }
+
+        threadPresenterCallback.filterList(originalQuery, filtered, false, false, false);
+    }
+
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread);
 
@@ -403,10 +448,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
-        void scrollTo(int position);
+        void scrollTo(int position, boolean smooth);
 
         void highlightPost(Post post);
 
         void highlightPostId(String id);
+
+        void showSearch(boolean show);
+
+        void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard);
     }
 }

@@ -26,11 +26,18 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,6 +46,7 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -47,14 +55,15 @@ import java.util.List;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
 
-public class Toolbar extends LinearLayout implements View.OnClickListener {
+public class Toolbar extends LinearLayout implements View.OnClickListener, LoadView.Listener {
     private ImageView arrowMenuView;
     private ArrowMenuDrawable arrowMenuDrawable;
 
-    private FrameLayout navigationItemContainer;
+    private LoadView navigationItemContainer;
 
     private ToolbarCallback callback;
     private NavigationItem navigationItem;
+    private boolean search = false;
 
     public Toolbar(Context context) {
         super(context);
@@ -72,20 +81,101 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     }
 
     public void updateNavigation() {
+        closeSearchInternal(true);
         setNavigationItem(false, false, navigationItem);
     }
 
+    public boolean showSearch() {
+        if (!search) {
+            search = true;
+
+            LinearLayout searchViewWrapper = new LinearLayout(getContext());
+            final EditText searchView = new EditText(getContext());
+            searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_ACTION_DONE);
+            searchView.setHint(callback.getSearchHint());
+            searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+            searchView.setHintTextColor(0x88ffffff);
+            searchView.setTextColor(0xffffffff);
+            searchView.setSingleLine(true);
+            searchView.setBackgroundResource(0);
+            searchView.setPadding(0, 0, 0, 0);
+            final ImageView clearButton = new ImageView(getContext());
+            searchView.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    callback.onSearchEntered(s.toString());
+                    clearButton.setAlpha(s.length() == 0 ? 0.6f : 1.0f);
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+            searchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        AndroidUtils.hideKeyboard(searchView);
+                        callback.onSearchEntered(searchView.getText().toString());
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
+            searchViewParams.gravity = Gravity.CENTER_VERTICAL;
+            searchViewWrapper.addView(searchView, searchViewParams);
+
+            clearButton.setImageResource(R.drawable.ic_close_white_24dp);
+            clearButton.setAlpha(0.6f);
+            clearButton.setScaleType(ImageView.ScaleType.CENTER);
+            clearButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    searchView.setText("");
+                    AndroidUtils.requestKeyboardFocus(searchView);
+                }
+            });
+            searchViewWrapper.addView(clearButton, dp(48), LayoutParams.MATCH_PARENT);
+            searchViewWrapper.setPadding(dp(16), 0, 0, 0);
+
+            searchView.post(new Runnable() {
+                @Override
+                public void run() {
+                    searchView.requestFocus();
+                    AndroidUtils.requestKeyboardFocus(searchView);
+                }
+            });
+
+            navigationItemContainer.setView(searchViewWrapper, true);
+            animateArrow(true, 0);
+            callback.onSearchVisibilityChanged(true);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean closeSearch() {
+        return closeSearchInternal(false);
+    }
+
     public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item) {
+        closeSearchInternal(true);
         if (item.menu != null) {
             AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
                 @Override
                 public boolean onMeasured(View view) {
-                    setNavigationItemView(animate, pushing, item);
+                    setNavigationItemInternal(animate, pushing, false, item);
                     return true;
                 }
             });
         } else {
-            setNavigationItemView(animate, pushing, item);
+            setNavigationItemInternal(animate, pushing, false, item);
         }
     }
 
@@ -109,6 +199,14 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     public void onConfigurationChanged(Configuration newConfig) {
     }
 
+    @Override
+    public void onLoadViewRemoved(View view) {
+        // TODO: this is kinda a hack
+        if (view instanceof ViewGroup) {
+            ((ViewGroup) view).removeAllViews();
+        }
+    }
+
     private void init() {
         setOrientation(HORIZONTAL);
 
@@ -130,11 +228,27 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         leftButtonContainer.addView(arrowMenuView, new FrameLayout.LayoutParams(dp(56), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL));
 
-        navigationItemContainer = new FrameLayout(getContext());
+        navigationItemContainer = new LoadView(getContext());
+        navigationItemContainer.setListener(this);
         addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
     }
 
-    private void setNavigationItemView(boolean animate, boolean pushing, NavigationItem toItem) {
+    private boolean closeSearchInternal(boolean fromSetNavigation) {
+        if (search) {
+            search = false;
+            setNavigationItemInternal(true, false, true, navigationItem);
+            AndroidUtils.hideKeyboard(navigationItemContainer);
+            callback.onSearchVisibilityChanged(false);
+            if (!fromSetNavigation) {
+                animateArrow(navigationItem.hasBack, 0);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void setNavigationItemInternal(boolean animate, boolean pushing, boolean fromSearch, NavigationItem toItem) {
         final NavigationItem fromItem = navigationItem;
 
         if (!animate) {
@@ -146,27 +260,25 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         toItem.view = createNavigationItemView(toItem);
 
-        navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        // use the LoadView animation when from a search
+        if (fromSearch) {
+            navigationItemContainer.setView(toItem.view, true);
+        } else {
+            navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        }
 
         final int duration = 300;
         final int offset = dp(16);
+        final int delay = pushing ? 0 : 100;
 
-        if (animate) {
+        // Use the LoadView animation when from a search
+        if (animate && !fromSearch) {
             toItem.view.setAlpha(0f);
 
             List<Animator> animations = new ArrayList<>(5);
 
             if (fromItem != null && fromItem.hasBack != toItem.hasBack) {
-                ValueAnimator arrowAnimation = ValueAnimator.ofFloat(fromItem.hasBack ? 1f : 0f, toItem.hasBack ? 1f : 0f);
-                arrowAnimation.setDuration(duration);
-                arrowAnimation.setInterpolator(new DecelerateInterpolator(2f));
-                arrowAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        setArrowMenuProgress((float) animation.getAnimatedValue());
-                    }
-                });
-                animations.add(arrowAnimation);
+                animateArrow(toItem.hasBack, delay);
             } else {
                 setArrowMenuProgress(toItem.hasBack ? 1f : 0f);
             }
@@ -202,7 +314,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             }
 
             AnimatorSet set = new AnimatorSet();
-            set.setStartDelay(pushing ? 0 : 100);
+            set.setStartDelay(delay);
             set.playTogether(animations);
             set.start();
         }
@@ -252,7 +364,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             @Override
             public boolean onMeasured(View view) {
                 if (item.middleMenu != null) {
-                    item.middleMenu.setPopupWidth(Math.max(dp(150), titleView.getWidth()));
+                    item.middleMenu.setPopupWidth(Math.max(dp(200), titleView.getWidth()));
                 }
                 return false;
             }
@@ -261,7 +373,30 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         return wrapper;
     }
 
+    private void animateArrow(boolean toArrow, long delay) {
+        float to = toArrow ? 1f : 0f;
+        if (to != arrowMenuDrawable.getProgress()) {
+            ValueAnimator arrowAnimation = ValueAnimator.ofFloat(arrowMenuDrawable.getProgress(), to);
+            arrowAnimation.setDuration(300);
+            arrowAnimation.setInterpolator(new DecelerateInterpolator(2f));
+            arrowAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    setArrowMenuProgress((float) animation.getAnimatedValue());
+                }
+            });
+            arrowAnimation.setStartDelay(delay);
+            arrowAnimation.start();
+        }
+    }
+
     public interface ToolbarCallback {
         void onMenuOrBackClicked(boolean isArrow);
+
+        void onSearchVisibilityChanged(boolean visible);
+
+        String getSearchHint();
+
+        void onSearchEntered(String entered);
     }
 }

@@ -72,7 +72,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     private TextView errorText;
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
-    private Visible visible = Visible.LOADING;
+    private Visible visible;
 
     public ThreadLayout(Context context) {
         super(context);
@@ -220,8 +220,8 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     }
 
     @Override
-    public void scrollTo(int position) {
-        threadListLayout.scrollTo(position);
+    public void scrollTo(int position, boolean smooth) {
+        threadListLayout.scrollTo(position, smooth);
     }
 
     @Override
@@ -232,6 +232,15 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     @Override
     public void highlightPostId(String id) {
         threadListLayout.highlightPostId(id);
+    }
+
+    @Override
+    public void showSearch(boolean show) {
+        threadListLayout.showSearch(show);
+    }
+
+    public void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard) {
+        threadListLayout.filterList(query, filter, clearFilter, setEmptyText, hideKeyboard);
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
@@ -248,10 +257,12 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     private void switchVisible(Visible visible) {
         if (this.visible != visible) {
-            switch (this.visible) {
-                case THREAD:
-                    threadListLayout.cleanup();
-                    break;
+            if (this.visible != null) {
+                switch (this.visible) {
+                    case THREAD:
+                        threadListLayout.cleanup();
+                        break;
+                }
             }
 
             this.visible = visible;

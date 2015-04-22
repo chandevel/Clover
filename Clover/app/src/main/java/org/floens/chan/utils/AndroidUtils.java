@@ -154,10 +154,14 @@ public class AndroidUtils {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(view, 0);
+                requestKeyboardFocus(view);
             }
         });
+    }
+
+    public static void requestKeyboardFocus(final View view) {
+        InputMethodManager inputManager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
     }
 
     public static void hideKeyboard(View view) {

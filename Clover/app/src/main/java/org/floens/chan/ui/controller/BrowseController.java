@@ -42,7 +42,7 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback, RootNavigationController.DrawerCallbacks {
+public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback {
     private static final int REFRESH_ID = 1;
     private static final int POST_ID = 2;
     private static final int SEARCH_ID = 101;
@@ -99,7 +99,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
         switch ((Integer) item.getId()) {
             case SEARCH_ID:
-                // TODO
+                navigationController.showSearch();
                 break;
             case SHARE_ID:
                 String link = ChanUrls.getCatalogUrlDesktop(threadLayout.getPresenter().getLoadable().board);

@@ -320,11 +320,6 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
 
     }
 
-    @Override
-    public void scrollTo(int position) {
-
-    }
-
     private RelativeLayout createView() {
         RelativeLayout compound = new RelativeLayout(getActivity());
 

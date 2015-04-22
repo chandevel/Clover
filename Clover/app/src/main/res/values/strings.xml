@@ -32,6 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%d minutes</item>
     </plurals>
 
+    <plurals name="posts">
+        <item quantity="one">%d post</item>
+        <item quantity="other">%d posts</item>
+    </plurals>
+
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
     <string name="action_reload_board">Reload board</string>
@@ -51,8 +56,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_search_thread">Search thread</string>
     <string name="action_search_image">Image search</string>
 
-    <string name="search_hint">Search posts</string>
-    <string name="search_results">Found %1$s %2$s for "%3$s"</string>
+    <string name="search_hint">Search</string>
+    <string name="search_results">Found %1$s for "%2$s"</string>
+    <string name="search_empty">Search subjects, comments, names and filenames</string>
 
     <string name="open_unknown_title">Unsupported link</string>
     <string name="open_unknown">Clover can\'t open this link. Opening it in your browser instead.</string>
@@ -254,7 +260,6 @@ Don't have a 4chan Pass?&lt;br>
     <string name="setting_pass_summary_enabled">Using 4chan pass</string>
     <string name="setting_pass_summary_disabled">Off</string>
     <string name="setting_screen_licenses">Open Source Licenses</string>
-
 
 
     <string name="preference_board_edit">Edit boards</string>

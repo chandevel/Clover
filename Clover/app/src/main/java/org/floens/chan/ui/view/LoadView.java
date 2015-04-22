@@ -34,24 +34,18 @@ import android.widget.ProgressBar;
  */
 public class LoadView extends FrameLayout {
     private int fadeDuration = 200;
+    private Listener listener;
 
     public LoadView(Context context) {
         super(context);
-        init();
     }
 
     public LoadView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public LoadView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    private void init() {
-        setView(null, false);
     }
 
     /**
@@ -60,6 +54,14 @@ public class LoadView extends FrameLayout {
      */
     public void setFadeDuration(int fadeDuration) {
         this.fadeDuration = fadeDuration;
+    }
+
+    /**
+     * Set a listener that gives a call when a view gets removed
+     * @param listener the listener
+     */
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     /**
@@ -107,6 +109,9 @@ public class LoadView extends FrameLayout {
                         // Animation ended without interruptions, remove listener for future animations.
                         childAnimation.setListener(null);
                         removeView(child);
+                        if (listener != null) {
+                            listener.onLoadViewRemoved(child);
+                        }
                     }
                 }).start();
             }
@@ -131,11 +136,18 @@ public class LoadView extends FrameLayout {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
                 child.clearAnimation();
+                if (listener != null) {
+                    listener.onLoadViewRemoved(child);
+                }
             }
             removeAllViews();
             newView.clearAnimation();
             newView.setAlpha(1f);
             addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         }
+    }
+
+    public interface Listener {
+        void onLoadViewRemoved(View view);
     }
 }

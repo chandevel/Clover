@@ -18,7 +18,6 @@
 package org.floens.chan.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -45,10 +44,9 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<Post> displayList = new ArrayList<>();
     private int lastPostCount = 0;
     private String error = null;
-    private String filter = "";
-    private int pendingScrollToPost = -1;
     private Post highlightedPost;
     private String highlightedPostId;
+    private boolean filtering = false;
 
     public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback, ThreadStatusCell.Callback statusCellCallback) {
         this.recyclerView = recyclerView;
@@ -80,7 +78,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId);
             postViewHolder.postView.setPost(post, postViewCallback, highlight);
         } else if (getItemViewType(position) == TYPE_STATUS) {
-            ((StatusViewHolder)holder).threadStatusCell.update();
+            ((StatusViewHolder) holder).threadStatusCell.update();
             onScrolledToBottom();
         }
     }
@@ -121,8 +119,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         sourceList.clear();
         sourceList.addAll(thread.posts);
 
-        displayList.clear();
-        displayList.addAll(sourceList);
+        if (!filtering) {
+            displayList.clear();
+            displayList.addAll(sourceList);
+        }
 
         // Update all, recyclerview will figure out all the animations
         notifyDataSetChanged();
@@ -130,6 +130,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void cleanup() {
         highlightedPost = null;
+        filtering = false;
         sourceList.clear();
         displayList.clear();
         lastPostCount = 0;
@@ -148,6 +149,33 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    public void filterList(List<Post> filter) {
+        filtering = true;
+
+        displayList.clear();
+        for (Post item : sourceList) {
+            for (Post filterItem : filter) {
+                if (filterItem.no == item.no) {
+                    displayList.add(item);
+                    break;
+                }
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void clearFilter() {
+        if (filtering) {
+            filtering = false;
+
+            displayList.clear();
+            displayList.addAll(sourceList);
+
+            notifyDataSetChanged();
+        }
+    }
+
     public void highlightPost(Post post) {
         highlightedPostId = null;
         highlightedPost = post;
@@ -161,7 +189,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private void onScrolledToBottom() {
-        if (lastPostCount != sourceList.size()) {
+        if (!filtering && lastPostCount != sourceList.size()) {
             lastPostCount = sourceList.size();
             postAdapterCallback.onListScrolledToBottom();
         }
@@ -169,10 +197,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private boolean showStatusView() {
         return postAdapterCallback.getLoadable().isThreadMode();
-    }
-
-    private boolean isFiltering() {
-        return !TextUtils.isEmpty(filter);
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
@@ -193,127 +217,9 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-/*
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= getCount() - 1) {
-            onScrolledToBottom();
-        }
-
-        switch (getItemViewType(position)) {
-            case VIEW_TYPE_ITEM: {
-                if (convertView == null || convertView.getTag() == null || (Integer) convertView.getTag() != VIEW_TYPE_ITEM) {
-                    convertView = new PostView(context);
-                    convertView.setTag(VIEW_TYPE_ITEM);
-                }
-
-                PostView postView = (PostView) convertView;
-                postView.setPost(getItem(position), postViewCallback);
-
-                return postView;
-            }
-            case VIEW_TYPE_STATUS: {
-                return new StatusView(context);
-            }
-        }
-
-        return null;
-    }
-
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence constraintRaw) {
-                FilterResults results = new FilterResults();
-
-                if (TextUtils.isEmpty(constraintRaw)) {
-                    ArrayList<Post> tmp;
-                    synchronized (lock) {
-                        tmp = new ArrayList<>(sourceList);
-                    }
-                    results.values = tmp;
-                } else {
-                    List<Post> all;
-                    synchronized (lock) {
-                        all = new ArrayList<>(sourceList);
-                    }
-
-                    List<Post> accepted = new ArrayList<>();
-                    String constraint = constraintRaw.toString().toLowerCase(Locale.ENGLISH);
-
-                    for (Post post : all) {
-                        if (post.comment.toString().toLowerCase(Locale.ENGLISH).contains(constraint) ||
-                                post.subject.toLowerCase(Locale.ENGLISH).contains(constraint)) {
-                            accepted.add(post);
-                        }
-                    }
-
-                    results.values = accepted;
-                }
-
-                return results;
-            }
-
-            @SuppressWarnings("unchecked")
-            @Override
-            protected void publishResults(CharSequence constraint, final FilterResults results) {
-                filter = constraint.toString();
-                synchronized (lock) {
-                    displayList.clear();
-                    displayList.addAll((List<Post>) results.values);
-                }
-                notifyDataSetChanged();
-                postAdapterCallback.onFilteredResults(filter, ((List<Post>) results.values).size(), TextUtils.isEmpty(filter));
-                if (pendingScrollToPost >= 0) {
-                    final int to = pendingScrollToPost;
-                    pendingScrollToPost = -1;
-                    postAdapterCallback.scrollTo(to);
-                }
-            }
-        };
-    }
-
-    public void setFilter(String filter) {
-        getFilter().filter(filter);
-        notifyDataSetChanged();
-    }
-
-    public void setThread(ChanThread thread) {
-        synchronized (lock) {
-            if (thread.archived) {
-                statusPrefix = context.getString(R.string.thread_archived) + " - ";
-            } else if (thread.closed) {
-                statusPrefix = context.getString(R.string.thread_closed) + " - ";
-            } else {
-                statusPrefix = "";
-            }
-
-            sourceList.clear();
-            sourceList.addAll(thread.posts);
-
-            if (!isFiltering()) {
-                displayList.clear();
-                displayList.addAll(sourceList);
-            } else {
-                setFilter(filter);
-            }
-        }
-
-        notifyDataSetChanged();
-    }*/
-
     public interface PostAdapterCallback {
-        void onFilteredResults(String filter, int count, boolean all);
-
         Loadable getLoadable();
 
         void onListScrolledToBottom();
-
-        void scrollTo(int position);
     }
 }

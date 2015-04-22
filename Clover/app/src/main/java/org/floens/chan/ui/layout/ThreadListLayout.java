@@ -22,7 +22,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
@@ -32,11 +33,18 @@ import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
+import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.AnimationUtils;
+
+import java.util.List;
+
+import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 
 /**
  * A layout that wraps around a {@link RecyclerView} to manage showing posts.
  */
-public class ThreadListLayout extends RelativeLayout {
+public class ThreadListLayout extends LinearLayout {
+    private TextView searchStatus;
     private RecyclerView recyclerView;
     private PostAdapter postAdapter;
     private PostAdapter.PostAdapterCallback postAdapterCallback;
@@ -49,6 +57,10 @@ public class ThreadListLayout extends RelativeLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+
+        searchStatus = (TextView) findViewById(R.id.search_status);
+        searchStatus.setTypeface(ROBOTO_MEDIUM);
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         LinearLayoutManager lm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(lm);
@@ -77,6 +89,37 @@ public class ThreadListLayout extends RelativeLayout {
         postAdapter.showError(error);
     }
 
+    public void showSearch(boolean show) {
+        AnimationUtils.animateHeight(searchStatus, show);
+
+        if (show) {
+            searchStatus.setText(R.string.search_empty);
+        } else {
+            postAdapter.clearFilter();
+            recyclerView.scrollToPosition(0);
+        }
+    }
+
+    public void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard) {
+        if (clearFilter) {
+            postAdapter.clearFilter();
+        }
+
+        if (hideKeyboard) {
+            AndroidUtils.hideKeyboard(this);
+        }
+
+        if (setEmptyText) {
+            searchStatus.setText(R.string.search_empty);
+        }
+
+        if (query != null) {
+            postAdapter.filterList(filter);
+            searchStatus.setText(getContext().getString(R.string.search_results,
+                    getContext().getResources().getQuantityString(R.plurals.posts, filter.size(), filter.size()), query));
+        }
+    }
+
     public void cleanup() {
         postAdapter.cleanup();
     }
@@ -99,8 +142,12 @@ public class ThreadListLayout extends RelativeLayout {
         return thumbnail;
     }
 
-    public void scrollTo(int position) {
-        recyclerView.smoothScrollToPosition(position);
+    public void scrollTo(int position, boolean smooth) {
+        if (smooth) {
+            recyclerView.smoothScrollToPosition(position);
+        } else {
+            recyclerView.scrollToPosition(position);
+        }
     }
 
     public void highlightPost(Post post) {

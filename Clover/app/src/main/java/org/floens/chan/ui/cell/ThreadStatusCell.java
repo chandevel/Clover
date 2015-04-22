@@ -13,6 +13,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 
+import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
 
 public class ThreadStatusCell extends LinearLayout implements View.OnClickListener {
@@ -55,6 +56,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     protected void onFinishInflate() {
         super.onFinishInflate();
         text = (TextView) findViewById(R.id.text);
+        text.setTypeface(ROBOTO_MEDIUM);
 
         setOnClickListener(this);
     }

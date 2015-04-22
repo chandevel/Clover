@@ -54,7 +54,7 @@ public class PostRepliesController extends Controller {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                postPopupHelper.popAll();
+                postPopupHelper.pop();
             }
         });
 

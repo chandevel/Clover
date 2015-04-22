@@ -13,7 +13,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallbacks {
     protected ThreadLayout threadLayout;
 
     public ThreadController(Context context) {
@@ -75,11 +75,21 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     public void scrollToImage(PostImage postImage) {
         if (!threadLayout.postRepliesOpen()) {
-            threadLayout.getPresenter().scrollTo(postImage);
+            threadLayout.getPresenter().scrollToImage(postImage, true);
         }
     }
 
     @Override
     public void onShowPosts() {
+    }
+
+    @Override
+    public void onSearchVisibilityChanged(boolean visible) {
+        threadLayout.getPresenter().onSearchVisibilityChanged(visible);
+    }
+
+    @Override
+    public void onSearchEntered(String entered) {
+        threadLayout.getPresenter().onSearchEntered(entered);
     }
 }

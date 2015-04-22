@@ -35,7 +35,7 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.Arrays;
 
-public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback, RootNavigationController.DrawerCallbacks {
+public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int POST_ID = 1;
     private static final int PIN_ID = 2;
     private static final int REFRESH_ID = 101;
@@ -166,7 +166,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 threadLayout.getPresenter().requestData();
                 break;
             case SEARCH_ID:
-                // TODO
+                navigationController.showSearch();
                 break;
             case SHARE_ID:
                 Loadable loadable = threadLayout.getPresenter().getLoadable();
