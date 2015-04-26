@@ -3,14 +3,6 @@
 <head>
     <meta name=viewport content="width=device-width, initial-scale=1">
     <style type="text/css">
-        body.light {
-            background: #ffffff;
-        }
-
-        body.dark {
-            background: #000000;
-        }
-
         #loadingCaptcha {
             font-family: sans-serif;
             font-size: 20px;
@@ -18,8 +10,9 @@
     </style>
     <script src='https://www.google.com/recaptcha/api.js?onload=globalOnCaptchaLoaded&render=explicit'></script>
 </head>
-<body class="__theme__">
+<body>
 <div id="captcha-loading">Loading captcha...</div>
+<div id="captcha-error"></div>
 <div id="captcha-container"></div>
 
 <script type="text/javascript">
@@ -35,6 +28,10 @@ window.globalOnCaptchaLoaded = function() {
     });
     CaptchaCallback.onCaptchaLoaded();
     document.getElementById('captcha-loading').style.display = 'none';
+}
+
+window.onerror = function(message, url, line) {
+    document.getElementById('captcha-error').appendChild(document.createTextNode(line + ': ' + message + ' @ ' + url));
 }
 </script>
 </body>

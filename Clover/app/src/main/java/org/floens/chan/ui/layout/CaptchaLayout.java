@@ -21,7 +21,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -29,6 +32,8 @@ import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Utils;
 
 public class CaptchaLayout extends WebView {
+    private static final String TAG = "CaptchaLayout";
+
     private CaptchaCallback callback;
     private boolean loaded = false;
     private String baseUrl;
@@ -57,6 +62,15 @@ public class CaptchaLayout extends WebView {
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(userAgent);
+
+        setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.i(TAG, consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId());
+                return true;
+            }
+        });
+        setBackgroundColor(0x00000000);
 
         addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
     }
@@ -94,9 +108,9 @@ public class CaptchaLayout extends WebView {
     }
 
     public interface CaptchaCallback {
-        public void captchaLoaded(CaptchaLayout captchaLayout);
+        void captchaLoaded(CaptchaLayout captchaLayout);
 
-        public void captchaEntered(CaptchaLayout captchaLayout, String response);
+        void captchaEntered(CaptchaLayout captchaLayout, String response);
     }
 
     public static class CaptchaInterface {
