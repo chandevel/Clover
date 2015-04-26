@@ -19,7 +19,6 @@ package org.floens.chan.core.manager;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.Callback;
@@ -63,7 +62,6 @@ public class ReplyManager {
     private Reply draft;
     private FileListener fileListener;
     private final Random random = new Random();
-    private String userAgent;
     OkHttpClient client;
 
     public ReplyManager(Context context) {
@@ -74,21 +72,6 @@ public class ReplyManager {
         client.setConnectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
         client.setReadTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
         client.setWriteTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-
-        // User agent is <appname>/<version>
-        String version = "";
-        try {
-            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
-        userAgent = context.getString(R.string.app_name) + "/" + version;
-    }
-
-    public String getUserAgent() {
-        return userAgent;
     }
 
     /**
@@ -475,7 +458,7 @@ public class ReplyManager {
     }
 
     private void makeOkHttpCall(Request.Builder requestBuilder, Callback callback) {
-        requestBuilder.header("User-Agent", getUserAgent());
+        requestBuilder.header("User-Agent", ChanApplication.getInstance().getUserAgent());
         Request request = requestBuilder.build();
         client.newCall(request).enqueue(callback);
     }

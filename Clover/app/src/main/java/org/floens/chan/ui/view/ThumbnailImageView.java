@@ -43,7 +43,6 @@ import org.floens.chan.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Future;
 
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -61,7 +60,7 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
     private boolean thumbnailNeeded = true;
 
     private Request<?> imageRequest;
-    private Future<?> request;
+    private FileCache.FileCacheDownloader request;
     private VideoView videoView;
     private GifDrawable gifDrawable;
 
@@ -328,7 +327,8 @@ public class ThumbnailImageView extends LoadView implements View.OnClickListener
         }
 
         if (request != null) {
-            request.cancel(true);
+            request.cancel();
+            request = null;
         }
     }
 
