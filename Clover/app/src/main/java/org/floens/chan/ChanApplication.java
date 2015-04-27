@@ -19,6 +19,7 @@ package org.floens.chan;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.StrictMode;
 import android.view.ViewConfiguration;
 
@@ -40,6 +41,7 @@ import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 
@@ -62,6 +64,7 @@ public class ChanApplication extends Application {
     private static DatabaseManager databaseManager;
     private static FileCache fileCache;
 
+    private String userAgent;
     private int activityForegroundCounter = 0;
 
     public ChanApplication() {
@@ -126,6 +129,16 @@ public class ChanApplication extends Application {
 
         ChanUrls.loadScheme(ChanSettings.getNetworkHttps());
 
+        // User agent is <appname>/<version>
+        String version = "";
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
+        userAgent = getString(R.string.app_name) + "/" + version;
+
         IconCache.createIcons(this);
 
         cleanupOutdated();
@@ -134,15 +147,18 @@ public class ChanApplication extends Application {
 
         replyManager = new ReplyManager(this);
 
-        volleyRequestQueue = Volley.newRequestQueue(this, replyManager.getUserAgent(), null, new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
+        volleyRequestQueue = Volley.newRequestQueue(this, getUserAgent(), null, new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
         imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(VOLLEY_LRU_CACHE_SIZE));
 
-        fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE);
+        fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, getUserAgent());
 
         databaseManager = new DatabaseManager(this);
         boardManager = new BoardManager();
         watchManager = new WatchManager(this);
+    }
 
+    public String getUserAgent() {
+        return userAgent;
     }
 
     public void activityEnteredForeground() {

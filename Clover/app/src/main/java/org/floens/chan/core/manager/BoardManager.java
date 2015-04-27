@@ -101,13 +101,6 @@ public class BoardManager {
     }
 
     private void storeBoards() {
-        Logger.d(TAG, "Storing boards in database");
-
-        for (Board test : allBoards) {
-            if (test.saved) {
-                Logger.d(TAG, "Board with value " + test.value + " saved");
-            }
-        }
         updateByValueMap();
 
         ChanApplication.getDatabaseManager().setBoards(allBoards);
@@ -130,8 +123,6 @@ public class BoardManager {
             has = false;
             for (int i = 0; i < allBoards.size(); i++) {
                 if (allBoards.get(i).value.equals(serverBoard.value)) {
-                    Logger.d(TAG, "Replaced board " + serverBoard.value + " with the server one");
-
                     Board old = allBoards.get(i);
                     serverBoard.id = old.id;
                     serverBoard.saved = old.saved;
@@ -162,7 +153,6 @@ public class BoardManager {
                 new BoardsRequest(ChanUrls.getBoardsUrl(), new Response.Listener<List<Board>>() {
                     @Override
                     public void onResponse(List<Board> data) {
-                        Logger.i(TAG, "Got boards from server");
                         setBoardsFromServer(data);
                     }
                 }, new Response.ErrorListener() {

@@ -45,7 +45,6 @@ import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Future;
 
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -64,9 +63,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private boolean hasContent = false;
     private ImageContainer thumbnailRequest;
-    private Future bigImageRequest;
-    private Future gifRequest;
-    private Future videoRequest;
+    private FileCache.FileCacheDownloader bigImageRequest;
+    private FileCache.FileCacheDownloader gifRequest;
+    private FileCache.FileCacheDownloader videoRequest;
 
     private VideoView videoView;
     private boolean videoError = false;
@@ -398,13 +397,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             thumbnailRequest.cancelRequest();
         }
         if (bigImageRequest != null) {
-            bigImageRequest.cancel(true);
+            bigImageRequest.cancel();
         }
         if (gifRequest != null) {
-            gifRequest.cancel(true);
+            gifRequest.cancel();
         }
         if (videoRequest != null) {
-            videoRequest.cancel(true);
+            videoRequest.cancel();
         }
     }
 
