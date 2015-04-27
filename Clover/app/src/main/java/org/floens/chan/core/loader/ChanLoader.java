@@ -253,7 +253,7 @@ public class ChanLoader {
     }
 
     private ChanReaderRequest getData() {
-        Logger.i(TAG, "Requested " + loadable.board + ", " + loadable.no);
+        Logger.d(TAG, "Requested " + loadable.board + ", " + loadable.no);
 
         List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
         ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cached,

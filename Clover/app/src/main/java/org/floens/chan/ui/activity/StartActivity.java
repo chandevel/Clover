@@ -78,10 +78,6 @@ public class StartActivity extends AppCompatActivity {
 
         stackTop().onDestroy();
         stack.clear();
-        System.gc();
-        System.gc();
-        System.gc();
-        System.runFinalization();
     }
 
     @Override

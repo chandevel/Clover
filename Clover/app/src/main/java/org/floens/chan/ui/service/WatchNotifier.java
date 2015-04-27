@@ -33,7 +33,9 @@ import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.watch.PinWatcher;
+import org.floens.chan.ui.activity.BoardActivity;
 import org.floens.chan.ui.activity.ChanActivity;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -213,7 +215,7 @@ public class WatchNotifier extends Service {
     @SuppressWarnings("deprecation")
     private Notification getNotificationFor(String tickerText, String contentTitle, String contentText, int contentNumber,
                                             List<CharSequence> expandedLines, boolean light, boolean makeSound, Pin target) {
-        Intent intent = new Intent(this, ChanActivity.class);
+        Intent intent = new Intent(this, BoardActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |

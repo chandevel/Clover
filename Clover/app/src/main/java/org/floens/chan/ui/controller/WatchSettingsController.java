@@ -91,7 +91,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         ListSettingView.Item[] timeoutsItems = new ListSettingView.Item[timeouts.length];
         for (int i = 0; i < timeouts.length; i++) {
             String name = context.getResources().getQuantityString(R.plurals.minutes, timeouts[i], timeouts[i]);
-            timeoutsItems[i] = new ListSettingView.Item(name, String.valueOf(timeouts[i]));
+            timeoutsItems[i] = new ListSettingView.Item(name, String.valueOf(timeouts[i] * 60));
         }
         backgroundTimeout = settings.add(new ListSettingView(this, ChanSettings.watchBackgroundTimeout, string(R.string.setting_watch_background_timeout), timeoutsItems));
 

@@ -294,6 +294,7 @@ public class WatchManager {
     }
 
     private void updateTimerState(boolean watchEnabled, boolean backgroundEnabled, boolean invokeLoadNow) {
+        Logger.d(TAG, "updateTimerState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " invokeLoadNow=" + invokeLoadNow + " foreground=" + ChanApplication.getInstance().getApplicationInForeground());
         if (watchEnabled) {
             if (ChanApplication.getInstance().getApplicationInForeground()) {
                 setTimer(invokeLoadNow ? 1 : FOREGROUND_TIME);
@@ -340,11 +341,11 @@ public class WatchManager {
             }
         }, time, TimeUnit.SECONDS);
         pendingTimer = new PendingTimer(scheduledFuture, time);
-//        Logger.d(TAG, "Timer firing in " + time + " seconds");
+        Logger.d(TAG, "Timer firing in " + time + " seconds");
     }
 
     private void timerFired() {
-//        Logger.d(TAG, "Timer fired");
+        Logger.d(TAG, "Timer fired");
         pendingTimer = null;
 
         for (Pin pin : getWatchingPins()) {
