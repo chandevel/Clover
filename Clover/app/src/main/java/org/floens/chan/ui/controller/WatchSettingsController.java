@@ -84,7 +84,7 @@ public class WatchSettingsController extends SettingsController implements Compo
     private void populatePreferences() {
         SettingsGroup settings = new SettingsGroup(string(R.string.settings_group_watch));
 
-        settings.add(new BooleanSettingView(this, ChanSettings.watchCountdown, string(R.string.setting_watch_countdown), string(R.string.setting_watch_countdown_description)));
+//        settings.add(new BooleanSettingView(this, ChanSettings.watchCountdown, string(R.string.setting_watch_countdown), string(R.string.setting_watch_countdown_description)));
         enableBackground = settings.add(new BooleanSettingView(this, ChanSettings.watchBackground, string(R.string.setting_watch_enable_background), string(R.string.setting_watch_enable_background_description)));
 
         int[] timeouts = new int[]{1, 2, 3, 5, 10, 30, 60};

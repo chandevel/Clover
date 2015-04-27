@@ -64,6 +64,13 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
 
             this.loadable = loadable;
+            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loadable);
+            if (pin != null) {
+                // Use the loadable from the pin.
+                // This way we can store the list position in the pin loadable,
+                // and not in a separate loadable instance.
+                loadable = pin.loadable;
+            }
             chanLoader = LoaderPool.getInstance().obtain(loadable, this);
         }
     }

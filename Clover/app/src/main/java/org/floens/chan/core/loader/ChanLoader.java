@@ -41,7 +41,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ChanLoader {
-    private static final String TAG = "Loader";
+    private static final String TAG = "ChanLoader";
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
@@ -282,7 +282,7 @@ public class ChanLoader {
             return;
 
         if (thread == null) {
-            thread = new ChanThread(new ArrayList<Post>());
+            thread = new ChanThread(loadable, new ArrayList<Post>());
         }
 
         if (loadable.isThreadMode() || loadable.isCatalogMode()) {
@@ -344,7 +344,7 @@ public class ChanLoader {
         if (destroyed)
             return;
 
-        Logger.e(TAG, "Error loading " + error.getMessage(), error);
+        Logger.e(TAG, "Loading error", error);
 
         // 404 with more pages already loaded means endofline
         if ((error instanceof ServerError) && loadable.isBoardMode() && loadable.no > 0) {

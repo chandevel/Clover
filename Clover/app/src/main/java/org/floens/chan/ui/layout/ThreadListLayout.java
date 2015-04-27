@@ -18,6 +18,7 @@
 package org.floens.chan.ui.layout;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -35,6 +36,7 @@ import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
+import org.floens.chan.utils.Logger;
 
 import java.util.List;
 
@@ -46,9 +48,11 @@ import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 public class ThreadListLayout extends LinearLayout {
     private TextView searchStatus;
     private RecyclerView recyclerView;
+    private LinearLayoutManager linearLayoutManager;
     private PostAdapter postAdapter;
     private PostAdapter.PostAdapterCallback postAdapterCallback;
     private PostView.PostViewCallback postViewCallback;
+    private ChanThread showingThread;
 
     public ThreadListLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -62,8 +66,8 @@ public class ThreadListLayout extends LinearLayout {
         searchStatus.setTypeface(ROBOTO_MEDIUM);
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        LinearLayoutManager lm = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(lm);
+        linearLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(linearLayoutManager);
     }
 
     public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback, ThreadStatusCell.Callback statusCellCallback) {
@@ -74,13 +78,15 @@ public class ThreadListLayout extends LinearLayout {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                showingThread.loadable.listViewIndex = Math.max(0, linearLayoutManager.findFirstVisibleItemPosition());
             }
         });
     }
 
     public void showPosts(ChanThread thread, boolean initial) {
+        showingThread = thread;
         if (initial) {
-            recyclerView.scrollToPosition(0);
+            linearLayoutManager.scrollToPositionWithOffset(thread.loadable.listViewIndex, 0);
         }
         postAdapter.setThread(thread);
     }
@@ -122,6 +128,7 @@ public class ThreadListLayout extends LinearLayout {
 
     public void cleanup() {
         postAdapter.cleanup();
+        showingThread = null;
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
