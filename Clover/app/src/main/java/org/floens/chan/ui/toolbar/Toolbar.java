@@ -26,6 +26,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -119,11 +120,18 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         }
     }
 
-    void setTitle(NavigationItem navigationItem, String title) {
+    void setTitle(NavigationItem navigationItem) {
         if (navigationItem.view != null) {
             TextView titleView = (TextView) navigationItem.view.findViewById(R.id.title);
             if (titleView != null) {
-                titleView.setText(title);
+                titleView.setText(navigationItem.title);
+            }
+
+            if (!TextUtils.isEmpty(navigationItem.subtitle)) {
+                TextView subtitleView = (TextView) navigationItem.view.findViewById(R.id.subtitle);
+                if (subtitleView != null) {
+                    subtitleView.setText(navigationItem.subtitle);
+                }
             }
         }
     }
@@ -346,6 +354,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
             LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
             menu.setGravity(Gravity.CENTER_VERTICAL);
 
+            FrameLayout titleContainer = (FrameLayout) menu.findViewById(R.id.title_container);
+
             final TextView titleView = (TextView) menu.findViewById(R.id.title);
             titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
             titleView.setText(item.title);
@@ -363,6 +373,17 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
                         item.middleMenu.show();
                     }
                 });
+            }
+
+            TextView subtitleView = (TextView) menu.findViewById(R.id.subtitle);
+            if (!TextUtils.isEmpty(item.subtitle)) {
+                ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
+                titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                titleView.setLayoutParams(titleParams);
+                subtitleView.setText(item.subtitle);
+                titleView.setPadding(titleView.getPaddingLeft(), dp(5f), titleView.getPaddingRight(), titleView.getPaddingBottom());
+            } else {
+                titleContainer.removeView(subtitleView);
             }
 
             if (item.menu != null) {

@@ -93,6 +93,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         super.onCreate();
 
         navigationItem.menu = new ToolbarMenu(context);
+        navigationItem.subtitle = "0";
         overflowMenuItem = navigationItem.createOverflow(context, this, Arrays.asList(
                 new FloatingMenuItem(SAVE_ID, string(R.string.image_save)),
                 new FloatingMenuItem(OPEN_BROWSER_ID, string(R.string.action_open_browser)),
@@ -220,8 +221,9 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         return ((ImageViewerAdapter) pager.getAdapter()).getMode(postImage);
     }
 
-    public void setTitle(PostImage postImage) {
+    public void setTitle(PostImage postImage, int index, int count) {
         navigationItem.title = postImage.filename;
+        navigationItem.subtitle = (index + 1) + "/" + count;
         navigationItem.updateTitle();
     }
 

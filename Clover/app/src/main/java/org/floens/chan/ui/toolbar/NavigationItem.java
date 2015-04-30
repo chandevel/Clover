@@ -30,6 +30,7 @@ import java.util.List;
 
 public class NavigationItem {
     public String title = "";
+    public String subtitle = "";
     public ToolbarMenu menu;
     public boolean hasBack = true;
     public FloatingMenu middleMenu;
@@ -50,7 +51,7 @@ public class NavigationItem {
 
     public void updateTitle() {
         if (toolbar != null) {
-            toolbar.setTitle(this, title);
+            toolbar.setTitle(this);
         }
     }
 }
