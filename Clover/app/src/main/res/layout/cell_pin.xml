@@ -29,7 +29,7 @@
 
     <TextView
         android:id="@+id/watch_count"
-        android:layout_width="48dp"
+        android:layout_width="56dp"
         android:layout_height="match_parent"
         android:background="?android:attr/selectableItemBackground"
         android:singleLine="true"
