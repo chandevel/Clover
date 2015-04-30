@@ -186,8 +186,6 @@ public abstract class NavigationController extends Controller implements Control
         for (Controller controller : controllerList) {
             controller.onConfigurationChanged(newConfig);
         }
-
-        toolbar.onConfigurationChanged(newConfig);
     }
 
     public void onMenuClicked() {
@@ -195,7 +193,7 @@ public abstract class NavigationController extends Controller implements Control
     }
 
     public void showSearch() {
-        toolbar.showSearch();
+        toolbar.openSearch();
     }
 
     @Override

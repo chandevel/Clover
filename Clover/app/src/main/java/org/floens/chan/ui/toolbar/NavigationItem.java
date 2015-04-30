@@ -36,6 +36,9 @@ public class NavigationItem {
     public View rightView;
     public boolean hasDrawer = false;
 
+    boolean search = false;
+    String searchText;
+    Toolbar toolbar;
     LinearLayout view;
 
     public ToolbarMenuItem createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
@@ -46,11 +49,8 @@ public class NavigationItem {
     }
 
     public void updateTitle() {
-        if (view != null) {
-            TextView titleView = (TextView) view.findViewById(R.id.title);
-            if (titleView != null) {
-                titleView.setText(title);
-            }
+        if (toolbar != null) {
+            toolbar.setTitle(this, title);
         }
     }
 }
