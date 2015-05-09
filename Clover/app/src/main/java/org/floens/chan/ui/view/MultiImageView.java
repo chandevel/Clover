@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.MediaController;
@@ -55,6 +56,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private static final String TAG = "MultiImageView";
+
+    private ImageView playView;
 
     private PostImage postImage;
     private Callback callback;
@@ -87,11 +90,18 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private void init() {
         setOnClickListener(this);
+
+        playView = new ImageView(getContext());
+        playView.setVisibility(View.GONE);
+        playView.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
+        addView(playView, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
     }
 
     public void bindPostImage(PostImage postImage, Callback callback) {
         this.postImage = postImage;
         this.callback = callback;
+
+        playView.setVisibility(postImage.type == PostImage.Type.MOVIE ? View.VISIBLE : View.GONE);
     }
 
     public PostImage getPostImage() {
@@ -210,7 +220,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         image.setImage(ImageSource.uri(file.getAbsolutePath()));
         image.setOnClickListener(MultiImageView.this);
 
-        addView(image, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        addView(image, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         image.setCallback(new CustomScaleImageView.Callback() {
             @Override
@@ -329,7 +339,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             videoView.setZOrderOnTop(true);
             videoView.setMediaController(new MediaController(getContext()));
 
-            addView(videoView, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
+            addView(videoView, 0, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
 
             videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -423,15 +433,18 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             // Remove all other views
             boolean alreadyAttached = false;
             for (int i = getChildCount() - 1; i >= 0; i--) {
-                if (getChildAt(i) != view) {
-                    removeViewAt(i);
-                } else {
-                    alreadyAttached = true;
+                View child = getChildAt(i);
+                if (child != playView) {
+                    if (child != view) {
+                        removeViewAt(i);
+                    } else {
+                        alreadyAttached = true;
+                    }
                 }
             }
 
             if (!alreadyAttached) {
-                addView(view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                addView(view, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             }
         }
 
