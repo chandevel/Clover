@@ -111,6 +111,16 @@ public class RootNavigationController extends NavigationController implements Pi
     }
 
     @Override
+    public boolean onBack() {
+        if (drawerLayout.isDrawerOpen(drawer)) {
+            drawerLayout.closeDrawer(drawer);
+            return true;
+        } else {
+            return super.onBack();
+        }
+    }
+
+    @Override
     protected void controllerPushed(Controller controller) {
         super.controllerPushed(controller);
         setDrawerEnabled(controller.navigationItem.hasDrawer);
