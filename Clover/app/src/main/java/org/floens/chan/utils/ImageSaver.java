@@ -255,9 +255,10 @@ public class ImageSaver {
         try {
             is = new FileInputStream(source);
             os = new FileOutputStream(destination);
-            IOUtils.copy(new FileInputStream(source), new FileOutputStream(destination));
+            IOUtils.copy(is, os);
         } catch (IOException e) {
             res = false;
+        } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
         }
