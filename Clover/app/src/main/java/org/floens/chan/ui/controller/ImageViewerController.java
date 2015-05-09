@@ -128,13 +128,14 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         switch ((Integer) item.getId()) {
             case SAVE_ID:
             case SHARE_ID:
-                if (ChanSettings.shareUrl.get()) {
+                boolean share = ((Integer) item.getId()) == SHARE_ID;
+                if (share && ChanSettings.shareUrl.get()) {
                     AndroidUtils.shareLink(postImage.imageUrl);
                 } else {
                     ImageSaver.getInstance().saveImage(context, postImage.imageUrl,
                             ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename,
                             postImage.extension,
-                            ((Integer) item.getId()) == SHARE_ID);
+                            share);
                 }
                 break;
             case OPEN_BROWSER_ID:
