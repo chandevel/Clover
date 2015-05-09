@@ -12,10 +12,11 @@ public class PostImage {
     public String extension;
     public int imageWidth;
     public int imageHeight;
+    public boolean spoiler;
 
     public Type type;
 
-    public PostImage(String originalName, String thumbnailUrl, String imageUrl, String filename, String extension, int imageWidth, int imageHeight) {
+    public PostImage(String originalName, String thumbnailUrl, String imageUrl, String filename, String extension, int imageWidth, int imageHeight, boolean spoiler) {
         this.originalName = originalName;
         this.thumbnailUrl = thumbnailUrl;
         this.imageUrl = imageUrl;
@@ -23,6 +24,7 @@ public class PostImage {
         this.extension = extension;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
+        this.spoiler = spoiler;
 
         switch (extension) {
             case "gif":
