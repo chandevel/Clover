@@ -20,7 +20,7 @@ public class PostImage {
         this.originalName = originalName;
         this.thumbnailUrl = thumbnailUrl;
         this.imageUrl = imageUrl;
-        this.filename = filename + "." + extension;
+        this.filename = filename;
         this.extension = extension;
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;

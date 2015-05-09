@@ -223,7 +223,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     public void setTitle(PostImage postImage, int index, int count) {
-        navigationItem.title = postImage.filename;
+        navigationItem.title = postImage.filename + "." + postImage.extension;
         navigationItem.subtitle = (index + 1) + "/" + count;
         navigationItem.updateTitle();
     }
