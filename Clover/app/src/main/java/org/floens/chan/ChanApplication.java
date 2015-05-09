@@ -26,6 +26,7 @@ import android.view.ViewConfiguration;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.squareup.leakcanary.LeakCanary;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.BoardManager;
@@ -107,6 +108,7 @@ public class ChanApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        LeakCanary.install(this);
 
         // Force the overflow button to show, even on devices that have a
         // physical button.
