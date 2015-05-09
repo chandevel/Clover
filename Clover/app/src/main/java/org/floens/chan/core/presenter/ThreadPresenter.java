@@ -293,7 +293,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 threadPresenterCallback.clipboardPost(post);
                 break;
             case 5: // Report
-                AndroidUtils.openLink(ChanUrls.getReportUrl(post.board, post.no));
+                threadPresenterCallback.openWebView("Report /" + post.board + "/" + post.no, ChanUrls.getReportUrl(post.board, post.no));
                 break;
             case 6: // Id
                 threadPresenterCallback.highlightPostId(post.id);
@@ -450,6 +450,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void showThread(Loadable threadLoadable);
 
         void openLink(String link);
+
+        void openWebView(String title, String link);
 
         void showPostsPopup(Post forPost, List<Post> posts);
 

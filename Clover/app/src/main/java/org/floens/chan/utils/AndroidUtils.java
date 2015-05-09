@@ -17,6 +17,7 @@
  */
 package org.floens.chan.utils;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import org.floens.chan.ChanApplication;
@@ -73,6 +75,17 @@ public class AndroidUtils {
 
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(ChanApplication.con);
+    }
+
+    public static void openWebView(Activity activity, String title, String link) {
+        Dialog dialog = new Dialog(activity);
+        dialog.setContentView(R.layout.web_dialog);
+        WebView wb = (WebView) dialog.findViewById(R.id.web_view);
+        wb.getSettings().setJavaScriptEnabled(true);
+        wb.loadUrl(link);
+        dialog.setTitle(title);
+        dialog.setCancelable(true);
+        dialog.show();
     }
 
     public static void openLink(String link) {
