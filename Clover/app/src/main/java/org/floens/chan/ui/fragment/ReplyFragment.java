@@ -22,7 +22,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -99,7 +99,7 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
     private TextView commentCountView;
     private TextView fileStatusView;
 
-    private ActionBarActivity context;
+    private AppCompatActivity context;
 
     public static ReplyFragment newInstance(Loadable loadable, boolean quickMode) {
         ReplyFragment reply = new ReplyFragment();
@@ -120,7 +120,7 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        context = (ActionBarActivity) getActivity();
+        context = (AppCompatActivity) getActivity();
 
         if (loadable == null && savedInstanceState != null) {
             loadable = new Loadable();
