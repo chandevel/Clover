@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
@@ -58,7 +59,7 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final String TAG = "ImageViewerController";
-    private static final int TRANSITION_DURATION = 200;
+    private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
     private static final int SAVE_ID = 101;
@@ -275,20 +276,22 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             statusBarColorPrevious = getWindow().getStatusBarColor();
         }
 
+        setBackgroundAlpha(0f);
+
         startAnimation = new AnimatorSet();
 
         ValueAnimator progress = ValueAnimator.ofFloat(0f, 1f);
         progress.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                setBackgroundAlpha((float) animation.getAnimatedValue());
+                setBackgroundAlpha(Math.min(1f, (float) animation.getAnimatedValue()));
                 previewImage.setProgress((float) animation.getAnimatedValue());
             }
         });
 
         startAnimation.play(progress);
         startAnimation.setDuration(TRANSITION_DURATION);
-        startAnimation.setInterpolator(new DecelerateInterpolator());
+        startAnimation.setInterpolator(new OvershootInterpolator(1.3f));
         startAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -301,7 +304,22 @@ public class ImageViewerController extends Controller implements View.OnClickLis
                 presenter.onInTransitionEnd();
             }
         });
-        startAnimation.start();
+
+        ChanApplication.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
+                startAnimation.start();
+            }
+
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                if (response.getBitmap() != null) {
+                    previewImage.setBitmap(response.getBitmap());
+                    startAnimation.start();
+                }
+            }
+        }, previewImage.getWidth(), previewImage.getHeight());
     }
 
     public void startPreviewOutTransition(final PostImage postImage) {
@@ -309,7 +327,6 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             return;
         }
 
-        // Should definitely be loaded
         ChanApplication.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -319,7 +336,9 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
             @Override
             public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                doPreviewOutAnimation(postImage, response.getBitmap());
+                if (response.getBitmap() != null) {
+                    doPreviewOutAnimation(postImage, response.getBitmap());
+                }
             }
         }, previewImage.getWidth(), previewImage.getHeight());
     }
@@ -370,7 +389,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             endAnimation.play(progress);
         }
         endAnimation.setDuration(TRANSITION_DURATION);
-        endAnimation.setInterpolator(new DecelerateInterpolator());
+        endAnimation.setInterpolator(new DecelerateInterpolator(3f));
         endAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
