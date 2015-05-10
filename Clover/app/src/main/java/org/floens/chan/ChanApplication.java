@@ -27,6 +27,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.BoardManager;
@@ -64,6 +65,7 @@ public class ChanApplication extends Application {
     private static ReplyManager replyManager;
     private static DatabaseManager databaseManager;
     private static FileCache fileCache;
+    private static RefWatcher refWatcher;
 
     private String userAgent;
     private int activityForegroundCounter = 0;
@@ -105,10 +107,13 @@ public class ChanApplication extends Application {
         return fileCache;
     }
 
+    public static RefWatcher getRefWatcher() {
+        return refWatcher;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-        LeakCanary.install(this);
 
         // Force the overflow button to show, even on devices that have a
         // physical button.
@@ -123,6 +128,7 @@ public class ChanApplication extends Application {
         }
 
         if (ChanBuild.DEVELOPER_MODE) {
+            refWatcher = LeakCanary.install(this);
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }

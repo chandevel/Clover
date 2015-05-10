@@ -21,15 +21,22 @@ import android.content.Context;
 import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannedString;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.leakcanary.RefWatcher;
+
+import org.floens.chan.ChanApplication;
+import org.floens.chan.ChanBuild;
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
+import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.PostView;
@@ -127,6 +134,21 @@ public class ThreadListLayout extends LinearLayout {
     }
 
     public void cleanup() {
+        if (ChanBuild.DEVELOPER_MODE) {
+            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(showingThread.loadable);
+            if (pin == null) {
+                for (Post post : showingThread.posts) {
+                    if (post.comment instanceof SpannedString) {
+                        SpannedString commentSpannable = (SpannedString) post.comment;
+                        PostLinkable[] linkables = commentSpannable.getSpans(0, commentSpannable.length(), PostLinkable.class);
+                        for (PostLinkable linkable : linkables) {
+                            ChanApplication.getRefWatcher().watch(linkable, linkable.key + " " + linkable.value);
+                        }
+                    }
+                }
+            }
+        }
+
         postAdapter.cleanup();
         showingThread = null;
     }
