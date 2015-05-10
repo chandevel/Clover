@@ -19,6 +19,7 @@ package org.floens.chan.utils;
 
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 
 import org.floens.chan.ui.animation.HeightAnimation;
 
@@ -57,6 +58,7 @@ public class AnimationUtils {
             heightAnimation = new HeightAnimation(view, view.getHeight(), 0, 300);
         }
         view.startAnimation(heightAnimation);
+        view.getAnimation().setInterpolator(new DecelerateInterpolator(2f));
         view.getAnimation().setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
