@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -203,6 +204,11 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         } else {
             AndroidUtils.openLink(link);
         }
+    }
+
+    @Override
+    public void openWebView(String title, String link) {
+        AndroidUtils.openWebView((Activity)getContext(), title, link);
     }
 
     @Override

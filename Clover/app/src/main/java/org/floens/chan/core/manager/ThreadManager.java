@@ -276,7 +276,7 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
                         copyToClipboard(post.comment.toString());
                         break;
                     case 5: // Report
-                        AndroidUtils.openLink(ChanUrls.getReportUrl(post.board, post.no));
+                        AndroidUtils.openWebView(activity, "Report /" + post.board + "/" + post.no, ChanUrls.getReportUrl(post.board, post.no));
                         break;
                     case 6: // Id
                         highlightedId = post.id;
