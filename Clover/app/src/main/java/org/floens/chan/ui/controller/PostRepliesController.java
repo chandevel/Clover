@@ -87,11 +87,11 @@ public class PostRepliesController extends Controller {
             ThumbnailView thumbnail = null;
             for (int i = 0; i < listView.getChildCount(); i++) {
                 View view = listView.getChildAt(i);
-                if (view instanceof PostView) {
-                    PostView postView = (PostView) view;
+                if (view instanceof PostCell) {
+                    PostCell postView = (PostCell) view;
                     Post post = postView.getPost();
                     if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
-                        thumbnail = postView.getThumbnail();
+                        thumbnail = postView.getThumbnailView();
                         break;
                     }
                 }
