@@ -48,8 +48,6 @@ public class ThemeHelper {
     private int linkColor;
     private int spoilerColor;
     private int inlineQuoteColor;
-    private int codeTagSize;
-    private int fontSize;
 
     public static ThemeHelper getInstance() {
         if (instance == null) {
@@ -91,14 +89,21 @@ public class ThemeHelper {
 
     public void reloadPostViewColors(Context context) {
         this.context = context;
-        TypedArray ta = context.obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
-        quoteColor = ta.getColor(R.styleable.PostView_quote_color, 0);
-        highlightQuoteColor = ta.getColor(R.styleable.PostView_highlight_quote_color, 0);
-        linkColor = ta.getColor(R.styleable.PostView_link_color, 0);
-        spoilerColor = ta.getColor(R.styleable.PostView_spoiler_color, 0);
-        inlineQuoteColor = ta.getColor(R.styleable.PostView_inline_quote_color, 0);
-        codeTagSize = ta.getDimensionPixelSize(R.styleable.PostView_code_tag_size, 0);
-        fontSize = ChanSettings.getFontSize();
+
+        TypedArray ta = context.obtainStyledAttributes(new int[]{
+                R.attr.post_quote_color,
+                R.attr.post_highlight_quote_color,
+                R.attr.post_link_color,
+                R.attr.post_spoiler_color,
+                R.attr.post_inline_quote_color
+        });
+
+        quoteColor = ta.getColor(0, 0);
+        highlightQuoteColor = ta.getColor(1, 0);
+        linkColor = ta.getColor(2, 0);
+        spoilerColor = ta.getColor(3, 0);
+        inlineQuoteColor = ta.getColor(4, 0);
+
         ta.recycle();
     }
 
@@ -120,13 +125,5 @@ public class ThemeHelper {
 
     public int getInlineQuoteColor() {
         return inlineQuoteColor;
-    }
-
-    public int getCodeTagSize() {
-        return codeTagSize;
-    }
-
-    public int getFontSize() {
-        return fontSize;
     }
 }

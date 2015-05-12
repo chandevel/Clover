@@ -152,7 +152,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             arrowMenuView.setBackground(getAttrDrawable(getContext(), android.R.attr.selectableItemBackgroundBorderless));
         } else {
-            arrowMenuView.setBackgroundResource(R.drawable.gray_background_selector);
+            arrowMenuView.setBackgroundResource(R.drawable.item_background);
         }
 
         leftButtonContainer.addView(arrowMenuView, new FrameLayout.LayoutParams(dp(56), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL));

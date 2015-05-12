@@ -18,6 +18,7 @@
 package org.floens.chan.core.loader;
 
 
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.text.SpannableString;
@@ -34,6 +35,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ThemeHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
@@ -49,6 +51,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class ChanParser {
     private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
@@ -76,10 +80,8 @@ public class ChanParser {
         }
 
         if (!post.parsedSpans) {
-            TypedArray ta = ThemeHelper.getInstance().getThemedContext().obtainStyledAttributes(null, R.styleable.PostView, R.attr.post_style, 0);
             post.parsedSpans = true;
-            parseSpans(post, ta);
-            ta.recycle();
+            parseSpans(post);
         }
 
         if (post.rawComment != null) {
@@ -87,7 +89,7 @@ public class ChanParser {
         }
     }
 
-    private void parseSpans(Post post, TypedArray ta) {
+    private void parseSpans(Post post) {
         boolean anonymize = ChanSettings.getAnonymize();
         boolean anonymizeIds = ChanSettings.getAnonymizeIds();
 
@@ -100,22 +102,42 @@ public class ChanParser {
             post.id = "";
         }
 
-        int detailSize = ta.getDimensionPixelSize(R.styleable.PostView_detail_size, 0);
+        int detailsSizePx = sp(Integer.parseInt(ChanSettings.fontSize.get()) - 4);
+        Context context = ThemeHelper.getInstance().getThemedContext();
+        if (context == null) {
+            context = AndroidUtils.getAppRes();
+        }
+
+        TypedArray ta = context.obtainStyledAttributes(new int[]{
+                R.attr.post_subject_color,
+                R.attr.post_name_color,
+                R.attr.post_id_background_light,
+                R.attr.post_id_background_dark,
+                R.attr.post_capcode_color
+        });
+
+        int subjectColor = ta.getColor(0, 0);
+        int nameColor = ta.getColor(1, 0);
+        int idBackgroundLight = ta.getColor(2, 0);
+        int idBackgroundDark = ta.getColor(3, 0);
+        int capcodeColor = ta.getColor(4, 0);
+
+        ta.recycle();
 
         if (!TextUtils.isEmpty(post.subject)) {
             post.subjectSpan = new SpannableString(post.subject);
-            post.subjectSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_subject_color, 0)), 0, post.subjectSpan.length(), 0);
+            post.subjectSpan.setSpan(new ForegroundColorSpan(subjectColor), 0, post.subjectSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.name)) {
             post.nameSpan = new SpannableString(post.name);
-            post.nameSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.nameSpan.length(), 0);
+            post.nameSpan.setSpan(new ForegroundColorSpan(nameColor), 0, post.nameSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
             post.tripcodeSpan = new SpannableString(post.tripcode);
-            post.tripcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_name_color, 0)), 0, post.tripcodeSpan.length(), 0);
-            post.tripcodeSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.tripcodeSpan.length(), 0);
+            post.tripcodeSpan.setSpan(new ForegroundColorSpan(nameColor), 0, post.tripcodeSpan.length(), 0);
+            post.tripcodeSpan.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, post.tripcodeSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.id)) {
@@ -130,17 +152,17 @@ public class ChanParser {
 
             int idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
             boolean lightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
-            int idBgColor = lightColor ? ta.getColor(R.styleable.PostView_id_background_light, 0) : ta.getColor(R.styleable.PostView_id_background_dark, 0);
+            int idBgColor = lightColor ? idBackgroundLight : idBackgroundDark;
 
             post.idSpan.setSpan(new ForegroundColorSpan(idColor), 0, post.idSpan.length(), 0);
             post.idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, post.idSpan.length(), 0);
-            post.idSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, post.idSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.capcode)) {
             post.capcodeSpan = new SpannableString("Capcode: " + post.capcode);
-            post.capcodeSpan.setSpan(new ForegroundColorSpan(ta.getColor(R.styleable.PostView_capcode_color, 0)), 0, post.capcodeSpan.length(), 0);
-            post.capcodeSpan.setSpan(new AbsoluteSizeSpan(detailSize), 0, post.capcodeSpan.length(), 0);
+            post.capcodeSpan.setSpan(new ForegroundColorSpan(capcodeColor), 0, post.capcodeSpan.length(), 0);
+            post.capcodeSpan.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, post.capcodeSpan.length(), 0);
         }
 
         post.nameTripcodeIdCapcodeSpan = new SpannableString("");
@@ -279,7 +301,7 @@ public class ChanParser {
                         String text = getNodeText(pre);
                         SpannableString monospace = new SpannableString(text);
                         monospace.setSpan(new TypefaceSpan("monospace"), 0, monospace.length(), 0);
-                        monospace.setSpan(new AbsoluteSizeSpan(ThemeHelper.getInstance().getCodeTagSize()), 0, monospace.length(), 0);
+                        monospace.setSpan(new AbsoluteSizeSpan(sp(12f)), 0, monospace.length(), 0);
                         return monospace;
                     } else {
                         return pre.text();

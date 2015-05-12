@@ -243,7 +243,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 watchCountText.setBackground(getAttrDrawable(itemView.getContext(), android.R.attr.selectableItemBackgroundBorderless));
             } else {
-                watchCountText.setBackgroundResource(R.drawable.gray_background_selector);
+                watchCountText.setBackgroundResource(R.drawable.item_background);
             }
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -274,7 +274,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 image.setBackground(getAttrDrawable(itemView.getContext(), android.R.attr.selectableItemBackgroundBorderless));
             } else {
-                image.setBackgroundResource(R.drawable.gray_background_selector);
+                image.setBackgroundResource(R.drawable.item_background);
             }
             image.setOnClickListener(new View.OnClickListener() {
                 @Override

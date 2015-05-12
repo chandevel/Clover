@@ -34,6 +34,7 @@ import org.floens.chan.R;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -168,6 +169,7 @@ public class FloatingMenu {
                 }
                 globalLayoutListener = null;
                 popupWindow = null;
+                callback.onFloatingMenuDismissed(FloatingMenu.this);
             }
         });
 
@@ -188,6 +190,8 @@ public class FloatingMenu {
 
     public interface FloatingMenuCallback {
         void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item);
+
+        void onFloatingMenuDismissed(FloatingMenu menu);
     }
 
     private static class FloatingMenuArrayAdapter extends ArrayAdapter<String> {

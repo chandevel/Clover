@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -20,6 +21,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.PostView;
@@ -111,6 +113,8 @@ public class PostRepliesController extends Controller {
         }
 
         listView = (ListView) dataView.findViewById(R.id.post_list);
+        listView.setDivider(null);
+        listView.setDividerHeight(0);
 
         View repliesBack = dataView.findViewById(R.id.replies_back);
         repliesBack.setOnClickListener(new View.OnClickListener() {
@@ -137,25 +141,26 @@ public class PostRepliesController extends Controller {
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                PostView postView;
+                PostCell postCell;
                 if (convertView instanceof PostView) {
-                    postView = (PostView) convertView;
+                    postCell = (PostCell) convertView;
                 } else {
-                    postView = new PostView(context);
+                    postCell =  (PostCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
                 }
 
                 final Post p = getItem(position);
+                postCell.setPost(p, presenter, false, data.forPost.no);
 
-                postView.setPost(p, presenter, false);
-                postView.setHighlightQuotesWithNo(data.forPost.no);
-                postView.setOnClickListeners(new View.OnClickListener() {
+//                postView.setPost(p, presenter, false);
+//                postView.setHighlightQuotesWithNo(data.forPost.no);
+                /*postCell.setOnClickListeners(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         postPopupHelper.postClicked(p);
                     }
-                });
+                });*/
 
-                return postView;
+                return postCell;
             }
         };
 

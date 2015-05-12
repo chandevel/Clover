@@ -63,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="grid_replies_count_size" format="dimension" />
         <attr name="list_comment_max_height" format="dimension" />
         <attr name="list_padding" format="dimension" />
-        <attr name="list_image_size" format="dimension" />
+        <attr name="list_image_size" format="reference|dimension" />
         <attr name="list_comment_padding" format="dimension" />
         <attr name="list_replies_count_size" format="dimension" />
         <attr name="grid_width" format="dimension" />
@@ -75,4 +75,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </declare-styleable>
 
     <attr name="board_edit_item_style" format="reference" />
+
+    <attr name="post_thumbnail_background" format="color" />
+    <attr name="post_saved_reply_color" format="color" />
+    <attr name="post_highlighted_color" format="color" />
+    <attr name="post_reply_count_color" format="color" />
+    <attr name="post_reply_color" format="color" />
+    <attr name="post_name_color" format="color" />
+    <attr name="post_subject_color" format="color" />
+    <attr name="post_details_color" format="color" />
+    <attr name="post_quote_color" format="color" />
+    <attr name="post_highlight_quote_color" format="color" />
+    <attr name="post_link_color" format="color" />
+    <attr name="post_spoiler_color" format="color" />
+    <attr name="post_capcode_color" format="color" />
+    <attr name="post_id_background_light" format="color" />
+    <attr name="post_id_background_dark" format="color" />
+    <attr name="post_inline_quote_color" format="color" />
+    <attr name="post_divider_color" format="color" />
+    <attr name="post_options_drawable" format="integer" />
 </resources>

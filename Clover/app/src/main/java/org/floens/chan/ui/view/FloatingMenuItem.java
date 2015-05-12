@@ -17,6 +17,8 @@
  */
 package org.floens.chan.ui.view;
 
+import static org.floens.chan.utils.AndroidUtils.getString;
+
 public class FloatingMenuItem {
     private Object id;
     private String text;
@@ -24,6 +26,11 @@ public class FloatingMenuItem {
     public FloatingMenuItem(Object id, String text) {
         this.id = id;
         this.text = text;
+    }
+
+    public FloatingMenuItem(Object id, int text) {
+        this.id = id;
+        this.text = getString(text);
     }
 
     public Object getId() {

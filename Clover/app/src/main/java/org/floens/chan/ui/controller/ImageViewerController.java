@@ -158,6 +158,10 @@ public class ImageViewerController extends Controller implements View.OnClickLis
                             }
                         }
                     }
+
+                    @Override
+                    public void onFloatingMenuDismissed(FloatingMenu menu) {
+                    }
                 });
                 menu.show();
                 break;

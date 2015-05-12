@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.floens.chan.ui.cell.PostCell xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="73dp">
+
+    <ImageView
+        android:id="@+id/options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        android:src="?post_options_drawable" />
+
+    <FrameLayout
+        android:id="@+id/thumbnail_container"
+        android:layout_width="72dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:background="?post_thumbnail_background"
+        android:minHeight="72dp">
+
+        <org.floens.chan.ui.view.ThumbnailView
+            android:id="@+id/thumbnail_view"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:gravity="top" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toRightOf="@id/thumbnail_container"
+        android:paddingRight="25dp" />
+
+    <TextView
+        android:id="@+id/icons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@id/title"
+        android:layout_toRightOf="@id/thumbnail_container" />
+
+    <TextView
+        android:id="@+id/comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@id/icons"
+        android:layout_toRightOf="@id/thumbnail_container" />
+
+    <TextView
+        android:id="@+id/replies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@id/comment"
+        android:layout_toRightOf="@id/thumbnail_container"
+        android:singleLine="true"
+        android:textColor="?attr/post_reply_count_color" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:background="?attr/post_divider_color" />
+
+</org.floens.chan.ui.cell.PostCell>

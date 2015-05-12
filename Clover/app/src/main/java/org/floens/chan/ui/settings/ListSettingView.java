@@ -89,6 +89,10 @@ public class ListSettingView extends SettingView implements FloatingMenu.Floatin
         settingsController.onPreferenceChange(this);
     }
 
+    @Override
+    public void onFloatingMenuDismissed(FloatingMenu menu) {
+    }
+
     private void selectItem() {
         String selectedKey = setting.get();
         for (int i = 0; i < items.length; i++) {

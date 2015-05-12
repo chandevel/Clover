@@ -66,7 +66,7 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 imageView.setBackground(getAttrDrawable(context, android.R.attr.selectableItemBackgroundBorderless));
             } else {
-                imageView.setBackgroundResource(R.drawable.gray_background_selector);
+                imageView.setBackgroundResource(R.drawable.item_background);
             }
         }
     }
@@ -107,6 +107,10 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
     @Override
     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
         callback.onSubMenuItemClicked(this, item);
+    }
+
+    @Override
+    public void onFloatingMenuDismissed(FloatingMenu menu) {
     }
 
     public interface ToolbarMenuItemCallback {

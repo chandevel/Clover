@@ -76,7 +76,7 @@ public class PostLinkable extends ClickableSpan {
         if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD) {
             if (type == Type.QUOTE) {
                 Callback top = topCallback();
-                if (value instanceof Integer && top != null && (Integer) value == top.getHighlightQuotesWithNo(this)) {
+                if (value instanceof Integer && top != null && (Integer) value == top.getMarkedNo(this)) {
                     ds.setColor(ThemeHelper.getInstance().getHighlightQuoteColor());
                 } else {
                     ds.setColor(ThemeHelper.getInstance().getQuoteColor());
@@ -116,6 +116,6 @@ public class PostLinkable extends ClickableSpan {
     public interface Callback {
         void onLinkableClick(PostLinkable postLinkable);
 
-        int getHighlightQuotesWithNo(PostLinkable postLinkable);
+        int getMarkedNo(PostLinkable postLinkable);
     }
 }

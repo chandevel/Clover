@@ -45,11 +45,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     public ThreadStatusCell(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setBackground(getAttrDrawable(context, android.R.attr.selectableItemBackground));
-        } else {
-            setBackgroundResource(R.drawable.gray_background_selector);
-        }
+        setBackgroundResource(R.drawable.item_background);
     }
 
     @Override

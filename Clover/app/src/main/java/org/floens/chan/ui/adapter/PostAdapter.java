@@ -25,6 +25,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.PostView;
 
@@ -36,7 +37,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_STATUS = 1;
 
     private final PostAdapterCallback postAdapterCallback;
-    private final PostView.PostViewCallback postViewCallback;
+    private final PostCell.PostCellCallback postCellCallback;
     private final ThreadStatusCell.Callback statusCellCallback;
     private RecyclerView recyclerView;
 
@@ -48,10 +49,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String highlightedPostId;
     private boolean filtering = false;
 
-    public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback, ThreadStatusCell.Callback statusCellCallback) {
+    public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback, ThreadStatusCell.Callback statusCellCallback) {
         this.recyclerView = recyclerView;
         this.postAdapterCallback = postAdapterCallback;
-        this.postViewCallback = postViewCallback;
+        this.postCellCallback = postCellCallback;
         this.statusCellCallback = statusCellCallback;
 
         setHasStableIds(true);
@@ -60,8 +61,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_POST) {
-            PostView postView = new PostView(parent.getContext());
-            return new PostViewHolder(postView);
+            PostCell postCell = (PostCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
+            return new PostViewHolder(postCell);
         } else {
             StatusViewHolder statusViewHolder = new StatusViewHolder((ThreadStatusCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_thread_status, parent, false));
             statusViewHolder.threadStatusCell.setCallback(statusCellCallback);
@@ -76,7 +77,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             PostViewHolder postViewHolder = (PostViewHolder) holder;
             Post post = displayList.get(position);
             boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId);
-            postViewHolder.postView.setPost(post, postViewCallback, highlight);
+            postViewHolder.postView.setPost(post, postCellCallback, highlight, -1);
         } else if (getItemViewType(position) == TYPE_STATUS) {
             ((StatusViewHolder) holder).threadStatusCell.update();
             onScrolledToBottom();
@@ -200,9 +201,9 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
-        private PostView postView;
+        private PostCell postView;
 
-        public PostViewHolder(PostView postView) {
+        public PostViewHolder(PostCell postView) {
             super(postView);
             this.postView = postView;
         }

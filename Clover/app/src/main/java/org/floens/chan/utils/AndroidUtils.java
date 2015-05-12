@@ -73,6 +73,10 @@ public class AndroidUtils {
         return ChanApplication.con;
     }
 
+    public static String getString(int res) {
+        return getRes().getString(res);
+    }
+
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(ChanApplication.con);
     }
@@ -138,6 +142,10 @@ public class AndroidUtils {
 
     public static int dp(float dp) {
         return (int) (dp * getRes().getDisplayMetrics().density);
+    }
+
+    public static int sp(float sp) {
+        return (int) (sp * getRes().getDisplayMetrics().scaledDensity);
     }
 
     public static Typeface getTypeface(String name) {

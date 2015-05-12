@@ -16,16 +16,35 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-
+    <!-- Main light theme -->
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent_material_light</item>
 
         <item name="android:windowBackground">@android:color/white</item>
+        <item name="windowActionModeOverlay">true</item>
 
         <item name="dropDownListViewStyle">@style/ToolbarDropDownListViewStyle</item>
-        <item name="windowActionModeOverlay">true</item>
+
+        <item name="post_thumbnail_background">#FFDDDDDD</item>
+        <item name="post_saved_reply_color">#FFBCBCBC</item>
+        <item name="post_highlighted_color">#FFD6BAD0</item>
+        <item name="post_reply_count_color">#FF646464</item>
+        <item name="post_reply_color">#FF646464</item>
+        <item name="post_name_color">#ff117743</item>
+        <item name="post_subject_color">#ff0F0C5D</item>
+        <item name="post_details_color">#ff646464</item>
+        <item name="post_quote_color">#ffDD0000</item>
+        <item name="post_highlight_quote_color">#ff950000</item>
+        <item name="post_link_color">#ff0000B4</item>
+        <item name="post_spoiler_color">#ff000000</item>
+        <item name="post_capcode_color">#ffff0000</item>
+        <item name="post_id_background_light">#ff636363</item>
+        <item name="post_id_background_dark">#00000000</item>
+        <item name="post_inline_quote_color">#ff789922</item>
+        <item name="post_divider_color">#1E000000</item>
+        <item name="post_options_drawable">@drawable/ic_overflow</item>
     </style>
 
     <!-- For the toolbar dropdown list -->

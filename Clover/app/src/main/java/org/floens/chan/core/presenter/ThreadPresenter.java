@@ -37,7 +37,9 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.ThreadStatusCell;
+import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -46,7 +48,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostView.PostViewCallback, ThreadStatusCell.Callback {
+import static org.floens.chan.utils.AndroidUtils.getString;
+
+public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCell.PostCellCallback, ThreadStatusCell.Callback {
+    private static final int POST_OPTION_QUOTE = 0;
+    private static final int POST_OPTION_QUOTE_TEXT = 1;
+    private static final int POST_OPTION_INFO = 2;
+    private static final int POST_OPTION_LINKS = 3;
+    private static final int POST_OPTION_COPY_TEXT = 4;
+    private static final int POST_OPTION_REPORT = 5;
+    private static final int POST_OPTION_HIGHLIGHT_ID = 6;
+    private static final int POST_OPTION_DELETE = 7;
+    private static final int POST_OPTION_SAVE = 8;
+    private static final int POST_OPTION_PIN = 9;
+    private static final int POST_OPTION_QUICK_REPLY = 10;
+
     private ThreadPresenterCallback threadPresenterCallback;
 
     private Loadable loadable;
@@ -220,6 +236,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 threadPresenterCallback.filterList(null, null, true, false, true);
                 highlightPost(post);
                 scrollToPost(post, false);
+            } else {
+                threadPresenterCallback.postClicked(post);
             }
         }
     }
@@ -242,69 +260,71 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public void onPopulatePostOptions(Post post, Menu menu) {
-        if (chanLoader.getLoadable().isBoardMode() || chanLoader.getLoadable().isCatalogMode()) {
-            menu.add(Menu.NONE, 9, Menu.NONE, AndroidUtils.getRes().getString(R.string.action_pin));
+    public void onPopulatePostOptions(Post post, List<FloatingMenuItem> menu) {
+        if (loadable.isBoardMode() || loadable.isCatalogMode()) {
+            menu.add(new FloatingMenuItem(POST_OPTION_PIN, R.string.action_pin));
         }
 
-        if (chanLoader.getLoadable().isThreadMode()) {
-            menu.add(Menu.NONE, 10, Menu.NONE, AndroidUtils.getRes().getString(R.string.post_quick_reply));
+        if (loadable.isThreadMode()) {
+            menu.add(new FloatingMenuItem(POST_OPTION_QUICK_REPLY, R.string.post_quick_reply));
         }
 
-        String[] baseOptions = AndroidUtils.getRes().getStringArray(R.array.post_options);
-        for (int i = 0; i < baseOptions.length; i++) {
-            menu.add(Menu.NONE, i, Menu.NONE, baseOptions[i]);
-        }
+        menu.add(new FloatingMenuItem(POST_OPTION_QUOTE, R.string.post_quote));
+        menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
+        menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        menu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
+        menu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
+        menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
 
         if (!TextUtils.isEmpty(post.id)) {
-            menu.add(Menu.NONE, 6, Menu.NONE, AndroidUtils.getRes().getString(R.string.post_highlight_id));
+            menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
         }
 
         // Only add the delete option when the post is a saved reply
         if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
-            menu.add(Menu.NONE, 7, Menu.NONE, AndroidUtils.getRes().getString(R.string.delete));
+            menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
         if (ChanSettings.getDeveloper()) {
-            menu.add(Menu.NONE, 8, Menu.NONE, "Make this a saved reply");
+            menu.add(new FloatingMenuItem(POST_OPTION_SAVE, "Save"));
         }
     }
 
-    public void onPostOptionClicked(Post post, int id) {
-        switch (id) {
-            case 10: // Quick reply
+    public void onPostOptionClicked(Post post, Object id) {
+        switch ((Integer) id) {
+            case POST_OPTION_QUICK_REPLY:
 //                openReply(false); TODO
                 // Pass through
-            case 0: // Quote
+            case POST_OPTION_QUOTE:
                 ChanApplication.getReplyManager().quote(post.no);
                 break;
-            case 1: // Quote inline
+            case POST_OPTION_QUOTE_TEXT:
                 ChanApplication.getReplyManager().quoteInline(post.no, post.comment.toString());
                 break;
-            case 2: // Info
+            case POST_OPTION_INFO:
                 showPostInfo(post);
                 break;
-            case 3: // Show clickables
+            case POST_OPTION_LINKS:
                 if (post.linkables.size() > 0) {
                     threadPresenterCallback.showPostLinkables(post.linkables);
                 }
                 break;
-            case 4: // Copy text
+            case POST_OPTION_COPY_TEXT:
                 threadPresenterCallback.clipboardPost(post);
                 break;
-            case 5: // Report
+            case POST_OPTION_REPORT:
                 threadPresenterCallback.openWebView("Report /" + post.board + "/" + post.no, ChanUrls.getReportUrl(post.board, post.no));
                 break;
-            case 6: // Id
+            case POST_OPTION_HIGHLIGHT_ID:
                 threadPresenterCallback.highlightPostId(post.id);
                 break;
-            case 7: // Delete
+            case POST_OPTION_DELETE:
 //                deletePost(post); TODO
                 break;
-            case 8: // Save reply (debug)
+            case POST_OPTION_SAVE:
                 ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
                 break;
-            case 9: // Pin
+            case POST_OPTION_PIN:
                 ChanApplication.getWatchManager().addPin(post);
                 break;
         }
@@ -341,11 +361,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (posts.size() > 0) {
             threadPresenterCallback.showPostsPopup(post, posts);
         }
-    }
-
-    @Override
-    public boolean isPostLastSeen(Post post) {
-        return false;
     }
 
     /*
@@ -436,6 +451,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread);
+
+        void postClicked(Post post);
 
         void showError(VolleyError error);
 

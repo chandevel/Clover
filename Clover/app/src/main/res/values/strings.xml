@@ -37,6 +37,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%d posts</item>
     </plurals>
 
+    <plurals name="reply">
+        <item quantity="one">%d reply</item>
+        <item quantity="other">%d replies</item>
+    </plurals>
+
+    <plurals name="image">
+        <item quantity="one">%d image</item>
+        <item quantity="other">%d images</item>
+    </plurals>
+
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
     <string name="action_reload_board">Reload board</string>
@@ -112,13 +122,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>
 
+    <string name="multiple_posts">posts</string>
+    <string name="post_quick_reply">Quick reply</string>
+    <string name="post_highlight_id">Highlight ID</string>
+    <string name="post_text_copied_to_clipboard">Text copied to clipboard</string>
+    <string name="post_quote">Quote</string>
+    <string name="post_quote_text">Quote text</string>
+    <string name="post_info">Info</string>
+    <string name="post_info_title">Post info</string>
+    <string name="post_show_links">Show links</string>
+    <string name="post_copy_text">Copy text</string>
+    <string name="post_report">Report</string>
+    <string name="post_reply">Reply</string>
+
     <string name="one_reply">reply</string>
     <string name="multiple_replies">replies</string>
     <string name="one_image">image</string>
     <string name="multiple_images">images</string>
     <string name="one_post">post</string>
-    <string name="multiple_posts">posts</string>
-    <string name="post_info">Post info</string>
     <string-array name="post_options">
         <item>Quote</item>
         <item>Quote text</item>
@@ -127,9 +148,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item>Copy text</item>
         <item>Report</item>
     </string-array>
-    <string name="post_quick_reply">Quick reply</string>
-    <string name="post_highlight_id">Highlight ID</string>
-    <string name="post_text_copied_to_clipboard">Text copied to clipboard</string>
 
     <string name="reply">Reply to</string>
     <string name="reply_to_board">Make thread in</string>

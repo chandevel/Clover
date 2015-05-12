@@ -131,6 +131,13 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     }
 
     @Override
+    public void postClicked(Post post) {
+        if (postPopupHelper.isOpen()) {
+            postPopupHelper.postClicked(post);
+        }
+    }
+
+    @Override
     public void showError(VolleyError error) {
         String errorMessage;
         if (error.getCause() instanceof SSLException) {
@@ -158,7 +165,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     public void showPostInfo(String info) {
         new AlertDialog.Builder(getContext())
-                .setTitle(R.string.post_info)
+                .setTitle(R.string.post_info_title)
                 .setMessage(info)
                 .setPositiveButton(R.string.ok, null)
                 .show();
@@ -267,6 +274,8 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
                 switch (this.visible) {
                     case THREAD:
                         threadListLayout.cleanup();
+                        postPopupHelper.popAll();
+                        showSearch(false);
                         break;
                 }
             }

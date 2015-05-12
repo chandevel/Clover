@@ -38,6 +38,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -77,10 +78,10 @@ public class ThreadListLayout extends LinearLayout {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
-    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostView.PostViewCallback postViewCallback, ThreadStatusCell.Callback statusCellCallback) {
+    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback, ThreadStatusCell.Callback statusCellCallback) {
         this.postAdapterCallback = postAdapterCallback;
         this.postViewCallback = postViewCallback;
-        postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postViewCallback, statusCellCallback);
+        postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -142,7 +143,7 @@ public class ThreadListLayout extends LinearLayout {
                         SpannedString commentSpannable = (SpannedString) post.comment;
                         PostLinkable[] linkables = commentSpannable.getSpans(0, commentSpannable.length(), PostLinkable.class);
                         for (PostLinkable linkable : linkables) {
-                            ChanApplication.getRefWatcher().watch(linkable, linkable.key + " " + linkable.value);
+//                            ChanApplication.getRefWatcher().watch(linkable, linkable.key + " " + linkable.value);
                         }
                     }
                 }
@@ -159,11 +160,11 @@ public class ThreadListLayout extends LinearLayout {
         ThumbnailView thumbnail = null;
         for (int i = 0; i < layoutManager.getChildCount(); i++) {
             View view = layoutManager.getChildAt(i);
-            if (view instanceof PostView) {
-                PostView postView = (PostView) view;
+            if (view instanceof PostCell) {
+                PostCell postView = (PostCell) view;
                 Post post = postView.getPost();
                 if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
-                    thumbnail = postView.getThumbnail();
+                    thumbnail = postView.getThumbnailView();
                     break;
                 }
             }

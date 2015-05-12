@@ -126,6 +126,10 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     @Override
+    public void onFloatingMenuDismissed(FloatingMenu menu) {
+    }
+
+    @Override
     public void showThread(Loadable threadLoadable) {
         ViewThreadController viewThreadController = new ViewThreadController(context);
         viewThreadController.setLoadable(threadLoadable);

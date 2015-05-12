@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
@@ -24,6 +25,7 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setTheme(R.style.Chan_Theme);
         ThemeHelper.getInstance().reloadPostViewColors(this);
 
         contentView = (ViewGroup) findViewById(android.R.id.content);

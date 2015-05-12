@@ -314,13 +314,13 @@ public class PostView extends LinearLayout implements View.OnClickListener, Post
         imageSize = 0;
         int repliesCountSize = 0;
         if (isList()) {
-            postCommentSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, ThemeHelper.getInstance().getFontSize(), getResources().getDisplayMetrics());
+            postCommentSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics());
             commentPadding = ta.getDimensionPixelSize(R.styleable.PostView_list_comment_padding, 0);
             postPadding = ta.getDimensionPixelSize(R.styleable.PostView_list_padding, 0);
             imageSize = ta.getDimensionPixelSize(R.styleable.PostView_list_image_size, 0);
             repliesCountSize = ta.getDimensionPixelSize(R.styleable.PostView_list_replies_count_size, 0);
         } else if (isGrid()) {
-            postCommentSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, ThemeHelper.getInstance().getFontSize() - 1, getResources().getDisplayMetrics());
+            postCommentSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12 - 1, getResources().getDisplayMetrics());
             commentPadding = ta.getDimensionPixelSize(R.styleable.PostView_grid_comment_padding, 0);
             postPadding = ta.getDimensionPixelSize(R.styleable.PostView_grid_padding, 0);
             imageSize = ta.getDimensionPixelSize(R.styleable.PostView_grid_image_size, 0);
@@ -503,7 +503,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, Post
     }
 
     @Override
-    public int getHighlightQuotesWithNo(PostLinkable postLinkable) {
+    public int getMarkedNo(PostLinkable postLinkable) {
         return highlightQuotesNo;
     }
 
