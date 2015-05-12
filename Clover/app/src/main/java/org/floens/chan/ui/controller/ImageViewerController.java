@@ -453,6 +453,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     private void setToolbarBackgroundAlpha(float alpha) {
         toolbar.setAlpha(alpha);
+        loadingBar.setAlpha(alpha);
     }
 
     private ThumbnailView getTransitionImageView(PostImage postImage) {
