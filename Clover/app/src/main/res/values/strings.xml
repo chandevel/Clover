@@ -81,6 +81,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="image_save_not_mounted">Cannot write to storage</string>
     <string name="image_play_state">Start / stop playing</string>
 
+    <string name="thumbnail_load_failed_network">Error</string>
+    <string name="thumbnail_load_failed_server">404</string>
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
     <string name="image_failed_big_image">Deepzoom loading failed</string>

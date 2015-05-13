@@ -6,16 +6,23 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.ChanApplication;
+import org.floens.chan.R;
+
+import static org.floens.chan.utils.AndroidUtils.getString;
+import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private ImageLoader.ImageContainer container;
@@ -34,6 +41,10 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     BitmapShader bitmapShader;
     private Paint roundPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
+    private boolean error = false;
+    private String errorText;
+    private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
     public ThumbnailView(Context context) {
         super(context);
         init();
@@ -50,6 +61,8 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     }
 
     private void init() {
+        textPaint.setColor(0xff000000);
+        textPaint.setTextSize(sp(14));
     }
 
     public void setUrl(String url, int width, int height) {
@@ -60,6 +73,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         if (container != null) {
             container.cancelRequest();
             container = null;
+            error = false;
             setImageBitmap(null);
         }
 
@@ -84,25 +98,28 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
         if (response.getBitmap() != null) {
             setImageBitmap(response.getBitmap());
-
-            clearAnimation();
-            if (fadeTime > 0 && !isImmediate) {
-                setAlpha(0f);
-                animate().alpha(1f).setDuration(fadeTime);
-            } else {
-                setAlpha(1f);
-            }
+            onImageSet(isImmediate);
         }
     }
 
     @Override
-    public void onErrorResponse(VolleyError error) {
-        error.printStackTrace();
+    public void onErrorResponse(VolleyError e) {
+        error = true;
+
+        if ((e instanceof NoConnectionError) || (e instanceof NetworkError)) {
+            errorText = getString(R.string.thumbnail_load_failed_network);
+        } else {
+            errorText = getString(R.string.thumbnail_load_failed_server);
+        }
+
+        onImageSet(false);
     }
 
     @Override
     protected boolean onSetAlpha(int alpha) {
-        if (circular) {
+        if (error) {
+            textPaint.setAlpha(alpha);
+        } else if (circular) {
             roundPaint.setAlpha(alpha);
         } else {
             paint.setAlpha(alpha);
@@ -114,45 +131,71 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (bitmap == null || getAlpha() == 0f) {
+        if (getAlpha() == 0f) {
             return;
         }
 
-        int width = getWidth() - getPaddingLeft() - getPaddingRight();
-        int height = getHeight() - getPaddingTop() - getPaddingBottom();
+        if (error) {
+            canvas.save();
 
-        if (calculate) {
-            calculate = false;
-            bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
-            float scale = Math.max(
-                    (float) width / (float) bitmap.getWidth(),
-                    (float) height / (float) bitmap.getHeight());
-            float scaledX = bitmap.getWidth() * scale;
-            float scaledY = bitmap.getHeight() * scale;
-            float offsetX = (scaledX - width) * 0.5f;
-            float offsetY = (scaledY - height) * 0.5f;
+            Rect bounds = new Rect();
+            textPaint.getTextBounds(errorText, 0, errorText.length(), bounds);
+            float x = (getWidth() - bounds.width()) / 2;
+            float y = getHeight() - (getHeight() - bounds.height()) / 2;
+            canvas.drawText(errorText, x, y, textPaint);
 
-            drawRect.set(-offsetX, -offsetY, scaledX - offsetX, scaledY - offsetY);
-            drawRect.offset(getPaddingLeft(), getPaddingTop());
-
-            outputRect.set(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
-
-            matrix.setRectToRect(bitmapRect, drawRect, Matrix.ScaleToFit.FILL);
-
-            if (circular) {
-                bitmapShader.setLocalMatrix(matrix);
-                roundPaint.setShader(bitmapShader);
-            }
-        }
-
-        canvas.save();
-        canvas.clipRect(outputRect);
-        if (circular) {
-            canvas.drawRoundRect(outputRect, width / 2, height / 2, roundPaint);
+            canvas.restore();
         } else {
-            canvas.drawBitmap(bitmap, matrix, paint);
+            if (bitmap == null) {
+                return;
+            }
+
+            int width = getWidth() - getPaddingLeft() - getPaddingRight();
+            int height = getHeight() - getPaddingTop() - getPaddingBottom();
+
+            if (calculate) {
+                calculate = false;
+                bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                float scale = Math.max(
+                        (float) width / (float) bitmap.getWidth(),
+                        (float) height / (float) bitmap.getHeight());
+                float scaledX = bitmap.getWidth() * scale;
+                float scaledY = bitmap.getHeight() * scale;
+                float offsetX = (scaledX - width) * 0.5f;
+                float offsetY = (scaledY - height) * 0.5f;
+
+                drawRect.set(-offsetX, -offsetY, scaledX - offsetX, scaledY - offsetY);
+                drawRect.offset(getPaddingLeft(), getPaddingTop());
+
+                outputRect.set(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
+
+                matrix.setRectToRect(bitmapRect, drawRect, Matrix.ScaleToFit.FILL);
+
+                if (circular) {
+                    bitmapShader.setLocalMatrix(matrix);
+                    roundPaint.setShader(bitmapShader);
+                }
+            }
+
+            canvas.save();
+            canvas.clipRect(outputRect);
+            if (circular) {
+                canvas.drawRoundRect(outputRect, width / 2, height / 2, roundPaint);
+            } else {
+                canvas.drawBitmap(bitmap, matrix, paint);
+            }
+            canvas.restore();
         }
-        canvas.restore();
+    }
+
+    private void onImageSet(boolean isImmediate) {
+        clearAnimation();
+        if (fadeTime > 0 && !isImmediate) {
+            setAlpha(0f);
+            animate().alpha(1f).setDuration(fadeTime);
+        } else {
+            setAlpha(1f);
+        }
     }
 
     private void setImageBitmap(Bitmap bitmap) {
