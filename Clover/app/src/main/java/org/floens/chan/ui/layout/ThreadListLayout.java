@@ -86,7 +86,10 @@ public class ThreadListLayout extends LinearLayout {
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                showingThread.loadable.listViewIndex = Math.max(0, linearLayoutManager.findFirstVisibleItemPosition());
+                // onScrolled can be called after cleanup()
+                if (showingThread != null) {
+                    showingThread.loadable.listViewIndex = Math.max(0, linearLayoutManager.findFirstVisibleItemPosition());
+                }
             }
         });
     }
