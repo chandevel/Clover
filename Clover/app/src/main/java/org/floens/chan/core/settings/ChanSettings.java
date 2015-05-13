@@ -49,6 +49,7 @@ public class ChanSettings {
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting repliesButtonsBottom;
+    public static final BooleanSetting confirmExit;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
@@ -92,6 +93,7 @@ public class ChanSettings {
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
+        confirmExit = new BooleanSetting(p, "preference_confirm_exit", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false, new Setting.SettingCallback<Boolean>() {
             @Override

@@ -1,5 +1,7 @@
 package org.floens.chan.ui.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +10,7 @@ import android.view.ViewGroup;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
 import org.floens.chan.utils.ThemeHelper;
@@ -68,9 +71,23 @@ public class StartActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!stackTop().onBack()) {
-            // Don't destroy the view, let Android do that or it'll create artifacts
-            stackTop().onHide();
-            super.onBackPressed();
+            if (ChanSettings.confirmExit.get()) {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.setting_confirm_exit_title)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                stackTop().onHide();
+                                StartActivity.super.onBackPressed();
+                            }
+                        })
+                        .show();
+            } else {
+                // Don't destroy the view, let Android do that or it'll create artifacts
+                stackTop().onHide();
+                super.onBackPressed();
+            }
         }
     }
 

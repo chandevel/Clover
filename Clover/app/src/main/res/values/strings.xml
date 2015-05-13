@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="ok">OK</string>
     <string name="on">On</string>
     <string name="off">Off</string>
+    <string name="exit">Exit</string>
 
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
@@ -229,6 +230,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_anonymize">Make everyone Anonymous</string>
     <string name="setting_anonymize_ids">Hide IDs</string>
     <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
+    <string name="setting_confirm_exit">Confirm before exit</string>
+    <string name="setting_confirm_exit_title">Confirm exit</string>
 
     <string name="settings_screen_watch">Watcher settings</string>
     <string name="settings_group_watch">Watcher settings</string>
