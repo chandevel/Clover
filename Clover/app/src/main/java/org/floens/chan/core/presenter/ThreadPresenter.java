@@ -373,7 +373,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public boolean isWatching() {
-        return loadable.isThreadMode() && ChanSettings.autoRefreshThread.get() && !chanLoader.getThread().closed && !chanLoader.getThread().archived;
+        return loadable.isThreadMode() && ChanSettings.autoRefreshThread.get() && chanLoader.getThread() != null &&
+                !chanLoader.getThread().closed && !chanLoader.getThread().archived;
     }
 
     @Override
