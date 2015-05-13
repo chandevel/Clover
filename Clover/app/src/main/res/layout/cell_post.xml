@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <org.floens.chan.ui.cell.PostCell xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:minHeight="73dp">
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/options"
@@ -21,8 +20,7 @@
         android:layout_width="72dp"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:background="?post_thumbnail_background"
-        android:minHeight="72dp">
+        android:background="?post_thumbnail_background">
 
         <org.floens.chan.ui.view.ThumbnailView
             android:id="@+id/thumbnail_view"
