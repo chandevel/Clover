@@ -129,7 +129,7 @@ public class ChanParser {
             post.subjectSpan.setSpan(new ForegroundColorSpan(subjectColor), 0, post.subjectSpan.length(), 0);
         }
 
-        if (!TextUtils.isEmpty(post.name)) {
+        if (!TextUtils.isEmpty(post.name) && !post.name.equals("Anonymous")) {
             post.nameSpan = new SpannableString(post.name);
             post.nameSpan.setSpan(new ForegroundColorSpan(nameColor), 0, post.nameSpan.length(), 0);
         }
