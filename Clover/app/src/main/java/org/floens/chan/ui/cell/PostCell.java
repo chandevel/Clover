@@ -63,6 +63,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     private TextView comment;
     private TextView replies;
     private ImageView options;
+    private View divider;
 
     private boolean commentClickable = false;
     private CharSequence iconsSpannable;
@@ -113,6 +114,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         comment = (TextView) findViewById(R.id.comment);
         replies = (TextView) findViewById(R.id.replies);
         options = (ImageView) findViewById(R.id.options);
+        divider = findViewById(R.id.divider);
 
         int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
         paddingPx = dp(textSizeSp - 6);
@@ -141,6 +143,11 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         } else {
             options.setBackgroundResource(R.drawable.item_background);
         }
+
+        RelativeLayout.LayoutParams dividerParams = (LayoutParams) divider.getLayoutParams();
+        dividerParams.leftMargin = paddingPx;
+        dividerParams.rightMargin = paddingPx;
+        divider.setLayoutParams(dividerParams);
 
         TypedArray ta = getContext().obtainStyledAttributes(new int[]{
                 R.attr.post_details_color,
