@@ -3,18 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/options"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:paddingBottom="15dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="5dp"
-        android:paddingTop="5dp"
-        android:src="?post_options_drawable" />
-
     <FrameLayout
         android:id="@+id/thumbnail_container"
         android:layout_width="72dp"
@@ -76,5 +64,17 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:background="?attr/post_divider_color" />
+
+    <ImageView
+        android:id="@+id/options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="5dp"
+        android:paddingTop="5dp"
+        android:src="?post_options_drawable" />
 
 </org.floens.chan.ui.cell.PostCell>
