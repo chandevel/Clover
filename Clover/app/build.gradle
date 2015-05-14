@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
 
         versionName "v1.2.10"
         versionCode 49
@@ -72,7 +72,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v13:22.1.0'
-    compile 'com.android.support:appcompat-v7:22.1.0'
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.android.support:recyclerview-v7:22.1.0'
 
     compile 'org.jsoup:jsoup:1.8.1'
