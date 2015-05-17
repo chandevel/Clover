@@ -24,26 +24,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <uses-permission android:name="android.permission.NFC" />
 
     <application
-        android:name="org.floens.chan.ChanApplication"
+        android:name=".ChanApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Chan.Theme">
+
         <activity
             android:name=".ui.activity.BoardActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".test.TestActivity">
-        </activity>
-        <activity
-            android:name=".ui.activity.ChanActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name">
             <intent-filter>
+
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -76,48 +72,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="org.floens.chan.ui.activity.ReplyActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="org.floens.chan.ui.activity.SettingsActivity"
-            android:label="@string/action_settings" />
-        <activity
-            android:name="org.floens.chan.ui.activity.WatchSettingsActivity"
-            android:label="@string/preference_watch_settings" />
-        <activity
-            android:name="org.floens.chan.ui.activity.PassSettingsActivity"
-            android:label="@string/preference_pass_settings" />
-        <activity
-            android:name="org.floens.chan.ui.activity.AboutActivity"
-            android:label="@string/preference_about" />
-        <activity
-            android:name="org.floens.chan.ui.activity.LicenseActivity"
-            android:label="@string/preference_about"
-            android:parentActivityName=".ui.activity.ChanActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.floens.chan.ui.activity.BoardActivity" />
-        </activity>
-        <activity
-            android:name="org.floens.chan.ui.activity.BoardEditor"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/board_edit" />
-        <activity
-            android:name="org.floens.chan.ui.activity.ImageViewActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTop"
-            android:theme="@style/Chan.ImageView" />
-        <activity android:name="org.floens.chan.ui.activity.ImagePickActivity" />
-        <activity android:name="org.floens.chan.ui.activity.DeveloperActivity" />
-        <activity
-            android:name="org.floens.chan.ui.activity.AdvancedSettingsActivity"
-            android:label="@string/settings_advanced_label" />
+
+        <activity android:name=".test.TestActivity" />
+
+        <activity android:name=".ui.activity.ImagePickActivity" />
 
         <service
             android:name=".ui.service.WatchNotifier"
             android:exported="false" />
+
     </application>
 
 </manifest>

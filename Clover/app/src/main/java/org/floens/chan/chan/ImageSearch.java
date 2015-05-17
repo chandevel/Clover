@@ -17,8 +17,6 @@
  */
 package org.floens.chan.chan;
 
-import org.floens.chan.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +32,7 @@ public abstract class ImageSearch {
     static {
         engines.add(new ImageSearch() {
             public int getId() {
-                return R.id.action_0;
+                return 0;
             }
 
             public String getName() {
@@ -48,7 +46,7 @@ public abstract class ImageSearch {
 
         engines.add(new ImageSearch() {
             public int getId() {
-                return R.id.action_1;
+                return 1;
             }
 
             public String getName() {

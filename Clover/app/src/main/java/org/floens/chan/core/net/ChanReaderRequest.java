@@ -22,7 +22,7 @@ import android.util.JsonReader;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -44,9 +44,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener, ErrorListener errorListener) {
         String url;
 
-        if (loadable.isBoardMode()) {
-            url = ChanUrls.getPageUrl(loadable.board, loadable.no);
-        } else if (loadable.isThreadMode()) {
+        if (loadable.isThreadMode()) {
             url = ChanUrls.getThreadUrl(loadable.board, loadable.no);
         } else if (loadable.isCatalogMode()) {
             url = ChanUrls.getCatalogUrl(loadable.board);
@@ -72,9 +70,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     public List<Post> readJson(JsonReader reader) throws Exception {
         List<Post> list;
 
-        if (loadable.isBoardMode()) {
-            list = loadBoard(reader);
-        } else if (loadable.isThreadMode()) {
+        if (loadable.isThreadMode()) {
             list = loadThread(reader);
         } else if (loadable.isCatalogMode()) {
             list = loadCatalog(reader);
@@ -177,7 +173,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         }
 
         for (Post post : totalList) {
-            post.isSavedReply = ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no);
+            post.isSavedReply = Chan.getDatabaseManager().isSavedReply(post.board, post.no);
         }
 
         return totalList;
@@ -202,44 +198,6 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 reader.skipValue();
             }
         }
-        reader.endObject();
-
-        return list;
-    }
-
-    private List<Post> loadBoard(JsonReader reader) throws Exception {
-        ArrayList<Post> list = new ArrayList<>();
-
-        reader.beginObject(); // Threads array
-
-        if (reader.nextName().equals("threads")) {
-            reader.beginArray();
-
-            while (reader.hasNext()) {
-                reader.beginObject(); // Thread object
-
-                if (reader.nextName().equals("posts")) {
-                    reader.beginArray();
-
-                    list.add(readPostObject(reader));
-
-                    // Only consume one post
-                    while (reader.hasNext())
-                        reader.skipValue();
-
-                    reader.endArray();
-                } else {
-                    reader.skipValue();
-                }
-
-                reader.endObject();
-            }
-
-            reader.endArray();
-        } else {
-            reader.skipValue();
-        }
-
         reader.endObject();
 
         return list;

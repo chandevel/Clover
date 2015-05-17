@@ -27,12 +27,12 @@ import android.widget.LinearLayout;
 
 import com.android.volley.VolleyError;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
+import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.utils.FileCache;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ThemeHelper;
 
@@ -90,7 +90,7 @@ public class TestActivity extends Activity implements View.OnClickListener {
 
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
         File fileCacheDir = new File(cacheDir, "filecache");
-        fileCache = new FileCache(fileCacheDir, 50 * 1024 * 1024, ChanApplication.getInstance().getUserAgent());
+        fileCache = new FileCache(fileCacheDir, 50 * 1024 * 1024, Chan.getInstance().getUserAgent());
     }
 
     @Override

@@ -22,9 +22,9 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -54,7 +54,7 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
-import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
+import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class Toolbar extends LinearLayout implements View.OnClickListener, LoadView.Listener {
     private ImageView arrowMenuView;
@@ -150,11 +150,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         arrowMenuDrawable = new ArrowMenuDrawable();
         arrowMenuView.setImageDrawable(arrowMenuDrawable);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            arrowMenuView.setBackground(getAttrDrawable(getContext(), android.R.attr.selectableItemBackgroundBorderless));
-        } else {
-            arrowMenuView.setBackgroundResource(R.drawable.item_background);
-        }
+        setRoundItemBackground(arrowMenuView);
 
         leftButtonContainer.addView(arrowMenuView, new FrameLayout.LayoutParams(dp(56), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL));
 
@@ -352,6 +348,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
             return searchViewWrapper;
         } else {
+            @SuppressLint("InflateParams")
             LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
             menu.setGravity(Gravity.CENTER_VERTICAL);
 

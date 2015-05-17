@@ -26,16 +26,14 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.watch.PinWatcher;
 import org.floens.chan.ui.activity.BoardActivity;
-import org.floens.chan.ui.activity.ChanActivity;
-import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -61,7 +59,7 @@ public class WatchNotifier extends Service {
         super.onCreate();
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        wm = ChanApplication.getWatchManager();
+        wm = Chan.getWatchManager();
 
         startForeground(NOTIFICATION_ID, createNotification());
     }
@@ -92,8 +90,8 @@ public class WatchNotifier extends Service {
     }
 
     private Notification createNotification() {
-        boolean notifyQuotesOnly = ChanSettings.getWatchNotifyMode().equals("quotes");
-        boolean soundQuotesOnly = ChanSettings.getWatchSound().equals("quotes");
+        boolean notifyQuotesOnly = ChanSettings.watchNotifyMode.get().equals("quotes");
+        boolean soundQuotesOnly = ChanSettings.watchSound.get().equals("quotes");
 
         List<Post> list = new ArrayList<>();
         List<Post> listQuoting = new ArrayList<>();
@@ -138,7 +136,7 @@ public class WatchNotifier extends Service {
             }
         }
 
-        if (ChanApplication.getInstance().getApplicationInForeground()) {
+        if (Chan.getInstance().getApplicationInForeground()) {
             ticker = false;
             sound = false;
         }
@@ -210,7 +208,6 @@ public class WatchNotifier extends Service {
      * @param expandedLines A list of lines for the big notification, or null if not shown
      * @param makeSound     Should the notification make a sound
      * @param target        The target pin, or null to open the pinned pane on tap
-     * @return
      */
     @SuppressWarnings("deprecation")
     private Notification getNotificationFor(String tickerText, String contentTitle, String contentText, int contentNumber,
@@ -231,7 +228,7 @@ public class WatchNotifier extends Service {
         }
 
         if (light) {
-            long watchLed = ChanSettings.getWatchLed();
+            long watchLed = Long.parseLong(ChanSettings.watchLed.get(), 16);
             if (watchLed >= 0) {
                 builder.setLights((int) watchLed, 1000, 1000);
             }

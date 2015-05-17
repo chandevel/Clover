@@ -1,44 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
     android:layout_gravity="center_vertical"
-    android:baselineAligned="false">
+    android:baselineAligned="false"
+    android:orientation="horizontal">
 
     <FrameLayout
         android:id="@+id/title_container"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:layout_height="match_parent">
+        tools:ignore="UselessParent,SpUsage">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:textSize="20dp"
-            android:textColor="#ffffffff"
-            android:gravity="center_vertical"
-            android:singleLine="true"
-            android:lines="1"
+            android:drawablePadding="16dp"
             android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:lines="1"
             android:minWidth="150dp"
             android:paddingLeft="16dp"
-            android:drawablePadding="16dp" />
+            android:singleLine="true"
+            android:textColor="#ffffffff"
+            android:textSize="20dp" />
 
         <TextView
             android:id="@+id/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14dp"
-            android:textColor="#ffededed"
-            android:gravity="center_vertical"
-            android:singleLine="true"
-            android:lines="1"
             android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:lines="1"
             android:minWidth="150dp"
+            android:paddingLeft="16dp"
             android:paddingTop="29dp"
-            android:paddingLeft="16dp"/>
+            android:singleLine="true"
+            android:textColor="#ffededed"
+            android:textSize="14dp" />
     </FrameLayout>
 
     <!-- menu inserted here

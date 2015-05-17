@@ -19,17 +19,15 @@ package org.floens.chan.ui.toolbar;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import org.floens.chan.R;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
+import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.FloatingMenuCallback {
     private ToolbarMenuItemCallback callback;
@@ -63,11 +61,7 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
 
             imageView.setImageDrawable(drawable);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                imageView.setBackground(getAttrDrawable(context, android.R.attr.selectableItemBackgroundBorderless));
-            } else {
-                imageView.setBackgroundResource(R.drawable.item_background);
-            }
+            setRoundItemBackground(imageView);
         }
     }
 

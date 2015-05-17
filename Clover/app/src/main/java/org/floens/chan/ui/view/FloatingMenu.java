@@ -34,7 +34,6 @@ import org.floens.chan.R;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 

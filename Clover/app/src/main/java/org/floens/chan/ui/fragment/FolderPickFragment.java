@@ -71,7 +71,7 @@ public class FolderPickFragment extends DialogFragment {
             return null;
         }
 
-        View container = inflater.inflate(R.layout.folder_pick, parent);
+        View container = inflater.inflate(R.layout.fragment_folder_pick, parent);
 
         statusPath = (TextView) container.findViewById(R.id.folder_status);
         listView = (ListView) container.findViewById(R.id.folder_list);
@@ -94,8 +94,8 @@ public class FolderPickFragment extends DialogFragment {
         });
 
         if (!ThemeHelper.getInstance().getTheme().isLightTheme) {
-            ((TextView) container.findViewById(R.id.pick_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_cancel_dark, 0, 0, 0);
-            ((TextView) container.findViewById(R.id.pick_ok_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_done_dark, 0, 0, 0);
+            ((TextView) container.findViewById(R.id.pick_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_arrow_back_white_24dp, 0, 0, 0);
+            ((TextView) container.findViewById(R.id.pick_ok_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_done_white_24dp, 0, 0, 0);
         }
 
         adapter = new ArrayAdapter<String>(inflater.getContext(), 0) {

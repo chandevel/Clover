@@ -25,7 +25,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.ControllerTransition;
@@ -72,7 +72,7 @@ public class RootNavigationController extends NavigationController implements Pi
 
         new SwipeListener(context, recyclerView, pinAdapter);
 
-        pinAdapter.onPinsChanged(ChanApplication.getWatchManager().getPins());
+        pinAdapter.onPinsChanged(Chan.getWatchManager().getPins());
 
         toolbar.setCallback(this);
 
@@ -162,7 +162,7 @@ public class RootNavigationController extends NavigationController implements Pi
 
     @Override
     public void onWatchCountClicked(Pin pin) {
-        ChanApplication.getWatchManager().toggleWatch(pin);
+        Chan.getWatchManager().toggleWatch(pin);
     }
 
     @Override

@@ -18,6 +18,7 @@
 package org.floens.chan.utils;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -41,22 +42,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class AndroidUtils {
-    public final static ViewGroup.LayoutParams MATCH_PARAMS = new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    public final static ViewGroup.LayoutParams WRAP_PARAMS = new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    public final static ViewGroup.LayoutParams MATCH_WRAP_PARAMS = new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-    public final static ViewGroup.LayoutParams WRAP_MATCH_PARAMS = new ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
     private static HashMap<String, Typeface> typefaceCache = new HashMap<>();
 
     public static Typeface ROBOTO_MEDIUM;
@@ -68,11 +62,11 @@ public class AndroidUtils {
     }
 
     public static Resources getRes() {
-        return ChanApplication.con.getResources();
+        return Chan.con.getResources();
     }
 
     public static Context getAppRes() {
-        return ChanApplication.con;
+        return Chan.con;
     }
 
     public static String getString(int res) {
@@ -80,13 +74,13 @@ public class AndroidUtils {
     }
 
     public static SharedPreferences getPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(ChanApplication.con);
+        return PreferenceManager.getDefaultSharedPreferences(Chan.con);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     public static void openWebView(Activity activity, String title, String link) {
         Dialog dialog = new Dialog(activity);
-        dialog.setContentView(R.layout.web_dialog);
+        dialog.setContentView(R.layout.dialog_web);
         WebView wb = (WebView) dialog.findViewById(R.id.web_view);
         wb.getSettings().setJavaScriptEnabled(true);
         wb.loadUrl(link);
@@ -162,8 +156,6 @@ public class AndroidUtils {
     /**
      * Causes the runnable to be added to the message queue. The runnable will
      * be run on the ui thread.
-     *
-     * @param runnable
      */
     public static void runOnUiThread(Runnable runnable) {
         new Handler(Looper.getMainLooper()).post(runnable);
@@ -199,7 +191,7 @@ public class AndroidUtils {
             return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+        return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     public static CharSequence ellipsize(CharSequence text, int max) {
@@ -256,13 +248,9 @@ public class AndroidUtils {
         }
     }
 
-    public static void setItemBackground(View view) {
-        view.setBackgroundResource(R.drawable.item_background);
-    }
-
     public static void setRoundItemBackground(View view) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            view.setBackground(getAttrDrawable(view.getContext(), android.R.attr.selectableItemBackgroundBorderless));
+            setRoundItemBackgroundLollipop(view);
         } else {
             view.setBackgroundResource(R.drawable.item_background);
         }
@@ -292,5 +280,10 @@ public class AndroidUtils {
         } else {
             return false;
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private static void setRoundItemBackgroundLollipop(View view) {
+        view.setBackground(getAttrDrawable(view.getContext(), android.R.attr.selectableItemBackgroundBorderless));
     }
 }

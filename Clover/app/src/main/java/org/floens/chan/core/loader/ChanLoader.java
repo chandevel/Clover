@@ -18,13 +18,11 @@
 package org.floens.chan.core.loader;
 
 import android.text.TextUtils;
-import android.util.SparseArray;
 
 import com.android.volley.Response;
-import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -48,7 +46,6 @@ public class ChanLoader {
 
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
-    private final SparseArray<Post> postsById = new SparseArray<>();
     private ChanThread thread;
 
     private boolean destroyed = false;
@@ -62,6 +59,10 @@ public class ChanLoader {
 
     public ChanLoader(Loadable loadable) {
         this.loadable = loadable;
+
+        if (loadable.mode == Loadable.Mode.BOARD) {
+            loadable.mode = Loadable.Mode.CATALOG;
+        }
     }
 
     /**
@@ -129,7 +130,7 @@ public class ChanLoader {
             request.cancel();
         }
 
-        if (loadable.isBoardMode() || loadable.isCatalogMode()) {
+        if (loadable.isCatalogMode()) {
             loadable.no = 0;
             loadable.listViewIndex = 0;
             loadable.listViewTop = 0;
@@ -147,16 +148,7 @@ public class ChanLoader {
     public void requestMoreData() {
         clearTimer();
 
-        if (loadable.isBoardMode()) {
-            if (request != null) {
-                // finish the last board load first
-                return;
-            }
-
-            loadable.no++;
-
-            request = getData();
-        } else if (loadable.isThreadMode()) {
+        if (loadable.isThreadMode()) {
             if (request != null) {
                 return;
             }
@@ -180,18 +172,12 @@ public class ChanLoader {
         return request != null;
     }
 
-    public Post findPostById(int id) {
-        return postsById.get(id);
-    }
-
     public Loadable getLoadable() {
         return loadable;
     }
 
     /**
      * Get the time in milliseconds until another loadMore is recommended
-     *
-     * @return
      */
     public long getTimeUntilLoadMore() {
         if (request != null) {
@@ -272,7 +258,7 @@ public class ChanLoader {
                 }
         );
 
-        ChanApplication.getVolleyRequestQueue().add(request);
+        Chan.getVolleyRequestQueue().add(request);
 
         return request;
     }
@@ -285,31 +271,8 @@ public class ChanLoader {
             thread = new ChanThread(loadable, new ArrayList<Post>());
         }
 
-        if (loadable.isThreadMode() || loadable.isCatalogMode()) {
-            thread.posts.clear();
-            thread.posts.addAll(result);
-            postsById.clear();
-            for (Post post : result) {
-                postsById.append(post.no, post);
-            }
-        } else if (loadable.isBoardMode()) {
-            // Only add new posts
-            boolean flag;
-            for (Post post : result) {
-                flag = true;
-                for (Post cached : thread.posts) {
-                    if (post.no == cached.no) {
-                        flag = false;
-                        break;
-                    }
-                }
-
-                if (flag) {
-                    thread.posts.add(post);
-                    postsById.append(post.no, post);
-                }
-            }
-        }
+        thread.posts.clear();
+        thread.posts.addAll(result);
 
         if (loadable.isThreadMode() && thread.posts.size() > 0) {
             thread.op = thread.posts.get(0);
@@ -345,11 +308,6 @@ public class ChanLoader {
             return;
 
         Logger.e(TAG, "Loading error");
-
-        // 404 with more pages already loaded means endofline
-        if ((error instanceof ServerError) && loadable.isBoardMode() && loadable.no > 0) {
-            error = new EndOfLineException();
-        }
 
         clearTimer();
 

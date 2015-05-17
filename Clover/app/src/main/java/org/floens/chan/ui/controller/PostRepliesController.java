@@ -1,3 +1,20 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.floens.chan.ui.controller;
 
 import android.animation.ValueAnimator;
@@ -24,7 +41,6 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
-import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.ThemeHelper;
 
@@ -133,8 +149,8 @@ public class PostRepliesController extends Controller {
         });
 
         if (!ThemeHelper.getInstance().getTheme().isLightTheme) {
-            ((TextView) dataView.findViewById(R.id.replies_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_back_dark, 0, 0, 0);
-            ((TextView) dataView.findViewById(R.id.replies_close_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_done_dark, 0, 0, 0);
+            ((TextView) dataView.findViewById(R.id.replies_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_arrow_back_white_24dp, 0, 0, 0);
+            ((TextView) dataView.findViewById(R.id.replies_close_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_done_white_24dp, 0, 0, 0);
             dataView.findViewById(R.id.container).setBackgroundResource(R.drawable.dialog_full_dark);
         }
 
@@ -142,23 +158,14 @@ public class PostRepliesController extends Controller {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 PostCell postCell;
-                if (convertView instanceof PostView) {
+                if (convertView instanceof PostCell) {
                     postCell = (PostCell) convertView;
                 } else {
-                    postCell =  (PostCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
+                    postCell = (PostCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
                 }
 
                 final Post p = getItem(position);
                 postCell.setPost(p, presenter, false, data.forPost.no);
-
-//                postView.setPost(p, presenter, false);
-//                postView.setHighlightQuotesWithNo(data.forPost.no);
-                /*postCell.setOnClickListeners(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        postPopupHelper.postClicked(p);
-                    }
-                });*/
 
                 return postCell;
             }

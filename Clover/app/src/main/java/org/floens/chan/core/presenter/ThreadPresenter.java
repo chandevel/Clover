@@ -21,7 +21,7 @@ import android.text.TextUtils;
 
 import com.android.volley.VolleyError;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.loader.ChanLoader;
@@ -72,8 +72,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
 
-        watchManager = ChanApplication.getWatchManager();
-        databaseManager = ChanApplication.getDatabaseManager();
+        watchManager = Chan.getWatchManager();
+        databaseManager = Chan.getDatabaseManager();
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -287,7 +287,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
-        if (ChanSettings.getDeveloper()) {
+        if (ChanSettings.developer.get()) {
             menu.add(new FloatingMenuItem(POST_OPTION_SAVE, "Save"));
         }
     }

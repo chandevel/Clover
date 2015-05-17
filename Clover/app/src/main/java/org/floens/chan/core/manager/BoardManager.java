@@ -20,7 +20,7 @@ package org.floens.chan.core.manager;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.net.BoardsRequest;
@@ -84,7 +84,7 @@ public class BoardManager {
     }
 
     public void updateSavedBoards() {
-        ChanApplication.getDatabaseManager().updateBoards(allBoards);
+        Chan.getDatabaseManager().updateBoards(allBoards);
 
         notifyChanged();
     }
@@ -103,12 +103,12 @@ public class BoardManager {
     private void storeBoards() {
         updateByValueMap();
 
-        ChanApplication.getDatabaseManager().setBoards(allBoards);
+        Chan.getDatabaseManager().setBoards(allBoards);
         notifyChanged();
     }
 
     private void loadBoards() {
-        allBoards = ChanApplication.getDatabaseManager().getBoards();
+        allBoards = Chan.getDatabaseManager().getBoards();
         if (allBoards.size() == 0) {
             Logger.d(TAG, "Loading default boards");
             allBoards = getDefaultBoards();
@@ -149,7 +149,7 @@ public class BoardManager {
     }
 
     private void loadFromServer() {
-        ChanApplication.getVolleyRequestQueue().add(
+        Chan.getVolleyRequestQueue().add(
                 new BoardsRequest(ChanUrls.getBoardsUrl(), new Response.Listener<List<Board>>() {
                     @Override
                     public void onResponse(List<Board> data) {

@@ -199,12 +199,12 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppRes().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Post text", post.comment.toString());
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(getContext(), R.string.post_text_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), R.string.post_text_copied, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void openLink(final String link) {
-        if (ChanSettings.getOpenLinkConfirmation()) {
+        if (ChanSettings.openLinkConfirmation.get()) {
             new AlertDialog.Builder(getContext())
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -223,7 +223,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     @Override
     public void openWebView(String title, String link) {
-        AndroidUtils.openWebView((Activity)getContext(), title, link);
+        AndroidUtils.openWebView((Activity) getContext(), title, link);
     }
 
     @Override

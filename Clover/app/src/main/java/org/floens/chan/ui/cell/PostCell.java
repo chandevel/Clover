@@ -1,10 +1,26 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.floens.chan.ui.cell;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.text.Spannable;
@@ -29,7 +45,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -46,8 +62,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
 import static org.floens.chan.utils.AndroidUtils.getRes;
+import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class PostCell extends RelativeLayout implements PostLinkable.Callback {
@@ -132,17 +148,9 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
 
         replies.setTextSize(textSizeSp);
         replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            replies.setBackground(getAttrDrawable(getContext(), android.R.attr.selectableItemBackgroundBorderless));
-        } else {
-            replies.setBackgroundResource(R.drawable.item_background);
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            options.setBackground(getAttrDrawable(getContext(), android.R.attr.selectableItemBackgroundBorderless));
-        } else {
-            options.setBackgroundResource(R.drawable.item_background);
-        }
+        setRoundItemBackground(replies);
+        setRoundItemBackground(options);
 
         RelativeLayout.LayoutParams dividerParams = (LayoutParams) divider.getLayoutParams();
         dividerParams.leftMargin = paddingPx;
@@ -382,7 +390,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
 
     private void loadCountryIcon() {
         final Post requestedPost = post;
-        ChanApplication.getVolleyImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
+        Chan.getVolleyImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
             @Override
             public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                 if (response.getBitmap() != null && PostCell.this.post == requestedPost) {

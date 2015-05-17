@@ -20,7 +20,7 @@ package org.floens.chan.core.manager;
 import android.content.Context;
 import android.content.Intent;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -51,7 +51,7 @@ public class WatchManager {
     public WatchManager(Context context) {
         this.context = context;
 
-        pins = ChanApplication.getDatabaseManager().getPinned();
+        pins = Chan.getDatabaseManager().getPinned();
 
         EventBus.getDefault().register(this);
 
@@ -122,7 +122,7 @@ public class WatchManager {
         }
 
         pins.add(pin);
-        ChanApplication.getDatabaseManager().addPin(pin);
+        Chan.getDatabaseManager().addPin(pin);
 
         onPinsChanged();
 
@@ -161,7 +161,7 @@ public class WatchManager {
     public void removePin(Pin pin) {
         pins.remove(pin);
         pin.destroyWatcher();
-        ChanApplication.getDatabaseManager().removePin(pin);
+        Chan.getDatabaseManager().removePin(pin);
 
         onPinsChanged();
 
@@ -174,7 +174,7 @@ public class WatchManager {
      * @param pin
      */
     public void updatePin(Pin pin) {
-        ChanApplication.getDatabaseManager().updatePin(pin);
+        Chan.getDatabaseManager().updatePin(pin);
 
         onPinsChanged();
 
@@ -185,15 +185,15 @@ public class WatchManager {
      * Updates all the pins to the database.
      */
     public void updateDatabase() {
-        ChanApplication.getDatabaseManager().updatePins(pins);
+        Chan.getDatabaseManager().updatePins(pins);
     }
 
     public void toggleWatch(Pin pin) {
         pin.watching = !pin.watching;
 
         EventBus.getDefault().post(new PinChangedMessage(pin));
-        ChanApplication.getWatchManager().onPinsChanged();
-        ChanApplication.getWatchManager().invokeLoadNow();
+        Chan.getWatchManager().onPinsChanged();
+        Chan.getWatchManager().invokeLoadNow();
     }
 
     public void pinWatcherUpdated(Pin pin) {
@@ -231,7 +231,7 @@ public class WatchManager {
         }
     }
 
-    public void onEvent(ChanApplication.ForegroundChangedMessage message) {
+    public void onEvent(Chan.ForegroundChangedMessage message) {
         updateNotificationServiceState();
         updateTimerState(true);
     }
@@ -259,11 +259,11 @@ public class WatchManager {
     }
 
     public boolean getWatchBackgroundEnabled() {
-        return ChanSettings.getWatchBackgroundEnabled();
+        return ChanSettings.watchBackground.get();
     }
 
     private void updatePinWatchers() {
-        updatePinWatchers(ChanSettings.getWatchEnabled());
+        updatePinWatchers(ChanSettings.watchEnabled.get());
     }
 
     private void updatePinWatchers(boolean watchEnabled) {
@@ -294,9 +294,9 @@ public class WatchManager {
     }
 
     private void updateTimerState(boolean watchEnabled, boolean backgroundEnabled, boolean invokeLoadNow) {
-        Logger.d(TAG, "updateTimerState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " invokeLoadNow=" + invokeLoadNow + " foreground=" + ChanApplication.getInstance().getApplicationInForeground());
+        Logger.d(TAG, "updateTimerState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " invokeLoadNow=" + invokeLoadNow + " foreground=" + Chan.getInstance().getApplicationInForeground());
         if (watchEnabled) {
-            if (ChanApplication.getInstance().getApplicationInForeground()) {
+            if (Chan.getInstance().getApplicationInForeground()) {
                 setTimer(invokeLoadNow ? 1 : FOREGROUND_TIME);
             } else {
                 if (backgroundEnabled) {

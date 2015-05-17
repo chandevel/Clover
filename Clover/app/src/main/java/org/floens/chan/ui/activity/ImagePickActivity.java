@@ -25,7 +25,7 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.core.reply.ReplyManager;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
@@ -53,7 +53,7 @@ public class ImagePickActivity extends Activity implements Runnable {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        replyManager = ChanApplication.getReplyManager();
+        replyManager = Chan.getReplyManager();
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);

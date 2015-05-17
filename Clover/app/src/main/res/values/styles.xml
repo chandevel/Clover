@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
+    <color name="primary">#ff4caf50</color>
+    <color name="primary_dark">#ff388e3c</color>
+
     <!-- Main light theme -->
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
@@ -26,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="windowActionModeOverlay">true</item>
 
         <item name="dropDownListViewStyle">@style/ToolbarDropDownListViewStyle</item>
+
+        <item name="backcolor">#ffffffff</item>
 
         <item name="text_color_primary">#DE000000</item>
         <item name="text_color_secondary">#89000000</item>
@@ -56,134 +61,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="dropdown_dark_pressed_color">#887d7d7d</item>
     </style>
 
-    <!-- For the toolbar dropdown list -->
-    <style name="ToolbarDropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
-        <item name="android:background">#ffffffff</item>
-    </style>
+    <style name="Chan.Theme.Dark">
+        <item name="backcolor">#ff232323</item>
 
-    <style name="Chan.ImageView" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@color/image_view_background</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <!--<item name="android:backgroundDimEnabled">true</item>-->
-    </style>
-
-    <!-- Light theme -->
-    <style name="AppTheme" parent="Chan.Theme">
-        <item name="board_pane_style">@style/BoardPane</item>
-        <item name="board_pane_left_style">@style/BoardLeftPane</item>
-        <item name="board_pane_right_style">@style/BoardRightPane</item>
-
-        <item name="post_style">@style/PostView</item>
-
-        <item name="board_edit_item_style">@style/BoardEditItem</item>
-
-        <item name="android:textColor">#ff000000</item>
-
-        <item name="toolbar_theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-        <item name="toolbar_popup_theme">@style/ThemeOverlay.AppCompat.Light</item>
-    </style>
-
-    <!-- Dark theme -->
-    <style name="AppTheme.Dark" parent="android:Theme.Holo">
-        <item name="android:actionBarStyle">@android:style/Widget.Holo.ActionBar.Solid</item>
-
-        <item name="board_pane_style">@style/BoardPane.Dark</item>
-        <item name="board_pane_left_style">@style/BoardLeftPane.Dark</item>
-        <item name="board_pane_right_style">@style/BoardRightPane.Dark</item>
-
-        <item name="post_style">@style/PostView.Dark</item>
-
-        <item name="board_edit_item_style">@style/BoardEditItem.Dark</item>
-    </style>
-
-
-    <!-- Black theme -->
-    <style name="AppTheme.Dark.Black">
-        <item name="android:actionBarStyle">@android:style/Widget.Holo.ActionBar</item>
-
-        <item name="board_pane_style">@style/BoardPane.Dark.Black</item>
-        <item name="board_pane_left_style">@style/BoardLeftPane.Dark.Black</item>
-        <item name="board_pane_right_style">@style/BoardRightPane.Dark.Black</item>
-
-        <item name="post_style">@style/PostView.Dark.Black</item>
-    </style>
-
-
-    <!-- Light styles -->
-    <style name="BoardPane">
-        <item name="fade_color">#CCE5E5E5</item>
-    </style>
-
-    <style name="BoardLeftPane">
-        <item name="android:background">#FFFFFFFF</item>
-    </style>
-
-    <style name="BoardRightPane">
-        <item name="android:background">#FFFFFFFF</item>
-    </style>
-
-    <style name="PostView">
-        <item name="title_size">14sp</item>
-        <item name="detail_size">10sp</item>
-        <item name="icon_padding">6dp</item>
-        <item name="icon_width">24dp</item>
-        <item name="icon_height">14dp</item>
-        <item name="options_spacing">25dp</item>
-        <item name="options_left_padding">15dp</item>
-        <item name="options_top_padding">5dp</item>
-        <item name="options_right_padding">5dp</item>
-        <item name="options_bottom_padding">15dp</item>
-        <item name="last_seen_height">6dp</item>
-
-        <item name="grid_padding">5dp</item>
-        <item name="grid_image_size">120dp</item>
-        <item name="grid_comment_padding">8dp</item>
-        <item name="grid_replies_count_size">11sp</item>
-
-        <item name="list_padding">10dp</item>
-        <item name="list_image_size">70dp</item>
-        <item name="list_comment_padding">11dp</item>
-        <item name="list_replies_count_size">14sp</item>
-        <item name="list_comment_max_height">200dp</item>
-
-        <item name="thumbnail_background">#FFDDDDDD</item>
-        <item name="saved_reply_color">#FFBCBCBC</item>
-        <item name="highlighted_color">#FFD6BAD0</item>
-        <item name="reply_count_color">#FF646464</item>
-        <item name="name_color">#ff117743</item>
-        <item name="subject_color">#ff0F0C5D</item>
-        <item name="date_color">#ff646464</item>
-        <item name="quote_color">#ffDD0000</item>
-        <item name="highlight_quote_color">#ff950000</item>
-        <item name="link_color">#ff0000B4</item>
-        <item name="spoiler_color">#ff000000</item>
-        <item name="capcode_color">#ffff0000</item>
-        <item name="id_background_light">#ff636363</item>
-        <item name="id_background_dark">#00000000</item>
-        <item name="inline_quote_color">#ff789922</item>
-
-        <item name="code_tag_size">12sp</item>
-    </style>
-
-    <style name="BoardEditItem">
-        <item name="android:color">#ff4c4c4c</item>
-    </style>
-
-
-    <!-- Dark styles -->
-    <style name="BoardPane.Dark">
-        <item name="fade_color">#a5323232</item>
-    </style>
-
-    <style name="BoardLeftPane.Dark">
-        <item name="android:background">#ff232323</item>
-    </style>
-
-    <style name="BoardRightPane.Dark">
-        <item name="android:background">#ff232323</item>
-    </style>
-
-    <style name="PostView.Dark">
         <item name="thumbnail_background">#00000000</item>
         <item name="saved_reply_color">#ff5C5C5C</item>
         <item name="highlighted_color">#ff444444</item>
@@ -196,25 +76,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="id_background_dark">#ffC6C6C6</item>
     </style>
 
-    <style name="BoardEditItem.Dark">
-        <item name="android:color">#77ffffff</item>
-    </style>
+    <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
+        <item name="backcolor">#ff000000</item>
 
-
-    <!-- Black styles -->
-    <style name="BoardPane.Dark.Black">
-        <item name="fade_color">#a51a1a1a</item>
-    </style>
-
-    <style name="BoardLeftPane.Dark.Black">
-        <item name="android:background">#ff000000</item>
-    </style>
-
-    <style name="BoardRightPane.Dark.Black">
-        <item name="android:background">#ff000000</item>
-    </style>
-
-    <style name="PostView.Dark.Black">
         <item name="spoiler_color">#ff2c2c2c</item>
     </style>
+
+    <!-- For FloatingMenu -->
+    <style name="ToolbarDropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:background">#ffffffff</item>
+    </style>
+
 </resources>

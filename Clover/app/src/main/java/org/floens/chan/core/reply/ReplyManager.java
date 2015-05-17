@@ -19,18 +19,14 @@ package org.floens.chan.core.reply;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Loadable;
@@ -38,18 +34,14 @@ import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.ui.activity.ImagePickActivity;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -63,7 +55,6 @@ public class ReplyManager {
 
     private final Context context;
     private FileListener fileListener;
-    private final Random random = new Random();
     private OkHttpClient client;
 
     private Map<Loadable, Reply> drafts = new HashMap<>();
@@ -169,7 +160,7 @@ public class ReplyManager {
             public void onFailure(Request request, IOException e) {
                 final PassResponse res = new PassResponse();
                 res.isError = true;
-                res.message = context.getString(R.string.pass_error);
+                res.message = context.getString(R.string.setting_pass_error);
                 runUI(new Runnable() {
                     public void run() {
                         passListener.onResponse(res);
@@ -317,131 +308,6 @@ public class ReplyManager {
         public String responseData = "";
     }
 
-    public void postReply(Reply reply, ReplyListener replyListener) {
-        if (reply.usePass) {
-            postReplyInternal(reply, replyListener, null);
-        } else {
-            postReplyInternal(reply, replyListener, reply.captchaResponse);
-        }
-    }
-
-    private void postReplyInternal(final Reply reply, final ReplyListener replyListener, String captchaHash) {
-//        reply.password = Long.toHexString(random.nextLong());
-
-        MultipartBuilder formBuilder = new MultipartBuilder();
-        formBuilder.type(MultipartBuilder.FORM);
-
-        formBuilder.addFormDataPart("mode", "regist");
-//        formBuilder.addFormDataPart("pwd", reply.password);
-
-        if (reply.resto >= 0) {
-            formBuilder.addFormDataPart("resto", String.valueOf(reply.resto));
-        }
-
-        formBuilder.addFormDataPart("name", reply.name);
-        formBuilder.addFormDataPart("email", reply.options);
-
-        if (reply.resto >= 0 && !TextUtils.isEmpty(reply.subject)) {
-            formBuilder.addFormDataPart("sub", reply.subject);
-        }
-
-        formBuilder.addFormDataPart("com", reply.comment);
-
-        if (captchaHash != null) {
-            formBuilder.addFormDataPart("g-recaptcha-response", captchaHash);
-        }
-
-        if (reply.file != null) {
-            formBuilder.addFormDataPart("upfile", reply.fileName, RequestBody.create(
-                    MediaType.parse("application/octet-stream"), reply.file
-            ));
-        }
-
-        if (reply.spoilerImage) {
-            formBuilder.addFormDataPart("spoiler", "on");
-        }
-
-        Request.Builder request = new Request.Builder()
-                .url(ChanUrls.getReplyUrl(reply.board))
-                .post(formBuilder.build());
-
-        if (reply.usePass) {
-            request.addHeader("Cookie", "pass_id=" + reply.passId);
-        }
-
-        makeOkHttpCall(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                final ReplyResponse res = new ReplyResponse();
-                res.isNetworkError = true;
-
-                runUI(new Runnable() {
-                    public void run() {
-                        replyListener.onResponse(res);
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                final ReplyResponse res = new ReplyResponse();
-                if (response.isSuccessful()) {
-                    onReplyPosted(response.body().string(), reply, res);
-                    response.body().close();
-                } else {
-                    res.isNetworkError = true;
-                }
-
-                runUI(new Runnable() {
-                    public void run() {
-                        replyListener.onResponse(res);
-                    }
-                });
-            }
-        });
-    }
-
-    private ReplyResponse onReplyPosted(String responseString, Reply reply, ReplyResponse res) {
-        res.responseData = responseString;
-
-        if (res.responseData.contains("No file selected")) {
-            res.isUserError = true;
-            res.isFileError = true;
-        } else if (res.responseData.contains("You forgot to solve the CAPTCHA") || res.responseData.contains("You seem to have mistyped the CAPTCHA")) {
-            res.isUserError = true;
-            res.isCaptchaError = true;
-        } else if (res.responseData.toLowerCase(Locale.ENGLISH).contains("post successful")) {
-            res.isSuccessful = true;
-
-            Matcher matcher = POST_THREAD_NO_PATTERN.matcher(res.responseData);
-            int threadNo = -1;
-            int no = -1;
-            if (matcher.find()) {
-                try {
-                    threadNo = Integer.parseInt(matcher.group(1));
-                    no = Integer.parseInt(matcher.group(2));
-                } catch (NumberFormatException err) {
-                    err.printStackTrace();
-                }
-            }
-
-            if (threadNo >= 0 && no >= 0) {
-                SavedReply savedReply = new SavedReply();
-                savedReply.board = reply.board;
-                savedReply.no = no;
-//                savedReply.password = reply.password;
-
-                ChanApplication.getDatabaseManager().saveReply(savedReply);
-
-                res.threadNo = threadNo;
-                res.no = no;
-            } else {
-                Logger.w(TAG, "No thread & no in the response");
-            }
-        }
-        return res;
-    }
-
     public void makeHttpCall(HttpCall httpCall, HttpCallback callback) {
         //noinspection unchecked
         httpCall.setCallback(callback);
@@ -450,7 +316,7 @@ public class ReplyManager {
 
         httpCall.setup(requestBuilder);
 
-        requestBuilder.header("User-Agent", ChanApplication.getInstance().getUserAgent());
+        requestBuilder.header("User-Agent", Chan.getInstance().getUserAgent());
         Request request = requestBuilder.build();
 
         client.newCall(request).enqueue(httpCall);
@@ -463,59 +329,12 @@ public class ReplyManager {
     }
 
     private void makeOkHttpCall(Request.Builder requestBuilder, Callback callback) {
-        requestBuilder.header("User-Agent", ChanApplication.getInstance().getUserAgent());
+        requestBuilder.header("User-Agent", Chan.getInstance().getUserAgent());
         Request request = requestBuilder.build();
         client.newCall(request).enqueue(callback);
     }
 
     private void runUI(Runnable runnable) {
         AndroidUtils.runOnUiThread(runnable);
-    }
-
-    public interface ReplyListener {
-        void onResponse(ReplyResponse response);
-    }
-
-    public static class ReplyResponse {
-        /**
-         * No response from server.
-         */
-        public boolean isNetworkError = false;
-
-        /**
-         * Some user error, like no file or captcha wrong.
-         */
-        public boolean isUserError = false;
-
-        /**
-         * The userError was an fileError
-         */
-        public boolean isFileError = false;
-
-        /**
-         * The userError was an captchaError
-         */
-        public boolean isCaptchaError = false;
-
-        /**
-         * Received 'post successful'
-         */
-        public boolean isSuccessful = false;
-
-        /**
-         * Raw html from the response. Used to set html in an WebView to the
-         * client, when the error was not recognized by Clover.
-         */
-        public String responseData = "";
-
-        /**
-         * The no the post has
-         */
-        public int no = -1;
-
-        /**
-         * The thread no the post has
-         */
-        public int threadNo = -1;
     }
 }

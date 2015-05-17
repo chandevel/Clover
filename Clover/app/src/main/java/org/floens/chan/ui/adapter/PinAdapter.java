@@ -1,6 +1,22 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.floens.chan.ui.adapter;
 
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
@@ -21,7 +37,7 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
+import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwipeListener.Callback {
     private static final int PIN_OFFSET = 3;
@@ -156,7 +172,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     @Override
     public void removeItem(int position) {
-        ChanApplication.getWatchManager().removePin(pins.get(position - PIN_OFFSET));
+        Chan.getWatchManager().removePin(pins.get(position - PIN_OFFSET));
     }
 
     @Override
@@ -240,11 +256,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             watchCountText = (TextView) itemView.findViewById(R.id.watch_count);
             watchCountText.setTypeface(ROBOTO_MEDIUM);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                watchCountText.setBackground(getAttrDrawable(itemView.getContext(), android.R.attr.selectableItemBackgroundBorderless));
-            } else {
-                watchCountText.setBackgroundResource(R.drawable.item_background);
-            }
+            setRoundItemBackground(watchCountText);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -271,11 +283,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             text = (TextView) itemView.findViewById(R.id.text);
             text.setTypeface(ROBOTO_MEDIUM);
             image = (ImageView) itemView.findViewById(R.id.image);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                image.setBackground(getAttrDrawable(itemView.getContext(), android.R.attr.selectableItemBackgroundBorderless));
-            } else {
-                image.setBackgroundResource(R.drawable.item_background);
-            }
+            setRoundItemBackground(image);
             image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

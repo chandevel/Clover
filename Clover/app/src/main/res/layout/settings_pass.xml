@@ -1,4 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,22 +24,22 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="32dp"
+        android:orientation="vertical"
+        android:paddingBottom="32dp"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"
-        android:paddingBottom="32dp"
-        android:orientation="vertical">
+        android:paddingTop="32dp">
 
         <TextView
             android:id="@+id/errors"
-            android:textColor="#fff44336"
-            android:textSize="16sp"
-            android:paddingTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:paddingBottom="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:paddingTop="8dp"
+            android:textColor="#fff44336"
+            android:textSize="16sp" />
 
         <org.floens.chan.ui.view.CrossfadeView
             android:id="@+id/crossfade"
@@ -37,19 +53,19 @@
 
                 <EditText
                     android:id="@+id/input_token"
-                    android:inputType="text"
-                    android:imeOptions="actionNext"
-                    android:hint="@string/setting_pass_token"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/setting_pass_token"
+                    android:imeOptions="actionNext"
+                    android:inputType="text" />
 
                 <EditText
                     android:id="@+id/input_pin"
-                    android:inputType="numberPassword"
-                    android:imeOptions="actionDone"
-                    android:hint="@string/setting_pass_pin"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/setting_pass_pin"
+                    android:imeOptions="actionDone"
+                    android:inputType="numberPassword" />
 
             </LinearLayout>
 
@@ -58,9 +74,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:text="@string/setting_pass_authenticated"
                 android:textColor="#dd000000"
-                android:textSize="20sp"
-                android:text="@string/setting_pass_authenticated" />
+                android:textSize="20sp" />
 
         </org.floens.chan.ui.view.CrossfadeView>
 
@@ -71,13 +87,13 @@
 
         <TextView
             android:id="@+id/bottom_description"
-            android:textColor="#dd000000"
-            android:textSize="14sp"
-            android:paddingTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:paddingTop="16dp"
+            android:textColor="#dd000000"
+            android:textSize="14sp" />
 
     </LinearLayout>
 

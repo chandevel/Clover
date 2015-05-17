@@ -1,3 +1,20 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.floens.chan.ui.controller;
 
 import android.animation.Animator;
@@ -5,6 +22,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -28,7 +46,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.controller.Controller;
@@ -249,6 +267,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         if (ChanSettings.videoErrorIgnore.get()) {
             Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
         } else {
+            @SuppressLint("InflateParams")
             View notice = LayoutInflater.from(context).inflate(R.layout.dialog_video_error, null);
             final CheckBox dontShowAgain = (CheckBox) notice.findViewById(R.id.checkbox);
 
@@ -309,7 +328,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             }
         });
 
-        ChanApplication.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+        Chan.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
@@ -331,7 +350,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             return;
         }
 
-        ChanApplication.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+        Chan.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");

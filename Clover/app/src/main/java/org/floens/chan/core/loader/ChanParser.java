@@ -30,11 +30,11 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ThemeHelper;
 import org.jsoup.Jsoup;
@@ -90,11 +90,11 @@ public class ChanParser {
     }
 
     private void parseSpans(Post post) {
-        boolean anonymize = ChanSettings.getAnonymize();
-        boolean anonymizeIds = ChanSettings.getAnonymizeIds();
+        boolean anonymize = ChanSettings.anonymize.get();
+        boolean anonymizeIds = ChanSettings.anonymizeIds.get();
 
         if (anonymize) {
-            post.name = ChanApplication.getInstance().getString(R.string.default_name);
+            post.name = "Anonymous";
             post.tripcode = "";
         }
 
@@ -376,7 +376,7 @@ public class ChanParser {
 
                     // Append You when it's a reply to an saved reply
                     // todo synchronized
-                    if (ChanApplication.getDatabaseManager().isSavedReply(post.board, id)) {
+                    if (Chan.getDatabaseManager().isSavedReply(post.board, id)) {
                         key += " (You)";
                     }
                 }

@@ -21,7 +21,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.WatchManager;
@@ -62,8 +62,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         navigationItem.hasDrawer = true;
         navigationItem.menu = new ToolbarMenu(context);
 
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, POST_ID, R.drawable.ic_action_write));
-        pinItem = navigationItem.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark));
+        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, POST_ID, R.drawable.ic_create_white_24dp));
+        pinItem = navigationItem.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
         navigationItem.createOverflow(context, this, Arrays.asList(
                 new FloatingMenuItem(REFRESH_ID, context.getString(R.string.action_reload)),
                 new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)),
@@ -177,11 +177,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void setPinIconState() {
-        WatchManager wm = ChanApplication.getWatchManager();
+        WatchManager wm = Chan.getWatchManager();
         setPinIconState(wm.findPinByLoadable(loadable) != null);
     }
 
     private void setPinIconState(boolean pinned) {
-        pinItem.setImage(pinned ? R.drawable.ic_bookmark_filled : R.drawable.ic_bookmark);
+        pinItem.setImage(pinned ? R.drawable.ic_bookmark_white_24dp : R.drawable.ic_bookmark_outline_white_24dp);
     }
 }

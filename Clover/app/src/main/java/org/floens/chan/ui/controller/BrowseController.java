@@ -25,7 +25,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.BoardManager;
@@ -68,8 +68,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         navigationItem.menu = menu;
         navigationItem.hasBack = false;
 
-        menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_action_refresh));
-        menu.addItem(new ToolbarMenuItem(context, this, POST_ID, R.drawable.ic_action_write));
+        menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
+        menu.addItem(new ToolbarMenuItem(context, this, POST_ID, R.drawable.ic_create_white_24dp));
 
         ToolbarMenuItem overflow = menu.createOverflow(this);
 
@@ -80,7 +80,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
 
-        loadBoard(ChanApplication.getBoardManager().getSavedBoards().get(0));
+        loadBoard(Chan.getBoardManager().getSavedBoards().get(0));
     }
 
     @Override
@@ -168,7 +168,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     private void loadBoards() {
-        List<Board> boards = ChanApplication.getBoardManager().getSavedBoards();
+        List<Board> boards = Chan.getBoardManager().getSavedBoards();
         boardItems = new ArrayList<>();
         for (Board board : boards) {
             FloatingMenuItem item = new FloatingMenuItemBoard(board);
@@ -222,7 +222,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
             if (position >= 0 && position < items.size()) {
                 return items.get(position).getText();
             } else {
-                return context.getString(R.string.board_select_add);
+                return context.getString(R.string.thread_board_select_add);
             }
         }
 

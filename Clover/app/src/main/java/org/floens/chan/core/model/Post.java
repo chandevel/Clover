@@ -20,7 +20,7 @@ package org.floens.chan.core.model;
 import android.text.SpannableString;
 import android.text.TextUtils;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.loader.ChanParser;
 import org.jsoup.parser.Parser;
@@ -131,7 +131,7 @@ public class Post {
             filename = Parser.unescapeEntities(filename, false);
 
             if (spoiler) {
-                Board b = ChanApplication.getBoardManager().getBoardByValue(board);
+                Board b = Chan.getBoardManager().getBoardByValue(board);
                 if (b != null && b.customSpoilers >= 0) {
                     thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);
                 } else {
@@ -143,7 +143,7 @@ public class Post {
         }
 
         if (!TextUtils.isEmpty(country)) {
-            Board b = ChanApplication.getBoardManager().getBoardByValue(board);
+            Board b = Chan.getBoardManager().getBoardByValue(board);
             countryUrl = b.trollFlags ? ChanUrls.getTrollCountryFlagUrl(country) : ChanUrls.getCountryFlagUrl(country);
         }
 

@@ -28,8 +28,9 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.widget.Toast;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.settings.ChanSettings;
 
 import java.io.File;
@@ -53,9 +54,9 @@ public class ImageSaver {
     private BroadcastReceiver receiver;
 
     public void saveAll(final Context context, String folderName, final List<DownloadPair> list) {
-        final File subFolder = new File(ChanSettings.getImageSaveDirectory() + File.separator + filterName(folderName));
+        final File subFolder = new File(ChanSettings.saveLocation.get() + File.separator + filterName(folderName));
 
-        String text = context.getString(R.string.download_confirm, Integer.toString(list.size()), subFolder.getAbsolutePath());
+        String text = context.getString(R.string.image_download_confirm, Integer.toString(list.size()), subFolder.getAbsolutePath());
 
         new AlertDialog.Builder(context).setMessage(text).setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -67,7 +68,7 @@ public class ImageSaver {
     }
 
     public void saveImage(final Context context, String imageUrl, final String name, final String extension, final boolean share) {
-        ChanApplication.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
+        Chan.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
             @SuppressWarnings("deprecation")
             public void onProgress(long downloaded, long total, boolean done) {
@@ -97,7 +98,7 @@ public class ImageSaver {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    File saveDir = ChanSettings.getImageSaveDirectory();
+                    File saveDir = new File(ChanSettings.saveLocation.get());
 
                     if (!saveDir.isDirectory() && !saveDir.mkdirs()) {
                         showToast(context, context.getString(R.string.image_save_directory_error));

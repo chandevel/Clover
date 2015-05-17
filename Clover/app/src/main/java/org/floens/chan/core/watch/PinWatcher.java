@@ -19,7 +19,7 @@ package org.floens.chan.core.watch;
 
 import com.android.volley.VolleyError;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.model.ChanThread;
@@ -122,7 +122,7 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         AndroidUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ChanApplication.getWatchManager().onPinsChanged();
+                Chan.getWatchManager().onPinsChanged();
             }
         });
     }
@@ -195,7 +195,7 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         AndroidUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ChanApplication.getWatchManager().pinWatcherUpdated(pin);
+                Chan.getWatchManager().pinWatcherUpdated(pin);
             }
         });
     }

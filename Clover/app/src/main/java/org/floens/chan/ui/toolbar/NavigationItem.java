@@ -20,9 +20,7 @@ package org.floens.chan.ui.toolbar;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import org.floens.chan.R;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 

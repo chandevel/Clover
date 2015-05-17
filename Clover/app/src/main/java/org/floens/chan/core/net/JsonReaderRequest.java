@@ -27,8 +27,9 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 
+import org.floens.chan.utils.IOUtils;
+
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
@@ -65,13 +66,7 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
             exception = e;
         }
 
-        if (reader != null) {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        IOUtils.closeQuietly(reader);
 
         if (read == null) {
             if (exception != null) {

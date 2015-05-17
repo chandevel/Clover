@@ -57,22 +57,14 @@ public class Loadable {
     public Loadable() {
     }
 
-    /**
-     * Quick constructor for a board loadable.
-     *
-     * @param board
-     */
     public Loadable(String board) {
-        mode = Mode.BOARD;
+        mode = Mode.CATALOG;
         this.board = board;
-        no = 0;
+        this.no = 0;
     }
 
     /**
      * Quick constructor for a thread loadable.
-     *
-     * @param board
-     * @param no
      */
     public Loadable(String board, int no) {
         mode = Mode.THREAD;
@@ -82,10 +74,6 @@ public class Loadable {
 
     /**
      * Quick constructor for a thread loadable with an title.
-     *
-     * @param board
-     * @param no
-     * @param title
      */
     public Loadable(String board, int no, String title) {
         mode = Mode.THREAD;
@@ -115,36 +103,12 @@ public class Loadable {
         return result;
     }
 
-    public boolean isBoardMode() {
-        return mode == Mode.BOARD;
-    }
-
     public boolean isThreadMode() {
         return mode == Mode.THREAD;
     }
 
     public boolean isCatalogMode() {
         return mode == Mode.CATALOG;
-    }
-
-    public void readFromBundle(Context context, Bundle bundle) {
-        String p = context.getPackageName();
-        mode = bundle.getInt(p + ".mode", Mode.INVALID);
-        board = bundle.getString(p + ".board", "");
-        no = bundle.getInt(p + ".no", -1);
-        title = bundle.getString(p + ".subject", "");
-        listViewIndex = bundle.getInt(p + ".listViewIndex");
-        listViewTop = bundle.getInt(p + ".listViewTop");
-    }
-
-    public void writeToBundle(Context context, Bundle bundle) {
-        String p = context.getPackageName();
-        bundle.putInt(p + ".mode", mode);
-        bundle.putString(p + ".board", board);
-        bundle.putInt(p + ".no", no);
-        bundle.putString(p + ".subject", title);
-        bundle.putInt(p + ".listViewIndex", listViewIndex);
-        bundle.putInt(p + ".listViewTop", listViewTop);
     }
 
     public void readFromBundle(Context context, String tag, Bundle bundle) {

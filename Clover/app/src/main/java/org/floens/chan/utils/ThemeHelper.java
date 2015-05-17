@@ -26,15 +26,15 @@ import org.floens.chan.core.settings.ChanSettings;
 
 public class ThemeHelper {
     public enum Theme {
-        LIGHT("light", R.style.AppTheme, true),
-        DARK("dark", R.style.AppTheme_Dark, false),
-        BLACK("black", R.style.AppTheme_Dark_Black, false);
+        LIGHT("light", R.style.Chan_Theme, true),
+        DARK("dark", R.style.Chan_Theme_Dark, false),
+        BLACK("black", R.style.Chan_Theme_Black, false);
 
         public String name;
         public int resValue;
         public boolean isLightTheme;
 
-        private Theme(String name, int resValue, boolean isLightTheme) {
+        Theme(String name, int resValue, boolean isLightTheme) {
             this.name = name;
             this.resValue = resValue;
             this.isLightTheme = isLightTheme;
@@ -65,7 +65,7 @@ public class ThemeHelper {
     }
 
     public Theme getTheme() {
-        String themeName = ChanSettings.getTheme();
+        String themeName = ChanSettings.theme.get();
 
         Theme theme = null;
         switch (themeName) {

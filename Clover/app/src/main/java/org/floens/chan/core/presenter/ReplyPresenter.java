@@ -1,8 +1,25 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.floens.chan.core.presenter;
 
 import android.text.TextUtils;
 
-import org.floens.chan.ChanApplication;
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.BoardManager;
@@ -55,10 +72,10 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
 
     public ReplyPresenter(ReplyPresenterCallback callback) {
         this.callback = callback;
-        replyManager = ChanApplication.getReplyManager();
-        boardManager = ChanApplication.getBoardManager();
-        watchManager = ChanApplication.getWatchManager();
-        databaseManager = ChanApplication.getDatabaseManager();
+        replyManager = Chan.getReplyManager();
+        boardManager = Chan.getBoardManager();
+        watchManager = Chan.getWatchManager();
+        databaseManager = Chan.getDatabaseManager();
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -144,7 +161,7 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
                 }
                 previewOpen = false;
             } else {
-                ChanApplication.getReplyManager().pickFile(this);
+                Chan.getReplyManager().pickFile(this);
                 pickingFile = true;
             }
         }
@@ -313,7 +330,7 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
                         String baseUrl = loadable.isThreadMode() ?
                                 ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no) :
                                 ChanUrls.getBoardUrlDesktop(loadable.board);
-                        callback.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), ChanApplication.getInstance().getUserAgent(), this);
+                        callback.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), Chan.getInstance().getUserAgent(), this);
                     }
                     break;
             }
