@@ -19,6 +19,7 @@ package org.floens.chan.ui.layout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -52,7 +53,7 @@ public class CaptchaLayout extends WebView {
         super(context, attrs, defStyle);
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, String userAgent, CaptchaCallback callback) {
         this.callback = callback;
         this.baseUrl = baseUrl;
@@ -65,7 +66,7 @@ public class CaptchaLayout extends WebView {
 
         setWebChromeClient(new WebChromeClient() {
             @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+            public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
                 Log.i(TAG, consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId());
                 return true;
             }

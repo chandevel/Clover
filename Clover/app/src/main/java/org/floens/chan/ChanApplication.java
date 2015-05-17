@@ -31,7 +31,7 @@ import com.squareup.leakcanary.RefWatcher;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.reply.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.core.settings.ChanSettings;

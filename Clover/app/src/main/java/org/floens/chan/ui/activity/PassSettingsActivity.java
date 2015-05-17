@@ -37,8 +37,8 @@ import android.widget.TextView;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
-import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.manager.ReplyManager.PassResponse;
+import org.floens.chan.core.reply.ReplyManager;
+import org.floens.chan.core.reply.ReplyManager.PassResponse;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.ThemeActivity;
 import org.floens.chan.utils.AndroidUtils;

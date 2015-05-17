@@ -54,7 +54,7 @@ import org.floens.chan.utils.IconCache;
 import org.floens.chan.utils.ThemeHelper;
 import org.floens.chan.utils.Time;
 
-import static org.floens.chan.utils.AndroidUtils.setPressedDrawable;
+import static org.floens.chan.utils.AndroidUtils.setItemBackground;
 
 public class PostView extends LinearLayout implements View.OnClickListener, PostLinkable.Callback {
     private final static LinearLayout.LayoutParams matchParams = new LinearLayout.LayoutParams(
@@ -428,7 +428,7 @@ public class PostView extends LinearLayout implements View.OnClickListener, Post
         }
 
         repliesCountView = new TextView(context);
-        setPressedDrawable(repliesCountView);
+        setItemBackground(repliesCountView);
         repliesCountView.setTextColor(replyCountColor);
         repliesCountView.setPadding(postPadding, postPadding, postPadding, postPadding);
         repliesCountView.setTextSize(TypedValue.COMPLEX_UNIT_PX, repliesCountSize);
@@ -441,14 +441,14 @@ public class PostView extends LinearLayout implements View.OnClickListener, Post
         contentContainer.addView(lastSeen, new LayoutParams(LayoutParams.MATCH_PARENT, lastSeenHeight));
 
         if (!loadable.isThreadMode()) {
-            setPressedDrawable(contentContainer);
+            setItemBackground(contentContainer);
         }
 
         full.addView(contentContainer, matchWrapParams);
 
         optionsView = new ImageView(context);
         optionsView.setImageResource(R.drawable.ic_overflow);
-        setPressedDrawable(optionsView);
+        setItemBackground(optionsView);
         optionsView.setPadding(optionsLeftPadding, optionsTopPadding, optionsRightPadding, optionsBottomPadding);
         optionsView.setOnClickListener(new OnClickListener() {
             @Override

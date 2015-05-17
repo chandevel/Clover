@@ -27,7 +27,6 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.ThreadStatusCell;
-import org.floens.chan.ui.view.PostView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +46,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String error = null;
     private Post highlightedPost;
     private String highlightedPostId;
+    private int highlightedPostNo = -1;
     private boolean filtering = false;
 
     public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback, ThreadStatusCell.Callback statusCellCallback) {
@@ -76,7 +76,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (getItemViewType(position) == TYPE_POST) {
             PostViewHolder postViewHolder = (PostViewHolder) holder;
             Post post = displayList.get(position);
-            boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId);
+            boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo;
             postViewHolder.postView.setPost(post, postCellCallback, highlight, -1);
         } else if (getItemViewType(position) == TYPE_STATUS) {
             ((StatusViewHolder) holder).threadStatusCell.update();
@@ -131,6 +131,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void cleanup() {
         highlightedPost = null;
+        highlightedPostId = null;
+        highlightedPostNo = -1;
         filtering = false;
         sourceList.clear();
         displayList.clear();
@@ -178,14 +180,23 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void highlightPost(Post post) {
-        highlightedPostId = null;
         highlightedPost = post;
+        highlightedPostId = null;
+        highlightedPostNo = -1;
         notifyDataSetChanged();
     }
 
     public void highlightPostId(String id) {
         highlightedPost = null;
         highlightedPostId = id;
+        highlightedPostNo = -1;
+        notifyDataSetChanged();
+    }
+
+    public void highlightPostNo(int no) {
+        highlightedPost = null;
+        highlightedPostId = null;
+        highlightedPostNo = no;
         notifyDataSetChanged();
     }
 

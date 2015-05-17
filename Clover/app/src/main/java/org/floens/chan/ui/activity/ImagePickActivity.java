@@ -18,108 +18,128 @@
 package org.floens.chan.ui.activity;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
-import android.widget.Toast;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.R;
-import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.core.reply.ReplyManager;
 import org.floens.chan.utils.IOUtils;
+import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public class ImagePickActivity extends Activity {
+public class ImagePickActivity extends Activity implements Runnable {
+    private static final String TAG = "ImagePickActivity";
+
     private static final int IMAGE_RESULT = 1;
+    private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
+
+    private ReplyManager replyManager;
+    private Uri uri;
+    private String fileName = "file";
+    private boolean success = false;
+    private File cacheFile;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        replyManager = ChanApplication.getReplyManager();
+
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
 
-        try {
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(intent, IMAGE_RESULT);
-        } catch (ActivityNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(this, R.string.file_open_failed, Toast.LENGTH_LONG).show();
-            finish();
+        } else {
+            Logger.e(TAG, "No activity found to get file with");
+            replyManager._onFilePickError(false);
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        finish();
-
-        if (requestCode == IMAGE_RESULT && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                final Uri uri = data.getData();
-
-                String name = "file";
+        boolean ok = false;
+        boolean cancelled = false;
+        if (requestCode == IMAGE_RESULT) {
+            if (resultCode == RESULT_OK && data != null) {
+                uri = data.getData();
 
                 Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
                 if (returnCursor != null) {
                     int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     returnCursor.moveToFirst();
                     if (nameIndex > -1) {
-                        name = returnCursor.getString(nameIndex);
+                        fileName = returnCursor.getString(nameIndex);
                     }
 
                     returnCursor.close();
                 }
 
-                ChanApplication.getReplyManager()._onPickedFileLoading();
+                replyManager._onFilePickLoading();
 
-                final String finalName = name;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final File cacheFile = new File(getCacheDir() + File.separator + "picked_file");
-
-                            if (cacheFile.exists()) {
-                                cacheFile.delete();
-                            }
-
-                            ParcelFileDescriptor fileDescriptor = getContentResolver().openFileDescriptor(uri, "r");
-
-                            FileInputStream is = new FileInputStream(fileDescriptor.getFileDescriptor());
-                            FileOutputStream os = new FileOutputStream(cacheFile);
-                            IOUtils.copy(is, os);
-                            IOUtils.closeQuietly(is);
-                            IOUtils.closeQuietly(os);
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ChanApplication.getReplyManager()._onPickedFile(finalName, cacheFile);
-                                }
-
-                            });
-                        } catch (IOException | SecurityException e) {
-                            e.printStackTrace();
-
-                            AndroidUtils.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    ChanApplication.getReplyManager()._onPickedFile("", null);
-                                    Toast.makeText(ImagePickActivity.this, R.string.file_open_failed, Toast.LENGTH_LONG).show();
-                                }
-                            });
-                        }
-                    }
-                }).start();
+                new Thread(this).start();
+                ok = true;
+            } else if (resultCode == RESULT_CANCELED) {
+                cancelled = true;
             }
         }
+
+        if (!ok) {
+            replyManager._onFilePickError(cancelled);
+        }
+
+        finish();
+    }
+
+    @Override
+    public void run() {
+        cacheFile = replyManager.getPickFile();
+
+        ParcelFileDescriptor fileDescriptor = null;
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            fileDescriptor = getContentResolver().openFileDescriptor(uri, "r");
+            is = new FileInputStream(fileDescriptor.getFileDescriptor());
+            os = new FileOutputStream(cacheFile);
+            boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);
+            if (fullyCopied) {
+                success = true;
+            }
+        } catch (IOException | SecurityException e) {
+            Logger.e(TAG, "Error copying file from the file descriptor", e);
+        } finally {
+            IOUtils.closeQuietly(fileDescriptor);
+            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(os);
+        }
+
+        if (!success) {
+            if (!cacheFile.delete()) {
+                Logger.e(TAG, "Could not delete picked_file after copy fail");
+            }
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (success) {
+                    replyManager._onFilePicked(fileName, cacheFile);
+                } else {
+                    replyManager._onFilePickError(false);
+                }
+            }
+        });
     }
 }

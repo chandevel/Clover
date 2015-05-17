@@ -43,8 +43,8 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
-import org.floens.chan.core.manager.ReplyManager.DeleteListener;
-import org.floens.chan.core.manager.ReplyManager.DeleteResponse;
+import org.floens.chan.core.reply.ReplyManager.DeleteListener;
+import org.floens.chan.core.reply.ReplyManager.DeleteResponse;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -231,9 +231,9 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
             menu.add(Menu.NONE, 9, Menu.NONE, activity.getString(R.string.action_pin));
         }
 
-        if (chanLoader.getLoadable().isThreadMode()) {
-            menu.add(Menu.NONE, 10, Menu.NONE, activity.getString(R.string.post_quick_reply));
-        }
+//        if (chanLoader.getLoadable().isThreadMode()) {
+//            menu.add(Menu.NONE, 10, Menu.NONE, activity.getString(R.string.post_quick_reply));
+//        }
 
         String[] baseOptions = activity.getResources().getStringArray(R.array.post_options);
         for (int i = 0; i < baseOptions.length; i++) {
@@ -261,10 +261,10 @@ public class ThreadManager implements ChanLoader.ChanLoaderCallback {
                         openReply(false);
                         // Pass through
                     case 0: // Quote
-                        ChanApplication.getReplyManager().quote(post.no);
+//                        ChanApplication.getReplyManager().quote(post.no);
                         break;
                     case 1: // Quote inline
-                        ChanApplication.getReplyManager().quoteInline(post.no, post.comment.toString());
+//                        ChanApplication.getReplyManager().quoteInline(post.no, post.comment.toString());
                         break;
                     case 2: // Info
                         showPostInfo(post);

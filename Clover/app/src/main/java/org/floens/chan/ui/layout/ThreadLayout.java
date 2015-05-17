@@ -61,7 +61,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     private enum Visible {
         LOADING,
         THREAD,
-        ERROR;
+        ERROR
     }
 
     private ThreadLayoutCallback callback;
@@ -94,7 +94,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         presenter = new ThreadPresenter(this);
 
         threadListLayout = (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
-        threadListLayout.setCallbacks(presenter, presenter, presenter);
+        threadListLayout.setCallbacks(presenter, presenter, presenter, presenter);
 
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
 
@@ -115,12 +115,20 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         }
     }
 
+    public boolean onBack() {
+        return threadListLayout.onBack();
+    }
+
     public void setCallback(ThreadLayoutCallback callback) {
         this.callback = callback;
     }
 
     public ThreadPresenter getPresenter() {
         return presenter;
+    }
+
+    public void openPost(boolean open) {
+        threadListLayout.openReply(open);
     }
 
     @Override
@@ -254,6 +262,12 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     public void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard) {
         threadListLayout.filterList(query, filter, clearFilter, setEmptyText, hideKeyboard);
+    }
+
+    @Override
+    public void quote(Post post, boolean withText) {
+        openPost(true);
+        threadListLayout.getReplyPresenter().quote(post, withText);
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

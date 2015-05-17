@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.manager;
+package org.floens.chan.core.reply;
 
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +33,7 @@ import com.squareup.okhttp.Response;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.ui.activity.ImagePickActivity;
@@ -42,8 +43,10 @@ import org.floens.chan.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpCookie;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -59,14 +62,14 @@ public class ReplyManager {
     private static final int TIMEOUT = 10000;
 
     private final Context context;
-    private Reply draft;
     private FileListener fileListener;
     private final Random random = new Random();
     private OkHttpClient client;
 
+    private Map<Loadable, Reply> drafts = new HashMap<>();
+
     public ReplyManager(Context context) {
         this.context = context;
-        draft = new Reply();
 
         client = new OkHttpClient();
         client.setConnectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -74,51 +77,27 @@ public class ReplyManager {
         client.setWriteTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * Clear the draft
-     */
-    public void removeReplyDraft() {
-        draft = new Reply();
+    public Reply getReply(Loadable loadable) {
+        Reply reply = drafts.get(loadable);
+        if (reply == null) {
+            reply = new Reply();
+            drafts.put(loadable, reply);
+        }
+        return reply;
     }
 
-    /**
-     * Set an reply draft.
-     *
-     * @param value the draft to save.
-     */
-    public void setReplyDraft(Reply value) {
-        draft = value;
-    }
-
-    /**
-     * Gets the saved reply draft.
-     *
-     * @return the saved draft or an empty draft.
-     */
-    public Reply getReplyDraft() {
-        return draft;
-    }
-
-    /**
-     * Add an quote to the comment field. Looks like >>123456789\n
-     *
-     * @param no the raw no to quote to.
-     */
-    public void quote(int no) {
-        String textToInsert = ">>" + no + "\n";
-        draft.comment = new StringBuilder(draft.comment).insert(draft.cursorPosition, textToInsert).toString();
-        draft.cursorPosition += textToInsert.length();
-    }
-
-    public void quoteInline(int no, String text) {
-        String textToInsert = ">>" + no + "\n";
-        String[] lines = text.split("\n+");
-        for (String line : lines) {
-            textToInsert += ">" + line + "\n";
+    public void putReply(Loadable loadable, Reply reply) {
+        // Remove files from all other replies because there can only be one picked_file at the same time.
+        // Not doing this would be confusing and cause invalid fileNames.
+        for (Map.Entry<Loadable, Reply> entry : drafts.entrySet()) {
+            if (!entry.getKey().equals(loadable)) {
+                Reply value = entry.getValue();
+                value.file = null;
+                value.fileName = "";
+            }
         }
 
-        draft.comment = new StringBuilder(draft.comment).insert(draft.cursorPosition, textToInsert).toString();
-        draft.cursorPosition += textToInsert.length();
+        drafts.put(loadable, reply);
     }
 
     /**
@@ -134,24 +113,28 @@ public class ReplyManager {
         context.startActivity(intent);
     }
 
-    /**
-     * Called from ImagePickActivity, sends onFileLoading to the fileListener.
-     */
-    public void _onPickedFileLoading() {
+    public File getPickFile() {
+        return new File(context.getCacheDir(), "picked_file");
+    }
+
+    public void _onFilePickLoading() {
         if (fileListener != null) {
-            fileListener.onFileLoading();
+            fileListener.onFilePickLoading();
         }
     }
 
-    /**
-     * Called from ImagePickActivity. Sends the file to the listening
-     * fileListener, and deletes the fileListener.
-     */
-    public void _onPickedFile(String name, File file) {
+    public void _onFilePicked(String name, File file) {
         if (fileListener != null) {
-            fileListener.onFile(name, file);
+            fileListener.onFilePicked(name, file);
+            fileListener = null;
         }
-        fileListener = null;
+    }
+
+    public void _onFilePickError(boolean cancelled) {
+        if (fileListener != null) {
+            fileListener.onFilePickError(cancelled);
+            fileListener = null;
+        }
     }
 
     /**
@@ -161,10 +144,12 @@ public class ReplyManager {
         fileListener = null;
     }
 
-    public static abstract class FileListener {
-        public abstract void onFile(String name, File file);
+    public interface FileListener {
+        void onFilePickLoading();
 
-        public abstract void onFileLoading();
+        void onFilePicked(String name, File file);
+
+        void onFilePickError(boolean cancelled);
     }
 
     public void postPass(String token, String pin, final PassListener passListener) {
@@ -341,22 +326,22 @@ public class ReplyManager {
     }
 
     private void postReplyInternal(final Reply reply, final ReplyListener replyListener, String captchaHash) {
-        reply.password = Long.toHexString(random.nextLong());
+//        reply.password = Long.toHexString(random.nextLong());
 
         MultipartBuilder formBuilder = new MultipartBuilder();
         formBuilder.type(MultipartBuilder.FORM);
 
         formBuilder.addFormDataPart("mode", "regist");
-        formBuilder.addFormDataPart("pwd", reply.password);
+//        formBuilder.addFormDataPart("pwd", reply.password);
 
         if (reply.resto >= 0) {
             formBuilder.addFormDataPart("resto", String.valueOf(reply.resto));
         }
 
         formBuilder.addFormDataPart("name", reply.name);
-        formBuilder.addFormDataPart("email", reply.email);
+        formBuilder.addFormDataPart("email", reply.options);
 
-        if (!TextUtils.isEmpty(reply.subject)) {
+        if (reply.resto >= 0 && !TextUtils.isEmpty(reply.subject)) {
             formBuilder.addFormDataPart("sub", reply.subject);
         }
 
@@ -444,7 +429,7 @@ public class ReplyManager {
                 SavedReply savedReply = new SavedReply();
                 savedReply.board = reply.board;
                 savedReply.no = no;
-                savedReply.password = reply.password;
+//                savedReply.password = reply.password;
 
                 ChanApplication.getDatabaseManager().saveReply(savedReply);
 
@@ -455,6 +440,26 @@ public class ReplyManager {
             }
         }
         return res;
+    }
+
+    public void makeHttpCall(HttpCall httpCall, HttpCallback callback) {
+        //noinspection unchecked
+        httpCall.setCallback(callback);
+
+        Request.Builder requestBuilder = new Request.Builder();
+
+        httpCall.setup(requestBuilder);
+
+        requestBuilder.header("User-Agent", ChanApplication.getInstance().getUserAgent());
+        Request request = requestBuilder.build();
+
+        client.newCall(request).enqueue(httpCall);
+    }
+
+    public interface HttpCallback<T extends HttpCall> {
+        void onHttpSuccess(T httpPost);
+
+        void onHttpFail(T httpPost);
     }
 
     private void makeOkHttpCall(Request.Builder requestBuilder, Callback callback) {

@@ -23,18 +23,18 @@ import java.io.File;
  * The data needed to send a reply.
  */
 public class Reply {
-    public String name = "";
-    public String email = "";
-    public String subject = "";
-    public String comment = "";
-    public String board = "";
-    public int resto = 0;
+    public String captchaResponse;
+    public boolean usePass = false;
+    public String board;
+    public int resto;
+
+    public String passId;
     public File file;
     public String fileName = "";
-    public String captchaResponse = "";
-    public String password = "";
-    public boolean usePass = false;
-    public String passId = "";
+    public String name = "";
+    public String options = "";
+    public String subject = "";
+    public String comment = "";
+    public int selection;
     public boolean spoilerImage = false;
-    public int cursorPosition;
 }

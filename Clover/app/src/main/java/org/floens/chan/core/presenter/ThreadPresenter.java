@@ -18,7 +18,6 @@
 package org.floens.chan.core.presenter;
 
 import android.text.TextUtils;
-import android.view.Menu;
 
 import com.android.volley.VolleyError;
 
@@ -36,11 +35,12 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.ThreadStatusCell;
+import org.floens.chan.ui.layout.ThreadListLayout;
 import org.floens.chan.ui.view.FloatingMenuItem;
-import org.floens.chan.ui.view.PostView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -48,9 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.floens.chan.utils.AndroidUtils.getString;
-
-public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCell.PostCellCallback, ThreadStatusCell.Callback {
+public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCell.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutCallback {
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
@@ -61,7 +59,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_DELETE = 7;
     private static final int POST_OPTION_SAVE = 8;
     private static final int POST_OPTION_PIN = 9;
-    private static final int POST_OPTION_QUICK_REPLY = 10;
+
+    private WatchManager watchManager;
+    private DatabaseManager databaseManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
 
@@ -71,6 +71,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
+
+        watchManager = ChanApplication.getWatchManager();
+        databaseManager = ChanApplication.getDatabaseManager();
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -80,7 +83,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
 
             this.loadable = loadable;
-            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loadable);
+            Pin pin = watchManager.findPinByLoadable(loadable);
             if (pin != null) {
                 // Use the loadable from the pin.
                 // This way we can store the list position in the pin loadable,
@@ -121,20 +124,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public boolean pin() {
         if (chanLoader.getThread() != null) {
-            WatchManager wm = ChanApplication.getWatchManager();
-            Pin pin = wm.findPinByLoadable(loadable);
+            Pin pin = watchManager.findPinByLoadable(loadable);
             if (pin == null) {
                 Post op = chanLoader.getThread().op;
-                wm.addPin(loadable, op);
+                watchManager.addPin(loadable, op);
             } else {
-                wm.removePin(pin);
+                watchManager.removePin(pin);
             }
         }
         return isPinned();
     }
 
     public boolean isPinned() {
-        return ChanApplication.getWatchManager().findPinByLoadable(loadable) != null;
+        return watchManager.findPinByLoadable(loadable) != null;
     }
 
     public void onSearchVisibilityChanged(boolean visible) {
@@ -181,10 +183,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             loadable.lastViewed = posts.get(posts.size() - 1).no;
         }
 
-        Pin pin = ChanApplication.getWatchManager().findPinByLoadable(loadable);
+        Pin pin = watchManager.findPinByLoadable(loadable);
         if (pin != null) {
             pin.onBottomPostViewed();
-            ChanApplication.getWatchManager().updatePin(pin);
+            watchManager.updatePin(pin);
         }
     }
 
@@ -202,7 +204,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                     break;
                 }
             }
-            scrollTo(position, smooth);
+            if (position >= 0) {
+                scrollTo(position, smooth);
+            }
         }
     }
 
@@ -215,7 +219,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 break;
             }
         }
-        scrollTo(position, smooth);
+        if (position >= 0) {
+            scrollTo(position, smooth);
+        }
     }
 
     public void highlightPost(Post post) {
@@ -261,16 +267,13 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void onPopulatePostOptions(Post post, List<FloatingMenuItem> menu) {
-        if (loadable.isBoardMode() || loadable.isCatalogMode()) {
+        if (!loadable.isThreadMode()) {
             menu.add(new FloatingMenuItem(POST_OPTION_PIN, R.string.action_pin));
+        } else {
+            menu.add(new FloatingMenuItem(POST_OPTION_QUOTE, R.string.post_quote));
+            menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        if (loadable.isThreadMode()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_QUICK_REPLY, R.string.post_quick_reply));
-        }
-
-        menu.add(new FloatingMenuItem(POST_OPTION_QUOTE, R.string.post_quote));
-        menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
         menu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
         menu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
@@ -280,8 +283,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
         }
 
-        // Only add the delete option when the post is a saved reply
-        if (ChanApplication.getDatabaseManager().isSavedReply(post.board, post.no)) {
+        if (databaseManager.isSavedReply(post.board, post.no)) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
@@ -292,14 +294,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public void onPostOptionClicked(Post post, Object id) {
         switch ((Integer) id) {
-            case POST_OPTION_QUICK_REPLY:
-//                openReply(false); TODO
-                // Pass through
             case POST_OPTION_QUOTE:
-                ChanApplication.getReplyManager().quote(post.no);
+                threadPresenterCallback.quote(post, false);
                 break;
             case POST_OPTION_QUOTE_TEXT:
-                ChanApplication.getReplyManager().quoteInline(post.no, post.comment.toString());
+                threadPresenterCallback.quote(post, true);
                 break;
             case POST_OPTION_INFO:
                 showPostInfo(post);
@@ -322,10 +321,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 //                deletePost(post); TODO
                 break;
             case POST_OPTION_SAVE:
-                ChanApplication.getDatabaseManager().saveReply(new SavedReply(post.board, post.no, "foo"));
+                databaseManager.saveReply(new SavedReply(post.board, post.no, "foo"));
                 break;
             case POST_OPTION_PIN:
-                ChanApplication.getWatchManager().addPin(post);
+                watchManager.addPin(post);
                 break;
         }
     }
@@ -385,6 +384,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     @Override
     public void onListStatusClicked() {
         chanLoader.requestMoreDataAndResetTimer();
+    }
+
+    @Override
+    public void showThread(Loadable loadable) {
+        threadPresenterCallback.showThread(loadable);
     }
 
     private void showPostInfo(Post post) {
@@ -484,5 +488,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void showSearch(boolean show);
 
         void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard);
+
+        void quote(Post post, boolean withText);
     }
 }

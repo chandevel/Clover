@@ -1,0 +1,369 @@
+package org.floens.chan.ui.layout;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.floens.chan.R;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Reply;
+import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.view.LoadView;
+import org.floens.chan.ui.view.SelectionListeningEditText;
+import org.floens.chan.utils.AnimationUtils;
+import org.floens.chan.utils.ImageDecoder;
+import org.floens.chan.utils.ThemeHelper;
+
+import java.io.File;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+import static org.floens.chan.utils.AndroidUtils.getString;
+import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
+
+public class ReplyLayout extends LoadView implements View.OnClickListener, AnimationUtils.LayoutAnimationProgress, ReplyPresenter.ReplyPresenterCallback, TextWatcher, ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener {
+    private ReplyPresenter presenter;
+    private ReplyLayoutCallback callback;
+
+    private View replyInputLayout;
+    private CaptchaLayout captchaLayout;
+
+    private boolean openingName;
+    private boolean blockSelectionChange = false;
+    private TextView message;
+    private EditText name;
+    private EditText subject;
+    private EditText options;
+    private EditText fileName;
+    private SelectionListeningEditText comment;
+    private TextView commentCounter;
+    private LinearLayout previewContainer;
+    private CheckBox spoiler;
+    private ImageView preview;
+    private TextView previewMessage;
+    private ImageView more;
+    private DropdownArrowDrawable moreDropdown;
+    private ImageView attach;
+    private ImageView submit;
+
+    private Runnable closeMessageRunnable = new Runnable() {
+        @Override
+        public void run() {
+            AnimationUtils.animateHeight(message, false, getWidth());
+        }
+    };
+
+    public ReplyLayout(Context context) {
+        super(context);
+    }
+
+    public ReplyLayout(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public ReplyLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+
+        setAnimateLayout(true, true);
+
+        presenter = new ReplyPresenter(this);
+
+        replyInputLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_input, this, false);
+        message = (TextView) replyInputLayout.findViewById(R.id.message);
+        name = (EditText) replyInputLayout.findViewById(R.id.name);
+        subject = (EditText) replyInputLayout.findViewById(R.id.subject);
+        options = (EditText) replyInputLayout.findViewById(R.id.options);
+        fileName = (EditText) replyInputLayout.findViewById(R.id.file_name);
+        comment = (SelectionListeningEditText) replyInputLayout.findViewById(R.id.comment);
+        comment.addTextChangedListener(this);
+        comment.setSelectionChangedListener(this);
+        commentCounter = (TextView) replyInputLayout.findViewById(R.id.comment_counter);
+        previewContainer = (LinearLayout) replyInputLayout.findViewById(R.id.preview_container);
+        spoiler = (CheckBox) replyInputLayout.findViewById(R.id.spoiler);
+        preview = (ImageView) replyInputLayout.findViewById(R.id.preview);
+        previewMessage = (TextView) replyInputLayout.findViewById(R.id.preview_message);
+        preview.setOnClickListener(this);
+        more = (ImageView) replyInputLayout.findViewById(R.id.more);
+        moreDropdown = new DropdownArrowDrawable(dp(16), dp(16), true, getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color));
+        more.setImageDrawable(moreDropdown);
+        setRoundItemBackground(more);
+        more.setOnClickListener(this);
+        attach = (ImageView) replyInputLayout.findViewById(R.id.attach);
+        setRoundItemBackground(attach);
+        attach.setOnClickListener(this);
+        submit = (ImageView) replyInputLayout.findViewById(R.id.submit);
+        setRoundItemBackground(submit);
+        submit.setOnClickListener(this);
+
+        setView(replyInputLayout);
+
+        setBackgroundColor(0xffffffff);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setElevation(dp(4f));
+        }
+    }
+
+    public void setCallback(ReplyLayoutCallback callback) {
+        this.callback = callback;
+    }
+
+    public ReplyPresenter getPresenter() {
+        return presenter;
+    }
+
+    public void bindLoadable(Loadable loadable) {
+        presenter.bindLoadable(loadable);
+    }
+
+    public void cleanup() {
+        presenter.unbindLoadable();
+        removeCallbacks(closeMessageRunnable);
+    }
+
+    @Override
+    public LayoutParams getLayoutParamsForView(View view) {
+        if (view == replyInputLayout) {
+            return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        } else {
+            // Captcha and the loadbar
+            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(200));
+        }
+    }
+
+    @Override
+    public void onLayoutAnimationProgress(boolean vertical, View view, float progress) {
+        if (view == name) {
+            moreDropdown.setRotation(openingName ? progress : 1f - progress);
+        }
+    }
+
+    public boolean onBack() {
+        return presenter.onBack();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == more) {
+            presenter.onMoreClicked();
+        } else if (v == attach) {
+            presenter.onAttachClicked();
+        } else if (v == submit) {
+            presenter.onSubmitClicked();
+        }/* else if (v == preview) {
+            // TODO
+        }*/
+    }
+
+    @Override
+    public void setPage(ReplyPresenter.Page page, boolean animate) {
+        setAnimateLayout(animate, true);
+        switch (page) {
+            case LOADING:
+                setView(null);
+                break;
+            case INPUT:
+                setView(replyInputLayout);
+                break;
+            case CAPTCHA:
+                if (captchaLayout == null) {
+                    captchaLayout = new CaptchaLayout(getContext());
+                }
+
+                setView(captchaLayout);
+                break;
+        }
+    }
+
+    @Override
+    public void initCaptcha(String baseUrl, String siteKey, String userAgent, CaptchaLayout.CaptchaCallback callback) {
+        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, userAgent, callback);
+        captchaLayout.load();
+    }
+
+    @Override
+    public void resetCaptcha() {
+        captchaLayout.reset();
+    }
+
+    @Override
+    public void loadDraftIntoViews(Reply draft) {
+        name.setText(draft.name);
+        subject.setText(draft.subject);
+        options.setText(draft.options);
+        blockSelectionChange = true;
+        comment.setText(draft.comment);
+        comment.setSelection(draft.selection);
+        blockSelectionChange = false;
+        fileName.setText(draft.fileName);
+        spoiler.setChecked(draft.spoilerImage);
+    }
+
+    @Override
+    public void loadViewsIntoDraft(Reply draft) {
+        draft.name = name.getText().toString();
+        draft.subject = subject.getText().toString();
+        draft.options = options.getText().toString();
+        draft.comment = comment.getText().toString();
+        draft.selection = comment.getSelectionStart();
+        draft.fileName = fileName.getText().toString();
+        draft.spoilerImage = spoiler.isChecked();
+    }
+
+    @Override
+    public void openMessage(boolean open, boolean animate, String text, boolean autoHide) {
+        removeCallbacks(closeMessageRunnable);
+        message.setText(text);
+
+        if (animate) {
+            AnimationUtils.animateHeight(message, open, getWidth());
+        } else {
+            message.setVisibility(open ? VISIBLE : GONE);
+            message.getLayoutParams().height = open ? ViewGroup.LayoutParams.WRAP_CONTENT : 0;
+            message.requestLayout();
+        }
+
+        if (autoHide) {
+            postDelayed(closeMessageRunnable, 5000);
+        }
+    }
+
+    @Override
+    public void onPosted() {
+        Toast.makeText(getContext(), R.string.reply_success, Toast.LENGTH_SHORT).show();
+        callback.openReply(false);
+    }
+
+    @Override
+    public void setCommentHint(String hint) {
+        comment.setHint(hint);
+    }
+
+    @Override
+    public void openName(boolean open) {
+        openingName = open;
+        AnimationUtils.animateHeight(name, open, comment.getWidth(), 300, this);
+    }
+
+    @Override
+    public void openSubject(boolean open) {
+        AnimationUtils.animateHeight(subject, open, comment.getWidth());
+    }
+
+    @Override
+    public void openOptions(boolean open) {
+        AnimationUtils.animateHeight(options, open, comment.getWidth());
+    }
+
+    @Override
+    public void openFileName(boolean open) {
+        AnimationUtils.animateHeight(fileName, open, comment.getWidth());
+    }
+
+    @Override
+    public void setFileName(String name) {
+        fileName.setText(name);
+    }
+
+    @Override
+    public void updateCommentCount(int count, int maxCount, boolean over) {
+        commentCounter.setText(count + "/" + maxCount);
+        commentCounter.setTextColor(over ? 0xffff0000 : getAttrColor(getContext(), R.attr.text_color_secondary));
+    }
+
+    @Override
+    public void openPreview(boolean show, File previewFile) {
+        attach.setImageResource(show ? R.drawable.ic_close_grey600_24dp : R.drawable.ic_image_grey600_24dp);
+        if (show) {
+            ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(100), dp(100), this);
+        } else {
+            AnimationUtils.animateLayout(false, previewContainer, previewContainer.getWidth(), 0, 300, false, null);
+        }
+    }
+
+    @Override
+    public void openPreviewMessage(boolean show, String message) {
+        previewMessage.setVisibility(show ? VISIBLE : GONE);
+        previewMessage.setText(message);
+    }
+
+    @Override
+    public void openSpoiler(boolean show, boolean checked) {
+        AnimationUtils.animateHeight(spoiler, show);
+        spoiler.setChecked(checked);
+    }
+
+    @Override
+    public void onImageBitmap(File file, Bitmap bitmap) {
+        if (bitmap != null) {
+            preview.setImageBitmap(bitmap);
+            AnimationUtils.animateLayout(false, previewContainer, 0, dp(100), 300, false, null);
+        } else {
+            openPreviewMessage(true, getString(R.string.reply_no_preview));
+        }
+    }
+
+    @Override
+    public void onFilePickLoading() {
+    }
+
+    @Override
+    public void onFilePickError() {
+        Toast.makeText(getContext(), R.string.file_open_failed, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void highlightPostNo(int no) {
+        callback.highlightPostNo(no);
+    }
+
+    @Override
+    public void onSelectionChanged(int selStart, int selEnd) {
+        if (!blockSelectionChange) {
+            presenter.onSelectionChanged();
+        }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        presenter.onCommentTextChanged(comment.length());
+    }
+
+    @Override
+    public void showThread(Loadable loadable) {
+        callback.showThread(loadable);
+    }
+
+    public interface ReplyLayoutCallback {
+        void highlightPostNo(int no);
+
+        void openReply(boolean open);
+
+        void showThread(Loadable loadable);
+    }
+}

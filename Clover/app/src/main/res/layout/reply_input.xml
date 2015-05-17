@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/reply_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/reply_email"
+        android:hint="@string/reply_options"
         android:minHeight="40dp"
         android:textSize="14sp" />
 
@@ -57,7 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="top"
-            android:hint="@string/reply_comment"
+            android:hint="@string/reply_comment_board"
             android:imeActionLabel="@string/reply_submit"
             android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
             android:minLines="4"

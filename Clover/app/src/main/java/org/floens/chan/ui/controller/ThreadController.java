@@ -40,8 +40,17 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    public boolean onBack() {
+        return threadLayout.onBack();
+    }
+
     public void onEvent(ChanApplication.ForegroundChangedMessage message) {
         threadLayout.getPresenter().onForegroundChanged(message.inForeground);
+    }
+
+    public void openPost(boolean open) {
+        threadLayout.openPost(open);
     }
 
     public void presentRepliesController(Controller controller) {

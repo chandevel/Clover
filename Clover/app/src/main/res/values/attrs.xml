@@ -76,6 +76,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <attr name="board_edit_item_style" format="reference" />
 
+    <attr name="text_color_primary" format="color" />
+    <attr name="text_color_secondary" format="color" />
+    <attr name="text_color_hint" format="color" />
+
     <attr name="post_thumbnail_background" format="color" />
     <attr name="post_saved_reply_color" format="color" />
     <attr name="post_highlighted_color" format="color" />
@@ -94,4 +98,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="post_inline_quote_color" format="color" />
     <attr name="post_divider_color" format="color" />
     <attr name="post_options_drawable" format="integer" />
+
+    <attr name="dropdown_light_color" format="color" />
+    <attr name="dropdown_light_pressed_color" format="color" />
+    <attr name="dropdown_dark_color" format="color" />
+    <attr name="dropdown_dark_pressed_color" format="color" />
 </resources>

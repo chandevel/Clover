@@ -274,7 +274,7 @@ public class ImageSaver {
                         AndroidUtils.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Logger.i(TAG, "Media scan succeeded: " + uri);
+                                Logger.d(TAG, "Media scan succeeded: " + uri);
 
                                 if (shareAfterwards) {
                                     Intent intent = new Intent(Intent.ACTION_SEND);

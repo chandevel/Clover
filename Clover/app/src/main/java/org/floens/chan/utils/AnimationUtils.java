@@ -17,11 +17,15 @@
  */
 package org.floens.chan.utils;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.view.View;
-import android.view.animation.Animation;
+import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
-import org.floens.chan.ui.animation.HeightAnimation;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AnimationUtils {
     public static void setHeight(View view, boolean expand, boolean animated) {
@@ -36,44 +40,111 @@ public class AnimationUtils {
         }
     }
 
+    private static Map<View, ValueAnimator> layoutAnimations = new HashMap<>();
+
     public static void animateHeight(final View view, boolean expand) {
         animateHeight(view, expand, -1);
     }
 
-    public static void animateHeight(final View view, boolean expand, int knownWidth) {
-        if (view.getAnimation() == null && ((view.getHeight() > 0 && expand) || (view.getHeight() == 0 && !expand))) {
-            return;
-        }
+    public static void animateHeight(final View view, final boolean expand, int knownWidth) {
+        animateHeight(view, expand, knownWidth, 300);
+    }
 
-        view.clearAnimation();
-        HeightAnimation heightAnimation;
+    public static void animateHeight(final View view, final boolean expand, int knownWidth, int duration) {
+        animateHeight(view, expand, knownWidth, duration, null);
+    }
+
+    /**
+     * Animate the height of a view by changing the layoutParams.height value.<br>
+     * view.measure is used to figure out the height.
+     * Use knownWidth when the width of the view has not been measured yet.<br>
+     * You can call this even when a height animation is currently running, it will resolve any issues.<br>
+     * <b>This does cause some lag on complex views because requestLayout is called on each frame.</b>
+     */
+    public static void animateHeight(final View view, final boolean expand, int knownWidth, int duration, final LayoutAnimationProgress progressCallback) {
+        final int fromHeight;
+        int toHeight;
         if (expand) {
             int width = knownWidth < 0 ? view.getWidth() : knownWidth;
 
             view.measure(
                     View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.UNSPECIFIED);
-            heightAnimation = new HeightAnimation(view, 0, view.getMeasuredHeight(), 300);
+            fromHeight = view.getHeight();
+            toHeight = view.getMeasuredHeight();
         } else {
-            heightAnimation = new HeightAnimation(view, view.getHeight(), 0, 300);
+            fromHeight = view.getHeight();
+            toHeight = 0;
         }
-        view.startAnimation(heightAnimation);
-        view.getAnimation().setInterpolator(new DecelerateInterpolator(2f));
-        view.getAnimation().setAnimationListener(new Animation.AnimationListener() {
+
+        animateLayout(true, view, fromHeight, toHeight, duration, true, progressCallback);
+    }
+
+    public static void animateLayout(final boolean vertical, final View view, final int from, final int to, int duration, final boolean wrapAfterwards, final LayoutAnimationProgress callback) {
+        ValueAnimator running = layoutAnimations.remove(view);
+        if (running != null) {
+            running.cancel();
+        }
+
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(from, to);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
-            public void onAnimationStart(Animation animation) {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int value = (int) animation.getAnimatedValue();
+                // Looks better
+                if (value == 1) {
+                    value = 0;
+                }
+                if (vertical) {
+                    view.getLayoutParams().height = value;
+                } else {
+                    view.getLayoutParams().width = value;
+                }
+                view.requestLayout();
+
+                if (callback != null) {
+                    callback.onLayoutAnimationProgress(vertical, view, animation.getAnimatedFraction());
+                }
+            }
+        });
+
+        valueAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
                 view.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void onAnimationEnd(Animation animation) {
+            public void onAnimationEnd(Animator animation) {
+                if (to > 0) {
+                    if (wrapAfterwards) {
+                        if (vertical) {
+                            view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        } else {
+                            view.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        }
+                    }
+                } else {
+                    if (vertical) {
+                        view.getLayoutParams().height = 0;
+                    } else {
+                        view.getLayoutParams().width = 0;
+                    }
+                    view.setVisibility(View.GONE);
+                }
+                view.requestLayout();
 
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
+                layoutAnimations.remove(view);
             }
         });
+        valueAnimator.setInterpolator(new DecelerateInterpolator(2f));
+        valueAnimator.setDuration(duration);
+        valueAnimator.start();
+
+        layoutAnimations.put(view, valueAnimator);
+    }
+
+    public interface LayoutAnimationProgress {
+        void onLayoutAnimationProgress(boolean vertical, View view, float progress);
     }
 }

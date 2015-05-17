@@ -65,7 +65,7 @@ import java.util.List;
 import javax.net.ssl.SSLException;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.setPressedDrawable;
+import static org.floens.chan.utils.AndroidUtils.setItemBackground;
 
 public class ThreadFragment extends Fragment implements ThreadManager.ThreadManagerListener, PostAdapter.PostAdapterCallback {
     private ThreadManager threadManager;
@@ -602,7 +602,7 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             searchViewParams.width = dp(48);
             searchViewParams.height = LayoutParams.MATCH_PARENT;
             closeButton.setLayoutParams(closeButtonParams);
-            setPressedDrawable(closeButton);
+            setItemBackground(closeButton);
             int padding = dp(8);
             closeButton.setPadding(padding, padding, padding, padding);
 
@@ -639,9 +639,9 @@ public class ThreadFragment extends Fragment implements ThreadManager.ThreadMana
             if (all) {
                 textView.setText("");
             } else {
-                String posts = getContext().getString(count == 1 ? R.string.one_post : R.string.multiple_posts);
-                String text = getContext().getString(R.string.search_results, Integer.toString(count), posts, filter);
-                textView.setText(text);
+//                String posts = getContext().getString(count == 1 ? R.string.one_post : R.string.multiple_posts);
+//                String text = getContext().getString(R.string.search_results, Integer.toString(count), posts, filter);
+//                textView.setText(text);
             }
         }
     }

@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getAttrDrawable;
 
 public class Toolbar extends LinearLayout implements View.OnClickListener, LoadView.Listener {
@@ -364,7 +365,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
             if (item.middleMenu != null) {
                 item.middleMenu.setAnchor(titleView, Gravity.LEFT, dp(5), dp(5));
 
-                Drawable drawable = new DropdownArrowDrawable();
+                Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, getAttrColor(getContext(), R.attr.dropdown_light_color), getAttrColor(getContext(), R.attr.dropdown_light_pressed_color));
                 titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
 
                 titleView.setOnClickListener(new OnClickListener() {

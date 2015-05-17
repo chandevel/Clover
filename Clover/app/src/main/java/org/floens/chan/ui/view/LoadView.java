@@ -28,12 +28,17 @@ import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import org.floens.chan.utils.AnimationUtils;
+
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a
  * ProgressBar.
  */
 public class LoadView extends FrameLayout {
     private int fadeDuration = 200;
+    private boolean animateLayout;
+    private boolean animateVertical;
+    private int layoutAnimationDuration = 500;
     private Listener listener;
 
     public LoadView(Context context) {
@@ -50,14 +55,25 @@ public class LoadView extends FrameLayout {
 
     /**
      * Set the duration of the fades in ms
+     *
      * @param fadeDuration the duration of the fade animation in ms
      */
     public void setFadeDuration(int fadeDuration) {
         this.fadeDuration = fadeDuration;
     }
 
+    public void setLayoutAnimationDuration(int layoutAnimationDuration) {
+        this.layoutAnimationDuration = layoutAnimationDuration;
+    }
+
+    public void setAnimateLayout(boolean animateLayout, boolean animateVertical) {
+        this.animateLayout = animateLayout;
+        this.animateVertical = animateVertical;
+    }
+
     /**
      * Set a listener that gives a call when a view gets removed
+     *
      * @param listener the listener
      */
     public void setListener(Listener listener) {
@@ -130,21 +146,54 @@ public class LoadView extends FrameLayout {
 
             // Assume view already attached to this view (fading out)
             if (newView.getParent() == null) {
-                addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                addView(newView, getLayoutParamsForView(newView));
+            }
+
+            // Animate this view its size to the new view size if the width or height is WRAP_CONTENT
+            if (animateLayout && getChildCount() >= 2) {
+                final int currentSize = animateVertical ? getHeight() : getWidth();
+                int newSize = animateVertical ? newView.getHeight() : newView.getWidth();
+                if (newSize == 0) {
+                    if (animateVertical) {
+                        if (newView.getLayoutParams().height == LayoutParams.WRAP_CONTENT) {
+                            newView.measure(
+                                    View.MeasureSpec.makeMeasureSpec(getWidth(), View.MeasureSpec.EXACTLY),
+                                    View.MeasureSpec.UNSPECIFIED);
+                            newSize = newView.getMeasuredHeight();
+                        } else {
+                            newSize = newView.getLayoutParams().height;
+                        }
+                    } else {
+                        if (newView.getLayoutParams().width == LayoutParams.WRAP_CONTENT) {
+                            newView.measure(
+                                    View.MeasureSpec.UNSPECIFIED,
+                                    View.MeasureSpec.makeMeasureSpec(getHeight(), View.MeasureSpec.EXACTLY));
+                            newSize = newView.getMeasuredWidth();
+                        } else {
+                            newSize = newView.getLayoutParams().width;
+                        }
+                    }
+                }
+
+                AnimationUtils.animateLayout(animateVertical, this, currentSize, newSize, layoutAnimationDuration, true, null);
             }
         } else {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                child.clearAnimation();
+                child.animate().cancel();
                 if (listener != null) {
                     listener.onLoadViewRemoved(child);
                 }
             }
             removeAllViews();
-            newView.clearAnimation();
+            newView.animate().cancel();
             newView.setAlpha(1f);
-            addView(newView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            addView(newView, getLayoutParamsForView(newView));
         }
+    }
+
+    public LayoutParams getLayoutParamsForView(View view) {
+        return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     }
 
     public interface Listener {

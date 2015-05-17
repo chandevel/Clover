@@ -344,7 +344,7 @@ public class ChanLoader {
         if (destroyed)
             return;
 
-        Logger.e(TAG, "Loading error", error);
+        Logger.e(TAG, "Loading error");
 
         // 404 with more pages already loaded means endofline
         if ((error instanceof ServerError) && loadable.isBoardMode() && loadable.no > 0) {

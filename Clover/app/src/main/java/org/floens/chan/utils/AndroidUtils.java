@@ -17,6 +17,7 @@
  */
 package org.floens.chan.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -28,6 +29,7 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -81,6 +83,7 @@ public class AndroidUtils {
         return PreferenceManager.getDefaultSharedPreferences(ChanApplication.con);
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     public static void openWebView(Activity activity, String title, String link) {
         Dialog dialog = new Dialog(activity);
         dialog.setContentView(R.layout.web_dialog);
@@ -190,8 +193,8 @@ public class AndroidUtils {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    public static String getReadableFileSize(int bytes, boolean si) {
-        int unit = si ? 1000 : 1024;
+    public static String getReadableFileSize(long bytes, boolean si) {
+        long unit = si ? 1000 : 1024;
         if (bytes < unit)
             return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
@@ -253,13 +256,16 @@ public class AndroidUtils {
         }
     }
 
-    public static void setPressedDrawable(View view) {
-        TypedArray arr = view.getContext().obtainStyledAttributes(new int[]{android.R.attr.selectableItemBackground});
+    public static void setItemBackground(View view) {
+        view.setBackgroundResource(R.drawable.item_background);
+    }
 
-        Drawable drawable = arr.getDrawable(0);
-
-        arr.recycle();
-        view.setBackgroundDrawable(drawable);
+    public static void setRoundItemBackground(View view) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view.setBackground(getAttrDrawable(view.getContext(), android.R.attr.selectableItemBackgroundBorderless));
+        } else {
+            view.setBackgroundResource(R.drawable.item_background);
+        }
     }
 
     public static List<View> findViewsById(ViewGroup root, int id) {

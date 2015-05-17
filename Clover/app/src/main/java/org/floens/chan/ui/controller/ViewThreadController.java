@@ -154,7 +154,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 setPinIconState(threadLayout.getPresenter().pin());
                 break;
             case POST_ID:
-                // TODO
+                openPost(true);
                 break;
         }
     }

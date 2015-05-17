@@ -46,7 +46,7 @@ import android.widget.ViewFlipper;
 import org.floens.chan.ChanApplication;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.reply.ReplyManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
@@ -132,7 +132,7 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
             setClosable(true);
 
             Dialog dialog = getDialog();
-            String title = (loadable.isThreadMode() ? context.getString(R.string.reply) : context.getString(R.string.reply_to_board)) + " " + loadable.title;
+            String title = (loadable.isThreadMode() ? context.getString(R.string.reply_to_board) : context.getString(R.string.reply_to_board)) + " " + loadable.title;
 
             if (dialog == null) {
                 context.getSupportActionBar().setTitle(title);
@@ -152,17 +152,17 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
                 });
             }
 
-            Reply draft = ChanApplication.getReplyManager().getReplyDraft();
+            Reply draft = null;
 
             if (TextUtils.isEmpty(draft.name)) {
                 draft.name = ChanSettings.getDefaultName();
             }
 
             nameView.setText(draft.name);
-            emailView.setText(draft.email);
+            emailView.setText(draft.options);
             subjectView.setText(draft.subject);
             commentView.setText(draft.comment);
-            commentView.setSelection(draft.cursorPosition);
+            commentView.setSelection(draft.selection);
 
             setFile(draft.fileName, draft.file);
             spoilerImageView.setChecked(draft.spoilerImage);
@@ -219,16 +219,16 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
 
         if (shouldSaveDraft) {
             draft.name = nameView.getText().toString();
-            draft.email = emailView.getText().toString();
+            draft.options = emailView.getText().toString();
             draft.subject = subjectView.getText().toString();
             draft.comment = commentView.getText().toString();
             draft.fileName = fileNameView.getText().toString();
             draft.spoilerImage = spoilerImageView.isChecked();
-            draft.cursorPosition = commentView.getSelectionStart();
+            draft.selection = commentView.getSelectionStart();
 
-            replyManager.setReplyDraft(draft);
+//            replyManager.setReplyDraft(draft);
         } else {
-            replyManager.removeReplyDraft();
+//            replyManager.removeReplyDraft();
             setFile(null, null);
         }
     }
@@ -278,7 +278,7 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
             @Override
             public void onClick(View view) {
                 if (draft.file == null) {
-                    ChanApplication.getReplyManager().pickFile(new ReplyManager.FileListener() {
+                    /*ChanApplication.getReplyManager().pickFile(new ReplyManager.FileListener() {
                         @Override
                         public void onFile(String name, File file) {
                             setFile(name, file);
@@ -289,7 +289,7 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
                             imageViewContainer.setVisibility(View.VISIBLE);
                             imageViewContainer.setView(null);
                         }
-                    });
+                    });*/
                 } else {
                     setFile(null, null);
                 }
@@ -531,7 +531,7 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
         responseContainer.setView(null);
 
         draft.name = nameView.getText().toString();
-        draft.email = emailView.getText().toString();
+        draft.options = emailView.getText().toString();
         draft.subject = subjectView.getText().toString();
         draft.comment = commentView.getText().toString();
         draft.captchaResponse = captchaResponse;
@@ -571,8 +571,7 @@ public class ReplyFragment extends DialogFragment implements CaptchaLayout.Captc
             return;
 
         if (response.isNetworkError || response.isUserError) {
-            int resId = response.isCaptchaError ? R.string.reply_error_captcha
-                    : (response.isFileError ? R.string.reply_error_file : R.string.reply_error);
+            int resId = R.string.reply_error;
             Toast.makeText(context, resId, Toast.LENGTH_LONG).show();
             submitButton.setEnabled(true);
             cancelButton.setEnabled(true);

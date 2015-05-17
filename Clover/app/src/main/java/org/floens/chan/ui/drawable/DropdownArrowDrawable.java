@@ -7,31 +7,44 @@ import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
-import static org.floens.chan.utils.AndroidUtils.dp;
-
 public class DropdownArrowDrawable extends Drawable {
     private Paint paint = new Paint();
     private Path path = new Path();
     private int width;
     private int height;
+    private float rotation;
+    private int color;
+    private int pressedColor;
 
-    public DropdownArrowDrawable() {
-        width = dp(12);
-        height = dp(6);
+    public DropdownArrowDrawable(int width, int height, boolean down, int color, int pressedColor) {
+        this.width = width;
+        this.height = height;
+        rotation = down ? 0f : 1f;
+        this.color = color;
+        this.pressedColor = pressedColor;
 
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(0xffffffff);
-
-        path.moveTo(0, 0);
-        path.lineTo(width, 0);
-        path.lineTo(width / 2, height);
-        path.lineTo(0, 0);
-        path.close();
+        paint.setColor(color);
     }
 
     @Override
     public void draw(Canvas canvas) {
+        path.rewind();
+        path.moveTo(0, height / 2);
+        path.lineTo(width, height / 2);
+        path.lineTo(width / 2, height);
+        path.lineTo(0, height / 2);
+        path.close();
+
+        canvas.save();
+        canvas.rotate(rotation * 180f, width / 2f, height / 2f);
         canvas.drawPath(path, paint);
+        canvas.restore();
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
+        invalidateSelf();
     }
 
     @Override
@@ -52,7 +65,7 @@ public class DropdownArrowDrawable extends Drawable {
                 pressed = true;
             }
         }
-        int color = pressed ? 0x88ffffff : 0xffffffff;
+        int color = pressed ? pressedColor : this.color;
         if (color != paint.getColor()) {
             paint.setColor(color);
             invalidateSelf();

@@ -74,6 +74,20 @@ public class IOUtils {
         }
     }
 
+    public static boolean copy(InputStream is, OutputStream os, long maxBytes) throws IOException {
+        long total = 0;
+        int read;
+        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        while ((read = is.read(buffer)) != -1) {
+            os.write(buffer, 0, read);
+            total += read;
+            if (total >= maxBytes) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void copy(Reader input, Writer output) throws IOException {
         char[] buffer = new char[DEFAULT_BUFFER_SIZE];
         int read;

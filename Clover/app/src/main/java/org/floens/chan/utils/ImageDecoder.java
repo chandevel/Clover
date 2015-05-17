@@ -27,9 +27,30 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * Simple ImageDecoder with no threads. Taken from Volley ImageRequest.
+ * Simple ImageDecoder. Taken from Volley ImageRequest.
  */
 public class ImageDecoder {
+    public static void decodeFileOnBackgroundThread(final File file, final int maxWidth, final int maxHeight, final ImageDecoderCallback callback) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
+
+                AndroidUtils.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onImageBitmap(file, bitmap);
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
+    public interface ImageDecoderCallback {
+        void onImageBitmap(File file, Bitmap bitmap);
+    }
+
     public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {
         if (!file.exists())
             return null;

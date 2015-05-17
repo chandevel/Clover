@@ -90,7 +90,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 threadLayout.getPresenter().requestData();
                 break;
             case POST_ID:
-                // TODO
+                openPost(true);
                 break;
         }
     }

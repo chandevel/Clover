@@ -107,6 +107,14 @@ public class Loadable {
         return mode == other.mode && board.equals(other.board) && no == other.no;
     }
 
+    @Override
+    public int hashCode() {
+        int result = mode;
+        result = 31 * result + (board != null ? board.hashCode() : 0);
+        result = 31 * result + no;
+        return result;
+    }
+
     public boolean isBoardMode() {
         return mode == Mode.BOARD;
     }
