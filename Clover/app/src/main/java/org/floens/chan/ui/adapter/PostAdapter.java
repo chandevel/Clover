@@ -134,8 +134,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPostId = null;
         highlightedPostNo = -1;
         filtering = false;
-        sourceList.clear();
-        displayList.clear();
         lastPostCount = 0;
     }
 
