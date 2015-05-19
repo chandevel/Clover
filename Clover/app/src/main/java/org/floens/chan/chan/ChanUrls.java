@@ -86,6 +86,10 @@ public class ChanUrls {
         return scheme + "://boards.4chan.org/" + board + "/thread/" + no;
     }
 
+    public static String getThreadUrlDesktop(String board, int no, int postNo) {
+        return scheme + "://boards.4chan.org/" + board + "/thread/" + no + "#p" + postNo;
+    }
+
     public static String getCatalogUrlDesktop(String board) {
         return scheme + "://boards.4chan.org/" + board + "/catalog";
     }

@@ -109,6 +109,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="post_info">Info</string>
     <string name="post_info_title">Post info</string>
     <string name="post_show_links">Show links</string>
+    <string name="post_share">Share</string>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
 
