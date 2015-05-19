@@ -98,6 +98,7 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
         callback.loadDraftIntoViews(draft);
         callback.updateCommentCount(0, board.maxCommentChars, false);
         callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+        callback.focusComment();
 
         if (draft.file != null) {
             showPreview(draft.fileName, draft.file);
@@ -411,6 +412,8 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
         void setFileName(String fileName);
 
         void updateCommentCount(int count, int maxCount, boolean over);
+
+        void focusComment();
 
         void openPreview(boolean show, File previewFile);
 

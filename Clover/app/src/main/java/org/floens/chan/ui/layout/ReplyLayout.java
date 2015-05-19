@@ -306,6 +306,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     @Override
+    public void focusComment() {
+        comment.requestFocus();
+    }
+
+    @Override
     public void openPreview(boolean show, File previewFile) {
         attach.setImageResource(show ? R.drawable.ic_close_grey600_24dp : R.drawable.ic_image_grey600_24dp);
         if (show) {
