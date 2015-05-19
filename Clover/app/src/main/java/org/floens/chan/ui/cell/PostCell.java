@@ -17,10 +17,12 @@
  */
 package org.floens.chan.ui.cell;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.text.Spannable;
@@ -37,7 +39,6 @@ import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -72,7 +73,6 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     private Post post;
     private boolean threadMode;
 
-    private FrameLayout thumbnailViewContainer;
     private ThumbnailView thumbnailView;
     private TextView title;
     private TextView icons;
@@ -123,7 +123,6 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        thumbnailViewContainer = (FrameLayout) findViewById(R.id.thumbnail_container);
         thumbnailView = (ThumbnailView) findViewById(R.id.thumbnail_view);
         title = (TextView) findViewById(R.id.title);
         icons = (TextView) findViewById(R.id.icons);
@@ -247,6 +246,12 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         return thumbnailView;
     }
 
+    @Override
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public boolean hasOverlappingRendering() {
+        return false;
+    }
+
     private void bindPost(Post post) {
         threadMode = callback.getLoadable().isThreadMode();
 
@@ -269,10 +274,10 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         }
 
         if (post.hasImage) {
-            thumbnailViewContainer.setVisibility(View.VISIBLE);
+            thumbnailView.setVisibility(View.VISIBLE);
             thumbnailView.setUrl(post.thumbnailUrl, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
         } else {
-            thumbnailViewContainer.setVisibility(View.GONE);
+            thumbnailView.setVisibility(View.GONE);
             thumbnailView.setUrl(null, 0, 0);
         }
 

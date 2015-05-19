@@ -82,7 +82,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <attr name="backcolor" format="color" />
 
-    <attr name="post_thumbnail_background" format="color" />
     <attr name="post_saved_reply_color" format="color" />
     <attr name="post_highlighted_color" format="color" />
     <attr name="post_reply_count_color" format="color" />

@@ -20,20 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <FrameLayout
-        android:id="@+id/thumbnail_container"
+    <org.floens.chan.ui.view.ThumbnailView
+        android:id="@+id/thumbnail_view"
         android:layout_width="72dp"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:background="?post_thumbnail_background">
-
-        <org.floens.chan.ui.view.ThumbnailView
-            android:id="@+id/thumbnail_view"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:gravity="top" />
-
-    </FrameLayout>
+        android:layout_height="72dp"
+        android:gravity="top" />
 
     <TextView
         android:id="@+id/title"
@@ -42,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_toRightOf="@id/thumbnail_container"
+        android:layout_toRightOf="@id/thumbnail_view"
         android:paddingRight="25dp" />
 
     <TextView
@@ -52,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@id/title"
-        android:layout_toRightOf="@id/thumbnail_container" />
+        android:layout_toRightOf="@id/thumbnail_view" />
 
     <TextView
         android:id="@+id/comment"
@@ -61,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@id/icons"
-        android:layout_toRightOf="@id/thumbnail_container" />
+        android:layout_toRightOf="@id/thumbnail_view" />
 
     <TextView
         android:id="@+id/replies"
@@ -69,7 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@id/comment"
-        android:layout_toRightOf="@id/thumbnail_container"
+        android:layout_toRightOf="@id/thumbnail_view"
         android:singleLine="true"
         android:textColor="?attr/post_reply_count_color" />
 
