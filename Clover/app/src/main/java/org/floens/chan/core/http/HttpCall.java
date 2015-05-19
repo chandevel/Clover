@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.reply;
+package org.floens.chan.core.http;
 
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
@@ -40,9 +40,6 @@ public abstract class HttpCall implements Callback {
     public abstract void setup(Request.Builder requestBuilder);
 
     public abstract void process(Response response, String result) throws IOException;
-
-    public void fail(Request request, IOException e) {
-    }
 
     @SuppressWarnings("unchecked")
     public void postUI(boolean successful) {
@@ -79,7 +76,12 @@ public abstract class HttpCall implements Callback {
 
     @Override
     public void onFailure(Request request, IOException e) {
-        fail(request, e);
+        AndroidUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                postUI(false);
+            }
+        });
     }
 
     void setCallback(ReplyManager.HttpCallback<? extends HttpCall> callback) {

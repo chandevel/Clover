@@ -24,6 +24,8 @@ import com.android.volley.VolleyError;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.http.DeleteHttpCall;
+import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.loader.ChanLoader;
 import org.floens.chan.core.loader.LoaderPool;
 import org.floens.chan.core.manager.WatchManager;
@@ -48,6 +50,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static org.floens.chan.utils.AndroidUtils.getString;
+
 public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCell.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutCallback {
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
@@ -63,6 +67,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
+    private ReplyManager replyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
 
@@ -75,6 +80,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         watchManager = Chan.getWatchManager();
         databaseManager = Chan.getDatabaseManager();
+        replyManager = Chan.getReplyManager();
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -330,7 +336,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 threadPresenterCallback.highlightPostId(post.id);
                 break;
             case POST_OPTION_DELETE:
-//                deletePost(post); TODO
+                requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
                 databaseManager.saveReply(new SavedReply(post.board, post.no, "foo"));
@@ -410,6 +416,40 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void requestNewPostLoad() {
         if (loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
+        }
+    }
+
+    public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
+        threadPresenterCallback.showDeleting();
+
+        SavedReply reply = databaseManager.getSavedReply(post.board, post.no);
+        if (reply != null) {
+            replyManager.makeHttpCall(new DeleteHttpCall(reply, onlyImageDelete), new ReplyManager.HttpCallback<DeleteHttpCall>() {
+                @Override
+                public void onHttpSuccess(DeleteHttpCall httpPost) {
+                    String message;
+                    if (httpPost.deleted) {
+                        message = getString(R.string.delete_success);
+                    } else if (!TextUtils.isEmpty(httpPost.errorMessage)) {
+                        message = httpPost.errorMessage;
+                    } else {
+                        message = getString(R.string.delete_error);
+                    }
+                    threadPresenterCallback.hideDeleting(message);
+                }
+
+                @Override
+                public void onHttpFail(DeleteHttpCall httpPost) {
+                    threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
+                }
+            });
+        }
+    }
+
+    private void requestDeletePost(Post post) {
+        SavedReply reply = databaseManager.getSavedReply(post.board, post.no);
+        if (reply != null) {
+            threadPresenterCallback.confirmPostDelete(post);
         }
     }
 
@@ -512,5 +552,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard);
 
         void quote(Post post, boolean withText);
+
+        void confirmPostDelete(Post post);
+
+        void showDeleting();
+
+        void hideDeleting(String message);
     }
 }

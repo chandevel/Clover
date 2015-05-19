@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.reply;
+package org.floens.chan.core.http;
 
 import android.text.TextUtils;
 
@@ -121,9 +121,5 @@ public class ReplyHttpCall extends HttpCall {
                 }
             }
         }
-    }
-
-    @Override
-    public void fail(Request request, IOException e) {
     }
 }

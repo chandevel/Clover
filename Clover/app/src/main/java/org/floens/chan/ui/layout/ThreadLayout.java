@@ -17,8 +17,10 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -27,6 +29,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +57,8 @@ import java.util.List;
 
 import javax.net.ssl.SSLException;
 
+import static org.floens.chan.utils.AndroidUtils.getString;
+
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between loadbar and listview.
  */
@@ -74,6 +79,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
     private Visible visible;
+    private ProgressDialog deletingDialog;
 
     public ThreadLayout(Context context) {
         super(context);
@@ -268,6 +274,44 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     public void quote(Post post, boolean withText) {
         openPost(true);
         threadListLayout.getReplyPresenter().quote(post, withText);
+    }
+
+    @Override
+    public void confirmPostDelete(final Post post) {
+        @SuppressLint("InflateParams")
+        final View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_post_delete, null);
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.delete_confirm)
+                .setView(view)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CheckBox checkBox = (CheckBox) view.findViewById(R.id.image_only);
+                        presenter.deletePostConfirmed(post, checkBox.isChecked());
+                    }
+                })
+                .show();
+    }
+
+    @Override
+    public void showDeleting() {
+        if (deletingDialog == null) {
+            deletingDialog = ProgressDialog.show(getContext(), null, getString(R.string.delete_wait));
+        }
+    }
+
+    @Override
+    public void hideDeleting(String message) {
+        if (deletingDialog != null) {
+            deletingDialog.dismiss();
+            deletingDialog = null;
+
+            new AlertDialog.Builder(getContext())
+                    .setMessage(message)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+        }
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="back">Back</string>
     <string name="ok">OK</string>
     <string name="exit">Exit</string>
+    <string name="delete">Delete</string>
 
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
@@ -112,6 +113,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="post_share">Share</string>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
+    <string name="post_delete">Delete</string>
 
     <string name="reply_name">Name</string>
     <string name="reply_options">Options</string>
@@ -128,11 +130,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply_error">Error posting</string>
     <string name="reply_success">Post successful</string>
 
-    <string name="delete">Delete</string>
     <string name="delete_confirm">Delete your post?</string>
     <string name="delete_wait">Deleting post&#8230;</string>
     <string name="delete_success">Post deleted</string>
     <string name="delete_image_only">Only delete the image</string>
+    <string name="delete_error">Error deleting post</string>
 
     <string name="video_playback_warning_title">WebM video error</string>
     <string name="video_playback_warning">The WebM video failed to play. This might be a problem with the hardware of your phone.\n\nYou can install an external media player that has a software decoder and enable \"Open videos external\" in the settings so that the video opens externally in a software decoding app.</string>

@@ -26,7 +26,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
 import org.floens.chan.Chan;
-import org.floens.chan.core.reply.ReplyManager;
+import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 
