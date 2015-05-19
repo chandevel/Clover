@@ -74,6 +74,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final String TAG = "ImageViewerController";
@@ -245,8 +246,12 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         return ((ImageViewerAdapter) pager.getAdapter()).getMode(postImage);
     }
 
-    public void setTitle(PostImage postImage, int index, int count) {
-        navigationItem.title = postImage.filename + "." + postImage.extension;
+    public void setTitle(PostImage postImage, int index, int count, boolean spoiler) {
+        if (spoiler) {
+            navigationItem.title = getString(R.string.image_spoiler_filename);
+        } else {
+            navigationItem.title = postImage.filename + "." + postImage.extension;
+        }
         navigationItem.subtitle = (index + 1) + "/" + count;
         navigationItem.updateTitle();
     }

@@ -68,7 +68,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     public void onViewMeasured() {
         // Pager is measured, but still invisible
         callback.startPreviewInTransition(images.get(selectedPosition));
-        callback.setTitle(images.get(selectedPosition), selectedPosition, images.size());
+        PostImage postImage = images.get(selectedPosition);
+        callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler);
     }
 
     public void onInTransitionEnd() {
@@ -146,19 +147,24 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                     onLowResInCenter();
                 }
             }
+        } else {
+            if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+                setTitle(images.get(selectedPosition), selectedPosition);
+            }
         }
     }
 
     private void onPageSwipedTo(int position) {
-        callback.setTitle(images.get(selectedPosition), position, images.size());
-        callback.scrollToImage(images.get(selectedPosition));
+        PostImage postImage = images.get(selectedPosition);
+        setTitle(postImage, position);
+        callback.scrollToImage(postImage);
 
         for (PostImage other : getOther(position, false)) {
             callback.setImageMode(other, MultiImageView.Mode.LOWRES);
         }
 
         // Already in LOWRES mode
-        if (callback.getImageMode(images.get(selectedPosition)) == MultiImageView.Mode.LOWRES) {
+        if (callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES) {
             onLowResInCenter();
         }
         // Else let onModeChange handle it
@@ -251,6 +257,11 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.onVideoError(multiImageView);
     }
 
+    private void setTitle(PostImage postImage, int position) {
+        callback.setTitle(postImage, position, images.size(),
+                postImage.spoiler && callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES);
+    }
+
     private List<PostImage> getOther(int position, boolean all) {
         List<PostImage> other = new ArrayList<>(3);
         if (position - 1 >= 0) {
@@ -278,7 +289,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         void setImageMode(PostImage postImage, MultiImageView.Mode mode);
 
-        void setTitle(PostImage postImage, int index, int count);
+        void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
 
