@@ -20,37 +20,23 @@ package org.floens.chan.core.http;
 import android.content.Context;
 import android.content.Intent;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.floens.chan.Chan;
-import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
-import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.ui.activity.ImagePickActivity;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.HttpCookie;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * To send an reply to 4chan.
  */
 public class ReplyManager {
-    private static final String TAG = "ReplyManager";
-
-    private static final Pattern POST_THREAD_NO_PATTERN = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
     private static final int TIMEOUT = 10000;
 
     private final Context context;
@@ -128,184 +114,12 @@ public class ReplyManager {
         }
     }
 
-    /**
-     * Delete the fileListener.
-     */
-    public void removeFileListener() {
-        fileListener = null;
-    }
-
     public interface FileListener {
         void onFilePickLoading();
 
         void onFilePicked(String name, File file);
 
         void onFilePickError(boolean cancelled);
-    }
-
-    public void postPass(String token, String pin, final PassListener passListener) {
-        FormEncodingBuilder formBuilder = new FormEncodingBuilder();
-
-        formBuilder.add("act", "do_login");
-
-        formBuilder.add("id", token);
-        formBuilder.add("pin", pin);
-
-        Request.Builder request = new Request.Builder()
-                .url(ChanUrls.getPassUrl())
-                .post(formBuilder.build());
-
-        makeOkHttpCall(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                final PassResponse res = new PassResponse();
-                res.isError = true;
-                res.message = context.getString(R.string.setting_pass_error);
-                runUI(new Runnable() {
-                    public void run() {
-                        passListener.onResponse(res);
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    onFailure(response.request(), null);
-                    return;
-                }
-                String responseString = response.body().string();
-                response.body().close();
-
-                final PassResponse res = new PassResponse();
-                if (responseString.contains("Your device is now authorized")) {
-                    List<String> cookies = response.headers("Set-Cookie");
-                    String passId = null;
-                    for (String cookie : cookies) {
-                        try {
-                            List<HttpCookie> parsedList = HttpCookie.parse(cookie);
-                            for (HttpCookie parsed : parsedList) {
-                                if (parsed.getName().equals("pass_id") && !parsed.getValue().equals("0")) {
-                                    passId = parsed.getValue();
-                                }
-                            }
-                        } catch (IllegalArgumentException ignored) {
-                        }
-                    }
-                    if (passId != null) {
-                        res.passId = passId;
-                        res.message = "Success! Your device is now authorized.";
-                    } else {
-                        res.isError = true;
-                        res.message = "Could not get pass id";
-                    }
-                } else {
-                    res.isError = true;
-                    if (responseString.contains("Your Token must be exactly 10 characters")) {
-                        res.message = "Incorrect token";
-                    } else if (responseString.contains("You have left one or more fields blank")) {
-                        res.message = "You have left one or more fields blank";
-                    } else if (responseString.contains("Incorrect Token or PIN")) {
-                        res.message = "Incorrect Token or PIN";
-                    } else {
-                        res.unknownError = true;
-                    }
-                }
-
-                runUI(new Runnable() {
-                    public void run() {
-                        passListener.onResponse(res);
-                    }
-                });
-            }
-        });
-    }
-
-    public interface PassListener {
-        void onResponse(PassResponse response);
-    }
-
-    public static class PassResponse {
-        public boolean isError = false;
-        public boolean unknownError = false;
-        public String responseData = "";
-        public String message = "";
-        public String passId;
-    }
-
-    public void postDelete(final SavedReply reply, boolean onlyImageDelete, final DeleteListener listener) {
-        FormEncodingBuilder formBuilder = new FormEncodingBuilder();
-        formBuilder.add(Integer.toString(reply.no), "delete");
-        if (onlyImageDelete) {
-            formBuilder.add("onlyimgdel", "on");
-        }
-        formBuilder.add("mode", "usrdel");
-        formBuilder.add("pwd", reply.password);
-
-        Request.Builder request = new Request.Builder()
-                .url(ChanUrls.getDeleteUrl(reply.board))
-                .post(formBuilder.build());
-
-        makeOkHttpCall(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-                final DeleteResponse res = new DeleteResponse();
-                res.isNetworkError = true;
-                runUI(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onResponse(res);
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    onFailure(response.request(), null);
-                    return;
-                }
-                String responseString = response.body().string();
-                response.body().close();
-
-                final DeleteResponse res = new DeleteResponse();
-                res.responseData = responseString;
-
-                if (responseString.contains("You must wait longer before deleting this post")) {
-                    res.isUserError = true;
-                    res.isTooSoonError = true;
-                } else if (responseString.contains("Password incorrect")) {
-                    res.isUserError = true;
-                    res.isInvalidPassword = true;
-                } else if (responseString.contains("You cannot delete a post this old")) {
-                    res.isUserError = true;
-                    res.isTooOldError = true;
-                } else if (responseString.contains("Updating index")) {
-                    res.isSuccessful = true;
-                }
-
-                runUI(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onResponse(res);
-                    }
-                });
-            }
-        });
-    }
-
-    public interface DeleteListener {
-        void onResponse(DeleteResponse response);
-    }
-
-    public static class DeleteResponse {
-        public boolean isNetworkError = false;
-        public boolean isUserError = false;
-        public boolean isInvalidPassword = false;
-        public boolean isTooSoonError = false;
-        public boolean isTooOldError = false;
-        public boolean isSuccessful = false;
-        public String responseData = "";
     }
 
     public void makeHttpCall(HttpCall httpCall, HttpCallback callback) {
@@ -326,15 +140,5 @@ public class ReplyManager {
         void onHttpSuccess(T httpPost);
 
         void onHttpFail(T httpPost);
-    }
-
-    private void makeOkHttpCall(Request.Builder requestBuilder, Callback callback) {
-        requestBuilder.header("User-Agent", Chan.getInstance().getUserAgent());
-        Request request = requestBuilder.build();
-        client.newCall(request).enqueue(callback);
-    }
-
-    private void runUI(Runnable runnable) {
-        AndroidUtils.runOnUiThread(runnable);
     }
 }
