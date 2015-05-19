@@ -33,3 +33,6 @@ Changes in version 13:
 ALTER TABLE pin ADD COLUMN isError SMALLINT;
 ALTER TABLE board ADD COLUMN thumbnailUrl VARCHAR;
 
+
+Changes in version 14:
+ALTER TABLE pin ADD COLUMN order INTEGER;

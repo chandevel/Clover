@@ -31,6 +31,7 @@ import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,6 +44,13 @@ public class WatchManager {
     private static final String TAG = "WatchManager";
     private static final int FOREGROUND_TIME = 5;
 
+    private static final Comparator<Pin> SORT_PINS = new Comparator<Pin>() {
+        @Override
+        public int compare(Pin lhs, Pin rhs) {
+            return lhs.order - rhs.order;
+        }
+    };
+
     private final Context context;
     private final List<Pin> pins;
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -52,6 +60,7 @@ public class WatchManager {
         this.context = context;
 
         pins = Chan.getDatabaseManager().getPinned();
+        Collections.sort(pins, SORT_PINS);
 
         EventBus.getDefault().register(this);
 
@@ -121,6 +130,7 @@ public class WatchManager {
             }
         }
 
+        pin.order = pins.size();
         pins.add(pin);
         Chan.getDatabaseManager().addPin(pin);
 

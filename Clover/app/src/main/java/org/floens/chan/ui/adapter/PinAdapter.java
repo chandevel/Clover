@@ -134,19 +134,12 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     public void onPinAdded(Pin pin) {
         pins.add(pin);
-        notifyItemInserted(pins.size() - 1 + PIN_OFFSET);
+        notifyDataSetChanged();
     }
 
     public void onPinRemoved(Pin pin) {
-        // TODO: this is a workaround for recyclerview crashing when the last item is removed, remove this when it is fixed
-        if (pins.size() == 1) {
-            pins.remove(pin);
-            notifyDataSetChanged();
-        } else {
-            int location = pins.indexOf(pin);
-            pins.remove(pin);
-            notifyItemRemoved(location + PIN_OFFSET);
-        }
+        pins.remove(pin);
+        notifyDataSetChanged();
     }
 
     public void onPinChanged(RecyclerView recyclerView, Pin pin) {
@@ -189,6 +182,10 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     @Override
     public void movingDone() {
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
+            pin.order = i;
+        }
     }
 
     public void updatePinViewHolder(PinViewHolder holder, Pin pin) {

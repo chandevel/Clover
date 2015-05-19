@@ -51,6 +51,9 @@ public class Pin {
     @DatabaseField
     public String thumbnailUrl = null;
 
+    @DatabaseField
+    public int order = -1;
+
     private PinWatcher pinWatcher;
 
     public int getNewPostCount() {
