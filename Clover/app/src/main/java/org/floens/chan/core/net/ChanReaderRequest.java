@@ -331,19 +331,27 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         }
         reader.endObject();
 
-        Post cachedResult = null;
-        // Do not cache OPs to make sure the archived, replies etc. are updated
-        if (post.resto != 0) {
-            for (Post possibleCached : cached) {
-                if (possibleCached.no == post.no) {
-                    cachedResult = possibleCached;
-                    break;
+        Post cached = null;
+        for (Post item : this.cached) {
+            if (item.no == post.no) {
+                cached = item;
+
+                if (post.resto == 0) {
+                    // Update OP fields
+                    cached.sticky = post.sticky;
+                    cached.closed = post.closed;
+                    cached.archived = post.archived;
+                    cached.replies = post.replies;
+                    cached.images = post.images;
+                    cached.uniqueIps = post.uniqueIps;
                 }
+
+                break;
             }
         }
 
-        if (cachedResult != null) {
-            return cachedResult;
+        if (cached != null) {
+            return cached;
         } else {
             if (!post.finish()) {
                 throw new IOException("Incorrect data about post received.");
