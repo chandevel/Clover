@@ -17,13 +17,10 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -32,13 +29,14 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.http.PassHttpCall;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 
-public class PassSettingsController extends Controller implements View.OnClickListener {
+public class PassSettingsController extends Controller implements View.OnClickListener, ReplyManager.HttpCallback<PassHttpCall> {
     private LinearLayout container;
     private CrossfadeView crossfadeView;
     private TextView errors;
@@ -106,6 +104,46 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         }
     }
 
+    @Override
+    public void onHttpSuccess(PassHttpCall httpPost) {
+        if (httpPost.success) {
+            authSuccess(httpPost);
+        } else {
+            authFail(httpPost);
+        }
+
+        authAfter();
+    }
+
+    @Override
+    public void onHttpFail(PassHttpCall httpPost) {
+        authFail(httpPost);
+        authAfter();
+    }
+
+    private void authSuccess(PassHttpCall httpPost) {
+        crossfadeView.toggle(false, true);
+        button.setText(R.string.setting_pass_logout);
+        ChanSettings.passId.set(httpPost.passId);
+        authenticated.setText(httpPost.message);
+        ((PassSettingControllerListener) previousSiblingController).onPassEnabledChanged(true);
+    }
+
+    private void authFail(PassHttpCall httpPost) {
+        if (httpPost.message == null) {
+            httpPost.message = string(R.string.setting_pass_error);
+        }
+
+        showError(httpPost.message);
+        button.setText(R.string.setting_pass_login);
+    }
+
+    private void authAfter() {
+        button.setEnabled(true);
+        inputToken.setEnabled(true);
+        inputPin.setEnabled(true);
+    }
+
     private void auth() {
         AndroidUtils.hideKeyboard(view);
         inputToken.setEnabled(false);
@@ -117,37 +155,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         ChanSettings.passToken.set(inputToken.getText().toString());
         ChanSettings.passPin.set(inputPin.getText().toString());
 
-        Chan.getReplyManager().postPass(ChanSettings.passToken.get(), ChanSettings.passPin.get(), new ReplyManager.PassListener() {
-            @Override
-            public void onResponse(ReplyManager.PassResponse response) {
-                if (response.isError) {
-                    if (response.unknownError) {
-                        WebView webView = new WebView(context);
-                        WebSettings settings = webView.getSettings();
-                        settings.setSupportZoom(true);
-                        webView.loadData(response.responseData, "text/html", null);
-
-                        new AlertDialog.Builder(context)
-                                .setView(webView)
-                                .setNeutralButton(R.string.ok, null)
-                                .show();
-                    } else {
-                        showError(response.message);
-                    }
-                    button.setText(R.string.setting_pass_login);
-                } else {
-                    crossfadeView.toggle(false, true);
-                    button.setText(R.string.setting_pass_logout);
-                    ChanSettings.passId.set(response.passId);
-                    authenticated.setText(response.message);
-                    ((PassSettingControllerListener) previousSiblingController).onPassEnabledChanged(true);
-                }
-
-                button.setEnabled(true);
-                inputToken.setEnabled(true);
-                inputPin.setEnabled(true);
-            }
-        });
+        Chan.getReplyManager().makeHttpCall(new PassHttpCall(ChanSettings.passToken.get(), ChanSettings.passPin.get()), this);
     }
 
     private void showError(String error) {
