@@ -21,18 +21,18 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
-public class TouchBlockingFrameLayout extends FrameLayout {
-    public TouchBlockingFrameLayout(Context context) {
+public class TouchBlockingLinearLayout extends LinearLayout {
+    public TouchBlockingLinearLayout(Context context) {
         super(context);
     }
 
-    public TouchBlockingFrameLayout(Context context, AttributeSet attrs) {
+    public TouchBlockingLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public TouchBlockingFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public TouchBlockingLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
