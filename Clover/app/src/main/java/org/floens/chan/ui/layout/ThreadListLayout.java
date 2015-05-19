@@ -131,7 +131,6 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             searchStatus.setText(R.string.search_empty);
         } else {
             postAdapter.clearFilter();
-            recyclerView.scrollToPosition(0);
         }
     }
 
@@ -174,6 +173,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         postAdapter.cleanup();
         reply.cleanup();
         openReply(false);
+        showSearch(false);
         showingThread = null;
     }
 
