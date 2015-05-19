@@ -224,7 +224,14 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         callback.showThread(loadable);
     }
 
+    @Override
+    public void requestNewPostLoad() {
+        callback.requestNewPostLoad();
+    }
+
     public interface ThreadListLayoutCallback {
         void showThread(Loadable loadable);
+
+        void requestNewPostLoad();
     }
 }

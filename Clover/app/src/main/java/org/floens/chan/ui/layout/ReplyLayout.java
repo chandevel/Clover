@@ -267,6 +267,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     public void onPosted() {
         Toast.makeText(getContext(), R.string.reply_success, Toast.LENGTH_SHORT).show();
         callback.openReply(false);
+        callback.requestNewPostLoad();
     }
 
     @Override
@@ -393,5 +394,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         void openReply(boolean open);
 
         void showThread(Loadable loadable);
+
+        void requestNewPostLoad();
     }
 }

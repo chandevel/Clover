@@ -401,6 +401,13 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         threadPresenterCallback.showThread(loadable);
     }
 
+    @Override
+    public void requestNewPostLoad() {
+        if (loadable.isThreadMode()) {
+            chanLoader.requestMoreDataAndResetTimer();
+        }
+    }
+
     private void showPostInfo(Post post) {
         String text = "";
 
