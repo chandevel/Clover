@@ -40,6 +40,7 @@ import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.ThemeHelper;
@@ -305,9 +306,14 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         commentCounter.setTextColor(over ? 0xffff0000 : getAttrColor(getContext(), R.attr.text_color_secondary));
     }
 
-    @Override
     public void focusComment() {
         comment.requestFocus();
+        comment.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AndroidUtils.requestKeyboardFocus(comment);
+            }
+        }, 100);
     }
 
     @Override

@@ -104,6 +104,9 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         if (showingThread != null && replyOpen != open) {
             this.replyOpen = open;
             AnimationUtils.animateHeight(reply, replyOpen, getWidth(), 500, reply);
+            if (open) {
+                reply.focusComment();
+            }
         }
     }
 
