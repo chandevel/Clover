@@ -141,10 +141,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onShowPosts() {
         super.onShowPosts();
-        if (!navigationItem.title.equals(loadable.title)) {
-            navigationItem.title = loadable.title;
-            navigationItem.updateTitle();
-        }
+        navigationItem.title = loadable.title;
+        navigationItem.updateTitle();
     }
 
     @Override

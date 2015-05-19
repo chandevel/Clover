@@ -166,6 +166,16 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void onChanLoaderData(ChanThread result) {
         chanLoader.setAutoLoadMore(isWatching());
         threadPresenterCallback.showPosts(result);
+
+        if (loadable.markedNo >= 0) {
+            Post markedPost = findPostById(loadable.markedNo);
+            if (markedPost != null) {
+                highlightPost(markedPost);
+                scrollToPost(markedPost, false);
+            }
+            loadable.markedNo = -1;
+        }
+
     }
 
     @Override

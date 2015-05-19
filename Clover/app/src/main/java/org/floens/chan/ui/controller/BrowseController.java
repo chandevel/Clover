@@ -79,8 +79,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         items.add(new FloatingMenuItem(SETTINGS_ID, context.getString(R.string.settings_screen)));
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
-
-        loadBoard(Chan.getBoardManager().getSavedBoards().get(0));
     }
 
     @Override
@@ -150,7 +148,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         return false;
     }
 
-    private void loadBoard(Board board) {
+    public void loadBoard(Board board) {
         Loadable loadable = new Loadable(board.value);
         loadable.mode = Loadable.Mode.CATALOG;
         loadable.generateTitle();
@@ -165,6 +163,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 navigationItem.middleMenu.setSelectedItem(item);
             }
         }
+        navigationItem.updateTitle();
     }
 
     private void loadBoards() {

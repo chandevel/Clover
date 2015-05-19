@@ -51,6 +51,8 @@ public class Loadable {
 
     public int lastViewed = -1;
 
+    public int markedNo = -1;
+
     /**
      * Constructs an empty loadable. The mode is INVALID.
      */

@@ -26,7 +26,10 @@ import android.view.ViewGroup;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.chan.ChanHelper;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
@@ -56,13 +59,36 @@ public class StartActivity extends AppCompatActivity {
         setContentView(rootNavigationController.view);
         addController(rootNavigationController);
 
-        rootNavigationController.pushController(new BrowseController(this), false);
+        BrowseController browseController = new BrowseController(this);
+        rootNavigationController.pushController(browseController, false);
 
         rootNavigationController.onShow();
 
         // Prevent overdraw
         // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable
         getWindow().setBackgroundDrawable(null);
+
+        // Startup from background or url
+        boolean loadDefault = true;
+        if (savedInstanceState != null) {
+            // blah
+        } else if (getIntent().getData() != null) {
+            Loadable fromUri = ChanHelper.getLoadableFromStartUri(getIntent().getData());
+            if (fromUri != null) {
+                loadDefault = false;
+                Board board = Chan.getBoardManager().getBoardByValue(fromUri.board);
+                browseController.loadBoard(board);
+
+                if (fromUri.isThreadMode()) {
+                    browseController.showThread(fromUri);
+                }
+            }
+        }
+
+        if (loadDefault) {
+            // start default
+            browseController.loadBoard(Chan.getBoardManager().getSavedBoards().get(0));
+        }
     }
 
     public void addController(Controller controller) {
