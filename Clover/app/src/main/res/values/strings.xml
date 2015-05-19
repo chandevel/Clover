@@ -185,8 +185,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_post_pin">Pin thread on post</string>
 
     <string name="settings_group_about">About</string>
+    <string name="settings_about_license">Released under the GNU GPLv3 license</string>
+    <string name="settings_about_license_description">Tap to see license</string>
     <string name="settings_about_licenses">Open Source Licenses</string>
-    <string name="settings_about_licences_description">Legal information about licenses</string>
+    <string name="settings_about_licenses_description">Legal information about licenses</string>
     <string name="settings_developer">Developer settings</string>
 
     <string name="settings_screen_advanced">Advanced settings</string>
@@ -253,7 +255,6 @@ Don't have a 4chan Pass?&lt;br>
     </string>
     <string name="setting_pass_summary_enabled">Using 4chan pass</string>
     <string name="setting_pass_summary_disabled">Off</string>
-    <string name="setting_screen_licenses">Open Source Licenses</string>
 </resources>
 
 

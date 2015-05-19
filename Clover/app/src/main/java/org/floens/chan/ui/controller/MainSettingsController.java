@@ -172,10 +172,19 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         // About group
         SettingsGroup about = new SettingsGroup(s(R.string.settings_group_about));
-        about.add(new LinkSettingView(this, s(R.string.settings_about_licenses), s(R.string.settings_about_licences_description), new View.OnClickListener() {
+        about.add(new LinkSettingView(this, s(R.string.settings_about_license), s(R.string.settings_about_license_description), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigationController.pushController(new LicensesController(context));
+                navigationController.pushController(new LicensesController(context,
+                        s(R.string.settings_about_license), "file:///android_asset/html/license.html"));
+            }
+        }));
+
+        about.add(new LinkSettingView(this, s(R.string.settings_about_licenses), s(R.string.settings_about_licenses_description), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigationController.pushController(new LicensesController(context,
+                        s(R.string.settings_about_licenses), "file:///android_asset/html/licenses.html"));
             }
         }));
 
