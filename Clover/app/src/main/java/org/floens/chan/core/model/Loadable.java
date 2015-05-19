@@ -19,6 +19,7 @@ package org.floens.chan.core.model;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcel;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -131,6 +132,24 @@ public class Loadable {
         bundle.putString(p + "." + tag + ".subject", title);
         bundle.putInt(p + "." + tag + ".listViewIndex", listViewIndex);
         bundle.putInt(p + "." + tag + ".listViewTop", listViewTop);
+    }
+
+    public void writeToParcel(Parcel parcel) {
+        parcel.writeInt(mode);
+        parcel.writeString(board);
+        parcel.writeInt(no);
+        parcel.writeString(title);
+        parcel.writeInt(listViewIndex);
+        parcel.writeInt(listViewTop);
+    }
+
+    public void readFromParcel(Parcel parcel) {
+        mode = parcel.readInt();
+        board = parcel.readString();
+        no = parcel.readInt();
+        title = parcel.readString();
+        listViewIndex = parcel.readInt();
+        listViewTop = parcel.readInt();
     }
 
     public Loadable copy() {

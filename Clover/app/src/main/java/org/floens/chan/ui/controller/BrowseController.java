@@ -129,9 +129,13 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     @Override
     public void showThread(Loadable threadLoadable) {
+        showThread(threadLoadable, true);
+    }
+
+    public void showThread(Loadable threadLoadable, boolean animated) {
         ViewThreadController viewThreadController = new ViewThreadController(context);
         viewThreadController.setLoadable(threadLoadable);
-        navigationController.pushController(viewThreadController);
+        navigationController.pushController(viewThreadController, animated);
     }
 
     public void onEvent(BoardManager.BoardsChangedMessage event) {

@@ -57,6 +57,13 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         EventBus.getDefault().unregister(this);
     }
 
+    /*
+     * Used to save instance state
+     */
+    public Loadable getLoadable() {
+        return threadLayout.getPresenter().getLoadable();
+    }
+
     @Override
     public boolean onBack() {
         return threadLayout.onBack();

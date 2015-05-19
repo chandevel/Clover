@@ -145,6 +145,13 @@ public abstract class NavigationController extends Controller implements Control
         }
     }
 
+    /*
+     * Used to save instance state
+     */
+    public List<Controller> getControllerList() {
+        return controllerList;
+    }
+
     @Override
     public void onControllerTransitionCompleted(ControllerTransition transition) {
         ControllerLogic.finishTransition(transition);

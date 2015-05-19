@@ -33,6 +33,9 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
+import org.floens.chan.ui.controller.ViewThreadController;
+import org.floens.chan.ui.state.ChanState;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ThemeHelper;
 
 import java.util.ArrayList;
@@ -41,8 +44,13 @@ import java.util.List;
 public class StartActivity extends AppCompatActivity {
     private static final String TAG = "StartActivity";
 
+    private static final String STATE_KEY = "chan_state";
+
     private ViewGroup contentView;
     private List<Controller> stack = new ArrayList<>();
+
+    private RootNavigationController rootNavigationController;
+    private BrowseController browseController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +61,13 @@ public class StartActivity extends AppCompatActivity {
 
         contentView = (ViewGroup) findViewById(android.R.id.content);
 
-        RootNavigationController rootNavigationController = new RootNavigationController(this);
+        rootNavigationController = new RootNavigationController(this);
         rootNavigationController.onCreate();
 
         setContentView(rootNavigationController.view);
         addController(rootNavigationController);
 
-        BrowseController browseController = new BrowseController(this);
+        browseController = new BrowseController(this);
         rootNavigationController.pushController(browseController, false);
 
         rootNavigationController.onShow();
@@ -71,7 +79,18 @@ public class StartActivity extends AppCompatActivity {
         // Startup from background or url
         boolean loadDefault = true;
         if (savedInstanceState != null) {
-            // blah
+            ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
+            if (chanState == null) {
+                Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
+            } else {
+                loadDefault = false;
+                Board board = Chan.getBoardManager().getBoardByValue(chanState.board.board);
+                browseController.loadBoard(board);
+
+                if (chanState.thread.mode == Loadable.Mode.THREAD) {
+                    browseController.showThread(chanState.thread, false);
+                }
+            }
         } else if (getIntent().getData() != null) {
             Loadable fromUri = ChanHelper.getLoadableFromStartUri(getIntent().getData());
             if (fromUri != null) {
@@ -80,14 +99,39 @@ public class StartActivity extends AppCompatActivity {
                 browseController.loadBoard(board);
 
                 if (fromUri.isThreadMode()) {
-                    browseController.showThread(fromUri);
+                    browseController.showThread(fromUri, false);
                 }
             }
         }
 
         if (loadDefault) {
-            // start default
             browseController.loadBoard(Chan.getBoardManager().getSavedBoards().get(0));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Loadable board = browseController.getLoadable();
+        if (board == null) {
+            Logger.w(TAG, "Can not save instance state, the board loadable is null");
+        } else {
+            Loadable thread = null;
+            List<Controller> controllers = rootNavigationController.getControllerList();
+            for (Controller controller : controllers) {
+                if (controller instanceof ViewThreadController) {
+                    thread = ((ViewThreadController) controller).getLoadable();
+                    break;
+                }
+            }
+
+            if (thread == null) {
+                // Make the parcel happy
+                thread = new Loadable();
+            }
+
+            outState.putParcelable(STATE_KEY, new ChanState(board, thread));
         }
     }
 
