@@ -34,7 +34,7 @@ import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
-import org.floens.chan.core.reply.ReplyManager;
+import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.utils.AndroidUtils;
