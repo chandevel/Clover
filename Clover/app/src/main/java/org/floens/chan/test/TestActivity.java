@@ -29,7 +29,7 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.cache.FileCache;
-import org.floens.chan.core.loader.ChanLoader;
+import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;

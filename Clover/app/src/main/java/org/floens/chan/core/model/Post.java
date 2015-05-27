@@ -22,7 +22,7 @@ import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.loader.ChanParser;
+import org.floens.chan.chan.ChanParser;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;

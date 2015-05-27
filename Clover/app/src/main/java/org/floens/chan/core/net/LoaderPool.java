@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.loader;
+package org.floens.chan.core.net;
 
+import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.core.model.Loadable;
 
 import java.util.HashMap;

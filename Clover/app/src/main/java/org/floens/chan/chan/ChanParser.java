@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.loader;
+package org.floens.chan.chan;
 
 
 import android.content.Context;
@@ -29,6 +29,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
@@ -36,6 +37,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.ThemeHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
@@ -44,9 +46,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -55,6 +59,7 @@ import java.util.regex.Pattern;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class ChanParser {
+    private static final String TAG = "ChanParser";
     private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
 
     private static ChanParser instance = new ChanParser();
@@ -192,15 +197,18 @@ public class ChanParser {
             Document document = Jsoup.parseBodyFragment(comment);
 
             List<Node> nodes = document.body().childNodes();
+            List<CharSequence> texts = new ArrayList<>(nodes.size());
 
             for (Node node : nodes) {
                 CharSequence nodeParsed = parseNode(post, node);
                 if (nodeParsed != null) {
-                    total = TextUtils.concat(total, nodeParsed);
+                    texts.add(nodeParsed);
                 }
             }
+
+            total = TextUtils.concat(texts.toArray(new CharSequence[texts.size()]));
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.e(TAG, "Error parsing comment html", e);
         }
 
         return total;
@@ -222,7 +230,7 @@ public class ChanParser {
                 case "span": {
                     Element span = (Element) node;
 
-                    SpannableString quote = null;
+                    SpannableString quote;
 
                     Set<String> classes = span.classNames();
                     if (classes.contains("deadlink")) {
@@ -247,7 +255,7 @@ public class ChanParser {
                                 if (!TextUtils.isEmpty(group)) {
                                     try {
                                         hexColor = Integer.parseInt(group, 16);
-                                    } catch (NumberFormatException e) {
+                                    } catch (NumberFormatException ignored) {
                                     }
                                 }
                             }
@@ -257,6 +265,8 @@ public class ChanParser {
                                 quote.setSpan(new StyleSpan(Typeface.BOLD), 0, quote.length(), 0);
                             }
                         }
+                    } else if (classes.contains("abbr")) {
+                        return null;
                     } else {
                         quote = new SpannableString(span.text());
                         quote.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getInlineQuoteColor()), 0, quote.length(), 0);
@@ -264,6 +274,43 @@ public class ChanParser {
                     }
 
                     return quote;
+                }
+                case "table": {
+                    Element table = (Element) node;
+
+                    List<CharSequence> parts = new ArrayList<>();
+                    Elements tableRows = table.getElementsByTag("tr");
+                    for (int i = 0; i < tableRows.size(); i++) {
+                        Element tableRow = tableRows.get(i);
+                        if (tableRow.text().length() > 0) {
+                            Elements tableDatas = tableRow.getElementsByTag("td");
+                            for (int j = 0; j < tableDatas.size(); j++) {
+                                Element tableData = tableDatas.get(j);
+
+                                SpannableString tableDataPart = new SpannableString(tableData.text());
+                                if (tableData.getElementsByTag("b").size() > 0) {
+                                    tableDataPart.setSpan(new StyleSpan(Typeface.BOLD), 0, tableDataPart.length(), 0);
+                                    tableDataPart.setSpan(new UnderlineSpan(), 0, tableDataPart.length(), 0);
+                                }
+
+                                parts.add(tableDataPart);
+
+                                if (j < tableDatas.size() - 1) {
+                                    parts.add(": ");
+                                }
+                            }
+
+                            if (i < tableRows.size() - 1) {
+                                parts.add("\n");
+                            }
+                        }
+                    }
+
+                    SpannableString tableTotal = new SpannableString(TextUtils.concat(parts.toArray(new CharSequence[parts.size()])));
+                    tableTotal.setSpan(new ForegroundColorSpan(ThemeHelper.getInstance().getInlineQuoteColor()), 0, tableTotal.length(), 0);
+                    tableTotal.setSpan(new AbsoluteSizeSpan(sp(12f)), 0, tableTotal.length(), 0);
+
+                    return tableTotal;
                 }
                 case "strong": {
                     Element strong = (Element) node;
@@ -341,7 +388,7 @@ public class ChanParser {
                             int tId = Integer.parseInt(numsSplitted[0]);
                             int pId = Integer.parseInt(numsSplitted[1]);
                             threadLink = new PostLinkable.ThreadLink(board, tId, pId);
-                        } catch (NumberFormatException e) {
+                        } catch (NumberFormatException ignored) {
                         }
                     }
                 }
@@ -359,7 +406,7 @@ public class ChanParser {
                 if (splitted.length == 2) {
                     try {
                         id = Integer.parseInt(splitted[1]);
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException ignored) {
                     }
                 }
 

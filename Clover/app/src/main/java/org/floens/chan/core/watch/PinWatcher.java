@@ -20,8 +20,8 @@ package org.floens.chan.core.watch;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
-import org.floens.chan.core.loader.ChanLoader;
-import org.floens.chan.core.loader.LoaderPool;
+import org.floens.chan.chan.ChanLoader;
+import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
