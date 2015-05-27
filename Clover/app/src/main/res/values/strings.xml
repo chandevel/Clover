@@ -62,7 +62,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="open_thread_confirmation">Open this thread?</string>
     <string name="open_link_failed">No applications found to open link</string>
 
-    <string name="image_save">Save image</string>
     <string name="image_save_succeeded">Saved image to</string>
     <string name="image_save_failed">Saving image failed</string>
     <string name="image_save_directory_error">Cannot make save directory</string>

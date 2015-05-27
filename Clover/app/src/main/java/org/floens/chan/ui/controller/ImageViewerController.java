@@ -112,10 +112,10 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.menu = new ToolbarMenu(context);
         navigationItem.subtitle = "0";
+        navigationItem.menu = new ToolbarMenu(context);
+        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
         overflowMenuItem = navigationItem.createOverflow(context, this, Arrays.asList(
-                new FloatingMenuItem(SAVE_ID, string(R.string.image_save)),
                 new FloatingMenuItem(OPEN_BROWSER_ID, string(R.string.action_open_browser)),
                 new FloatingMenuItem(SHARE_ID, string(R.string.action_share)),
                 new FloatingMenuItem(SEARCH_ID, string(R.string.action_search_image)),
@@ -140,23 +140,17 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
     @Override
     public void onMenuItemClicked(ToolbarMenuItem item) {
+        if ((Integer) item.getId() == SAVE_ID) {
+            saveShare(false, presenter.getCurrentPostImage());
+        }
     }
 
     @Override
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
         switch ((Integer) item.getId()) {
-            case SAVE_ID:
             case SHARE_ID:
-                boolean share = ((Integer) item.getId()) == SHARE_ID;
-                if (share && ChanSettings.shareUrl.get()) {
-                    AndroidUtils.shareLink(postImage.imageUrl);
-                } else {
-                    ImageSaver.getInstance().saveImage(context, postImage.imageUrl,
-                            ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename,
-                            postImage.extension,
-                            share);
-                }
+                saveShare(true, postImage);
                 break;
             case OPEN_BROWSER_ID:
                 AndroidUtils.openLink(postImage.imageUrl);
@@ -201,6 +195,17 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
                 ImageSaver.getInstance().saveAll(context, folderName, list);
                 break;
+        }
+    }
+
+    private void saveShare(boolean share, PostImage postImage) {
+        if (share && ChanSettings.shareUrl.get()) {
+            AndroidUtils.shareLink(postImage.imageUrl);
+        } else {
+            ImageSaver.getInstance().saveImage(context, postImage.imageUrl,
+                    ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename,
+                    postImage.extension,
+                    share);
         }
     }
 
