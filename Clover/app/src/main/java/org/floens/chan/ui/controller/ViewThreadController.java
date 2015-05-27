@@ -124,13 +124,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Override
     public boolean isPinCurrent(Pin pin) {
-        return pin.loadable.equals(loadable);
+        return pin.loadable.equals(threadLayout.getPresenter().getLoadable());
     }
 
     private void loadLoadable(Loadable loadable) {
         if (!loadable.equals(threadLayout.getPresenter().getLoadable())) {
-            this.loadable = loadable;
             threadLayout.getPresenter().bindLoadable(loadable);
+            this.loadable = threadLayout.getPresenter().getLoadable();
             threadLayout.getPresenter().requestData();
             navigationItem.title = loadable.title;
             navigationItem.updateTitle();
@@ -141,6 +141,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onShowPosts() {
         super.onShowPosts();
+
         navigationItem.title = loadable.title;
         navigationItem.updateTitle();
     }

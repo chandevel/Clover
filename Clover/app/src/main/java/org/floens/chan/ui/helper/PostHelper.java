@@ -25,6 +25,8 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 
 import org.floens.chan.R;
+import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.AndroidUtils;
 
 public class PostHelper {
@@ -57,6 +59,26 @@ public class PostHelper {
             return string;
         } else {
             return TextUtils.concat(total, string);
+        }
+    }
+
+    public static String getTitle(Post post, Loadable loadable) {
+        if (post != null) {
+            if (!TextUtils.isEmpty(post.subject)) {
+                return post.subject;
+            } else if (!TextUtils.isEmpty(post.comment)) {
+                return "/" + post.board + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), 200)).toString();
+            } else {
+                return "/" + post.board + "/" + post.no;
+            }
+        } else if (loadable != null) {
+            if (loadable.mode == Loadable.Mode.CATALOG) {
+                return "/" + loadable.board + "/";
+            } else {
+                return "/" + loadable.board + "/" + loadable.no;
+            }
+        } else {
+            return "";
         }
     }
 }

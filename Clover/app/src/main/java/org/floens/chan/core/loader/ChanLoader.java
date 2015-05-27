@@ -27,6 +27,7 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.net.ChanReaderRequest;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
@@ -281,11 +282,7 @@ public class ChanLoader {
         }
 
         if (TextUtils.isEmpty(loadable.title)) {
-            if (thread.op != null) {
-                loadable.generateTitle(thread.op);
-            } else {
-                loadable.title = "/" + loadable.board + "/";
-            }
+            loadable.title = PostHelper.getTitle(thread.op, loadable);
         }
 
         for (Post post : thread.posts) {

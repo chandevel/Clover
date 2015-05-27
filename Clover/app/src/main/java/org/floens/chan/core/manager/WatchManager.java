@@ -25,6 +25,7 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -150,7 +151,7 @@ public class WatchManager {
     public boolean addPin(Post opPost) {
         Pin pin = new Pin();
         pin.loadable = new Loadable(opPost.board, opPost.no);
-        pin.loadable.generateTitle(opPost);
+        pin.loadable.title = PostHelper.getTitle(opPost, pin.loadable);
         pin.thumbnailUrl = opPost.thumbnailUrl;
         return addPin(pin);
     }
@@ -158,7 +159,7 @@ public class WatchManager {
     public boolean addPin(Loadable loadable, Post opPost) {
         Pin pin = new Pin();
         pin.loadable = loadable;
-        pin.loadable.generateTitle(opPost);
+        pin.loadable.title = PostHelper.getTitle(opPost, loadable);
         pin.thumbnailUrl = opPost.thumbnailUrl;
         return addPin(pin);
     }

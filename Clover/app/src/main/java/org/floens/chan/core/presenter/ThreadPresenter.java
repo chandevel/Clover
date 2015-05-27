@@ -41,6 +41,7 @@ import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.ThreadStatusCell;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.layout.ThreadListLayout;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -89,7 +90,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 unbindLoadable();
             }
 
-            this.loadable = loadable;
             Pin pin = watchManager.findPinByLoadable(loadable);
             if (pin != null) {
                 // Use the loadable from the pin.
@@ -97,6 +97,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 // and not in a separate loadable instance.
                 loadable = pin.loadable;
             }
+            this.loadable = loadable;
+
             chanLoader = LoaderPool.getInstance().obtain(loadable, this);
         }
     }
@@ -252,7 +254,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void onPostClicked(Post post) {
         if (loadable.mode == Loadable.Mode.CATALOG) {
             Loadable threadLoadable = new Loadable(post.board, post.no);
-            threadLoadable.generateTitle(post);
+            threadLoadable.title = PostHelper.getTitle(post, loadable);
             threadPresenterCallback.showThread(threadLoadable);
         } else {
             if (searchOpen) {

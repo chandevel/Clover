@@ -155,7 +155,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void loadBoard(Board board) {
         Loadable loadable = new Loadable(board.value);
         loadable.mode = Loadable.Mode.CATALOG;
-        loadable.generateTitle();
+        loadable.title = board.key;
         navigationItem.title = board.key;
 
         threadLayout.getPresenter().unbindLoadable();
