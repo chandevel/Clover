@@ -345,7 +345,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 watchManager.addPin(post);
                 break;
             case POST_OPTION_SHARE:
-                AndroidUtils.shareLink(ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no, post.no));
+                AndroidUtils.shareLink(
+                        post.isOP ?
+                                ChanUrls.getThreadUrlDesktop(post.board, post.no) :
+                                ChanUrls.getThreadUrlDesktop(post.board, loadable.no, post.no)
+                );
                 break;
         }
     }
