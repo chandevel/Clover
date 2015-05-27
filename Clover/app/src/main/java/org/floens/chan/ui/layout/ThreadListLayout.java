@@ -106,6 +106,8 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             AnimationUtils.animateHeight(reply, replyOpen, getWidth(), 500, reply);
             if (open) {
                 reply.focusComment();
+            } else {
+                AndroidUtils.hideKeyboard(reply);
             }
         }
     }
