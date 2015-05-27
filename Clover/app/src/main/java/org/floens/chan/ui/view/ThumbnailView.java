@@ -157,9 +157,9 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
             Rect bounds = new Rect();
             textPaint.getTextBounds(errorText, 0, errorText.length(), bounds);
-            float x = (getWidth() - bounds.width()) / 2;
-            float y = getHeight() - (getHeight() - bounds.height()) / 2;
-            canvas.drawText(errorText, x, y, textPaint);
+            float x = (getWidth() - getPaddingLeft() + getPaddingRight() - bounds.width()) / 2;
+            float y = getHeight() - getPaddingTop() - getPaddingBottom() - (getHeight() - bounds.height()) / 2;
+            canvas.drawText(errorText, getPaddingLeft() + x, getPaddingTop() + y, textPaint);
 
             canvas.restore();
         } else {
