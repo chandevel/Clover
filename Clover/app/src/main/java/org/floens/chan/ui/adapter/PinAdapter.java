@@ -40,7 +40,7 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwipeListener.Callback {
-    private static final int PIN_OFFSET = 3;
+    private static final int PIN_OFFSET = 1;
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_PIN = 1;
@@ -116,10 +116,10 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
     @Override
     public int getItemViewType(int position) {
         switch (position) {
-            case 0:
+            /*case 0:
             case 1:
-                return TYPE_LINK;
-            case 2:
+                return TYPE_LINK;*/
+            case 0:
                 return TYPE_HEADER;
             default:
                 return TYPE_PIN;
