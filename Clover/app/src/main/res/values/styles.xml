@@ -39,7 +39,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_saved_reply_color">#FFBCBCBC</item>
         <item name="post_highlighted_color">#FFD6BAD0</item>
-        <item name="post_reply_count_color">#FF646464</item>
         <item name="post_reply_color">#FF646464</item>
         <item name="post_name_color">#ff117743</item>
         <item name="post_subject_color">#ff0F0C5D</item>
@@ -66,7 +65,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_saved_reply_color">#ff5C5C5C</item>
         <item name="post_highlighted_color">#ff444444</item>
-        <item name="post_reply_count_color">#ff9f9f9f</item>
         <item name="post_subject_color">#ff625cff</item>
         <item name="post_link_color">#ff625cff</item>
         <item name="post_spoiler_color">#ff000000</item>

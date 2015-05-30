@@ -117,6 +117,10 @@ public class SwipeListener extends RecyclerView.ItemDecoration implements Recycl
     }
 
     @Override
+    public void onRequestDisallowInterceptTouchEvent(boolean b) {
+    }
+
+    @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
         switch (e.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:

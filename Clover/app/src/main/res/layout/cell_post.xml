@@ -52,7 +52,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@id/icons"
-        android:layout_toRightOf="@id/thumbnail_view" />
+        android:layout_toRightOf="@id/thumbnail_view"
+        android:textColor="?attr/text_color_primary" />
 
     <TextView
         android:id="@+id/replies"
@@ -62,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_below="@id/comment"
         android:layout_toRightOf="@id/thumbnail_view"
         android:singleLine="true"
-        android:textColor="?attr/post_reply_count_color" />
+        android:textColor="?attr/text_color_secondary" />
 
     <View
         android:id="@+id/divider"
