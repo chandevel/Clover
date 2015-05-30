@@ -26,7 +26,6 @@ import android.view.ViewConfiguration;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.floens.chan.chan.ChanUrls;
@@ -127,7 +126,7 @@ public class Chan extends Application {
         }
 
         if (ChanBuild.DEVELOPER_MODE) {
-            refWatcher = LeakCanary.install(this);
+//            refWatcher = LeakCanary.install(this);
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }

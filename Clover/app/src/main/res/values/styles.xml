@@ -18,12 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <resources>
     <color name="primary">#ff4caf50</color>
     <color name="primary_dark">#ff388e3c</color>
+    <color name="accent">#ff009688</color>
 
     <!-- Main light theme -->
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent_material_light</item>
+        <item name="colorAccent">@color/accent</item>
 
         <item name="android:windowBackground">@android:color/white</item>
         <item name="windowActionModeOverlay">true</item>
@@ -63,22 +64,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.Dark">
         <item name="backcolor">#ff232323</item>
 
-        <item name="thumbnail_background">#00000000</item>
-        <item name="saved_reply_color">#ff5C5C5C</item>
-        <item name="highlighted_color">#ff444444</item>
-        <item name="reply_count_color">#ff9f9f9f</item>
-        <item name="subject_color">#ff625cff</item>
-        <item name="date_color">#ff9f9f9f</item>
-        <item name="link_color">#ff625cff</item>
-        <item name="spoiler_color">#ff000000</item>
-        <item name="id_background_light">#00000000</item>
-        <item name="id_background_dark">#ffC6C6C6</item>
+        <item name="post_saved_reply_color">#ff5C5C5C</item>
+        <item name="post_highlighted_color">#ff444444</item>
+        <item name="post_reply_count_color">#ff9f9f9f</item>
+        <item name="post_subject_color">#ff625cff</item>
+        <item name="post_link_color">#ff625cff</item>
+        <item name="post_spoiler_color">#ff000000</item>
+        <item name="post_id_background_light">#00000000</item>
+        <item name="post_id_background_dark">#ffC6C6C6</item>
     </style>
 
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
         <item name="backcolor">#ff000000</item>
 
-        <item name="spoiler_color">#ff2c2c2c</item>
+        <item name="post_spoiler_color">#ff2c2c2c</item>
     </style>
 
     <!-- For FloatingMenu -->

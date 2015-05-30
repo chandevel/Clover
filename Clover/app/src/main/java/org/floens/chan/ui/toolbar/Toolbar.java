@@ -152,7 +152,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
         setRoundItemBackground(arrowMenuView);
 
-        leftButtonContainer.addView(arrowMenuView, new FrameLayout.LayoutParams(dp(56), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL));
+        leftButtonContainer.addView(arrowMenuView, new FrameLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.toolbar_height), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL));
 
         navigationItemContainer = new LoadView(getContext());
         navigationItemContainer.setListener(this);

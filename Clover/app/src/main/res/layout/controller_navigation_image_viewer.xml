@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <org.floens.chan.ui.toolbar.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="@dimen/toolbar_height"
         android:background="#e9000000"
         android:elevation="4dp"
         tools:ignore="UnusedAttribute" />
