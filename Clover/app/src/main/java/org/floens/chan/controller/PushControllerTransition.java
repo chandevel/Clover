@@ -53,7 +53,7 @@ public class PushControllerTransition extends ControllerTransition {
                 });
 
                 AnimatorSet set = new AnimatorSet();
-                set.playTogether(fromAlpha, toAlpha, toY);
+                set.playTogether(/*fromAlpha, */toAlpha, toY);
                 set.start();
                 return false;
             }

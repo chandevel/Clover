@@ -53,7 +53,7 @@ public class PopControllerTransition extends ControllerTransition {
         fromAlpha.setDuration(150);
 
         AnimatorSet set = new AnimatorSet();
-        set.playTogether(toAlpha, fromY, fromAlpha);
+        set.playTogether(/*toAlpha, */fromY, fromAlpha);
         set.start();
     }
 }
