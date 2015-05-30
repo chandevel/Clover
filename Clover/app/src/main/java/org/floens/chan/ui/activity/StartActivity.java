@@ -19,6 +19,7 @@ package org.floens.chan.ui.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +31,7 @@ import org.floens.chan.chan.ChanHelper;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
@@ -106,6 +108,26 @@ public class StartActivity extends AppCompatActivity {
 
         if (loadDefault) {
             browseController.loadBoard(Chan.getBoardManager().getSavedBoards().get(0));
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        // Handle WatchNotifier clicks
+        if (intent.getExtras() != null) {
+            int pinId = intent.getExtras().getInt("pin_id", -2);
+            if (pinId != -2 && rootNavigationController.getTop() instanceof BrowseController) {
+                if (pinId == -1) {
+                    rootNavigationController.onMenuClicked();
+                } else {
+                    Pin pin = Chan.getWatchManager().findPinById(pinId);
+                    if (pin != null) {
+                        browseController.showThread(pin.loadable, false);
+                    }
+                }
+            }
         }
     }
 
