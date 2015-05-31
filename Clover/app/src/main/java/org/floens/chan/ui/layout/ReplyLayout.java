@@ -43,7 +43,7 @@ import org.floens.chan.ui.view.SelectionListeningEditText;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 import org.floens.chan.utils.ImageDecoder;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.theme.ThemeHelper;
 
 import java.io.File;
 
@@ -133,7 +133,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
         setView(replyInputLayout);
 
-        setBackgroundColor(0xffffffff);
+        setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setElevation(dp(4f));
         }

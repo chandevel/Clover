@@ -24,5 +24,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:singleLine="true"
-    android:textColor="#ff000000"
+    android:textColor="?text_color_primary"
     android:textSize="16sp" />

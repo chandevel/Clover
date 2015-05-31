@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:minWidth="150dp"
             android:paddingLeft="16dp"
             android:singleLine="true"
-            android:textColor="#ffffffff"
+            android:textColor="?text_color_primary"
             android:textSize="20dp" />
 
         <TextView
@@ -55,7 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="16dp"
             android:paddingTop="29dp"
             android:singleLine="true"
-            android:textColor="#ffededed"
+            android:textColor="?text_color_secondary"
             android:textSize="14dp" />
     </FrameLayout>
 

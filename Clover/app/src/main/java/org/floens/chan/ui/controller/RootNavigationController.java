@@ -34,6 +34,7 @@ import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.adapter.PinAdapter;
 import org.floens.chan.ui.helper.SwipeListener;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -66,6 +67,8 @@ public class RootNavigationController extends NavigationController implements Pi
         drawer = (FrameLayout) view.findViewById(R.id.drawer);
         recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
+
+        toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
 
         pinAdapter = new PinAdapter(this);
         recyclerView.setAdapter(pinAdapter);

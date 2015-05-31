@@ -35,6 +35,8 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.Arrays;
 
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int POST_ID = 1;
     private static final int PIN_ID = 2;
@@ -57,7 +59,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onCreate() {
         super.onCreate();
 
-        view.setBackgroundColor(0xffffffff);
+        view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 
         navigationItem.hasDrawer = true;
         navigationItem.menu = new ToolbarMenu(context);

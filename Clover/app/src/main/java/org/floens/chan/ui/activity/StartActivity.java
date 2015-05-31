@@ -33,12 +33,12 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +58,7 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTheme(R.style.Chan_Theme);
-        ThemeHelper.getInstance().reloadPostViewColors(this);
+        ThemeHelper.getInstance().addContext(this);
 
         contentView = (ViewGroup) findViewById(android.R.id.content);
 
@@ -109,6 +108,12 @@ public class StartActivity extends AppCompatActivity {
         if (loadDefault) {
             browseController.loadBoard(Chan.getBoardManager().getSavedBoards().get(0));
         }
+    }
+
+    public void restart() {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
     }
 
     @Override
@@ -206,6 +211,8 @@ public class StartActivity extends AppCompatActivity {
 
         stackTop().onDestroy();
         stack.clear();
+
+        ThemeHelper.getInstance().removeContext(this);
     }
 
     @Override

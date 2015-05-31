@@ -25,14 +25,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ffffffff"
+        android:background="?backcolor"
         android:orientation="vertical">
 
         <org.floens.chan.ui.toolbar.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/toolbar_height"
-            android:background="@color/primary"
             android:elevation="4dp"
             tools:ignore="UnusedAttribute" />
 
@@ -49,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
-        android:background="#ffffffff">
+        android:background="?backcolor">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/drawer_recycler_view"

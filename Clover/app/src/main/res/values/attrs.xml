@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="text_color_hint" format="color" />
 
     <attr name="backcolor" format="color" />
+    <attr name="backcolor_secondary" format="color" />
 
     <attr name="post_saved_reply_color" format="color" />
     <attr name="post_highlighted_color" format="color" />
@@ -44,4 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="dropdown_light_pressed_color" format="color" />
     <attr name="dropdown_dark_color" format="color" />
     <attr name="dropdown_dark_pressed_color" format="color" />
+
+    <attr name="setting_description_top" format="reference" />
+    <attr name="setting_description_bottom" format="reference" />
 </resources>

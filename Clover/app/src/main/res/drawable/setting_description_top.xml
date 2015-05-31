@@ -17,5 +17,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:color="#89000000" android:state_enabled="false" />
-    <item android:color="#ff000000" />
+    <item android:color="#DE000000" />
 </selector>

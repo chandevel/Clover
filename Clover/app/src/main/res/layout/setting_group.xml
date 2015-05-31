@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="wrap_content"
     android:layout_marginBottom="6dp"
     android:layout_marginTop="6dp"
-    android:background="#ffffffff"
+    android:background="?backcolor"
     android:elevation="4dp"
     android:orientation="vertical"
     tools:ignore="UnusedAttribute">
@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingRight="16dp"
         android:paddingTop="16dp"
         android:singleLine="true"
-        android:textColor="#89000000"
+        android:textColor="?text_color_secondary"
         android:textSize="16sp" />
 
 </LinearLayout>

@@ -34,7 +34,7 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.theme.ThemeHelper;
 
 import java.io.File;
 
@@ -56,7 +56,7 @@ public class TestActivity extends Activity implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.getInstance().reloadPostViewColors(this);
+        ThemeHelper.getInstance().addContext(this);
 
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -91,6 +91,12 @@ public class TestActivity extends Activity implements View.OnClickListener {
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
         File fileCacheDir = new File(cacheDir, "filecache");
         fileCache = new FileCache(fileCacheDir, 50 * 1024 * 1024, Chan.getInstance().getUserAgent());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ThemeHelper.getInstance().removeContext(this);
     }
 
     @Override

@@ -29,7 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.theme.ThemeHelper;
 
 import java.io.File;
 import java.util.ArrayList;

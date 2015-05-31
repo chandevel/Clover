@@ -31,6 +31,9 @@ import org.floens.chan.core.model.SavedReply;
 
 import java.util.Random;
 
+import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+
 public class DeveloperSettingsController extends Controller {
     private TextView summaryText;
 
@@ -46,7 +49,6 @@ public class DeveloperSettingsController extends Controller {
 
         LinearLayout wrapper = new LinearLayout(context);
         wrapper.setOrientation(LinearLayout.VERTICAL);
-        wrapper.setBackgroundColor(0xffffffff);
 
         Button crashButton = new Button(context);
 
@@ -61,7 +63,7 @@ public class DeveloperSettingsController extends Controller {
         wrapper.addView(crashButton);
 
         summaryText = new TextView(context);
-        summaryText.setPadding(0, 25, 0, 0);
+        summaryText.setPadding(0, dp(25), 0, 0);
         wrapper.addView(summaryText);
 
         setDbSummary();
@@ -107,6 +109,7 @@ public class DeveloperSettingsController extends Controller {
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
         view = scrollView;
+        view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
     }
 
     private void setDbSummary() {

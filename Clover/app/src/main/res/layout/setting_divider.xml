@@ -19,4 +19,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:id="@+id/divider"
     android:layout_width="match_parent"
     android:layout_height="1px"
-    android:background="#22000000" />
+    android:background="?divider_color" />

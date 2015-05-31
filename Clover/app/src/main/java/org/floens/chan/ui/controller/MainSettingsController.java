@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.ListSettingView;
@@ -50,6 +51,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     private LinkSettingView passLink;
     private int clickCount;
     private SettingView developerView;
+    private SettingView theme;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -99,6 +101,8 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         if (item == imageAutoLoadView) {
             videoAutoLoadView.setEnabled(ChanSettings.imageAutoLoad.get());
+        } else if (item == theme) {
+            ((StartActivity)context).restart();
         }
     }
 
@@ -141,7 +145,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         // Browsing group
         SettingsGroup browsing = new SettingsGroup(s(R.string.settings_group_browsing));
 
-        browsing.add(new ListSettingView(this, ChanSettings.theme, s(R.string.setting_theme), new ListSettingView.Item[]{
+        theme = browsing.add(new ListSettingView(this, ChanSettings.theme, s(R.string.setting_theme), new ListSettingView.Item[]{
                 new ListSettingView.Item(s(R.string.setting_theme_light), "light"),
                 new ListSettingView.Item(s(R.string.setting_theme_dark), "dark"),
                 new ListSettingView.Item(s(R.string.setting_theme_black), "black")

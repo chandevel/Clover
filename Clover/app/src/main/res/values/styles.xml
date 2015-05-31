@@ -22,17 +22,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <!-- Main light theme -->
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent</item>
+        <item name="colorAccent">#ff009688</item>
 
         <item name="android:windowBackground">@android:color/white</item>
         <item name="windowActionModeOverlay">true</item>
 
         <item name="dropDownListViewStyle">@style/ToolbarDropDownListViewStyle</item>
 
-        <item name="backcolor">#ffffffff</item>
+        <item name="setting_description_top">@drawable/setting_description_top</item>
+        <item name="setting_description_bottom">@drawable/setting_description_bottom</item>
 
+        <item name="backcolor">#ffffffff</item>
+        <item name="backcolor_secondary">#fff5f5f5</item>
+
+        <item name="android:textColor">#DE000000</item>
         <item name="text_color_primary">#DE000000</item>
         <item name="text_color_secondary">#89000000</item>
         <item name="text_color_hint">#42000000</item>
@@ -61,14 +64,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="dropdown_dark_pressed_color">#887d7d7d</item>
     </style>
 
-    <style name="Chan.Theme.Dark">
-        <item name="backcolor">#ff232323</item>
+    <style name="Chan.Theme.Dark" parent="Theme.AppCompat.NoActionBar">
+        <item name="setting_description_top">@drawable/setting_description_top_dark</item>
+        <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
 
+        <item name="backcolor">#ff232323</item>
+        <item name="backcolor_secondary">#ff303030</item>
+
+        <item name="android:textColor">#ffffffff</item>
+        <item name="text_color_primary">#ffffffff</item>
+        <item name="text_color_secondary">#b2ffffff</item>
+        <item name="text_color_hint">#4cffffff</item>
+
+        <!--<item name="divider_color">#1effffff</item>-->
         <item name="divider_color">#1effffff</item>
 
         <item name="post_saved_reply_color">#ff5C5C5C</item>
         <item name="post_highlighted_color">#ff444444</item>
         <item name="post_subject_color">#ff625cff</item>
+        <item name="post_details_color">#ff646464</item>
         <item name="post_link_color">#ff625cff</item>
         <item name="post_spoiler_color">#ff000000</item>
         <item name="post_id_background_light">#00000000</item>
@@ -77,6 +91,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
         <item name="backcolor">#ff000000</item>
+        <item name="backcolor_secondary">#ff212121</item>
 
         <item name="post_spoiler_color">#ff2c2c2c</item>
     </style>

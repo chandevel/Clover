@@ -22,7 +22,7 @@ import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.theme.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;

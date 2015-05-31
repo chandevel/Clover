@@ -42,7 +42,7 @@ import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.theme.ThemeHelper;
 
 public class PostRepliesController extends Controller {
     private static final int TRANSITION_DURATION = 200;

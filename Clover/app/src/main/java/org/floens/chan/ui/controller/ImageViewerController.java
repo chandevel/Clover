@@ -126,7 +126,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         view.setOnClickListener(this);
         previewImage = (TransitionImageView) view.findViewById(R.id.preview_image);
         pager = (OptionalSwipeViewPager) view.findViewById(R.id.pager);
-        pager.setOnPageChangeListener(presenter);
+        pager.addOnPageChangeListener(presenter);
         loadingBar = (LoadingBar) view.findViewById(R.id.loading_bar);
 
         AndroidUtils.waitForMeasure(view, new AndroidUtils.OnMeasuredCallback() {

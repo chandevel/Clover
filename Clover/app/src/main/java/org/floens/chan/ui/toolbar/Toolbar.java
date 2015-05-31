@@ -357,7 +357,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
             final TextView titleView = (TextView) menu.findViewById(R.id.title);
             titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
             titleView.setText(item.title);
-            // black: titleView.setTextColor(Color.argb((int)(0.87 * 255.0), 0, 0, 0));
+            titleView.setTextColor(0xffffffff);
 
             if (item.middleMenu != null) {
                 item.middleMenu.setAnchor(titleView, Gravity.LEFT, dp(5), dp(5));

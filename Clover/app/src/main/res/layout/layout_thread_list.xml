@@ -31,12 +31,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/search_status"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#ffffffff"
+        android:background="?backcolor"
         android:elevation="4dp"
         android:gravity="center"
         android:padding="8dp"
         android:singleLine="true"
-        android:textColor="#ff757575"
+        android:textColor="?text_color_secondary"
         android:visibility="gone"
         tools:ignore="UnusedAttribute" />
 

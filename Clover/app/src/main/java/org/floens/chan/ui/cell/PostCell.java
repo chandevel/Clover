@@ -56,7 +56,7 @@ import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;

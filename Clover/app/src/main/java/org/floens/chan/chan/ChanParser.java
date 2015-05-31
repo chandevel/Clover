@@ -38,7 +38,7 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.ThemeHelper;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
