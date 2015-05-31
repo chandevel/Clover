@@ -121,7 +121,12 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         if (initial) {
             reply.bindLoadable(showingThread.loadable);
             linearLayoutManager.scrollToPositionWithOffset(thread.loadable.listViewIndex, 0);
+        } else {
+            if (linearLayoutManager.findLastVisibleItemPosition() == postAdapter.getItemCount() - 1) {
+                linearLayoutManager.scrollToPositionWithOffset(postAdapter.getItemCount() - 1, 0);
+            }
         }
+
         postAdapter.setThread(thread);
     }
 
