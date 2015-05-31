@@ -72,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:background="?attr/post_divider_color" />
+        android:background="?attr/divider_color" />
 
     <ImageView
         android:id="@+id/options"

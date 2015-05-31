@@ -37,14 +37,16 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwipeListener.Callback {
-    private static final int PIN_OFFSET = 1;
+    private static final int PIN_OFFSET = 4;
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_PIN = 1;
     private static final int TYPE_LINK = 2;
+    private static final int TYPE_DIVIDER = 3;
 
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
@@ -63,6 +65,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
                 return new PinViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_pin, parent, false));
             case TYPE_LINK:
                 return new LinkHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
+            case TYPE_DIVIDER:
+                return new DividerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
         }
         return null;
     }
@@ -85,15 +89,14 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             case TYPE_LINK:
                 LinkHolder linkHolder = (LinkHolder) holder;
                 switch (position) {
-                    case 0:
-                        linkHolder.text.setText(R.string.drawer_board);
-                        linkHolder.image.setImageResource(R.drawable.ic_view_list_24dp);
-                        break;
                     case 1:
-                        linkHolder.text.setText(R.string.drawer_catalog);
-                        linkHolder.image.setImageResource(R.drawable.ic_view_module_24dp);
+                        linkHolder.text.setText(R.string.settings_screen);
+                        linkHolder.image.setImageResource(R.drawable.ic_settings_grey600_24dp);
                         break;
                 }
+                break;
+            case TYPE_DIVIDER:
+                ((DividerHolder) holder).withBackground(position != 0);
                 break;
         }
     }
@@ -116,10 +119,12 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
     @Override
     public int getItemViewType(int position) {
         switch (position) {
-            /*case 0:
             case 1:
-                return TYPE_LINK;*/
+                return TYPE_LINK;
             case 0:
+            case 2:
+                return TYPE_DIVIDER;
+            case 3:
                 return TYPE_HEADER;
             default:
                 return TYPE_PIN;
@@ -303,9 +308,30 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    callback.openSettings();
                 }
             });
+        }
+    }
+
+    public class DividerHolder extends RecyclerView.ViewHolder {
+        private boolean withBackground = false;
+        private View divider;
+
+        public DividerHolder(View itemView) {
+            super(itemView);
+            divider = itemView.findViewById(R.id.divider);
+        }
+
+        public void withBackground(boolean withBackground) {
+            if (withBackground != this.withBackground) {
+                this.withBackground = withBackground;
+                if (withBackground) {
+                    divider.setBackgroundColor(getAttrColor(itemView.getContext(), R.attr.divider_color));
+                } else {
+                    divider.setBackgroundColor(0);
+                }
+            }
         }
     }
 
@@ -317,5 +343,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         void onHeaderClicked(HeaderHolder holder);
 
         boolean isHighlighted(Pin pin);
+
+        void openSettings();
     }
 }

@@ -47,7 +47,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int POST_ID = 2;
     private static final int SEARCH_ID = 101;
     private static final int SHARE_ID = 102;
-    private static final int SETTINGS_ID = 103;
 
     private List<FloatingMenuItem> boardItems;
 
@@ -76,7 +75,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)));
         items.add(new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)));
-        items.add(new FloatingMenuItem(SETTINGS_ID, context.getString(R.string.settings_screen)));
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
     }
@@ -102,10 +100,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
             case SHARE_ID:
                 String link = ChanUrls.getCatalogUrlDesktop(threadLayout.getPresenter().getLoadable().board);
                 AndroidUtils.shareLink(link);
-                break;
-            case SETTINGS_ID:
-                MainSettingsController mainSettingsController = new MainSettingsController(context);
-                navigationController.pushController(mainSettingsController);
                 break;
         }
     }

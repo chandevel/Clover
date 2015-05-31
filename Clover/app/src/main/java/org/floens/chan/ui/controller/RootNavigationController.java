@@ -170,6 +170,11 @@ public class RootNavigationController extends NavigationController implements Pi
         pushController(new WatchSettingsController(context));
     }
 
+    @Override
+    public void openSettings() {
+        pushController(new MainSettingsController(context));
+    }
+
     public void onEvent(WatchManager.PinAddedMessage message) {
         pinAdapter.onPinAdded(message.pin);
         drawerLayout.openDrawer(drawer);

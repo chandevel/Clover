@@ -51,8 +51,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_id_background_light">#ff636363</item>
         <item name="post_id_background_dark">#00000000</item>
         <item name="post_inline_quote_color">#ff789922</item>
-        <item name="post_divider_color">#1E000000</item>
         <item name="post_options_drawable">@drawable/ic_overflow</item>
+
+        <item name="divider_color">#1e000000</item>
 
         <item name="dropdown_light_color">#ffffffff</item>
         <item name="dropdown_light_pressed_color">#88ffffff</item>
@@ -62,6 +63,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <style name="Chan.Theme.Dark">
         <item name="backcolor">#ff232323</item>
+
+        <item name="divider_color">#1effffff</item>
 
         <item name="post_saved_reply_color">#ff5C5C5C</item>
         <item name="post_highlighted_color">#ff444444</item>
