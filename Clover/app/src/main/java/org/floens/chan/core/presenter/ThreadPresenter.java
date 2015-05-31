@@ -173,6 +173,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
      */
     @Override
     public void onChanLoaderData(ChanThread result) {
+        Pin pin = watchManager.findPinByLoadable(loadable);
+        if (pin != null) {
+            if (pin.archived != result.archived) {
+                pin.archived = result.archived;
+                watchManager.updatePin(pin);
+            }
+        }
+
         chanLoader.setAutoLoadMore(isWatching());
         threadPresenterCallback.showPosts(result);
 

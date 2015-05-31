@@ -203,8 +203,8 @@ public class WatchManager {
         pin.watching = !pin.watching;
 
         EventBus.getDefault().post(new PinChangedMessage(pin));
-        Chan.getWatchManager().onPinsChanged();
-        Chan.getWatchManager().invokeLoadNow();
+        onPinsChanged();
+        invokeLoadNow();
     }
 
     public void pinWatcherUpdated(Pin pin) {

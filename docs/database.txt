@@ -36,3 +36,7 @@ ALTER TABLE board ADD COLUMN thumbnailUrl VARCHAR;
 
 Changes in version 14:
 ALTER TABLE pin ADD COLUMN order INTEGER;
+
+
+Changes is version 15:
+ALTER TABLE pin ADD COLUMN archived INTEGER;

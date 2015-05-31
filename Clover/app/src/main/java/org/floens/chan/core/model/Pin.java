@@ -54,6 +54,9 @@ public class Pin {
     @DatabaseField
     public int order = -1;
 
+    @DatabaseField
+    public boolean archived = false;
+
     private PinWatcher pinWatcher;
 
     public int getNewPostCount() {

@@ -40,7 +40,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -131,6 +131,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (oldVersion < 14) {
             try {
                 pinDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN \"order\" INTEGER;");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (oldVersion < 15) {
+            try {
+                pinDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN archived INTEGER;");
             } catch (SQLException e) {
                 e.printStackTrace();
             }

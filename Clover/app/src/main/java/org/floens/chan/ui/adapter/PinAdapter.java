@@ -18,6 +18,7 @@
 package org.floens.chan.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.helper.SwipeListener;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -39,6 +41,7 @@ import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
+import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwipeListener.Callback {
     private static final int PIN_OFFSET = 4;
@@ -194,7 +197,12 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
     }
 
     public void updatePinViewHolder(PinViewHolder holder, Pin pin) {
-        holder.textView.setText(pin.loadable.title);
+        CharSequence text = pin.loadable.title;
+        if (pin.archived) {
+            text = TextUtils.concat(PostHelper.addIcon(PostHelper.archivedIcon, sp(14 + 2)), text);
+        }
+
+        holder.textView.setText(text);
         holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
 
         if (ChanSettings.watchEnabled.get()) {
