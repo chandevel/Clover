@@ -37,14 +37,18 @@ public class ThemeHelper {
         return instance;
     }
 
+    public static Theme theme() {
+        return getInstance().getTheme();
+    }
+
     private List<Theme> themes = new ArrayList<>();
 
     private Theme theme;
 
     public ThemeHelper() {
         themes.add(new Theme("Light", "light", R.style.Chan_Theme, true, PrimaryColor.GREEN));
-        themes.add(new Theme("Dark", "dark", R.style.Chan_Theme_Dark, false, PrimaryColor.DARK));
-        themes.add(new Theme("Black", "black", R.style.Chan_Theme_Black, false, PrimaryColor.BLACK));
+        themes.add(new DarkTheme("Dark", "dark", R.style.Chan_Theme_Dark, false, PrimaryColor.DARK));
+        themes.add(new DarkTheme("Black", "black", R.style.Chan_Theme_Black, false, PrimaryColor.BLACK));
         updateCurrentTheme();
     }
 

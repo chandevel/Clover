@@ -21,6 +21,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,8 @@ import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
-import org.floens.chan.ui.theme.ThemeHelper;
+
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 
 public class PostRepliesController extends Controller {
     private static final int TRANSITION_DURATION = 200;
@@ -148,9 +150,19 @@ public class PostRepliesController extends Controller {
             }
         });
 
-        if (!ThemeHelper.getInstance().getTheme().isLightTheme) {
-            ((TextView) dataView.findViewById(R.id.replies_back_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_arrow_back_white_24dp, 0, 0, 0);
-            ((TextView) dataView.findViewById(R.id.replies_close_icon)).setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_done_white_24dp, 0, 0, 0);
+        Drawable backDrawable = theme().backDrawable.makeDrawable(context);
+        Drawable doneDrawable = theme().doneDrawable.makeDrawable(context);
+
+        TextView repliesBackText = ((TextView) dataView.findViewById(R.id.replies_back_icon));
+        TextView repliesCloseText = ((TextView) dataView.findViewById(R.id.replies_close_icon));
+        repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
+        repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
+        if (theme().isLightTheme) {
+            repliesBackText.setTextColor(0x8a000000);
+            repliesCloseText.setTextColor(0x8a000000);
+        } else {
+            repliesBackText.setTextColor(0xffffffff);
+            repliesCloseText.setTextColor(0xffffffff);
             dataView.findViewById(R.id.container).setBackgroundResource(R.drawable.dialog_full_dark);
         }
 

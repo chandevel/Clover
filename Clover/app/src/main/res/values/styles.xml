@@ -65,6 +65,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="Chan.Theme.Dark" parent="Theme.AppCompat.NoActionBar">
+        <item name="dropdown_dark_color">#ffffffff</item>
+        <item name="dropdown_dark_pressed_color">#88ffffff</item>
+
         <item name="setting_description_top">@drawable/setting_description_top_dark</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
 

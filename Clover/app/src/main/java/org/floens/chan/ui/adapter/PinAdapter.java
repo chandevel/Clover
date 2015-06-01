@@ -37,6 +37,7 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -80,7 +81,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             case TYPE_HEADER:
                 HeaderHolder headerHolder = (HeaderHolder) holder;
                 headerHolder.text.setText(R.string.drawer_pinned);
-                headerHolder.image.setImageResource(R.drawable.ic_settings_grey600_24dp);
+                theme().settingsDrawable.apply(headerHolder.image);
 
                 break;
             case TYPE_PIN:
@@ -94,7 +95,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
                 switch (position) {
                     case 1:
                         linkHolder.text.setText(R.string.settings_screen);
-                        linkHolder.image.setImageResource(R.drawable.ic_settings_grey600_24dp);
+                        theme().settingsDrawable.apply(linkHolder.image);
                         break;
                 }
                 break;

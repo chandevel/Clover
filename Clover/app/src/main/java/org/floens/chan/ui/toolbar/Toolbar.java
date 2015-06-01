@@ -327,7 +327,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
             searchViewParams.gravity = Gravity.CENTER_VERTICAL;
             searchViewWrapper.addView(searchView, searchViewParams);
 
-            clearButton.setImageResource(R.drawable.ic_close_white_24dp);
+            clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
             clearButton.setAlpha(searchView.length() == 0 ? 0.6f : 1.0f);
             clearButton.setScaleType(ImageView.ScaleType.CENTER);
             clearButton.setOnClickListener(new OnClickListener() {

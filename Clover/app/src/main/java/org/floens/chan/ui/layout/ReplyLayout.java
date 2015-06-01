@@ -47,6 +47,7 @@ import org.floens.chan.ui.theme.ThemeHelper;
 
 import java.io.File;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -125,9 +126,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         setRoundItemBackground(more);
         more.setOnClickListener(this);
         attach = (ImageView) replyInputLayout.findViewById(R.id.attach);
+        theme().imageDrawable.apply(attach);
         setRoundItemBackground(attach);
         attach.setOnClickListener(this);
         submit = (ImageView) replyInputLayout.findViewById(R.id.submit);
+        theme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 
@@ -319,7 +322,12 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void openPreview(boolean show, File previewFile) {
-        attach.setImageResource(show ? R.drawable.ic_close_grey600_24dp : R.drawable.ic_image_grey600_24dp);
+        if (show) {
+            theme().clearDrawable.apply(attach);
+        } else {
+            theme().imageDrawable.apply(attach);
+        }
+
         if (show) {
             ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(100), dp(100), this);
         } else {

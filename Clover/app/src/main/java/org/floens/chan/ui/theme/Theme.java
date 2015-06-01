@@ -17,8 +17,11 @@
  */
 package org.floens.chan.ui.theme;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 
 import org.floens.chan.R;
 import org.floens.chan.utils.AndroidUtils;
@@ -46,6 +49,13 @@ public class Theme {
     public int idBackgroundDark;
     public int capcodeColor;
 
+    public ThemeDrawable settingsDrawable;
+    public ThemeDrawable imageDrawable;
+    public ThemeDrawable sendDrawable;
+    public ThemeDrawable clearDrawable;
+    public ThemeDrawable backDrawable;
+    public ThemeDrawable doneDrawable;
+
     public Theme(String displayName, String name, int resValue, boolean isLightTheme, ThemeHelper.PrimaryColor primaryColor) {
         this.displayName = displayName;
         this.name = name;
@@ -54,6 +64,16 @@ public class Theme {
         this.primaryColor = primaryColor;
 
         resolveSpanColors();
+        resolveDrawables();
+    }
+
+    public void resolveDrawables() {
+        settingsDrawable = new ThemeDrawable(R.drawable.ic_settings_black_24dp, 0.54f);
+        imageDrawable = new ThemeDrawable(R.drawable.ic_image_black_24dp, 0.54f);
+        sendDrawable = new ThemeDrawable(R.drawable.ic_send_black_24dp, 0.54f);
+        clearDrawable = new ThemeDrawable(R.drawable.ic_clear_black_24dp, 0.54f);
+        backDrawable = new ThemeDrawable(R.drawable.ic_arrow_back_black_24dp, 0.54f);
+        doneDrawable = new ThemeDrawable(R.drawable.ic_done_black_24dp, 0.54f);
     }
 
     private void resolveSpanColors() {
@@ -86,5 +106,31 @@ public class Theme {
         capcodeColor = ta.getColor(9, 0);
 
         ta.recycle();
+    }
+
+    public static class ThemeDrawable {
+        public int drawable;
+        public float alpha;
+        public int intAlpha;
+
+        public ThemeDrawable(int drawable, float alpha) {
+            this.drawable = drawable;
+            this.alpha = alpha;
+            intAlpha = Math.round(alpha * 0xff);
+        }
+
+        public void apply(ImageView imageView) {
+            imageView.setImageResource(drawable);
+            // Use the int one!
+            //noinspection deprecation
+            imageView.setAlpha(intAlpha);
+        }
+
+        public Drawable makeDrawable(Context context) {
+            //noinspection deprecation
+            Drawable d = context.getResources().getDrawable(drawable);
+            d.setAlpha(intAlpha);
+            return d;
+        }
     }
 }
