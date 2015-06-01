@@ -449,6 +449,10 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
 
+    /**
+     * A MovementMethod that searches for PostLinkables.<br>
+     * See {@link PostLinkable} for more information.
+     */
     private class PostViewMovementMethod extends LinkMovementMethod {
         @Override
         public boolean onTouchEvent(@NonNull TextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {

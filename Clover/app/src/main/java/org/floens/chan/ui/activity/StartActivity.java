@@ -58,7 +58,7 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.getInstance().addContext(this);
+        ThemeHelper.getInstance().setupContext(this);
 
         contentView = (ViewGroup) findViewById(android.R.id.content);
 
@@ -211,8 +211,6 @@ public class StartActivity extends AppCompatActivity {
 
         stackTop().onDestroy();
         stack.clear();
-
-        ThemeHelper.getInstance().removeContext(this);
     }
 
     @Override

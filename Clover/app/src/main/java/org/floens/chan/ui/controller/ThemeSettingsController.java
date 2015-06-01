@@ -182,7 +182,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     "http://example.com/" +
                     "<br>" +
                     "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.";
-            ChanParser.getInstance().parse(themeContext, post);
+            ChanParser.getInstance().parse(theme, post);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);

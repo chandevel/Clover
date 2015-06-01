@@ -76,7 +76,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="text_color_secondary">#b2ffffff</item>
         <item name="text_color_hint">#4cffffff</item>
 
-        <!--<item name="divider_color">#1effffff</item>-->
         <item name="divider_color">#1effffff</item>
 
         <item name="post_saved_reply_color">#ff5C5C5C</item>

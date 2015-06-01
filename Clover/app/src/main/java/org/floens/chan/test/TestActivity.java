@@ -56,7 +56,7 @@ public class TestActivity extends Activity implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.getInstance().addContext(this);
+        ThemeHelper.getInstance().setupContext(this);
 
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -91,12 +91,6 @@ public class TestActivity extends Activity implements View.OnClickListener {
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
         File fileCacheDir = new File(cacheDir, "filecache");
         fileCache = new FileCache(fileCacheDir, 50 * 1024 * 1024, Chan.getInstance().getUserAgent());
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ThemeHelper.getInstance().removeContext(this);
     }
 
     @Override

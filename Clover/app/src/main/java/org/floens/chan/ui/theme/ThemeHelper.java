@@ -19,8 +19,6 @@ package org.floens.chan.ui.theme;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.Context;
-import android.content.res.TypedArray;
 import android.os.Build;
 
 import org.floens.chan.R;
@@ -39,22 +37,15 @@ public class ThemeHelper {
         return instance;
     }
 
-    private List<Context> contexts = new ArrayList<>();
-
     private List<Theme> themes = new ArrayList<>();
 
     private Theme theme;
-
-    private int quoteColor;
-    private int highlightQuoteColor;
-    private int linkColor;
-    private int spoilerColor;
-    private int inlineQuoteColor;
 
     public ThemeHelper() {
         themes.add(new Theme("Light", "light", R.style.Chan_Theme, true, PrimaryColor.GREEN));
         themes.add(new Theme("Dark", "dark", R.style.Chan_Theme_Dark, false, PrimaryColor.DARK));
         themes.add(new Theme("Black", "black", R.style.Chan_Theme_Black, false, PrimaryColor.BLACK));
+        updateCurrentTheme();
     }
 
     public List<Theme> getThemes() {
@@ -78,67 +69,15 @@ public class ThemeHelper {
         return theme;
     }
 
-    public Context getThemedContext() {
-        return contexts.size() > 0 ? contexts.get(contexts.size() - 1) : null;
-    }
-
-    public void addContext(Activity context) {
-        if (contexts.contains(context)) {
-            Logger.e(TAG, "addContext: context already added");
-        } else {
-            contexts.add(context);
-        }
-
+    public void setupContext(Activity context) {
         updateCurrentTheme();
         context.setTheme(theme.resValue);
-
-        TypedArray ta = context.obtainStyledAttributes(new int[]{
-                R.attr.post_quote_color,
-                R.attr.post_highlight_quote_color,
-                R.attr.post_link_color,
-                R.attr.post_spoiler_color,
-                R.attr.post_inline_quote_color
-        });
-
-        quoteColor = ta.getColor(0, 0);
-        highlightQuoteColor = ta.getColor(1, 0);
-        linkColor = ta.getColor(2, 0);
-        spoilerColor = ta.getColor(3, 0);
-        inlineQuoteColor = ta.getColor(4, 0);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             context.getWindow().setStatusBarColor(theme.primaryColor.dark);
             context.getWindow().setNavigationBarColor(0xff000000);
             context.setTaskDescription(new ActivityManager.TaskDescription(null, null, theme.primaryColor.color));
         }
-
-        ta.recycle();
-    }
-
-    public void removeContext(Activity context) {
-        if (!contexts.remove(context)) {
-            Logger.e(TAG, "removeContext: context not found");
-        }
-    }
-
-    public int getQuoteColor() {
-        return quoteColor;
-    }
-
-    public int getHighlightQuoteColor() {
-        return highlightQuoteColor;
-    }
-
-    public int getLinkColor() {
-        return linkColor;
-    }
-
-    public int getSpoilerColor() {
-        return spoilerColor;
-    }
-
-    public int getInlineQuoteColor() {
-        return inlineQuoteColor;
     }
 
     public enum PrimaryColor {

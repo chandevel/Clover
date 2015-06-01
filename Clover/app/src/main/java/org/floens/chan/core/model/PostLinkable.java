@@ -22,19 +22,24 @@ import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
-import org.floens.chan.ui.theme.ThemeHelper;
+import org.floens.chan.ui.cell.PostCell;
+import org.floens.chan.ui.theme.Theme;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Anything that links to something in a post uses this entity.
+ * A Clickable span that handles post clicks. These are created in ChanParser for post quotes, spoilers etc.<br>
+ * PostCells bind callbacks with addCallback and call removeCallback when done.<br>
+ * PostCell has a {@link PostCell.PostViewMovementMethod}, that searches spans at the location the TextView was tapped,
+ * and handled if it was a PostLinkable.
  */
 public class PostLinkable extends ClickableSpan {
     public enum Type {
         QUOTE, LINK, SPOILER, THREAD
     }
 
+    public final Theme theme;
     public final Post post;
     public final String key;
     public final Object value;
@@ -43,7 +48,8 @@ public class PostLinkable extends ClickableSpan {
     private List<Callback> callbacks = new ArrayList<>();
     private boolean spoilerVisible = false;
 
-    public PostLinkable(Post post, String key, Object value, Type type) {
+    public PostLinkable(Theme theme, Post post, String key, Object value, Type type) {
+        this.theme = theme;
         this.post = post;
         this.key = key;
         this.value = value;
@@ -77,21 +83,21 @@ public class PostLinkable extends ClickableSpan {
             if (type == Type.QUOTE) {
                 Callback top = topCallback();
                 if (value instanceof Integer && top != null && (Integer) value == top.getMarkedNo(this)) {
-                    ds.setColor(ThemeHelper.getInstance().getHighlightQuoteColor());
+                    ds.setColor(theme.highlightQuoteColor);
                 } else {
-                    ds.setColor(ThemeHelper.getInstance().getQuoteColor());
+                    ds.setColor(theme.quoteColor);
                 }
             } else if (type == Type.LINK) {
-                ds.setColor(ThemeHelper.getInstance().getLinkColor());
+                ds.setColor(theme.linkColor);
             } else {
-                ds.setColor(ThemeHelper.getInstance().getQuoteColor());
+                ds.setColor(theme.quoteColor);
             }
 
             ds.setUnderlineText(true);
         } else if (type == Type.SPOILER) {
             if (!spoilerVisible) {
-                ds.setColor(ThemeHelper.getInstance().getSpoilerColor());
-                ds.bgColor = ThemeHelper.getInstance().getSpoilerColor();
+                ds.setColor(theme.spoilerColor);
+                ds.bgColor = theme.spoilerColor;
                 ds.setUnderlineText(false);
             }
         }
