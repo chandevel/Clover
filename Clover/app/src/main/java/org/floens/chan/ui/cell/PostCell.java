@@ -19,7 +19,6 @@ package org.floens.chan.ui.cell;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
@@ -53,15 +52,17 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
+import org.floens.chan.ui.theme.Theme;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
-import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -84,12 +85,9 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     private boolean commentClickable = false;
     private CharSequence iconsSpannable;
     private int detailsSizePx;
-    private int detailsColor;
     private int iconsTextSize;
     private int countrySizePx;
     private boolean ignoreNextOnClick;
-    private int highlightColor;
-    private int savedColor;
 
     private int paddingPx;
     private PostCellCallback callback;
@@ -156,18 +154,6 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         dividerParams.rightMargin = paddingPx;
         divider.setLayoutParams(dividerParams);
 
-        TypedArray ta = getContext().obtainStyledAttributes(new int[]{
-                R.attr.post_details_color,
-                R.attr.post_highlighted_color,
-                R.attr.post_saved_reply_color
-        });
-
-        detailsColor = ta.getColor(0, 0);
-        highlightColor = ta.getColor(1, 0);
-        savedColor = ta.getColor(2, 0);
-
-        ta.recycle();
-
         thumbnailView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -226,6 +212,10 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     }
 
     public void setPost(final Post post, PostCellCallback callback, boolean highlighted, int markedNo) {
+        setPost(theme(), post, callback, highlighted, markedNo);
+    }
+
+    public void setPost(Theme theme, final Post post, PostCellCallback callback, boolean highlighted, int markedNo) {
         if (this.post != null) {
             unbindPost(this.post);
         }
@@ -235,7 +225,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         this.highlighted = highlighted;
         this.markedNo = markedNo;
 
-        bindPost(post);
+        bindPost(theme, post);
     }
 
     public Post getPost() {
@@ -252,7 +242,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         return false;
     }
 
-    private void bindPost(Post post) {
+    private void bindPost(Theme theme, Post post) {
         threadMode = callback.getLoadable().isThreadMode();
 
         setPostLinkableListener(post, this);
@@ -264,9 +254,9 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         }
 
         if (highlighted) {
-            setBackgroundColor(highlightColor);
+            setBackgroundColor(theme.highlightedColor);
         } else if (post.isSavedReply) {
-            setBackgroundColor(savedColor);
+            setBackgroundColor(theme.savedReplyColor);
         } else if (threadMode) {
             setBackgroundResource(0);
         } else {
@@ -293,7 +283,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
 
         CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
         SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);
-        date.setSpan(new ForegroundColorSpan(detailsColor), 0, date.length(), 0);
+        date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
 
         titleParts[titlePartsCount] = date;
@@ -320,7 +310,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
 
         boolean waitingForCountry = false;
         if (!TextUtils.isEmpty(post.country)) {
-            loadCountryIcon();
+            loadCountryIcon(theme);
             waitingForCountry = true;
         }
 
@@ -393,7 +383,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
         }
     }
 
-    private void loadCountryIcon() {
+    private void loadCountryIcon(final Theme theme) {
         final Post requestedPost = post;
         Chan.getVolleyImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
             @Override
@@ -403,7 +393,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
 
                     SpannableString countryText = new SpannableString(post.countryName);
                     countryText.setSpan(new StyleSpan(Typeface.ITALIC), 0, countryText.length(), 0);
-                    countryText.setSpan(new ForegroundColorSpan(detailsColor), 0, countryText.length(), 0);
+                    countryText.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, countryText.length(), 0);
                     countryText.setSpan(new AbsoluteSizeSpan(countrySizePx), 0, countryText.length(), 0);
 
                     iconsSpannable = TextUtils.concat(iconsSpannable, countryIcon, countryText);

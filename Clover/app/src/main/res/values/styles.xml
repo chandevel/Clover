@@ -40,21 +40,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="text_color_secondary">#89000000</item>
         <item name="text_color_hint">#42000000</item>
 
-        <item name="post_saved_reply_color">#FFBCBCBC</item>
-        <item name="post_highlighted_color">#FFD6BAD0</item>
-        <item name="post_reply_color">#FF646464</item>
         <item name="post_name_color">#ff117743</item>
         <item name="post_subject_color">#ff0F0C5D</item>
         <item name="post_details_color">#ff646464</item>
         <item name="post_quote_color">#ffDD0000</item>
         <item name="post_highlight_quote_color">#ff950000</item>
+        <item name="post_inline_quote_color">#ff789922</item>
         <item name="post_link_color">#ff0000B4</item>
         <item name="post_spoiler_color">#ff000000</item>
         <item name="post_capcode_color">#ffff0000</item>
+
         <item name="post_id_background_light">#ff636363</item>
         <item name="post_id_background_dark">#00000000</item>
-        <item name="post_inline_quote_color">#ff789922</item>
         <item name="post_options_drawable">@drawable/ic_overflow</item>
+        <item name="post_saved_reply_color">#FFBCBCBC</item>
+        <item name="post_highlighted_color">#FFD6BAD0</item>
 
         <item name="divider_color">#1e000000</item>
 
@@ -96,6 +96,57 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor_secondary">#ff212121</item>
 
         <item name="post_spoiler_color">#ff2c2c2c</item>
+    </style>
+
+    <style name="Chan.Theme.YotsubaB">
+        <item name="backcolor">#ffd6daf0</item>
+        <item name="backcolor_secondary">#ffeef2ff</item>
+
+        <item name="post_quote_color">#ff000080</item>
+        <item name="post_link_color">#ff000080</item>
+    </style>
+
+    <style name="Chan.Theme.Yotsuba">
+        <item name="backcolor">#fff0e0d6</item>
+        <item name="backcolor_secondary">#ffffffee</item>
+
+        <item name="android:textColor">#ff800000</item>
+        <item name="text_color_primary">#ff800000</item>
+        <item name="text_color_secondary">#89800000</item>
+
+        <item name="post_quote_color">#ff000080</item>
+        <item name="post_link_color">#ff000080</item>
+        <item name="post_subject_color">#ffcc1105</item>
+    </style>
+
+    <style name="Chan.Theme.Photon">
+        <item name="backcolor">#ffeeeeee</item>
+
+        <item name="post_name_color">#ff004A99</item>
+        <item name="post_quote_color">#ffFF6600</item>
+        <item name="post_link_color">#ffFF6600</item>
+        <item name="post_highlight_quote_color">#ffcb6600</item>
+        <item name="post_subject_color">#ff111111</item>
+        <item name="post_details_color">#ff333333</item>
+        <item name="post_inline_quote_color">#ff789922</item>
+    </style>
+
+    <style name="Chan.Theme.Tomorrow" parent="Chan.Theme.Dark">
+        <item name="backcolor">#ff282a2e</item>
+        <item name="backcolor_secondary">#ff1d1f21</item>
+
+        <item name="android:textColor">#ffc5c8c6</item>
+        <item name="text_color_primary">#ffc5c8c6</item>
+        <item name="text_color_secondary">#89c5c8c6</item>
+
+        <item name="post_name_color">#ffc5c8c6</item>
+        <item name="post_quote_color">#ff5F89AC</item>
+        <item name="post_link_color">#ff5F89AC</item>
+        <item name="post_highlight_quote_color">#ff416181</item>
+        <item name="post_subject_color">#ffb294bb</item>
+        <item name="post_details_color">#ffc5c8c6</item>
+        <item name="post_inline_quote_color">#ffb5bd68</item>
+
     </style>
 
     <!-- For FloatingMenu -->

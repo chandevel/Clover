@@ -46,9 +46,13 @@ public class ThemeHelper {
     private Theme theme;
 
     public ThemeHelper() {
-        themes.add(new Theme("Light", "light", R.style.Chan_Theme, true, PrimaryColor.GREEN));
-        themes.add(new DarkTheme("Dark", "dark", R.style.Chan_Theme_Dark, false, PrimaryColor.DARK));
-        themes.add(new DarkTheme("Black", "black", R.style.Chan_Theme_Black, false, PrimaryColor.BLACK));
+        themes.add(new Theme("Light", "light", R.style.Chan_Theme, PrimaryColor.GREEN));
+        themes.add(new DarkTheme("Dark", "dark", R.style.Chan_Theme_Dark, PrimaryColor.DARK));
+        themes.add(new DarkTheme("Black", "black", R.style.Chan_Theme_Black, PrimaryColor.BLACK));
+        themes.add(new Theme("Yotsuba", "yotsuba", R.style.Chan_Theme_Yotsuba, PrimaryColor.RED));
+        themes.add(new Theme("Yotsuba B", "yotsuba_b", R.style.Chan_Theme_YotsubaB, PrimaryColor.RED));
+        themes.add(new Theme("Photon", "photon", R.style.Chan_Theme_Photon, PrimaryColor.ORANGE));
+        themes.add(new DarkTheme("Tomorrow", "tomorrow", R.style.Chan_Theme_Tomorrow, PrimaryColor.DARK));
         updateCurrentTheme();
     }
 
@@ -85,7 +89,7 @@ public class ThemeHelper {
     }
 
     public enum PrimaryColor {
-        RED("red", 0xFF44336, 0xFFD32F2F),
+        RED("red", 0xFFF44336, 0xFFD32F2F),
         PINK("pink", 0xFFE91E63, 0xFFC2185B),
         PURPLE("purple", 0xFF9C27B0, 0xFF7B1FA2),
         DEEP_PURPLE("deep purple", 0xFF673AB7, 0xFF512DA8),

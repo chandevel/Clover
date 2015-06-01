@@ -35,8 +35,8 @@ public class Theme {
     public final String displayName;
     public final String name;
     public final int resValue;
-    public final boolean isLightTheme;
     public final ThemeHelper.PrimaryColor primaryColor;
+    public boolean isLightTheme = true;
 
     public int quoteColor;
     public int highlightQuoteColor;
@@ -48,6 +48,9 @@ public class Theme {
     public int idBackgroundLight;
     public int idBackgroundDark;
     public int capcodeColor;
+    public int detailsColor;
+    public int highlightedColor;
+    public int savedReplyColor;
 
     public ThemeDrawable settingsDrawable;
     public ThemeDrawable imageDrawable;
@@ -56,11 +59,10 @@ public class Theme {
     public ThemeDrawable backDrawable;
     public ThemeDrawable doneDrawable;
 
-    public Theme(String displayName, String name, int resValue, boolean isLightTheme, ThemeHelper.PrimaryColor primaryColor) {
+    public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {
         this.displayName = displayName;
         this.name = name;
         this.resValue = resValue;
-        this.isLightTheme = isLightTheme;
         this.primaryColor = primaryColor;
 
         resolveSpanColors();
@@ -91,7 +93,10 @@ public class Theme {
                 R.attr.post_name_color,
                 R.attr.post_id_background_light,
                 R.attr.post_id_background_dark,
-                R.attr.post_capcode_color
+                R.attr.post_capcode_color,
+                R.attr.post_details_color,
+                R.attr.post_highlighted_color,
+                R.attr.post_saved_reply_color
         });
 
         quoteColor = ta.getColor(0, 0);
@@ -104,6 +109,9 @@ public class Theme {
         idBackgroundLight = ta.getColor(7, 0);
         idBackgroundDark = ta.getColor(8, 0);
         capcodeColor = ta.getColor(9, 0);
+        detailsColor = ta.getColor(10, 0);
+        highlightedColor = ta.getColor(11, 0);
+        savedReplyColor = ta.getColor(12, 0);
 
         ta.recycle();
     }

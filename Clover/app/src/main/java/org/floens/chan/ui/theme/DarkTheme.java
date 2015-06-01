@@ -3,8 +3,9 @@ package org.floens.chan.ui.theme;
 import org.floens.chan.R;
 
 public class DarkTheme extends Theme {
-    public DarkTheme(String displayName, String name, int resValue, boolean isLightTheme, ThemeHelper.PrimaryColor primaryColor) {
-        super(displayName, name, resValue, isLightTheme, primaryColor);
+    public DarkTheme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {
+        super(displayName, name, resValue, primaryColor);
+        isLightTheme = false;
     }
 
     public void resolveDrawables() {

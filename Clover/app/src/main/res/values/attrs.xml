@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <attr name="post_saved_reply_color" format="color" />
     <attr name="post_highlighted_color" format="color" />
-    <attr name="post_reply_color" format="color" />
     <attr name="post_name_color" format="color" />
     <attr name="post_subject_color" format="color" />
     <attr name="post_details_color" format="color" />
