@@ -66,21 +66,21 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     private enum Visible {
         LOADING,
         THREAD,
-        ERROR
+        ERROR;
     }
-
     private ThreadLayoutCallback callback;
 
     private ThreadPresenter presenter;
-    private ThreadListLayout threadListLayout;
 
+    private ThreadListLayout threadListLayout;
     private LinearLayout errorLayout;
+
     private TextView errorText;
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
     private Visible visible;
     private ProgressDialog deletingDialog;
-
+    private boolean refreshedFromSwipe;
     public ThreadLayout(Context context) {
         super(context);
         init();
@@ -121,6 +121,14 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         }
     }
 
+    public boolean canChildScrollUp() {
+        if (visible == Visible.THREAD) {
+            return threadListLayout.canChildScrollUp();
+        } else {
+            return true;
+        }
+    }
+
     public boolean onBack() {
         return threadListLayout.onBack();
     }
@@ -135,6 +143,11 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     public void openPost(boolean open) {
         threadListLayout.openReply(open);
+    }
+
+    public void refreshFromSwipe() {
+        refreshedFromSwipe = true;
+        presenter.requestData();
     }
 
     @Override
@@ -341,7 +354,12 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
             this.visible = visible;
             switch (visible) {
                 case LOADING:
-                    setView(null);
+                    View view = setView(null);
+                    // TODO: cleanup
+                    if (refreshedFromSwipe) {
+                        refreshedFromSwipe = false;
+                        view.setVisibility(View.GONE);
+                    }
                     break;
                 case THREAD:
                     setView(threadListLayout);

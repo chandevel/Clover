@@ -18,6 +18,7 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
+import android.support.v4.widget.SwipeRefreshLayout;
 
 import org.floens.chan.Chan;
 import org.floens.chan.controller.Controller;
@@ -30,8 +31,9 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallbacks {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallbacks, SwipeRefreshLayout.OnRefreshListener {
     protected ThreadLayout threadLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public ThreadController(Context context) {
         super(context);
@@ -45,7 +47,17 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         threadLayout = new ThreadLayout(context);
         threadLayout.setCallback(this);
-        view = threadLayout;
+        swipeRefreshLayout = new SwipeRefreshLayout(context) {
+            @Override
+            public boolean canChildScrollUp() {
+                return threadLayout.canChildScrollUp();
+            }
+        };
+        swipeRefreshLayout.addView(threadLayout);
+
+        swipeRefreshLayout.setOnRefreshListener(this);
+
+        view = swipeRefreshLayout;
     }
 
     @Override
@@ -71,6 +83,11 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     public void onEvent(Chan.ForegroundChangedMessage message) {
         threadLayout.getPresenter().onForegroundChanged(message.inForeground);
+    }
+
+    @Override
+    public void onRefresh() {
+        threadLayout.refreshFromSwipe();
     }
 
     public void openPost(boolean open) {
@@ -114,6 +131,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     @Override
     public void onShowPosts() {
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override

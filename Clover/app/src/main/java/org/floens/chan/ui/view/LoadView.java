@@ -86,8 +86,8 @@ public class LoadView extends FrameLayout {
      *
      * @param newView the view or null for a progressbar.
      */
-    public void setView(View newView) {
-        setView(newView, true);
+    public View setView(View newView) {
+        return setView(newView, true);
     }
 
     /**
@@ -97,7 +97,7 @@ public class LoadView extends FrameLayout {
      * @param newView the view or null for a progressbar.
      * @param animate should it be animated
      */
-    public void setView(View newView, boolean animate) {
+    public View setView(View newView, boolean animate) {
         if (newView == null) {
             FrameLayout progressBar = new FrameLayout(getContext());
             progressBar.addView(new ProgressBar(getContext()), new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
@@ -190,6 +190,8 @@ public class LoadView extends FrameLayout {
             newView.setAlpha(1f);
             addView(newView, getLayoutParamsForView(newView));
         }
+
+        return newView;
     }
 
     public LayoutParams getLayoutParamsForView(View view) {

@@ -164,6 +164,16 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         }
     }
 
+    public boolean canChildScrollUp() {
+        View top = recyclerView.getChildAt(0);
+        if (top != null) {
+            if (top.getTop() == 0 && linearLayoutManager.findFirstVisibleItemPosition() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void cleanup() {
         /*if (ChanBuild.DEVELOPER_MODE) {
             Pin pin = ChanApplication.getWatchManager().findPinByLoadable(showingThread.loadable);
