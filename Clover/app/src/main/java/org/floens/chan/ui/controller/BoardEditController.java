@@ -20,6 +20,8 @@ package org.floens.chan.ui.controller;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -43,9 +45,6 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.drawable.ThumbDrawable;
 import org.floens.chan.ui.helper.SwipeListener;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
-import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -54,13 +53,13 @@ import java.util.Locale;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class BoardEditController extends Controller implements SwipeListener.Callback, ToolbarMenuItem.ToolbarMenuItemCallback {
-    private static final int ADD_ID = 1;
+public class BoardEditController extends Controller implements SwipeListener.Callback, View.OnClickListener {
 
     private final BoardManager boardManager = Chan.getBoardManager();
 
     private RecyclerView recyclerView;
     private BoardEditAdapter adapter;
+    private FloatingActionButton done;
 
     private List<Board> boards;
 
@@ -73,11 +72,11 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         super.onCreate();
 
         navigationItem.title = string(R.string.board_edit);
-        navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, ADD_ID, R.drawable.ic_add_white_24dp));
         view = inflateRes(R.layout.controller_board_edit);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
+        done = (FloatingActionButton) view.findViewById(R.id.done);
+        done.setOnClickListener(this);
 
         boards = boardManager.getSavedBoards();
 
@@ -99,15 +98,10 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
     }
 
     @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
-        if ((Integer) item.getId() == ADD_ID) {
+    public void onClick(View v) {
+        if (v == done) {
             showAddBoardDialog();
         }
-    }
-
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-
     }
 
     @Override
@@ -197,7 +191,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
                 boards.add(board);
                 adapter.notifyDataSetChanged();
 
-                new AlertDialog.Builder(context).setMessage(string(R.string.board_add_success) + " " + board.key).setPositiveButton(R.string.ok, null).show();
+                Snackbar.make(view, string(R.string.board_add_success) + " " + board.key, Snackbar.LENGTH_LONG).show();
 
                 return;
             }
