@@ -26,6 +26,8 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.getString;
+
 public class NavigationItem {
     public String title = "";
     public String subtitle = "";
@@ -51,5 +53,9 @@ public class NavigationItem {
         if (toolbar != null) {
             toolbar.setTitle(this);
         }
+    }
+
+    public void setTitle(int resId) {
+        title = getString(resId);
     }
 }

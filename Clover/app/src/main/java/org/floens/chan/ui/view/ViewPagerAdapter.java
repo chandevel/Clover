@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 public abstract class ViewPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        View view = getView(position);
+        View view = getView(position, container);
 
         container.addView(view);
 
@@ -40,5 +40,5 @@ public abstract class ViewPagerAdapter extends PagerAdapter {
         return view == object;
     }
 
-    public abstract View getView(int position);
+    public abstract View getView(int position, ViewGroup parent);
 }

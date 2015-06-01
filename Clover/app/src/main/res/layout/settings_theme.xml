@@ -15,24 +15,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.view.TouchBlockingLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root_layout"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?backcolor"
     android:orientation="vertical">
 
-    <org.floens.chan.ui.toolbar.Toolbar
-        android:id="@+id/toolbar"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:clipToPadding="false"
+        android:paddingLeft="56dp"
+        android:paddingRight="56dp"
+        android:paddingBottom="88dp"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height"
-        android:background="#e9000000"
-        tools:ignore="UnusedAttribute" />
+        android:layout_height="match_parent" />
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_done_white_24dp" />
 
-</org.floens.chan.ui.view.TouchBlockingLinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

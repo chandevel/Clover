@@ -46,7 +46,7 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
     }
 
     @Override
-    public View getView(int position) {
+    public View getView(int position, ViewGroup parent) {
         PostImage postImage = images.get(position);
         MultiImageView view = new MultiImageView(context);
         view.bindPostImage(postImage, multiImageViewCallback);

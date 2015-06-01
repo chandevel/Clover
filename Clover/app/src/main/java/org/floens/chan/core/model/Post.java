@@ -133,7 +133,7 @@ public class Post {
             countryUrl = b.trollFlags ? ChanUrls.getTrollCountryFlagUrl(country) : ChanUrls.getCountryFlagUrl(country);
         }
 
-        ChanParser.getInstance().parse(this);
+        ChanParser.getInstance().parse(null, this);
 
         return true;
     }

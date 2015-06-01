@@ -33,11 +33,11 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.state.ChanState;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;

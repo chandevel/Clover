@@ -25,6 +25,7 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -157,6 +158,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         navigationItemContainer = new LoadView(getContext());
         navigationItemContainer.setListener(this);
         addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setElevation(dp(4f));
+        }
     }
 
     private boolean openSearchInternal() {
@@ -379,6 +384,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
                 titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
+                subtitleView.setTextColor(0xffffffff);
                 titleView.setPadding(titleView.getPaddingLeft(), dp(5f), titleView.getPaddingRight(), titleView.getPaddingBottom());
             } else {
                 titleContainer.removeView(subtitleView);

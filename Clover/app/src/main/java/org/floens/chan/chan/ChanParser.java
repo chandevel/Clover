@@ -36,9 +36,9 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.ui.theme.ThemeHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.StringUtil;
 import org.jsoup.nodes.Document;
@@ -71,7 +71,15 @@ public class ChanParser {
     public ChanParser() {
     }
 
-    public void parse(Post post) {
+    public void parse(Context context, Post post) {
+        if (context == null) {
+            context = ThemeHelper.getInstance().getThemedContext();
+        }
+
+        if (context == null) {
+            context = AndroidUtils.getAppRes();
+        }
+
         try {
             if (!TextUtils.isEmpty(post.name)) {
                 post.name = Parser.unescapeEntities(post.name, false);
@@ -86,7 +94,7 @@ public class ChanParser {
 
         if (!post.parsedSpans) {
             post.parsedSpans = true;
-            parseSpans(post);
+            parseSpans(context, post);
         }
 
         if (post.rawComment != null) {
@@ -94,7 +102,7 @@ public class ChanParser {
         }
     }
 
-    private void parseSpans(Post post) {
+    private void parseSpans(Context context, Post post) {
         boolean anonymize = ChanSettings.anonymize.get();
         boolean anonymizeIds = ChanSettings.anonymizeIds.get();
 
@@ -108,10 +116,6 @@ public class ChanParser {
         }
 
         int detailsSizePx = sp(Integer.parseInt(ChanSettings.fontSize.get()) - 4);
-        Context context = ThemeHelper.getInstance().getThemedContext();
-        if (context == null) {
-            context = AndroidUtils.getAppRes();
-        }
 
         TypedArray ta = context.obtainStyledAttributes(new int[]{
                 R.attr.post_subject_color,

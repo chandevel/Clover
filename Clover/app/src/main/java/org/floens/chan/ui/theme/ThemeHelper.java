@@ -52,9 +52,13 @@ public class ThemeHelper {
     private int inlineQuoteColor;
 
     public ThemeHelper() {
-        themes.add(new Theme("light", R.style.Chan_Theme, true, PrimaryColor.GREEN));
-        themes.add(new Theme("dark", R.style.Chan_Theme_Dark, false, PrimaryColor.DARK));
-        themes.add(new Theme("black", R.style.Chan_Theme_Black, false, PrimaryColor.BLACK));
+        themes.add(new Theme("Light", "light", R.style.Chan_Theme, true, PrimaryColor.GREEN));
+        themes.add(new Theme("Dark", "dark", R.style.Chan_Theme_Dark, false, PrimaryColor.DARK));
+        themes.add(new Theme("Black", "black", R.style.Chan_Theme_Black, false, PrimaryColor.BLACK));
+    }
+
+    public List<Theme> getThemes() {
+        return themes;
     }
 
     public void updateCurrentTheme() {
@@ -168,7 +172,7 @@ public class ThemeHelper {
         PrimaryColor(String name, int color, int dark) {
             this.name = name;
             this.color = color;
-            this.dark= dark;
+            this.dark = dark;
         }
     }
 }

@@ -170,9 +170,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="settings_group_browsing">Browsing</string>
     <string name="setting_theme">Theme</string>
-    <string name="setting_theme_light">Light</string>
-    <string name="setting_theme_dark">Dark</string>
-    <string name="setting_theme_black">Black</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_default">(default)</string>
     <string name="setting_open_link_confirmation">Ask before opening links</string>
@@ -257,6 +254,8 @@ Don't have a 4chan Pass?&lt;br>
     </string>
     <string name="setting_pass_summary_enabled">Using 4chan pass</string>
     <string name="setting_pass_summary_disabled">Off</string>
+
+    <string name="settings_screen_theme">Themes</string>
 </resources>
 
 

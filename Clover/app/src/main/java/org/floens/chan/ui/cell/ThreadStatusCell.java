@@ -143,6 +143,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         if (hasWindowFocus) {
+            update();
             schedule();
         } else {
             unschedule();

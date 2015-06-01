@@ -18,12 +18,14 @@
 package org.floens.chan.ui.theme;
 
 public class Theme {
+    public final String displayName;
     public final String name;
     public final int resValue;
     public final boolean isLightTheme;
     public final ThemeHelper.PrimaryColor primaryColor;
 
-    public Theme(String name, int resValue, boolean isLightTheme, ThemeHelper.PrimaryColor primaryColor) {
+    public Theme(String displayName, String name, int resValue, boolean isLightTheme, ThemeHelper.PrimaryColor primaryColor) {
+        this.displayName = displayName;
         this.name = name;
         this.resValue = resValue;
         this.isLightTheme = isLightTheme;
