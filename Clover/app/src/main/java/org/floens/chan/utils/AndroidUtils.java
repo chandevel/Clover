@@ -249,7 +249,7 @@ public class AndroidUtils {
     }
 
     public static void setRoundItemBackground(View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (isLollipop()) {
             setRoundItemBackgroundLollipop(view);
         } else {
             view.setBackgroundResource(R.drawable.item_background);
@@ -285,5 +285,20 @@ public class AndroidUtils {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static void setRoundItemBackgroundLollipop(View view) {
         view.setBackground(getAttrDrawable(view.getContext(), android.R.attr.selectableItemBackgroundBorderless));
+    }
+
+    public static boolean isLollipop() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    public static void setElevation(View view, float elevation) {
+        if (isLollipop()) {
+            setElevationLollipop(view, elevation);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private static void setElevationLollipop(View view, float elevation) {
+        view.setElevation(elevation);
     }
 }

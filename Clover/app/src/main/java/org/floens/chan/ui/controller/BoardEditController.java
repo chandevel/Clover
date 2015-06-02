@@ -191,7 +191,12 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
                 boards.add(board);
                 adapter.notifyDataSetChanged();
 
-                Snackbar.make(view, string(R.string.board_add_success) + " " + board.key, Snackbar.LENGTH_LONG).show();
+                recyclerView.smoothScrollToPosition(boards.size());
+
+                Snackbar snackbar = Snackbar.make(view, string(R.string.board_add_success) + " " + board.key, Snackbar.LENGTH_LONG);
+                TextView snackbarText = (TextView) snackbar.getView().findViewById(R.id.snackbar_text);
+                snackbarText.setTextColor(0xffffffff);
+                snackbar.show();
 
                 return;
             }
