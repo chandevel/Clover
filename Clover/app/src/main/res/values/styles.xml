@@ -102,8 +102,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">#ffd6daf0</item>
         <item name="backcolor_secondary">#ffeef2ff</item>
 
-        <item name="post_quote_color">#ff000080</item>
-        <item name="post_link_color">#ff000080</item>
+        <item name="android:textColor">#ff000000</item>
+        <item name="text_color_primary">#ff000000</item>
+        <item name="text_color_secondary">#89000000</item>
+
+        <item name="post_subject_color">#ff0F0C5D</item>
+        <item name="post_quote_color">#ffdd0000</item>
+        <item name="post_link_color">#ffdd0000</item>
+        <item name="post_highlight_quote_color">#ff950000</item>
     </style>
 
     <style name="Chan.Theme.Yotsuba">
@@ -114,9 +120,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="text_color_primary">#ff800000</item>
         <item name="text_color_secondary">#89800000</item>
 
+        <item name="post_subject_color">#ffcc1105</item>
         <item name="post_quote_color">#ff000080</item>
         <item name="post_link_color">#ff000080</item>
-        <item name="post_subject_color">#ffcc1105</item>
+        <item name="post_highlight_quote_color">#ff00005d</item>
     </style>
 
     <style name="Chan.Theme.Photon">
