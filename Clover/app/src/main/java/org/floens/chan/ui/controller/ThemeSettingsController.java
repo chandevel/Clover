@@ -159,7 +159,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
         @Override
         public View getView(final int position, ViewGroup parent) {
-            Theme theme = themes.get(position);
+            final Theme theme = themes.get(position);
 
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
 
@@ -188,13 +188,19 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                 @Override
                 public void onClick(View v) {
                     List<FloatingMenuItem> items = new ArrayList<>();
+                    FloatingMenuItem selected = null;
                     for (ThemeHelper.PrimaryColor color : themeHelper.getColors()) {
-                        items.add(new FloatingMenuItem(color, color.displayName));
+                        FloatingMenuItem floatingMenuItem = new FloatingMenuItem(color, color.displayName);
+                        items.add(floatingMenuItem);
+                        if (color == colors.get(position)) {
+                            selected = floatingMenuItem;
+                        }
                     }
 
                     FloatingMenu menu = new FloatingMenu(context);
                     menu.setItems(items);
                     menu.setAdapter(new ColorsAdapter(items));
+                    menu.setSelectedItem(selected);
                     menu.setAnchor(toolbar, Gravity.CENTER, 0, dp(5));
                     menu.setPopupWidth(toolbar.getWidth());
                     menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
