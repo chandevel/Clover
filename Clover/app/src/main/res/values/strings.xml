@@ -164,9 +164,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="settings_screen">Settings</string>
     <string name="settings_group_general">General</string>
-    <string name="settings_board_edit">Edit boards</string>
-    <string name="settings_watch">Thread watcher settings</string>
-    <string name="settings_pass">4chan pass settings</string>
+    <string name="settings_board_edit">Boards</string>
+    <string name="settings_watch">Thread watcher</string>
+    <string name="settings_pass">4chan pass</string>
+
+    <string name="settings_group_appearance">Appearance</string>
 
     <string name="settings_group_browsing">Browsing</string>
     <string name="setting_theme">Theme</string>

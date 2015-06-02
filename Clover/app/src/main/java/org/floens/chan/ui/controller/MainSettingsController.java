@@ -129,24 +129,16 @@ public class MainSettingsController extends SettingsController implements Toolba
             }
         }));
 
-        passLink = (LinkSettingView) general.add(new LinkSettingView(this, s(R.string.settings_pass), null, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new PassSettingsController(context));
-            }
-        }));
+        groups.add(general);
 
-        general.add(new LinkSettingView(this, s(R.string.settings_screen_theme), null, new View.OnClickListener() {
+        SettingsGroup appearance = new SettingsGroup(s(R.string.settings_group_appearance));
+
+        appearance.add(new LinkSettingView(this, s(R.string.settings_screen_theme), null, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new ThemeSettingsController(context));
             }
         }));
-
-        groups.add(general);
-
-        // Browsing group
-        SettingsGroup browsing = new SettingsGroup(s(R.string.settings_group_browsing));
 
         List<ListSettingView.Item> fontSizes = new ArrayList<>();
         for (int size = 10; size <= 19; size++) {
@@ -154,7 +146,12 @@ public class MainSettingsController extends SettingsController implements Toolba
             fontSizes.add(new ListSettingView.Item(name, String.valueOf(size)));
         }
 
-        browsing.add(new ListSettingView(this, ChanSettings.fontSize, s(R.string.setting_font_size), fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
+        appearance.add(new ListSettingView(this, ChanSettings.fontSize, s(R.string.setting_font_size), fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
+
+        groups.add(appearance);
+
+        // Browsing group
+        SettingsGroup browsing = new SettingsGroup(s(R.string.settings_group_browsing));
 
         browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, s(R.string.setting_open_link_confirmation), null));
         browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, s(R.string.setting_auto_refresh_thread), null));
@@ -166,29 +163,21 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         // Posting group
         SettingsGroup posting = new SettingsGroup(s(R.string.settings_group_posting));
-        posting.add(new StringSettingView(this, ChanSettings.postDefaultName, s(R.string.setting_post_default_name), s(R.string.setting_post_default_name)));
+
+        passLink = (LinkSettingView) posting.add(new LinkSettingView(this, s(R.string.settings_pass), null, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigationController.pushController(new PassSettingsController(context));
+            }
+        }));
+
         posting.add(new BooleanSettingView(this, ChanSettings.postPinThread, s(R.string.setting_post_pin), null));
+        posting.add(new StringSettingView(this, ChanSettings.postDefaultName, s(R.string.setting_post_default_name), s(R.string.setting_post_default_name)));
 
         groups.add(posting);
 
         // About group
         SettingsGroup about = new SettingsGroup(s(R.string.settings_group_about));
-        about.add(new LinkSettingView(this, s(R.string.settings_about_license), s(R.string.settings_about_license_description), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new LicensesController(context,
-                        s(R.string.settings_about_license), "file:///android_asset/html/license.html"));
-            }
-        }));
-
-        about.add(new LinkSettingView(this, s(R.string.settings_about_licenses), s(R.string.settings_about_licenses_description), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new LicensesController(context,
-                        s(R.string.settings_about_licenses), "file:///android_asset/html/licenses.html"));
-            }
-        }));
-
         String version = "";
         try {
             version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
@@ -208,6 +197,22 @@ public class MainSettingsController extends SettingsController implements Toolba
 
                     AnimationUtils.animateHeight(developerView.view, developer);
                 }
+            }
+        }));
+
+        about.add(new LinkSettingView(this, s(R.string.settings_about_license), s(R.string.settings_about_license_description), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigationController.pushController(new LicensesController(context,
+                        s(R.string.settings_about_license), "file:///android_asset/html/license.html"));
+            }
+        }));
+
+        about.add(new LinkSettingView(this, s(R.string.settings_about_licenses), s(R.string.settings_about_licenses_description), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigationController.pushController(new LicensesController(context,
+                        s(R.string.settings_about_licenses), "file:///android_asset/html/licenses.html"));
             }
         }));
 
