@@ -17,14 +17,19 @@
  */
 package org.floens.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.internal.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanParser;
@@ -39,13 +44,17 @@ import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.ui.toolbar.Toolbar;
+import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.ui.view.ViewPagerAdapter;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Time;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
@@ -54,6 +63,8 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
     private Adapter adapter;
     private ThemeHelper themeHelper;
+
+    private List<ThemeHelper.PrimaryColor> colors = new ArrayList<>();
 
     private PostCell.PostCellCallback DUMMY_POST_CALLBACK;
     private Toolbar.ToolbarCallback DUMMY_TOOLBAR_CALLBACK;
@@ -131,21 +142,25 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         adapter = new Adapter();
         pager.setAdapter(adapter);
 
-        String currentTheme = ChanSettings.theme.get();
+        ChanSettings.ThemeColor currentSettingsTheme = ChanSettings.getThemeAndColor();
         for (int i = 0; i < themeHelper.getThemes().size(); i++) {
             Theme theme = themeHelper.getThemes().get(i);
-            if (theme.name.equals(currentTheme)) {
+            ThemeHelper.PrimaryColor color = theme.primaryColor;
+            if (theme.name.equals(currentSettingsTheme.theme)) {
                 pager.setCurrentItem(i, false);
-                break;
+                if (currentSettingsTheme.color != null) {
+                    color = themeHelper.getColor(currentSettingsTheme.color);
+                }
             }
+            colors.add(color);
         }
     }
 
     @Override
     public void onClick(View v) {
         if (v == done) {
-            Theme currentTheme = themeHelper.getThemes().get(pager.getCurrentItem());
-            ChanSettings.theme.set(currentTheme.name);
+            Theme theme = themeHelper.getThemes().get(pager.getCurrentItem());
+            themeHelper.changeTheme(theme, colors.get(pager.getCurrentItem()));
             ((StartActivity) context).restart();
         }
     }
@@ -163,7 +178,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public View getView(int position, ViewGroup parent) {
+        public View getView(final int position, ViewGroup parent) {
             Theme theme = themes.get(position);
 
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
@@ -188,13 +203,42 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.setBackgroundColor(getAttrColor(themeContext, R.attr.backcolor));
 
-            Toolbar toolbar = new Toolbar(themeContext);
+            final Toolbar toolbar = new Toolbar(themeContext);
             toolbar.setCallback(DUMMY_TOOLBAR_CALLBACK);
             toolbar.setBackgroundColor(theme.primaryColor.color);
-            NavigationItem item = new NavigationItem();
+            final NavigationItem item = new NavigationItem();
             item.title = theme.displayName;
             item.hasBack = false;
             toolbar.setNavigationItem(false, true, item);
+
+            toolbar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    List<FloatingMenuItem> items = new ArrayList<>();
+                    for (ThemeHelper.PrimaryColor color : themeHelper.getColors()) {
+                        items.add(new FloatingMenuItem(color, color.displayName));
+                    }
+
+                    FloatingMenu menu = new FloatingMenu(context);
+                    menu.setItems(items);
+                    menu.setAdapter(new ColorsAdapter(items));
+                    menu.setAnchor(toolbar, Gravity.CENTER, 0, dp(5));
+                    menu.setPopupWidth(toolbar.getWidth());
+                    menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+                        @Override
+                        public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                            ThemeHelper.PrimaryColor primaryColor = (ThemeHelper.PrimaryColor) item.getId();
+                            colors.set(position, primaryColor);
+                            toolbar.setBackgroundColor(primaryColor.color);
+                        }
+
+                        @Override
+                        public void onFloatingMenuDismissed(FloatingMenu menu) {
+                        }
+                    });
+                    menu.show();
+                }
+            });
 
             linearLayout.addView(toolbar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                     themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
@@ -209,6 +253,45 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         @Override
         public int getCount() {
             return themes.size();
+        }
+    }
+
+    private class ColorsAdapter extends BaseAdapter {
+        private List<FloatingMenuItem> items;
+
+        public ColorsAdapter(List<FloatingMenuItem> items) {
+            this.items = items;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            @SuppressLint("ViewHolder")
+            TextView textView = (TextView) LayoutInflater.from(context).inflate(R.layout.toolbar_menu_item, parent, false);
+            textView.setText(getItem(position));
+            textView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+
+            ThemeHelper.PrimaryColor color = (ThemeHelper.PrimaryColor) items.get(position).getId();
+
+            textView.setBackgroundColor(color.color);
+            boolean lightColor = (Color.red(color.color) * 0.299f) + (Color.green(color.color) * 0.587f) + (Color.blue(color.color) * 0.114f) > 125f;
+            textView.setTextColor(lightColor ? 0xff000000 : 0xffffffff);
+
+            return textView;
+        }
+
+        @Override
+        public int getCount() {
+            return items.size();
+        }
+
+        @Override
+        public String getItem(int position) {
+            return items.get(position).getText();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
         }
     }
 }

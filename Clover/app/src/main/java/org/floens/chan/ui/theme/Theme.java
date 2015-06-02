@@ -35,8 +35,8 @@ public class Theme {
     public final String displayName;
     public final String name;
     public final int resValue;
-    public final ThemeHelper.PrimaryColor primaryColor;
     public boolean isLightTheme = true;
+    public ThemeHelper.PrimaryColor primaryColor;
 
     public int quoteColor;
     public int highlightQuoteColor;

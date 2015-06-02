@@ -27,7 +27,7 @@ import org.floens.chan.utils.AndroidUtils;
 import java.io.File;
 
 public class ChanSettings {
-    public static final StringSetting theme;
+    private static final StringSetting theme;
     public static final StringSetting fontSize;
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting autoRefreshThread;
@@ -125,5 +125,38 @@ public class ChanSettings {
 
     public static boolean passLoggedIn() {
         return passId.get().length() > 0;
+    }
+
+    public static ThemeColor getThemeAndColor() {
+        String themeRaw = ChanSettings.theme.get();
+
+        String theme = themeRaw;
+        String color = null;
+
+        String[] splitted = themeRaw.split(",");
+        if (splitted.length == 2) {
+            theme = splitted[0];
+            color = splitted[1];
+        }
+
+        return new ThemeColor(theme, color);
+    }
+
+    public static void setThemeAndColor(ThemeColor themeColor) {
+        if (themeColor.color != null) {
+            ChanSettings.theme.set(themeColor.theme + "," + themeColor.color);
+        } else {
+            ChanSettings.theme.set(themeColor.theme);
+        }
+    }
+
+    public static class ThemeColor {
+        public String theme;
+        public String color;
+
+        public ThemeColor(String theme, String color) {
+            this.theme = theme;
+            this.color = color;
+        }
     }
 }
