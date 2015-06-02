@@ -67,7 +67,6 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
     private List<ThemeHelper.PrimaryColor> colors = new ArrayList<>();
 
     private PostCell.PostCellCallback DUMMY_POST_CALLBACK;
-    private Toolbar.ToolbarCallback DUMMY_TOOLBAR_CALLBACK;
 
     public ThemeSettingsController(Context context) {
         super(context);
@@ -103,25 +102,6 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
             @Override
             public void onPostLinkableClicked(PostLinkable linkable) {
-            }
-        };
-
-        DUMMY_TOOLBAR_CALLBACK = new Toolbar.ToolbarCallback() {
-            @Override
-            public void onMenuOrBackClicked(boolean isArrow) {
-            }
-
-            @Override
-            public void onSearchVisibilityChanged(boolean visible) {
-            }
-
-            @Override
-            public String getSearchHint() {
-                return null;
-            }
-
-            @Override
-            public void onSearchEntered(String entered) {
             }
         };
     }
@@ -204,14 +184,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             linearLayout.setBackgroundColor(getAttrColor(themeContext, R.attr.backcolor));
 
             final Toolbar toolbar = new Toolbar(themeContext);
-            toolbar.setCallback(DUMMY_TOOLBAR_CALLBACK);
-            toolbar.setBackgroundColor(theme.primaryColor.color);
-            final NavigationItem item = new NavigationItem();
-            item.title = theme.displayName;
-            item.hasBack = false;
-            toolbar.setNavigationItem(false, true, item);
-
-            toolbar.setOnClickListener(new View.OnClickListener() {
+            final View.OnClickListener colorClick = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     List<FloatingMenuItem> items = new ArrayList<>();
@@ -238,7 +211,32 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     });
                     menu.show();
                 }
+            };
+            toolbar.setCallback(new Toolbar.ToolbarCallback() {
+                @Override
+                public void onMenuOrBackClicked(boolean isArrow) {
+                    colorClick.onClick(toolbar);
+                }
+
+                @Override
+                public void onSearchVisibilityChanged(boolean visible) {
+                }
+
+                @Override
+                public String getSearchHint() {
+                    return null;
+                }
+
+                @Override
+                public void onSearchEntered(String entered) {
+                }
             });
+            toolbar.setBackgroundColor(theme.primaryColor.color);
+            final NavigationItem item = new NavigationItem();
+            item.title = theme.displayName;
+            item.hasBack = false;
+            toolbar.setNavigationItem(false, true, item);
+            toolbar.setOnClickListener(colorClick);
 
             linearLayout.addView(toolbar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                     themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
