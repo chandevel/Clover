@@ -26,7 +26,7 @@ import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.SpannedString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -368,8 +368,8 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     }
 
     private void setPostLinkableListener(Post post, PostLinkable.Callback callback) {
-        if (post.comment instanceof SpannedString) {
-            SpannedString commentSpannable = (SpannedString) post.comment;
+        if (post.comment instanceof Spanned) {
+            Spanned commentSpannable = (Spanned) post.comment;
             PostLinkable[] linkables = commentSpannable.getSpans(0, commentSpannable.length(), PostLinkable.class);
             for (PostLinkable linkable : linkables) {
                 if (callback == null) {
