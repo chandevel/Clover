@@ -120,7 +120,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         super.onCreate();
 
         navigationItem.setTitle(R.string.settings_screen_theme);
-        view = inflateRes(R.layout.settings_theme);
+        view = inflateRes(R.layout.controller_theme);
 
         themeHelper = ThemeHelper.getInstance();
 

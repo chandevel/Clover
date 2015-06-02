@@ -56,7 +56,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
 
         navigationItem.title = string(R.string.settings_screen_pass);
 
-        view = inflateRes(R.layout.settings_pass);
+        view = inflateRes(R.layout.controller_pass);
         container = (LinearLayout) view.findViewById(R.id.container);
         crossfadeView = (CrossfadeView) view.findViewById(R.id.crossfade);
         errors = (TextView) view.findViewById(R.id.errors);

@@ -68,7 +68,7 @@ public class PostRepliesController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.post_replies_container);
+        view = inflateRes(R.layout.layout_post_replies_container);
 
         // Clicking outside the popup view
         view.setOnClickListener(new View.OnClickListener() {
@@ -125,9 +125,9 @@ public class PostRepliesController extends Controller {
     private void displayData(final PostPopupHelper.RepliesData data) {
         View dataView;
         if (ChanSettings.repliesButtonsBottom.get()) {
-            dataView = inflateRes(R.layout.post_replies_bottombuttons);
+            dataView = inflateRes(R.layout.layout_post_replies_bottombuttons);
         } else {
-            dataView = inflateRes(R.layout.post_replies);
+            dataView = inflateRes(R.layout.layout_post_replies);
         }
 
         listView = (ListView) dataView.findViewById(R.id.post_list);
