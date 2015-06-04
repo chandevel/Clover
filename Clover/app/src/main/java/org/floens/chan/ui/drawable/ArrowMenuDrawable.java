@@ -24,6 +24,7 @@ import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -51,6 +52,11 @@ public class ArrowMenuDrawable extends Drawable {
     // The interpolated version of the original progress
     private float mProgress;
 
+    private String badgeText;
+    private boolean badgeRed = false;
+    private Paint badgePaint = new Paint();
+    private Rect badgeTextBounds = new Rect();
+
     public ArrowMenuDrawable() {
         mPaint.setColor(0xffffffff);
         mPaint.setAntiAlias(true);
@@ -67,10 +73,8 @@ public class ArrowMenuDrawable extends Drawable {
         mPaint.setStrokeWidth(mBarThickness);
 
         setProgress(0f);
-    }
 
-    boolean isLayoutRtl() {
-        return false;
+        badgePaint.setAntiAlias(true);
     }
 
     @Override
@@ -120,6 +124,37 @@ public class ArrowMenuDrawable extends Drawable {
         canvas.drawPath(mPath, mPaint);
 
         canvas.restore();
+
+        // Draw a badge over the arrow/menu
+        if (badgeText != null) {
+            canvas.save();
+            float badgeSize = mSize * 0.7f;
+            float badgeX = mSize - badgeSize / 2f;
+            float badgeY = badgeSize / 2f;
+
+            if (badgeRed) {
+                badgePaint.setColor(0xddf44336);
+            } else {
+                badgePaint.setColor(0x89000000);
+            }
+
+            canvas.drawCircle(badgeX, badgeY, badgeSize / 2f, badgePaint);
+
+            float textSize;
+            if (badgeText.length() == 1) {
+                textSize = badgeSize * 0.7f;
+            } else if (badgeText.length() == 2) {
+                textSize = badgeSize * 0.6f;
+            } else {
+                textSize = badgeSize * 0.5f;
+            }
+
+            badgePaint.setColor(0xffffffff);
+            badgePaint.setTextSize(textSize);
+            badgePaint.getTextBounds(badgeText, 0, badgeText.length(), badgeTextBounds);
+            canvas.drawText(badgeText, badgeX - badgeTextBounds.right / 2f, badgeY - badgeTextBounds.top / 2f, badgePaint);
+            canvas.restore();
+        }
     }
 
     @Override
@@ -152,13 +187,24 @@ public class ArrowMenuDrawable extends Drawable {
     }
 
     public void setProgress(float progress) {
-        if (progress == 1f) {
-            mVerticalMirror = true;
-        } else if (progress == 0f) {
-            mVerticalMirror = false;
+        if (progress != mProgress) {
+            if (progress == 1f) {
+                mVerticalMirror = true;
+            } else if (progress == 0f) {
+                mVerticalMirror = false;
+            }
+            mProgress = progress;
+            invalidateSelf();
         }
-        mProgress = progress;
-        invalidateSelf();
+    }
+
+    public void setBadge(int count, boolean red) {
+        String text = count == 0 ? null : (count > 999 ? "1k+" : String.valueOf(count));
+        if (badgeRed != red || !TextUtils.equals(text, badgeText)) {
+            badgeText = text;
+            badgeRed = red;
+            invalidateSelf();
+        }
     }
 
     /**

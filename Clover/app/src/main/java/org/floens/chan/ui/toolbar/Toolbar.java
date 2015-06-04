@@ -114,6 +114,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         arrowMenuDrawable.setProgress(progress);
     }
 
+    public ArrowMenuDrawable getArrowMenuDrawable() {
+        return arrowMenuDrawable;
+    }
+
     @Override
     public void onLoadViewRemoved(View view) {
         // TODO: this is kinda a hack

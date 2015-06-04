@@ -38,6 +38,8 @@ import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.utils.AndroidUtils;
 
+import java.util.List;
+
 import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -78,6 +80,8 @@ public class RootNavigationController extends NavigationController implements Pi
         pinAdapter.onPinsChanged(Chan.getWatchManager().getPins());
 
         toolbar.setCallback(this);
+
+        updateBadge();
 
         AndroidUtils.waitForMeasure(drawer, new AndroidUtils.OnMeasuredCallback() {
             @Override
@@ -181,18 +185,37 @@ public class RootNavigationController extends NavigationController implements Pi
     public void onEvent(WatchManager.PinAddedMessage message) {
         pinAdapter.onPinAdded(message.pin);
         drawerLayout.openDrawer(drawer);
+        updateBadge();
     }
 
     public void onEvent(WatchManager.PinRemovedMessage message) {
         pinAdapter.onPinRemoved(message.pin);
+        updateBadge();
     }
 
     public void onEvent(WatchManager.PinChangedMessage message) {
         pinAdapter.onPinChanged(recyclerView, message.pin);
+        updateBadge();
     }
 
     private void setDrawerEnabled(boolean enabled) {
         drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+    }
+
+    private void updateBadge() {
+        List<Pin> list = Chan.getWatchManager().getWatchingPins();
+        int count = 0;
+        boolean color = false;
+        if (list.size() > 0) {
+            for (Pin p : list) {
+                count += p.getNewPostCount();
+                if (p.getNewQuoteCount() > 0) {
+                    color = true;
+                }
+            }
+        }
+
+        toolbar.getArrowMenuDrawable().setBadge(count, color);
     }
 
     private boolean setDrawerWidth() {
