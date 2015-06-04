@@ -15,17 +15,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.cell.ThreadStatusCell xmlns:android="http://schemas.android.com/apk/res/android"
+<org.floens.chan.ui.layout.ThreadLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="88dp"
-    android:orientation="horizontal">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/text"
+    <org.floens.chan.ui.view.LoadView
+        android:id="@+id/loadview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="8dp"
-        android:gravity="center"
-        android:textColor="?text_color_secondary" />
+        android:layout_height="match_parent" />
 
-</org.floens.chan.ui.cell.ThreadStatusCell>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/reply_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:layout_margin="16dp"
+        android:alpha="0"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:src="@drawable/ic_create_white_24dp" />
+
+</org.floens.chan.ui.layout.ThreadLayout>

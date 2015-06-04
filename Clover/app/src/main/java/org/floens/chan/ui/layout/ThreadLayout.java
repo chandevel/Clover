@@ -25,9 +25,12 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -62,16 +65,19 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between loadbar and listview.
  */
-public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback, View.OnClickListener {
+public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback, View.OnClickListener, ThreadListLayout.ReplyLayoutStateCallback {
     private enum Visible {
         LOADING,
         THREAD,
         ERROR;
     }
+
     private ThreadLayoutCallback callback;
 
     private ThreadPresenter presenter;
 
+    private LoadView loadView;
+    private FloatingActionButton replyButton;
     private ThreadListLayout threadListLayout;
     private LinearLayout errorLayout;
 
@@ -81,26 +87,31 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     private Visible visible;
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
+    private boolean showingReplyButton = false;
+
     public ThreadLayout(Context context) {
         super(context);
-        init();
     }
 
     public ThreadLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
     public ThreadLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
     }
 
-    private void init() {
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
         presenter = new ThreadPresenter(this);
 
+        loadView = (LoadView) findViewById(R.id.loadview);
+        replyButton = (FloatingActionButton) findViewById(R.id.reply_button);
+        replyButton.setOnClickListener(this);
+
         threadListLayout = (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
-        threadListLayout.setCallbacks(presenter, presenter, presenter, presenter);
+        threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
 
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
 
@@ -118,6 +129,8 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
     public void onClick(View v) {
         if (v == errorRetryButton) {
             presenter.requestData();
+        } else if (v == replyButton) {
+            threadListLayout.openReply(true);
         }
     }
 
@@ -141,13 +154,14 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         return presenter;
     }
 
-    public void openPost(boolean open) {
-        threadListLayout.openReply(open);
-    }
-
     public void refreshFromSwipe() {
         refreshedFromSwipe = true;
         presenter.requestData();
+    }
+
+    @Override
+    public void replyLayoutOpen(boolean open) {
+        showReplyButton(!open);
     }
 
     @Override
@@ -285,7 +299,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
 
     @Override
     public void quote(Post post, boolean withText) {
-        openPost(true);
+        threadListLayout.openReply(true);
         threadListLayout.getReplyPresenter().quote(post, withText);
     }
 
@@ -339,6 +353,20 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
         return postPopupHelper.isOpen();
     }
 
+    private void showReplyButton(boolean show) {
+        if (show != showingReplyButton) {
+            showingReplyButton = show;
+            replyButton.animate()
+                    .setInterpolator(new DecelerateInterpolator(2f))
+                    .setStartDelay(show ? 100 : 0)
+                    .setDuration(200)
+                    .alpha(show ? 1f : 0f)
+                    .scaleX(show ? 1f : 0f)
+                    .scaleY(show ? 1f : 0f)
+                    .start();
+        }
+    }
+
     private void switchVisible(Visible visible) {
         if (this.visible != visible) {
             if (this.visible != null) {
@@ -347,6 +375,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
                         threadListLayout.cleanup();
                         postPopupHelper.popAll();
                         showSearch(false);
+                        showReplyButton(false);
                         break;
                 }
             }
@@ -354,7 +383,7 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
             this.visible = visible;
             switch (visible) {
                 case LOADING:
-                    View view = setView(null);
+                    View view = loadView.setView(null);
                     // TODO: cleanup
                     if (refreshedFromSwipe) {
                         refreshedFromSwipe = false;
@@ -362,10 +391,11 @@ public class ThreadLayout extends LoadView implements ThreadPresenter.ThreadPres
                     }
                     break;
                 case THREAD:
-                    setView(threadListLayout);
+                    loadView.setView(threadListLayout);
+                    showReplyButton(true);
                     break;
                 case ERROR:
-                    setView(errorLayout);
+                    loadView.setView(errorLayout);
                     break;
             }
         }

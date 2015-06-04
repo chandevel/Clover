@@ -19,8 +19,10 @@ package org.floens.chan.ui.controller;
 
 import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.LayoutInflater;
 
 import org.floens.chan.Chan;
+import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
@@ -45,7 +47,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         EventBus.getDefault().register(this);
 
-        threadLayout = new ThreadLayout(context);
+        threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.setCallback(this);
         swipeRefreshLayout = new SwipeRefreshLayout(context) {
             @Override
@@ -88,10 +90,6 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public void onRefresh() {
         threadLayout.refreshFromSwipe();
-    }
-
-    public void openPost(boolean open) {
-        threadLayout.openPost(open);
     }
 
     public void presentRepliesController(Controller controller) {

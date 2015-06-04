@@ -53,6 +53,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
     private PostAdapter postAdapter;
     private ChanThread showingThread;
     private ThreadListLayoutCallback callback;
+    private ReplyLayoutStateCallback replyLayoutStateCallback;
     private boolean replyOpen;
 
     public ThreadListLayout(Context context, AttributeSet attrs) {
@@ -74,8 +75,11 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
-    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback, ThreadStatusCell.Callback statusCellCallback, ThreadListLayoutCallback callback) {
+    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback,
+                             ThreadStatusCell.Callback statusCellCallback, ThreadListLayoutCallback callback,
+                             ReplyLayoutStateCallback replyLayoutStateCallback) {
         this.callback = callback;
+        this.replyLayoutStateCallback = replyLayoutStateCallback;
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -109,6 +113,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             } else {
                 AndroidUtils.hideKeyboard(reply);
             }
+            replyLayoutStateCallback.replyLayoutOpen(open);
         }
     }
 
@@ -250,5 +255,9 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         void showThread(Loadable loadable);
 
         void requestNewPostLoad();
+    }
+
+    public interface ReplyLayoutStateCallback {
+        void replyLayoutOpen(boolean open);
     }
 }

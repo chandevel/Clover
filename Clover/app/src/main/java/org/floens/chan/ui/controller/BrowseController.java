@@ -44,7 +44,6 @@ import java.util.List;
 
 public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback {
     private static final int REFRESH_ID = 1;
-    private static final int POST_ID = 2;
     private static final int SEARCH_ID = 101;
     private static final int SHARE_ID = 102;
 
@@ -68,7 +67,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         navigationItem.hasBack = false;
 
         menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
-        menu.addItem(new ToolbarMenuItem(context, this, POST_ID, R.drawable.ic_create_white_24dp));
 
         ToolbarMenuItem overflow = menu.createOverflow(this);
 
@@ -84,9 +82,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         switch ((Integer) item.getId()) {
             case REFRESH_ID:
                 threadLayout.getPresenter().requestData();
-                break;
-            case POST_ID:
-                openPost(true);
                 break;
         }
     }

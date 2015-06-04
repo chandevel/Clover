@@ -38,7 +38,6 @@ import java.util.Arrays;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
-    private static final int POST_ID = 1;
     private static final int PIN_ID = 2;
     private static final int REFRESH_ID = 101;
     private static final int SEARCH_ID = 102;
@@ -64,7 +63,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         navigationItem.hasDrawer = true;
         navigationItem.menu = new ToolbarMenu(context);
 
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, POST_ID, R.drawable.ic_create_white_24dp));
         pinItem = navigationItem.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
         navigationItem.createOverflow(context, this, Arrays.asList(
                 new FloatingMenuItem(REFRESH_ID, context.getString(R.string.action_reload)),
@@ -153,9 +151,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         switch ((Integer) item.getId()) {
             case PIN_ID:
                 setPinIconState(threadLayout.getPresenter().pin());
-                break;
-            case POST_ID:
-                openPost(true);
                 break;
         }
     }
