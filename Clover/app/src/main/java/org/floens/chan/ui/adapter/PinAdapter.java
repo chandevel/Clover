@@ -272,14 +272,20 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    callback.onPinClicked(pins.get(getAdapterPosition() - PIN_OFFSET));
+                    int pos = getAdapterPosition() - PIN_OFFSET;
+                    if (pos >= 0 && pos < pins.size()) {
+                        callback.onPinClicked(pins.get(pos));
+                    }
                 }
             });
 
             watchCountText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    callback.onWatchCountClicked(pins.get(getAdapterPosition() - PIN_OFFSET));
+                    int pos = getAdapterPosition() - PIN_OFFSET;
+                    if (pos >= 0 && pos < pins.size()) {
+                        callback.onWatchCountClicked(pins.get(pos));
+                    }
                 }
             });
         }
