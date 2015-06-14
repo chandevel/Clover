@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 
 import org.floens.chan.Chan;
+import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -68,7 +69,10 @@ public class ChanSettings {
         SharedPreferences p = AndroidUtils.getPreferences();
 
         theme = new StringSetting(p, "preference_theme", "light");
-        fontSize = new StringSetting(p, "preference_font", "14");
+
+        boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
+
+        fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", true);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
         imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
