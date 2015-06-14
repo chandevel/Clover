@@ -30,6 +30,7 @@ public class LoadingBar extends View {
     private static final float MINIMUM_PROGRESS = 0.1f;
 
     private float progress;
+    private float targetProgress;
     private Paint paint;
 
     public LoadingBar(Context context) {
@@ -47,9 +48,12 @@ public class LoadingBar extends View {
         init();
     }
 
-    public void setProgress(float progress) {
-        progress = Math.min(Math.max(progress, 0f), 1f);
-        this.progress = MINIMUM_PROGRESS + progress * (1f - MINIMUM_PROGRESS);
+    public void setProgress(float targetProgress) {
+        float clampedProgress = Math.min(Math.max(targetProgress, 0f), 1f);
+        this.targetProgress = MINIMUM_PROGRESS + clampedProgress * (1f - MINIMUM_PROGRESS);
+        if (this.targetProgress < this.progress) {
+            this.progress = this.targetProgress;
+        }
         invalidate();
     }
 
@@ -57,8 +61,14 @@ public class LoadingBar extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        progress += (targetProgress - progress) * 0.05f;
+
         if (progress > 0f) {
             canvas.drawRect(0f, 0f, getWidth() * progress, getHeight(), paint);
+        }
+
+        if ((getWidth() * Math.abs(targetProgress - progress)) > 1f) {
+            invalidate();
         }
     }
 
