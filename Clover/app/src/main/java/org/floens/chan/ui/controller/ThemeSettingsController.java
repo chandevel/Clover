@@ -103,6 +103,10 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             @Override
             public void onPostLinkableClicked(PostLinkable linkable) {
             }
+
+            @Override
+            public void onPostNoClicked(Post post) {
+            }
         };
     }
 

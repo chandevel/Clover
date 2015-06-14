@@ -27,6 +27,7 @@ import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -299,9 +300,11 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
         titleParts[titlePartsCount++] = post.nameTripcodeIdCapcodeSpan;
 
         CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
-        SpannableString date = new SpannableString("No." + post.no + " " + relativeTime);
+        String noText = "No." + post.no;
+        SpannableString date = new SpannableString(noText + " " + relativeTime);
         date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
+        date.setSpan(new NoClickableSpan(), 0, noText.length(), 0);
 
         titleParts[titlePartsCount] = date;
 
@@ -351,12 +354,15 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
         if (commentClickable != threadMode) {
             commentClickable = threadMode;
             if (commentClickable) {
-                comment.setMovementMethod(new PostViewMovementMethod());
+                PostViewMovementMethod movementMethod = new PostViewMovementMethod();
+                comment.setMovementMethod(movementMethod);
                 comment.setOnClickListener(selfClicked);
+                title.setMovementMethod(movementMethod);
             } else {
                 comment.setOnClickListener(null);
                 comment.setClickable(false);
                 comment.setMovementMethod(null);
+                title.setMovementMethod(null);
             }
         }
 
@@ -478,7 +484,7 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
                         ignoreNextOnClick = true;
                         link[0].onClick(widget);
                         buffer.removeSpan(BACKGROUND_SPAN);
-                    } else if (action == MotionEvent.ACTION_DOWN) {
+                    } else if (action == MotionEvent.ACTION_DOWN && link[0] instanceof PostLinkable) {
                         buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]), 0);
                     } else if (action == MotionEvent.ACTION_CANCEL) {
                         buffer.removeSpan(BACKGROUND_SPAN);
@@ -491,6 +497,18 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
             }
 
             return true;
+        }
+    }
+
+    private class NoClickableSpan extends ClickableSpan {
+        @Override
+        public void onClick(View widget) {
+            callback.onPostNoClicked(post);
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            ds.setUnderlineText(false);
         }
     }
 }

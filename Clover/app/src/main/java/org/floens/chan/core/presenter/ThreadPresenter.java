@@ -383,6 +383,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
+    public void onPostNoClicked(Post post) {
+        threadPresenterCallback.quote(post, false);
+    }
+
+    @Override
     public void onShowPostReplies(Post post) {
 
         List<Post> posts = new ArrayList<>();
