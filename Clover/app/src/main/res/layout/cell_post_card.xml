@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<org.floens.chan.ui.cell.CardPostCell xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:padding="50dp"
+    card_view:cardBackgroundColor="?backcolor"
+    card_view:cardCornerRadius="2dp"
+    card_view:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:background="@drawable/item_background"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <org.floens.chan.ui.view.FixedRatioThumbnailView
+                android:id="@+id/thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|right"
+                android:paddingBottom="15dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="5dp"
+                android:paddingTop="5dp"
+                android:src="?post_options_drawable"
+                tools:ignore="ContentDescription,RtlHardcoded" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="3"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp" />
+
+        <org.floens.chan.ui.view.FastTextView
+            android:id="@+id/comment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp"
+            android:textColor="?attr/text_color_primary" />
+
+        <TextView
+            android:id="@+id/replies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="4dp"
+            android:singleLine="true"
+            android:textColor="?attr/text_color_secondary" />
+
+    </LinearLayout>
+
+</org.floens.chan.ui.cell.CardPostCell>

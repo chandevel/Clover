@@ -27,6 +27,7 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -57,6 +58,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onCreate() {
         super.onCreate();
+
+        threadLayout.setPostViewMode(PostCellInterface.PostViewMode.LIST);
 
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 

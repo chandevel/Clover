@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener, PassSettingsController.PassSettingControllerListener {
     private static final int ADVANCED_SETTINGS = 1;
     private SettingView imageAutoLoadView;
@@ -50,6 +52,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     private LinkSettingView passLink;
     private int clickCount;
     private SettingView developerView;
+    private SettingView fontView;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -99,6 +102,8 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         if (item == imageAutoLoadView) {
             videoAutoLoadView.setEnabled(ChanSettings.imageAutoLoad.get());
+        } else if (item == fontView) {
+            EventBus.getDefault().post(new RefreshUIMessage("fontsize"));
         }
     }
 
@@ -146,7 +151,7 @@ public class MainSettingsController extends SettingsController implements Toolba
             fontSizes.add(new ListSettingView.Item(name, String.valueOf(size)));
         }
 
-        appearance.add(new ListSettingView(this, ChanSettings.fontSize, s(R.string.setting_font_size), fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
+        fontView = appearance.add(new ListSettingView(this, ChanSettings.fontSize, s(R.string.setting_font_size), fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
 
         groups.add(appearance);
 
@@ -228,5 +233,13 @@ public class MainSettingsController extends SettingsController implements Toolba
 
     private String s(int id) {
         return string(id);
+    }
+
+    public static class RefreshUIMessage {
+        public String reason;
+
+        public RefreshUIMessage(String reason) {
+            this.reason = reason;
+        }
     }
 }

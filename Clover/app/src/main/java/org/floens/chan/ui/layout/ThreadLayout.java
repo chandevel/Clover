@@ -51,6 +51,7 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -88,6 +89,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
     private boolean showingReplyButton = false;
+    private PostCellInterface.PostViewMode postViewMode;
 
     public ThreadLayout(Context context) {
         super(context);
@@ -157,6 +159,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     public void refreshFromSwipe() {
         refreshedFromSwipe = true;
         presenter.requestData();
+    }
+
+    public void setPostViewMode(PostCellInterface.PostViewMode postViewMode) {
+        this.postViewMode = postViewMode;
+        threadListLayout.setPostViewMode(postViewMode);
     }
 
     @Override

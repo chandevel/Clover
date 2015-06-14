@@ -37,7 +37,15 @@ public class FloatingMenuItem {
         return id;
     }
 
+    public void setId(Object id) {
+        this.id = id;
+    }
+
     public String getText() {
         return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

@@ -147,6 +147,12 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        calculate = true;
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         if (getAlpha() == 0f) {
             return;

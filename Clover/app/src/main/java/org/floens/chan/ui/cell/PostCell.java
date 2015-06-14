@@ -47,7 +47,6 @@ import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
@@ -62,17 +61,13 @@ import org.floens.chan.utils.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
-public class PostCell extends RelativeLayout implements PostLinkable.Callback {
+public class PostCell extends RelativeLayout implements PostCellInterface, PostLinkable.Callback {
     private static final int COMMENT_MAX_LENGTH_BOARD = 500;
-
-    private Post post;
-    private boolean threadMode;
 
     private ThumbnailView thumbnailView;
     private TextView title;
@@ -87,9 +82,13 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     private int detailsSizePx;
     private int iconsTextSize;
     private int countrySizePx;
+    private int paddingPx;
+    private boolean threadMode;
     private boolean ignoreNextOnClick;
 
-    private int paddingPx;
+    private boolean bound = false;
+    private Theme theme;
+    private Post post;
     private PostCellCallback callback;
     private boolean highlighted;
     private int markedNo;
@@ -104,6 +103,7 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
             }
         }
     };
+    private ImageLoader.ImageContainer countryIconRequest;
 
     public PostCell(Context context) {
         super(context);
@@ -206,20 +206,35 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        if (post != null) {
+        if (post != null && bound) {
             unbindPost(post);
         }
     }
 
-    public void setPost(final Post post, PostCellCallback callback, boolean highlighted, int markedNo) {
-        setPost(theme(), post, callback, highlighted, markedNo);
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if (post != null && !bound) {
+            bindPost(theme, post);
+        }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellCallback callback, boolean highlighted, int markedNo) {
-        if (this.post != null) {
-            unbindPost(this.post);
+    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback, boolean highlighted, int markedNo) {
+        if (this.post == post && this.highlighted == highlighted && this.markedNo == markedNo) {
+            return;
         }
 
+        if (theme == null) {
+            theme = ThemeHelper.theme();
+        }
+
+        if (this.post != null && bound) {
+            unbindPost(this.post);
+            this.post = null;
+        }
+
+        this.theme = theme;
         this.post = post;
         this.callback = callback;
         this.highlighted = highlighted;
@@ -243,6 +258,8 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     }
 
     private void bindPost(Theme theme, Post post) {
+        bound = true;
+
         threadMode = callback.getLoadable().isThreadMode();
 
         setPostLinkableListener(post, this);
@@ -364,6 +381,13 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     }
 
     private void unbindPost(Post post) {
+        bound = false;
+
+        if (countryIconRequest != null) {
+            countryIconRequest.cancelRequest();
+            countryIconRequest = null;
+        }
+
         setPostLinkableListener(post, null);
     }
 
@@ -373,22 +397,23 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
             PostLinkable[] linkables = commentSpannable.getSpans(0, commentSpannable.length(), PostLinkable.class);
             for (PostLinkable linkable : linkables) {
                 if (callback == null) {
-                    if (linkable.hasCallback(this)) {
+                    while (linkable.hasCallback(this)) {
                         linkable.removeCallback(this);
                     }
                 } else {
-                    linkable.addCallback(callback);
+                    if (!linkable.hasCallback(this)) {
+                        linkable.addCallback(callback);
+                    }
                 }
             }
         }
     }
 
     private void loadCountryIcon(final Theme theme) {
-        final Post requestedPost = post;
-        Chan.getVolleyImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
+        countryIconRequest = Chan.getVolleyImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
             @Override
             public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                if (response.getBitmap() != null && PostCell.this.post == requestedPost) {
+                if (response.getBitmap() != null) {
                     CharSequence countryIcon = PostHelper.addIcon(new BitmapDrawable(getRes(), response.getBitmap()), iconsTextSize);
 
                     SpannableString countryText = new SpannableString(post.countryName);
@@ -419,22 +444,6 @@ public class PostCell extends RelativeLayout implements PostLinkable.Callback {
     @Override
     public int getMarkedNo(PostLinkable postLinkable) {
         return markedNo;
-    }
-
-    public interface PostCellCallback {
-        Loadable getLoadable();
-
-        void onPostClicked(Post post);
-
-        void onThumbnailClicked(Post post, ThumbnailView thumbnail);
-
-        void onShowPostReplies(Post post);
-
-        void onPopulatePostOptions(Post post, List<FloatingMenuItem> menu);
-
-        void onPostOptionClicked(Post post, Object id);
-
-        void onPostLinkableClicked(PostLinkable linkable);
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);

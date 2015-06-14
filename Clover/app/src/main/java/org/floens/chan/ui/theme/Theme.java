@@ -38,6 +38,9 @@ public class Theme {
     public boolean isLightTheme = true;
     public ThemeHelper.PrimaryColor primaryColor;
 
+    public int textPrimary;
+    public int textSecondary;
+    public int textHint;
     public int quoteColor;
     public int highlightQuoteColor;
     public int linkColor;
@@ -96,7 +99,10 @@ public class Theme {
                 R.attr.post_capcode_color,
                 R.attr.post_details_color,
                 R.attr.post_highlighted_color,
-                R.attr.post_saved_reply_color
+                R.attr.post_saved_reply_color,
+                R.attr.text_color_primary,
+                R.attr.text_color_secondary,
+                R.attr.text_color_hint
         });
 
         quoteColor = ta.getColor(0, 0);
@@ -112,6 +118,9 @@ public class Theme {
         detailsColor = ta.getColor(10, 0);
         highlightedColor = ta.getColor(11, 0);
         savedReplyColor = ta.getColor(12, 0);
+        textPrimary = ta.getColor(13, 0);
+        textSecondary = ta.getColor(14, 0);
+        textHint = ta.getColor(15, 0);
 
         ta.recycle();
     }

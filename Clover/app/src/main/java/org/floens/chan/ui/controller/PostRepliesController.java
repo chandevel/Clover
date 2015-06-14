@@ -39,7 +39,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.cell.PostCell;
+import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -105,8 +105,8 @@ public class PostRepliesController extends Controller {
             ThumbnailView thumbnail = null;
             for (int i = 0; i < listView.getChildCount(); i++) {
                 View view = listView.getChildAt(i);
-                if (view instanceof PostCell) {
-                    PostCell postView = (PostCell) view;
+                if (view instanceof PostCellInterface) {
+                    PostCellInterface postView = (PostCellInterface) view;
                     Post post = postView.getPost();
                     if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
                         thumbnail = postView.getThumbnailView();
@@ -169,17 +169,17 @@ public class PostRepliesController extends Controller {
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                PostCell postCell;
-                if (convertView instanceof PostCell) {
-                    postCell = (PostCell) convertView;
+                PostCellInterface postCell;
+                if (convertView instanceof PostCellInterface) {
+                    postCell = (PostCellInterface) convertView;
                 } else {
-                    postCell = (PostCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
+                    postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post, parent, false);
                 }
 
                 final Post p = getItem(position);
-                postCell.setPost(p, presenter, false, data.forPost.no);
+                postCell.setPost(null, p, presenter, false, data.forPost.no);
 
-                return postCell;
+                return (View) postCell;
             }
         };
 

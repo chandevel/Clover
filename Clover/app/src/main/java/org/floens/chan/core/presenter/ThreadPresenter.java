@@ -23,11 +23,10 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.http.DeleteHttpCall;
 import org.floens.chan.core.http.ReplyManager;
-import org.floens.chan.chan.ChanLoader;
-import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
@@ -36,10 +35,11 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostAdapter;
-import org.floens.chan.ui.cell.PostCell;
+import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.layout.ThreadListLayout;
@@ -53,7 +53,7 @@ import java.util.Locale;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCell.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutCallback {
+public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutCallback {
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;

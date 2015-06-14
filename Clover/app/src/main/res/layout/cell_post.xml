@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <org.floens.chan.ui.cell.PostCell xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:ignore="RtlHardcoded,RtlSymmetry">
 
     <org.floens.chan.ui.view.ThumbnailView
         android:id="@+id/thumbnail_view"

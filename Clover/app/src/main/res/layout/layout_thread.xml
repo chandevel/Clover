@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <org.floens.chan.ui.layout.ThreadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -33,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:alpha="0"
         android:scaleX="0"
         android:scaleY="0"
-        android:src="@drawable/ic_create_white_24dp" />
+        android:src="@drawable/ic_create_white_24dp"
+        tools:ignore="RtlHardcoded" />
 
 </org.floens.chan.ui.layout.ThreadLayout>

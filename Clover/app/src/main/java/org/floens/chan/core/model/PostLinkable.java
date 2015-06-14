@@ -48,20 +48,51 @@ public class PostLinkable extends ClickableSpan {
     private List<Callback> callbacks = new ArrayList<>();
     private boolean spoilerVisible = false;
 
+//    private static boolean testingCallbacks = false;
+//    private static HashMap<PostLinkable, List<Callback>> callbacksTest = new HashMap<>();
+
     public PostLinkable(Theme theme, Post post, String key, Object value, Type type) {
         this.theme = theme;
         this.post = post;
         this.key = key;
         this.value = value;
         this.type = type;
+
+        /*if (!testingCallbacks) {
+            testingCallbacks = true;
+
+            AndroidUtils.runOnUiThread(testCallbacksRunnable, 1000);
+        }*/
     }
+
+    /*private static Runnable testCallbacksRunnable = new Runnable() {
+        @Override
+        public void run() {
+            AndroidUtils.runOnUiThread(testCallbacksRunnable, 1000);
+
+            Logger.test("Callbacks:");
+            for (Map.Entry<PostLinkable, List<Callback>> entry : callbacksTest.entrySet()) {
+                if (entry.getValue().size() > 0) {
+                    Logger.test(entry.getKey().key + " still has " + entry.getValue().size() + " bounded callbacks");
+                }
+            }
+        }
+    };*/
 
     public void addCallback(Callback callback) {
         callbacks.add(callback);
+
+        /*if (!callbacksTest.containsKey(this)) {
+            callbacksTest.put(this, new ArrayList<Callback>());
+        }
+
+        callbacksTest.get(this).add(callback);*/
     }
 
     public void removeCallback(Callback callback) {
         callbacks.remove(callback);
+
+        /*callbacksTest.get(this).remove(callback);*/
     }
 
     public boolean hasCallback(Callback callback) {

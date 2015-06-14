@@ -49,6 +49,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.setCallback(this);
+
         swipeRefreshLayout = new SwipeRefreshLayout(context) {
             @Override
             public boolean canChildScrollUp() {
@@ -85,6 +86,10 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     public void onEvent(Chan.ForegroundChangedMessage message) {
         threadLayout.getPresenter().onForegroundChanged(message.inForeground);
+    }
+
+    public void onEvent(MainSettingsController.RefreshUIMessage message) {
+        threadLayout.getPresenter().requestData();
     }
 
     @Override

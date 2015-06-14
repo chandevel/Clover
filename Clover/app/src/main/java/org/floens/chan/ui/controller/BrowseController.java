@@ -32,6 +32,8 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -46,8 +48,11 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int REFRESH_ID = 1;
     private static final int SEARCH_ID = 101;
     private static final int SHARE_ID = 102;
+    private static final int VIEW_MODE_ID = 103;
 
+    private PostCellInterface.PostViewMode postViewMode;
     private List<FloatingMenuItem> boardItems;
+    private FloatingMenuItem viewModeMenuItem;
 
     public BrowseController(Context context) {
         super(context);
@@ -56,6 +61,9 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     @Override
     public void onCreate() {
         super.onCreate();
+
+        postViewMode = ChanSettings.boardViewMode.get().equals("list") ? PostCellInterface.PostViewMode.LIST : PostCellInterface.PostViewMode.CARD;
+        threadLayout.setPostViewMode(postViewMode);
 
         navigationItem.hasDrawer = true;
         navigationItem.middleMenu = new FloatingMenu(context);
@@ -73,6 +81,9 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)));
         items.add(new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)));
+        viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, context.getString(
+                postViewMode == PostCellInterface.PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board));
+        items.add(viewModeMenuItem);
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
     }
@@ -95,6 +106,21 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
             case SHARE_ID:
                 String link = ChanUrls.getCatalogUrlDesktop(threadLayout.getPresenter().getLoadable().board);
                 AndroidUtils.shareLink(link);
+                break;
+            case VIEW_MODE_ID:
+                if (postViewMode == PostCellInterface.PostViewMode.LIST) {
+                    postViewMode = PostCellInterface.PostViewMode.CARD;
+                } else {
+                    postViewMode = PostCellInterface.PostViewMode.LIST;
+                }
+
+                ChanSettings.boardViewMode.set(postViewMode == PostCellInterface.PostViewMode.LIST ? "list" : "grid");
+
+                viewModeMenuItem.setText(context.getString(
+                        postViewMode == PostCellInterface.PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board));
+
+                threadLayout.setPostViewMode(postViewMode);
+
                 break;
         }
     }

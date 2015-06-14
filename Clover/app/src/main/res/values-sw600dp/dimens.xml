@@ -16,10 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <bool name="is_tablet">false</bool>
+    <bool name="is_tablet">true</bool>
 
-    <dimen name="toolbar_height">56dp</dimen>
-
-    <dimen name="grid_card_width">140dp</dimen>
-    <integer name="grid_card_max_spans">-1</integer>
+    <dimen name="grid_card_width">180dp</dimen>
+    <integer name="grid_card_max_spans">5</integer>
 </resources>
