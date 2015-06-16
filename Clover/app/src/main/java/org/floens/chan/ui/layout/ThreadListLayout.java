@@ -264,21 +264,19 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             return true;
         }
 
-        View top = recyclerView.getChildAt(0);
-        if (top != null) {
-
-            switch (postViewMode) {
-                case LIST:
-                    if (top.getTop() == 0 && ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition() == 0) {
-                        return false;
-                    }
-                    break;
-                case CARD:
-                    if (top.getTop() == 0 && ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition() == 0) {
-                        return false;
-                    }
-                    break;
-            }
+        switch (postViewMode) {
+            case LIST:
+                if (((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition() == 0) {
+                    View top = layoutManager.findViewByPosition(0);
+                    return top.getTop() != 0;
+                }
+                break;
+            case CARD:
+                if (((GridLayoutManager) layoutManager).findFirstVisibleItemPosition() == 0) {
+                    View top = layoutManager.findViewByPosition(0);
+                    return top.getTop() != dp(8); // 4dp for the cards, 4dp for this layout
+                }
+                break;
         }
         return true;
     }
