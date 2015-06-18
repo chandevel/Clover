@@ -32,6 +32,7 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.layout.ThreadLayout;
@@ -49,10 +50,14 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int SEARCH_ID = 101;
     private static final int SHARE_ID = 102;
     private static final int VIEW_MODE_ID = 103;
+    private static final int ORDER_ID = 104;
 
     private PostCellInterface.PostViewMode postViewMode;
+    private ThreadPresenter.Order order;
     private List<FloatingMenuItem> boardItems;
+
     private FloatingMenuItem viewModeMenuItem;
+    private ToolbarMenuItem overflow;
 
     public BrowseController(Context context) {
         super(context);
@@ -62,8 +67,10 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void onCreate() {
         super.onCreate();
 
-        postViewMode = ChanSettings.boardViewMode.get().equals("list") ? PostCellInterface.PostViewMode.LIST : PostCellInterface.PostViewMode.CARD;
+        postViewMode = PostCellInterface.PostViewMode.find(ChanSettings.boardViewMode.get());
+        order = ThreadPresenter.Order.find(ChanSettings.boardOrder.get());
         threadLayout.setPostViewMode(postViewMode);
+        threadLayout.getPresenter().setOrder(order);
 
         navigationItem.hasDrawer = true;
         navigationItem.middleMenu = new FloatingMenu(context);
@@ -76,7 +83,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
         menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
 
-        ToolbarMenuItem overflow = menu.createOverflow(this);
+        overflow = menu.createOverflow(this);
 
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)));
@@ -84,6 +91,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, context.getString(
                 postViewMode == PostCellInterface.PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board));
         items.add(viewModeMenuItem);
+        items.add(new FloatingMenuItem(ORDER_ID, context.getString(R.string.action_order)));
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
     }
@@ -114,12 +122,59 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                     postViewMode = PostCellInterface.PostViewMode.LIST;
                 }
 
-                ChanSettings.boardViewMode.set(postViewMode == PostCellInterface.PostViewMode.LIST ? "list" : "grid");
+                ChanSettings.boardViewMode.set(postViewMode.name);
 
                 viewModeMenuItem.setText(context.getString(
                         postViewMode == PostCellInterface.PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board));
 
                 threadLayout.setPostViewMode(postViewMode);
+
+                break;
+            case ORDER_ID:
+                List<FloatingMenuItem> items = new ArrayList<>();
+                for (ThreadPresenter.Order order : ThreadPresenter.Order.values()) {
+                    int nameId = 0;
+                    switch (order) {
+                        case BUMP:
+                            nameId = R.string.order_bump;
+                            break;
+                        case REPLY:
+                            nameId = R.string.order_reply;
+                            break;
+                        case IMAGE:
+                            nameId = R.string.order_image;
+                            break;
+                        case NEWEST:
+                            nameId = R.string.order_newest;
+                            break;
+                        case OLDEST:
+                            nameId = R.string.order_oldest;
+                            break;
+                    }
+
+                    String name = string(nameId);
+                    if (order == this.order) {
+                        name = "\u2713 " + name; // Checkmark
+                    }
+
+                    items.add(new FloatingMenuItem(order, name));
+                }
+
+                FloatingMenu menu = new FloatingMenu(context, overflow.getView(), items);
+                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+                    @Override
+                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                        ThreadPresenter.Order order = (ThreadPresenter.Order) item.getId();
+                        ChanSettings.boardOrder.set(order.name);
+                        BrowseController.this.order = order;
+                        threadLayout.getPresenter().setOrder(order);
+                    }
+
+                    @Override
+                    public void onFloatingMenuDismissed(FloatingMenu menu) {
+                    }
+                });
+                menu.show();
 
                 break;
         }

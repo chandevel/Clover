@@ -32,6 +32,7 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -163,7 +164,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         }
     }
 
-    public void showPosts(ChanThread thread, boolean initial) {
+    public void showPosts(ChanThread thread, ThreadPresenter.Order order, boolean initial) {
         showingThread = thread;
         if (initial) {
             reply.bindLoadable(showingThread.loadable);
@@ -194,7 +195,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             }
         }
 
-        postAdapter.setThread(thread);
+        postAdapter.setThread(thread, order);
     }
 
     public boolean onBack() {

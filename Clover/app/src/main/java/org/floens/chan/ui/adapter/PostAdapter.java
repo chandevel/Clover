@@ -26,21 +26,25 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     private static final int TYPE_POST = 0;
     private static final int TYPE_STATUS = 1;
 
     private final PostAdapterCallback postAdapterCallback;
     private final PostCellInterface.PostCellCallback postCellCallback;
-    private final ThreadStatusCell.Callback statusCellCallback;
     private RecyclerView recyclerView;
 
+    private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> sourceList = new ArrayList<>();
     private final List<Post> displayList = new ArrayList<>();
     private int lastPostCount = 0;
@@ -49,6 +53,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String highlightedPostId;
     private int highlightedPostNo = -1;
     private boolean filtering = false;
+
     private PostCellInterface.PostViewMode postViewMode;
 
     public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostCellInterface.PostCellCallback postCellCallback, ThreadStatusCell.Callback statusCellCallback) {
@@ -127,10 +132,11 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public void setThread(ChanThread thread) {
+    public void setThread(ChanThread thread, ThreadPresenter.Order order) {
         showError(null);
         sourceList.clear();
         sourceList.addAll(thread.posts);
+        orderPosts(sourceList, order);
 
         if (!filtering) {
             displayList.clear();
@@ -210,6 +216,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
+    public void setPostViewMode(PostCellInterface.PostViewMode postViewMode) {
+        this.postViewMode = postViewMode;
+    }
+
     private void onScrolledToBottom() {
         if (!filtering && lastPostCount != sourceList.size()) {
             lastPostCount = sourceList.size();
@@ -221,8 +231,38 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return postAdapterCallback.getLoadable().isThreadMode();
     }
 
-    public void setPostViewMode(PostCellInterface.PostViewMode postViewMode) {
-        this.postViewMode = postViewMode;
+    private void orderPosts(List<Post> posts, ThreadPresenter.Order order) {
+        if (order != ThreadPresenter.Order.BUMP) {
+            if (order == ThreadPresenter.Order.IMAGE) {
+                Collections.sort(posts, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post lhs, Post rhs) {
+                        return rhs.images - lhs.images;
+                    }
+                });
+            } else if (order == ThreadPresenter.Order.REPLY) {
+                Collections.sort(posts, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post lhs, Post rhs) {
+                        return rhs.replies - lhs.replies;
+                    }
+                });
+            } else if (order == ThreadPresenter.Order.NEWEST) {
+                Collections.sort(posts, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post lhs, Post rhs) {
+                        return (int) (rhs.time - lhs.time);
+                    }
+                });
+            } else if (order == ThreadPresenter.Order.OLDEST) {
+                Collections.sort(posts, new Comparator<Post>() {
+                    @Override
+                    public int compare(Post lhs, Post rhs) {
+                        return (int) (lhs.time - rhs.time);
+                    }
+                });
+            }
+        }
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {

@@ -23,6 +23,8 @@ import android.os.Environment;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.presenter.ThreadPresenter;
+import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
@@ -37,6 +39,7 @@ public class ChanSettings {
     public static final BooleanSetting videoOpenExternal;
     public static final BooleanSetting videoErrorIgnore;
     public static final StringSetting boardViewMode;
+    public static final StringSetting boardOrder;
 
     public static final StringSetting postDefaultName;
     public static final BooleanSetting postPinThread;
@@ -79,7 +82,8 @@ public class ChanSettings {
         videoAutoLoad = new BooleanSetting(p, "preference_autoplay", false);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
-        boardViewMode = new StringSetting(p, "preference_board_view_mode", "list"); // "list" or "grid"
+        boardViewMode = new StringSetting(p, "preference_board_view_mode", PostCellInterface.PostViewMode.LIST.name); // "list" or "grid"
+        boardOrder = new StringSetting(p, "preference_board_order", ThreadPresenter.Order.BUMP.name);
 
         postDefaultName = new StringSetting(p, "preference_default_name", "");
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);

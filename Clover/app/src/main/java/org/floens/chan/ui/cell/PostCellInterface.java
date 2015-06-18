@@ -34,8 +34,23 @@ public interface PostCellInterface {
     ThumbnailView getThumbnailView();
 
     enum PostViewMode {
-        LIST,
-        CARD
+        LIST("list"),
+        CARD("grid");
+
+        public String name;
+
+        PostViewMode(String name) {
+            this.name = name;
+        }
+
+        public static PostViewMode find(String name) {
+            for (PostViewMode mode : PostViewMode.values()) {
+                if (mode.name.equals(name)) {
+                    return mode;
+                }
+            }
+            return null;
+        }
     }
 
     interface PostCellCallback {

@@ -75,6 +75,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private Loadable loadable;
     private ChanLoader chanLoader;
     private boolean searchOpen = false;
+    private Order order = Order.BUMP;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -108,6 +109,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             LoaderPool.getInstance().release(chanLoader, this);
             chanLoader = null;
             loadable = null;
+            order = Order.BUMP;
 
             threadPresenterCallback.showLoading();
         }
@@ -163,6 +165,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
     }
 
+    public void setOrder(Order order) {
+        if (this.order != order) {
+            this.order = order;
+            if (chanLoader != null) {
+                ChanThread thread = chanLoader.getThread();
+                if (thread != null) {
+                    threadPresenterCallback.scrollTo(0, false);
+                    threadPresenterCallback.showPosts(thread, order);
+                }
+            }
+        }
+    }
+
     @Override
     public Loadable getLoadable() {
         return loadable;
@@ -182,7 +197,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
 
         chanLoader.setAutoLoadMore(isWatching());
-        threadPresenterCallback.showPosts(result);
+        threadPresenterCallback.showPosts(result, order);
 
         if (loadable.markedNo >= 0) {
             Post markedPost = findPostById(loadable.markedNo);
@@ -192,7 +207,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
             loadable.markedNo = -1;
         }
-
     }
 
     @Override
@@ -535,8 +549,31 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         threadPresenterCallback.filterList(originalQuery, filtered, false, false, false);
     }
 
+    public enum Order {
+        BUMP("bump"),
+        REPLY("reply"),
+        IMAGE("image"),
+        NEWEST("newest"),
+        OLDEST("oldest");
+
+        public String name;
+
+        Order(String storeName) {
+            this.name = storeName;
+        }
+
+        public static Order find(String name) {
+            for (Order mode : Order.values()) {
+                if (mode.name.equals(name)) {
+                    return mode;
+                }
+            }
+            return null;
+        }
+    }
+
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread);
+        void showPosts(ChanThread thread, Order order);
 
         void postClicked(Post post);
 

@@ -89,7 +89,6 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
     private boolean showingReplyButton = false;
-    private PostCellInterface.PostViewMode postViewMode;
 
     public ThreadLayout(Context context) {
         super(context);
@@ -162,7 +161,6 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     public void setPostViewMode(PostCellInterface.PostViewMode postViewMode) {
-        this.postViewMode = postViewMode;
         threadListLayout.setPostViewMode(postViewMode);
     }
 
@@ -172,8 +170,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
-    public void showPosts(ChanThread thread) {
-        threadListLayout.showPosts(thread, visible != Visible.THREAD);
+    public void showPosts(ChanThread thread, ThreadPresenter.Order order) {
+        threadListLayout.showPosts(thread, order, visible != Visible.THREAD);
         switchVisible(Visible.THREAD);
         callback.onShowPosts();
     }
