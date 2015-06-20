@@ -43,6 +43,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private static final int REFRESH_ID = 101;
     private static final int SEARCH_ID = 102;
     private static final int SHARE_ID = 103;
+    private static final int UP_ID = 104;
+    private static final int DOWN_ID = 105;
 
     private ToolbarMenuItem pinItem;
     private Loadable loadable;
@@ -70,7 +72,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         navigationItem.createOverflow(context, this, Arrays.asList(
                 new FloatingMenuItem(REFRESH_ID, context.getString(R.string.action_reload)),
                 new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)),
-                new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share))
+                new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)),
+                new FloatingMenuItem(UP_ID, context.getString(R.string.action_up)),
+                new FloatingMenuItem(DOWN_ID, context.getString(R.string.action_down))
         ));
 
         loadLoadable(loadable);
@@ -171,6 +175,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 Loadable loadable = threadLayout.getPresenter().getLoadable();
                 String link = ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no);
                 AndroidUtils.shareLink(link);
+                break;
+            case UP_ID:
+            case DOWN_ID:
+                boolean up = ((Integer)item.getId()) == UP_ID;
+                threadLayout.getPresenter().scrollTo(up ? 0 : -1, false);
                 break;
         }
     }
