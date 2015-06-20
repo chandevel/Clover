@@ -260,6 +260,10 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
     }
 
     public boolean canChildScrollUp() {
+        if (replyOpen) {
+            return true;
+        }
+
         View top = recyclerView.getChildAt(0);
         if (top != null) {
 
