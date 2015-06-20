@@ -1,3 +1,7 @@
+New in 1.2.11 (2015-06-20)
+- Update/fix captchas
+
+
 New in 1.2.10 (2015-04-01)
 With the help of recaptcha support and nin9tyfour (developer of the iOS 4chan app Fortune), recaptcha v2 has been implemented. This means you will see the captcha box you also see on the desktop.
 
