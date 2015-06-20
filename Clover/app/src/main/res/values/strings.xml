@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="ok">OK</string>
     <string name="exit">Exit</string>
     <string name="delete">Delete</string>
+    <string name="undo">Undo</string>
 
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
@@ -107,6 +108,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="drawer_board">Board</string>
     <string name="drawer_catalog">Catalog</string>
     <string name="drawer_pinned">Watching threads</string>
+    <string name="drawer_pin_removed">Removed \'%1$s\'</string>
 
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_text_copied">Text copied to clipboard</string>

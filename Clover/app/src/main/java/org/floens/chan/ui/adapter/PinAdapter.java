@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
@@ -174,7 +173,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     @Override
     public void removeItem(int position) {
-        Chan.getWatchManager().removePin(pins.get(position - PIN_OFFSET));
+        callback.onPinRemoved(pins.get(position - PIN_OFFSET));
     }
 
     @Override
@@ -360,5 +359,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         boolean isHighlighted(Pin pin);
 
         void openSettings();
+
+        void onPinRemoved(Pin pin);
     }
 }

@@ -19,11 +19,13 @@ package org.floens.chan.ui.controller;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
@@ -43,11 +45,13 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class RootNavigationController extends NavigationController implements PinAdapter.Callback {
+    private WatchManager watchManager;
+
     public DrawerLayout drawerLayout;
     public FrameLayout drawer;
-
     private RecyclerView recyclerView;
     private PinAdapter pinAdapter;
 
@@ -58,6 +62,8 @@ public class RootNavigationController extends NavigationController implements Pi
     @Override
     public void onCreate() {
         super.onCreate();
+
+        watchManager = Chan.getWatchManager();
 
         EventBus.getDefault().register(this);
 
@@ -77,7 +83,7 @@ public class RootNavigationController extends NavigationController implements Pi
 
         new SwipeListener(context, recyclerView, pinAdapter);
 
-        pinAdapter.onPinsChanged(Chan.getWatchManager().getPins());
+        pinAdapter.onPinsChanged(watchManager.getPins());
 
         toolbar.setCallback(this);
 
@@ -169,7 +175,7 @@ public class RootNavigationController extends NavigationController implements Pi
 
     @Override
     public void onWatchCountClicked(Pin pin) {
-        Chan.getWatchManager().toggleWatch(pin);
+        watchManager.toggleWatch(pin);
     }
 
     @Override
@@ -180,6 +186,23 @@ public class RootNavigationController extends NavigationController implements Pi
     @Override
     public void openSettings() {
         pushController(new MainSettingsController(context));
+    }
+
+    @Override
+    public void onPinRemoved(final Pin pin) {
+        watchManager.removePin(pin);
+
+        Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
+        TextView snackbarText = (TextView) snackbar.getView().findViewById(R.id.snackbar_text);
+        snackbarText.setTextColor(0xffffffff);
+        snackbar.setAction(R.string.undo, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                watchManager.addPin(pin);
+            }
+        });
+        snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
+        snackbar.show();
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
@@ -203,7 +226,7 @@ public class RootNavigationController extends NavigationController implements Pi
     }
 
     private void updateBadge() {
-        List<Pin> list = Chan.getWatchManager().getWatchingPins();
+        List<Pin> list = watchManager.getWatchingPins();
         int count = 0;
         boolean color = false;
         if (list.size() > 0) {
