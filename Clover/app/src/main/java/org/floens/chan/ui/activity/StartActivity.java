@@ -227,13 +227,6 @@ public class StartActivity extends AppCompatActivity {
         Chan.getInstance().activityEnteredBackground();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        Chan.getWatchManager().updateDatabase();
-    }
-
     private Controller stackTop() {
         return stack.get(stack.size() - 1);
     }

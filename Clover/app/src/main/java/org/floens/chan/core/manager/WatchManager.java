@@ -245,6 +245,9 @@ public class WatchManager {
     public void onEvent(Chan.ForegroundChangedMessage message) {
         updateNotificationServiceState();
         updateTimerState(true);
+        if (!message.inForeground) {
+            updateDatabase();
+        }
     }
 
     public void onWatchEnabledChanged(boolean watchEnabled) {
