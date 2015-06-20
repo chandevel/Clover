@@ -8,8 +8,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 22
 
-        versionName "v1.2.10"
-        versionCode 49
+        versionName "v1.2.11"
+        versionCode 50
     }
 
     compileOptions {

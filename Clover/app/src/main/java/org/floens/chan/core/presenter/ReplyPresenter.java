@@ -332,7 +332,7 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
                         String baseUrl = loadable.isThreadMode() ?
                                 ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no) :
                                 ChanUrls.getBoardUrlDesktop(loadable.board);
-                        callback.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), Chan.getInstance().getUserAgent(), this);
+                        callback.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), this);
                     }
                     break;
             }
@@ -392,7 +392,7 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
 
         void setPage(Page page, boolean animate);
 
-        void initCaptcha(String baseUrl, String siteKey, String userAgent, CaptchaLayout.CaptchaCallback callback);
+        void initCaptcha(String baseUrl, String siteKey, CaptchaLayout.CaptchaCallback callback);
 
         void resetCaptcha();
 

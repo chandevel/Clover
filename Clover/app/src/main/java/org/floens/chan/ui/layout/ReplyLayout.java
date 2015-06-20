@@ -165,7 +165,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
             return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         } else {
             // Captcha and the loadbar
-            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(200));
+            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(250));
         }
     }
 
@@ -209,13 +209,15 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
                 }
 
                 setView(captchaLayout);
+
+                AndroidUtils.hideKeyboard(this);
                 break;
         }
     }
 
     @Override
-    public void initCaptcha(String baseUrl, String siteKey, String userAgent, CaptchaLayout.CaptchaCallback callback) {
-        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, userAgent, callback);
+    public void initCaptcha(String baseUrl, String siteKey, CaptchaLayout.CaptchaCallback callback) {
+        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, callback);
         captchaLayout.load();
     }
 

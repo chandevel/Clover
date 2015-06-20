@@ -54,7 +54,7 @@ public class CaptchaLayout extends WebView {
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
-    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, String userAgent, CaptchaCallback callback) {
+    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback) {
         this.callback = callback;
         this.baseUrl = baseUrl;
         this.siteKey = siteKey;
@@ -62,7 +62,6 @@ public class CaptchaLayout extends WebView {
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setUserAgentString(userAgent);
 
         setWebChromeClient(new WebChromeClient() {
             @Override
