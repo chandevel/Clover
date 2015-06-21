@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * To send an reply to 4chan.
  */
 public class ReplyManager {
-    private static final int TIMEOUT = 10000;
+    private static final int TIMEOUT = 30000;
 
     private final Context context;
     private FileListener fileListener;
