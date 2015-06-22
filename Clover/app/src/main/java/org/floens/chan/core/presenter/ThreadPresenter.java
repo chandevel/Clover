@@ -65,6 +65,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_SAVE = 8;
     private static final int POST_OPTION_PIN = 9;
     private static final int POST_OPTION_SHARE = 10;
+    private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 11;
 
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
@@ -325,6 +326,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
         }
 
+        if (!TextUtils.isEmpty(post.tripcode)) {
+            menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
+        }
+
         if (databaseManager.isSavedReply(post.board, post.no)) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
@@ -358,6 +363,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 break;
             case POST_OPTION_HIGHLIGHT_ID:
                 threadPresenterCallback.highlightPostId(post.id);
+                break;
+            case POST_OPTION_HIGHLIGHT_TRIPCODE:
+                threadPresenterCallback.highlightPostTripcode(post.tripcode);
                 break;
             case POST_OPTION_DELETE:
                 requestDeletePost(post);
@@ -602,6 +610,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void highlightPost(Post post);
 
         void highlightPostId(String id);
+
+        void highlightPostTripcode(String tripcode);
 
         void showSearch(boolean show);
 

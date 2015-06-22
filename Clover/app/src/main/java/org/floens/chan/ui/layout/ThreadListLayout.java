@@ -343,6 +343,10 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         postAdapter.highlightPostId(id);
     }
 
+    public void highlightPostTripcode(String tripcode) {
+        postAdapter.highlightPostTripcode(tripcode);
+    }
+
     @Override
     public void highlightPostNo(int no) {
         postAdapter.highlightPostNo(no);

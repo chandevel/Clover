@@ -52,6 +52,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Post highlightedPost;
     private String highlightedPostId;
     private int highlightedPostNo = -1;
+    private String highlightedPostTripcode;
     private boolean filtering = false;
 
     private PostCellInterface.PostViewMode postViewMode;
@@ -93,7 +94,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (getItemViewType(position) == TYPE_POST) {
             PostViewHolder postViewHolder = (PostViewHolder) holder;
             Post post = displayList.get(position);
-            boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo;
+            boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo || post.tripcode.equals(highlightedPostTripcode);
             postViewHolder.postView.setPost(null, post, postCellCallback, highlight, -1);
         } else if (getItemViewType(position) == TYPE_STATUS) {
             ((StatusViewHolder) holder).threadStatusCell.update();
@@ -151,6 +152,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPost = null;
         highlightedPostId = null;
         highlightedPostNo = -1;
+        highlightedPostTripcode = null;
         filtering = false;
         lastPostCount = 0;
     }
@@ -199,6 +201,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPost = post;
         highlightedPostId = null;
         highlightedPostNo = -1;
+        highlightedPostTripcode = null;
         notifyDataSetChanged();
     }
 
@@ -206,6 +209,15 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPost = null;
         highlightedPostId = id;
         highlightedPostNo = -1;
+        highlightedPostTripcode = null;
+        notifyDataSetChanged();
+    }
+
+    public void highlightPostTripcode(String tripcode) {
+        highlightedPost = null;
+        highlightedPostId = null;
+        highlightedPostNo = -1;
+        highlightedPostTripcode = tripcode;
         notifyDataSetChanged();
     }
 
@@ -213,6 +225,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPost = null;
         highlightedPostId = null;
         highlightedPostNo = no;
+        highlightedPostTripcode = null;
         notifyDataSetChanged();
     }
 

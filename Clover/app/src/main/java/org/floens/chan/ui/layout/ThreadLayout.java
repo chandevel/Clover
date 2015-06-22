@@ -294,6 +294,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public void highlightPostTripcode(String tripcode) {
+        threadListLayout.highlightPostTripcode(tripcode);
+    }
+
+    @Override
     public void showSearch(boolean show) {
         threadListLayout.showSearch(show);
     }
