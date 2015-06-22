@@ -233,7 +233,8 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
     }
 
     @Override
-    public void captchaEntered(CaptchaLayout captchaLayout, String response) {
+    public void captchaEntered(CaptchaLayout captchaLayout, String challenge, String response) {
+        draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
         captchaLayout.reset();
         makeSubmitCall();

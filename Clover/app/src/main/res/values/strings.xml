@@ -213,6 +213,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_save_folder">File save folder</string>
     <string name="setting_save_folder_error_create_folder">Error creating save folder</string>
     <string name="setting_folder_pick_ok">Choose</string>
+    <string name="setting_use_new_captcha">Use the new captcha</string>
+    <string name="setting_use_new_captcha_description">Disable to fallback to the old captcha (EXPERIMENTAL).</string>
     <string name="setting_save_original_filename">Save original filename</string>
     <string name="setting_share_url">Share url to image</string>
     <string name="setting_share_url_description">Share the url to the image instead of the image itself</string>

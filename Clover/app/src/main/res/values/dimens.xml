@@ -22,4 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <dimen name="grid_card_width">140dp</dimen>
     <integer name="grid_card_max_spans">-1</integer>
+
+    <dimen name="reply_height_loading">250dp</dimen>
 </resources>

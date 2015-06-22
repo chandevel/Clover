@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+    #container {
+        width: 440px;
+        margin: 0 auto;
+    }
+
+    #captcha-submit {
+        width: 100%;
+        height: 30px;
+        margin: 10px 0 0 0;
+    }
+    </style>
+</head>
+<body>
+<div id="container">
+    <div id="captcha-container"></div>
+    <input type="button" id="captcha-submit" value="Submit">
+</div>
+
+<script src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+<script type="text/javascript">
+(function() {
+
+var container = document.querySelector('#captcha-container');
+var submitButton = document.querySelector('#captcha-submit')
+
+submitButton.addEventListener('click', function() {
+    var challenge = document.querySelector('#recaptcha_challenge_field').value;
+    var response = document.querySelector('#recaptcha_response_field').value;
+
+    CaptchaCallback.onCaptchaEnteredv1(challenge, response);
+});
+
+Recaptcha.create('__site_key__', container, {
+    theme: 'clean'
+});
+
+})();
+</script>
+</body>
+</html>

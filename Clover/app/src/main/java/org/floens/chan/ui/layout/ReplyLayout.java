@@ -37,6 +37,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
@@ -165,7 +166,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
             return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         } else {
             // Captcha and the loadbar
-            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(250));
+            return new LayoutParams(LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(R.dimen.reply_height_loading));
         }
     }
 
@@ -217,7 +218,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void initCaptcha(String baseUrl, String siteKey, CaptchaLayout.CaptchaCallback callback) {
-        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, callback);
+        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, ChanSettings.postNewCaptcha.get(), callback);
         captchaLayout.load();
     }
 

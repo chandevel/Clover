@@ -19,6 +19,8 @@ package org.floens.chan.ui.layout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -28,7 +30,9 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
+import org.floens.chan.ChanBuild;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 
@@ -40,6 +44,7 @@ public class CaptchaLayout extends WebView {
     private String baseUrl;
     private String siteKey;
     private boolean lightTheme;
+    private boolean useNew;
 
     public CaptchaLayout(Context context) {
         super(context);
@@ -54,11 +59,12 @@ public class CaptchaLayout extends WebView {
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
-    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback) {
+    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, boolean useNew, CaptchaCallback callback) {
         this.callback = callback;
         this.baseUrl = baseUrl;
         this.siteKey = siteKey;
         this.lightTheme = lightTheme;
+        this.useNew = useNew;
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
@@ -70,16 +76,33 @@ public class CaptchaLayout extends WebView {
                 return true;
             }
         });
+
+        setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (Uri.parse(url).getHost().equals(Uri.parse(CaptchaLayout.this.baseUrl).getHost())) {
+                    return false;
+                } else {
+                    AndroidUtils.openLink(url);
+                    return true;
+                }
+            }
+        });
         setBackgroundColor(0x00000000);
 
         addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
+
+        //noinspection PointlessBooleanExpression
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && ChanBuild.DEVELOPER_MODE) {
+            setWebContentsDebuggingEnabled(true);
+        }
     }
 
     public void load() {
         if (!loaded) {
             loaded = true;
 
-            String html = IOUtils.assetAsString(getContext(), "captcha/captcha.html");
+            String html = IOUtils.assetAsString(getContext(), useNew ? "captcha/captcha.html" : "captcha/captcha1.html");
             html = html.replace("__site_key__", siteKey);
             html = html.replace("__theme__", lightTheme ? "light" : "dark");
 
@@ -89,7 +112,11 @@ public class CaptchaLayout extends WebView {
 
     public void reset() {
         if (loaded) {
-            loadUrl("javascript:grecaptcha.reset()");
+            if (useNew) {
+                loadUrl("javascript:grecaptcha.reset()");
+            } else {
+                loadUrl("javascript:Recaptcha.reload()");
+            }
         } else {
             load();
         }
@@ -99,18 +126,18 @@ public class CaptchaLayout extends WebView {
         callback.captchaLoaded(this);
     }
 
-    private void onCaptchaEntered(String response) {
+    private void onCaptchaEntered(String challenge, String response) {
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            callback.captchaEntered(this, response);
+            callback.captchaEntered(this, challenge, response);
         }
     }
 
     public interface CaptchaCallback {
         void captchaLoaded(CaptchaLayout captchaLayout);
 
-        void captchaEntered(CaptchaLayout captchaLayout, String response);
+        void captchaEntered(CaptchaLayout captchaLayout, String challenge, String response);
     }
 
     public static class CaptchaInterface {
@@ -135,7 +162,17 @@ public class CaptchaLayout extends WebView {
             AndroidUtils.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    layout.onCaptchaEntered(response);
+                    layout.onCaptchaEntered(null, response);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void onCaptchaEnteredv1(final String challenge, final String response) {
+            AndroidUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    layout.onCaptchaEntered(challenge, response);
                 }
             });
         }

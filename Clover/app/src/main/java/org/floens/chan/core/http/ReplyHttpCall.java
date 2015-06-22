@@ -79,7 +79,12 @@ public class ReplyHttpCall extends HttpCall {
         formBuilder.addFormDataPart("com", reply.comment);
 
         if (reply.captchaResponse != null) {
-            formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
+            if (reply.captchaChallenge != null) {
+                formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
+                formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
+            } else {
+                formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
+            }
         }
 
         if (reply.file != null) {
