@@ -278,6 +278,18 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
                 }
             });
 
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    int pos = getAdapterPosition() - PIN_OFFSET;
+                    if (pos >= 0 && pos < pins.size()) {
+                        callback.onPinLongClocked(pins.get(pos));
+                    }
+
+                    return true;
+                }
+            });
+
             watchCountText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -361,5 +373,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         void openSettings();
 
         void onPinRemoved(Pin pin);
+
+        void onPinLongClocked(Pin pin);
     }
 }

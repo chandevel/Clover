@@ -61,6 +61,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_up">Top</string>
     <string name="action_down">Bottom</string>
     <string name="action_order">Order</string>
+    <string name="action_rename_pin">Rename pin</string>
+    <string name="action_rename">Rename</string>
 
     <string name="order_bump">Bump order</string>
     <string name="order_reply">Reply count</string>

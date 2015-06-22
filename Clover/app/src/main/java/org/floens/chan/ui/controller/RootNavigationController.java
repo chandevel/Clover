@@ -17,14 +17,19 @@
  */
 package org.floens.chan.ui.controller;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.Chan;
@@ -203,6 +208,37 @@ public class RootNavigationController extends NavigationController implements Pi
         });
         snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
         snackbar.show();
+    }
+
+    @Override
+    public void onPinLongClocked(final Pin pin) {
+        LinearLayout wrap = new LinearLayout(context);
+        wrap.setPadding(dp(16), dp(16), dp(16), 0);
+        final EditText text = new EditText(context);
+        text.setSingleLine();
+        text.setText(pin.loadable.title);
+        wrap.addView(text, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setPositiveButton(R.string.action_rename, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String value = text.getText().toString();
+
+                        if (!TextUtils.isEmpty(value)) {
+                            pin.loadable.title = value;
+                            pinAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .setTitle(R.string.action_rename_pin)
+                .setView(wrap)
+                .create();
+
+        AndroidUtils.requestKeyboardFocus(dialog, text);
+
+        dialog.show();
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
