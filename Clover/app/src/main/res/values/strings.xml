@@ -58,8 +58,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_search_image">Image search</string>
     <string name="action_switch_catalog">Catalog mode</string>
     <string name="action_switch_board">Board mode</string>
-    <string name="action_up">Up</string>
-    <string name="action_down">Down</string>
+    <string name="action_up">Top</string>
+    <string name="action_down">Bottom</string>
     <string name="action_order">Order</string>
 
     <string name="order_bump">Bump order</string>
