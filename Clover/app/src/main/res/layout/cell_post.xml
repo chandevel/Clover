@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <org.floens.chan.ui.view.ThumbnailView
         android:id="@+id/thumbnail_view"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="@dimen/cell_post_thumbnail_size"
+        android:layout_height="@dimen/cell_post_thumbnail_size"
         android:gravity="top" />
 
     <TextView

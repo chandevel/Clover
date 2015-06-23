@@ -22,4 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <integer name="grid_card_max_spans">5</integer>
 
     <dimen name="reply_height_loading">400dp</dimen>
+
+    <dimen name="cell_post_thumbnail_size">100dp</dimen>
 </resources>
