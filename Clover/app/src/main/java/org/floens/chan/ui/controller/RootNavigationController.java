@@ -252,6 +252,11 @@ public class RootNavigationController extends NavigationController implements Pi
     }
 
     @Override
+    public void openBoardEditor() {
+        pushController(new BoardEditController(context));
+    }
+
+    @Override
     public void openHistory() {
     }
 

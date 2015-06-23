@@ -44,7 +44,7 @@ import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwipeListener.Callback {
-    private static final int PIN_OFFSET = 2;
+    private static final int PIN_OFFSET = 3;
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_PIN = 1;
@@ -93,6 +93,10 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
                 LinkHolder linkHolder = (LinkHolder) holder;
                 switch (position) {
                     case 0:
+                        linkHolder.text.setText(R.string.settings_board_edit);
+                        theme().listAddDrawable.apply(linkHolder.image);
+                        break;
+                    case 1:
                         linkHolder.text.setText(R.string.history_screen);
                         theme().historyDrawable.apply(linkHolder.image);
                         break;
@@ -123,8 +127,9 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
     public int getItemViewType(int position) {
         switch (position) {
             case 0:
-                return TYPE_LINK;
             case 1:
+                return TYPE_LINK;
+            case 2:
                 return TYPE_HEADER;
             default:
                 return TYPE_PIN;
@@ -331,6 +336,14 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    switch (getAdapterPosition()) {
+                        case 0:
+                            callback.openBoardEditor();
+                            break;
+                        case 1:
+                            callback.openHistory();
+                            break;
+                    }
                 }
             });
         }
@@ -369,6 +382,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         void onPinRemoved(Pin pin);
 
         void onPinLongClocked(Pin pin);
+
+        void openBoardEditor();
 
         void openHistory();
     }
