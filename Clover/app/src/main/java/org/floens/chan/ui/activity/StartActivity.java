@@ -29,6 +29,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanHelper;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -51,8 +52,13 @@ public class StartActivity extends AppCompatActivity {
     private ViewGroup contentView;
     private List<Controller> stack = new ArrayList<>();
 
+    private final BoardManager boardManager;
     private RootNavigationController rootNavigationController;
     private BrowseController browseController;
+
+    public StartActivity() {
+        boardManager = Chan.getBoardManager();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +91,7 @@ public class StartActivity extends AppCompatActivity {
                 Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
             } else {
                 loadDefault = false;
-                Board board = Chan.getBoardManager().getBoardByValue(chanState.board.board);
+                Board board = boardManager.getBoardByValue(chanState.board.board);
                 browseController.loadBoard(board);
 
                 if (chanState.thread.mode == Loadable.Mode.THREAD) {
@@ -96,7 +102,7 @@ public class StartActivity extends AppCompatActivity {
             Loadable fromUri = ChanHelper.getLoadableFromStartUri(getIntent().getData());
             if (fromUri != null) {
                 loadDefault = false;
-                Board board = Chan.getBoardManager().getBoardByValue(fromUri.board);
+                Board board = boardManager.getBoardByValue(fromUri.board);
                 browseController.loadBoard(board);
 
                 if (fromUri.isThreadMode()) {
@@ -106,7 +112,7 @@ public class StartActivity extends AppCompatActivity {
         }
 
         if (loadDefault) {
-            browseController.loadBoard(Chan.getBoardManager().getSavedBoards().get(0));
+            browseController.loadBoard(boardManager.getSavedBoards().get(0));
         }
     }
 

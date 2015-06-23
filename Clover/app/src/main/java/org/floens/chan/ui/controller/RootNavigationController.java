@@ -29,6 +29,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -49,15 +50,17 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
-public class RootNavigationController extends NavigationController implements PinAdapter.Callback {
+public class RootNavigationController extends NavigationController implements PinAdapter.Callback, View.OnClickListener {
     private WatchManager watchManager;
 
     public DrawerLayout drawerLayout;
-    public FrameLayout drawer;
+    public LinearLayout drawer;
     private RecyclerView recyclerView;
+    private LinearLayout settings;
     private PinAdapter pinAdapter;
 
     public RootNavigationController(Context context) {
@@ -77,9 +80,12 @@ public class RootNavigationController extends NavigationController implements Pi
         container = (FrameLayout) view.findViewById(R.id.container);
         drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
-        drawer = (FrameLayout) view.findViewById(R.id.drawer);
+        drawer = (LinearLayout) view.findViewById(R.id.drawer);
         recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
+        settings = (LinearLayout) view.findViewById(R.id.settings);
+        settings.setOnClickListener(this);
+        theme().settingsDrawable.apply((ImageView) settings.findViewById(R.id.image));
 
         toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
 
@@ -119,6 +125,13 @@ public class RootNavigationController extends NavigationController implements Pi
                 return setDrawerWidth();
             }
         });
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == settings) {
+            pushController(new MainSettingsController(context));
+        }
     }
 
     @Override
@@ -186,11 +199,6 @@ public class RootNavigationController extends NavigationController implements Pi
     @Override
     public void onHeaderClicked(PinAdapter.HeaderHolder holder) {
         pushController(new WatchSettingsController(context));
-    }
-
-    @Override
-    public void openSettings() {
-        pushController(new MainSettingsController(context));
     }
 
     @Override
