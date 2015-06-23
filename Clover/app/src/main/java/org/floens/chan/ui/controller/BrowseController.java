@@ -22,6 +22,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -58,6 +59,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     private FloatingMenuItem viewModeMenuItem;
     private ToolbarMenuItem overflow;
+    private ToolbarMenuItem refresh;
 
     public BrowseController(Context context) {
         super(context);
@@ -81,7 +83,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         navigationItem.menu = menu;
         navigationItem.hasBack = false;
 
-        menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
+        refresh = menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
 
         overflow = menu.createOverflow(this);
 
@@ -101,6 +103,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         switch ((Integer) item.getId()) {
             case REFRESH_ID:
                 threadLayout.getPresenter().requestData();
+                refresh.getView().setRotation(0f);
+                refresh.getView().animate().rotation(360f).setDuration(500).setInterpolator(new DecelerateInterpolator(2f));
                 break;
         }
     }
