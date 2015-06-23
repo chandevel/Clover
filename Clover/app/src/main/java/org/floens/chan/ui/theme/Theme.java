@@ -61,6 +61,7 @@ public class Theme {
     public ThemeDrawable clearDrawable;
     public ThemeDrawable backDrawable;
     public ThemeDrawable doneDrawable;
+    public ThemeDrawable historyDrawable;
 
     public Theme(String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor) {
         this.displayName = displayName;
@@ -79,6 +80,7 @@ public class Theme {
         clearDrawable = new ThemeDrawable(R.drawable.ic_clear_black_24dp, 0.54f);
         backDrawable = new ThemeDrawable(R.drawable.ic_arrow_back_black_24dp, 0.54f);
         doneDrawable = new ThemeDrawable(R.drawable.ic_done_black_24dp, 0.54f);
+        historyDrawable = new ThemeDrawable(R.drawable.ic_history_black_24dp, 0.54f);
     }
 
     private void resolveSpanColors() {

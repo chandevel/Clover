@@ -180,6 +180,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%1$d new posts, %2$d quoting you</item>
     </plurals>
 
+    <string name="history_screen">History</string>
+
     <string name="settings_screen">Settings</string>
     <string name="settings_group_general">General</string>
     <string name="settings_board_edit">Boards</string>

@@ -16,5 +16,6 @@ public class DarkTheme extends Theme {
         clearDrawable = new ThemeDrawable(R.drawable.ic_clear_white_24dp, 1f);
         backDrawable = new ThemeDrawable(R.drawable.ic_arrow_back_white_24dp, 1f);
         doneDrawable = new ThemeDrawable(R.drawable.ic_done_white_24dp, 1f);
+        historyDrawable = new ThemeDrawable(R.drawable.ic_history_white_24dp, 1f);
     }
 }

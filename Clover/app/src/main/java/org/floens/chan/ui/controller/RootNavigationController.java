@@ -51,6 +51,7 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
+import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -86,6 +87,7 @@ public class RootNavigationController extends NavigationController implements Pi
         settings = (LinearLayout) view.findViewById(R.id.settings);
         settings.setOnClickListener(this);
         theme().settingsDrawable.apply((ImageView) settings.findViewById(R.id.image));
+        ((TextView) settings.findViewById(R.id.text)).setTypeface(ROBOTO_MEDIUM);
 
         toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
 
@@ -247,6 +249,10 @@ public class RootNavigationController extends NavigationController implements Pi
         AndroidUtils.requestKeyboardFocus(dialog, text);
 
         dialog.show();
+    }
+
+    @Override
+    public void openHistory() {
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
