@@ -122,8 +122,7 @@ public class ReplyManager {
         void onFilePickError(boolean cancelled);
     }
 
-    public void makeHttpCall(HttpCall httpCall, HttpCallback callback) {
-        //noinspection unchecked
+    public void makeHttpCall(HttpCall httpCall, HttpCallback<? extends HttpCall> callback) {
         httpCall.setCallback(callback);
 
         Request.Builder requestBuilder = new Request.Builder();
