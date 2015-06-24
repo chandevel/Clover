@@ -408,6 +408,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
             Loadable thread = new Loadable(link.board, link.threadId);
+            thread.markedNo = link.postId;
 
             threadPresenterCallback.showThread(thread);
         }
@@ -420,7 +421,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void onShowPostReplies(Post post) {
-
         List<Post> posts = new ArrayList<>();
         for (int no : post.repliesFrom) {
             Post replyPost = findPostById(no);
