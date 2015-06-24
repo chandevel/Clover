@@ -28,7 +28,6 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
-import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,7 +206,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (lastPostCount < sourceList.size()) {
             lastPostCount = sourceList.size();
             postAdapterCallback.onListScrolledToBottom();
-            Logger.test("onScrolledToBottom");
         }
     }
 
