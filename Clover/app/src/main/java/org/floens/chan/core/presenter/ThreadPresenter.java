@@ -136,14 +136,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     public boolean pin() {
-        if (chanLoader.getThread() != null) {
-            Pin pin = watchManager.findPinByLoadable(loadable);
-            if (pin == null) {
+        Pin pin = watchManager.findPinByLoadable(loadable);
+        if (pin == null) {
+            if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().op;
                 watchManager.addPin(loadable, op);
-            } else {
-                watchManager.removePin(pin);
             }
+        } else {
+            watchManager.removePin(pin);
         }
         return isPinned();
     }
