@@ -23,7 +23,7 @@ import android.os.Environment;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.presenter.ThreadPresenter;
+import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -84,7 +84,7 @@ public class ChanSettings {
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
         boardViewMode = new StringSetting(p, "preference_board_view_mode", PostCellInterface.PostViewMode.LIST.name); // "list" or "grid"
-        boardOrder = new StringSetting(p, "preference_board_order", ThreadPresenter.Order.BUMP.name);
+        boardOrder = new StringSetting(p, "preference_board_order", PostFilter.Order.BUMP.name);
 
         postDefaultName = new StringSetting(p, "preference_default_name", "");
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);

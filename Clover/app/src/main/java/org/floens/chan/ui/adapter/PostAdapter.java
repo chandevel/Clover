@@ -26,13 +26,11 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
+import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -53,7 +51,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String highlightedPostId;
     private int highlightedPostNo = -1;
     private String highlightedPostTripcode;
-    private boolean filtering = false;
 
     private PostCellInterface.PostViewMode postViewMode;
 
@@ -133,19 +130,20 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public void setThread(ChanThread thread, ThreadPresenter.Order order) {
+    public void setThread(ChanThread thread, PostFilter filter) {
         showError(null);
         sourceList.clear();
         sourceList.addAll(thread.posts);
-        orderPosts(sourceList, order);
 
-        if (!filtering) {
-            displayList.clear();
-            displayList.addAll(sourceList);
-        }
+        displayList.clear();
+        displayList.addAll(filter.apply(sourceList));
 
         // Update all, recyclerview will figure out all the animations
         notifyDataSetChanged();
+    }
+
+    public int getDisplaySize() {
+        return displayList.size();
     }
 
     public void cleanup() {
@@ -153,7 +151,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPostId = null;
         highlightedPostNo = -1;
         highlightedPostTripcode = null;
-        filtering = false;
         lastPostCount = 0;
     }
 
@@ -167,33 +164,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 threadStatusCell.setError(error);
                 threadStatusCell.update();
             }
-        }
-    }
-
-    public void filterList(List<Post> filter) {
-        filtering = true;
-
-        displayList.clear();
-        for (Post item : sourceList) {
-            for (Post filterItem : filter) {
-                if (filterItem.no == item.no) {
-                    displayList.add(item);
-                    break;
-                }
-            }
-        }
-
-        notifyDataSetChanged();
-    }
-
-    public void clearFilter() {
-        if (filtering) {
-            filtering = false;
-
-            displayList.clear();
-            displayList.addAll(sourceList);
-
-            notifyDataSetChanged();
         }
     }
 
@@ -234,48 +204,15 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private void onScrolledToBottom() {
-        if (!filtering && lastPostCount != sourceList.size()) {
+        if (lastPostCount < sourceList.size()) {
             lastPostCount = sourceList.size();
             postAdapterCallback.onListScrolledToBottom();
+            Logger.test("onScrolledToBottom");
         }
     }
 
     private boolean showStatusView() {
         return postAdapterCallback.getLoadable().isThreadMode();
-    }
-
-    private void orderPosts(List<Post> posts, ThreadPresenter.Order order) {
-        if (order != ThreadPresenter.Order.BUMP) {
-            if (order == ThreadPresenter.Order.IMAGE) {
-                Collections.sort(posts, new Comparator<Post>() {
-                    @Override
-                    public int compare(Post lhs, Post rhs) {
-                        return rhs.images - lhs.images;
-                    }
-                });
-            } else if (order == ThreadPresenter.Order.REPLY) {
-                Collections.sort(posts, new Comparator<Post>() {
-                    @Override
-                    public int compare(Post lhs, Post rhs) {
-                        return rhs.replies - lhs.replies;
-                    }
-                });
-            } else if (order == ThreadPresenter.Order.NEWEST) {
-                Collections.sort(posts, new Comparator<Post>() {
-                    @Override
-                    public int compare(Post lhs, Post rhs) {
-                        return (int) (rhs.time - lhs.time);
-                    }
-                });
-            } else if (order == ThreadPresenter.Order.OLDEST) {
-                Collections.sort(posts, new Comparator<Post>() {
-                    @Override
-                    public int compare(Post lhs, Post rhs) {
-                        return (int) (lhs.time - rhs.time);
-                    }
-                });
-            }
-        }
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {

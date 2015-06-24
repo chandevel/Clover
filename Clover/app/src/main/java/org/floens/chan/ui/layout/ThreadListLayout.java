@@ -32,16 +32,14 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ReplyPresenter;
-import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
-
-import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -164,7 +162,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         }
     }
 
-    public void showPosts(ChanThread thread, ThreadPresenter.Order order, boolean initial) {
+    public void showPosts(ChanThread thread, PostFilter filter, boolean initial) {
         showingThread = thread;
         if (initial) {
             reply.bindLoadable(showingThread.loadable);
@@ -195,7 +193,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             }
         }
 
-        postAdapter.setThread(thread, order);
+        postAdapter.setThread(thread, filter);
     }
 
     public boolean onBack() {
@@ -235,16 +233,10 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
 
         if (show) {
             searchStatus.setText(R.string.search_empty);
-        } else {
-            postAdapter.clearFilter();
         }
     }
 
-    public void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard) {
-        if (clearFilter) {
-            postAdapter.clearFilter();
-        }
-
+    public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {
         if (hideKeyboard) {
             AndroidUtils.hideKeyboard(this);
         }
@@ -254,9 +246,9 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         }
 
         if (query != null) {
-            postAdapter.filterList(filter);
+            int size = postAdapter.getDisplaySize();
             searchStatus.setText(getContext().getString(R.string.search_results,
-                    getContext().getResources().getQuantityString(R.plurals.posts, filter.size(), filter.size()), query));
+                    getContext().getResources().getQuantityString(R.plurals.posts, size, size), query));
         }
     }
 

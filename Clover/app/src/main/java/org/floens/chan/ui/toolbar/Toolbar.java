@@ -346,13 +346,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
             if (openKeyboardAfterSearchViewCreated) {
                 openKeyboardAfterSearchViewCreated = false;
-                searchView.post(new Runnable() {
+                searchView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         searchView.requestFocus();
                         AndroidUtils.requestKeyboardFocus(searchView);
                     }
-                });
+                }, 100);
             }
 
             return searchViewWrapper;

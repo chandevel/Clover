@@ -39,6 +39,7 @@ import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostAdapter;
+import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.helper.PostHelper;
@@ -49,7 +50,6 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -76,7 +76,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private Loadable loadable;
     private ChanLoader chanLoader;
     private boolean searchOpen = false;
-    private Order order = Order.BUMP;
+    private String searchQuery;
+    private PostFilter.Order order = PostFilter.Order.BUMP;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -110,7 +111,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             LoaderPool.getInstance().release(chanLoader, this);
             chanLoader = null;
             loadable = null;
-            order = Order.BUMP;
+            order = PostFilter.Order.BUMP;
 
             threadPresenterCallback.showLoading();
         }
@@ -154,26 +155,32 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void onSearchVisibilityChanged(boolean visible) {
         searchOpen = visible;
         threadPresenterCallback.showSearch(visible);
+        if (!visible) {
+            searchQuery = null;
+        }
+        showPosts();
     }
 
     public void onSearchEntered(String entered) {
         if (chanLoader.getThread() != null) {
+            searchQuery = entered;
+            showPosts();
             if (TextUtils.isEmpty(entered)) {
-                threadPresenterCallback.filterList(null, null, true, true, false);
+                threadPresenterCallback.setSearchStatus(null, true, false);
             } else {
-                processSearch(chanLoader.getThread().posts, entered);
+                threadPresenterCallback.setSearchStatus(entered, false, false);
             }
         }
     }
 
-    public void setOrder(Order order) {
+    public void setOrder(PostFilter.Order order) {
         if (this.order != order) {
             this.order = order;
             if (chanLoader != null) {
                 ChanThread thread = chanLoader.getThread();
                 if (thread != null) {
                     threadPresenterCallback.scrollTo(0, false);
-                    threadPresenterCallback.showPosts(thread, order);
+                    showPosts();
                 }
             }
         }
@@ -198,7 +205,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
 
         chanLoader.setAutoLoadMore(isWatching());
-        threadPresenterCallback.showPosts(result, order);
+        showPosts();
 
         if (loadable.markedNo >= 0) {
             Post markedPost = findPostById(loadable.markedNo);
@@ -281,7 +288,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             threadPresenterCallback.showThread(threadLoadable);
         } else {
             if (searchOpen) {
-                threadPresenterCallback.filterList(null, null, true, false, true);
+                searchQuery = null;
+                showPosts();
+                threadPresenterCallback.setSearchStatus(null, false, true);
                 highlightPost(post);
                 scrollToPost(post, false);
             } else {
@@ -532,56 +541,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         return null;
     }
 
-    private void processSearch(List<Post> all, String originalQuery) {
-        List<Post> filtered = new ArrayList<>();
-
-        String query = originalQuery.toLowerCase(Locale.ENGLISH);
-
-        boolean add;
-        for (Post item : all) {
-            add = false;
-            if (item.comment.toString().toLowerCase(Locale.ENGLISH).contains(query)) {
-                add = true;
-            } else if (item.subject.toLowerCase(Locale.ENGLISH).contains(query)) {
-                add = true;
-            } else if (item.name.toLowerCase(Locale.ENGLISH).contains(query)) {
-                add = true;
-            } else if (item.filename != null && item.filename.toLowerCase(Locale.ENGLISH).contains(query)) {
-                add = true;
-            }
-            if (add) {
-                filtered.add(item);
-            }
-        }
-
-        threadPresenterCallback.filterList(originalQuery, filtered, false, false, false);
-    }
-
-    public enum Order {
-        BUMP("bump"),
-        REPLY("reply"),
-        IMAGE("image"),
-        NEWEST("newest"),
-        OLDEST("oldest");
-
-        public String name;
-
-        Order(String storeName) {
-            this.name = storeName;
-        }
-
-        public static Order find(String name) {
-            for (Order mode : Order.values()) {
-                if (mode.name.equals(name)) {
-                    return mode;
-                }
-            }
-            return null;
-        }
+    private void showPosts() {
+        threadPresenterCallback.showPosts(chanLoader.getThread(), new PostFilter(order, searchQuery));
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, Order order);
+        void showPosts(ChanThread thread, PostFilter filter);
 
         void postClicked(Post post);
 
@@ -615,7 +580,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         void showSearch(boolean show);
 
-        void filterList(String query, List<Post> filter, boolean clearFilter, boolean setEmptyText, boolean hideKeyboard);
+        void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard);
 
         void quote(Post post, boolean withText);
 
