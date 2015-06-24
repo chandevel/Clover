@@ -95,17 +95,6 @@ public class DeveloperSettingsController extends Controller {
         savedReplyDummyAdd.setText("Add test rows to savedReply");
         wrapper.addView(savedReplyDummyAdd);
 
-        Button trimSavedReply = new Button(context);
-        trimSavedReply.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                Chan.getDatabaseManager().trimSavedRepliesTable(10);
-                setDbSummary();
-            }
-        });
-        trimSavedReply.setText("Trim savedreply table");
-        wrapper.addView(trimSavedReply);
-
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
         view = scrollView;

@@ -19,13 +19,15 @@ package org.floens.chan.database;
 
 import android.content.Context;
 
+import com.j256.ormlite.dao.Dao;
+
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -37,30 +39,37 @@ public class DatabaseManager {
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
 
     private final DatabaseHelper helper;
-    private List<SavedReply> savedReplies;
+
+    private List<SavedReply> savedReplies = new ArrayList<>();
     private HashSet<Integer> savedRepliesIds = new HashSet<>();
 
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
+        initialize();
     }
 
+    /**
+     * Save a reply to the savedreply table.
+     * @param saved the {@link SavedReply} to save
+     */
     public void saveReply(SavedReply saved) {
-        Logger.d(TAG, "Saving " + saved.board + ", " + saved.no);
-
         try {
             helper.savedDao.create(saved);
         } catch (SQLException e) {
             Logger.e(TAG, "Error saving reply", e);
         }
 
-        loadSavedReplies();
+        savedReplies.add(saved);
+        savedRepliesIds.add(saved.no);
     }
 
+    /**
+     * Searches a saved reply. This is done through caching members, no database lookups.
+     * @param board board for the reply to search
+     * @param no no for the reply to search
+     * @return A {@link SavedReply} that matches {@code board} and {@code no}, or {@code null}
+     */
     public SavedReply getSavedReply(String board, int no) {
-        if (savedReplies == null) {
-            loadSavedReplies();
-        }
-
         if (savedRepliesIds.contains(no)) {
             for (SavedReply r : savedReplies) {
                 if (r.no == no && r.board.equals(board)) {
@@ -72,38 +81,20 @@ public class DatabaseManager {
         return null;
     }
 
+    /**
+     * Searches if a saved reply exists. This is done through caching members, no database lookups.
+     * @param board board for the reply to search
+     * @param no no for the reply to search
+     * @return true if a {@link SavedReply} matched {@code board} and {@code no}, {@code false} otherwise
+     */
     public boolean isSavedReply(String board, int no) {
         return getSavedReply(board, no) != null;
     }
 
-    private void loadSavedReplies() {
-        try {
-            savedReplies = helper.savedDao.queryForAll();
-            savedRepliesIds.clear();
-            for (SavedReply reply : savedReplies) {
-                savedRepliesIds.add(reply.no);
-            }
-
-            long count = helper.savedDao.countOf();
-            if (count >= SAVED_REPLY_TRIM_TRIGGER) {
-                trimSavedRepliesTable(SAVED_REPLY_TRIM_COUNT + (count - SAVED_REPLY_TRIM_TRIGGER));
-            }
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error loading saved replies", e);
-        }
-    }
-
-    public void trimSavedRepliesTable(long limit) {
-        try {
-            Logger.i(TAG, "Trimming the length of the savedreply table for " + limit + " rows, was " + helper.savedDao.countOf());
-            helper.savedDao.executeRaw("DELETE FROM savedreply WHERE id IN " +
-                    "(SELECT id FROM savedreply ORDER BY id ASC LIMIT ?)", Long.toString(limit));
-            Logger.i(TAG, "The savedreply table now has " + helper.savedDao.countOf() + " rows");
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error trimming saved replies table", e);
-        }
-    }
-
+    /**
+     * Adds a {@link Pin} to the pin table.
+     * @param pin Pin to save
+     */
     public void addPin(Pin pin) {
         try {
             helper.loadableDao.create(pin.loadable);
@@ -113,6 +104,10 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Deletes a {@link Pin} from the pin table.
+     * @param pin Pin to delete
+     */
     public void removePin(Pin pin) {
         try {
             helper.pinDao.delete(pin);
@@ -122,6 +117,10 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Updates a {@link Pin} in the pin table.
+     * @param pin Pin to update
+     */
     public void updatePin(Pin pin) {
         try {
             helper.pinDao.update(pin);
@@ -131,6 +130,10 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Updates all {@link Pin}s in the list to the pin table.
+     * @param pins Pins to update
+     */
     public void updatePins(final List<Pin> pins) {
         try {
             helper.pinDao.callBatchTasks(new Callable<Void>() {
@@ -152,6 +155,10 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Get a list of {@link Pin}s from the pin table.
+     * @return List of Pins
+     */
     public List<Pin> getPinned() {
         List<Pin> list = null;
         try {
@@ -166,6 +173,10 @@ public class DatabaseManager {
         return list;
     }
 
+    /**
+     * Create or updates these boards in the boards table.
+     * @param boards List of boards to create or update
+     */
     public void setBoards(final List<Board> boards) {
         try {
             helper.boardsDao.callBatchTasks(new Callable<Void>() {
@@ -183,26 +194,10 @@ public class DatabaseManager {
         }
     }
 
-    public void updateBoards(final List<Board> boards) {
-        try {
-            helper.boardsDao.callBatchTasks(new Callable<Void>() {
-                @Override
-                public Void call() throws SQLException {
-                    long start = Time.get();
-                    for (Board b : boards) {
-                        helper.boardsDao.update(b);
-                    }
-
-                    Logger.d(TAG, "Update board took " + Time.get(start));
-
-                    return null;
-                }
-            });
-        } catch (Exception e) {
-            Logger.e(TAG, "Error updating boards in db", e);
-        }
-    }
-
+    /**
+     * Get all boards from the boards table.
+     * @return all boards from the boards table
+     */
     public List<Board> getBoards() {
         List<Board> boards = null;
         try {
@@ -214,6 +209,10 @@ public class DatabaseManager {
         return boards;
     }
 
+    /**
+     * Summary of the database tables row count, for the developer screen.
+     * @return list of all tables and their row count.
+     */
     public String getSummary() {
         String o = "";
 
@@ -229,8 +228,49 @@ public class DatabaseManager {
         return o;
     }
 
+    /**
+     * Reset all tables in the database. Used for the developer screen.
+     */
     public void reset() {
         helper.reset();
+        initialize();
+    }
+
+    private void initialize() {
         loadSavedReplies();
+    }
+
+    private void loadSavedReplies() {
+        try {
+            trimTable(helper.savedDao, "savedreply", SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
+
+            savedReplies.clear();
+            savedReplies.addAll(helper.savedDao.queryForAll());
+            savedRepliesIds.clear();
+            for (SavedReply reply : savedReplies) {
+                savedRepliesIds.add(reply.no);
+            }
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error loading saved replies", e);
+        }
+    }
+
+    /**
+     * Trim a table with the specified trigger and trim count.
+     * @param dao {@link Dao} to use.
+     * @param table name of the table, used in the query (not escaped).
+     * @param trigger Trim if there are more rows than {@code trigger}.
+     * @param trim Count of rows to trim.
+     */
+    private void trimTable(Dao dao, String table, long trigger, long trim) {
+        try {
+            long count = dao.countOf();
+            if (count > trigger) {
+                dao.executeRaw("DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)", String.valueOf(trim));
+                Logger.i(TAG, "Trimmed " + table + " from " + count + " to " + dao.countOf() + " rows");
+            }
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error trimming table " + table, e);
+        }
     }
 }

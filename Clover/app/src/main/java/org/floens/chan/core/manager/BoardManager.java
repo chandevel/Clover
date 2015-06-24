@@ -84,7 +84,7 @@ public class BoardManager {
     }
 
     public void updateSavedBoards() {
-        Chan.getDatabaseManager().updateBoards(allBoards);
+        Chan.getDatabaseManager().setBoards(allBoards);
 
         notifyChanged();
     }

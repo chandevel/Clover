@@ -127,7 +127,7 @@ public class Chan extends Application {
 
         if (ChanBuild.DEVELOPER_MODE) {
 //            refWatcher = LeakCanary.install(this);
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectNetwork().penaltyLog().build());
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
         }
 
