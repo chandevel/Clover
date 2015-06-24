@@ -60,7 +60,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             savedDao = getDao(SavedReply.class);
             boardsDao = getDao(Board.class);
         } catch (SQLException e) {
-            e.printStackTrace();
+            Logger.e(TAG, "Error creating Daos", e);
         }
     }
 
@@ -103,7 +103,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN trollFlags INTEGER;");
                 boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN mathTags INTEGER;");
             } catch (SQLException e) {
-                e.printStackTrace();
+                Logger.e(TAG, "Error upgrading to version 12", e);
             }
 
             try {
@@ -115,7 +115,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                     Logger.i(TAG, "Deleted f board");
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
+                Logger.e(TAG, "Error removing /f/ board while upgrading to version 12", e);
             }
         }
 
@@ -124,7 +124,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 boardsDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN isError SMALLINT;");
                 boardsDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN thumbnailUrl VARCHAR;");
             } catch (SQLException e) {
-                e.printStackTrace();
+                Logger.e(TAG, "Error upgrading to version 13", e);
             }
         }
 
@@ -132,7 +132,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             try {
                 pinDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN \"order\" INTEGER;");
             } catch (SQLException e) {
-                e.printStackTrace();
+                Logger.e(TAG, "Error upgrading to version 14", e);
             }
         }
 
@@ -140,7 +140,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             try {
                 pinDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN archived INTEGER;");
             } catch (SQLException e) {
-                e.printStackTrace();
+                Logger.e(TAG, "Error upgrading to version 15", e);
             }
         }
     }
@@ -150,19 +150,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (context.deleteDatabase(DATABASE_NAME)) {
             Logger.i(TAG, "Deleted database");
-        }
-    }
-
-    private void reset(SQLiteDatabase database, ConnectionSource connectionSource) {
-        try {
-            TableUtils.dropTable(connectionSource, Pin.class, true);
-            TableUtils.dropTable(connectionSource, Loadable.class, true);
-            TableUtils.dropTable(connectionSource, SavedReply.class, true);
-            TableUtils.dropTable(connectionSource, Board.class, true);
-
-            onCreate(database, connectionSource);
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }
