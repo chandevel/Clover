@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.CheckBox;
@@ -112,6 +113,8 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     public void onCreate() {
         super.onCreate();
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         navigationItem.subtitle = "0";
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
@@ -136,6 +139,13 @@ public class ImageViewerController extends Controller implements View.OnClickLis
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
