@@ -134,11 +134,10 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
 
     public void onMoreClicked() {
         moreOpen = !moreOpen;
-        callback.openName(moreOpen);
+        callback.openNameOptions(moreOpen);
         if (!loadable.isThreadMode()) {
             callback.openSubject(moreOpen);
         }
-        callback.openOptions(moreOpen);
         if (previewOpen) {
             callback.openFileName(moreOpen);
             if (board.spoilers) {
@@ -301,9 +300,8 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
         previewOpen = false;
         selectedQuote = -1;
         callback.openMessage(false, true, "", false);
-        callback.openName(false);
         callback.openSubject(false);
-        callback.openOptions(false);
+        callback.openNameOptions(false);
         callback.openFileName(false);
         callback.openSpoiler(false, false);
         callback.openPreview(false, null);
@@ -403,11 +401,9 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
 
         void setCommentHint(String hint);
 
-        void openName(boolean open);
+        void openNameOptions(boolean open);
 
         void openSubject(boolean open);
-
-        void openOptions(boolean open);
 
         void openFileName(boolean open);
 

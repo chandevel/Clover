@@ -39,12 +39,12 @@ import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 import org.floens.chan.utils.ImageDecoder;
-import org.floens.chan.ui.theme.ThemeHelper;
 
 import java.io.File;
 
@@ -68,6 +68,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     private EditText subject;
     private EditText options;
     private EditText fileName;
+    private LinearLayout nameOptions;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
     private LinearLayout previewContainer;
@@ -112,6 +113,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         subject = (EditText) replyInputLayout.findViewById(R.id.subject);
         options = (EditText) replyInputLayout.findViewById(R.id.options);
         fileName = (EditText) replyInputLayout.findViewById(R.id.file_name);
+        nameOptions = (LinearLayout) replyInputLayout.findViewById(R.id.name_options);
         comment = (SelectionListeningEditText) replyInputLayout.findViewById(R.id.comment);
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
@@ -172,7 +174,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void onLayoutAnimationProgress(boolean vertical, View view, float progress) {
-        if (view == name) {
+        if (view == nameOptions) {
             moreDropdown.setRotation(openingName ? progress : 1f - progress);
         }
     }
@@ -282,19 +284,14 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     @Override
-    public void openName(boolean open) {
+    public void openNameOptions(boolean open) {
         openingName = open;
-        AnimationUtils.animateHeight(name, open, comment.getWidth(), 300, this);
+        AnimationUtils.animateHeight(nameOptions, open, comment.getWidth(), 300, this);
     }
 
     @Override
     public void openSubject(boolean open) {
         AnimationUtils.animateHeight(subject, open, comment.getWidth());
-    }
-
-    @Override
-    public void openOptions(boolean open) {
-        AnimationUtils.animateHeight(options, open, comment.getWidth());
     }
 
     @Override

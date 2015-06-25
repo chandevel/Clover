@@ -46,15 +46,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="8dp"
             android:paddingTop="8dp">
 
-            <EditText
-                android:id="@+id/name"
+            <LinearLayout
+                android:id="@+id/name_options"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:hint="@string/reply_name"
-                android:inputType="textCapSentences|textAutoCorrect"
-                android:singleLine="true"
-                android:textSize="16sp"
-                android:visibility="gone" />
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/name"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:hint="@string/reply_name"
+                    android:inputType="textCapSentences|textAutoCorrect"
+                    android:singleLine="true"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/options"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="@string/reply_options"
+                    android:singleLine="true"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/subject"
@@ -62,15 +80,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="0dp"
                 android:hint="@string/reply_subject"
                 android:inputType="textCapSentences|textAutoCorrect"
-                android:singleLine="true"
-                android:textSize="16sp"
-                android:visibility="gone" />
-
-            <EditText
-                android:id="@+id/options"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:hint="@string/reply_options"
                 android:singleLine="true"
                 android:textSize="16sp"
                 android:visibility="gone" />
