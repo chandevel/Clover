@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private static final int TYPE_POST = 0;
     private static final int TYPE_STATUS = 1;
 

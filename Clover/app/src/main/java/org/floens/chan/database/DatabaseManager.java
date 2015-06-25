@@ -20,10 +20,13 @@ package org.floens.chan.database;
 import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
@@ -37,11 +40,16 @@ public class DatabaseManager {
 
     private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
+    private static final long THREAD_HIDE_TRIM_TRIGGER = 250;
+    private static final long THREAD_HIDE_TRIM_COUNT = 50;
 
     private final DatabaseHelper helper;
 
     private List<SavedReply> savedReplies = new ArrayList<>();
     private HashSet<Integer> savedRepliesIds = new HashSet<>();
+
+    private List<ThreadHide> threadHides = new ArrayList<>();
+    private HashSet<Integer> threadHidesIds = new HashSet<>();
 
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
@@ -50,6 +58,7 @@ public class DatabaseManager {
 
     /**
      * Save a reply to the savedreply table.
+     *
      * @param saved the {@link SavedReply} to save
      */
     public void saveReply(SavedReply saved) {
@@ -65,8 +74,9 @@ public class DatabaseManager {
 
     /**
      * Searches a saved reply. This is done through caching members, no database lookups.
+     *
      * @param board board for the reply to search
-     * @param no no for the reply to search
+     * @param no    no for the reply to search
      * @return A {@link SavedReply} that matches {@code board} and {@code no}, or {@code null}
      */
     public SavedReply getSavedReply(String board, int no) {
@@ -83,8 +93,9 @@ public class DatabaseManager {
 
     /**
      * Searches if a saved reply exists. This is done through caching members, no database lookups.
+     *
      * @param board board for the reply to search
-     * @param no no for the reply to search
+     * @param no    no for the reply to search
      * @return true if a {@link SavedReply} matched {@code board} and {@code no}, {@code false} otherwise
      */
     public boolean isSavedReply(String board, int no) {
@@ -93,6 +104,7 @@ public class DatabaseManager {
 
     /**
      * Adds a {@link Pin} to the pin table.
+     *
      * @param pin Pin to save
      */
     public void addPin(Pin pin) {
@@ -106,6 +118,7 @@ public class DatabaseManager {
 
     /**
      * Deletes a {@link Pin} from the pin table.
+     *
      * @param pin Pin to delete
      */
     public void removePin(Pin pin) {
@@ -119,6 +132,7 @@ public class DatabaseManager {
 
     /**
      * Updates a {@link Pin} in the pin table.
+     *
      * @param pin Pin to update
      */
     public void updatePin(Pin pin) {
@@ -132,6 +146,7 @@ public class DatabaseManager {
 
     /**
      * Updates all {@link Pin}s in the list to the pin table.
+     *
      * @param pins Pins to update
      */
     public void updatePins(final List<Pin> pins) {
@@ -157,6 +172,7 @@ public class DatabaseManager {
 
     /**
      * Get a list of {@link Pin}s from the pin table.
+     *
      * @return List of Pins
      */
     public List<Pin> getPinned() {
@@ -175,6 +191,7 @@ public class DatabaseManager {
 
     /**
      * Create or updates these boards in the boards table.
+     *
      * @param boards List of boards to create or update
      */
     public void setBoards(final List<Board> boards) {
@@ -196,6 +213,7 @@ public class DatabaseManager {
 
     /**
      * Get all boards from the boards table.
+     *
      * @return all boards from the boards table
      */
     public List<Board> getBoards() {
@@ -210,7 +228,69 @@ public class DatabaseManager {
     }
 
     /**
+     * Check if the post is added in the threadhide table.
+     *
+     * @param post Post to check the board and no on
+     * @return true if it was hidden, false otherwise
+     */
+    public boolean isThreadHidden(Post post) {
+        if (threadHidesIds.contains(post.no)) {
+            for (ThreadHide hide : threadHides) {
+                if (hide.no == post.no && hide.board.equals(post.board)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds an entry to the threadhide table and updates any caching members.
+     *
+     * @param threadHide The {@link ThreadHide} to add.
+     */
+    public void addThreadHide(ThreadHide threadHide) {
+        try {
+            helper.threadHideDao.create(threadHide);
+            threadHides.add(threadHide);
+            threadHidesIds.add(threadHide.no);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error adding threadhide", e);
+        }
+    }
+
+    /**
+     * Removes the entry from the threadhide table and updates any caching members.
+     *
+     * @param threadHide The {@link ThreadHide} to remove.
+     */
+    public void removeThreadHide(ThreadHide threadHide) {
+        try {
+            helper.threadHideDao.delete(threadHide);
+            threadHides.remove(threadHide);
+            // ThreadHidesIds not removed because there may be another post with the same id on another board
+            // It's just an caching thing, it'll reset itself after a restart
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error deleting threadhide", e);
+        }
+    }
+
+    /**
+     * Clears all {@link ThreadHide}s from the table and resets any caching members.
+     */
+    public void clearAllThreadHides() {
+        try {
+            TableUtils.clearTable(helper.getConnectionSource(), ThreadHide.class);
+            threadHides.clear();
+            threadHidesIds.clear();
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error clearing threadhide table", e);
+        }
+    }
+
+    /**
      * Summary of the database tables row count, for the developer screen.
+     *
      * @return list of all tables and their row count.
      */
     public String getSummary() {
@@ -238,6 +318,7 @@ public class DatabaseManager {
 
     private void initialize() {
         loadSavedReplies();
+        loadThreadHides();
     }
 
     private void loadSavedReplies() {
@@ -255,12 +336,28 @@ public class DatabaseManager {
         }
     }
 
+    private void loadThreadHides() {
+        try {
+            trimTable(helper.threadHideDao, "threadhide", THREAD_HIDE_TRIM_TRIGGER, THREAD_HIDE_TRIM_COUNT);
+
+            threadHides.clear();
+            threadHides.addAll(helper.threadHideDao.queryForAll());
+            threadHidesIds.clear();
+            for (ThreadHide hide : threadHides) {
+                threadHidesIds.add(hide.no);
+            }
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error loading thread hides", e);
+        }
+    }
+
     /**
      * Trim a table with the specified trigger and trim count.
-     * @param dao {@link Dao} to use.
-     * @param table name of the table, used in the query (not escaped).
+     *
+     * @param dao     {@link Dao} to use.
+     * @param table   name of the table, used in the query (not escaped).
      * @param trigger Trim if there are more rows than {@code trigger}.
-     * @param trim Count of rows to trim.
+     * @param trim    Count of rows to trim.
      */
     private void trimTable(Dao dao, String table, long trigger, long trim) {
         try {

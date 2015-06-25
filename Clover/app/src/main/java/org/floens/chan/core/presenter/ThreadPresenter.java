@@ -66,6 +66,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_PIN = 9;
     private static final int POST_OPTION_SHARE = 10;
     private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 11;
+    private static final int POST_OPTION_HIDE = 12;
 
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
@@ -184,6 +185,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 }
             }
         }
+    }
+
+    public void refreshUI() {
+        showPosts();
     }
 
     @Override
@@ -331,6 +336,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         menu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
         menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
 
+        if (!loadable.isThreadMode()) {
+            menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+        }
+
         if (!TextUtils.isEmpty(post.id)) {
             menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
         }
@@ -392,6 +401,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                                 ChanUrls.getThreadUrlDesktop(post.board, loadable.no, post.no)
                 );
                 break;
+            case POST_OPTION_HIDE:
+                threadPresenterCallback.hideThread(post);
         }
     }
 
@@ -589,5 +600,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void showDeleting();
 
         void hideDeleting(String message);
+
+        void hideThread(Post post);
     }
 }

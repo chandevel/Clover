@@ -40,3 +40,6 @@ ALTER TABLE pin ADD COLUMN order INTEGER;
 
 Changes is version 15:
 ALTER TABLE pin ADD COLUMN archived INTEGER;
+
+Changes in version 16:
+Table ThreadHide added

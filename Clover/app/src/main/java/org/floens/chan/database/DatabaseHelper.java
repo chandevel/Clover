@@ -29,6 +29,7 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
@@ -40,12 +41,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
     public Dao<SavedReply, Integer> savedDao;
     public Dao<Board, Integer> boardsDao;
+    public Dao<ThreadHide, Integer> threadHideDao;
 
     private final Context context;
 
@@ -59,6 +61,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             loadableDao = getDao(Loadable.class);
             savedDao = getDao(SavedReply.class);
             boardsDao = getDao(Board.class);
+            threadHideDao = getDao(ThreadHide.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating Daos", e);
         }
@@ -71,6 +74,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Loadable.class);
             TableUtils.createTable(connectionSource, SavedReply.class);
             TableUtils.createTable(connectionSource, Board.class);
+            TableUtils.createTable(connectionSource, ThreadHide.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -141,6 +145,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 pinDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN archived INTEGER;");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 15", e);
+            }
+        }
+
+        if (oldVersion < 16) {
+            try {
+                TableUtils.createTable(connectionSource, ThreadHide.class);
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 16", e);
             }
         }
     }

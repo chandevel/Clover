@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
 public class BoardEditController extends Controller implements SwipeListener.Callback, View.OnClickListener {
 
@@ -194,8 +195,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
                 recyclerView.smoothScrollToPosition(boards.size());
 
                 Snackbar snackbar = Snackbar.make(view, string(R.string.board_add_success) + " " + board.key, Snackbar.LENGTH_LONG);
-                TextView snackbarText = (TextView) snackbar.getView().findViewById(R.id.snackbar_text);
-                snackbarText.setTextColor(0xffffffff);
+                fixSnackbarText(context, snackbar);
                 snackbar.show();
 
                 return;

@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,7 @@ import com.android.volley.NoConnectionError;
 import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.ChanThread;
@@ -49,8 +51,10 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
@@ -62,6 +66,7 @@ import java.util.List;
 
 import javax.net.ssl.SSLException;
 
+import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 /**
@@ -73,6 +78,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         THREAD,
         ERROR;
     }
+
+    private DatabaseManager databaseManager;
 
     private ThreadLayoutCallback callback;
 
@@ -93,14 +100,17 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
     public ThreadLayout(Context context) {
         super(context);
+        init();
     }
 
     public ThreadLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public ThreadLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     @Override
@@ -352,6 +362,23 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         }
     }
 
+    @Override
+    public void hideThread(Post post) {
+        final ThreadHide threadHide = new ThreadHide(post.board, post.no);
+        databaseManager.addThreadHide(threadHide);
+        presenter.refreshUI();
+
+        Snackbar snackbar = Snackbar.make(this, R.string.post_hidden, Snackbar.LENGTH_LONG);
+        snackbar.setAction(R.string.undo, new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                databaseManager.removeThreadHide(threadHide);
+                presenter.refreshUI();
+            }
+        }).show();
+        fixSnackbarText(getContext(), snackbar);
+    }
+
     public ThumbnailView getThumbnail(PostImage postImage) {
         if (postPopupHelper.isOpen()) {
             return postPopupHelper.getThumbnail(postImage);
@@ -410,6 +437,10 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                     break;
             }
         }
+    }
+
+    private void init() {
+        databaseManager = Chan.getDatabaseManager();
     }
 
     @Override

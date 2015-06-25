@@ -19,7 +19,9 @@ package org.floens.chan.ui.adapter;
 
 import android.text.TextUtils;
 
+import org.floens.chan.Chan;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.database.DatabaseManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,12 +59,15 @@ public class PostFilter {
         }
     };
 
+    private final DatabaseManager databaseManager;
+
     private Order order;
     private String query;
 
     public PostFilter(Order order, String query) {
         this.order = order;
         this.query = query;
+        databaseManager = Chan.getDatabaseManager();
     }
 
     /**
@@ -113,6 +118,15 @@ public class PostFilter {
                 if (!add) {
                     i.remove();
                 }
+            }
+        }
+
+        // Process hidden
+        Iterator<Post> i = posts.iterator();
+        while (i.hasNext()) {
+            Post post = i.next();
+            if (databaseManager.isThreadHidden(post)) {
+                i.remove();
             }
         }
 

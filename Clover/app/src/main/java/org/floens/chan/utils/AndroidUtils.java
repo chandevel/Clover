@@ -34,12 +34,14 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.floens.chan.Chan;
@@ -300,5 +302,10 @@ public class AndroidUtils {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static void setElevationLollipop(View view, float elevation) {
         view.setElevation(elevation);
+    }
+
+    public static void fixSnackbarText(Context context, Snackbar snackbar) {
+        ((TextView) snackbar.getView().findViewById(R.id.snackbar_text)).setTextColor(0xffffffff);
+        snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
     }
 }

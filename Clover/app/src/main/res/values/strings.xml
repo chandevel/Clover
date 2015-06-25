@@ -130,6 +130,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="post_share">Share</string>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
+    <string name="post_hide">Hide</string>
+    <string name="post_hidden">Thread hidden</string>
     <string name="post_delete">Delete</string>
 
     <string name="reply_name">Name</string>
@@ -201,6 +203,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_video_auto_load">Auto load videos</string>
     <string name="setting_video_open_external">Open videos external</string>
     <string name="setting_video_open_external_description">Open videos in an external media player</string>
+    <string name="setting_clear_thread_hides">Clear all thread hides</string>
+    <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
 
     <string name="settings_group_posting">Posting</string>
     <string name="setting_post_default_name">Default post name</string>

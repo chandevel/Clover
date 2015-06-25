@@ -53,7 +53,7 @@ import de.greenrobot.event.EventBus;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
 public class RootNavigationController extends NavigationController implements PinAdapter.Callback, View.OnClickListener {
     private WatchManager watchManager;
@@ -208,15 +208,13 @@ public class RootNavigationController extends NavigationController implements Pi
         watchManager.removePin(pin);
 
         Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
-        TextView snackbarText = (TextView) snackbar.getView().findViewById(R.id.snackbar_text);
-        snackbarText.setTextColor(0xffffffff);
+        fixSnackbarText(context, snackbar);
         snackbar.setAction(R.string.undo, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 watchManager.addPin(pin);
             }
         });
-        snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
         snackbar.show();
     }
 

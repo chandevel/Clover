@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.settings.BooleanSettingView;
@@ -163,6 +164,13 @@ public class MainSettingsController extends SettingsController implements Toolba
         imageAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.imageAutoLoad, s(R.string.setting_image_auto_load), null));
         videoAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.videoAutoLoad, s(R.string.setting_video_auto_load), null));
         browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, s(R.string.setting_video_open_external), s(R.string.setting_video_open_external_description)));
+        browsing.add(new LinkSettingView(this, string(R.string.setting_clear_thread_hides), null, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Chan.getDatabaseManager().clearAllThreadHides();
+                Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG).show();
+            }
+        }));
 
         groups.add(browsing);
 
