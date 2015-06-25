@@ -50,10 +50,10 @@ public class ThemeHelper {
         themes.add(new Theme("Light", "light", R.style.Chan_Theme, PrimaryColor.GREEN));
         themes.add(new DarkTheme("Dark", "dark", R.style.Chan_Theme_Dark, PrimaryColor.DARK));
         themes.add(new DarkTheme("Black", "black", R.style.Chan_Theme_Black, PrimaryColor.BLACK));
+        themes.add(new DarkTheme("Tomorrow", "tomorrow", R.style.Chan_Theme_Tomorrow, PrimaryColor.DARK));
         themes.add(new Theme("Yotsuba", "yotsuba", R.style.Chan_Theme_Yotsuba, PrimaryColor.RED));
         themes.add(new Theme("Yotsuba B", "yotsuba_b", R.style.Chan_Theme_YotsubaB, PrimaryColor.RED));
         themes.add(new Theme("Photon", "photon", R.style.Chan_Theme_Photon, PrimaryColor.ORANGE));
-        themes.add(new DarkTheme("Tomorrow", "tomorrow", R.style.Chan_Theme_Tomorrow, PrimaryColor.DARK));
 
         ChanSettings.ThemeColor settingTheme = ChanSettings.getThemeAndColor();
         if (settingTheme.color != null) {
