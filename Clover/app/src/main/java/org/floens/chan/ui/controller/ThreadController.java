@@ -134,6 +134,10 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     @Override
     public void onShowPosts() {
+    }
+
+    @Override
+    public void hideSwipeRefreshLayout() {
         swipeRefreshLayout.setRefreshing(false);
     }
 

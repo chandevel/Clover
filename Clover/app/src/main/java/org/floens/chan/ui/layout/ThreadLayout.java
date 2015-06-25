@@ -429,10 +429,12 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                     }
                     break;
                 case THREAD:
+                    callback.hideSwipeRefreshLayout();
                     loadView.setView(threadListLayout);
                     showReplyButton(true);
                     break;
                 case ERROR:
+                    callback.hideSwipeRefreshLayout();
                     loadView.setView(errorLayout);
                     break;
             }
@@ -456,5 +458,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         void onShowPosts();
 
         void presentRepliesController(Controller controller);
+
+        void hideSwipeRefreshLayout();
     }
 }
