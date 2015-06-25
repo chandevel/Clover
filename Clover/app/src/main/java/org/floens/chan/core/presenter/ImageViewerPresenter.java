@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.presenter;
 
+import android.net.ConnectivityManager;
 import android.support.v4.view.ViewPager;
 
 import org.floens.chan.core.model.Loadable;
@@ -27,13 +28,12 @@ import org.floens.chan.ui.view.MultiImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.isConnected;
+
 public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
 
     private final Callback callback;
-
-    private final boolean imageAutoLoad = ChanSettings.imageAutoLoad.get();
-    private final boolean movieAutoLoad = imageAutoLoad && ChanSettings.videoAutoLoad.get();
 
     private boolean entering = true;
     private boolean exiting = false;
@@ -178,12 +178,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
 
-        if (imageAutoLoad && !postImage.spoiler) {
+        if (imageAutoLoad() && !postImage.spoiler) {
             if (postImage.type == PostImage.Type.STATIC) {
                 callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE);
             } else if (postImage.type == PostImage.Type.GIF) {
                 callback.setImageMode(postImage, MultiImageView.Mode.GIF);
-            } else if (postImage.type == PostImage.Type.MOVIE && movieAutoLoad) {
+            } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad()) {
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
             }
         }
@@ -194,8 +194,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
-            if (imageAutoLoad && !postImage.spoiler) {
-                if (movieAutoLoad) {
+            if (imageAutoLoad() && !postImage.spoiler) {
+                if (videoAutoLoad()) {
                     onExit();
                 } else {
                     if (postImage.type == PostImage.Type.MOVIE) {
@@ -255,6 +255,24 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     @Override
     public void onVideoError(MultiImageView multiImageView) {
         callback.onVideoError(multiImageView);
+    }
+
+    private boolean imageAutoLoad() {
+        String autoLoadMode = ChanSettings.imageAutoLoadNetwork.get();
+        if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.NONE.name)) {
+            return false;
+        } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.WIFI.name)) {
+            return isConnected(ConnectivityManager.TYPE_WIFI);
+        } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.ALL.name)) {
+            return true;
+        }
+
+        // Not connected or unrecognized
+        return false;
+    }
+
+    private boolean videoAutoLoad() {
+        return imageAutoLoad() && ChanSettings.videoAutoLoad.get();
     }
 
     private void setTitle(PostImage postImage, int position) {

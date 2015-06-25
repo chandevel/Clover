@@ -200,7 +200,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_open_link_confirmation">Ask before opening links</string>
     <string name="setting_auto_refresh_thread">Auto refresh threads</string>
     <string name="setting_image_auto_load">Auto load images</string>
+
+    <string name="setting_image_auto_load_all">Always</string>
+    <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
+    <string name="setting_image_auto_load_none">Never</string>
+
     <string name="setting_video_auto_load">Auto load videos</string>
+    <string name="setting_video_auto_load_description">Depends on auto load images</string>
     <string name="setting_video_open_external">Open videos external</string>
     <string name="setting_video_open_external_description">Open videos in an external media player</string>
     <string name="setting_clear_thread_hides">Clear all thread hides</string>

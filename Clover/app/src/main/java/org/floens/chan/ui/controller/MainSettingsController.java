@@ -102,7 +102,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         super.onPreferenceChange(item);
 
         if (item == imageAutoLoadView) {
-            videoAutoLoadView.setEnabled(ChanSettings.imageAutoLoad.get());
+            videoAutoLoadView.setEnabled(!ChanSettings.imageAutoLoadNetwork.get().equals(ChanSettings.ImageAutoLoadMode.NONE.name));
         } else if (item == fontView) {
             EventBus.getDefault().post(new RefreshUIMessage("fontsize"));
         }
@@ -161,8 +161,27 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, s(R.string.setting_open_link_confirmation), null));
         browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, s(R.string.setting_auto_refresh_thread), null));
-        imageAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.imageAutoLoad, s(R.string.setting_image_auto_load), null));
-        videoAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.videoAutoLoad, s(R.string.setting_video_auto_load), null));
+
+        List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
+        for (ChanSettings.ImageAutoLoadMode mode : ChanSettings.ImageAutoLoadMode.values()) {
+            String name = "";
+            switch(mode) {
+                case ALL:
+                    name = string(R.string.setting_image_auto_load_all);
+                    break;
+                case WIFI:
+                    name = string(R.string.setting_image_auto_load_wifi);
+                    break;
+                case NONE:
+                    name = string(R.string.setting_image_auto_load_none);
+                    break;
+            }
+
+            imageAutoLoadTypes.add(new ListSettingView.Item(name, mode.name));
+        }
+
+        imageAutoLoadView = browsing.add(new ListSettingView(this, ChanSettings.imageAutoLoadNetwork, s(R.string.setting_image_auto_load), imageAutoLoadTypes.toArray(new ListSettingView.Item[imageAutoLoadTypes.size()])));
+        videoAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.videoAutoLoad, s(R.string.setting_video_auto_load), s(R.string.setting_video_auto_load_description)));
         browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, s(R.string.setting_video_open_external), s(R.string.setting_video_open_external_description)));
         browsing.add(new LinkSettingView(this, string(R.string.setting_clear_thread_hides), null, new View.OnClickListener() {
             @Override

@@ -29,6 +29,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -58,9 +60,13 @@ public class AndroidUtils {
     public static Typeface ROBOTO_MEDIUM;
     public static Typeface ROBOTO_MEDIUM_ITALIC;
 
+    private static ConnectivityManager connectivityManager;
+
     public static void init() {
         ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
         ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
+
+        connectivityManager = (ConnectivityManager) getAppRes().getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     public static Resources getRes() {
@@ -307,5 +313,14 @@ public class AndroidUtils {
     public static void fixSnackbarText(Context context, Snackbar snackbar) {
         ((TextView) snackbar.getView().findViewById(R.id.snackbar_text)).setTextColor(0xffffffff);
         snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
+    }
+
+    public static ConnectivityManager getConnectivityManager() {
+        return connectivityManager;
+    }
+
+    public static boolean isConnected(int type) {
+        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
+        return networkInfo != null && networkInfo.isConnected();
     }
 }

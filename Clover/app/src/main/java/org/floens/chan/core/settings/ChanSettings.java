@@ -30,11 +30,36 @@ import org.floens.chan.utils.AndroidUtils;
 import java.io.File;
 
 public class ChanSettings {
+    public enum ImageAutoLoadMode {
+        // ALways auto load, either wifi or mobile
+        ALL("all"),
+        // Only auto load if on wifi
+        WIFI("wifi"),
+        // Never auto load
+        NONE("none");
+
+        public String name;
+
+        ImageAutoLoadMode(String name) {
+            this.name = name;
+        }
+
+        public static ImageAutoLoadMode find(String name) {
+            for (ImageAutoLoadMode mode : ImageAutoLoadMode.values()) {
+                if (mode.name.equals(name)) {
+                    return mode;
+                }
+            }
+            return null;
+        }
+    }
+
     private static final StringSetting theme;
     public static final StringSetting fontSize;
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting autoRefreshThread;
-    public static final BooleanSetting imageAutoLoad;
+    //    public static final BooleanSetting imageAutoLoad;
+    public static final StringSetting imageAutoLoadNetwork;
     public static final BooleanSetting videoAutoLoad;
     public static final BooleanSetting videoOpenExternal;
     public static final BooleanSetting videoErrorIgnore;
@@ -79,7 +104,8 @@ public class ChanSettings {
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", true);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
-        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
+//        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
+        imageAutoLoadNetwork = new StringSetting(p, "preference_image_auto_load_network", ImageAutoLoadMode.WIFI.name);
         videoAutoLoad = new BooleanSetting(p, "preference_autoplay", false);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
