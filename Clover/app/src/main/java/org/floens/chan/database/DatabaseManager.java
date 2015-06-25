@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static com.j256.ormlite.misc.TransactionManager.callInTransaction;
+
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
@@ -151,7 +153,7 @@ public class DatabaseManager {
      */
     public void updatePins(final List<Pin> pins) {
         try {
-            helper.pinDao.callBatchTasks(new Callable<Void>() {
+            callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
                 @Override
                 public Void call() throws SQLException {
                     for (Pin pin : pins) {
@@ -196,7 +198,7 @@ public class DatabaseManager {
      */
     public void setBoards(final List<Board> boards) {
         try {
-            helper.boardsDao.callBatchTasks(new Callable<Void>() {
+            callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
                 @Override
                 public Void call() throws SQLException {
                     for (Board b : boards) {
@@ -301,6 +303,7 @@ public class DatabaseManager {
             o += "Pin rows: " + helper.pinDao.countOf() + "\n";
             o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
             o += "Board rows: " + helper.boardsDao.countOf() + "\n";
+            o += "ThreadHide rows: " + helper.threadHideDao.countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }
