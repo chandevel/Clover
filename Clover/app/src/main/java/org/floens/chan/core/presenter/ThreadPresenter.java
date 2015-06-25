@@ -159,7 +159,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (!visible) {
             searchQuery = null;
         }
-        showPosts();
+
+        if (chanLoader.getThread() != null) {
+            showPosts();
+        }
     }
 
     public void onSearchEntered(String entered) {
