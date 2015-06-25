@@ -61,6 +61,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private boolean error = false;
     private String errorText;
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Rect tmpTextRect = new Rect();
 
     public ThumbnailView(Context context) {
         super(context);
@@ -158,23 +159,22 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
             return;
         }
 
+        int width = getWidth() - getPaddingLeft() - getPaddingRight();
+        int height = getHeight() - getPaddingTop() - getPaddingBottom();
+
         if (error) {
             canvas.save();
 
-            Rect bounds = new Rect();
-            textPaint.getTextBounds(errorText, 0, errorText.length(), bounds);
-            float x = (getWidth() - getPaddingLeft() + getPaddingRight() - bounds.width()) / 2;
-            float y = getHeight() - getPaddingTop() - getPaddingBottom() - (getHeight() - bounds.height()) / 2;
-            canvas.drawText(errorText, getPaddingLeft() + x, getPaddingTop() + y, textPaint);
+            textPaint.getTextBounds(errorText, 0, errorText.length(), tmpTextRect);
+            float x = width / 2f - tmpTextRect.exactCenterX();
+            float y = height / 2f - tmpTextRect.exactCenterY();
+            canvas.drawText(errorText, x + getPaddingLeft(), y + getPaddingTop(), textPaint);
 
             canvas.restore();
         } else {
             if (bitmap == null) {
                 return;
             }
-
-            int width = getWidth() - getPaddingLeft() - getPaddingRight();
-            int height = getHeight() - getPaddingTop() - getPaddingBottom();
 
             if (calculate) {
                 calculate = false;
