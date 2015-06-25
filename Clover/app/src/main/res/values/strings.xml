@@ -113,6 +113,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_add_duplicate">Board already added</string>
     <string name="board_add_unknown_title">Unknown board code</string>
     <string name="board_add_unknown">The board with code %1$s is not known.</string>
+    <string name="board_edit_sort_a_z">Sort A-Z</string>
 
     <string name="drawer_board">Board</string>
     <string name="drawer_catalog">Catalog</string>

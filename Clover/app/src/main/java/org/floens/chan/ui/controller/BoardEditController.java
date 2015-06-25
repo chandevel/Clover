@@ -45,16 +45,22 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.drawable.ThumbDrawable;
 import org.floens.chan.ui.helper.SwipeListener;
+import org.floens.chan.ui.toolbar.ToolbarMenu;
+import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
-public class BoardEditController extends Controller implements SwipeListener.Callback, View.OnClickListener {
+public class BoardEditController extends Controller implements SwipeListener.Callback, View.OnClickListener, ToolbarMenuItem.ToolbarMenuItemCallback {
+    private static final int OPTION_SORT_A_Z = 1;
 
     private final BoardManager boardManager = Chan.getBoardManager();
 
@@ -73,6 +79,12 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         super.onCreate();
 
         navigationItem.title = string(R.string.board_edit);
+
+        List<FloatingMenuItem> items = new ArrayList<>();
+        items.add(new FloatingMenuItem(OPTION_SORT_A_Z, R.string.board_edit_sort_a_z));
+        navigationItem.menu = new ToolbarMenu(context);
+        navigationItem.createOverflow(context, this, items);
+
         view = inflateRes(R.layout.controller_board_edit);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -85,6 +97,23 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         recyclerView.setAdapter(adapter);
 
         new SwipeListener(context, recyclerView, this);
+    }
+
+    @Override
+    public void onMenuItemClicked(ToolbarMenuItem item) {
+    }
+
+    @Override
+    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+        if (((Integer) item.getId()) == OPTION_SORT_A_Z) {
+            Collections.sort(boards, new Comparator<Board>() {
+                @Override
+                public int compare(Board lhs, Board rhs) {
+                    return lhs.key.compareTo(rhs.key);
+                }
+            });
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -343,6 +372,10 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         private int TYPE_ITEM = 0;
         private int TYPE_HEADER = 1;
 
+        public BoardEditAdapter() {
+            setHasStableIds(true);
+        }
+
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if (viewType == TYPE_ITEM) {
@@ -372,6 +405,15 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         @Override
         public int getItemCount() {
             return boards.size() + 1;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            if (getItemViewType(position) == TYPE_HEADER) {
+                return -1;
+            } else {
+                return boards.get(position - 1).id;
+            }
         }
     }
 
