@@ -340,12 +340,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
         }
 
-        if (!TextUtils.isEmpty(post.id)) {
-            menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
-        }
+        if (loadable.isThreadMode()) {
+            if (!TextUtils.isEmpty(post.id)) {
+                menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
+            }
 
-        if (!TextUtils.isEmpty(post.tripcode)) {
-            menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
+            if (!TextUtils.isEmpty(post.tripcode)) {
+                menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
+            }
         }
 
         if (databaseManager.isSavedReply(post.board, post.no)) {
