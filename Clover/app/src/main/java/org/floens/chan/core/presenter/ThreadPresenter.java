@@ -191,7 +191,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     public void refreshUI() {
-        showPosts();
+        if (chanLoader.getThread() != null) {
+            showPosts();
+        }
     }
 
     @Override
