@@ -43,3 +43,6 @@ ALTER TABLE pin ADD COLUMN archived INTEGER;
 
 Changes in version 16:
 Table ThreadHide added
+
+Changes is version 17:
+ALTER TABLE board ADD COLUMN description TEXT;

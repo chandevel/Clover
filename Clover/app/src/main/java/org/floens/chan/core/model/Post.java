@@ -129,8 +129,7 @@ public class Post {
         }
 
         if (!TextUtils.isEmpty(country)) {
-            Board b = Chan.getBoardManager().getBoardByValue(board);
-            countryUrl = b.trollFlags ? ChanUrls.getTrollCountryFlagUrl(country) : ChanUrls.getCountryFlagUrl(country);
+            countryUrl = ChanUrls.getCountryFlagUrl(country);
         }
 
         ChanParser.getInstance().parse(this);
