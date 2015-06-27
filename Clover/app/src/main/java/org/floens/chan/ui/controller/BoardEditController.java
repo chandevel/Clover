@@ -398,7 +398,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
                 Board board = boards.get(position - 1);
                 item.text.setText("/" + board.value + "/ " + board.key);
 
-                item.description.setText(Parser.unescapeEntities(board.description, false));
+                item.description.setText(board.description == null ? null : Parser.unescapeEntities(board.description, false));
             }
         }
 
