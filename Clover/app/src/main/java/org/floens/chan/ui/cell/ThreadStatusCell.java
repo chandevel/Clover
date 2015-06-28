@@ -18,14 +18,20 @@
 package org.floens.chan.ui.cell;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 
@@ -108,9 +114,20 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
             }
 
             Post op = chanThread.op;
-            statusText += getContext().getString(R.string.thread_stats, op.replies, op.images, op.uniqueIps);
 
-            text.setText(statusText);
+            Board board = Chan.getBoardManager().getBoardByValue(chanThread.loadable.board);
+            if (board != null) {
+                SpannableString replies = new SpannableString(op.replies + "R");
+                if (op.replies >= board.bumpLimit) {
+                    replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
+                }
+                SpannableString images = new SpannableString(op.images + "I");
+                if (op.images >= board.imageLimit) {
+                    images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
+                }
+
+                text.setText(TextUtils.concat(statusText, replies, " / ", images, " / ", String.valueOf(op.uniqueIps)));
+            }
         }
     }
 
