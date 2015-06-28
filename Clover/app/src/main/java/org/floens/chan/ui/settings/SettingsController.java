@@ -71,7 +71,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     }
 
     private void setMargins() {
-        boolean tablet = view.getWidth() > dp(500); // TODO is tablet
+        boolean tablet = context.getResources().getBoolean(R.bool.is_tablet);
 
         int margin = 0;
         if (tablet) {
