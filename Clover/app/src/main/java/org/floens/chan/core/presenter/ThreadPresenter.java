@@ -37,7 +37,7 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;

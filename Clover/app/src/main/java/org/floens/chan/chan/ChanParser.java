@@ -33,7 +33,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Logger;

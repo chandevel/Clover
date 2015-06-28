@@ -21,7 +21,7 @@ import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.core.database.DatabaseManager;
 
 import java.util.ArrayList;
 import java.util.Collections;

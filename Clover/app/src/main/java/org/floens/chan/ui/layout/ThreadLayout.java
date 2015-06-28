@@ -54,7 +54,7 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;

@@ -32,7 +32,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.CaptchaLayout;
 
