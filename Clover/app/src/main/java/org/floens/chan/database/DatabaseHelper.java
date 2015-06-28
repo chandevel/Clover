@@ -150,6 +150,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 16) {
             try {
+                // WARNING: change this to a sql query when the columns need to be altered later on!
+                // Otherwise it could create a table with the columns already added, and an add column query could error out.
                 TableUtils.createTable(connectionSource, ThreadHide.class);
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 16", e);
