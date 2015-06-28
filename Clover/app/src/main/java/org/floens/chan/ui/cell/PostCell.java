@@ -273,7 +273,7 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
 
         if (highlighted) {
             setBackgroundColor(theme.highlightedColor);
-        } else if (post.isSavedReply) {
+        } else if (post.isSavedReply.get()) {
             setBackgroundColor(theme.savedReplyColor);
         } else if (threadMode) {
             setBackgroundResource(0);
@@ -320,7 +320,7 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
             iconsSpannable = PostHelper.addIcon(iconsSpannable, PostHelper.closedIcon, iconsTextSize);
         }
 
-        if (post.deleted) {
+        if (post.deleted.get()) {
             iconsSpannable = PostHelper.addIcon(iconsSpannable, PostHelper.trashIcon, iconsTextSize);
         }
 

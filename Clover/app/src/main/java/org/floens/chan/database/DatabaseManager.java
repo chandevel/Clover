@@ -47,11 +47,12 @@ public class DatabaseManager {
 
     private final DatabaseHelper helper;
 
-    private List<SavedReply> savedReplies = new ArrayList<>();
-    private HashSet<Integer> savedRepliesIds = new HashSet<>();
+    private final Object savedRepliesLock = new Object();
+    private final List<SavedReply> savedReplies = new ArrayList<>();
+    private final HashSet<Integer> savedRepliesIds = new HashSet<>();
 
-    private List<ThreadHide> threadHides = new ArrayList<>();
-    private HashSet<Integer> threadHidesIds = new HashSet<>();
+    private final List<ThreadHide> threadHides = new ArrayList<>();
+    private final HashSet<Integer> threadHidesIds = new HashSet<>();
 
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
@@ -60,6 +61,7 @@ public class DatabaseManager {
 
     /**
      * Save a reply to the savedreply table.
+     * Threadsafe.
      *
      * @param saved the {@link SavedReply} to save
      */
@@ -70,22 +72,27 @@ public class DatabaseManager {
             Logger.e(TAG, "Error saving reply", e);
         }
 
-        savedReplies.add(saved);
-        savedRepliesIds.add(saved.no);
+        synchronized (savedRepliesLock) {
+            savedReplies.add(saved);
+            savedRepliesIds.add(saved.no);
+        }
     }
 
     /**
      * Searches a saved reply. This is done through caching members, no database lookups.
+     * Threadsafe.
      *
      * @param board board for the reply to search
      * @param no    no for the reply to search
      * @return A {@link SavedReply} that matches {@code board} and {@code no}, or {@code null}
      */
     public SavedReply getSavedReply(String board, int no) {
-        if (savedRepliesIds.contains(no)) {
-            for (SavedReply r : savedReplies) {
-                if (r.no == no && r.board.equals(board)) {
-                    return r;
+        synchronized (savedRepliesLock) {
+            if (savedRepliesIds.contains(no)) {
+                for (SavedReply r : savedReplies) {
+                    if (r.no == no && r.board.equals(board)) {
+                        return r;
+                    }
                 }
             }
         }
@@ -95,6 +102,7 @@ public class DatabaseManager {
 
     /**
      * Searches if a saved reply exists. This is done through caching members, no database lookups.
+     * Threadsafe.
      *
      * @param board board for the reply to search
      * @param no    no for the reply to search
@@ -324,15 +332,20 @@ public class DatabaseManager {
         loadThreadHides();
     }
 
+    /**
+     * Threadsafe.
+     */
     private void loadSavedReplies() {
         try {
             trimTable(helper.savedDao, "savedreply", SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
 
-            savedReplies.clear();
-            savedReplies.addAll(helper.savedDao.queryForAll());
-            savedRepliesIds.clear();
-            for (SavedReply reply : savedReplies) {
-                savedRepliesIds.add(reply.no);
+            synchronized (savedRepliesLock) {
+                savedReplies.clear();
+                savedReplies.addAll(helper.savedDao.queryForAll());
+                savedRepliesIds.clear();
+                for (SavedReply reply : savedReplies) {
+                    savedRepliesIds.add(reply.no);
+                }
             }
         } catch (SQLException e) {
             Logger.e(TAG, "Error loading saved replies", e);

@@ -19,6 +19,7 @@ package org.floens.chan.chan;
 
 import android.text.TextUtils;
 
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
@@ -39,7 +40,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class ChanLoader {
+public class ChanLoader implements Response.ErrorListener, Response.Listener<ChanReaderRequest.ChanReaderResponse> {
     private static final String TAG = "ChanLoader";
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -47,6 +48,7 @@ public class ChanLoader {
 
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
+    private final RequestQueue volleyRequestQueue;
     private ChanThread thread;
 
     private boolean destroyed = false;
@@ -64,6 +66,8 @@ public class ChanLoader {
         if (loadable.mode == Loadable.Mode.BOARD) {
             loadable.mode = Loadable.Mode.CATALOG;
         }
+
+        volleyRequestQueue = Chan.getVolleyRequestQueue();
     }
 
     /**
@@ -149,11 +153,7 @@ public class ChanLoader {
     public void requestMoreData() {
         clearTimer();
 
-        if (loadable.isThreadMode()) {
-            if (request != null) {
-                return;
-            }
-
+        if (loadable.isThreadMode() && request == null) {
             request = getData();
         }
     }
@@ -166,9 +166,6 @@ public class ChanLoader {
         requestMoreData();
     }
 
-    /**
-     * @return Returns if this loader is currently loading
-     */
     public boolean isLoading() {
         return request != null;
     }
@@ -193,10 +190,102 @@ public class ChanLoader {
         return thread;
     }
 
+    @Override
+    public void onResponse(ChanReaderRequest.ChanReaderResponse response) {
+        request = null;
+        if (destroyed)
+            return;
+
+        if (response.posts.size() == 0) {
+            onErrorResponse(new VolleyError("Post size is 0"));
+            return;
+        }
+
+        if (thread == null) {
+            thread = new ChanThread(loadable, new ArrayList<Post>());
+        }
+
+        thread.posts.clear();
+        thread.posts.addAll(response.posts);
+
+        processResponse(response);
+
+        if (TextUtils.isEmpty(loadable.title)) {
+            loadable.title = PostHelper.getTitle(thread.op, loadable);
+        }
+
+        for (Post post : thread.posts) {
+            post.title = loadable.title;
+        }
+
+        lastLoadTime = Time.get();
+
+        if (loadable.isThreadMode()) {
+            setTimer(response.posts.size());
+        }
+
+        for (ChanLoaderCallback l : listeners) {
+            l.onChanLoaderData(thread);
+        }
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError error) {
+        request = null;
+        if (destroyed)
+            return;
+
+        Logger.i(TAG, "Loading error", error);
+
+        clearTimer();
+
+        for (ChanLoaderCallback l : listeners) {
+            l.onChanLoaderError(error);
+        }
+    }
+
+    /**
+     * Final processing af a response that needs to happen on the main thread.
+     *
+     * @param response Response to process
+     */
+    private void processResponse(ChanReaderRequest.ChanReaderResponse response) {
+        if (loadable.isThreadMode() && thread.posts.size() > 0) {
+            // Replace some op parameters to the real op (index 0).
+            // This is done on the main thread to avoid race conditions.
+            Post realOp = thread.posts.get(0);
+            thread.op = realOp;
+            Post fakeOp = response.op;
+            if (fakeOp != null) {
+                thread.closed = realOp.closed = fakeOp.closed;
+                thread.archived = realOp.archived = fakeOp.archived;
+                realOp.sticky = fakeOp.sticky;
+                realOp.replies = fakeOp.replies;
+                realOp.images = fakeOp.images;
+                realOp.uniqueIps = fakeOp.uniqueIps;
+            } else {
+                Logger.e(TAG, "Thread has no op!");
+            }
+        }
+
+        for (Post sourcePost : thread.posts) {
+            sourcePost.repliesFrom.clear();
+
+            for (Post replyToSource : thread.posts) {
+                if (replyToSource != sourcePost) {
+                    if (replyToSource.repliesTo.contains(sourcePost.no)) {
+                        sourcePost.repliesFrom.add(replyToSource.no);
+                    }
+                }
+            }
+        }
+    }
+
     private void setTimer(int postCount) {
         clearTimer();
 
         if (postCount > lastPostCount) {
+            lastPostCount = postCount;
             currentTimeout = 0;
         } else {
             currentTimeout++;
@@ -208,8 +297,6 @@ public class ChanLoader {
         if (!autoReload && currentTimeout < 4) {
             currentTimeout = 4; // At least 60 seconds in the background
         }
-
-        lastPostCount = postCount;
 
         if (autoReload) {
             Runnable pendingRunnable = new Runnable() {
@@ -243,74 +330,11 @@ public class ChanLoader {
         Logger.d(TAG, "Requested " + loadable.board + ", " + loadable.no);
 
         List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
-        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cached,
-                new Response.Listener<List<Post>>() {
-                    @Override
-                    public void onResponse(List<Post> list) {
-                        ChanLoader.this.request = null;
-                        onData(list);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        ChanLoader.this.request = null;
-                        onError(error);
-                    }
-                }
-        );
+        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cached, this, this);
 
-        Chan.getVolleyRequestQueue().add(request);
+        volleyRequestQueue.add(request);
 
         return request;
-    }
-
-    private void onData(List<Post> result) {
-        if (destroyed)
-            return;
-
-        if (thread == null) {
-            thread = new ChanThread(loadable, new ArrayList<Post>());
-        }
-
-        thread.posts.clear();
-        thread.posts.addAll(result);
-
-        if (loadable.isThreadMode() && thread.posts.size() > 0) {
-            thread.op = thread.posts.get(0);
-            thread.closed = thread.op.closed;
-            thread.archived = thread.op.archived;
-        }
-
-        if (TextUtils.isEmpty(loadable.title)) {
-            loadable.title = PostHelper.getTitle(thread.op, loadable);
-        }
-
-        for (Post post : thread.posts) {
-            post.title = loadable.title;
-        }
-
-        lastLoadTime = Time.get();
-
-        if (loadable.isThreadMode()) {
-            setTimer(result.size());
-        }
-
-        for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderData(thread);
-        }
-    }
-
-    private void onError(VolleyError error) {
-        if (destroyed)
-            return;
-
-        Logger.e(TAG, "Loading error");
-
-        clearTimer();
-
-        for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderError(error);
-        }
     }
 
     public interface ChanLoaderCallback {

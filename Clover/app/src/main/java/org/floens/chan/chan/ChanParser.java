@@ -33,6 +33,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Logger;
@@ -60,6 +61,11 @@ public class ChanParser {
     private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
 
     private static ChanParser instance = new ChanParser();
+    private final DatabaseManager databaseManager;
+
+    public ChanParser() {
+        databaseManager = Chan.getDatabaseManager();
+    }
 
     public static ChanParser getInstance() {
         return instance;
@@ -404,8 +410,7 @@ public class ChanParser {
                     }
 
                     // Append You when it's a reply to an saved reply
-                    // todo synchronized
-                    if (Chan.getDatabaseManager().isSavedReply(post.board, id)) {
+                    if (databaseManager.isSavedReply(post.board, id)) {
                         key += " (You)";
                     }
                 }
