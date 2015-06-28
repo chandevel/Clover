@@ -33,6 +33,7 @@ import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.database.DatabaseManager;
+import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.CaptchaLayout;
 
 import java.io.File;
@@ -43,7 +44,7 @@ import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.HttpCallback<ReplyHttpCall>, CaptchaLayout.CaptchaCallback {
+public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>, CaptchaLayout.CaptchaCallback, ImagePickDelegate.ImagePickCallback {
     public enum Page {
         INPUT,
         CAPTCHA,
@@ -160,7 +161,7 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
                 }
                 previewOpen = false;
             } else {
-                Chan.getReplyManager().pickFile(this);
+                callback.getImagePickDelegate().pick(this);
                 pickingFile = true;
             }
         }
@@ -424,5 +425,7 @@ public class ReplyPresenter implements ReplyManager.FileListener, ReplyManager.H
         void highlightPostNo(int no);
 
         void showThread(Loadable loadable);
+
+        ImagePickDelegate getImagePickDelegate();
     }
 }

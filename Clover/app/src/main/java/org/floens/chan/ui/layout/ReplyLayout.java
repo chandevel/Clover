@@ -38,6 +38,8 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.LoadView;
@@ -394,6 +396,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     @Override
     public void showThread(Loadable loadable) {
         callback.showThread(loadable);
+    }
+
+    @Override
+    public ImagePickDelegate getImagePickDelegate() {
+        return ((StartActivity) getContext()).getImagePickDelegate();
     }
 
     public interface ReplyLayoutCallback {
