@@ -112,7 +112,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             LoaderPool.getInstance().release(chanLoader, this);
             chanLoader = null;
             loadable = null;
-            order = PostFilter.Order.BUMP;
 
             threadPresenterCallback.showLoading();
         }
