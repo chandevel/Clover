@@ -571,7 +571,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (!historyAdded && ChanSettings.historyEnabled.get() && loadable.isThreadMode()) {
             historyAdded = true;
             History history = new History();
-            history.loadable = loadable;
+            // Copy the loadable when adding to history
+            // Otherwise the database will possible use the loadable from a pin, and when clearing the history also deleting the loadable from the pin.
+            history.loadable = loadable.copy();
+            history.loadable.id = 0;
             history.thumbnailUrl = chanLoader.getThread().op.thumbnailUrl;
             databaseManager.addHistory(history);
         }
