@@ -33,8 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </plurals>
 
     <plurals name="posts">
-        <item quantity="one">%d post</item>
-        <item quantity="other">%d posts</item>
+        <item quantity="one">post</item>
+        <item quantity="other">posts</item>
     </plurals>
 
     <plurals name="reply">
@@ -71,7 +71,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="order_oldest">Oldest</string>
 
     <string name="search_hint">Search</string>
-    <string name="search_results">Found %1$s for "%2$s"</string>
+    <string name="search_results">Found %1$d %2$s for "%3$s"</string>
     <string name="search_empty">Search subjects, comments, names and filenames</string>
 
     <string name="open_link_confirmation">Open link?</string>
@@ -103,6 +103,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
+    <string name="thread_new_posts">%1$d new %2$s</string>
+    <string name="thread_new_posts_goto">View</string>
 
     <string name="board_edit">Board editor</string>
     <string name="board_edit_header">Add, remove and reorder your boards here.\nThe topmost board will be loaded automatically.</string>

@@ -248,7 +248,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         if (query != null) {
             int size = postAdapter.getDisplaySize();
             searchStatus.setText(getContext().getString(R.string.search_results,
-                    getContext().getResources().getQuantityString(R.plurals.posts, size, size), query));
+                    size, getContext().getResources().getQuantityString(R.plurals.posts, size, size), query));
         }
     }
 
@@ -272,6 +272,22 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
                 break;
         }
         return true;
+    }
+
+    public boolean scrolledToBottom() {
+        switch (postViewMode) {
+            case LIST:
+                if (((LinearLayoutManager) layoutManager).findLastVisibleItemPosition() == postAdapter.getItemCount() - 1) {
+                    return true;
+                }
+                break;
+            case CARD:
+                if (((GridLayoutManager) layoutManager).findLastVisibleItemPosition() == postAdapter.getItemCount() - 1) {
+                    return true;
+                }
+                break;
+        }
+        return false;
     }
 
     public void cleanup() {

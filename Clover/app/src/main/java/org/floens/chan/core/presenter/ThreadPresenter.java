@@ -81,6 +81,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private String searchQuery;
     private PostFilter.Order order = PostFilter.Order.BUMP;
     private boolean historyAdded = false;
+    private int notificationPostCount = -1;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -115,6 +116,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             chanLoader = null;
             loadable = null;
             historyAdded = false;
+            notificationPostCount = -1;
 
             threadPresenterCallback.showLoading();
         }
@@ -216,6 +218,20 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
+        if (loadable.isThreadMode()) {
+            int postsSize = result.posts.size();
+            if (notificationPostCount < 0) {
+                notificationPostCount = postsSize;
+            } else {
+                if (postsSize > notificationPostCount) {
+                    int more = postsSize - notificationPostCount;
+                    notificationPostCount = postsSize;
+
+                    threadPresenterCallback.showNewPostsNotification(true, more);
+                }
+            }
+        }
+
         chanLoader.setAutoLoadMore(isWatching());
         showPosts();
 
@@ -251,6 +267,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             pin.onBottomPostViewed();
             watchManager.updatePin(pin);
         }
+
+        threadPresenterCallback.showNewPostsNotification(false, -1);
     }
 
     public void scrollTo(int position, boolean smooth) {
@@ -626,5 +644,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void hideDeleting(String message);
 
         void hideThread(Post post);
+
+        void showNewPostsNotification(boolean show, int more);
     }
 }
