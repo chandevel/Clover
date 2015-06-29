@@ -26,6 +26,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
@@ -41,13 +42,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 18;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
     public Dao<SavedReply, Integer> savedDao;
     public Dao<Board, Integer> boardsDao;
     public Dao<ThreadHide, Integer> threadHideDao;
+    public Dao<History, Integer> historyDao;
 
     private final Context context;
 
@@ -62,6 +64,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             savedDao = getDao(SavedReply.class);
             boardsDao = getDao(Board.class);
             threadHideDao = getDao(ThreadHide.class);
+            historyDao = getDao(History.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating Daos", e);
         }
@@ -75,6 +78,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, SavedReply.class);
             TableUtils.createTable(connectionSource, Board.class);
             TableUtils.createTable(connectionSource, ThreadHide.class);
+            TableUtils.createTable(connectionSource, History.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -150,9 +154,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 16) {
             try {
-                // WARNING: change this to a sql query when the columns need to be altered later on!
-                // Otherwise it could create a table with the columns already added, and an add column query could error out.
-                TableUtils.createTable(connectionSource, ThreadHide.class);
+                threadHideDao.executeRawNoArgs("CREATE TABLE `threadhide` (`board` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `no` INTEGER );");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 16", e);
             }
@@ -163,6 +165,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN description TEXT;");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 17", e);
+            }
+        }
+
+        if (oldVersion < 18) {
+            try {
+                historyDao.executeRawNoArgs("CREATE TABLE `history` (`date` BIGINT , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `loadable_id` INTEGER NOT NULL , `thumbnailUrl` VARCHAR );");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 18", e);
             }
         }
     }

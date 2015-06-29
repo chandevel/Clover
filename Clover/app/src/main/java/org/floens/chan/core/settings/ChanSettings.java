@@ -94,6 +94,8 @@ public class ChanSettings {
     public static final StringSetting passPin;
     public static final StringSetting passId;
 
+    public static final BooleanSetting historyEnabled;
+
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
 
@@ -154,6 +156,8 @@ public class ChanSettings {
         passToken = new StringSetting(p, "preference_pass_token", "");
         passPin = new StringSetting(p, "preference_pass_pin", "");
         passId = new StringSetting(p, "preference_pass_id", "");
+
+        historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

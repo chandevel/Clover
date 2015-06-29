@@ -93,7 +93,7 @@ public class Loadable {
 
         Loadable other = (Loadable) object;
 
-        return mode == other.mode && board.equals(other.board) && no == other.no;
+        return no == other.no && mode == other.mode && board.equals(other.board);
     }
 
     @Override

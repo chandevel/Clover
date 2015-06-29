@@ -33,7 +33,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallbacks, SwipeRefreshLayout.OnRefreshListener {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallback, SwipeRefreshLayout.OnRefreshListener, RootNavigationController.ToolbarSearchCallback {
     protected ThreadLayout threadLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 

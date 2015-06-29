@@ -114,6 +114,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_add_unknown">The board with code %1$s is not known.</string>
     <string name="board_edit_sort_a_z">Sort A-Z</string>
 
+    <string name="history_clear">Clear history</string>
+    <string name="history_clear_confirm">Clear history?</string>
+    <string name="history_clear_confirm_button">Clear</string>
+
     <string name="drawer_board">Board</string>
     <string name="drawer_catalog">Catalog</string>
     <string name="drawer_pinned">Watching threads</string>

@@ -20,9 +20,13 @@ package org.floens.chan.core.database;
 import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.misc.TransactionManager;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.History;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.SavedReply;
@@ -31,9 +35,12 @@ import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.j256.ormlite.misc.TransactionManager.callInTransaction;
 
@@ -44,6 +51,10 @@ public class DatabaseManager {
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
     private static final long THREAD_HIDE_TRIM_TRIGGER = 250;
     private static final long THREAD_HIDE_TRIM_COUNT = 50;
+    private static final long HISTORY_TRIM_TRIGGER = 500;
+    private static final long HISTORY_TRIM_COUNT = 50;
+
+    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
 
     private final DatabaseHelper helper;
 
@@ -53,6 +64,9 @@ public class DatabaseManager {
 
     private final List<ThreadHide> threadHides = new ArrayList<>();
     private final HashSet<Integer> threadHidesIds = new HashSet<>();
+
+    private final Object historyLock = new Object();
+    private final HashMap<Loadable, History> historyByLoadable = new HashMap<>();
 
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
@@ -200,6 +214,74 @@ public class DatabaseManager {
     }
 
     /**
+     * Adds or updates a {@link History} to the history table.
+     * Only updates the date if the history is already in the table.
+     *
+     * @param history History to save
+     */
+    public void addHistory(final History history) {
+        backgroundExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                addHistoryInternal(history);
+            }
+        });
+    }
+
+    /**
+     * Deletes a {@link History} from the history table.
+     *
+     * @param history History to delete
+     */
+    public void removeHistory(History history) {
+        try {
+            helper.historyDao.delete(history);
+            helper.loadableDao.delete(history.loadable);
+            historyByLoadable.remove(history.loadable);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error removing history from db", e);
+        }
+    }
+
+    /**
+     * Clears all history and the referenced loadables from the database.
+     */
+    public void clearHistory() {
+        try {
+            TransactionManager.callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    List<History> historyList = getHistory();
+                    for (History history : historyList) {
+                        removeHistory(history);
+                    }
+
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error clearing history", e);
+        }
+    }
+
+    /**
+     * Get a list of {@link History} entries from the history table.
+     *
+     * @return List of History
+     */
+    public List<History> getHistory() {
+        List<History> list = null;
+        try {
+            QueryBuilder<History, Integer> historyQuery = helper.historyDao.queryBuilder();
+            list = historyQuery.orderBy("date", false).query();
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error getting history from db", e);
+        }
+
+        return list;
+    }
+
+    /**
      * Create or updates these boards in the boards table.
      *
      * @param boards List of boards to create or update
@@ -330,6 +412,7 @@ public class DatabaseManager {
     private void initialize() {
         loadSavedReplies();
         loadThreadHides();
+        loadHistory();
     }
 
     /**
@@ -364,6 +447,48 @@ public class DatabaseManager {
             }
         } catch (SQLException e) {
             Logger.e(TAG, "Error loading thread hides", e);
+        }
+    }
+
+    private void loadHistory() {
+        synchronized (historyLock) {
+            try {
+                trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
+
+                historyByLoadable.clear();
+                List<History> historyList = helper.historyDao.queryForAll();
+                for (History history : historyList) {
+                    historyByLoadable.put(history.loadable, history);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void addHistoryInternal(final History history) {
+        try {
+            TransactionManager.callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    synchronized (historyLock) {
+                        History existingHistory = historyByLoadable.get(history.loadable);
+                        if (existingHistory != null) {
+                            existingHistory.date = System.currentTimeMillis();
+                            helper.historyDao.update(existingHistory);
+                        } else {
+                            history.date = System.currentTimeMillis();
+                            helper.loadableDao.create(history.loadable);
+                            helper.historyDao.create(history);
+                            historyByLoadable.put(history.loadable, history);
+                        }
+                    }
+
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error adding history", e);
         }
     }
 

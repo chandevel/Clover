@@ -25,10 +25,12 @@ import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.http.DeleteHttpCall;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
+import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -37,7 +39,6 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -79,6 +80,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private boolean searchOpen = false;
     private String searchQuery;
     private PostFilter.Order order = PostFilter.Order.BUMP;
+    private boolean historyAdded = false;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -112,6 +114,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             LoaderPool.getInstance().release(chanLoader, this);
             chanLoader = null;
             loadable = null;
+            historyAdded = false;
 
             threadPresenterCallback.showLoading();
         }
@@ -224,6 +227,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
             loadable.markedNo = -1;
         }
+
+        addHistory();
     }
 
     @Override
@@ -560,6 +565,16 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     private void showPosts() {
         threadPresenterCallback.showPosts(chanLoader.getThread(), new PostFilter(order, searchQuery));
+    }
+
+    private void addHistory() {
+        if (!historyAdded && ChanSettings.historyEnabled.get() && loadable.isThreadMode()) {
+            historyAdded = true;
+            History history = new History();
+            history.loadable = loadable;
+            history.thumbnailUrl = chanLoader.getThread().op.thumbnailUrl;
+            databaseManager.addHistory(history);
+        }
     }
 
     public interface ThreadPresenterCallback {
