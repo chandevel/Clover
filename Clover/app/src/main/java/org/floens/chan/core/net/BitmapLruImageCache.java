@@ -29,7 +29,7 @@ public class BitmapLruImageCache extends LruCache<String, Bitmap> implements Ima
 
     @Override
     protected int sizeOf(String key, Bitmap value) {
-        return value.getRowBytes() * value.getHeight();
+        return value.getRowBytes() * value.getHeight() / 1024;
     }
 
     @Override
