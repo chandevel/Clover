@@ -27,9 +27,11 @@ import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.fragment.FolderPickFragment;
 import org.floens.chan.ui.settings.BooleanSettingView;
+import org.floens.chan.ui.settings.IntegerSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
+import org.floens.chan.ui.settings.StringSettingView;
 
 import java.io.File;
 
@@ -91,6 +93,12 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.confirmExit, string(R.string.setting_confirm_exit), null));
 
         groups.add(settings);
+
+        SettingsGroup proxy = new SettingsGroup(string(R.string.settings_group_proxy));
+        proxy.add(new BooleanSettingView(this, ChanSettings.proxyEnabled, string(R.string.setting_proxy_enabled), null));
+        proxy.add(new StringSettingView(this, ChanSettings.proxyAddress, string(R.string.setting_proxy_address), string(R.string.setting_proxy_address)));
+        proxy.add(new IntegerSettingView(this, ChanSettings.proxyPort, string(R.string.setting_proxy_port), string(R.string.setting_proxy_port)));
+        groups.add(proxy);
     }
 
     private void setSaveLocationDescription() {
