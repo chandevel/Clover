@@ -33,8 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </plurals>
 
     <plurals name="posts">
-        <item quantity="one">%d post</item>
-        <item quantity="other">%d posts</item>
+        <item quantity="one">post</item>
+        <item quantity="other">posts</item>
     </plurals>
 
     <plurals name="reply">
@@ -71,7 +71,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="order_oldest">Oldest</string>
 
     <string name="search_hint">Search</string>
-    <string name="search_results">Found %1$s for "%2$s"</string>
+    <string name="search_results">Found %1$d %2$s for "%3$s"</string>
     <string name="search_empty">Search subjects, comments, names and filenames</string>
 
     <string name="open_link_confirmation">Open link?</string>
@@ -103,7 +103,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
-    <string name="thread_stats">%1$sR / %2$sI / %3$sP</string>
+    <string name="thread_new_posts">%1$d new %2$s</string>
+    <string name="thread_new_posts_goto">View</string>
 
     <string name="board_edit">Board editor</string>
     <string name="board_edit_header">Add, remove and reorder your boards here.\nThe topmost board will be loaded automatically.</string>
@@ -114,6 +115,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_add_unknown_title">Unknown board code</string>
     <string name="board_add_unknown">The board with code %1$s is not known.</string>
     <string name="board_edit_sort_a_z">Sort A-Z</string>
+
+    <string name="history_clear">Clear history</string>
+    <string name="history_clear_confirm">Clear history?</string>
+    <string name="history_clear_confirm_button">Clear</string>
 
     <string name="drawer_board">Board</string>
     <string name="drawer_catalog">Catalog</string>

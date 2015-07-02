@@ -52,6 +52,7 @@ public class BoardManager {
         loadFromServer();
     }
 
+    // TODO: synchronize
     public Board getBoardByValue(String value) {
         return allBoardsByValue.get(value);
     }

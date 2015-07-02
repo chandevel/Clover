@@ -178,8 +178,8 @@ public class RootNavigationController extends NavigationController implements Pi
     @Override
     public void onPinClicked(Pin pin) {
         Controller top = getTop();
-        if (top instanceof DrawerCallbacks) {
-            ((DrawerCallbacks) top).onPinClicked(pin);
+        if (top instanceof DrawerCallback) {
+            ((DrawerCallback) top).onPinClicked(pin);
             drawerLayout.closeDrawer(Gravity.LEFT);
             pinAdapter.updateHighlighted(recyclerView);
         }
@@ -187,8 +187,8 @@ public class RootNavigationController extends NavigationController implements Pi
 
     public boolean isHighlighted(Pin pin) {
         Controller top = getTop();
-        if (top instanceof DrawerCallbacks) {
-            return ((DrawerCallbacks) top).isPinCurrent(pin);
+        if (top instanceof DrawerCallback) {
+            return ((DrawerCallback) top).isPinCurrent(pin);
         }
         return false;
     }
@@ -256,6 +256,7 @@ public class RootNavigationController extends NavigationController implements Pi
 
     @Override
     public void openHistory() {
+        pushController(new HistoryController(context));
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
@@ -313,24 +314,26 @@ public class RootNavigationController extends NavigationController implements Pi
     @Override
     public void onSearchVisibilityChanged(boolean visible) {
         Controller top = getTop();
-        if (top instanceof DrawerCallbacks) {
-            ((DrawerCallbacks) top).onSearchVisibilityChanged(visible);
+        if (top instanceof ToolbarSearchCallback) {
+            ((ToolbarSearchCallback) top).onSearchVisibilityChanged(visible);
         }
     }
 
     @Override
     public void onSearchEntered(String entered) {
         Controller top = getTop();
-        if (top instanceof DrawerCallbacks) {
-            ((DrawerCallbacks) top).onSearchEntered(entered);
+        if (top instanceof ToolbarSearchCallback) {
+            ((ToolbarSearchCallback) top).onSearchEntered(entered);
         }
     }
 
-    public interface DrawerCallbacks {
+    public interface DrawerCallback {
         void onPinClicked(Pin pin);
 
         boolean isPinCurrent(Pin pin);
+    }
 
+    public interface ToolbarSearchCallback {
         void onSearchVisibilityChanged(boolean visible);
 
         void onSearchEntered(String entered);

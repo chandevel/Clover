@@ -28,7 +28,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable
 public class Loadable {
     @DatabaseField(generatedId = true)
-    private int id;
+    public int id;
 
     @DatabaseField
     public int mode = Mode.INVALID;
@@ -93,7 +93,7 @@ public class Loadable {
 
         Loadable other = (Loadable) object;
 
-        return mode == other.mode && board.equals(other.board) && no == other.no;
+        return no == other.no && mode == other.mode && board.equals(other.board);
     }
 
     @Override

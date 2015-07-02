@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.ui.activity;
+package org.floens.chan.ui.helper;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
@@ -37,45 +36,60 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class ImagePickActivity extends Activity implements Runnable {
+import static org.floens.chan.utils.AndroidUtils.runOnUiThread;
+
+public class ImagePickDelegate implements Runnable {
     private static final String TAG = "ImagePickActivity";
 
-    private static final int IMAGE_RESULT = 1;
+    private static final int IMAGE_PICK_RESULT = 2;
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
+    private static final String DEFAULT_FILE_NAME = "file";
 
     private ReplyManager replyManager;
+    private Activity activity;
+
+    private ImagePickCallback callback;
     private Uri uri;
-    private String fileName = "file";
+    private String fileName;
     private boolean success = false;
     private File cacheFile;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public ImagePickDelegate(Activity activity) {
+        this.activity = activity;
 
         replyManager = Chan.getReplyManager();
+    }
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, IMAGE_RESULT);
+    public boolean pick(ImagePickCallback callback) {
+        if (this.callback != null) {
+            return false;
         } else {
-            Logger.e(TAG, "No activity found to get file with");
-            replyManager._onFilePickError(false);
+            this.callback = callback;
+
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+
+            if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                activity.startActivityForResult(intent, IMAGE_PICK_RESULT);
+                return true;
+            } else {
+                Logger.e(TAG, "No activity found to get file with");
+                callback.onFilePickError(false);
+                reset();
+                return false;
+            }
         }
     }
 
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         boolean ok = false;
         boolean cancelled = false;
-        if (requestCode == IMAGE_RESULT) {
-            if (resultCode == RESULT_OK && data != null) {
+        if (requestCode == IMAGE_PICK_RESULT) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
                 uri = data.getData();
 
-                Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
+                Cursor returnCursor = activity.getContentResolver().query(uri, null, null, null, null);
                 if (returnCursor != null) {
                     int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     returnCursor.moveToFirst();
@@ -86,20 +100,29 @@ public class ImagePickActivity extends Activity implements Runnable {
                     returnCursor.close();
                 }
 
-                replyManager._onFilePickLoading();
+                if (fileName == null) {
+                    // As per the comment on OpenableColumns.DISPLAY_NAME:
+                    // If this is not provided then the name should default to the last segment of the file's URI.
+                    fileName = uri.getLastPathSegment();
+                }
+
+                if (fileName == null) {
+                    fileName = DEFAULT_FILE_NAME;
+                }
+
+                callback.onFilePickLoading();
 
                 new Thread(this).start();
                 ok = true;
-            } else if (resultCode == RESULT_CANCELED) {
+            } else if (resultCode == Activity.RESULT_CANCELED) {
                 cancelled = true;
             }
         }
 
         if (!ok) {
-            replyManager._onFilePickError(cancelled);
+            callback.onFilePickError(cancelled);
+            reset();
         }
-
-        finish();
     }
 
     @Override
@@ -110,7 +133,7 @@ public class ImagePickActivity extends Activity implements Runnable {
         InputStream is = null;
         OutputStream os = null;
         try {
-            fileDescriptor = getContentResolver().openFileDescriptor(uri, "r");
+            fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r");
             is = new FileInputStream(fileDescriptor.getFileDescriptor());
             os = new FileOutputStream(cacheFile);
             boolean fullyCopied = IOUtils.copy(is, os, MAX_FILE_SIZE);
@@ -135,11 +158,28 @@ public class ImagePickActivity extends Activity implements Runnable {
             @Override
             public void run() {
                 if (success) {
-                    replyManager._onFilePicked(fileName, cacheFile);
+                    callback.onFilePicked(fileName, cacheFile);
                 } else {
-                    replyManager._onFilePickError(false);
+                    callback.onFilePickError(false);
                 }
+                reset();
             }
         });
+    }
+
+    private void reset() {
+        callback = null;
+        cacheFile = null;
+        success = false;
+        fileName = null;
+        uri = null;
+    }
+
+    public interface ImagePickCallback {
+        void onFilePickLoading();
+
+        void onFilePicked(String fileName, File file);
+
+        void onFilePickError(boolean cancelled);
     }
 }

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.database;
+package org.floens.chan.core.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,6 +26,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
@@ -41,13 +42,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 18;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
     public Dao<SavedReply, Integer> savedDao;
     public Dao<Board, Integer> boardsDao;
     public Dao<ThreadHide, Integer> threadHideDao;
+    public Dao<History, Integer> historyDao;
 
     private final Context context;
 
@@ -62,6 +64,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             savedDao = getDao(SavedReply.class);
             boardsDao = getDao(Board.class);
             threadHideDao = getDao(ThreadHide.class);
+            historyDao = getDao(History.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating Daos", e);
         }
@@ -75,6 +78,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, SavedReply.class);
             TableUtils.createTable(connectionSource, Board.class);
             TableUtils.createTable(connectionSource, ThreadHide.class);
+            TableUtils.createTable(connectionSource, History.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -150,9 +154,25 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 16) {
             try {
-                TableUtils.createTable(connectionSource, ThreadHide.class);
+                threadHideDao.executeRawNoArgs("CREATE TABLE `threadhide` (`board` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `no` INTEGER );");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 16", e);
+            }
+        }
+
+        if (oldVersion < 17) {
+            try {
+                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN description TEXT;");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 17", e);
+            }
+        }
+
+        if (oldVersion < 18) {
+            try {
+                historyDao.executeRawNoArgs("CREATE TABLE `history` (`date` BIGINT , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `loadable_id` INTEGER NOT NULL , `thumbnailUrl` VARCHAR );");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 18", e);
             }
         }
     }

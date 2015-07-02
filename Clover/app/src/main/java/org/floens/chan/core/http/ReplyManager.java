@@ -18,7 +18,6 @@
 package org.floens.chan.core.http;
 
 import android.content.Context;
-import android.content.Intent;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -26,7 +25,6 @@ import com.squareup.okhttp.Request;
 import org.floens.chan.Chan;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
-import org.floens.chan.ui.activity.ImagePickActivity;
 
 import java.io.File;
 import java.util.HashMap;
@@ -40,7 +38,6 @@ public class ReplyManager {
     private static final int TIMEOUT = 30000;
 
     private final Context context;
-    private FileListener fileListener;
     private OkHttpClient client;
 
     private Map<Loadable, Reply> drafts = new HashMap<>();
@@ -77,49 +74,8 @@ public class ReplyManager {
         drafts.put(loadable, reply);
     }
 
-    /**
-     * Pick an file. Starts up the ImagePickActivity.
-     *
-     * @param listener FileListener to listen on.
-     */
-    public void pickFile(FileListener listener) {
-        fileListener = listener;
-
-        Intent intent = new Intent(context, ImagePickActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
-
     public File getPickFile() {
         return new File(context.getCacheDir(), "picked_file");
-    }
-
-    public void _onFilePickLoading() {
-        if (fileListener != null) {
-            fileListener.onFilePickLoading();
-        }
-    }
-
-    public void _onFilePicked(String name, File file) {
-        if (fileListener != null) {
-            fileListener.onFilePicked(name, file);
-            fileListener = null;
-        }
-    }
-
-    public void _onFilePickError(boolean cancelled) {
-        if (fileListener != null) {
-            fileListener.onFilePickError(cancelled);
-            fileListener = null;
-        }
-    }
-
-    public interface FileListener {
-        void onFilePickLoading();
-
-        void onFilePicked(String name, File file);
-
-        void onFilePickError(boolean cancelled);
     }
 
     public void makeHttpCall(HttpCall httpCall, HttpCallback<? extends HttpCall> callback) {

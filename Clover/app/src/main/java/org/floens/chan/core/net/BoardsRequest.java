@@ -150,11 +150,11 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
                 case "country_flags":
                     board.countryFlags = reader.nextInt() == 1;
                     break;
-                case "troll_flags":
-                    board.trollFlags = reader.nextInt() == 1;
-                    break;
                 case "math_tags":
                     board.mathTags = reader.nextInt() == 1;
+                    break;
+                case "meta_description":
+                    board.description = reader.nextString();
                     break;
                 default:
                     reader.skipValue();

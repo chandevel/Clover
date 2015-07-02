@@ -25,10 +25,12 @@ import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.http.DeleteHttpCall;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
+import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
@@ -37,7 +39,6 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -79,6 +80,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private boolean searchOpen = false;
     private String searchQuery;
     private PostFilter.Order order = PostFilter.Order.BUMP;
+    private boolean historyAdded = false;
+    private int notificationPostCount = -1;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -112,7 +115,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             LoaderPool.getInstance().release(chanLoader, this);
             chanLoader = null;
             loadable = null;
-            order = PostFilter.Order.BUMP;
+            historyAdded = false;
+            notificationPostCount = -1;
 
             threadPresenterCallback.showLoading();
         }
@@ -214,6 +218,20 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
+        if (loadable.isThreadMode()) {
+            int postsSize = result.posts.size();
+            if (notificationPostCount < 0) {
+                notificationPostCount = postsSize;
+            } else {
+                if (postsSize > notificationPostCount) {
+                    int more = postsSize - notificationPostCount;
+                    notificationPostCount = postsSize;
+
+                    threadPresenterCallback.showNewPostsNotification(true, more);
+                }
+            }
+        }
+
         chanLoader.setAutoLoadMore(isWatching());
         showPosts();
 
@@ -225,6 +243,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
             loadable.markedNo = -1;
         }
+
+        addHistory();
     }
 
     @Override
@@ -247,6 +267,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             pin.onBottomPostViewed();
             watchManager.updatePin(pin);
         }
+
+        threadPresenterCallback.showNewPostsNotification(false, -1);
     }
 
     public void scrollTo(int position, boolean smooth) {
@@ -563,6 +585,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         threadPresenterCallback.showPosts(chanLoader.getThread(), new PostFilter(order, searchQuery));
     }
 
+    private void addHistory() {
+        if (!historyAdded && ChanSettings.historyEnabled.get() && loadable.isThreadMode()) {
+            historyAdded = true;
+            History history = new History();
+            // Copy the loadable when adding to history
+            // Otherwise the database will possible use the loadable from a pin, and when clearing the history also deleting the loadable from the pin.
+            history.loadable = loadable.copy();
+            history.loadable.id = 0;
+            history.thumbnailUrl = chanLoader.getThread().op.thumbnailUrl;
+            databaseManager.addHistory(history);
+        }
+    }
+
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostFilter filter);
 
@@ -609,5 +644,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void hideDeleting(String message);
 
         void hideThread(Post post);
+
+        void showNewPostsNotification(boolean show, int more);
     }
 }

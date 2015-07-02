@@ -46,6 +46,7 @@ import com.android.volley.VolleyError;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -54,7 +55,6 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.ui.adapter.PostFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
@@ -97,6 +97,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
     private boolean showingReplyButton = false;
+    private Snackbar newPostsNotification;
 
     public ThreadLayout(Context context) {
         super(context);
@@ -379,6 +380,30 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         fixSnackbarText(getContext(), snackbar);
     }
 
+    @Override
+    public void showNewPostsNotification(boolean show, int more) {
+        if (show) {
+            if (!threadListLayout.scrolledToBottom()) {
+                String text = getContext().getString(R.string.thread_new_posts,
+                        more, getContext().getResources().getQuantityString(R.plurals.posts, more, more));
+
+                newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
+                newPostsNotification.setAction(R.string.thread_new_posts_goto, new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        presenter.scrollTo(-1, false);
+                    }
+                }).show();
+                fixSnackbarText(getContext(), newPostsNotification);
+            }
+        } else {
+            if (newPostsNotification != null) {
+                newPostsNotification.dismiss();
+                newPostsNotification = null;
+            }
+        }
+    }
+
     public ThumbnailView getThumbnail(PostImage postImage) {
         if (postPopupHelper.isOpen()) {
             return postPopupHelper.getThumbnail(postImage);
@@ -414,6 +439,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                         postPopupHelper.popAll();
                         showSearch(false);
                         showReplyButton(false);
+                        newPostsNotification = null;
                         break;
                 }
             }

@@ -30,13 +30,13 @@ import com.squareup.leakcanary.RefWatcher;
 
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
-import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.net.ProxiedHurlStack;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.database.DatabaseManager;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -51,7 +51,6 @@ public class Chan extends Application {
 
     private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
     private static final String FILE_CACHE_NAME = "filecache";
-    private static final int VOLLEY_LRU_CACHE_SIZE = 8 * 1024 * 1024;
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
 
     public static Context con;
@@ -152,9 +151,13 @@ public class Chan extends Application {
 
         replyManager = new ReplyManager(this);
 
-        String userAgent = getUserAgent();
+	String userAgent = getUserAgent();
         volleyRequestQueue = Volley.newRequestQueue(this, userAgent, new ProxiedHurlStack(userAgent), new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
-        imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(VOLLEY_LRU_CACHE_SIZE));
+
+        final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int lruImageCacheSize = runtimeMemory / 8;
+
+        imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(lruImageCacheSize));
 
         fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, getUserAgent());
 

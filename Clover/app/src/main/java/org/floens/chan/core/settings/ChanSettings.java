@@ -94,6 +94,8 @@ public class ChanSettings {
     public static final StringSetting passPin;
     public static final StringSetting passId;
 
+    public static final BooleanSetting historyEnabled;
+
     public static final BooleanSetting proxyEnabled;
     public static final StringSetting proxyAddress;
     public static final IntegerSetting proxyPort;
@@ -158,6 +160,8 @@ public class ChanSettings {
         passToken = new StringSetting(p, "preference_pass_token", "");
         passPin = new StringSetting(p, "preference_pass_pin", "");
         passId = new StringSetting(p, "preference_pass_id", "");
+
+        historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
 
         proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
         proxyAddress = new StringSetting(p, "preference_proxy_address", "");

@@ -26,22 +26,23 @@ import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.utils.Logger;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
+public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanReaderResponse> {
+    private static final String TAG = "ChanReaderRequest";
+
     private Loadable loadable;
     private List<Post> cached;
+    private Post op;
 
-    private ChanReaderRequest(String url, Listener<List<Post>> listener, ErrorListener errorListener) {
+    private ChanReaderRequest(String url, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
     }
 
-    public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<List<Post>> listener, ErrorListener errorListener) {
+    public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
         String url;
 
         if (loadable.isThreadMode()) {
@@ -67,7 +68,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
     }
 
     @Override
-    public List<Post> readJson(JsonReader reader) throws Exception {
+    public ChanReaderResponse readJson(JsonReader reader) throws Exception {
         List<Post> list;
 
         if (loadable.isThreadMode()) {
@@ -81,11 +82,14 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
         return processPosts(list);
     }
 
-    private List<Post> processPosts(List<Post> serverList) throws Exception {
-        List<Post> totalList = new ArrayList<>(serverList.size());
+    private ChanReaderResponse processPosts(List<Post> serverList) throws Exception {
+        ChanReaderResponse response = new ChanReaderResponse();
+        response.posts = new ArrayList<>(serverList.size());
+        response.op = op;
 
         if (cached.size() > 0) {
-            totalList.addAll(cached);
+            // Add all posts that were parsed before
+            response.posts.addAll(cached);
 
             // If there's a cached post but it's not in the list received from the server, mark it as deleted
             if (loadable.isThreadMode()) {
@@ -99,7 +103,7 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                         }
                     }
 
-                    cache.deleted = !serverHas;
+                    cache.deleted.set(!serverHas);
                 }
             }
 
@@ -115,68 +119,19 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                     }
                 }
 
-                // serverPost is not in finalList
                 if (!known) {
-                    totalList.add(post);
+                    response.posts.add(post);
                 }
             }
-
-            // Replace OPs
-            if (totalList.get(0).isOP && serverList.size() > 0 && serverList.get(0).isOP) {
-                totalList.set(0, serverList.get(0));
-            }
-
-            // Sort if it got out of order due to posts disappearing/reappearing
-            /*if (loadable.isThreadMode()) {
-                Collections.sort(totalList, new Comparator<Post>() {
-                    @Override
-                    public int compare(Post lhs, Post rhs) {
-                        return lhs.time == rhs.time ? 0 : (lhs.time < rhs.time ? -1 : 1);
-                    }
-                });
-            }*/
-
         } else {
-            totalList.addAll(serverList);
+            response.posts.addAll(serverList);
         }
 
-        Set<Integer> postsReplyingToDeleted = new HashSet<>();
-        for (Post post : totalList) {
-            if (!post.deleted) {
-                post.repliesFrom.clear();
-
-                for (Post other : totalList) {
-                    if (other.repliesTo.contains(post.no) && !other.deleted) {
-                        post.repliesFrom.add(other.no);
-                    }
-                }
-            } else {
-                post.repliesTo.clear();
-
-                for (int no : post.repliesFrom) {
-                    postsReplyingToDeleted.add(no);
-                }
-
-                post.repliesFrom.clear();
-            }
+        for (Post post : response.posts) {
+            post.isSavedReply.set(Chan.getDatabaseManager().isSavedReply(post.board, post.no));
         }
 
-        for (int no : postsReplyingToDeleted) {
-            for (Post post : totalList) {
-                if (post.no == no) {
-                    if (!post.finish()) {
-                        throw new IOException("Incorrect data about post received.");
-                    }
-                    break;
-                }
-            }
-        }
-
-        for (Post post : totalList) {
-            post.isSavedReply = Chan.getDatabaseManager().isSavedReply(post.board, post.no);
-        }
-
-        return totalList;
+        return response;
     }
 
     private List<Post> loadThread(JsonReader reader) throws Exception {
@@ -191,7 +146,10 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                 // Thread array
                 while (reader.hasNext()) {
                     // Thread object
-                    list.add(readPostObject(reader));
+                    Post post = readPostObject(reader);
+                    if (post != null) {
+                        list.add(post);
+                    }
                 }
                 reader.endArray();
             } else {
@@ -216,7 +174,10 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                     reader.beginArray(); // Threads array
 
                     while (reader.hasNext()) {
-                        list.add(readPostObject(reader));
+                        Post post = readPostObject(reader);
+                        if (post != null) {
+                            list.add(post);
+                        }
                     }
 
                     reader.endArray();
@@ -324,27 +285,27 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
                     break;
                 default:
                     // Unknown/ignored key
-                    //                log("Unknown/ignored key: " + key + ".");
                     reader.skipValue();
                     break;
             }
         }
         reader.endObject();
 
+        if (post.resto == 0) {
+            // Update OP fields later on the main thread
+            op = new Post();
+            op.closed = post.closed;
+            op.archived = post.archived;
+            op.sticky = post.sticky;
+            op.replies = post.replies;
+            op.images = post.images;
+            op.uniqueIps = post.uniqueIps;
+        }
+
         Post cached = null;
         for (Post item : this.cached) {
             if (item.no == post.no) {
                 cached = item;
-
-                if (post.resto == 0) {
-                    // Update OP fields
-                    cached.sticky = post.sticky;
-                    cached.closed = post.closed;
-                    cached.archived = post.archived;
-                    cached.replies = post.replies;
-                    cached.images = post.images;
-                    cached.uniqueIps = post.uniqueIps;
-                }
 
                 break;
             }
@@ -354,10 +315,18 @@ public class ChanReaderRequest extends JsonReaderRequest<List<Post>> {
             return cached;
         } else {
             if (!post.finish()) {
-                throw new IOException("Incorrect data about post received.");
+                Logger.e(TAG, "Incorrect data about post received for post " + post.no);
+                return null;
+            } else {
+                return post;
             }
-
-            return post;
         }
+    }
+
+    public static class ChanReaderResponse {
+        // Op Post that is created new each time.<br>
+        // Used to later copy members like image count to the real op on the main thread.
+        public Post op;
+        public List<Post> posts;
     }
 }

@@ -46,52 +46,84 @@ public class Board {
      */
     @DatabaseField
     public String value;
+
+    /**
+     * True if this board appears in the dropdown, false otherwise.
+     */
     @DatabaseField
     public boolean saved = false;
+
     @DatabaseField
     public int order;
+
     @DatabaseField
     public boolean workSafe = false;
+
     @DatabaseField
     public int perPage = -1;
+
     @DatabaseField
     public int pages = -1;
+
     @DatabaseField
     public int maxFileSize = -1;
+
     @DatabaseField
     public int maxWebmSize = -1;
+
     @DatabaseField
     public int maxCommentChars = -1;
+
     @DatabaseField
     public int bumpLimit = -1;
+
     @DatabaseField
     public int imageLimit = -1;
+
     @DatabaseField
     public int cooldownThreads = -1;
+
     @DatabaseField
     public int cooldownReplies = -1;
+
     @DatabaseField
     public int cooldownImages = -1;
+
     @DatabaseField
     public int cooldownRepliesIntra = -1;
+
     @DatabaseField
     public int cooldownImagesIntra = -1;
+
     @DatabaseField
     public boolean spoilers = false;
+
     @DatabaseField
     public int customSpoilers = -1;
+
     @DatabaseField
     public boolean userIds = false;
+
     @DatabaseField
     public boolean codeTags = false;
+
     @DatabaseField
     public boolean preuploadCaptcha = false;
+
     @DatabaseField
     public boolean countryFlags = false;
+
+    /**
+     * Not used anymore.
+     */
     @DatabaseField
     public boolean trollFlags = false;
+
     @DatabaseField
     public boolean mathTags = false;
+
+    @DatabaseField
+    public String description;
 
     public boolean finish() {
         if (key == null || value == null || perPage < 0 || pages < 0)

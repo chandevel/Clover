@@ -21,20 +21,25 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 
 import org.floens.chan.Chan;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.chan.ChanParser;
+import org.floens.chan.chan.ChanUrls;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Contains all data needed to represent a single post.
+ * Contains all data needed to represent a single post.<br>
+ * Call {@link #finish()} to parse the comment etc. The post data is invalid if finish returns false.<br>
+ * This class has members that are threadsafe and some that are not, see the source for more info.
  */
 public class Post {
     private static final Random random = new Random();
 
+    // *** These next members don't get changed after finish() is called. Effectively final. ***
     public String board;
     public int no = -1;
     public int resto = -1;
@@ -46,42 +51,25 @@ public class Post {
     public long tim = -1;
     public String ext;
     public String filename;
-    public int replies = -1;
     public int imageWidth;
     public int imageHeight;
     public boolean hasImage = false;
     public String thumbnailUrl;
     public String imageUrl;
-    public boolean sticky = false;
-    public boolean closed = false;
-    public boolean archived = false;
     public String tripcode = "";
     public String id = "";
     public String capcode = "";
     public String country = "";
     public String countryName = "";
     public long time = -1;
-    public boolean isSavedReply = false;
-    public String title = "";
     public int fileSize;
-    public int images = -1;
     public String rawComment;
     public String countryUrl;
     public boolean spoiler = false;
-    public int uniqueIps = 1;
-
-    public boolean deleted = false;
-
     /**
-     * This post replies to the these ids
+     * This post replies to the these ids. Is an unmodifiable list after finish().
      */
     public List<Integer> repliesTo = new ArrayList<>();
-
-    /**
-     * These ids replied to this post
-     */
-    public List<Integer> repliesFrom = new ArrayList<>();
-
     public final ArrayList<PostLinkable> linkables = new ArrayList<>();
     public boolean parsedSpans = false;
     public SpannableString subjectSpan;
@@ -91,11 +79,25 @@ public class Post {
     public SpannableString capcodeSpan;
     public CharSequence nameTripcodeIdCapcodeSpan;
 
-    public Post() {
-    }
+    // *** These next members may only change on the main thread after finish(). ***
+    public boolean sticky = false;
+    public boolean closed = false;
+    public boolean archived = false;
+    public int replies = -1;
+    public int images = -1;
+    public int uniqueIps = 1;
+    public String title = "";
+    /**
+     * These ids replied to this post. Only modify this on the main thread.
+     */
+    public List<Integer> repliesFrom = new ArrayList<>();
+
+    // *** Threadsafe members, may be read and modified on any thread. ***
+    public AtomicBoolean deleted = new AtomicBoolean(false);
+    public AtomicBoolean isSavedReply = new AtomicBoolean(false);
 
     /**
-     * Finish up the data
+     * Finish up the data: parse the comment, check if the data is valid etc.
      *
      * @return false if this data is invalid
      */
@@ -129,11 +131,12 @@ public class Post {
         }
 
         if (!TextUtils.isEmpty(country)) {
-            Board b = Chan.getBoardManager().getBoardByValue(board);
-            countryUrl = b.trollFlags ? ChanUrls.getTrollCountryFlagUrl(country) : ChanUrls.getCountryFlagUrl(country);
+            countryUrl = ChanUrls.getCountryFlagUrl(country);
         }
 
         ChanParser.getInstance().parse(this);
+
+        repliesTo = Collections.unmodifiableList(repliesTo);
 
         return true;
     }

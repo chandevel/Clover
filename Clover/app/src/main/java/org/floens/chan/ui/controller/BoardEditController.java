@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,6 +50,7 @@ import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
+import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,7 +111,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
             Collections.sort(boards, new Comparator<Board>() {
                 @Override
                 public int compare(Board lhs, Board rhs) {
-                    return lhs.key.compareTo(rhs.key);
+                    return lhs.value.compareTo(rhs.value);
                 }
             });
             adapter.notifyDataSetChanged();
@@ -303,9 +305,10 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
+            @SuppressLint("ViewHolder")
             TextView view = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
             Board b = filtered.get(position);
-            view.setText("/" + b.value + "/ " + b.key);
+            view.setText("/" + b.value + "/ - " + b.key);
 
             view.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -394,6 +397,8 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
                 BoardEditItem item = (BoardEditItem) holder;
                 Board board = boards.get(position - 1);
                 item.text.setText("/" + board.value + "/ " + board.key);
+
+                item.description.setText(board.description == null ? null : Parser.unescapeEntities(board.description, false));
             }
         }
 
@@ -420,11 +425,13 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
     private class BoardEditItem extends RecyclerView.ViewHolder {
         private ImageView image;
         private TextView text;
+        private TextView description;
 
         public BoardEditItem(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.thumb);
             text = (TextView) itemView.findViewById(R.id.text);
+            description = (TextView) itemView.findViewById(R.id.description);
             image.setImageDrawable(new ThumbDrawable());
         }
     }

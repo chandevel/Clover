@@ -15,30 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.net;
+package org.floens.chan.core.model;
 
-import android.graphics.Bitmap;
-import android.util.LruCache;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import com.android.volley.toolbox.ImageLoader.ImageCache;
+@DatabaseTable
+public class History {
+    @DatabaseField(generatedId = true)
+    public int id;
 
-public class BitmapLruImageCache extends LruCache<String, Bitmap> implements ImageCache {
-    public BitmapLruImageCache(int maxSize) {
-        super(maxSize);
-    }
+    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
+    public Loadable loadable;
 
-    @Override
-    protected int sizeOf(String key, Bitmap value) {
-        return value.getRowBytes() * value.getHeight() / 1024;
-    }
+    @DatabaseField
+    public String thumbnailUrl;
 
-    @Override
-    public Bitmap getBitmap(String url) {
-        return get(url);
-    }
-
-    @Override
-    public void putBitmap(String url, Bitmap bitmap) {
-        put(url, bitmap);
-    }
+    @DatabaseField
+    public long date;
 }

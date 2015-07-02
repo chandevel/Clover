@@ -394,13 +394,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
                 titleContainer.removeView(subtitleView);
             }
 
-            if (item.menu != null) {
-                menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-            }
-
             if (item.rightView != null) {
                 item.rightView.setPadding(0, 0, dp(16), 0);
                 menu.addView(item.rightView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+            }
+
+            if (item.menu != null) {
+                menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
             }
 
             AndroidUtils.waitForMeasure(titleView, new AndroidUtils.OnMeasuredCallback() {

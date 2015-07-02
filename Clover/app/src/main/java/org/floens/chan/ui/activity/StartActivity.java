@@ -37,6 +37,7 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.RootNavigationController;
 import org.floens.chan.ui.controller.ViewThreadController;
+import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Logger;
@@ -56,6 +57,8 @@ public class StartActivity extends AppCompatActivity {
     private RootNavigationController rootNavigationController;
     private BrowseController browseController;
 
+    private ImagePickDelegate imagePickDelegate;
+
     public StartActivity() {
         boardManager = Chan.getBoardManager();
     }
@@ -65,6 +68,8 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         ThemeHelper.getInstance().setupContext(this);
+
+        imagePickDelegate = new ImagePickDelegate(this);
 
         contentView = (ViewGroup) findViewById(android.R.id.content);
 
@@ -180,6 +185,10 @@ public class StartActivity extends AppCompatActivity {
         return contentView;
     }
 
+    public ImagePickDelegate getImagePickDelegate() {
+        return imagePickDelegate;
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -231,6 +240,13 @@ public class StartActivity extends AppCompatActivity {
         super.onStop();
 
         Chan.getInstance().activityEnteredBackground();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        imagePickDelegate.onActivityResult(requestCode, resultCode, data);
     }
 
     private Controller stackTop() {
