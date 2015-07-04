@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="exit">Exit</string>
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
+    <string name="save">Save</string>
 
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
@@ -116,6 +117,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_add_unknown">The board with code %1$s is not known.</string>
     <string name="board_edit_sort_a_z">Sort A-Z</string>
 
+    <string name="filter_enabled">Enabled</string>
+    <string name="filter_pattern">Pattern</string>
+    <string name="filter_boards">Boards</string>
+    <string name="filter_hide">Hide</string>
+
+    <string name="filter_tripcode">Tripcode</string>
+    <string name="filter_name">Name</string>
+    <string name="filter_comment">Comment</string>
+    <string name="filter_id">ID</string>
+    <string name="filter_subject">Subject</string>
+    <string name="filter_filename">Filename</string>
+
     <string name="history_clear">Clear history</string>
     <string name="history_clear_confirm">Clear history?</string>
     <string name="history_clear_confirm_button">Clear</string>
@@ -189,6 +202,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </plurals>
 
     <string name="history_screen">History</string>
+
+    <string name="filters_screen">Filters</string>
 
     <string name="settings_screen">Settings</string>
     <string name="settings_group_general">General</string>

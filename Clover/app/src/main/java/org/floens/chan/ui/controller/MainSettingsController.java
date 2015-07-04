@@ -159,6 +159,12 @@ public class MainSettingsController extends SettingsController implements Toolba
         // Browsing group
         SettingsGroup browsing = new SettingsGroup(s(R.string.settings_group_browsing));
 
+        browsing.add(new LinkSettingView(this, s(R.string.filters_screen), null, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigationController.pushController(new FiltersController(context));
+            }
+        }));
         browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, s(R.string.setting_open_link_confirmation), null));
         browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, s(R.string.setting_auto_refresh_thread), null));
 

@@ -68,7 +68,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
 
     private RecyclerView recyclerView;
     private BoardEditAdapter adapter;
-    private FloatingActionButton done;
+    private FloatingActionButton add;
 
     private List<Board> boards;
 
@@ -90,8 +90,8 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         view = inflateRes(R.layout.controller_board_edit);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        done = (FloatingActionButton) view.findViewById(R.id.done);
-        done.setOnClickListener(this);
+        add = (FloatingActionButton) view.findViewById(R.id.add);
+        add.setOnClickListener(this);
 
         boards = boardManager.getSavedBoards();
 
@@ -131,7 +131,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
 
     @Override
     public void onClick(View v) {
-        if (v == done) {
+        if (v == add) {
             showAddBoardDialog();
         }
     }

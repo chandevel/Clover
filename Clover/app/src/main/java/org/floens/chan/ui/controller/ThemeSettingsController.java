@@ -120,7 +120,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         themeHelper = ThemeHelper.getInstance();
 
         pager = (ViewPager) view.findViewById(R.id.pager);
-        done = (FloatingActionButton) view.findViewById(R.id.done);
+        done = (FloatingActionButton) view.findViewById(R.id.add);
         done.setOnClickListener(this);
 
         adapter = new Adapter();

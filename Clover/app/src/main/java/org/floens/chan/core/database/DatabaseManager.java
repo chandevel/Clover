@@ -25,6 +25,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -67,6 +68,8 @@ public class DatabaseManager {
 
     private final Object historyLock = new Object();
     private final HashMap<Loadable, History> historyByLoadable = new HashMap<>();
+
+    private final List<Filter> filters = new ArrayList<>();
 
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
@@ -279,6 +282,18 @@ public class DatabaseManager {
         }
 
         return list;
+    }
+
+    public void addFilter(Filter filter) {
+        filters.add(filter);
+    }
+
+    public void removeFilter(Filter filter) {
+        filters.remove(filter);
+    }
+
+    public List<Filter> getFilters() {
+        return filters;
     }
 
     /**

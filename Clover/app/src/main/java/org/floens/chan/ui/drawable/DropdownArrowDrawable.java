@@ -47,10 +47,10 @@ public class DropdownArrowDrawable extends Drawable {
     @Override
     public void draw(Canvas canvas) {
         path.rewind();
-        path.moveTo(0, height / 2);
-        path.lineTo(width, height / 2);
-        path.lineTo(width / 2, height);
-        path.lineTo(0, height / 2);
+        path.moveTo(0, height / 4);
+        path.lineTo(width, height / 4);
+        path.lineTo(width / 2, (int) (height * 3f / 4f));
+        path.lineTo(0, height / 4);
         path.close();
 
         canvas.save();
