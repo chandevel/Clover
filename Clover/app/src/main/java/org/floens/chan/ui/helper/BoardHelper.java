@@ -15,29 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.ui.helper;
 
-public class Filter {
-    public int id;
+import org.floens.chan.core.model.Board;
+import org.jsoup.parser.Parser;
 
-    public boolean enabled = true;
+public class BoardHelper {
+    public static String getName(Board board) {
+        return "/" + board.value + "/ " + board.key;
+    }
 
-    public int type;
-
-    public String pattern;
-
-    public boolean allBoards = true;
-
-    public String boards;
-
-    public boolean hide = true;
-
-    public void apply(Filter filter) {
-        enabled = filter.enabled;
-        type = filter.type;
-        pattern = filter.pattern;
-        allBoards = filter.allBoards;
-        boards = filter.boards;
-        hide = filter.hide;
+    public static String getDescription(Board board) {
+        return board.description == null ? null : Parser.unescapeEntities(board.description, false);
     }
 }

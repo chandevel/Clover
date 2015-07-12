@@ -26,19 +26,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,6 +41,7 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.layout.SearchLayout;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -286,76 +281,30 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
     private LinearLayout createNavigationItemView(final NavigationItem item) {
         if (item.search) {
-            LinearLayout searchViewWrapper = new LinearLayout(getContext());
-            final EditText searchView = new EditText(getContext());
-            searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_ACTION_DONE);
-            searchView.setHint(callback.getSearchHint());
+            SearchLayout searchLayout = new SearchLayout(getContext());
+
+            searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
+                @Override
+                public void onSearchEntered(String entered) {
+                    item.searchText = entered;
+                    callback.onSearchEntered(entered);
+                }
+            });
+
             if (item.searchText != null) {
-                searchView.setText(item.searchText);
+                searchLayout.setText(item.searchText);
             }
-            searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-            searchView.setHintTextColor(0x88ffffff);
-            searchView.setTextColor(0xffffffff);
-            searchView.setSingleLine(true);
-            searchView.setBackgroundResource(0);
-            searchView.setPadding(0, 0, 0, 0);
-            final ImageView clearButton = new ImageView(getContext());
-            searchView.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    item.searchText = s.toString();
-                    callback.onSearchEntered(s.toString());
-                    clearButton.setAlpha(s.length() == 0 ? 0.6f : 1.0f);
-                }
 
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-            });
-            searchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        AndroidUtils.hideKeyboard(searchView);
-                        callback.onSearchEntered(searchView.getText().toString());
-                        return true;
-                    }
-                    return false;
-                }
-            });
-            LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
-            searchViewParams.gravity = Gravity.CENTER_VERTICAL;
-            searchViewWrapper.addView(searchView, searchViewParams);
-
-            clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
-            clearButton.setAlpha(searchView.length() == 0 ? 0.6f : 1.0f);
-            clearButton.setScaleType(ImageView.ScaleType.CENTER);
-            clearButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    searchView.setText("");
-                    AndroidUtils.requestKeyboardFocus(searchView);
-                }
-            });
-            searchViewWrapper.addView(clearButton, dp(48), LayoutParams.MATCH_PARENT);
-            searchViewWrapper.setPadding(dp(16), 0, 0, 0);
+            searchLayout.setHint(callback.getSearchHint());
 
             if (openKeyboardAfterSearchViewCreated) {
                 openKeyboardAfterSearchViewCreated = false;
-                searchView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        searchView.requestFocus();
-                        AndroidUtils.requestKeyboardFocus(searchView);
-                    }
-                }, 100);
+                searchLayout.openKeyboard();
             }
 
-            return searchViewWrapper;
+            searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
+
+            return searchLayout;
         } else {
             @SuppressLint("InflateParams")
             LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);

@@ -45,12 +45,12 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.drawable.ThumbDrawable;
+import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.helper.SwipeListener;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
-import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -396,9 +396,8 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
             } else {
                 BoardEditItem item = (BoardEditItem) holder;
                 Board board = boards.get(position - 1);
-                item.text.setText("/" + board.value + "/ " + board.key);
-
-                item.description.setText(board.description == null ? null : Parser.unescapeEntities(board.description, false));
+                item.text.setText(BoardHelper.getName(board));
+                item.description.setText(BoardHelper.getDescription(board));
             }
         }
 

@@ -120,6 +120,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filter_enabled">Enabled</string>
     <string name="filter_pattern">Pattern</string>
     <string name="filter_boards">Boards</string>
+    <string name="filter_boards_all">all</string>
     <string name="filter_hide">Hide</string>
 
     <string name="filter_tripcode">Tripcode</string>
@@ -128,6 +129,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filter_id">ID</string>
     <string name="filter_subject">Subject</string>
     <string name="filter_filename">Filename</string>
+
+    <string name="board_select_all">Select all</string>
+    <string name="board_select_none">Select none</string>
 
     <string name="history_clear">Clear history</string>
     <string name="history_clear_confirm">Clear history?</string>
