@@ -17,13 +17,16 @@ public class ProxiedHurlStack extends HurlStack {
     @Override
     protected HttpURLConnection createConnection(URL url) throws IOException {
         // Start the connection by specifying a proxy server
-        Proxy proxy = null;
         if (ChanSettings.proxyEnabled.get())
         {
-            proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(
                     ChanSettings.proxyAddress.get(),
                     ChanSettings.proxyPort.get()));
+            return (HttpURLConnection) url.openConnection(proxy);
         }
-        return (HttpURLConnection) url.openConnection(proxy);
+        else
+        {
+            return (HttpURLConnection) url.openConnection();
+        }
     }
 }
