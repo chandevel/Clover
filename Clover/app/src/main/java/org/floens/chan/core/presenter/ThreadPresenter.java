@@ -68,6 +68,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_SHARE = 10;
     private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 11;
     private static final int POST_OPTION_HIDE = 12;
+    private static final int POST_OPTION_OPEN = 13;
 
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
@@ -359,6 +360,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
         menu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
+        menu.add(new FloatingMenuItem(POST_OPTION_OPEN, R.string.action_open_browser));
         menu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
         menu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
         menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
@@ -422,6 +424,13 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 break;
             case POST_OPTION_PIN:
                 watchManager.addPin(post);
+                break;
+            case POST_OPTION_OPEN:
+                AndroidUtils.openLink(
+                        post.isOP ?
+                                ChanUrls.getThreadUrlDesktop(post.board, post.no) :
+                                ChanUrls.getThreadUrlDesktop(post.board, loadable.no, post.no)
+                );
                 break;
             case POST_OPTION_SHARE:
                 AndroidUtils.shareLink(
