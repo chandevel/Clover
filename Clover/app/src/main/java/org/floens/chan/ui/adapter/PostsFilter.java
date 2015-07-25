@@ -124,11 +124,11 @@ public class PostsFilter {
             }
         }
 
-        // Process hidden
+        // Process hidden either by a filter or by thread hiding
         Iterator<Post> i = posts.iterator();
         while (i.hasNext()) {
             Post post = i.next();
-            if (databaseManager.isThreadHidden(post)) {
+            if (post.filterRemove || databaseManager.isThreadHidden(post)) {
                 i.remove();
             }
         }

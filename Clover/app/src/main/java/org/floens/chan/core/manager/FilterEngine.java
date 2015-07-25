@@ -73,7 +73,8 @@ public class FilterEngine {
 
     public enum FilterAction {
         HIDE(0),
-        COLOR(1);
+        COLOR(1),
+        REMOVE(2);
 
         public final int id;
 
@@ -85,7 +86,7 @@ public class FilterEngine {
             return enums[id];
         }
 
-        private static FilterAction[] enums = new FilterAction[2];
+        private static FilterAction[] enums = new FilterAction[3];
 
         static {
             for (FilterAction type : values()) {

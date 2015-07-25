@@ -343,6 +343,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                         case HIDE:
                             post.filterStub = true;
                             break;
+                        case REMOVE:
+                            post.filterRemove = true;
+                            break;
                     }
                 }
             }

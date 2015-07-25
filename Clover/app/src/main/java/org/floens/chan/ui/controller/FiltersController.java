@@ -87,6 +87,8 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
                 return getString(R.string.filter_hide);
             case COLOR:
                 return getString(R.string.filter_color);
+            case REMOVE:
+                return getString(R.string.filter_remove);
         }
         return null;
     }
@@ -161,6 +163,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
     private void deleteFilter(Filter filter) {
         filterEngine.remove(filter);
+        EventBus.getDefault().post(new RefreshUIMessage("filters"));
         adapter.load();
         //TODO: undo
     }

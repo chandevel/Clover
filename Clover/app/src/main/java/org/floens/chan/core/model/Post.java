@@ -68,6 +68,7 @@ public class Post {
     public boolean spoiler = false;
     public int filterHighlightedColor = 0;
     public boolean filterStub = false;
+    public boolean filterRemove = false;
     /**
      * This post replies to the these ids. Is an unmodifiable list after finish().
      */
