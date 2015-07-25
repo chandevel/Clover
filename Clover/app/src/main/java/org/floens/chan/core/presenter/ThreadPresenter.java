@@ -278,8 +278,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void scrollToImage(PostImage postImage, boolean smooth) {
         if (!searchOpen) {
             int position = -1;
-            for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
-                Post post = chanLoader.getThread().posts.get(i);
+            List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+            for (int i = 0; i < posts.size(); i++) {
+                Post post = posts.get(i);
                 if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
                     position = i;
                     break;
@@ -293,8 +294,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public void scrollToPost(Post needle, boolean smooth) {
         int position = -1;
-        for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
-            Post post = chanLoader.getThread().posts.get(i);
+        List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
             if (post.no == needle.no) {
                 position = i;
                 break;
@@ -335,8 +337,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void onThumbnailClicked(Post post, ThumbnailView thumbnail) {
         List<PostImage> images = new ArrayList<>();
         int index = -1;
-        for (int i = 0; i < chanLoader.getThread().posts.size(); i++) {
-            Post item = chanLoader.getThread().posts.get(i);
+        List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+        for (int i = 0; i < posts.size(); i++) {
+            Post item = posts.get(i);
             if (item.hasImage) {
                 images.add(new PostImage(String.valueOf(item.tim), item.thumbnailUrl, item.imageUrl, item.filename, item.ext, item.imageWidth, item.imageHeight, item.spoiler));
                 if (item.no == post.no) {
@@ -620,6 +623,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void openWebView(String title, String link);
 
         void showPostsPopup(Post forPost, List<Post> posts);
+
+        List<Post> getDisplayingPosts();
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 

@@ -41,6 +41,8 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 
+import java.util.List;
+
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -311,6 +313,10 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         openReply(false);
         showSearch(false);
         showingThread = null;
+    }
+
+    public List<Post> getDisplayingPosts() {
+        return postAdapter.getDisplayList();
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

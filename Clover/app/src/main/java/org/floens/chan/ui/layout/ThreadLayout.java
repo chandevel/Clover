@@ -286,6 +286,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public List<Post> getDisplayingPosts() {
+        return threadListLayout.getDisplayingPosts();
+    }
+
+    @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
         callback.showImages(images, index, loadable, thumbnail);
     }

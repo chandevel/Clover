@@ -144,6 +144,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return displayList.size();
     }
 
+    public List<Post> getDisplayList() {
+        return displayList;
+    }
+
     public void cleanup() {
         highlightedPost = null;
         highlightedPostId = null;
