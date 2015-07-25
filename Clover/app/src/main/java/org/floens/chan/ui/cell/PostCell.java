@@ -291,7 +291,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             colorLeft.setVisibility(View.GONE);
         }
 
-        if (post.hasImage) {
+        if (post.hasImage && !post.filterStub) {
             thumbnailView.setVisibility(View.VISIBLE);
             thumbnailView.setUrl(post.thumbnailUrl, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
         } else {
@@ -353,13 +353,16 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         }
 
         CharSequence commentText;
-        if (post.comment.length() > COMMENT_MAX_LENGTH_BOARD && !threadMode) {
+        if (post.filterStub) {
+            commentText = null;
+        } else if (post.comment.length() > COMMENT_MAX_LENGTH_BOARD && !threadMode) {
             commentText = post.comment.subSequence(0, COMMENT_MAX_LENGTH_BOARD);
         } else {
             commentText = post.comment;
         }
 
         comment.setText(commentText);
+        comment.setVisibility(TextUtils.isEmpty(commentText) ? GONE : VISIBLE);
 
         if (commentClickable != threadMode) {
             commentClickable = threadMode;
@@ -376,7 +379,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             }
         }
 
-        if ((!threadMode && post.replies > 0) || (post.repliesFrom.size() > 0)) {
+        if (!post.filterStub && ((!threadMode && post.replies > 0) || (post.repliesFrom.size() > 0))) {
             replies.setVisibility(View.VISIBLE);
 
             int replyCount = threadMode ? post.repliesFrom.size() : post.replies;
