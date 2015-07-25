@@ -20,8 +20,9 @@ package org.floens.chan.ui.adapter;
 import android.text.TextUtils;
 
 import org.floens.chan.Chan;
-import org.floens.chan.core.model.Post;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.model.Post;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-public class PostFilter {
+public class PostsFilter {
     public static final Comparator<Post> IMAGE_COMPARATOR = new Comparator<Post>() {
         @Override
         public int compare(Post lhs, Post rhs) {
@@ -60,14 +61,16 @@ public class PostFilter {
     };
 
     private final DatabaseManager databaseManager;
+    private final FilterEngine filterEngine;
 
     private Order order;
     private String query;
 
-    public PostFilter(Order order, String query) {
+    public PostsFilter(Order order, String query) {
         this.order = order;
         this.query = query;
         databaseManager = Chan.getDatabaseManager();
+        filterEngine = FilterEngine.getInstance();
     }
 
     /**
@@ -80,7 +83,7 @@ public class PostFilter {
         List<Post> posts = new ArrayList<>(original);
 
         // Process order
-        if (order != PostFilter.Order.BUMP) {
+        if (order != PostsFilter.Order.BUMP) {
             switch (order) {
                 case IMAGE:
                     Collections.sort(posts, IMAGE_COMPARATOR);

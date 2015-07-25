@@ -30,11 +30,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
+import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.FilterLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -44,13 +44,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.greenrobot.event.EventBus;
+
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class FiltersController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, RootNavigationController.ToolbarSearchCallback, View.OnClickListener {
     private static final int SEARCH_ID = 1;
     private static final int CLEAR_ID = 101;
 
-    private DatabaseManager databaseManager;
+    private FilterEngine filterEngine;
     private RecyclerView recyclerView;
     private FloatingActionButton add;
     private FilterAdapter adapter;
@@ -59,11 +63,39 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         super(context);
     }
 
+    public static String filterTypeName(FilterEngine.FilterType type) {
+        switch (type) {
+            case TRIPCODE:
+                return getString(R.string.filter_tripcode);
+            case NAME:
+                return getString(R.string.filter_name);
+            case COMMENT:
+                return getString(R.string.filter_comment);
+            case ID:
+                return getString(R.string.filter_id);
+            case SUBJECT:
+                return getString(R.string.filter_subject);
+            case FILENAME:
+                return getString(R.string.filter_filename);
+        }
+        return null;
+    }
+
+    public static String actionName(FilterEngine.FilterAction action) {
+        switch (action) {
+            case HIDE:
+                return getString(R.string.filter_hide);
+            case COLOR:
+                return getString(R.string.filter_color);
+        }
+        return null;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
 
-        databaseManager = Chan.getDatabaseManager();
+        filterEngine = FilterEngine.getInstance();
 
         navigationItem.title = string(R.string.filters_screen);
         navigationItem.menu = new ToolbarMenu(context);
@@ -111,8 +143,8 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
                     public void onClick(DialogInterface dialog, int which) {
                         Filter newFilter = filterLayout.getFilter();
                         newFilter.id = filter.id;
-                        Chan.getDatabaseManager().addFilter(newFilter);
-
+                        filterEngine.addOrUpdate(newFilter);
+                        EventBus.getDefault().post(new RefreshUIMessage("filters"));
                         adapter.load();
                     }
                 })
@@ -128,7 +160,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     }
 
     private void deleteFilter(Filter filter) {
-        databaseManager.removeFilter(filter);
+        filterEngine.remove(filter);
         adapter.load();
         //TODO: undo
     }
@@ -163,7 +195,20 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         public void onBindViewHolder(FilterCell holder, int position) {
             Filter filter = displayList.get(position);
             holder.text.setText(filter.pattern);
-            holder.subtext.setText(String.valueOf(filter.type));
+            holder.text.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_primary : R.attr.text_color_secondary));
+            String subText = filterTypeName(FilterEngine.FilterType.forId(filter.type));
+
+            subText += " - ";
+            if (filter.allBoards) {
+                subText += context.getString(R.string.filter_summary_all_boards);
+            } else {
+                int size = filterEngine.getBoardsForFilter(filter).size();
+                subText += context.getResources().getQuantityString(R.plurals.board, size, size);
+            }
+
+            subText += " - " + FiltersController.actionName(FilterEngine.FilterAction.forId(filter.action));
+
+            holder.subtext.setText(subText);
         }
 
         @Override
@@ -183,7 +228,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         private void load() {
             sourceList.clear();
-            sourceList.addAll(databaseManager.getFilters());
+            sourceList.addAll(filterEngine.getEnabledFilters());
 
             filter();
         }
@@ -193,7 +238,9 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
             if (!TextUtils.isEmpty(searchQuery)) {
                 String query = searchQuery.toLowerCase(Locale.ENGLISH);
                 for (Filter filter : sourceList) {
-                    displayList.add(filter);
+                    if (filter.pattern.toLowerCase().contains(query)) {
+                        displayList.add(filter);
+                    }
                 }
             } else {
                 displayList.addAll(sourceList);

@@ -66,6 +66,8 @@ public class Post {
     public String rawComment;
     public String countryUrl;
     public boolean spoiler = false;
+    public int filterHighlightedColor = 0;
+    public boolean filterStub = false;
     /**
      * This post replies to the these ids. Is an unmodifiable list after finish().
      */

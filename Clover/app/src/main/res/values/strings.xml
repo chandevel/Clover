@@ -48,6 +48,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%d images</item>
     </plurals>
 
+    <plurals name="board">
+        <item quantity="one">%d board</item>
+        <item quantity="other">%d boards</item>
+    </plurals>
+
     <string name="card_stats">%1$dR %2$dI</string>
 
     <string name="action_reload">Reload</string>
@@ -117,6 +122,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_add_unknown">The board with code %1$s is not known.</string>
     <string name="board_edit_sort_a_z">Sort A-Z</string>
 
+    <string name="filter_summary_all_boards">all boards</string>
     <string name="filter_enabled">Enabled</string>
     <string name="filter_filter">Filter</string>
     <string name="filter_action">Action</string>

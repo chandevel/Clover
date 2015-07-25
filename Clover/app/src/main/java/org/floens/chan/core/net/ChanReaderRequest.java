@@ -24,6 +24,8 @@ import com.android.volley.Response.Listener;
 
 import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.Logger;
@@ -37,9 +39,11 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     private Loadable loadable;
     private List<Post> cached;
     private Post op;
+    private FilterEngine filterEngine;
 
     private ChanReaderRequest(String url, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
+        filterEngine = FilterEngine.getInstance();
     }
 
     public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
@@ -318,13 +322,35 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                 Logger.e(TAG, "Incorrect data about post received for post " + post.no);
                 return null;
             } else {
+                processPostFilter(post);
                 return post;
             }
         }
     }
 
+    private void processPostFilter(Post post) {
+        synchronized (filterEngine.getEnabledFiltersLock()) {
+            List<Filter> filters = filterEngine.getEnabledFilters();
+            int filterSize = filters.size();
+            for (int i = 0; i < filterSize; i++) {
+                Filter filter = filters.get(i);
+                if (filterEngine.matches(filter, post)) {
+                    FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
+                    switch (action) {
+                        case COLOR:
+                            post.filterHighlightedColor = filter.color;
+                            break;
+                        case HIDE:
+                            post.filterStub = true;
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
     public static class ChanReaderResponse {
-        // Op Post that is created new each time.<br>
+        // Op Post that is created new each time.
         // Used to later copy members like image count to the real op on the main thread.
         public Post op;
         public List<Post> posts;

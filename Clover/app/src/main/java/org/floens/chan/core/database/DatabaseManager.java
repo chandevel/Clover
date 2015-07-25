@@ -69,8 +69,6 @@ public class DatabaseManager {
     private final Object historyLock = new Object();
     private final HashMap<Loadable, History> historyByLoadable = new HashMap<>();
 
-    private final List<Filter> filters = new ArrayList<>();
-
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
         initialize();
@@ -284,16 +282,31 @@ public class DatabaseManager {
         return list;
     }
 
-    public void addFilter(Filter filter) {
-        filters.add(filter);
+    public void addOrUpdateFilter(Filter filter) {
+        try {
+            helper.filterDao.createOrUpdate(filter);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error adding filter to db", e);
+        }
     }
 
     public void removeFilter(Filter filter) {
-        filters.remove(filter);
+        try {
+            helper.filterDao.delete(filter);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error removing filter from db", e);
+        }
     }
 
     public List<Filter> getFilters() {
-        return filters;
+        List<Filter> list = null;
+        try {
+            list = helper.filterDao.queryForAll();
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error getting filters from db", e);
+        }
+
+        return list;
     }
 
     /**

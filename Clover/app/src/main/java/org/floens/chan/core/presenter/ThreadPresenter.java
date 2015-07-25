@@ -40,7 +40,7 @@ import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.net.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
-import org.floens.chan.ui.adapter.PostFilter;
+import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.helper.PostHelper;
@@ -79,7 +79,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private ChanLoader chanLoader;
     private boolean searchOpen = false;
     private String searchQuery;
-    private PostFilter.Order order = PostFilter.Order.BUMP;
+    private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded = false;
     private int notificationPostCount = -1;
 
@@ -181,7 +181,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
     }
 
-    public void setOrder(PostFilter.Order order) {
+    public void setOrder(PostsFilter.Order order) {
         if (this.order != order) {
             this.order = order;
             if (chanLoader != null) {
@@ -585,7 +585,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private void showPosts() {
-        threadPresenterCallback.showPosts(chanLoader.getThread(), new PostFilter(order, searchQuery));
+        threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
     }
 
     private void addHistory() {
@@ -602,7 +602,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostFilter filter);
+        void showPosts(ChanThread thread, PostsFilter filter);
 
         void postClicked(Post post);
 

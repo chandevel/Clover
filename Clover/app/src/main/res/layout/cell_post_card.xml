@@ -55,6 +55,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         </FrameLayout>
 
+        <View
+            android:id="@+id/filter_match_color"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"

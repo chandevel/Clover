@@ -26,6 +26,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -42,7 +43,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 19;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -50,6 +51,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public Dao<Board, Integer> boardsDao;
     public Dao<ThreadHide, Integer> threadHideDao;
     public Dao<History, Integer> historyDao;
+    public Dao<Filter, Integer> filterDao;
 
     private final Context context;
 
@@ -65,6 +67,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             boardsDao = getDao(Board.class);
             threadHideDao = getDao(ThreadHide.class);
             historyDao = getDao(History.class);
+            filterDao = getDao(Filter.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating Daos", e);
         }
@@ -79,6 +82,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Board.class);
             TableUtils.createTable(connectionSource, ThreadHide.class);
             TableUtils.createTable(connectionSource, History.class);
+            TableUtils.createTable(connectionSource, Filter.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -173,6 +177,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 historyDao.executeRawNoArgs("CREATE TABLE `history` (`date` BIGINT , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `loadable_id` INTEGER NOT NULL , `thumbnailUrl` VARCHAR );");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 18", e);
+            }
+        }
+
+        if (oldVersion < 19) {
+            try {
+                filterDao.executeRawNoArgs("CREATE TABLE `filter` (`action` INTEGER NOT NULL , `allBoards` SMALLINT NOT NULL , `boards` VARCHAR NOT NULL , `color` INTEGER NOT NULL , `enabled` SMALLINT NOT NULL , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `pattern` VARCHAR NOT NULL , `type` INTEGER NOT NULL );");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 19", e);
             }
         }
     }

@@ -34,7 +34,7 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.adapter.PostFilter;
+import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -54,7 +54,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int ORDER_ID = 104;
 
     private PostCellInterface.PostViewMode postViewMode;
-    private PostFilter.Order order;
+    private PostsFilter.Order order;
     private List<FloatingMenuItem> boardItems;
 
     private FloatingMenuItem viewModeMenuItem;
@@ -70,7 +70,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         super.onCreate();
 
         postViewMode = PostCellInterface.PostViewMode.find(ChanSettings.boardViewMode.get());
-        order = PostFilter.Order.find(ChanSettings.boardOrder.get());
+        order = PostsFilter.Order.find(ChanSettings.boardOrder.get());
         threadLayout.setPostViewMode(postViewMode);
         threadLayout.getPresenter().setOrder(order);
 
@@ -136,7 +136,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 break;
             case ORDER_ID:
                 List<FloatingMenuItem> items = new ArrayList<>();
-                for (PostFilter.Order order : PostFilter.Order.values()) {
+                for (PostsFilter.Order order : PostsFilter.Order.values()) {
                     int nameId = 0;
                     switch (order) {
                         case BUMP:
@@ -168,7 +168,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
                     @Override
                     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        PostFilter.Order order = (PostFilter.Order) item.getId();
+                        PostsFilter.Order order = (PostsFilter.Order) item.getId();
                         ChanSettings.boardOrder.set(order.name);
                         BrowseController.this.order = order;
                         threadLayout.getPresenter().setOrder(order);

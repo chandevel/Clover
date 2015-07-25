@@ -19,10 +19,15 @@ package org.floens.chan.core.manager;
 
 import android.text.TextUtils;
 
+import org.floens.chan.Chan;
+import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +35,12 @@ import java.util.regex.PatternSyntaxException;
 
 public class FilterEngine {
     private static final String TAG = "FilterEngine";
+
+    private static final FilterEngine instance = new FilterEngine();
+
+    public static FilterEngine getInstance() {
+        return instance;
+    }
 
     public enum FilterType {
         TRIPCODE(0, false),
@@ -48,12 +59,15 @@ public class FilterEngine {
         }
 
         public static FilterType forId(int id) {
+            return enums[id];
+        }
+
+        private static FilterType[] enums = new FilterType[6];
+
+        static {
             for (FilterType type : values()) {
-                if (type.id == id) {
-                    return type;
-                }
+                enums[type.id] = type;
             }
-            return null;
         }
     }
 
@@ -68,28 +82,128 @@ public class FilterEngine {
         }
 
         public static FilterAction forId(int id) {
+            return enums[id];
+        }
+
+        private static FilterAction[] enums = new FilterAction[2];
+
+        static {
             for (FilterAction type : values()) {
-                if (type.id == id) {
-                    return type;
-                }
+                enums[type.id] = type;
             }
-            return null;
         }
     }
 
-    private static final FilterEngine instance = new FilterEngine();
+    private final DatabaseManager databaseManager;
 
-    public static FilterEngine getInstance() {
-        return instance;
+    private List<Filter> filters;
+    private final List<Filter> enabledFilters = new ArrayList<>();
+
+    private FilterEngine() {
+        databaseManager = Chan.getDatabaseManager();
+        filters = databaseManager.getFilters();
+        updateEnabledFilters();
     }
 
-    private List<Filter> filters = new ArrayList<>();
-
-    public FilterEngine() {
-
+    /**
+     * Add or update a filter, thread-safe.
+     * The filter will be updated in the db if the {@link Filter#id} was non-null.
+     *
+     * @param filter filter too add or update.
+     */
+    public void addOrUpdate(Filter filter) {
+        databaseManager.addOrUpdateFilter(filter);
+        filters = databaseManager.getFilters();
+        updateEnabledFilters();
     }
 
-    public void add(Filter filter) {
+    /**
+     * Remove a filter, thread-safe.
+     *
+     * @param filter filter to remove
+     */
+    public void remove(Filter filter) {
+        databaseManager.removeFilter(filter);
+        filters = databaseManager.getFilters();
+        updateEnabledFilters();
+    }
+
+    /**
+     * Get all enabled filters, thread safe if locked on {@link #getEnabledFiltersLock()}.
+     *
+     * @return List of enabled filters
+     */
+    public List<Filter> getEnabledFilters() {
+        return enabledFilters;
+    }
+
+    /**
+     * Lock for usage of {@link #getEnabledFilters()}
+     *
+     * @return Object to call synchronized on
+     */
+    public Object getEnabledFiltersLock() {
+        return enabledFilters;
+    }
+
+    public boolean matches(Filter filter, Post post) {
+        String text = null;
+        FilterType type = FilterType.forId(filter.type);
+        switch (type) {
+            case TRIPCODE:
+                text = post.tripcode;
+                break;
+            case NAME:
+                text = post.name;
+                break;
+            case COMMENT:
+                text = post.comment.toString();
+                break;
+            case ID:
+                text = post.id;
+                break;
+            case SUBJECT:
+                text = post.subject;
+                break;
+            case FILENAME:
+                text = post.filename;
+                break;
+        }
+
+        return matches(filter, text, false);
+    }
+
+    public boolean matches(Filter filter, String text, boolean forceCompile) {
+        FilterType type = FilterType.forId(filter.type);
+        if (type.isRegex) {
+            Matcher matcher = null;
+            synchronized (filter.compiledMatcherLock) {
+                if (!forceCompile) {
+                    matcher = filter.compiledMatcher;
+                }
+
+                if (matcher == null) {
+                    Pattern compiledPattern = compile(filter.pattern);
+                    matcher = filter.compiledMatcher = compiledPattern.matcher("");
+                    Logger.d(TAG, "Resulting pattern: " + filter.compiledMatcher);
+                }
+            }
+
+            if (matcher != null) {
+                matcher.reset(text);
+                try {
+                    return matcher.find();
+                } catch (IllegalArgumentException e) {
+                    Logger.w(TAG, "matcher.find() exception", e);
+                    return false;
+                }
+            } else {
+                Logger.e(TAG, "Invalid pattern");
+                return false;
+            }
+        } else {
+            return text.equals(filter.pattern);
+        }
     }
 
     private static final Pattern isRegexPattern = Pattern.compile("^/(.*)/(i?)$");
@@ -139,27 +253,49 @@ public class FilterEngine {
         return pattern;
     }
 
-    public boolean matches(Filter filter, String text) {
-        FilterType type = FilterType.forId(filter.type);
-        if (type.isRegex) {
-            Pattern compiled = filter.compiledPattern;
-            if (compiled == null) {
-                compiled = filter.compiledPattern = compile(filter.pattern);
-                Logger.test("Resulting pattern: " + filter.compiledPattern);
+    public List<Board> getBoardsForFilter(Filter filter) {
+        if (filter.allBoards) {
+            return Chan.getBoardManager().getSavedBoards();
+        } else if (!TextUtils.isEmpty(filter.boards)) {
+            List<Board> appliedBoards = new ArrayList<>();
+            for (String value : filter.boards.split(",")) {
+                Board boardByValue = Chan.getBoardManager().getBoardByValue(value);
+                if (boardByValue != null) {
+                    appliedBoards.add(boardByValue);
+                }
             }
-
-            if (compiled != null) {
-                return compiled.matcher(text).find();
-            } else {
-                Logger.e(TAG, "Invalid pattern");
-                return false;
-            }
+            return appliedBoards;
         } else {
-            return text.equals(filter.pattern);
+            return Collections.emptyList();
+        }
+    }
+
+    public void saveBoardsToFilter(List<Board> appliedBoards, Filter filter) {
+        filter.boards = "";
+        for (int i = 0; i < appliedBoards.size(); i++) {
+            Board board = appliedBoards.get(i);
+            filter.boards += board.value;
+            if (i < appliedBoards.size() - 1) {
+                filter.boards += ",";
+            }
         }
     }
 
     private String escapeRegex(String filthy) {
         return filterFilthyPattern.matcher(filthy).replaceAll("\\\\$1"); // Escape regex special characters with a \
+    }
+
+    private void updateEnabledFilters() {
+        List<Filter> enabled = new ArrayList<>();
+        for (Filter filter : filters) {
+            if (filter.enabled) {
+                enabled.add(filter);
+            }
+        }
+
+        synchronized (enabledFilters) {
+            enabledFilters.clear();
+            enabledFilters.addAll(enabled);
+        }
     }
 }

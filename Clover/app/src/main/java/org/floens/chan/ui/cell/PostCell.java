@@ -40,6 +40,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -67,7 +68,7 @@ import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
-public class PostCell extends RelativeLayout implements PostCellInterface, PostLinkable.Callback {
+public class PostCell extends LinearLayout implements PostCellInterface, PostLinkable.Callback {
     private static final int COMMENT_MAX_LENGTH_BOARD = 500;
 
     private ThumbnailView thumbnailView;
@@ -77,6 +78,7 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
     private TextView replies;
     private ImageView options;
     private View divider;
+    private View colorLeft;
 
     private boolean commentClickable = false;
     private CharSequence iconsSpannable;
@@ -129,6 +131,7 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
         replies = (TextView) findViewById(R.id.replies);
         options = (ImageView) findViewById(R.id.options);
         divider = findViewById(R.id.divider);
+        colorLeft = findViewById(R.id.filter_match_color);
 
         int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
         paddingPx = dp(textSizeSp - 6);
@@ -150,7 +153,7 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
         setRoundItemBackground(replies);
         setRoundItemBackground(options);
 
-        RelativeLayout.LayoutParams dividerParams = (LayoutParams) divider.getLayoutParams();
+        RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
         dividerParams.leftMargin = paddingPx;
         dividerParams.rightMargin = paddingPx;
         divider.setLayoutParams(dividerParams);
@@ -279,6 +282,13 @@ public class PostCell extends RelativeLayout implements PostCellInterface, PostL
             setBackgroundResource(0);
         } else {
             setBackgroundResource(R.drawable.item_background);
+        }
+
+        if (post.filterHighlightedColor != 0) {
+            colorLeft.setVisibility(View.VISIBLE);
+            colorLeft.setBackgroundColor(post.filterHighlightedColor);
+        } else {
+            colorLeft.setVisibility(View.GONE);
         }
 
         if (post.hasImage) {

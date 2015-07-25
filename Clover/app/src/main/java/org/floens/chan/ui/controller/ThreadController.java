@@ -26,6 +26,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.view.ThumbnailView;
 
@@ -88,7 +89,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         threadLayout.getPresenter().onForegroundChanged(message.inForeground);
     }
 
-    public void onEvent(MainSettingsController.RefreshUIMessage message) {
+    public void onEvent(RefreshUIMessage message) {
         threadLayout.getPresenter().requestData();
     }
 

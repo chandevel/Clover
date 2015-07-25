@@ -26,6 +26,7 @@ import android.widget.Toast;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.ListSettingView;
@@ -268,11 +269,4 @@ public class MainSettingsController extends SettingsController implements Toolba
         return string(id);
     }
 
-    public static class RefreshUIMessage {
-        public String reason;
-
-        public RefreshUIMessage(String reason) {
-            this.reason = reason;
-        }
-    }
 }

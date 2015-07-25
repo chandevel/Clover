@@ -17,26 +17,46 @@
  */
 package org.floens.chan.core.model;
 
-import java.util.regex.Pattern;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.manager.FilterEngine;
+
+import java.util.regex.Matcher;
+
+@DatabaseTable
 public class Filter {
+    @DatabaseField(generatedId = true)
     public int id;
 
+    @DatabaseField(canBeNull = false)
     public boolean enabled = true;
 
-    public int type;
+    @DatabaseField(canBeNull = false)
+    public int type = FilterEngine.FilterType.COMMENT.id;
 
+    @DatabaseField(canBeNull = false)
     public String pattern;
 
+    @DatabaseField(canBeNull = false)
     public boolean allBoards = true;
 
+    @DatabaseField(canBeNull = false)
     public String boards;
 
+    @DatabaseField(canBeNull = false)
     public int action;
 
+    @DatabaseField(canBeNull = false)
     public int color;
 
-    public Pattern compiledPattern;
+    public final Object compiledMatcherLock = new Object();
+
+    /**
+     * Cached version of {@link #pattern} compiled by {@link org.floens.chan.core.manager.FilterEngine#compile(String)}.
+     * Thread safe when synchronized on {@link #compiledMatcherLock}
+     */
+    public Matcher compiledMatcher;
 
     public void apply(Filter filter) {
         enabled = filter.enabled;

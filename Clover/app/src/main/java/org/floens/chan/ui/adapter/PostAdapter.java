@@ -128,7 +128,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public void setThread(ChanThread thread, PostFilter filter) {
+    public void setThread(ChanThread thread, PostsFilter filter) {
         showError(null);
         sourceList.clear();
         sourceList.addAll(thread.posts);

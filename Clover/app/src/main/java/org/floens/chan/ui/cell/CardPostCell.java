@@ -55,6 +55,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private FastTextView comment;
     private TextView replies;
     private ImageView options;
+    private View colorLeft;
 
     public CardPostCell(Context context) {
         super(context);
@@ -79,6 +80,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         replies = (TextView) findViewById(R.id.replies);
         options = (ImageView) findViewById(R.id.options);
         setRoundItemBackground(options);
+        colorLeft = findViewById(R.id.filter_match_color);
 
         int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
         title.setTextSize(textSizeSp);
@@ -181,6 +183,13 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         } else {
             thumbnailView.setVisibility(View.GONE);
             thumbnailView.setUrl(null, 0, 0);
+        }
+
+        if (post.filterHighlightedColor != 0) {
+            colorLeft.setVisibility(View.VISIBLE);
+            colorLeft.setBackgroundColor(post.filterHighlightedColor);
+        } else {
+            colorLeft.setVisibility(View.GONE);
         }
 
         if (!TextUtils.isEmpty(post.subjectSpan)) {

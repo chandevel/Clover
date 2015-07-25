@@ -126,7 +126,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
                 }
 
-                text.setText(TextUtils.concat(statusText, replies, " / ", images, " / ", String.valueOf(op.uniqueIps)));
+                text.setText(TextUtils.concat(statusText, replies, " / ", images, " / ", String.valueOf(op.uniqueIps) + "P"));
             }
         }
     }

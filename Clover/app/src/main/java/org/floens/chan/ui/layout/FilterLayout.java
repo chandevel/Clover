@@ -44,6 +44,7 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
+import org.floens.chan.ui.controller.FiltersController;
 import org.floens.chan.ui.dialog.ColorPickerView;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.view.FloatingMenu;
@@ -106,7 +107,6 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filter.compiledPattern = null;
                 filter.pattern = s.toString();
                 updateFilterValidity();
                 updatePatternPreview();
@@ -156,17 +156,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public void setFilter(Filter filter) {
         this.filter.apply(filter);
         appliedBoards.clear();
-
-        if (filter.allBoards) {
-            appliedBoards.addAll(boardManager.getSavedBoards());
-        } else if (!TextUtils.isEmpty(filter.boards)) {
-            for (String value : filter.boards.split(",")) {
-                Board boardByValue = boardManager.getBoardByValue(value);
-                if (boardByValue != null) {
-                    appliedBoards.add(boardByValue);
-                }
-            }
-        }
+        appliedBoards.addAll(FilterEngine.getInstance().getBoardsForFilter(filter));
 
         pattern.setText(filter.pattern);
 
@@ -185,14 +175,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
 
-        filter.boards = "";
-        for (int i = 0; i < appliedBoards.size(); i++) {
-            Board board = appliedBoards.get(i);
-            filter.boards += board.value;
-            if (i < appliedBoards.size() - 1) {
-                filter.boards += ",";
-            }
-        }
+        FilterEngine.getInstance().saveBoardsToFilter(appliedBoards, filter);
 
         return filter;
     }
@@ -203,7 +186,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             List<FloatingMenuItem> menuItems = new ArrayList<>(6);
 
             for (FilterEngine.FilterType filterType : FilterEngine.FilterType.values()) {
-                menuItems.add(new FloatingMenuItem(filterType, filterTypeName(filterType)));
+                menuItems.add(new FloatingMenuItem(filterType, FiltersController.filterTypeName(filterType)));
             }
 
             FloatingMenu menu = new FloatingMenu(v.getContext());
@@ -245,7 +228,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             List<FloatingMenuItem> menuItems = new ArrayList<>(6);
 
             for (FilterEngine.FilterAction action : FilterEngine.FilterAction.values()) {
-                menuItems.add(new FloatingMenuItem(action, actionName(action)));
+                menuItems.add(new FloatingMenuItem(action, FiltersController.actionName(action)));
             }
 
             FloatingMenu menu = new FloatingMenu(v.getContext());
@@ -347,7 +330,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updateFilterAction() {
         FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
-        actionText.setText(actionName(action));
+        actionText.setText(FiltersController.actionName(action));
         colorContainer.setVisibility(action == FilterEngine.FilterAction.COLOR ? VISIBLE : GONE);
         if (filter.color == 0) {
             filter.color = 0xffff0000;
@@ -357,42 +340,14 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updateFilterType() {
         FilterEngine.FilterType filterType = FilterEngine.FilterType.forId(filter.type);
-        typeText.setText(filterTypeName(filterType));
+        typeText.setText(FiltersController.filterTypeName(filterType));
         pattern.setHint(filterType.isRegex ? R.string.filter_pattern_hint_regex : R.string.filter_pattern_hint_exact);
     }
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = text.length() > 0 && FilterEngine.getInstance().matches(filter, text);
+        boolean matches = text.length() > 0 && FilterEngine.getInstance().matches(filter, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
-    }
-
-    private String filterTypeName(FilterEngine.FilterType type) {
-        switch (type) {
-            case TRIPCODE:
-                return getString(R.string.filter_tripcode);
-            case NAME:
-                return getString(R.string.filter_name);
-            case COMMENT:
-                return getString(R.string.filter_comment);
-            case ID:
-                return getString(R.string.filter_id);
-            case SUBJECT:
-                return getString(R.string.filter_subject);
-            case FILENAME:
-                return getString(R.string.filter_filename);
-        }
-        return null;
-    }
-
-    private String actionName(FilterEngine.FilterAction action) {
-        switch (action) {
-            case HIDE:
-                return getString(R.string.filter_hide);
-            case COLOR:
-                return getString(R.string.filter_color);
-        }
-        return null;
     }
 
     public interface FilterLayoutCallback {
