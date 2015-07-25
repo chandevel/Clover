@@ -268,10 +268,13 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
             }
         }
 
-        for (Post sourcePost : thread.posts) {
-            sourcePost.repliesFrom.clear();
+        long start = Time.get();
+        List<Post> posts = thread.posts;
+        for (int i = 0; i < posts.size(); i++) {
+            Post sourcePost = posts.get(i);
 
-            for (Post replyToSource : thread.posts) {
+            for (int j = i; j < posts.size(); j++) {
+                Post replyToSource = posts.get(j);
                 if (replyToSource != sourcePost) {
                     if (replyToSource.repliesTo.contains(sourcePost.no)) {
                         sourcePost.repliesFrom.add(replyToSource.no);
@@ -279,6 +282,8 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
                 }
             }
         }
+
+        Logger.test("processResponse took " + Time.get(start) + "ms");
     }
 
     private void setTimer(int postCount) {

@@ -419,6 +419,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     private void showReplyButton(boolean show) {
         if (show != showingReplyButton) {
             showingReplyButton = show;
+
             replyButton.animate()
                     .setInterpolator(new DecelerateInterpolator(2f))
                     .setStartDelay(show ? 100 : 0)

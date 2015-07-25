@@ -104,7 +104,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     private void showFilterDialog(final Filter filter) {
         final FilterLayout filterLayout = (FilterLayout) LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
 
-        new AlertDialog.Builder(context)
+        final AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setView(filterLayout)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
@@ -118,6 +118,12 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
                 })
                 .show();
 
+        filterLayout.setCallback(new FilterLayout.FilterLayoutCallback() {
+            @Override
+            public void setSaveButtonEnabled(boolean enabled) {
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
+            }
+        });
         filterLayout.setFilter(filter);
     }
 

@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.model;
 
+import java.util.regex.Pattern;
+
 public class Filter {
     public int id;
 
@@ -30,7 +32,11 @@ public class Filter {
 
     public String boards;
 
-    public boolean hide = true;
+    public int action;
+
+    public int color;
+
+    public Pattern compiledPattern;
 
     public void apply(Filter filter) {
         enabled = filter.enabled;
@@ -38,6 +44,7 @@ public class Filter {
         pattern = filter.pattern;
         allBoards = filter.allBoards;
         boards = filter.boards;
-        hide = filter.hide;
+        action = filter.action;
+        color = filter.color;
     }
 }

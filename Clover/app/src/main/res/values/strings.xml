@@ -118,10 +118,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="board_edit_sort_a_z">Sort A-Z</string>
 
     <string name="filter_enabled">Enabled</string>
+    <string name="filter_filter">Filter</string>
+    <string name="filter_action">Action</string>
     <string name="filter_pattern">Pattern</string>
+    <string name="filter_match_test">Test pattern</string>
+    <string name="filter_pattern_hint_exact">Exact text</string>
+    <string name="filter_pattern_hint_regex">Pattern</string>
     <string name="filter_boards">Boards</string>
     <string name="filter_boards_all">all</string>
-    <string name="filter_hide">Hide</string>
+    <string name="filter_hide">Hide post</string>
+    <string name="filter_color">Highlight</string>
+    <string name="filter_invalid_pattern">Invalid pattern</string>
+    <string name="filter_preview">Test your filter</string>
+    <string name="filter_no_matches">Does not match</string>
+    <string name="filter_matches">Matches</string>
+    <string name="filter_color_pick">Pick color</string>
+    <string name="filter_help_title">Filter help</string>
+    <string name="filter_help">
+    "Filters act on a given pattern and a place to search the pattern.&lt;br>
+If the pattern matches then the post can be hidden or highlighted.&lt;br>
+
+&lt;h4>For tripcodes, names and IDs:&lt;/h4>
+&lt;p>
+    It will match the given pattern exact.&lt;br>
+    &lt;tt>!Ep8pui8Vw2&lt;/tt> will match the tripcode &lt;i>!Ep8pui8Vw2&lt;/i> but not &lt;i>Ep8pu&lt;/i>.
+&lt;/p>
+
+&lt;h4>For comments, subjects and filenames:&lt;/h4>
+&lt;p>
+    These filters are pattern based, and have three modes:&lt;br>
+    &lt;br>
+    1. The pattern &lt;tt>foo bar&lt;/tt> will match text that has any of the words in it. It will match &lt;i>foo&lt;/i> or &lt;i>bar&lt;/i>, but not &lt;i>foobar&lt;/i>.
+    Placing a * allows any character to be filled in: &lt;tt>f*o&lt;/tt> will match both &lt;i>foo&lt;/i>, &lt;i>foooo&lt;/i> but not &lt;i>foobar&lt;/i>&lt;br>
+    &lt;br>
+    2. Quoting your pattern with &lt;tt>\"&lt;/tt> like &lt;tt>\"foo bar\"&lt;/tt> will match the text exact.
+    &lt;i>foo bar&lt;/i> matches but &lt;i>foo&lt;/i> does not.&lt;br>
+    &lt;br>
+    3. Regular expressions. &lt;tt>/^>implying/&lt;/tt> for example.
+&lt;/p>"
+    </string>
 
     <string name="filter_tripcode">Tripcode</string>
     <string name="filter_name">Name</string>

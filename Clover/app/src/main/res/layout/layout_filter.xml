@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <org.floens.chan.ui.layout.FilterLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -23,6 +24,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:textColor="?attr/text_color_secondary">
+
+        <CheckBox
+            android:id="@+id/enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_enabled" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/help"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/item_background"
+            android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingTop="4dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingTop="8dp"
+        android:text="@string/filter_filter"
+        android:textColor="?attr/text_color_secondary"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -44,30 +83,85 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingTop="8dp"
+        android:text="@string/filter_action"
+        android:textColor="?attr/text_color_secondary"
+        android:textSize="16sp" />
 
-        <CheckBox
-            android:id="@+id/enabled"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/filter_enabled" />
+            android:drawablePadding="8dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
+            android:paddingTop="4dp" />
 
-        <CheckBox
-            android:id="@+id/hide"
+        <LinearLayout
+            android:id="@+id/color_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/filter_hide" />
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/color_preview"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingTop="8dp"
+        android:text="@string/filter_pattern"
+        android:textColor="?attr/text_color_secondary"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/pattern"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/filter_pattern"
+        android:textSize="14sp"
+        tools:ignore="TextFields" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingTop="8dp"
+        android:text="@string/filter_match_test"
+        android:textColor="?attr/text_color_secondary"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/pattern_preview_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingTop="8dp" />
+
+    <EditText
+        android:id="@+id/pattern_preview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/filter_preview"
         android:textSize="14sp" />
 
 </org.floens.chan.ui.layout.FilterLayout>
