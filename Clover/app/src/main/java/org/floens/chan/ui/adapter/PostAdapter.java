@@ -26,6 +26,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 
@@ -95,6 +96,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Post post = displayList.get(position);
             boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo || post.tripcode.equals(highlightedPostTripcode);
             postViewHolder.postView.setPost(null, post, postCellCallback, highlight, -1, postViewMode);
+
+            if(postViewHolder.postView instanceof PostCell)
+                ((PostCell)postViewHolder.postView).setCommentSelectable(postAdapterCallback.getLoadable().isThreadMode());
+
         } else if (itemViewType == TYPE_STATUS) {
             ((StatusViewHolder) holder).threadStatusCell.update();
             onScrolledToBottom();

@@ -39,6 +39,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
@@ -178,6 +179,9 @@ public class PostRepliesController extends Controller {
 
                 final Post p = getItem(position);
                 postCell.setPost(null, p, presenter, false, data.forPost.no, PostCellInterface.PostViewMode.LIST);
+
+                if(postCell instanceof PostCell)
+                    ((PostCell)postCell).setCommentSelectable(true);
 
                 return (View) postCell;
             }
