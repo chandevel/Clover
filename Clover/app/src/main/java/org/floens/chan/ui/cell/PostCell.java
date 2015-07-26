@@ -319,8 +319,9 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         SpannableString date = new SpannableString(noText + " " + relativeTime);
         date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
-        date.setSpan(new NoClickableSpan(), 0, noText.length(), 0);
-
+        if (ChanSettings.tapNoReply.get()) {
+            date.setSpan(new NoClickableSpan(), 0, noText.length(), 0);
+        }
         titleParts[titlePartsCount] = date;
 
         title.setText(TextUtils.concat(titleParts));

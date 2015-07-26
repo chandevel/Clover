@@ -81,6 +81,7 @@ public class ChanSettings {
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting repliesButtonsBottom;
     public static final BooleanSetting confirmExit;
+    public static final BooleanSetting tapNoReply;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
@@ -134,6 +135,7 @@ public class ChanSettings {
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
         confirmExit = new BooleanSetting(p, "preference_confirm_exit", false);
+        tapNoReply = new BooleanSetting(p, "preference_tap_no_reply", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false, new Setting.SettingCallback<Boolean>() {
             @Override
