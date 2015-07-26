@@ -465,10 +465,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     @Override
     public void onShowPostReplies(Post post) {
         List<Post> posts = new ArrayList<>();
-        for (int no : post.repliesFrom) {
-            Post replyPost = findPostById(no);
-            if (replyPost != null) {
-                posts.add(replyPost);
+        synchronized (post.repliesFrom) {
+            for (int no : post.repliesFrom) {
+                Post replyPost = findPostById(no);
+                if (replyPost != null) {
+                    posts.add(replyPost);
+                }
             }
         }
         if (posts.size() > 0) {

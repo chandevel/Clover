@@ -169,7 +169,12 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             @Override
             public void onClick(View v) {
                 if (threadMode) {
-                    if (post.repliesFrom.size() > 0) {
+                    int repliesFromSize;
+                    synchronized (post.repliesFrom) {
+                        repliesFromSize = post.repliesFrom.size();
+                    }
+
+                    if (repliesFromSize > 0) {
                         callback.onShowPostReplies(post);
                     }
                 }
@@ -276,7 +281,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         if (highlighted) {
             setBackgroundColor(theme.highlightedColor);
-        } else if (post.isSavedReply.get()) {
+        } else if (post.isSavedReply) {
             setBackgroundColor(theme.savedReplyColor);
         } else if (threadMode) {
             setBackgroundResource(0);
@@ -377,10 +382,15 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             }
         }
 
-        if ((!threadMode && post.replies > 0) || (post.repliesFrom.size() > 0)) {
+        int repliesFromSize;
+        synchronized (post.repliesFrom) {
+            repliesFromSize = post.repliesFrom.size();
+        }
+
+        if ((!threadMode && post.replies > 0) || (repliesFromSize > 0)) {
             replies.setVisibility(View.VISIBLE);
 
-            int replyCount = threadMode ? post.repliesFrom.size() : post.replies;
+            int replyCount = threadMode ? repliesFromSize : post.replies;
             String text = getResources().getQuantityString(R.plurals.reply, replyCount, replyCount);
 
             if (!threadMode && post.images > 0) {

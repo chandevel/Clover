@@ -41,45 +41,85 @@ public class Post {
 
     // *** These next members don't get changed after finish() is called. Effectively final. ***
     public String board;
+
     public int no = -1;
+
     public int resto = -1;
+
     public boolean isOP = false;
+
     public String date;
+
     public String name = "";
+
     public CharSequence comment = "";
+
     public String subject = "";
+
     public long tim = -1;
+
     public String ext;
+
     public String filename;
+
     public int imageWidth;
+
     public int imageHeight;
+
     public boolean hasImage = false;
+
     public String thumbnailUrl;
+
     public String imageUrl;
+
     public String tripcode = "";
+
     public String id = "";
+
     public String capcode = "";
+
     public String country = "";
+
     public String countryName = "";
+
     public long time = -1;
+
     public int fileSize;
+
     public String rawComment;
+
     public String countryUrl;
+
     public boolean spoiler = false;
+
+    public boolean isSavedReply = false;
+
     public int filterHighlightedColor = 0;
+
     public boolean filterStub = false;
+
     public boolean filterRemove = false;
+
+
     /**
      * This post replies to the these ids. Is an unmodifiable list after finish().
      */
     public List<Integer> repliesTo = new ArrayList<>();
+
     public final ArrayList<PostLinkable> linkables = new ArrayList<>();
+
     public boolean parsedSpans = false;
+
     public SpannableString subjectSpan;
+
     public SpannableString nameSpan;
+
     public SpannableString tripcodeSpan;
+
     public SpannableString idSpan;
+
     public SpannableString capcodeSpan;
+
     public CharSequence nameTripcodeIdCapcodeSpan;
 
     // *** These next members may only change on the main thread after finish(). ***
@@ -90,14 +130,16 @@ public class Post {
     public int images = -1;
     public int uniqueIps = 1;
     public String title = "";
-    /**
-     * These ids replied to this post. Only modify this on the main thread.
-     */
-    public List<Integer> repliesFrom = new ArrayList<>();
 
     // *** Threadsafe members, may be read and modified on any thread. ***
     public AtomicBoolean deleted = new AtomicBoolean(false);
-    public AtomicBoolean isSavedReply = new AtomicBoolean(false);
+
+    // *** Manual synchronization needed. ***
+    /**
+     * These ids replied to this post.<br>
+     * <b>synchronize on this when accessing.</b>
+     */
+    public final List<Integer> repliesFrom = new ArrayList<>();
 
     /**
      * Finish up the data: parse the comment, check if the data is valid etc.

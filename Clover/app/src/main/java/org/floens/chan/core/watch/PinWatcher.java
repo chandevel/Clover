@@ -147,7 +147,7 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         for (Post item : thread.posts) {
 //            saved.title = pin.loadable.title;
 
-            if (item.isSavedReply.get()) {
+            if (item.isSavedReply) {
                 savedReplies.add(item);
             }
         }

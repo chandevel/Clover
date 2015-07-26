@@ -24,6 +24,7 @@ import com.android.volley.Response.Listener;
 
 import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
@@ -40,10 +41,12 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     private List<Post> cached;
     private Post op;
     private FilterEngine filterEngine;
+    private DatabaseManager databaseManager;
 
     private ChanReaderRequest(String url, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
         filterEngine = FilterEngine.getInstance();
+        databaseManager = Chan.getDatabaseManager();
     }
 
     public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
@@ -131,8 +134,18 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
             response.posts.addAll(serverList);
         }
 
-        for (Post post : response.posts) {
-            post.isSavedReply.set(Chan.getDatabaseManager().isSavedReply(post.board, post.no));
+        for (int i = 0; i < response.posts.size(); i++) {
+            Post sourcePost = response.posts.get(i);
+            synchronized (sourcePost.repliesFrom) {
+                sourcePost.repliesFrom.clear();
+
+                for (int j = i + 1; j < response.posts.size(); j++) {
+                    Post replyToSource = response.posts.get(j);
+                    if (replyToSource.repliesTo.contains(sourcePost.no)) {
+                        sourcePost.repliesFrom.add(replyToSource.no);
+                    }
+                }
+            }
         }
 
         return response;
@@ -324,6 +337,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                 Logger.e(TAG, "Incorrect data about post received for post " + post.no);
                 return null;
             } else {
+                processPostAfterFinish(post);
                 return post;
             }
         }
@@ -355,6 +369,10 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                 }
             }
         }
+    }
+
+    private void processPostAfterFinish(Post post) {
+        post.isSavedReply = databaseManager.isSavedReply(post.board, post.no);
     }
 
     public static class ChanReaderResponse {

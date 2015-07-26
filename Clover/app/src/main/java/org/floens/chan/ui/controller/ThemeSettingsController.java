@@ -171,6 +171,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             Post post = new Post();
             post.no = 123456789;
             post.time = (Time.get() - (30 * 60 * 1000)) / 1000;
+            // No synchronization needed, this is a dummy
             post.repliesFrom.add(1);
             post.repliesFrom.add(2);
             post.repliesFrom.add(3);

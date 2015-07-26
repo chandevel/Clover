@@ -267,23 +267,6 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
                 Logger.e(TAG, "Thread has no op!");
             }
         }
-
-        long start = Time.get();
-        List<Post> posts = thread.posts;
-        for (int i = 0; i < posts.size(); i++) {
-            Post sourcePost = posts.get(i);
-
-            for (int j = i; j < posts.size(); j++) {
-                Post replyToSource = posts.get(j);
-                if (replyToSource != sourcePost) {
-                    if (replyToSource.repliesTo.contains(sourcePost.no)) {
-                        sourcePost.repliesFrom.add(replyToSource.no);
-                    }
-                }
-            }
-        }
-
-        Logger.test("processResponse took " + Time.get(start) + "ms");
     }
 
     private void setTimer(int postCount) {
