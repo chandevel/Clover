@@ -21,10 +21,13 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
@@ -97,14 +100,41 @@ public class AndroidUtils {
         dialog.show();
     }
 
+    /**
+     * Tries to open an app that can open the specified URL.<br>
+     * If this app will open the link then show a chooser to the user without this app.<br>
+     * Else allow the default logic to run with startActivity.
+     * @param link url to open
+     */
     public static void openLink(String link) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PackageManager pm = getAppRes().getPackageManager();
 
-        if (intent.resolveActivity(getAppRes().getPackageManager()) != null) {
-            getAppRes().startActivity(intent);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+
+        ComponentName resolvedActivity = intent.resolveActivity(pm);
+        boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(getAppRes().getPackageName());
+        if (!thisAppIsDefault) {
+            openIntent(intent);
         } else {
-            Toast.makeText(getAppRes(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
+            // Get all intents that match, and filter out this app
+            List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+            List<Intent> filteredIntents = new ArrayList<>(resolveInfos.size());
+            for (ResolveInfo info : resolveInfos) {
+                if (!info.activityInfo.packageName.equals(getAppRes().getPackageName())) {
+                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                    i.setPackage(info.activityInfo.packageName);
+                    filteredIntents.add(i);
+                }
+            }
+
+            if (filteredIntents.size() > 0) {
+                // Create a chooser for the last app in the list, and add the rest with EXTRA_INITIAL_INTENTS that get placed above
+                Intent chooser = Intent.createChooser(filteredIntents.remove(filteredIntents.size() - 1), null);
+                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[filteredIntents.size()]));
+                openIntent(chooser);
+            } else {
+                openIntentFailed();
+            }
         }
     }
 
@@ -113,13 +143,7 @@ public class AndroidUtils {
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, link);
         Intent chooser = Intent.createChooser(intent, getRes().getString(R.string.action_share));
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        if (chooser.resolveActivity(getAppRes().getPackageManager()) != null) {
-            getAppRes().startActivity(chooser);
-        } else {
-            Toast.makeText(getAppRes(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
-        }
+        openIntent(chooser);
     }
 
     public static void openIntent(Intent intent) {
@@ -127,8 +151,12 @@ public class AndroidUtils {
         if (intent.resolveActivity(getAppRes().getPackageManager()) != null) {
             getAppRes().startActivity(intent);
         } else {
-            Toast.makeText(getAppRes(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
+            openIntentFailed();
         }
+    }
+
+    private static void openIntentFailed() {
+        Toast.makeText(getAppRes(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
     }
 
     public static int getAttrColor(Context context, int attr) {

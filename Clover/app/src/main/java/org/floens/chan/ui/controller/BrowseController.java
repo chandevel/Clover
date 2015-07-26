@@ -52,6 +52,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int SHARE_ID = 102;
     private static final int VIEW_MODE_ID = 103;
     private static final int ORDER_ID = 104;
+    private static final int OPEN_BROWSER_ID = 105;
 
     private PostCellInterface.PostViewMode postViewMode;
     private PostsFilter.Order order;
@@ -94,6 +95,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 postViewMode == PostCellInterface.PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board));
         items.add(viewModeMenuItem);
         items.add(new FloatingMenuItem(ORDER_ID, context.getString(R.string.action_order)));
+        items.add(new FloatingMenuItem(OPEN_BROWSER_ID, context.getString(R.string.action_open_browser)));
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
     }
@@ -111,13 +113,21 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     @Override
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        switch ((Integer) item.getId()) {
+        Integer id = (Integer) item.getId();
+        switch (id) {
             case SEARCH_ID:
                 navigationController.showSearch();
                 break;
             case SHARE_ID:
+            case OPEN_BROWSER_ID:
                 String link = ChanUrls.getCatalogUrlDesktop(threadLayout.getPresenter().getLoadable().board);
-                AndroidUtils.shareLink(link);
+
+                if (id == SHARE_ID) {
+                    AndroidUtils.shareLink(link);
+                } else {
+                    AndroidUtils.openLink(link);
+                }
+
                 break;
             case VIEW_MODE_ID:
                 if (postViewMode == PostCellInterface.PostViewMode.LIST) {

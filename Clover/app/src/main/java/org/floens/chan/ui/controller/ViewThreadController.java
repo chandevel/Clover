@@ -45,6 +45,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private static final int SHARE_ID = 103;
     private static final int UP_ID = 104;
     private static final int DOWN_ID = 105;
+    private static final int OPEN_BROWSER_ID = 106;
 
     private ToolbarMenuItem pinItem;
     private Loadable loadable;
@@ -72,6 +73,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         navigationItem.createOverflow(context, this, Arrays.asList(
                 new FloatingMenuItem(REFRESH_ID, context.getString(R.string.action_reload)),
                 new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)),
+                new FloatingMenuItem(OPEN_BROWSER_ID, context.getString(R.string.action_open_browser)),
                 new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)),
                 new FloatingMenuItem(UP_ID, context.getString(R.string.action_up)),
                 new FloatingMenuItem(DOWN_ID, context.getString(R.string.action_down))
@@ -163,7 +165,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     @Override
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        switch ((Integer) item.getId()) {
+        Integer id = (Integer) item.getId();
+
+        switch (id) {
             case REFRESH_ID:
                 threadLayout.getPresenter().requestData();
                 break;
@@ -171,13 +175,20 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 navigationController.showSearch();
                 break;
             case SHARE_ID:
+            case OPEN_BROWSER_ID:
                 Loadable loadable = threadLayout.getPresenter().getLoadable();
                 String link = ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no);
-                AndroidUtils.shareLink(link);
+
+                if (id == SHARE_ID) {
+                    AndroidUtils.shareLink(link);
+                } else {
+                    AndroidUtils.openLink(link);
+                }
+
                 break;
             case UP_ID:
             case DOWN_ID:
-                boolean up = ((Integer) item.getId()) == UP_ID;
+                boolean up = id == UP_ID;
                 threadLayout.getPresenter().scrollTo(up ? 0 : -1, false);
                 break;
         }
