@@ -65,7 +65,10 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     }
 
     public void onPreferenceChange(SettingView item) {
-        if ((item instanceof ListSettingView) || (item instanceof StringSettingView) || (item instanceof LinkSettingView)) {
+        if ((item instanceof ListSettingView)
+                || (item instanceof StringSettingView)
+                || (item instanceof IntegerSettingView)
+                || (item instanceof LinkSettingView)) {
             setDescriptionText(item.view, item.getTopDescription(), item.getBottomDescription());
         }
     }
@@ -130,7 +133,10 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 String topValue = settingView.getTopDescription();
                 String bottomValue = settingView.getBottomDescription();
 
-                if ((settingView instanceof ListSettingView) || (settingView instanceof LinkSettingView) || (settingView instanceof StringSettingView)) {
+                if ((settingView instanceof ListSettingView)
+                        || (settingView instanceof LinkSettingView)
+                        || (settingView instanceof StringSettingView)
+                        || (settingView instanceof IntegerSettingView)) {
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_link, groupLayout, false);
                 } else if (settingView instanceof BooleanSettingView) {
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_boolean, groupLayout, false);

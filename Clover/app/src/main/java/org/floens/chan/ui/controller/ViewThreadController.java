@@ -177,7 +177,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 break;
             case UP_ID:
             case DOWN_ID:
-                boolean up = ((Integer)item.getId()) == UP_ID;
+                boolean up = ((Integer) item.getId()) == UP_ID;
                 threadLayout.getPresenter().scrollTo(up ? 0 : -1, false);
                 break;
         }

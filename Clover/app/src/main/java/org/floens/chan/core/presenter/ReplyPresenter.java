@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.http.ReplyHttpCall;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
@@ -32,7 +33,6 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.CaptchaLayout;
 

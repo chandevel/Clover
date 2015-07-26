@@ -25,6 +25,7 @@ import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
 import com.squareup.okhttp.internal.Util;
 
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
@@ -418,6 +419,8 @@ public class FileCache {
                     .url(url)
                     .header("User-Agent", userAgent)
                     .build();
+
+            fileCache.httpClient.setProxy(ChanSettings.getProxy());
 
             call = fileCache.httpClient.newCall(request);
             Response response = call.execute();
