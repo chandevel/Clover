@@ -1,3 +1,4 @@
+sudo: false
 language: android
 android:
   components:
@@ -7,4 +8,4 @@ android:
     - build-tools-22.0.1
     - android-22
 
-script: cd Clover && ./gradlew build
+script: cd Clover && ./gradlew build --console plain -x lint
