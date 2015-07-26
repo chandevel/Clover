@@ -256,6 +256,12 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         return post;
     }
 
+    public void setSelectableText(boolean selectable) {
+        if(comment != null)
+            comment.setTextIsSelectable(selectable);
+
+    }
+
     public ThumbnailView getThumbnailView() {
         return thumbnailView;
     }
