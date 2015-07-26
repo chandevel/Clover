@@ -172,7 +172,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
         for (ChanSettings.ImageAutoLoadMode mode : ChanSettings.ImageAutoLoadMode.values()) {
             String name = "";
-            switch(mode) {
+            switch (mode) {
                 case ALL:
                     name = string(R.string.setting_image_auto_load_all);
                     break;

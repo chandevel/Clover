@@ -28,6 +28,8 @@ import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 
 public class ChanSettings {
     public enum ImageAutoLoadMode {
@@ -53,6 +55,8 @@ public class ChanSettings {
             return null;
         }
     }
+
+    private static Proxy proxy;
 
     private static final StringSetting theme;
     public static final StringSetting fontSize;
@@ -165,9 +169,25 @@ public class ChanSettings {
 
         historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
 
-        proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
-        proxyAddress = new StringSetting(p, "preference_proxy_address", "");
-        proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
+        proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false, new Setting.SettingCallback<Boolean>() {
+            @Override
+            public void onValueChange(Setting setting, Boolean value) {
+                loadProxy();
+            }
+        });
+        proxyAddress = new StringSetting(p, "preference_proxy_address", "", new Setting.SettingCallback<String>() {
+            @Override
+            public void onValueChange(Setting setting, String value) {
+                loadProxy();
+            }
+        });
+        proxyPort = new IntegerSetting(p, "preference_proxy_port", 80, new Setting.SettingCallback<Integer>() {
+            @Override
+            public void onValueChange(Setting setting, Integer value) {
+                loadProxy();
+            }
+        });
+        loadProxy();
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"
@@ -199,6 +219,23 @@ public class ChanSettings {
             ChanSettings.theme.set(themeColor.theme + "," + themeColor.color);
         } else {
             ChanSettings.theme.set(themeColor.theme);
+        }
+    }
+
+    /**
+     * Returns a {@link Proxy} if a proxy is enabled, <tt>null</tt> otherwise.
+     *
+     * @return a proxy or null
+     */
+    public static Proxy getProxy() {
+        return proxy;
+    }
+
+    private static void loadProxy() {
+        if (proxyEnabled.get()) {
+            proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(proxyAddress.get(), proxyPort.get()));
+        } else {
+            proxy = null;
         }
     }
 

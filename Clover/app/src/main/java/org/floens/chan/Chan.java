@@ -151,7 +151,7 @@ public class Chan extends Application {
 
         replyManager = new ReplyManager(this);
 
-	String userAgent = getUserAgent();
+        String userAgent = getUserAgent();
         volleyRequestQueue = Volley.newRequestQueue(this, userAgent, new ProxiedHurlStack(userAgent), new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
 
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);

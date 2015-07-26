@@ -36,8 +36,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -422,14 +420,7 @@ public class FileCache {
                     .header("User-Agent", userAgent)
                     .build();
 
-            Proxy proxy = null;
-            if (ChanSettings.proxyEnabled.get())
-            {
-                proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(
-                        ChanSettings.proxyAddress.get(),
-                        ChanSettings.proxyPort.get()));
-            }
-            fileCache.httpClient.setProxy(proxy);
+            fileCache.httpClient.setProxy(ChanSettings.getProxy());
 
             call = fileCache.httpClient.newCall(request);
             Response response = call.execute();

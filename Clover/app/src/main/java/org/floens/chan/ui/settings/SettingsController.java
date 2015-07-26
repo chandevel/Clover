@@ -136,8 +136,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 if ((settingView instanceof ListSettingView)
                         || (settingView instanceof LinkSettingView)
                         || (settingView instanceof StringSettingView)
-                        || (settingView instanceof IntegerSettingView) )
-                {
+                        || (settingView instanceof IntegerSettingView)) {
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_link, groupLayout, false);
                 } else if (settingView instanceof BooleanSettingView) {
                     preferenceView = (ViewGroup) inf.inflate(R.layout.setting_boolean, groupLayout, false);
