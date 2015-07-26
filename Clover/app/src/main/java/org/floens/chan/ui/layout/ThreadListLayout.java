@@ -51,6 +51,8 @@ import static org.floens.chan.utils.AndroidUtils.getAttrColor;
  * A layout that wraps around a {@link RecyclerView} to manage showing posts.
  */
 public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyLayoutCallback {
+    public static final int MAX_SMOOTH_SCROLL_DISTANCE = 20;
+
     private ReplyLayout reply;
     private TextView searchStatus;
     private RecyclerView recyclerView;
@@ -96,10 +98,10 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
                 if (showingThread != null) {
                     switch (postViewMode) {
                         case LIST:
-                            showingThread.loadable.listViewIndex = Math.max(0, ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition());
+                            showingThread.loadable.listViewIndex = Math.max(0, getTopAdapterPosition());
                             break;
                         case CARD:
-                            showingThread.loadable.listViewIndex = Math.max(0, ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition());
+                            showingThread.loadable.listViewIndex = Math.max(0, getTopAdapterPosition());
                             break;
                     }
                 }
@@ -261,13 +263,13 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
 
         switch (postViewMode) {
             case LIST:
-                if (((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition() == 0) {
+                if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
                     return top.getTop() != 0;
                 }
                 break;
             case CARD:
-                if (((GridLayoutManager) layoutManager).findFirstVisibleItemPosition() == 0) {
+                if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
                     return top.getTop() != dp(8); // 4dp for the cards, 4dp for this layout
                 }
@@ -342,6 +344,11 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             position = recyclerView.getAdapter().getItemCount() - 1;
         }
 
+        int difference = Math.abs(position - getTopAdapterPosition());
+        if (difference > MAX_SMOOTH_SCROLL_DISTANCE) {
+            smooth = false;
+        }
+
         if (smooth) {
             recyclerView.smoothScrollToPosition(position);
         } else {
@@ -374,6 +381,16 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
     @Override
     public void requestNewPostLoad() {
         callback.requestNewPostLoad();
+    }
+
+    private int getTopAdapterPosition() {
+        switch (postViewMode) {
+            case LIST:
+                return ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
+            case CARD:
+                return ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
+        }
+        return -1;
     }
 
     public interface ThreadListLayoutCallback {
