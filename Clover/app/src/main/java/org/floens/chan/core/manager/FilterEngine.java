@@ -159,7 +159,7 @@ public class FilterEngine {
                 text = post.name;
                 break;
             case COMMENT:
-                text = post.comment == null ? null : post.comment.toString();
+                text = post.rawComment;
                 break;
             case ID:
                 text = post.id;
