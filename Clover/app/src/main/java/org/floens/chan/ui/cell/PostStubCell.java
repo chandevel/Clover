@@ -20,11 +20,11 @@ package org.floens.chan.ui.cell;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
@@ -32,7 +32,6 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
-import org.floens.chan.ui.view.FastTextView;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -40,32 +39,31 @@ import org.floens.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class CardPostCell extends CardView implements PostCellInterface, View.OnClickListener {
-    private static final int COMMENT_MAX_LENGTH = 200;
+public class PostStubCell extends RelativeLayout implements PostCellInterface, View.OnClickListener {
+    private static final int TITLE_MAX_LENGTH = 100;
 
     private boolean bound;
     private Theme theme;
     private Post post;
+    private PostViewMode postViewMode;
     private PostCellInterface.PostCellCallback callback;
 
-    private ThumbnailView thumbnailView;
     private TextView title;
-    private FastTextView comment;
-    private TextView replies;
     private ImageView options;
-    private View filterMatchColor;
+    private View divider;
 
-    public CardPostCell(Context context) {
+    public PostStubCell(Context context) {
         super(context);
     }
 
-    public CardPostCell(Context context, AttributeSet attrs) {
+    public PostStubCell(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CardPostCell(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PostStubCell(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -73,19 +71,21 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        thumbnailView = (ThumbnailView) findViewById(R.id.thumbnail);
-        thumbnailView.setOnClickListener(this);
         title = (TextView) findViewById(R.id.title);
-        comment = (FastTextView) findViewById(R.id.comment);
-        replies = (TextView) findViewById(R.id.replies);
         options = (ImageView) findViewById(R.id.options);
         setRoundItemBackground(options);
-        filterMatchColor = findViewById(R.id.filter_match_color);
+        divider = findViewById(R.id.divider);
 
         int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
         title.setTextSize(textSizeSp);
-        comment.setTextSize(textSizeSp);
-        replies.setTextSize(textSizeSp);
+
+        int paddingPx = dp(textSizeSp - 6);
+        title.setPadding(paddingPx, 0, 0, 0);
+
+        RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
+        dividerParams.leftMargin = paddingPx;
+        dividerParams.rightMargin = paddingPx;
+        divider.setLayoutParams(dividerParams);
 
         setOnClickListener(this);
 
@@ -114,9 +114,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
     @Override
     public void onClick(View v) {
-        if (v == thumbnailView) {
-            callback.onThumbnailClicked(post, thumbnailView);
-        } else if (v == this) {
+        if (v == this) {
             callback.onPostClicked(post);
         }
     }
@@ -156,6 +154,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         this.theme = theme;
         this.post = post;
         this.callback = callback;
+        this.postViewMode = postViewMode;
 
         bindPost(theme, post);
     }
@@ -165,7 +164,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     }
 
     public ThumbnailView getThumbnailView() {
-        return thumbnailView;
+        return null;
     }
 
     @Override
@@ -177,40 +176,19 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private void bindPost(Theme theme, Post post) {
         bound = true;
 
-        if (post.hasImage) {
-            thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setUrl(post.thumbnailUrl, thumbnailView.getWidth(), thumbnailView.getHeight());
-        } else {
-            thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setUrl(null, 0, 0);
-        }
-
-        if (post.filterHighlightedColor != 0) {
-            filterMatchColor.setVisibility(View.VISIBLE);
-            filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
-        } else {
-            filterMatchColor.setVisibility(View.GONE);
-        }
-
         if (!TextUtils.isEmpty(post.subjectSpan)) {
-            title.setVisibility(View.VISIBLE);
             title.setText(post.subjectSpan);
         } else {
-            title.setVisibility(View.GONE);
-            title.setText(null);
+            CharSequence titleText;
+            if (post.comment.length() > TITLE_MAX_LENGTH) {
+                titleText = post.comment.subSequence(0, TITLE_MAX_LENGTH);
+            } else {
+                titleText = post.comment;
+            }
+            title.setText(titleText);
         }
 
-        CharSequence commentText;
-        if (post.comment.length() > COMMENT_MAX_LENGTH) {
-            commentText = post.comment.subSequence(0, COMMENT_MAX_LENGTH);
-        } else {
-            commentText = post.comment;
-        }
-
-        comment.setText(commentText);
-        comment.setTextColor(theme.textPrimary);
-
-        replies.setText(getResources().getString(R.string.card_stats, post.replies, post.images));
+        divider.setVisibility(postViewMode == PostViewMode.CARD ? GONE : VISIBLE);
     }
 
     private void unbindPost(Post post) {

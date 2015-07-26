@@ -148,6 +148,7 @@ public class FilterEngine {
     }
 
     public boolean matches(Filter filter, Post post) {
+        // Post has not been finish()ed yet, account for invalid values
         String text = null;
         FilterType type = FilterType.forId(filter.type);
         switch (type) {
@@ -158,7 +159,7 @@ public class FilterEngine {
                 text = post.name;
                 break;
             case COMMENT:
-                text = post.comment.toString();
+                text = post.comment == null ? null : post.comment.toString();
                 break;
             case ID:
                 text = post.id;
@@ -171,7 +172,7 @@ public class FilterEngine {
                 break;
         }
 
-        return matches(filter, text, false);
+        return !TextUtils.isEmpty(text) && matches(filter, text, false);
     }
 
     public boolean matches(Filter filter, String text, boolean forceCompile) {

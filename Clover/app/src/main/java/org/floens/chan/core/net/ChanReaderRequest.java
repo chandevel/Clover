@@ -318,11 +318,12 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         if (cached != null) {
             return cached;
         } else {
+            // Process the filters before finish, because parsing the html is dependent on filter matches
+            processPostFilter(post);
             if (!post.finish()) {
                 Logger.e(TAG, "Incorrect data about post received for post " + post.no);
                 return null;
             } else {
-                processPostFilter(post);
                 return post;
             }
         }
@@ -341,10 +342,14 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                             post.filterHighlightedColor = filter.color;
                             break;
                         case HIDE:
-                            post.filterStub = true;
+                            if (!loadable.isThreadMode()) {
+                                post.filterStub = true;
+                            }
                             break;
                         case REMOVE:
-                            post.filterRemove = true;
+                            if (!loadable.isThreadMode()) {
+                                post.filterRemove = true;
+                            }
                             break;
                     }
                 }

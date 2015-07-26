@@ -224,7 +224,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback, boolean highlighted, int markedNo) {
+    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback, boolean highlighted, int markedNo, PostCellInterface.PostViewMode postViewMode) {
         if (this.post == post && this.highlighted == highlighted && this.markedNo == markedNo) {
             return;
         }
@@ -291,7 +291,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             colorLeft.setVisibility(View.GONE);
         }
 
-        if (post.hasImage && !post.filterStub) {
+        if (post.hasImage) {
             thumbnailView.setVisibility(View.VISIBLE);
             thumbnailView.setUrl(post.thumbnailUrl, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
         } else {
@@ -353,16 +353,14 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         }
 
         CharSequence commentText;
-        if (post.filterStub) {
-            commentText = null;
-        } else if (post.comment.length() > COMMENT_MAX_LENGTH_BOARD && !threadMode) {
+        if (post.comment.length() > COMMENT_MAX_LENGTH_BOARD && !threadMode) {
             commentText = post.comment.subSequence(0, COMMENT_MAX_LENGTH_BOARD);
         } else {
             commentText = post.comment;
         }
 
         comment.setText(commentText);
-        comment.setVisibility(TextUtils.isEmpty(commentText) ? GONE : VISIBLE);
+        comment.setVisibility(TextUtils.isEmpty(commentText) && !post.hasImage ? GONE : VISIBLE);
 
         if (commentClickable != threadMode) {
             commentClickable = threadMode;
@@ -379,7 +377,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             }
         }
 
-        if (!post.filterStub && ((!threadMode && post.replies > 0) || (post.repliesFrom.size() > 0))) {
+        if ((!threadMode && post.replies > 0) || (post.repliesFrom.size() > 0)) {
             replies.setVisibility(View.VISIBLE);
 
             int replyCount = threadMode ? post.repliesFrom.size() : post.replies;

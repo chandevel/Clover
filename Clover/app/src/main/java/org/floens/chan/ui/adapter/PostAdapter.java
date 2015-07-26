@@ -35,6 +35,7 @@ import java.util.List;
 public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_POST = 0;
     private static final int TYPE_STATUS = 1;
+    private static final int TYPE_POST_STUB = 2;
 
     private final PostAdapterCallback postAdapterCallback;
     private final PostCellInterface.PostCellCallback postCellCallback;
@@ -76,6 +77,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             PostCellInterface postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
             return new PostViewHolder(postCell);
+        } else if (viewType == TYPE_POST_STUB) {
+            return new PostViewHolder((PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post_stub, parent, false));
         } else {
             StatusViewHolder statusViewHolder = new StatusViewHolder((ThreadStatusCell) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_thread_status, parent, false));
             statusViewHolder.threadStatusCell.setCallback(statusCellCallback);
@@ -86,12 +89,13 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (getItemViewType(position) == TYPE_POST) {
+        int itemViewType = getItemViewType(position);
+        if (itemViewType == TYPE_POST || itemViewType == TYPE_POST_STUB) {
             PostViewHolder postViewHolder = (PostViewHolder) holder;
             Post post = displayList.get(position);
             boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo || post.tripcode.equals(highlightedPostTripcode);
-            postViewHolder.postView.setPost(null, post, postCellCallback, highlight, -1);
-        } else if (getItemViewType(position) == TYPE_STATUS) {
+            postViewHolder.postView.setPost(null, post, postCellCallback, highlight, -1, postViewMode);
+        } else if (itemViewType == TYPE_STATUS) {
             ((StatusViewHolder) holder).threadStatusCell.update();
             onScrolledToBottom();
         }
@@ -108,20 +112,22 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (showStatusView()) {
-            if (position == getItemCount() - 1) {
-                return TYPE_STATUS;
+        if (showStatusView() && position == getItemCount() - 1) {
+            return TYPE_STATUS;
+        } else {
+            Post post = displayList.get(position);
+            if (post.filterStub) {
+                return TYPE_POST_STUB;
             } else {
                 return TYPE_POST;
             }
-        } else {
-            return TYPE_POST;
         }
     }
 
     @Override
     public long getItemId(int position) {
-        if (getItemViewType(position) != TYPE_POST) {
+        int itemViewType = getItemViewType(position);
+        if (itemViewType == TYPE_STATUS) {
             return -1;
         } else {
             return displayList.get(position).no;

@@ -177,7 +177,7 @@ public class PostRepliesController extends Controller {
                 }
 
                 final Post p = getItem(position);
-                postCell.setPost(null, p, presenter, false, data.forPost.no);
+                postCell.setPost(null, p, presenter, false, data.forPost.no, PostCellInterface.PostViewMode.LIST);
 
                 return (View) postCell;
             }

@@ -195,6 +195,7 @@ public class MainSettingsController extends SettingsController implements Toolba
             public void onClick(View v) {
                 Chan.getDatabaseManager().clearAllThreadHides();
                 Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG).show();
+                EventBus.getDefault().post(new RefreshUIMessage("clearhides"));
             }
         }));
 

@@ -30,10 +30,10 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
 import org.floens.chan.Chan;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Logger;
@@ -102,6 +102,14 @@ public class ChanParser {
         }
     }
 
+    /**
+     * Parse the comment, subject, tripcodes, names etc. as spannables.<br>
+     * This is done on a background thread for performance, even when it is UI code.<br>
+     * The results will be placed on the Post.*Span members.
+     *
+     * @param theme Theme to use for parsing
+     * @param post  Post to get data from
+     */
     private void parseSpans(Theme theme, Post post) {
         boolean anonymize = ChanSettings.anonymize.get();
         boolean anonymizeIds = ChanSettings.anonymizeIds.get();
@@ -119,7 +127,10 @@ public class ChanParser {
 
         if (!TextUtils.isEmpty(post.subject)) {
             post.subjectSpan = new SpannableString(post.subject);
-            post.subjectSpan.setSpan(new ForegroundColorSpan(theme.subjectColor), 0, post.subjectSpan.length(), 0);
+            // Do not set another color when the post is in stub mode, it sets text_color_secondary
+            if (!post.filterStub) {
+                post.subjectSpan.setSpan(new ForegroundColorSpan(theme.subjectColor), 0, post.subjectSpan.length(), 0);
+            }
         }
 
         if (!TextUtils.isEmpty(post.name) && !post.name.equals("Anonymous")) {
