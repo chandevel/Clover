@@ -78,7 +78,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private TextView replies;
     private ImageView options;
     private View divider;
-    private View colorLeft;
+    private View filterMatchColor;
 
     private boolean commentClickable = false;
     private CharSequence iconsSpannable;
@@ -131,7 +131,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         replies = (TextView) findViewById(R.id.replies);
         options = (ImageView) findViewById(R.id.options);
         divider = findViewById(R.id.divider);
-        colorLeft = findViewById(R.id.filter_match_color);
+        filterMatchColor = findViewById(R.id.filter_match_color);
 
         int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
         paddingPx = dp(textSizeSp - 6);
@@ -285,10 +285,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         }
 
         if (post.filterHighlightedColor != 0) {
-            colorLeft.setVisibility(View.VISIBLE);
-            colorLeft.setBackgroundColor(post.filterHighlightedColor);
+            filterMatchColor.setVisibility(View.VISIBLE);
+            filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
         } else {
-            colorLeft.setVisibility(View.GONE);
+            filterMatchColor.setVisibility(View.GONE);
         }
 
         if (post.hasImage) {
