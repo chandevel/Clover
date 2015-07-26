@@ -181,7 +181,7 @@ public class PostRepliesController extends Controller {
                 postCell.setPost(null, p, presenter, false, data.forPost.no, PostCellInterface.PostViewMode.LIST);
 
                 if(postCell instanceof PostCell)
-                    ((PostCell)postCell).setSelectableText(true);
+                    ((PostCell)postCell).setCommentSelectable(true);
 
                 return (View) postCell;
             }

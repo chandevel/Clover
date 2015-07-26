@@ -98,7 +98,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             postViewHolder.postView.setPost(null, post, postCellCallback, highlight, -1, postViewMode);
 
             if(postViewHolder.postView instanceof PostCell)
-                ((PostCell)postViewHolder.postView).setSelectableText(postAdapterCallback.getLoadable().isThreadMode());
+                ((PostCell)postViewHolder.postView).setCommentSelectable(postAdapterCallback.getLoadable().isThreadMode());
 
         } else if (itemViewType == TYPE_STATUS) {
             ((StatusViewHolder) holder).threadStatusCell.update();
