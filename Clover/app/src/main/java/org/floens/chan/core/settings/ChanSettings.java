@@ -97,6 +97,10 @@ public class ChanSettings {
 
     public static final BooleanSetting historyEnabled;
 
+    public static final BooleanSetting proxyEnabled;
+    public static final StringSetting proxyAddress;
+    public static final IntegerSetting proxyPort;
+
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
 
@@ -160,6 +164,10 @@ public class ChanSettings {
         passId = new StringSetting(p, "preference_pass_id", "");
 
         historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
+
+        proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
+        proxyAddress = new StringSetting(p, "preference_proxy_address", "");
+        proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

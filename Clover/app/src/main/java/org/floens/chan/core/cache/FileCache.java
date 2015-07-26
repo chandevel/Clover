@@ -25,6 +25,7 @@ import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
 import com.squareup.okhttp.internal.Util;
 
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
@@ -35,6 +36,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -418,6 +421,15 @@ public class FileCache {
                     .url(url)
                     .header("User-Agent", userAgent)
                     .build();
+
+            Proxy proxy = null;
+            if (ChanSettings.proxyEnabled.get())
+            {
+                proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(
+                        ChanSettings.proxyAddress.get(),
+                        ChanSettings.proxyPort.get()));
+            }
+            fileCache.httpClient.setProxy(proxy);
 
             call = fileCache.httpClient.newCall(request);
             Response response = call.execute();
