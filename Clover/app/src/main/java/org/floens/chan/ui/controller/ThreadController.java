@@ -18,23 +18,31 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.view.ThumbnailView;
+import org.floens.chan.utils.Logger;
 
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallback, SwipeRefreshLayout.OnRefreshListener, RootNavigationController.ToolbarSearchCallback {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallback, SwipeRefreshLayout.OnRefreshListener, RootNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
+    private static final String TAG = "ThreadController";
+
     protected ThreadLayout threadLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -96,6 +104,33 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public void onRefresh() {
         threadLayout.refreshFromSwipe();
+    }
+
+    @Override
+    public NdefMessage createNdefMessage(NfcEvent event) {
+        Loadable loadable = getLoadable();
+        String url = null;
+        NdefMessage message = null;
+
+        if (loadable != null) {
+            if (loadable.isThreadMode()) {
+                url = ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no);
+            } else if (loadable.isCatalogMode()) {
+                url = ChanUrls.getCatalogUrlDesktop(loadable.board);
+            }
+        }
+
+        if (url != null) {
+            try {
+                Logger.d(TAG, "Pushing url " + url + " to android beam");
+                NdefRecord record = NdefRecord.createUri(url);
+                message = new NdefMessage(new NdefRecord[]{record});
+            } catch (IllegalArgumentException e) {
+                Logger.e(TAG, "NdefMessage create error", e);
+            }
+        }
+
+        return message;
     }
 
     public void presentRepliesController(Controller controller) {

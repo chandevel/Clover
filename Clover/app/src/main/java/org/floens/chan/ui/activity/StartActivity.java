@@ -21,6 +21,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
@@ -45,7 +48,7 @@ import org.floens.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StartActivity extends AppCompatActivity {
+public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "StartActivity";
 
     private static final String STATE_KEY = "chan_state";
@@ -87,6 +90,11 @@ public class StartActivity extends AppCompatActivity {
         // Prevent overdraw
         // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable
         getWindow().setBackgroundDrawable(null);
+
+        NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
+        if (adapter != null) {
+            adapter.setNdefPushMessageCallback(this, this);
+        }
 
         // Startup from background or url
         boolean loadDefault = true;
@@ -170,6 +178,16 @@ public class StartActivity extends AppCompatActivity {
             }
 
             outState.putParcelable(STATE_KEY, new ChanState(board, thread));
+        }
+    }
+
+    @Override
+    public NdefMessage createNdefMessage(NfcEvent event) {
+        Controller controller = rootNavigationController.getTop();
+        if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
+            return ((NfcAdapter.CreateNdefMessageCallback) controller).createNdefMessage(event);
+        } else {
+            return null;
         }
     }
 
