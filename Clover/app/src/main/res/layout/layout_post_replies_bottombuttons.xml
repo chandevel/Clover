@@ -51,7 +51,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 style="?android:actionButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="@drawable/item_background">
 
                 <TextView
                     android:id="@+id/replies_back_icon"
@@ -70,7 +71,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 style="?android:actionButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="@drawable/item_background">
 
                 <TextView
                     android:id="@+id/replies_close_icon"
