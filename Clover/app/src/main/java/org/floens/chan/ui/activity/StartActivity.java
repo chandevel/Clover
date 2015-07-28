@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
@@ -43,6 +44,7 @@ import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -111,15 +113,28 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                     browseController.showThread(chanState.thread, false);
                 }
             }
-        } else if (getIntent().getData() != null) {
-            Loadable fromUri = ChanHelper.getLoadableFromStartUri(getIntent().getData());
-            if (fromUri != null) {
-                loadDefault = false;
-                Board board = boardManager.getBoardByValue(fromUri.board);
-                browseController.loadBoard(board);
+        } else {
+            final Uri data = getIntent().getData();
+            if (data != null) {
+                Loadable fromUri = ChanHelper.getLoadableFromStartUri(data);
+                if (fromUri != null) {
+                    loadDefault = false;
+                    Board board = boardManager.getBoardByValue(fromUri.board);
+                    browseController.loadBoard(board);
 
-                if (fromUri.isThreadMode()) {
-                    browseController.showThread(fromUri, false);
+                    if (fromUri.isThreadMode()) {
+                        browseController.showThread(fromUri, false);
+                    }
+                } else {
+                    new AlertDialog.Builder(this)
+                            .setMessage(R.string.open_link_not_matched)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    AndroidUtils.openLink(data.toString());
+                                }
+                            })
+                            .show();
                 }
             }
         }
