@@ -26,6 +26,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -42,6 +43,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     private Post op;
     private FilterEngine filterEngine;
     private DatabaseManager databaseManager;
+    private List<Filter> filters;
 
     private ChanReaderRequest(String url, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
@@ -65,6 +67,17 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
         request.loadable = loadable.copy();
         request.cached = new ArrayList<>(cached);
+
+        request.filters = new ArrayList<>();
+        for (Filter filter : request.filterEngine.getEnabledFilters()) {
+            List<Board> boards = request.filterEngine.getBoardsForFilter(filter);
+            for (Board board : boards) {
+                if (board.value.equals(loadable.board)) {
+                    request.filters.add(filter.copy());
+                    break;
+                }
+            }
+        }
 
         return request;
     }
@@ -344,28 +357,25 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     }
 
     private void processPostFilter(Post post) {
-        synchronized (filterEngine.getEnabledFiltersLock()) {
-            List<Filter> filters = filterEngine.getEnabledFilters();
-            int filterSize = filters.size();
-            for (int i = 0; i < filterSize; i++) {
-                Filter filter = filters.get(i);
-                if (filterEngine.matches(filter, post)) {
-                    FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
-                    switch (action) {
-                        case COLOR:
-                            post.filterHighlightedColor = filter.color;
-                            break;
-                        case HIDE:
-                            if (!loadable.isThreadMode()) {
-                                post.filterStub = true;
-                            }
-                            break;
-                        case REMOVE:
-                            if (!loadable.isThreadMode()) {
-                                post.filterRemove = true;
-                            }
-                            break;
-                    }
+        int filterSize = filters.size();
+        for (int i = 0; i < filterSize; i++) {
+            Filter filter = filters.get(i);
+            if (filterEngine.matches(filter, post)) {
+                FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
+                switch (action) {
+                    case COLOR:
+                        post.filterHighlightedColor = filter.color;
+                        break;
+                    case HIDE:
+                        if (!loadable.isThreadMode()) {
+                            post.filterStub = true;
+                        }
+                        break;
+                    case REMOVE:
+                        if (!loadable.isThreadMode()) {
+                            post.filterRemove = true;
+                        }
+                        break;
                 }
             }
         }

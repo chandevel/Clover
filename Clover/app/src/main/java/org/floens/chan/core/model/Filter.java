@@ -50,11 +50,8 @@ public class Filter {
     @DatabaseField(canBeNull = false)
     public int color;
 
-    public final Object compiledMatcherLock = new Object();
-
     /**
      * Cached version of {@link #pattern} compiled by {@link org.floens.chan.core.manager.FilterEngine#compile(String)}.
-     * Thread safe when synchronized on {@link #compiledMatcherLock}
      */
     public Matcher compiledMatcher;
 
@@ -66,5 +63,18 @@ public class Filter {
         boards = filter.boards;
         action = filter.action;
         color = filter.color;
+    }
+
+    public Filter copy() {
+        Filter copy = new Filter();
+        copy.id = id;
+        copy.enabled = enabled;
+        copy.type = type;
+        copy.pattern = pattern;
+        copy.allBoards = allBoards;
+        copy.boards = boards;
+        copy.action = action;
+        copy.color = color;
+        return copy;
     }
 }

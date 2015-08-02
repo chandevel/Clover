@@ -130,20 +130,11 @@ public class FilterEngine {
     }
 
     /**
-     * Get all enabled filters, thread safe if locked on {@link #getEnabledFiltersLock()}.
+     * Get all enabled filters.
      *
      * @return List of enabled filters
      */
     public List<Filter> getEnabledFilters() {
-        return enabledFilters;
-    }
-
-    /**
-     * Lock for usage of {@link #getEnabledFilters()}
-     *
-     * @return Object to call synchronized on
-     */
-    public Object getEnabledFiltersLock() {
         return enabledFilters;
     }
 
@@ -179,16 +170,14 @@ public class FilterEngine {
         FilterType type = FilterType.forId(filter.type);
         if (type.isRegex) {
             Matcher matcher = null;
-            synchronized (filter.compiledMatcherLock) {
-                if (!forceCompile) {
-                    matcher = filter.compiledMatcher;
-                }
+            if (!forceCompile) {
+                matcher = filter.compiledMatcher;
+            }
 
-                if (matcher == null) {
-                    Pattern compiledPattern = compile(filter.pattern);
-                    matcher = filter.compiledMatcher = compiledPattern.matcher("");
-                    Logger.d(TAG, "Resulting pattern: " + filter.compiledMatcher);
-                }
+            if (matcher == null) {
+                Pattern compiledPattern = compile(filter.pattern);
+                matcher = filter.compiledMatcher = compiledPattern.matcher("");
+                Logger.d(TAG, "Resulting pattern: " + filter.compiledMatcher);
             }
 
             if (matcher != null) {
