@@ -33,12 +33,15 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
+import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.Logger;
 
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+
+import static org.floens.chan.utils.AndroidUtils.dp;
 
 public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallback, SwipeRefreshLayout.OnRefreshListener, RootNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "ThreadController";
@@ -56,6 +59,8 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         EventBus.getDefault().register(this);
 
+        navigationItem.collapseToolbar = true;
+
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.setCallback(this);
 
@@ -68,6 +73,8 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         swipeRefreshLayout.addView(threadLayout);
 
         swipeRefreshLayout.setOnRefreshListener(this);
+        int toolbarHeight = navigationController.toolbar.getToolbarHeight();
+        swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
 
         view = swipeRefreshLayout;
     }
@@ -175,6 +182,11 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public void hideSwipeRefreshLayout() {
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public Toolbar getToolbar() {
+        return navigationController.toolbar;
     }
 
     @Override

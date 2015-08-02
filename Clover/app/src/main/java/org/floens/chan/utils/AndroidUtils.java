@@ -104,6 +104,7 @@ public class AndroidUtils {
      * Tries to open an app that can open the specified URL.<br>
      * If this app will open the link then show a chooser to the user without this app.<br>
      * Else allow the default logic to run with startActivity.
+     *
      * @param link url to open
      */
     public static void openLink(String link) {
@@ -171,6 +172,10 @@ public class AndroidUtils {
         Drawable drawable = typedArray.getDrawable(0);
         typedArray.recycle();
         return drawable;
+    }
+
+    public static int getDimen(Context context, int dimen) {
+        return context.getResources().getDimensionPixelSize(dimen);
     }
 
     public static int dp(float dp) {

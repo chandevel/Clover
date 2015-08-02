@@ -36,6 +36,7 @@ public class NavigationItem {
     public FloatingMenu middleMenu;
     public View rightView;
     public boolean hasDrawer = false;
+    public boolean collapseToolbar = false;
 
     boolean search = false;
     String searchText;

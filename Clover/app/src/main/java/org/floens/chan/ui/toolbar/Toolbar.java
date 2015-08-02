@@ -26,6 +26,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -53,6 +54,29 @@ import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class Toolbar extends LinearLayout implements View.OnClickListener, LoadView.Listener {
+    public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
+    public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
+
+    private final RecyclerView.OnScrollListener recyclerViewOnScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            processScrollCollapse(dy);
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                View positionZero = recyclerView.getLayoutManager().findViewByPosition(0);
+                boolean allowHide = positionZero == null || positionZero.getTop() < 0;
+                if (allowHide || lastScrollDeltaOffset <= 0) {
+                    setCollapse(lastScrollDeltaOffset <= 0 ? TOOLBAR_COLLAPSE_SHOW : TOOLBAR_COLLAPSE_HIDE, true);
+                } else {
+                    setCollapse(TOOLBAR_COLLAPSE_SHOW, true);
+                }
+            }
+        }
+    };
+
     private ImageView arrowMenuView;
     private ArrowMenuDrawable arrowMenuDrawable;
 
@@ -61,6 +85,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     private ToolbarCallback callback;
     private NavigationItem navigationItem;
     private boolean openKeyboardAfterSearchViewCreated = false;
+    private int lastScrollDeltaOffset;
+    private int scrollOffset;
 
     public Toolbar(Context context) {
         super(context);
@@ -75,6 +101,39 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     public Toolbar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+
+    public int getToolbarHeight() {
+        return getHeight() == 0 ? getLayoutParams().height : getHeight();
+    }
+
+    public void processScrollCollapse(int offset) {
+        processScrollCollapse(offset, false);
+    }
+
+    public void processScrollCollapse(int offset, boolean animated) {
+        lastScrollDeltaOffset = offset;
+        setCollapse(offset, animated);
+    }
+
+    public void setCollapse(int offset, boolean animated) {
+        scrollOffset += offset;
+        scrollOffset = Math.max(0, Math.min(getHeight(), scrollOffset));
+
+        if (animated) {
+            animate().translationY(-scrollOffset).setDuration(300).setInterpolator(new DecelerateInterpolator(2f)).start();
+        } else {
+            animate().cancel();
+            setTranslationY(-scrollOffset);
+        }
+    }
+
+    public void attachRecyclerViewScrollStateListener(RecyclerView recyclerView) {
+        recyclerView.addOnScrollListener(recyclerViewOnScrollListener);
+    }
+
+    public void detachRecyclerViewScrollStateListener(RecyclerView recyclerView) {
+        recyclerView.removeOnScrollListener(recyclerViewOnScrollListener);
     }
 
     public void updateNavigation() {

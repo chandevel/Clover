@@ -21,12 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?backcolor"
-        android:orientation="vertical">
+        android:background="?backcolor">
 
         <org.floens.chan.ui.toolbar.Toolbar
             android:id="@+id/toolbar"
@@ -37,10 +36,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <FrameLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="match_parent" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/drawer"

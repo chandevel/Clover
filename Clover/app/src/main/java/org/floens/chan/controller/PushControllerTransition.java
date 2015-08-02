@@ -41,7 +41,7 @@ public class PushControllerTransition extends ControllerTransition {
                 toAlpha.setDuration(200);
                 toAlpha.setInterpolator(new DecelerateInterpolator(2f));
 
-                Animator toY = ObjectAnimator.ofFloat(to.view, View.Y, to.view.getHeight() * 0.08f, 0f);
+                Animator toY = ObjectAnimator.ofFloat(to.view, View.TRANSLATION_Y, to.view.getHeight() * 0.08f, 0f);
                 toY.setDuration(350);
                 toY.setInterpolator(new DecelerateInterpolator(2.5f));
 

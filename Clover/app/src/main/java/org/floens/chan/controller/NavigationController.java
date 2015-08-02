@@ -80,6 +80,8 @@ public abstract class NavigationController extends Controller implements Control
             toolbar.setNavigationItem(false, true, to.navigationItem);
         }
 
+        updateToolbarCollapse(to, controllerTransition != null);
+
         controllerPushed(to);
 
         return true;
@@ -128,6 +130,8 @@ public abstract class NavigationController extends Controller implements Control
         }
 
         if (to != null) {
+            updateToolbarCollapse(to, controllerTransition != null);
+
             controllerPopped(to);
         }
 
@@ -223,5 +227,15 @@ public abstract class NavigationController extends Controller implements Control
 
     @Override
     public void onSearchEntered(String entered) {
+    }
+
+    private void updateToolbarCollapse(Controller controller, boolean animate) {
+        if (!controller.navigationItem.collapseToolbar) {
+            FrameLayout.LayoutParams toViewParams = (FrameLayout.LayoutParams) controller.view.getLayoutParams();
+            toViewParams.topMargin = toolbar.getToolbarHeight();
+            controller.view.setLayoutParams(toViewParams);
+        }
+
+        toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, animate);
     }
 }

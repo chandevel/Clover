@@ -58,6 +58,7 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
+import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -72,7 +73,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between loadbar and listview.
  */
-public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback, View.OnClickListener, ThreadListLayout.ReplyLayoutStateCallback {
+public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback, View.OnClickListener, ThreadListLayout.ThreadListLayoutCallback {
     private enum Visible {
         LOADING,
         THREAD,
@@ -114,9 +115,9 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         init();
     }
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+    public void setCallback(ThreadLayoutCallback callback) {
+        this.callback = callback;
+
         presenter = new ThreadPresenter(this);
 
         loadView = (LoadView) findViewById(R.id.loadview);
@@ -159,10 +160,6 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         return threadListLayout.onBack();
     }
 
-    public void setCallback(ThreadLayoutCallback callback) {
-        this.callback = callback;
-    }
-
     public ThreadPresenter getPresenter() {
         return presenter;
     }
@@ -179,6 +176,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     @Override
     public void replyLayoutOpen(boolean open) {
         showReplyButton(!open);
+    }
+
+    @Override
+    public Toolbar getToolbar() {
+        return callback.getToolbar();
     }
 
     @Override
@@ -492,5 +494,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         void presentRepliesController(Controller controller);
 
         void hideSwipeRefreshLayout();
+
+        Toolbar getToolbar();
     }
 }

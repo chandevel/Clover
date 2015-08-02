@@ -23,14 +23,21 @@ import org.floens.chan.utils.AndroidUtils;
 
 public class ControllerLogic {
     public static void attach(Controller controller, ViewGroup view, boolean over) {
-        if (over) {
-            view.addView(controller.view,
-                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            );
+        ViewGroup.LayoutParams params = controller.view.getLayoutParams();
+
+        if (params == null) {
+            params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         } else {
-            view.addView(controller.view, 0,
-                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            );
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        }
+
+        controller.view.setLayoutParams(params);
+
+        if (over) {
+            view.addView(controller.view, controller.view.getLayoutParams());
+        } else {
+            view.addView(controller.view, 0, controller.view.getLayoutParams());
         }
     }
 

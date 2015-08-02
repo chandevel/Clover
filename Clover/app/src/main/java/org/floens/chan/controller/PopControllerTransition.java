@@ -36,7 +36,7 @@ public class PopControllerTransition extends ControllerTransition {
         toAlpha.setInterpolator(new DecelerateInterpolator()); // new PathInterpolator(0f, 0f, 0.2f, 1f)
         toAlpha.setDuration(250);
 
-        Animator fromY = ObjectAnimator.ofFloat(from.view, View.Y, 0f, from.view.getHeight() * 0.05f);
+        Animator fromY = ObjectAnimator.ofFloat(from.view, View.TRANSLATION_Y, 0f, from.view.getHeight() * 0.05f);
         fromY.setInterpolator(new AccelerateInterpolator(2.5f));
         fromY.setDuration(250);
 

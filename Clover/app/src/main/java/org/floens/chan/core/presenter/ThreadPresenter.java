@@ -54,7 +54,7 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutCallback {
+public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutPresenterCallback {
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
