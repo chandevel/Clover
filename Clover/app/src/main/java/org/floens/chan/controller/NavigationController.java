@@ -26,13 +26,13 @@ import org.floens.chan.ui.toolbar.Toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class NavigationController extends Controller implements ControllerTransition.Callback, Toolbar.ToolbarCallback {
-    public Toolbar toolbar;
-    public FrameLayout container;
+public abstract class NavigationController extends Controller implements Toolbar.ToolbarCallback, ControllerTransition.Callback {
+    protected Toolbar toolbar;
+    protected FrameLayout container;
 
-    private List<Controller> controllerList = new ArrayList<>();
-    private ControllerTransition controllerTransition;
-    private boolean blockingInput = false;
+    protected List<Controller> controllerList = new ArrayList<>();
+    protected ControllerTransition controllerTransition;
+    protected boolean blockingInput = false;
 
     public NavigationController(Context context) {
         super(context);
@@ -58,31 +58,13 @@ public abstract class NavigationController extends Controller implements Control
     public boolean pushController(final Controller to, ControllerTransition controllerTransition) {
         if (blockingInput) return false;
 
-        if (this.controllerTransition != null) {
-            throw new IllegalArgumentException("Cannot push controller while a transition is in progress.");
-        }
-
         final Controller from = controllerList.size() > 0 ? controllerList.get(controllerList.size() - 1) : null;
         to.navigationController = this;
         to.previousSiblingController = from;
 
         controllerList.add(to);
 
-        if (controllerTransition != null) {
-            blockingInput = true;
-            this.controllerTransition = controllerTransition;
-            controllerTransition.setCallback(this);
-
-            ControllerLogic.startTransition(from, to, false, true, container, controllerTransition);
-            toolbar.setNavigationItem(true, true, to.navigationItem);
-        } else {
-            ControllerLogic.transition(from, to, false, true, container);
-            toolbar.setNavigationItem(false, true, to.navigationItem);
-        }
-
-        updateToolbarCollapse(to, controllerTransition != null);
-
-        controllerPushed(to);
+        transition(from, to, true, controllerTransition);
 
         return true;
     }
@@ -101,44 +83,65 @@ public abstract class NavigationController extends Controller implements Control
     public boolean popController(ControllerTransition controllerTransition) {
         if (blockingInput) return false;
 
-        if (this.controllerTransition != null) {
-            throw new IllegalArgumentException("Cannot pop controller while a transition is in progress.");
-        }
-
-        if (controllerList.size() == 0) {
-            throw new IllegalArgumentException("Cannot pop with no controllers left");
-        }
-
         final Controller from = controllerList.get(controllerList.size() - 1);
         final Controller to = controllerList.size() > 1 ? controllerList.get(controllerList.size() - 2) : null;
 
-        if (controllerTransition != null) {
-            blockingInput = true;
-            this.controllerTransition = controllerTransition;
-            controllerTransition.setCallback(this);
-
-            ControllerLogic.startTransition(from, to, true, false, container, controllerTransition);
-            if (to != null) {
-                toolbar.setNavigationItem(true, false, to.navigationItem);
-            }
-        } else {
-            ControllerLogic.transition(from, to, true, false, container);
-            if (to != null) {
-                toolbar.setNavigationItem(false, false, to.navigationItem);
-            }
-            controllerList.remove(from);
-        }
-
-        if (to != null) {
-            updateToolbarCollapse(to, controllerTransition != null);
-
-            controllerPopped(to);
-        }
+        transition(from, to, false, controllerTransition);
 
         return true;
     }
 
     protected void controllerPopped(Controller controller) {
+    }
+
+    public void transition(Controller from, Controller to, boolean pushing, ControllerTransition controllerTransition) {
+        if (this.controllerTransition != null) {
+            throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
+        }
+
+        if (!pushing && controllerList.size() == 0) {
+            throw new IllegalArgumentException("Cannot pop with no controllers left");
+        }
+
+        if (controllerTransition != null) {
+            blockingInput = true;
+            this.controllerTransition = controllerTransition;
+            controllerTransition.setCallback(this);
+            ControllerLogic.startTransition(from, to, pushing, container, controllerTransition);
+            if (to != null) {
+                toolbar.setNavigationItem(true, false, to.navigationItem);
+            }
+        } else {
+            ControllerLogic.transition(from, to, pushing, container);
+            if (to != null) {
+                toolbar.setNavigationItem(false, false, to.navigationItem);
+            }
+            if (!pushing) {
+                controllerList.remove(from);
+            }
+        }
+
+        if (to != null) {
+            updateToolbarCollapse(to, controllerTransition != null);
+
+            if (pushing) {
+                controllerPushed(to);
+            } else {
+                controllerPopped(to);
+            }
+        }
+    }
+
+    @Override
+    public void onControllerTransitionCompleted(ControllerTransition transition) {
+        ControllerLogic.finishTransition(transition);
+
+        if (transition.destroyFrom) {
+            controllerList.remove(transition.from);
+        }
+
+        controllerTransition = null;
+        blockingInput = false;
     }
 
     public Controller getTop() {
@@ -156,16 +159,8 @@ public abstract class NavigationController extends Controller implements Control
         return controllerList;
     }
 
-    @Override
-    public void onControllerTransitionCompleted(ControllerTransition transition) {
-        ControllerLogic.finishTransition(transition);
-
-        if (transition.destroyFrom) {
-            controllerList.remove(transition.from);
-        }
-
-        this.controllerTransition = null;
-        blockingInput = false;
+    public Toolbar getToolbar() {
+        return toolbar;
     }
 
     public boolean onBack() {

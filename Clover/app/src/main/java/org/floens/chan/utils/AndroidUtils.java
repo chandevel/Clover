@@ -174,6 +174,10 @@ public class AndroidUtils {
         return drawable;
     }
 
+    public static boolean isTablet(Context context) {
+        return context.getResources().getBoolean(R.bool.is_tablet);
+    }
+
     public static int getDimen(Context context, int dimen) {
         return context.getResources().getDimensionPixelSize(dimen);
     }

@@ -25,8 +25,11 @@ import android.view.ViewGroup;
 
 import org.floens.chan.ui.activity.BoardActivity;
 import org.floens.chan.ui.toolbar.NavigationItem;
+import org.floens.chan.utils.Logger;
 
 public abstract class Controller {
+    private static final boolean LOG_STATES = false;
+
     public Context context;
     public View view;
 
@@ -36,8 +39,14 @@ public abstract class Controller {
     public Controller previousSiblingController;
     public NavigationController navigationController;
 
-    // Controller (for presenting) members
+    /**
+     * Controller that this controller is presented by.
+     */
     public Controller presentingController;
+
+    /**
+     * Controller that this controller is presenting.
+     */
     public Controller presentedController;
 
     public boolean alive = false;
@@ -48,20 +57,28 @@ public abstract class Controller {
 
     public void onCreate() {
         alive = true;
-//        Logger.test(getClass().getSimpleName() + " onCreate");
+        if (LOG_STATES) {
+            Logger.test(getClass().getSimpleName() + " onCreate");
+        }
     }
 
     public void onShow() {
-//        Logger.test(getClass().getSimpleName() + " onShow");
+        if (LOG_STATES) {
+            Logger.test(getClass().getSimpleName() + " onShow");
+        }
     }
 
     public void onHide() {
-//        Logger.test(getClass().getSimpleName() + " onHide");
+        if (LOG_STATES) {
+            Logger.test(getClass().getSimpleName() + " onHide");
+        }
     }
 
     public void onDestroy() {
         alive = false;
-//        Logger.test(getClass().getSimpleName() + " onDestroy");
+        if (LOG_STATES) {
+            Logger.test(getClass().getSimpleName() + " onDestroy");
+        }
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
@@ -88,9 +105,9 @@ public abstract class Controller {
                     ControllerLogic.finishTransition(transition);
                 }
             });
-            ControllerLogic.startTransition(null, controller, false, true, contentView, transition);
+            ControllerLogic.startTransition(null, controller, true, contentView, transition);
         } else {
-            ControllerLogic.transition(null, controller, false, true, contentView);
+            ControllerLogic.transition(null, controller, true, contentView);
         }
         ((BoardActivity) context).addController(controller);
     }
@@ -110,9 +127,9 @@ public abstract class Controller {
                     ControllerLogic.finishTransition(transition);
                 }
             });
-            ControllerLogic.startTransition(this, null, true, false, contentView, transition);
+            ControllerLogic.startTransition(this, null, false, contentView, transition);
         } else {
-            ControllerLogic.transition(this, null, true, false, contentView);
+            ControllerLogic.transition(this, null, false, contentView);
         }
         ((BoardActivity) context).removeController(this);
         presentingController.presentedController = null;

@@ -45,9 +45,9 @@ public class ControllerLogic {
         AndroidUtils.removeFromParentView(controller.view);
     }
 
-    public static void transition(Controller from, Controller to, boolean destroyFrom, boolean createTo, ViewGroup toView) {
+    public static void transition(Controller from, Controller to, boolean pushing, ViewGroup toView) {
         if (to != null) {
-            if (createTo) {
+            if (pushing) {
                 to.onCreate();
             }
 
@@ -59,19 +59,19 @@ public class ControllerLogic {
             from.onHide();
             detach(from);
 
-            if (destroyFrom) {
+            if (!pushing) {
                 from.onDestroy();
             }
         }
     }
 
-    public static void startTransition(Controller from, Controller to, boolean destroyFrom, boolean createTo, ViewGroup toView, ControllerTransition transition) {
-        transition.destroyFrom = destroyFrom;
+    public static void startTransition(Controller from, Controller to, boolean pushing, ViewGroup toView, ControllerTransition transition) {
+        transition.destroyFrom = !pushing;
         transition.from = from;
         transition.to = to;
 
         if (to != null) {
-            if (createTo) {
+            if (pushing) {
                 to.onCreate();
             }
 

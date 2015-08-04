@@ -73,7 +73,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         swipeRefreshLayout.addView(threadLayout);
 
         swipeRefreshLayout.setOnRefreshListener(this);
-        int toolbarHeight = navigationController.toolbar.getToolbarHeight();
+        int toolbarHeight = navigationController.getToolbar().getToolbarHeight();
         swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
 
         view = swipeRefreshLayout;
@@ -186,7 +186,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     @Override
     public Toolbar getToolbar() {
-        return navigationController.toolbar;
+        return navigationController.getToolbar();
     }
 
     @Override
