@@ -66,7 +66,6 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
     private PostCellInterface.PostViewMode postViewMode;
     private int spanCount = 2;
     private int background;
-    private int toolbarSpacing;
     private Toolbar toolbar;
     private boolean searchOpen;
 
@@ -111,7 +110,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         toolbar = threadListLayoutCallback.getToolbar();
         attachToolbarScroll(true);
 
-        int toolbarHeight = toolbar.getToolbarHeight();
+        int toolbarHeight = toolbar == null ? 0 : toolbar.getToolbarHeight();
         reply.setPadding(0, toolbarHeight, 0, 0);
         searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + toolbarHeight,
                 searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
@@ -140,7 +139,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
 
             layoutManager = null;
 
-            int toolbarHeight = toolbar.getToolbarHeight();
+            int toolbarHeight = toolbar == null ? 0 : toolbar.getToolbarHeight();
             switch (postViewMode) {
                 case LIST:
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -277,7 +276,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
             return true;
         }
 
-        int toolbarHeight = toolbar.getToolbarHeight();
+        int toolbarHeight = toolbar == null ? 0 : toolbar.getToolbarHeight();
         switch (postViewMode) {
             case LIST:
                 if (getTopAdapterPosition() == 0) {
@@ -401,11 +400,13 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
     }
 
     private void attachToolbarScroll(boolean attach) {
-        if (attach) {
-            toolbar.attachRecyclerViewScrollStateListener(recyclerView);
-        } else {
-            toolbar.detachRecyclerViewScrollStateListener(recyclerView);
-            toolbar.setCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
+        if (toolbar != null) {
+            if (attach) {
+                toolbar.attachRecyclerViewScrollStateListener(recyclerView);
+            } else {
+                toolbar.detachRecyclerViewScrollStateListener(recyclerView);
+                toolbar.setCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
+            }
         }
     }
 

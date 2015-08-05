@@ -85,8 +85,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onShow() {
         super.onShow();
-        if (navigationController instanceof RootNavigationController) {
-            ((RootNavigationController) navigationController).updateHighlighted();
+        if (navigationController instanceof DrawerNavigationController) {
+            ((DrawerNavigationController) navigationController).updateHighlighted();
         }
     }
 
@@ -115,8 +115,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
                         loadLoadable(threadLoadable);
-                        if (navigationController instanceof RootNavigationController) {
-                            ((RootNavigationController) navigationController).updateHighlighted();
+                        if (navigationController instanceof DrawerNavigationController) {
+                            ((DrawerNavigationController) navigationController).updateHighlighted();
                         }
                     }
                 })
@@ -135,7 +135,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         return pin.loadable.equals(threadLayout.getPresenter().getLoadable());
     }
 
-    private void loadLoadable(Loadable loadable) {
+    public void loadLoadable(Loadable loadable) {
         if (!loadable.equals(threadLayout.getPresenter().getLoadable())) {
             threadLayout.getPresenter().bindLoadable(loadable);
             this.loadable = threadLayout.getPresenter().getLoadable();

@@ -20,10 +20,9 @@ package org.floens.chan.controller;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
-import org.floens.chan.ui.activity.BoardActivity;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.utils.Logger;
 
@@ -31,7 +30,7 @@ public abstract class Controller {
     private static final boolean LOG_STATES = false;
 
     public Context context;
-    public View view;
+    public ViewGroup view;
 
     public NavigationItem navigationItem = new NavigationItem();
 
@@ -93,7 +92,7 @@ public abstract class Controller {
     }
 
     public void presentController(Controller controller, boolean animated) {
-        ViewGroup contentView = ((BoardActivity) context).getContentView();
+        ViewGroup contentView = ((StartActivity) context).getContentView();
         presentedController = controller;
         controller.presentingController = this;
 
@@ -109,7 +108,7 @@ public abstract class Controller {
         } else {
             ControllerLogic.transition(null, controller, true, contentView);
         }
-        ((BoardActivity) context).addController(controller);
+        ((StartActivity) context).addController(controller);
     }
 
     public void stopPresenting() {
@@ -117,7 +116,7 @@ public abstract class Controller {
     }
 
     public void stopPresenting(boolean animated) {
-        ViewGroup contentView = ((BoardActivity) context).getContentView();
+        ViewGroup contentView = ((StartActivity) context).getContentView();
 
         if (animated) {
             ControllerTransition transition = new FadeOutTransition();
@@ -131,12 +130,12 @@ public abstract class Controller {
         } else {
             ControllerLogic.transition(this, null, false, contentView);
         }
-        ((BoardActivity) context).removeController(this);
+        ((StartActivity) context).removeController(this);
         presentingController.presentedController = null;
     }
 
-    public View inflateRes(int resId) {
-        return LayoutInflater.from(context).inflate(resId, null);
+    public ViewGroup inflateRes(int resId) {
+        return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
     }
 
     public String string(int id) {

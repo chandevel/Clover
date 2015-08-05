@@ -29,6 +29,7 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
@@ -217,9 +218,22 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     public void showThread(Loadable threadLoadable, boolean animated) {
-        ViewThreadController viewThreadController = new ViewThreadController(context);
-        viewThreadController.setLoadable(threadLoadable);
-        navigationController.pushController(viewThreadController, animated);
+        if (navigationController.navigationController instanceof SplitNavigationController) {
+            SplitNavigationController splitNavigationController = (SplitNavigationController) navigationController.navigationController;
+
+            Controller controller = splitNavigationController.rightController;
+            if (controller instanceof ViewThreadController) {
+                ((ViewThreadController) controller).loadLoadable(threadLoadable);
+            } else {
+                ViewThreadController viewThreadController = new ViewThreadController(context);
+                viewThreadController.setLoadable(threadLoadable);
+                splitNavigationController.setRightController(viewThreadController);
+            }
+        } else {
+            ViewThreadController viewThreadController = new ViewThreadController(context);
+            viewThreadController.setLoadable(threadLoadable);
+            navigationController.pushController(viewThreadController, animated);
+        }
     }
 
     public void onEvent(BoardManager.BoardsChangedMessage event) {

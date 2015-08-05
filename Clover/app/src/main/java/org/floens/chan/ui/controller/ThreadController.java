@@ -43,7 +43,7 @@ import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, RootNavigationController.DrawerCallback, SwipeRefreshLayout.OnRefreshListener, RootNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, DrawerNavigationController.DrawerCallback, SwipeRefreshLayout.OnRefreshListener, DrawerNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "ThreadController";
 
     protected ThreadLayout threadLayout;
@@ -73,7 +73,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         swipeRefreshLayout.addView(threadLayout);
 
         swipeRefreshLayout.setOnRefreshListener(this);
-        int toolbarHeight = navigationController.getToolbar().getToolbarHeight();
+        int toolbarHeight = navigationController.getToolbar() == null ? 0 : navigationController.getToolbar().getToolbarHeight();
         swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
 
         view = swipeRefreshLayout;

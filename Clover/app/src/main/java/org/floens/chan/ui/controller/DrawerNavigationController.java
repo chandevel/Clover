@@ -27,8 +27,8 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -55,16 +55,16 @@ import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
-public class RootNavigationController extends NavigationController implements PinAdapter.Callback, View.OnClickListener {
+public class DrawerNavigationController extends NavigationController implements PinAdapter.Callback, View.OnClickListener {
     private WatchManager watchManager;
 
-    public DrawerLayout drawerLayout;
-    public LinearLayout drawer;
-    private RecyclerView recyclerView;
-    private LinearLayout settings;
-    private PinAdapter pinAdapter;
+    protected DrawerLayout drawerLayout;
+    protected LinearLayout drawer;
+    protected RecyclerView recyclerView;
+    protected LinearLayout settings;
+    protected PinAdapter pinAdapter;
 
-    public RootNavigationController(Context context) {
+    public DrawerNavigationController(Context context) {
         super(context);
     }
 
@@ -77,8 +77,8 @@ public class RootNavigationController extends NavigationController implements Pi
         EventBus.getDefault().register(this);
 
         view = inflateRes(R.layout.controller_navigation_drawer);
+        container = (ViewGroup) view.findViewById(R.id.container);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        container = (FrameLayout) view.findViewById(R.id.container);
         drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
         drawer = (LinearLayout) view.findViewById(R.id.drawer);

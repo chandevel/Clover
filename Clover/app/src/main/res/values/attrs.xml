@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="post_options_drawable" format="integer" />
 
     <attr name="divider_color" format="color" />
+    <attr name="divider_split_color" format="color" />
 
     <attr name="dropdown_light_color" format="color" />
     <attr name="dropdown_light_pressed_color" format="color" />

@@ -57,6 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_highlighted_color">#FFD6BAD0</item>
 
         <item name="divider_color">#1e000000</item>
+        <item name="divider_split_color">#ffe1e1e1</item>
 
         <item name="dropdown_light_color">#ffffffff</item>
         <item name="dropdown_light_pressed_color">#88ffffff</item>
@@ -119,6 +120,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColor">#ff800000</item>
         <item name="text_color_primary">#ff800000</item>
         <item name="text_color_secondary">#89800000</item>
+
+        <item name="divider_split_color">#FFD4C6BD</item>
 
         <item name="post_subject_color">#ffcc1105</item>
         <item name="post_quote_color">#ff000080</item>

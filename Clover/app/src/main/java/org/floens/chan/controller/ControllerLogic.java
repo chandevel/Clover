@@ -46,8 +46,12 @@ public class ControllerLogic {
     }
 
     public static void transition(Controller from, Controller to, boolean pushing, ViewGroup toView) {
+        transition(from, to, pushing, !pushing, toView);
+    }
+
+    public static void transition(Controller from, Controller to, boolean createTo, boolean destroyFrom, ViewGroup toView) {
         if (to != null) {
-            if (pushing) {
+            if (createTo) {
                 to.onCreate();
             }
 
@@ -59,7 +63,7 @@ public class ControllerLogic {
             from.onHide();
             detach(from);
 
-            if (!pushing) {
+            if (destroyFrom) {
                 from.onDestroy();
             }
         }

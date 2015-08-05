@@ -19,6 +19,7 @@ package org.floens.chan.controller;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import org.floens.chan.ui.toolbar.Toolbar;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public abstract class NavigationController extends Controller implements Toolbar.ToolbarCallback, ControllerTransition.Callback {
     protected Toolbar toolbar;
-    protected FrameLayout container;
+    protected ViewGroup container;
 
     protected List<Controller> controllerList = new ArrayList<>();
     protected ControllerTransition controllerTransition;
@@ -69,9 +70,6 @@ public abstract class NavigationController extends Controller implements Toolbar
         return true;
     }
 
-    protected void controllerPushed(Controller controller) {
-    }
-
     public boolean popController() {
         return popController(true);
     }
@@ -91,9 +89,6 @@ public abstract class NavigationController extends Controller implements Toolbar
         return true;
     }
 
-    protected void controllerPopped(Controller controller) {
-    }
-
     public void transition(Controller from, Controller to, boolean pushing, ControllerTransition controllerTransition) {
         if (this.controllerTransition != null) {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
@@ -108,20 +103,18 @@ public abstract class NavigationController extends Controller implements Toolbar
             this.controllerTransition = controllerTransition;
             controllerTransition.setCallback(this);
             ControllerLogic.startTransition(from, to, pushing, container, controllerTransition);
-            if (to != null) {
-                toolbar.setNavigationItem(true, false, to.navigationItem);
-            }
         } else {
             ControllerLogic.transition(from, to, pushing, container);
-            if (to != null) {
-                toolbar.setNavigationItem(false, false, to.navigationItem);
-            }
             if (!pushing) {
                 controllerList.remove(from);
             }
         }
 
         if (to != null) {
+            if (toolbar != null) {
+                toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigationItem);
+            }
+
             updateToolbarCollapse(to, controllerTransition != null);
 
             if (pushing) {
@@ -130,6 +123,12 @@ public abstract class NavigationController extends Controller implements Toolbar
                 controllerPopped(to);
             }
         }
+    }
+
+    protected void controllerPushed(Controller controller) {
+    }
+
+    protected void controllerPopped(Controller controller) {
     }
 
     @Override
@@ -166,7 +165,7 @@ public abstract class NavigationController extends Controller implements Toolbar
     public boolean onBack() {
         if (blockingInput) return true;
 
-        if (toolbar.closeSearch()) {
+        if (toolbar != null && toolbar.closeSearch()) {
             return true;
         }
 
@@ -199,7 +198,9 @@ public abstract class NavigationController extends Controller implements Toolbar
     }
 
     public void showSearch() {
-        toolbar.openSearch();
+        if (toolbar != null) {
+            toolbar.openSearch();
+        }
     }
 
     @Override
@@ -224,13 +225,15 @@ public abstract class NavigationController extends Controller implements Toolbar
     public void onSearchEntered(String entered) {
     }
 
-    private void updateToolbarCollapse(Controller controller, boolean animate) {
-        if (!controller.navigationItem.collapseToolbar) {
-            FrameLayout.LayoutParams toViewParams = (FrameLayout.LayoutParams) controller.view.getLayoutParams();
-            toViewParams.topMargin = toolbar.getToolbarHeight();
-            controller.view.setLayoutParams(toViewParams);
-        }
+    protected void updateToolbarCollapse(Controller controller, boolean animate) {
+        if (toolbar != null) {
+            if (!controller.navigationItem.collapseToolbar) {
+                FrameLayout.LayoutParams toViewParams = (FrameLayout.LayoutParams) controller.view.getLayoutParams();
+                toViewParams.topMargin = toolbar.getToolbarHeight();
+                controller.view.setLayoutParams(toViewParams);
+            }
 
-        toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, animate);
+            toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, animate);
+        }
     }
 }
