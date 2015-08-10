@@ -27,6 +27,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import org.floens.chan.Chan;
@@ -40,8 +41,9 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.controller.BrowseController;
-import org.floens.chan.ui.controller.DrawerNavigationController;
+import org.floens.chan.ui.controller.DrawerController;
 import org.floens.chan.ui.controller.SplitNavigationController;
+import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.state.ChanState;
@@ -61,7 +63,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private List<Controller> stack = new ArrayList<>();
 
     private final BoardManager boardManager;
-    private NavigationController navigationController;
+    private DrawerController drawerController;
+    private NavigationController threadNavigationController;
     private BrowseController browseController;
 
     private ImagePickDelegate imagePickDelegate;
@@ -80,28 +83,31 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         contentView = (ViewGroup) findViewById(android.R.id.content);
 
-        NavigationController mainThreadController;
-        if (AndroidUtils.isTablet(this)) {
-            SplitNavigationController splitNavigationController = new SplitNavigationController(this);
-            splitNavigationController.onCreate();
-            splitNavigationController.onShow();
-            DrawerNavigationController leftController = new DrawerNavigationController(this);
-            splitNavigationController.setLeftController(leftController);
+        // Setup base controllers, and decide if to use the split layout for tablets
+        drawerController = new DrawerController(this);
+        drawerController.onCreate();
+        drawerController.onShow();
 
-            navigationController = splitNavigationController;
-            mainThreadController = leftController;
+        StyledToolbarNavigationController toolbarNavigationController = new StyledToolbarNavigationController(this);
+
+        if (AndroidUtils.isTablet(this) && !ChanSettings.forcePhoneLayout.get()) {
+            SplitNavigationController splitNavigationController = new SplitNavigationController(this);
+            splitNavigationController.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
+
+            drawerController.setChildController(splitNavigationController);
+
+            splitNavigationController.setLeftController(toolbarNavigationController);
+            threadNavigationController = toolbarNavigationController;
         } else {
-            navigationController = new DrawerNavigationController(this);
-            navigationController.onCreate();
-            mainThreadController = navigationController;
+            drawerController.setChildController(toolbarNavigationController);
+            threadNavigationController = toolbarNavigationController;
         }
 
-        setContentView(navigationController.view);
-        addController(navigationController);
-
         browseController = new BrowseController(this);
-        mainThreadController.pushController(browseController, false);
-        mainThreadController.onShow();
+        toolbarNavigationController.pushController(browseController, false);
+
+        setContentView(drawerController.view);
+        addController(drawerController);
 
         // Prevent overdraw
         // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable
@@ -171,9 +177,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         // Handle WatchNotifier clicks
         if (intent.getExtras() != null) {
             int pinId = intent.getExtras().getInt("pin_id", -2);
-            if (pinId != -2 && navigationController.getTop() instanceof BrowseController) {
+            if (pinId != -2 && threadNavigationController.getTop() instanceof BrowseController) {
                 if (pinId == -1) {
-                    navigationController.onMenuClicked();
+                    drawerController.onMenuClicked();
                 } else {
                     Pin pin = Chan.getWatchManager().findPinById(pinId);
                     if (pin != null) {
@@ -193,7 +199,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             Logger.w(TAG, "Can not save instance state, the board loadable is null");
         } else {
             Loadable thread = null;
-            List<Controller> controllers = navigationController.getControllerList();
+            List<Controller> controllers = threadNavigationController.getControllerList();
             for (Controller controller : controllers) {
                 if (controller instanceof ViewThreadController) {
                     thread = ((ViewThreadController) controller).getLoadable();
@@ -212,7 +218,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        Controller controller = navigationController.getTop();
+        Controller controller = threadNavigationController.getTop();
         if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
             return ((NfcAdapter.CreateNdefMessageCallback) controller).createNdefMessage(event);
         } else {

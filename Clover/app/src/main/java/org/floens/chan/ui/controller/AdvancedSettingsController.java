@@ -25,10 +25,12 @@ import android.widget.LinearLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.fragment.FolderPickFragment;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.IntegerSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
+import org.floens.chan.ui.settings.SettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
 import org.floens.chan.ui.settings.StringSettingView;
@@ -39,6 +41,8 @@ public class AdvancedSettingsController extends SettingsController {
     private static final String TAG = "AdvancedSettingsController";
 
     private LinkSettingView saveLocation;
+    private SettingView forcePhoneLayoutSetting;
+    private boolean needRestart;
 
     public AdvancedSettingsController(Context context) {
         super(context);
@@ -56,6 +60,24 @@ public class AdvancedSettingsController extends SettingsController {
         populatePreferences();
 
         buildPreferences();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (needRestart) {
+            ((StartActivity) context).restart();
+        }
+    }
+
+    @Override
+    public void onPreferenceChange(SettingView item) {
+        super.onPreferenceChange(item);
+
+        if (item == forcePhoneLayoutSetting) {
+            needRestart = true;
+        }
     }
 
     private void populatePreferences() {
@@ -86,7 +108,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.saveOriginalFilename, string(R.string.setting_save_original_filename), null));
         settings.add(new BooleanSettingView(this, ChanSettings.shareUrl, string(R.string.setting_share_url), string(R.string.setting_share_url_description)));
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, string(R.string.setting_network_https), string(R.string.setting_network_https_description)));
-        settings.add(new BooleanSettingView(this, ChanSettings.forcePhoneLayout, string(R.string.setting_force_phone_layout), null));
+        forcePhoneLayoutSetting = settings.add(new BooleanSettingView(this, ChanSettings.forcePhoneLayout, string(R.string.setting_force_phone_layout), null));
         settings.add(new BooleanSettingView(this, ChanSettings.anonymize, string(R.string.setting_anonymize), null));
         settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, string(R.string.setting_anonymize_ids), null));
         settings.add(new BooleanSettingView(this, ChanSettings.repliesButtonsBottom, string(R.string.setting_buttons_bottom), null));

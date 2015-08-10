@@ -50,7 +50,7 @@ import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class FiltersController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, DrawerNavigationController.ToolbarSearchCallback, View.OnClickListener {
+public class FiltersController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, ToolbarNavigationController.ToolbarSearchCallback, View.OnClickListener {
     private static final int SEARCH_ID = 1;
     private static final int CLEAR_ID = 101;
 
@@ -127,7 +127,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     @Override
     public void onMenuItemClicked(ToolbarMenuItem item) {
         if ((Integer) item.getId() == SEARCH_ID) {
-            navigationController.showSearch();
+            ((ToolbarNavigationController) navigationController).showSearch();
         }
     }
 

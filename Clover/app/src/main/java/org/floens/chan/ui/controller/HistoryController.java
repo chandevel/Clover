@@ -50,7 +50,7 @@ import java.util.Locale;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class HistoryController extends Controller implements CompoundButton.OnCheckedChangeListener, ToolbarMenuItem.ToolbarMenuItemCallback, DrawerNavigationController.ToolbarSearchCallback {
+public class HistoryController extends Controller implements CompoundButton.OnCheckedChangeListener, ToolbarMenuItem.ToolbarMenuItemCallback, ToolbarNavigationController.ToolbarSearchCallback {
     private static final int SEARCH_ID = 1;
     private static final int CLEAR_ID = 101;
 
@@ -94,7 +94,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     @Override
     public void onMenuItemClicked(ToolbarMenuItem item) {
         if ((Integer) item.getId() == SEARCH_ID) {
-            navigationController.showSearch();
+            ((ToolbarNavigationController) navigationController).showSearch();
         }
     }
 

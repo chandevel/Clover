@@ -53,10 +53,15 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
+    private Pin highlighted;
 
     public PinAdapter(Callback callback) {
         this.callback = callback;
         setHasStableIds(true);
+    }
+
+    public void setPinHighlighted(Pin highlighted) {
+        this.highlighted = highlighted;
     }
 
     @Override
@@ -242,7 +247,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
                     dp(16), holder.textView.getPaddingBottom());
         }
 
-        boolean highlighted = callback.isHighlighted(pin);
+        boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
             holder.itemView.setBackgroundColor(0x22000000);
             holder.highlighted = true;
@@ -376,8 +381,6 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         void onWatchCountClicked(Pin pin);
 
         void onHeaderClicked(HeaderHolder holder);
-
-        boolean isHighlighted(Pin pin);
 
         void onPinRemoved(Pin pin);
 

@@ -20,15 +20,11 @@ package org.floens.chan.controller;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-
-import org.floens.chan.ui.toolbar.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class NavigationController extends Controller implements Toolbar.ToolbarCallback, ControllerTransition.Callback {
-    protected Toolbar toolbar;
+public abstract class NavigationController extends Controller implements ControllerTransition.Callback {
     protected ViewGroup container;
 
     protected List<Controller> controllerList = new ArrayList<>();
@@ -60,6 +56,11 @@ public abstract class NavigationController extends Controller implements Toolbar
         if (blockingInput) return false;
 
         final Controller from = controllerList.size() > 0 ? controllerList.get(controllerList.size() - 1) : null;
+
+        if (from == null && controllerTransition != null) {
+            throw new IllegalArgumentException("Cannot animate push when from is null");
+        }
+
         to.navigationController = this;
         to.previousSiblingController = from;
 
@@ -111,12 +112,6 @@ public abstract class NavigationController extends Controller implements Toolbar
         }
 
         if (to != null) {
-            if (toolbar != null) {
-                toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigationItem);
-            }
-
-            updateToolbarCollapse(to, controllerTransition != null);
-
             if (pushing) {
                 controllerPushed(to);
             } else {
@@ -158,16 +153,8 @@ public abstract class NavigationController extends Controller implements Toolbar
         return controllerList;
     }
 
-    public Toolbar getToolbar() {
-        return toolbar;
-    }
-
     public boolean onBack() {
         if (blockingInput) return true;
-
-        if (toolbar != null && toolbar.closeSearch()) {
-            return true;
-        }
 
         if (controllerList.size() > 0) {
             Controller top = controllerList.get(controllerList.size() - 1);
@@ -190,50 +177,6 @@ public abstract class NavigationController extends Controller implements Toolbar
     public void onConfigurationChanged(Configuration newConfig) {
         for (Controller controller : controllerList) {
             controller.onConfigurationChanged(newConfig);
-        }
-    }
-
-    public void onMenuClicked() {
-
-    }
-
-    public void showSearch() {
-        if (toolbar != null) {
-            toolbar.openSearch();
-        }
-    }
-
-    @Override
-    public void onMenuOrBackClicked(boolean isArrow) {
-        if (isArrow) {
-            onBack();
-        } else {
-            onMenuClicked();
-        }
-    }
-
-    @Override
-    public void onSearchVisibilityChanged(boolean visible) {
-    }
-
-    @Override
-    public String getSearchHint() {
-        return "";
-    }
-
-    @Override
-    public void onSearchEntered(String entered) {
-    }
-
-    protected void updateToolbarCollapse(Controller controller, boolean animate) {
-        if (toolbar != null) {
-            if (!controller.navigationItem.collapseToolbar) {
-                FrameLayout.LayoutParams toViewParams = (FrameLayout.LayoutParams) controller.view.getLayoutParams();
-                toViewParams.topMargin = toolbar.getToolbarHeight();
-                controller.view.setLayoutParams(toViewParams);
-            }
-
-            toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, animate);
         }
     }
 }
