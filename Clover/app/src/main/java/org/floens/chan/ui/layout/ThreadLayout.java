@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
@@ -207,7 +208,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         String errorMessage;
         if (error.getCause() instanceof SSLException) {
             errorMessage = getContext().getString(R.string.thread_load_failed_ssl);
-        } else if ((error instanceof NoConnectionError) || (error instanceof NetworkError)) {
+        } else if ((error instanceof NoConnectionError) || (error instanceof NetworkError) || (error instanceof TimeoutError)) {
             errorMessage = getContext().getString(R.string.thread_load_failed_network);
         } else if (error instanceof ServerError) {
             errorMessage = getContext().getString(R.string.thread_load_failed_server);
