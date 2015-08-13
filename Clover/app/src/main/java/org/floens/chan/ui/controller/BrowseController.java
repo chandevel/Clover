@@ -29,7 +29,6 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
@@ -117,7 +116,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         Integer id = (Integer) item.getId();
         switch (id) {
             case SEARCH_ID:
-                navigationController.showSearch();
+                ((ToolbarNavigationController) navigationController).showSearch();
                 break;
             case SHARE_ID:
             case OPEN_BROWSER_ID:
@@ -200,7 +199,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         if (menu == navigationItem.middleMenu) {
             if (item instanceof FloatingMenuItemBoard) {
                 loadBoard(((FloatingMenuItemBoard) item).board);
-                navigationController.getToolbar().updateNavigation();
+                ((ToolbarNavigationController) navigationController).getToolbar().updateNavigation();
             } else {
                 navigationController.pushController(new BoardEditController(context));
                 menu.dismiss();
@@ -213,6 +212,11 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     @Override
+    public void openPin(Pin pin) {
+        showThread(pin.loadable);
+    }
+
+    @Override
     public void showThread(Loadable threadLoadable) {
         showThread(threadLoadable, true);
     }
@@ -221,13 +225,18 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         if (navigationController.navigationController instanceof SplitNavigationController) {
             SplitNavigationController splitNavigationController = (SplitNavigationController) navigationController.navigationController;
 
-            Controller controller = splitNavigationController.rightController;
-            if (controller instanceof ViewThreadController) {
-                ((ViewThreadController) controller).loadLoadable(threadLoadable);
+            if (splitNavigationController.rightController instanceof StyledToolbarNavigationController) {
+                StyledToolbarNavigationController navigationController = (StyledToolbarNavigationController) splitNavigationController.rightController;
+
+                if (navigationController.getTop() instanceof ViewThreadController) {
+                    ((ViewThreadController) navigationController.getTop()).loadThread(threadLoadable);
+                }
             } else {
+                StyledToolbarNavigationController navigationController = new StyledToolbarNavigationController(context);
+                splitNavigationController.setRightController(navigationController);
                 ViewThreadController viewThreadController = new ViewThreadController(context);
                 viewThreadController.setLoadable(threadLoadable);
-                splitNavigationController.setRightController(viewThreadController);
+                navigationController.pushController(viewThreadController, false);
             }
         } else {
             ViewThreadController viewThreadController = new ViewThreadController(context);
@@ -238,16 +247,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     public void onEvent(BoardManager.BoardsChangedMessage event) {
         loadBoards();
-    }
-
-    @Override
-    public void onPinClicked(Pin pin) {
-        showThread(pin.loadable);
-    }
-
-    @Override
-    public boolean isPinCurrent(Pin pin) {
-        return false;
     }
 
     public void loadBoard(Board board) {

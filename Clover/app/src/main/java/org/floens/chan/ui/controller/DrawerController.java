@@ -27,8 +27,8 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,14 +36,12 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.controller.ControllerTransition;
+import org.floens.chan.controller.ControllerLogic;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.adapter.PinAdapter;
 import org.floens.chan.ui.helper.SwipeListener;
-import org.floens.chan.ui.theme.ThemeHelper;
-import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
@@ -55,16 +53,19 @@ import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
-public class DrawerNavigationController extends NavigationController implements PinAdapter.Callback, View.OnClickListener {
+public class DrawerController extends Controller implements PinAdapter.Callback, View.OnClickListener {
     private WatchManager watchManager;
 
+    protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
     protected LinearLayout settings;
     protected PinAdapter pinAdapter;
 
-    public DrawerNavigationController(Context context) {
+    private NavigationController childController;
+
+    public DrawerController(Context context) {
         super(context);
     }
 
@@ -77,8 +78,7 @@ public class DrawerNavigationController extends NavigationController implements 
         EventBus.getDefault().register(this);
 
         view = inflateRes(R.layout.controller_navigation_drawer);
-        container = (ViewGroup) view.findViewById(R.id.container);
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        container = (FrameLayout) view.findViewById(R.id.container);
         drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
         drawer = (LinearLayout) view.findViewById(R.id.drawer);
@@ -89,16 +89,12 @@ public class DrawerNavigationController extends NavigationController implements 
         theme().settingsDrawable.apply((ImageView) settings.findViewById(R.id.image));
         ((TextView) settings.findViewById(R.id.text)).setTypeface(ROBOTO_MEDIUM);
 
-        toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
-
         pinAdapter = new PinAdapter(this);
         recyclerView.setAdapter(pinAdapter);
 
         new SwipeListener(context, recyclerView, pinAdapter);
 
         pinAdapter.onPinsChanged(watchManager.getPins());
-
-        toolbar.setCallback(this);
 
         updateBadge();
 
@@ -114,7 +110,17 @@ public class DrawerNavigationController extends NavigationController implements 
     public void onDestroy() {
         super.onDestroy();
 
+        if (childController != null) {
+            childController.onDestroy();
+        }
+
         EventBus.getDefault().unregister(this);
+    }
+
+    public void setChildController(NavigationController childController) {
+        childController.parentController = this;
+        ControllerLogic.transition(this.childController, childController, true, true, container);
+        this.childController = childController;
     }
 
     @Override
@@ -132,14 +138,11 @@ public class DrawerNavigationController extends NavigationController implements 
     @Override
     public void onClick(View v) {
         if (v == settings) {
-            pushController(new MainSettingsController(context));
+            openController(new MainSettingsController(context));
         }
     }
 
-    @Override
     public void onMenuClicked() {
-        super.onMenuClicked();
-
         drawerLayout.openDrawer(drawer);
     }
 
@@ -148,49 +151,31 @@ public class DrawerNavigationController extends NavigationController implements 
         if (drawerLayout.isDrawerOpen(drawer)) {
             drawerLayout.closeDrawer(drawer);
             return true;
+        } else if (childController != null && childController.onBack()) {
+            return true;
         } else {
             return super.onBack();
         }
     }
 
     @Override
-    protected void controllerPushed(Controller controller) {
-        super.controllerPushed(controller);
-        setDrawerEnabled(controller.navigationItem.hasDrawer);
-    }
-
-    @Override
-    protected void controllerPopped(Controller controller) {
-        super.controllerPopped(controller);
-        setDrawerEnabled(controller.navigationItem.hasDrawer);
-    }
-
-    @Override
-    public void onControllerTransitionCompleted(ControllerTransition transition) {
-        super.onControllerTransitionCompleted(transition);
-        updateHighlighted();
-    }
-
-    public void updateHighlighted() {
-        pinAdapter.updateHighlighted(recyclerView);
-    }
-
-    @Override
     public void onPinClicked(Pin pin) {
-        Controller top = getTop();
-        if (top instanceof DrawerCallback) {
-            ((DrawerCallback) top).onPinClicked(pin);
-            drawerLayout.closeDrawer(Gravity.LEFT);
-            pinAdapter.updateHighlighted(recyclerView);
-        }
-    }
+        drawerLayout.closeDrawer(Gravity.LEFT);
 
-    public boolean isHighlighted(Pin pin) {
-        Controller top = getTop();
-        if (top instanceof DrawerCallback) {
-            return ((DrawerCallback) top).isPinCurrent(pin);
+        if (childController instanceof StyledToolbarNavigationController) {
+            if (childController.getTop() instanceof ThreadController) {
+                ((ThreadController) childController.getTop()).openPin(pin);
+            }
+        } else if (childController instanceof SplitNavigationController) {
+            SplitNavigationController splitNavigationController = (SplitNavigationController) childController;
+            if (splitNavigationController.leftController instanceof NavigationController) {
+                NavigationController navigationController = (NavigationController) splitNavigationController.leftController;
+                if (navigationController.getTop() instanceof ThreadController) {
+                    ThreadController threadController = (ThreadController) navigationController.getTop();
+                    threadController.openPin(pin);
+                }
+            }
         }
-        return false;
     }
 
     @Override
@@ -200,7 +185,7 @@ public class DrawerNavigationController extends NavigationController implements 
 
     @Override
     public void onHeaderClicked(PinAdapter.HeaderHolder holder) {
-        pushController(new WatchSettingsController(context));
+        openController(new WatchSettingsController(context));
     }
 
     @Override
@@ -251,12 +236,17 @@ public class DrawerNavigationController extends NavigationController implements 
 
     @Override
     public void openBoardEditor() {
-        pushController(new BoardEditController(context));
+        openController(new BoardEditController(context));
     }
 
     @Override
     public void openHistory() {
-        pushController(new HistoryController(context));
+        openController(new HistoryController(context));
+    }
+
+    public void setPinHighlighted(Pin pin) {
+        pinAdapter.setPinHighlighted(pin);
+        pinAdapter.updateHighlighted(recyclerView);
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
@@ -275,7 +265,7 @@ public class DrawerNavigationController extends NavigationController implements 
         updateBadge();
     }
 
-    private void setDrawerEnabled(boolean enabled) {
+    public void setDrawerEnabled(boolean enabled) {
         drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
     }
 
@@ -292,7 +282,14 @@ public class DrawerNavigationController extends NavigationController implements 
             }
         }
 
-        toolbar.getArrowMenuDrawable().setBadge(count, color);
+        if (childController instanceof StyledToolbarNavigationController) {
+            ((StyledToolbarNavigationController) childController).toolbar.getArrowMenuDrawable().setBadge(count, color);
+        } else if (childController instanceof SplitNavigationController) {
+            SplitNavigationController splitNavigationController = (SplitNavigationController) childController;
+            if (splitNavigationController.leftController instanceof StyledToolbarNavigationController) {
+                ((StyledToolbarNavigationController) splitNavigationController.leftController).toolbar.getArrowMenuDrawable().setBadge(count, color);
+            }
+        }
     }
 
     private boolean setDrawerWidth() {
@@ -306,36 +303,8 @@ public class DrawerNavigationController extends NavigationController implements 
         }
     }
 
-    @Override
-    public String getSearchHint() {
-        return context.getString(R.string.search_hint);
-    }
-
-    @Override
-    public void onSearchVisibilityChanged(boolean visible) {
-        Controller top = getTop();
-        if (top instanceof ToolbarSearchCallback) {
-            ((ToolbarSearchCallback) top).onSearchVisibilityChanged(visible);
-        }
-    }
-
-    @Override
-    public void onSearchEntered(String entered) {
-        Controller top = getTop();
-        if (top instanceof ToolbarSearchCallback) {
-            ((ToolbarSearchCallback) top).onSearchEntered(entered);
-        }
-    }
-
-    public interface DrawerCallback {
-        void onPinClicked(Pin pin);
-
-        boolean isPinCurrent(Pin pin);
-    }
-
-    public interface ToolbarSearchCallback {
-        void onSearchVisibilityChanged(boolean visible);
-
-        void onSearchEntered(String entered);
+    private void openController(Controller controller) {
+        childController.pushController(controller);
+        drawerLayout.closeDrawer(Gravity.LEFT);
     }
 }

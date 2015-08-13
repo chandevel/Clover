@@ -79,20 +79,18 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 new FloatingMenuItem(DOWN_ID, context.getString(R.string.action_down))
         ));
 
-        loadLoadable(loadable);
-    }
-
-    @Override
-    public void onShow() {
-        super.onShow();
-        if (navigationController instanceof DrawerNavigationController) {
-            ((DrawerNavigationController) navigationController).updateHighlighted();
-        }
+        loadThread(loadable);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        updateDrawerHighlighting(null);
+    }
+
+    @Override
+    public void openPin(Pin pin) {
+        loadThread(pin.loadable);
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
@@ -114,10 +112,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
-                        loadLoadable(threadLoadable);
-                        if (navigationController instanceof DrawerNavigationController) {
-                            ((DrawerNavigationController) navigationController).updateHighlighted();
-                        }
+                        loadThread(threadLoadable);
                     }
                 })
                 .setTitle(R.string.open_thread_confirmation)
@@ -125,17 +120,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .show();
     }
 
-    @Override
-    public void onPinClicked(Pin pin) {
-        loadLoadable(pin.loadable);
-    }
-
-    @Override
-    public boolean isPinCurrent(Pin pin) {
-        return pin.loadable.equals(threadLayout.getPresenter().getLoadable());
-    }
-
-    public void loadLoadable(Loadable loadable) {
+    public void loadThread(Loadable loadable) {
         if (!loadable.equals(threadLayout.getPresenter().getLoadable())) {
             threadLayout.getPresenter().bindLoadable(loadable);
             this.loadable = threadLayout.getPresenter().getLoadable();
@@ -143,6 +128,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             navigationItem.title = loadable.title;
             navigationItem.updateTitle();
             setPinIconState(threadLayout.getPresenter().isPinned());
+
+            updateDrawerHighlighting(loadable);
         }
     }
 
@@ -172,7 +159,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 threadLayout.getPresenter().requestData();
                 break;
             case SEARCH_ID:
-                navigationController.showSearch();
+                ((ToolbarNavigationController) navigationController).showSearch();
                 break;
             case SHARE_ID:
             case OPEN_BROWSER_ID:
@@ -191,6 +178,19 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 boolean up = id == UP_ID;
                 threadLayout.getPresenter().scrollTo(up ? 0 : -1, false);
                 break;
+        }
+    }
+
+    private void updateDrawerHighlighting(Loadable loadable) {
+        WatchManager wm = Chan.getWatchManager();
+        Pin pin = loadable == null ? null : wm.findPinByLoadable(loadable);
+
+        if (navigationController.parentController instanceof DrawerController) {
+            ((DrawerController) navigationController.parentController).setPinHighlighted(pin);
+        } else if (navigationController.navigationController instanceof SplitNavigationController) {
+            if (((SplitNavigationController) navigationController.navigationController).parentController instanceof DrawerController) {
+                ((DrawerController) ((SplitNavigationController) navigationController.navigationController).parentController).setPinHighlighted(pin);
+            }
         }
     }
 

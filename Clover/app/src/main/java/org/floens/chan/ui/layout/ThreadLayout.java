@@ -184,6 +184,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public boolean collapseToolbar() {
+        return callback.collapseToolbar();
+    }
+
+    @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
         switchVisible(Visible.THREAD);
@@ -496,5 +501,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         void hideSwipeRefreshLayout();
 
         Toolbar getToolbar();
+
+        boolean collapseToolbar();
     }
 }

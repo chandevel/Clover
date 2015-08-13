@@ -20,6 +20,7 @@ package org.floens.chan.ui.controller;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -40,6 +41,10 @@ public class SplitNavigationController extends NavigationController implements A
     private FrameLayout leftControllerView;
     private FrameLayout rightControllerView;
     private View dividerView;
+    private ViewGroup emptyView;
+
+    private PopupController popup;
+    private StyledToolbarNavigationController popupChild;
 
     public SplitNavigationController(Context context) {
         super(context);
@@ -62,7 +67,25 @@ public class SplitNavigationController extends NavigationController implements A
         rightControllerView = new FrameLayout(context);
         wrap.addView(rightControllerView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
 
+        setRightController(null);
+
         AndroidUtils.waitForMeasure(view, this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (leftController != null) {
+            leftController.onDestroy();
+        }
+        if (rightController != null) {
+            rightController.onDestroy();
+        }
+    }
+
+    public void setEmptyView(ViewGroup emptyView) {
+        this.emptyView = emptyView;
     }
 
     public void setLeftController(Controller leftController) {
@@ -72,57 +95,67 @@ public class SplitNavigationController extends NavigationController implements A
     }
 
     public void setRightController(Controller rightController) {
-        rightController.navigationController = this;
+        if (rightController != null) {
+            rightController.navigationController = this;
+        } else {
+            rightControllerView.removeAllViews();
+        }
+
         ControllerLogic.transition(this.rightController, rightController, true, true, rightControllerView);
         this.rightController = rightController;
+
+        if (rightController == null) {
+            rightControllerView.addView(emptyView);
+        }
     }
 
     @Override
-    public void transition(Controller from, Controller to, boolean pushing, ControllerTransition controllerTransition) {
-        if (this.controllerTransition != null) {
-            throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
-        }
-
-        if (!pushing && controllerList.size() == 0) {
-            throw new IllegalArgumentException("Cannot pop with no controllers left");
-        }
-
-        if (controllerTransition != null) {
-            blockingInput = true;
-            this.controllerTransition = controllerTransition;
-            controllerTransition.setCallback(this);
-            ControllerLogic.startTransition(from, to, pushing, leftControllerView, controllerTransition);
+    public boolean pushController(Controller to, ControllerTransition controllerTransition) {
+        if (popup == null) {
+            popup = new PopupController(context);
+            presentController(popup);
+            popupChild = new StyledToolbarNavigationController(context);
+            popup.setChildController(popupChild);
+            popupChild.pushController(to, false);
         } else {
-            ControllerLogic.transition(from, to, pushing, leftControllerView);
-            if (!pushing) {
-                controllerList.remove(from);
-            }
+            popupChild.pushController(to, controllerTransition);
         }
 
-        if (to != null) {
-            toolbar.setNavigationItem(controllerTransition != null, false, to.navigationItem);
+        return true;
+    }
 
-            updateToolbarCollapse(to, controllerTransition != null);
-
-            if (pushing) {
-                controllerPushed(to);
+    @Override
+    public boolean popController(ControllerTransition controllerTransition) {
+        if (popup != null) {
+            if (popupChild.getControllerList().size() == 1) {
+                presentedController.stopPresenting();
+                popup = null;
+                popupChild = null;
             } else {
-                controllerPopped(to);
+                popupChild.popController(controllerTransition);
             }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void popAll() {
+        if (popup != null) {
+            presentedController.stopPresenting();
+            popup = null;
+            popupChild = null;
         }
     }
 
     @Override
     public boolean onBack() {
-        if (!super.onBack()) {
-            if (rightController != null && rightController.onBack()) {
-                return true;
-            }
-            if (leftController != null && leftController.onBack()) {
-                return true;
-            }
+        if (leftController != null && leftController.onBack()) {
+            return true;
+        } else if (rightController != null && rightController.onBack()) {
+            return true;
         }
-        return false;
+        return super.onBack();
     }
 
     @Override

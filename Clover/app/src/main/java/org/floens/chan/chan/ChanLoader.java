@@ -301,7 +301,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
                 }
             };
 
-            Logger.d(TAG, "Scheduled reload in " + watchTimeouts[currentTimeout] * 1000L);
+            Logger.d(TAG, "Scheduled reload in " + watchTimeouts[currentTimeout] + "s");
             pendingFuture = executor.schedule(pendingRunnable, watchTimeouts[currentTimeout], TimeUnit.SECONDS);
         }
     }

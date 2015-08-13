@@ -57,5 +57,19 @@ public abstract class ImageSearch {
                 return "http://iqdb.org/?url=" + imageUrl;
             }
         });
+
+        engines.add(new ImageSearch() {
+            public int getId() {
+                return 2;
+            }
+
+            public String getName() {
+                return "TinEye";
+            }
+
+            public String getUrl(String imageUrl) {
+                return "http://tineye.com/search/?url=" + imageUrl;
+            }
+        });
     }
 }

@@ -141,6 +141,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         setNavigationItem(false, false, navigationItem);
     }
 
+    public NavigationItem getNavigationItem() {
+        return navigationItem;
+    }
+
     public boolean openSearch() {
         return openSearchInternal();
     }
@@ -223,7 +227,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     private boolean openSearchInternal() {
-        if (!navigationItem.search) {
+        if (navigationItem != null && !navigationItem.search) {
             navigationItem.search = true;
             openKeyboardAfterSearchViewCreated = true;
             setNavigationItem(true, true, navigationItem);
@@ -236,7 +240,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     private boolean closeSearchInternal() {
-        if (navigationItem.search) {
+        if (navigationItem != null && navigationItem.search) {
             navigationItem.search = false;
             navigationItem.searchText = null;
             setNavigationItemInternal(true, false, navigationItem);

@@ -34,6 +34,8 @@ public abstract class Controller {
 
     public NavigationItem navigationItem = new NavigationItem();
 
+    public Controller parentController;
+
     // NavigationControllers members
     public Controller previousSiblingController;
     public NavigationController navigationController;

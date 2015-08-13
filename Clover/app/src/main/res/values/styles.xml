@@ -81,6 +81,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="text_color_hint">#4cffffff</item>
 
         <item name="divider_color">#1effffff</item>
+        <item name="divider_split_color">#ff3d3d3d</item>
 
         <item name="post_saved_reply_color">#ff5C5C5C</item>
         <item name="post_highlighted_color">#ff444444</item>
