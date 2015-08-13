@@ -48,6 +48,7 @@ public class Loadable {
     @DatabaseField
     public int listViewTop;
 
+    @DatabaseField
     public int lastViewed = -1;
 
     public int markedNo = -1;
