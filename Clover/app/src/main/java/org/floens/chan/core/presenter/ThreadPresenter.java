@@ -278,6 +278,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
 
         threadPresenterCallback.showNewPostsNotification(false, -1);
+        // Update the last seen indicator
+        showPosts();
     }
 
     public void scrollTo(int position, boolean smooth) {

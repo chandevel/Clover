@@ -168,6 +168,8 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         for (ChanLoaderCallback l : listeners) {
             l.onChanLoaderData(thread);
         }
+
+        requestMoreData();
     }
 
     /**

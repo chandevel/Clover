@@ -49,6 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_link_color">#ff0000B4</item>
         <item name="post_spoiler_color">#ff000000</item>
         <item name="post_capcode_color">#ffff0000</item>
+        <item name="post_last_seen_color">#ffff0000</item>
 
         <item name="post_id_background_light">#ff636363</item>
         <item name="post_id_background_dark">#00000000</item>

@@ -147,6 +147,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         switch ((Integer) item.getId()) {
             case PIN_ID:
                 setPinIconState(threadLayout.getPresenter().pin());
+                updateDrawerHighlighting(loadable);
                 break;
         }
     }
