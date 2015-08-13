@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
@@ -26,6 +27,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -46,6 +49,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private int fadeTime = 200;
 
     private boolean circular = false;
+    private boolean clickable = false;
 
     private boolean calculate;
     private Bitmap bitmap;
@@ -62,6 +66,8 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private String errorText;
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect tmpTextRect = new Rect();
+    private Drawable foreground;
+    private boolean foregroundBoundsChanged = false;
 
     public ThumbnailView(Context context) {
         super(context);
@@ -102,6 +108,34 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     public void setCircular(boolean circular) {
         this.circular = circular;
+    }
+
+    @SuppressWarnings({"deprecation", "ConstantConditions"})
+    @Override
+    public void setClickable(boolean clickable) {
+        super.setClickable(clickable);
+
+        if (clickable != this.clickable) {
+            this.clickable = clickable;
+
+            foregroundBoundsChanged = clickable;
+            if (clickable) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    foreground = getContext().getDrawable(R.drawable.item_background);
+                } else {
+                    foreground = getResources().getDrawable(R.drawable.item_background);
+                }
+                foreground.setCallback(this);
+                if (foreground.isStateful()) {
+                    foreground.setState(getDrawableState());
+                }
+            } else {
+                unscheduleDrawable(foreground);
+                foreground = null;
+            }
+            requestLayout();
+            invalidate();
+        }
     }
 
     public void setFadeTime(int fadeTime) {
@@ -151,6 +185,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         calculate = true;
+        foregroundBoundsChanged = true;
     }
 
     @Override
@@ -208,6 +243,50 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
                 canvas.drawBitmap(bitmap, matrix, paint);
             }
             canvas.restore();
+            canvas.save();
+
+            if (foreground != null) {
+                if (foregroundBoundsChanged) {
+                    foregroundBoundsChanged = false;
+                    foreground.setBounds(0, 0, getRight(), getBottom());
+                }
+
+                foreground.draw(canvas);
+            }
+
+            canvas.restore();
+        }
+    }
+
+    @Override
+    protected boolean verifyDrawable(Drawable who) {
+        return super.verifyDrawable(who) || (who == foreground);
+    }
+
+    @Override
+    public void jumpDrawablesToCurrentState() {
+        super.jumpDrawablesToCurrentState();
+
+        if (foreground != null) {
+            foreground.jumpToCurrentState();
+        }
+    }
+
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        if (foreground != null && foreground.isStateful()) {
+            foreground.setState(getDrawableState());
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void drawableHotspotChanged(float x, float y) {
+        super.drawableHotspotChanged(x, y);
+
+        if (foreground != null) {
+            foreground.setHotspot(x, y);
         }
     }
 

@@ -158,6 +158,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         dividerParams.rightMargin = paddingPx;
         divider.setLayoutParams(dividerParams);
 
+        thumbnailView.setClickable(true);
         thumbnailView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
