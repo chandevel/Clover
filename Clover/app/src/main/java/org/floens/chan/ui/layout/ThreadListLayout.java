@@ -100,9 +100,11 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
                 // onScrolled can be called after cleanup()
                 if (showingThread != null) {
                     int index = Math.max(0, getTopAdapterPosition());
-//                    int top = recyclerView.getLayoutManager().getChildAt(0).getTop();
+                    View topChild = recyclerView.getLayoutManager().getChildAt(0);
+                    int top = topChild == null ? 0 : topChild.getTop();
+
                     showingThread.loadable.listViewIndex = index;
-//                    showingThread.loadable.listViewTop = top;
+                    showingThread.loadable.listViewTop = top;
 
                     int last = getCompleteBottomAdapterPosition();
                     if (last == postAdapter.getUnfilteredDisplaySize() - 1 && last > lastPostCount) {
