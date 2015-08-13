@@ -27,6 +27,7 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -121,15 +122,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     public void loadThread(Loadable loadable) {
-        if (!loadable.equals(threadLayout.getPresenter().getLoadable())) {
-            threadLayout.getPresenter().bindLoadable(loadable);
-            this.loadable = threadLayout.getPresenter().getLoadable();
-            threadLayout.getPresenter().requestData();
+        ThreadPresenter presenter = threadLayout.getPresenter();
+        if (!loadable.equals(presenter.getLoadable())) {
+            presenter.bindLoadable(loadable);
+            this.loadable = presenter.getLoadable();
             navigationItem.title = loadable.title;
             navigationItem.updateTitle();
-            setPinIconState(threadLayout.getPresenter().isPinned());
-
+            setPinIconState(presenter.isPinned());
             updateDrawerHighlighting(loadable);
+            presenter.requestInitialData();
         }
     }
 

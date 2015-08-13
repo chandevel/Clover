@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.net;
 
+import android.util.LruCache;
+
 import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.core.model.Loadable;
 
@@ -24,21 +26,39 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoaderPool {
-    //    private static final String TAG = "LoaderPool";
+    // private static final String TAG = "LoaderPool";
+    public static final int THREAD_LOADERS_CACHE_SIZE = 25;
 
     private static LoaderPool instance = new LoaderPool();
-
-    private static Map<Loadable, ChanLoader> loaders = new HashMap<>();
 
     public static LoaderPool getInstance() {
         return instance;
     }
 
+    private Map<Loadable, ChanLoader> threadLoaders = new HashMap<>();
+    private LruCache<Loadable, ChanLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
+
+    private LoaderPool() {
+    }
+
     public ChanLoader obtain(Loadable loadable, ChanLoader.ChanLoaderCallback listener) {
-        ChanLoader chanLoader = loaders.get(loadable);
-        if (chanLoader == null) {
+        ChanLoader chanLoader;
+        if (loadable.isThreadMode()) {
+            chanLoader = threadLoaders.get(loadable);
+            if (chanLoader == null) {
+                chanLoader = threadLoadersCache.get(loadable);
+                if (chanLoader != null) {
+                    threadLoadersCache.remove(loadable);
+                    threadLoaders.put(loadable, chanLoader);
+                }
+            }
+
+            if (chanLoader == null) {
+                chanLoader = new ChanLoader(loadable);
+                threadLoaders.put(loadable, chanLoader);
+            }
+        } else {
             chanLoader = new ChanLoader(loadable);
-            loaders.put(loadable, chanLoader);
         }
 
         chanLoader.addListener(listener);
@@ -47,20 +67,20 @@ public class LoaderPool {
     }
 
     public void release(ChanLoader chanLoader, ChanLoader.ChanLoaderCallback listener) {
-        ChanLoader foundChanLoader = null;
-        for (Loadable l : loaders.keySet()) {
-            if (chanLoader.getLoadable().equals(l)) {
-                foundChanLoader = loaders.get(l);
-                break;
+        Loadable loadable = chanLoader.getLoadable();
+        if (loadable.isThreadMode()) {
+            ChanLoader foundChanLoader = threadLoaders.get(loadable);
+
+            if (foundChanLoader == null) {
+                throw new IllegalStateException("The released loader does not exist");
             }
-        }
 
-        if (foundChanLoader == null) {
-            throw new RuntimeException("The released loader does not exist");
-        }
-
-        if (chanLoader.removeListener(listener)) {
-            loaders.remove(chanLoader.getLoadable());
+            if (chanLoader.removeListener(listener)) {
+                threadLoaders.remove(loadable);
+                threadLoadersCache.put(loadable, chanLoader);
+            }
+        } else {
+            chanLoader.removeListener(listener);
         }
     }
 }

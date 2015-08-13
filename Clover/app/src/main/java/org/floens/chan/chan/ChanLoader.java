@@ -51,7 +51,6 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     private final RequestQueue volleyRequestQueue;
     private ChanThread thread;
 
-    private boolean destroyed = false;
     private boolean autoReload = false;
     private ChanReaderRequest request;
 
@@ -73,25 +72,27 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     /**
      * Add a LoaderListener
      *
-     * @param l the listener to add
+     * @param listener the listener to add
      */
-    public void addListener(ChanLoaderCallback l) {
-        listeners.add(l);
+    public void addListener(ChanLoaderCallback listener) {
+        listeners.add(listener);
     }
 
     /**
      * Remove a LoaderListener
      *
-     * @param l the listener to remove
+     * @param listener the listener to remove
      * @return true if there are no more listeners, false otherwise
      */
-    public boolean removeListener(ChanLoaderCallback l) {
-        listeners.remove(l);
-        if (listeners.size() == 0) {
+    public boolean removeListener(ChanLoaderCallback listener) {
+        listeners.remove(listener);
+        if (listeners.isEmpty()) {
             clearTimer();
-            destroyed = true;
+            currentTimeout = 0;
+            autoReload = false;
             if (request != null) {
                 request.cancel();
+                request = null;
             }
             return true;
         } else {
@@ -133,6 +134,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
 
         if (request != null) {
             request.cancel();
+            // request = null;
         }
 
         if (loadable.isCatalogMode()) {
@@ -155,6 +157,16 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
 
         if (loadable.isThreadMode() && request == null) {
             request = getData();
+        }
+    }
+
+    public void quickLoad() {
+        if (thread == null) {
+            throw new IllegalStateException("Cannot quick load without already loaded thread");
+        }
+
+        for (ChanLoaderCallback l : listeners) {
+            l.onChanLoaderData(thread);
         }
     }
 
@@ -193,8 +205,6 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     @Override
     public void onResponse(ChanReaderRequest.ChanReaderResponse response) {
         request = null;
-        if (destroyed)
-            return;
 
         if (response.posts.size() == 0) {
             onErrorResponse(new VolleyError("Post size is 0"));
@@ -232,8 +242,6 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     @Override
     public void onErrorResponse(VolleyError error) {
         request = null;
-        if (destroyed)
-            return;
 
         Logger.i(TAG, "Loading error", error);
 
