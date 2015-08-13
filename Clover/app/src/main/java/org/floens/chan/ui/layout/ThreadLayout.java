@@ -253,7 +253,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     public void clipboardPost(Post post) {
-        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppRes().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("Post text", post.comment.toString());
         clipboard.setPrimaryClip(clip);
         Toast.makeText(getContext(), R.string.post_text_copied, Toast.LENGTH_SHORT).show();

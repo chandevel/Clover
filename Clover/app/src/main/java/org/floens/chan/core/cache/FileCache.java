@@ -295,6 +295,10 @@ public class FileCache {
             }
         }
 
+        public Future<?> getFuture() {
+            return future;
+        }
+
         private void setFuture(Future<?> future) {
             this.future = future;
         }

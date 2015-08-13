@@ -88,7 +88,7 @@ public class Theme {
     }
 
     private void resolveSpanColors() {
-        Resources.Theme theme = AndroidUtils.getAppRes().getResources().newTheme();
+        Resources.Theme theme = AndroidUtils.getAppContext().getResources().newTheme();
         theme.applyStyle(R.style.Chan_Theme, true);
         theme.applyStyle(resValue, true);
 

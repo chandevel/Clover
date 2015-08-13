@@ -69,14 +69,14 @@ public class AndroidUtils {
         ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
         ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
 
-        connectivityManager = (ConnectivityManager) getAppRes().getSystemService(Context.CONNECTIVITY_SERVICE);
+        connectivityManager = (ConnectivityManager) getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     public static Resources getRes() {
         return Chan.con.getResources();
     }
 
-    public static Context getAppRes() {
+    public static Context getAppContext() {
         return Chan.con;
     }
 
@@ -108,12 +108,12 @@ public class AndroidUtils {
      * @param link url to open
      */
     public static void openLink(String link) {
-        PackageManager pm = getAppRes().getPackageManager();
+        PackageManager pm = getAppContext().getPackageManager();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
 
         ComponentName resolvedActivity = intent.resolveActivity(pm);
-        boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(getAppRes().getPackageName());
+        boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
         if (!thisAppIsDefault) {
             openIntent(intent);
         } else {
@@ -121,7 +121,7 @@ public class AndroidUtils {
             List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
             List<Intent> filteredIntents = new ArrayList<>(resolveInfos.size());
             for (ResolveInfo info : resolveInfos) {
-                if (!info.activityInfo.packageName.equals(getAppRes().getPackageName())) {
+                if (!info.activityInfo.packageName.equals(getAppContext().getPackageName())) {
                     Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
                     i.setPackage(info.activityInfo.packageName);
                     filteredIntents.add(i);
@@ -149,15 +149,15 @@ public class AndroidUtils {
 
     public static void openIntent(Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (intent.resolveActivity(getAppRes().getPackageManager()) != null) {
-            getAppRes().startActivity(intent);
+        if (intent.resolveActivity(getAppContext().getPackageManager()) != null) {
+            getAppContext().startActivity(intent);
         } else {
             openIntentFailed();
         }
     }
 
     private static void openIntentFailed() {
-        Toast.makeText(getAppRes(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
+        Toast.makeText(getAppContext(), R.string.open_link_failed, Toast.LENGTH_LONG).show();
     }
 
     public static int getAttrColor(Context context, int attr) {

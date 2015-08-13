@@ -32,7 +32,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Build;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +52,7 @@ import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
+import org.floens.chan.core.saver.ImageSaveTask;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
@@ -67,7 +67,7 @@ import org.floens.chan.ui.view.OptionalSwipeViewPager;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.ImageSaver;
+import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -190,20 +190,9 @@ public class ImageViewerController extends Controller implements View.OnClickLis
                 break;
             case SAVE_ALBUM:
                 List<PostImage> all = presenter.getAllPostImages();
-                List<ImageSaver.DownloadPair> list = new ArrayList<>();
-
-                String folderName = presenter.getLoadable().title;
-                if (TextUtils.isEmpty(folderName)) {
-                    folderName = String.valueOf(presenter.getLoadable().no);
-                }
-
-                String filename;
-                for (PostImage post : all) {
-                    filename = (ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename) + "." + post.extension;
-                    list.add(new ImageSaver.DownloadPair(post.imageUrl, filename));
-                }
-
-                ImageSaver.getInstance().saveAll(context, folderName, list);
+                AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
+                albumDownloadController.setPostImages(presenter.getLoadable(), all);
+                navigationController.pushController(albumDownloadController);
                 break;
         }
     }
@@ -212,10 +201,9 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         if (share && ChanSettings.shareUrl.get()) {
             AndroidUtils.shareLink(postImage.imageUrl);
         } else {
-            ImageSaver.getInstance().saveImage(context, postImage.imageUrl,
-                    ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename,
-                    postImage.extension,
-                    share);
+            ImageSaveTask task = new ImageSaveTask(postImage);
+            task.setShare(share);
+            ImageSaver.getInstance().startDownloadTask(task);
         }
     }
 
@@ -468,7 +456,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
     }
 
     private void setBackgroundAlpha(float alpha) {
-        view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f), 0, 0, 0));
+        navigationController.view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f), 0, 0, 0));
 
         if (Build.VERSION.SDK_INT >= 21) {
             if (alpha == 0f) {

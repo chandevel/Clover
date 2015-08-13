@@ -86,10 +86,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="open_thread_confirmation">Open this thread?</string>
     <string name="open_link_failed">No applications found to open link</string>
 
-    <string name="image_save_succeeded">Saved image to</string>
-    <string name="image_save_failed">Saving image failed</string>
-    <string name="image_save_directory_error">Cannot make save directory</string>
-
     <string name="thumbnail_load_failed_network">Error</string>
     <string name="thumbnail_load_failed_server">404</string>
     <string name="image_preview_failed">Failed to show image</string>
@@ -97,7 +93,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="image_failed_big_image">Deepzoom loading failed</string>
     <string name="image_not_found">Image not found</string>
     <string name="image_open_failed">Failed to open image</string>
-    <string name="image_download_confirm">%1$s images will be downloaded to %2$s</string>
     <string name="image_spoiler_filename">Spoiler image</string>
 
     <string name="thread_board_select_add">Add more&#8230;</string>
@@ -253,6 +248,18 @@ If the pattern matches then the post can be hidden or highlighted.&lt;br>
     <string name="history_screen">History</string>
 
     <string name="filters_screen">Filters</string>
+
+    <string name="album_download_screen">Select images (%1$d / %2$d)</string>
+    <string name="album_download_none_checked">Please select images to download</string>
+    <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
+
+    <string name="image_save_notification_downloading">Downloading images</string>
+    <string name="image_save_notification_cancel">Tap to cancel</string>
+    <string name="image_save_saved">Image saved</string>
+    <string name="image_save_as">Saved as %1$s</string>
+    <string name="image_save_succeeded">Saved image to</string>
+    <string name="image_save_failed">Saving image failed</string>
+    <string name="image_save_directory_error">Cannot make save directory</string>
 
     <string name="settings_screen">Settings</string>
     <string name="settings_group_general">General</string>

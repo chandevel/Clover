@@ -15,22 +15,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.view.TouchBlockingFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="0dp"
+    tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry">
 
-    <org.floens.chan.ui.toolbar.Toolbar
-        android:id="@+id/toolbar"
+    <org.floens.chan.ui.view.ThumbnailView
+        android:id="@+id/thumbnail_view"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height"
-        android:background="#87000000"
-        tools:ignore="UnusedAttribute" />
+        android:layout_height="match_parent"
+        android:padding="5dp"/>
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <ImageView
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:paddingLeft="7dp"
+        android:paddingTop="7dp"/>
 
-</org.floens.chan.ui.view.TouchBlockingFrameLayout>
+</FrameLayout>
