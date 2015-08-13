@@ -108,15 +108,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_STATUS:
                 ((StatusViewHolder) holder).threadStatusCell.update();
-
-                // Avoid calling in the RecyclerView layout pass
-                holder.itemView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        onScrolledToBottom();
-                    }
-                });
-
                 break;
             case TYPE_LAST_SEEN:
                 break;
@@ -196,6 +187,20 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return displayList.size();
     }
 
+    public int getUnfilteredDisplaySize() {
+        int size = sourceList.size();
+
+        if (showStatusView()) {
+            size++;
+        }
+
+        if (lastSeenIndicatorPosition >= 0) {
+            size++;
+        }
+
+        return size;
+    }
+
     public List<Post> getDisplayList() {
         return displayList;
     }
@@ -267,13 +272,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return postPosition;
     }
 
-    private void onScrolledToBottom() {
-        if (bound && lastPostCount < sourceList.size()) {
-            lastPostCount = sourceList.size();
-            postAdapterCallback.onListScrolledToBottom();
-        }
-    }
-
     private boolean showStatusView() {
         return postAdapterCallback.getLoadable().isThreadMode();
     }
@@ -304,7 +302,5 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface PostAdapterCallback {
         Loadable getLoadable();
-
-        void onListScrolledToBottom();
     }
 }

@@ -67,6 +67,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
     private int spanCount = 2;
     private int background;
     private boolean searchOpen;
+    private int lastPostCount;
 
     public ThreadListLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -102,6 +103,12 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
 //                    int top = recyclerView.getLayoutManager().getChildAt(0).getTop();
                     showingThread.loadable.listViewIndex = index;
 //                    showingThread.loadable.listViewTop = top;
+
+                    int last = getCompleteBottomAdapterPosition();
+                    if (last == postAdapter.getUnfilteredDisplaySize() - 1 && last > lastPostCount) {
+                        lastPostCount = last;
+                        ThreadListLayout.this.callback.onListScrolledToBottom();
+                    }
                 }
             }
         });
@@ -326,6 +333,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         openReply(false);
         showSearch(false);
         showingThread = null;
+        lastPostCount = 0;
     }
 
     public List<Post> getDisplayingPosts() {
@@ -425,12 +433,12 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         return -1;
     }
 
-    private int getCompleteTopAdapterPosition() {
+    private int getCompleteBottomAdapterPosition() {
         switch (postViewMode) {
             case LIST:
-                return ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+                return ((LinearLayoutManager) layoutManager).findLastCompletelyVisibleItemPosition();
             case CARD:
-                return ((GridLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
+                return ((GridLayoutManager) layoutManager).findLastCompletelyVisibleItemPosition();
         }
         return -1;
     }
@@ -439,6 +447,8 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         void showThread(Loadable loadable);
 
         void requestNewPostLoad();
+
+        void onListScrolledToBottom();
     }
 
     public interface ThreadListLayoutCallback {
