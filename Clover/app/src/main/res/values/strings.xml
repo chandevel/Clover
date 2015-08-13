@@ -18,6 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <resources>
     <string name="app_name">Clover</string>
 
+    <string name="previous_version_1">
+        <![CDATA[
+            <h3>Clover was updated</h3>
+            Put recent changes here
+        ]]>
+    </string>
+
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -140,27 +147,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filter_color_pick">Pick color</string>
     <string name="filter_help_title">Filter help</string>
     <string name="filter_help">
-    "Filters act on a given pattern and a place to search the pattern.&lt;br>
-If the pattern matches then the post can be hidden or highlighted.&lt;br>
+        <![CDATA[
+        Filters act on a given pattern and a place to search the pattern.<br>
+        If the pattern matches then the post can be hidden or highlighted.<br>
 
-&lt;h4>For tripcodes, names and IDs:&lt;/h4>
-&lt;p>
-    It will match the given pattern exact.&lt;br>
-    &lt;tt>!Ep8pui8Vw2&lt;/tt> will match the tripcode &lt;i>!Ep8pui8Vw2&lt;/i> but not &lt;i>Ep8pu&lt;/i>.
-&lt;/p>
+        <h4>For tripcodes, names and IDs:</h4>
+        <p>
+            It will match the given pattern exact.<br>
+            <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
+        </p>
 
-&lt;h4>For comments, subjects and filenames:&lt;/h4>
-&lt;p>
-    These filters are pattern based, and have three modes:&lt;br>
-    &lt;br>
-    1. The pattern &lt;tt>foo bar&lt;/tt> will match text that has any of the words in it. It will match &lt;i>foo&lt;/i> or &lt;i>bar&lt;/i>, but not &lt;i>foobar&lt;/i>.
-    Placing a * allows any character to be filled in: &lt;tt>f*o&lt;/tt> will match both &lt;i>foo&lt;/i>, &lt;i>foooo&lt;/i> but not &lt;i>foobar&lt;/i>&lt;br>
-    &lt;br>
-    2. Quoting your pattern with &lt;tt>\"&lt;/tt> like &lt;tt>\"foo bar\"&lt;/tt> will match the text exact.
-    &lt;i>foo bar&lt;/i> matches but &lt;i>foo&lt;/i> does not.&lt;br>
-    &lt;br>
-    3. Regular expressions. &lt;tt>/^>implying/&lt;/tt> for example.
-&lt;/p>"
+        <h4>For comments, subjects and filenames:</h4>
+        <p>
+            These filters are pattern based, and have three modes:<br>
+            <br>
+            1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
+            Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i>, <i>foooo</i> but not <i>foobar</i><br>
+            <br>
+            2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exact.
+            <i>foo bar</i> matches but <i>foo</i> does not.<br>
+            <br>
+            3. Regular expressions. <tt>/^>implying/</tt> for example.
+        </p>
+        ]]>
     </string>
 
     <string name="filter_tripcode">Tripcode</string>
@@ -363,13 +372,15 @@ If the pattern matches then the post can be hidden or highlighted.&lt;br>
     <string name="setting_pass_logout">Logout</string>
     <string name="setting_pass_logging_in">Loading&#8230;</string>
     <string name="setting_pass_error">Connection error</string>
-    <string name="setting_pass_bottom_description">
-"Forgot your 4chan Pass login details?&lt;br>
-&lt;a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.&lt;/a>&lt;&lt;br>
-&lt;br>
-Don't have a 4chan Pass?&lt;br>
-&lt;a href=\"https://www.4chan.org/pass\">Click here to learn more.&lt;/a>"
-    </string>
+    <string name="setting_pass_bottom_description">"
+        <![CDATA[
+        Forgot your 4chan Pass login details?<br>
+        <a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
+        <br>
+        Don't have a 4chan Pass?<br>
+        <a href=\"https://www.4chan.org/pass\">Click here to learn more.</a>
+        ]]>
+    "</string>
     <string name="setting_pass_summary_enabled">Using 4chan pass</string>
     <string name="setting_pass_summary_disabled">Off</string>
 

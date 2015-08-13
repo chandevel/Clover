@@ -46,6 +46,7 @@ import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.ui.helper.PreviousVersionHandler;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.AndroidUtils;
@@ -162,6 +163,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         if (loadDefault) {
             browseController.loadBoard(boardManager.getSavedBoards().get(0));
         }
+
+        PreviousVersionHandler previousVersionHandler = new PreviousVersionHandler();
+        previousVersionHandler.run(this);
     }
 
     public void restart() {

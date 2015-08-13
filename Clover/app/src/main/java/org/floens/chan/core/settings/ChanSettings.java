@@ -101,6 +101,8 @@ public class ChanSettings {
 
     public static final BooleanSetting historyEnabled;
 
+    public static final IntegerSetting previousVersion;
+
     public static final BooleanSetting proxyEnabled;
     public static final StringSetting proxyAddress;
     public static final IntegerSetting proxyPort;
@@ -168,6 +170,8 @@ public class ChanSettings {
         passId = new StringSetting(p, "preference_pass_id", "");
 
         historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
+
+        previousVersion = new IntegerSetting(p, "preference_previous_version", 0);
 
         proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false, new Setting.SettingCallback<Boolean>() {
             @Override
