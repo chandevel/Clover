@@ -19,6 +19,8 @@ package org.floens.chan.ui.cell;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
@@ -62,6 +64,7 @@ import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getRes;
@@ -320,7 +323,14 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         if (ChanSettings.postFullDate.get()) {
             time = post.date;
         } else {
+            // Force the relative date to use the english locale, and restore the previous one.
+            Configuration c = Resources.getSystem().getConfiguration();
+            Locale previousLocale = c.locale;
+            c.locale = Locale.ENGLISH;
+            Resources.getSystem().updateConfiguration(c, null);
             time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
+            c.locale = previousLocale;
+            Resources.getSystem().updateConfiguration(c, null);
         }
 
         String noText = "No." + post.no;
