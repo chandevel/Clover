@@ -198,6 +198,11 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     @Override
     public boolean dispatchKeyEvent(@NonNull KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_MENU && event.getAction() == KeyEvent.ACTION_DOWN) {
+            drawerController.onMenuClicked();
+            return true;
+        }
+
         return stackTop().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
