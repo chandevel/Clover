@@ -23,6 +23,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 
 import org.floens.chan.Chan;
@@ -106,6 +107,11 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public boolean onBack() {
         return threadLayout.onBack();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        return threadLayout.sendKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
     public void onEvent(Chan.ForegroundChangedMessage message) {

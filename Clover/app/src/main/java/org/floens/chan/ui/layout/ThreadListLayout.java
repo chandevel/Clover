@@ -18,10 +18,12 @@
 package org.floens.chan.ui.layout;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,6 +34,7 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCell;
@@ -41,6 +44,7 @@ import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
+import org.floens.chan.utils.Logger;
 
 import java.util.List;
 
@@ -222,6 +226,22 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         } else {
             return false;
         }
+    }
+
+    public boolean sendKeyEvent(KeyEvent event) {
+        if (ChanSettings.volumeKeysScrolling.get()) {
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                        boolean down = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN;
+                        int scroll = (int) (getHeight() * 0.75);
+                        recyclerView.smoothScrollBy(0, down ? scroll : -scroll);
+                    }
+                    return true;
+            }
+        }
+        return false;
     }
 
     public void openReply(boolean open) {

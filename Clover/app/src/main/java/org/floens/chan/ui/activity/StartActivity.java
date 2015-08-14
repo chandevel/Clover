@@ -26,7 +26,9 @@ import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -192,6 +194,11 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 }
             }
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(@NonNull KeyEvent event) {
+        return stackTop().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
     @Override

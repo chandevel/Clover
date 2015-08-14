@@ -19,6 +19,7 @@ package org.floens.chan.controller;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -171,6 +172,12 @@ public abstract class NavigationController extends Controller implements Control
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        Controller top = getTop();
+        return (top != null && top.dispatchKeyEvent(event)) || super.dispatchKeyEvent(event);
     }
 
     @Override

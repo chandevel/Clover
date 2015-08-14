@@ -29,6 +29,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -159,6 +160,10 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
     public boolean onBack() {
         return threadListLayout.onBack();
+    }
+
+    public boolean sendKeyEvent(KeyEvent event) {
+        return threadListLayout.sendKeyEvent(event);
     }
 
     public ThreadPresenter getPresenter() {

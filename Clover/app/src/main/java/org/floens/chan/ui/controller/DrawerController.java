@@ -26,6 +26,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -156,6 +157,11 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         } else {
             return super.onBack();
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        return (childController != null && childController.dispatchKeyEvent(event)) || super.dispatchKeyEvent(event);
     }
 
     @Override

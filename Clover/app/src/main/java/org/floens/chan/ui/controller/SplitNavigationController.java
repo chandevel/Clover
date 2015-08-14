@@ -19,6 +19,7 @@ package org.floens.chan.ui.controller;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -156,6 +157,13 @@ public class SplitNavigationController extends NavigationController implements A
             return true;
         }
         return super.onBack();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        return (rightController != null && rightController.dispatchKeyEvent(event)) ||
+                (leftController != null && leftController.dispatchKeyEvent(event)) ||
+                super.dispatchKeyEvent(event);
     }
 
     @Override

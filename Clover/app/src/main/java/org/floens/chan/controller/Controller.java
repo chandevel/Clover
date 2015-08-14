@@ -19,6 +19,7 @@ package org.floens.chan.controller;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -83,6 +84,10 @@ public abstract class Controller {
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
+    }
+
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        return false;
     }
 
     public boolean onBack() {
