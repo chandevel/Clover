@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#ff0F0C5D</item>
         <item name="post_details_color">#ff646464</item>
         <item name="post_quote_color">#ffDD0000</item>
-        <item name="post_highlight_quote_color">#ff950000</item>
+        <item name="post_highlight_quote_color">#950000</item>
         <item name="post_inline_quote_color">#ff789922</item>
         <item name="post_link_color">#ff0000B4</item>
         <item name="post_spoiler_color">#ff000000</item>
@@ -112,7 +112,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#ff0F0C5D</item>
         <item name="post_quote_color">#ffdd0000</item>
         <item name="post_link_color">#ffdd0000</item>
-        <item name="post_highlight_quote_color">#ff950000</item>
+        <item name="post_highlight_quote_color">#6d0000</item>
     </style>
 
     <style name="Chan.Theme.Yotsuba">
@@ -128,7 +128,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#ffcc1105</item>
         <item name="post_quote_color">#ff000080</item>
         <item name="post_link_color">#ff000080</item>
-        <item name="post_highlight_quote_color">#ff00005d</item>
+        <item name="post_highlight_quote_color">#000039</item>
     </style>
 
     <style name="Chan.Theme.Photon">
@@ -137,7 +137,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_name_color">#ff004A99</item>
         <item name="post_quote_color">#ffFF6600</item>
         <item name="post_link_color">#ffFF6600</item>
-        <item name="post_highlight_quote_color">#ffcb6600</item>
+        <item name="post_highlight_quote_color">#ac5a00</item>
         <item name="post_subject_color">#ff111111</item>
         <item name="post_details_color">#ff333333</item>
         <item name="post_inline_quote_color">#ff789922</item>
@@ -154,7 +154,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_name_color">#ffc5c8c6</item>
         <item name="post_quote_color">#ff5F89AC</item>
         <item name="post_link_color">#ff5F89AC</item>
-        <item name="post_highlight_quote_color">#ff416181</item>
+        <item name="post_highlight_quote_color">#2b435a</item>
         <item name="post_subject_color">#ffb294bb</item>
         <item name="post_details_color">#ffc5c8c6</item>
         <item name="post_inline_quote_color">#ffb5bd68</item>
