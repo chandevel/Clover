@@ -198,18 +198,6 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
                     ((GridLayoutManager) layoutManager).scrollToPositionWithOffset(thread.loadable.listViewIndex, thread.loadable.listViewTop);
                     break;
             }
-        } else {
-            switch (postViewMode) {
-                case LIST:
-                    LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
-                    if (linearLayoutManager.findLastCompletelyVisibleItemPosition() == postAdapter.getItemCount() - 1) {
-                        linearLayoutManager.scrollToPositionWithOffset(postAdapter.getItemCount() - 1, 0);
-                    }
-                    break;
-                case CARD:
-                    // No op
-                    break;
-            }
         }
 
         postAdapter.setThread(thread, filter);
