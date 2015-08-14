@@ -112,6 +112,8 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     }
 
     public void unbindLoadable() {
+        draft.file = null;
+        draft.fileName = "";
         callback.loadViewsIntoDraft(draft);
         replyManager.putReply(loadable, draft);
 
