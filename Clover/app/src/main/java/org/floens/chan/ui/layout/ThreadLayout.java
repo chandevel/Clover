@@ -309,8 +309,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
-    public void scrollTo(int position, boolean smooth) {
-        threadListLayout.scrollTo(position, smooth);
+    public void scrollTo(int displayPosition, boolean smooth) {
+        threadListLayout.scrollTo(displayPosition, smooth);
     }
 
     @Override

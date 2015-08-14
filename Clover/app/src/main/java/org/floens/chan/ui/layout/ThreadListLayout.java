@@ -366,20 +366,22 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         return thumbnail;
     }
 
-    public void scrollTo(int position, boolean smooth) {
-        if (position < 0) {
-            position = recyclerView.getAdapter().getItemCount() - 1;
+    public void scrollTo(int displayPosition, boolean smooth) {
+        if (displayPosition < 0) {
+            displayPosition = recyclerView.getAdapter().getItemCount() - 1;
         }
 
-        int difference = Math.abs(position - getTopAdapterPosition());
+        int scrollPosition = postAdapter.getScrollPosition(displayPosition);
+
+        int difference = Math.abs(scrollPosition - getTopAdapterPosition());
         if (difference > MAX_SMOOTH_SCROLL_DISTANCE) {
             smooth = false;
         }
 
         if (smooth) {
-            recyclerView.smoothScrollToPosition(position);
+            recyclerView.smoothScrollToPosition(scrollPosition);
         } else {
-            recyclerView.scrollToPosition(position);
+            recyclerView.scrollToPosition(scrollPosition);
         }
     }
 

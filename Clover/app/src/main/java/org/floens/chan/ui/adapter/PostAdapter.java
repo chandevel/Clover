@@ -264,10 +264,18 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.postViewMode = postViewMode;
     }
 
-    private int getPostPosition(int position) {
+    public int getPostPosition(int position) {
         int postPosition = position;
         if (lastSeenIndicatorPosition >= 0 && position > lastSeenIndicatorPosition) {
             postPosition--;
+        }
+        return postPosition;
+    }
+
+    public int getScrollPosition(int displayPosition) {
+        int postPosition = displayPosition;
+        if (lastSeenIndicatorPosition >= 0 && displayPosition > lastSeenIndicatorPosition) {
+            postPosition++;
         }
         return postPosition;
     }

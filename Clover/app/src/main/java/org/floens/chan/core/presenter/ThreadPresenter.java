@@ -285,8 +285,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         showPosts();
     }
 
-    public void scrollTo(int position, boolean smooth) {
-        threadPresenterCallback.scrollTo(position, smooth);
+    public void scrollTo(int displayPosition, boolean smooth) {
+        threadPresenterCallback.scrollTo(displayPosition, smooth);
     }
 
     public void scrollToImage(PostImage postImage, boolean smooth) {
@@ -652,7 +652,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
-        void scrollTo(int position, boolean smooth);
+        void scrollTo(int displayPosition, boolean smooth);
 
         void highlightPost(Post post);
 
