@@ -183,10 +183,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public int getDisplaySize() {
-        return displayList.size();
-    }
-
     public int getUnfilteredDisplaySize() {
         int size = sourceList.size();
 

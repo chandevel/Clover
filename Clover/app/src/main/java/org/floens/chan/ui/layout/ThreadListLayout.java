@@ -276,7 +276,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         }
 
         if (query != null) {
-            int size = postAdapter.getDisplaySize();
+            int size = postAdapter.getDisplayList().size();
             searchStatus.setText(getContext().getString(R.string.search_results,
                     size, getContext().getResources().getQuantityString(R.plurals.posts, size, size), query));
         }
@@ -368,20 +368,24 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
 
     public void scrollTo(int displayPosition, boolean smooth) {
         if (displayPosition < 0) {
-            displayPosition = recyclerView.getAdapter().getItemCount() - 1;
-        }
-
-        int scrollPosition = postAdapter.getScrollPosition(displayPosition);
-
-        int difference = Math.abs(scrollPosition - getTopAdapterPosition());
-        if (difference > MAX_SMOOTH_SCROLL_DISTANCE) {
-            smooth = false;
-        }
-
-        if (smooth) {
-            recyclerView.smoothScrollToPosition(scrollPosition);
+            if (smooth) {
+                recyclerView.smoothScrollToPosition(postAdapter.getItemCount() - 1);
+            } else {
+                recyclerView.scrollToPosition(postAdapter.getItemCount() - 1);
+            }
         } else {
-            recyclerView.scrollToPosition(scrollPosition);
+            int scrollPosition = postAdapter.getScrollPosition(displayPosition);
+
+            int difference = Math.abs(scrollPosition - getTopAdapterPosition());
+            if (difference > MAX_SMOOTH_SCROLL_DISTANCE) {
+                smooth = false;
+            }
+
+            if (smooth) {
+                recyclerView.smoothScrollToPosition(scrollPosition);
+            } else {
+                recyclerView.scrollToPosition(scrollPosition);
+            }
         }
     }
 
