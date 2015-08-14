@@ -278,7 +278,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
         // use the LoadView animation when from a search
         if (same) {
-            navigationItemContainer.setView(toItem.view, true);
+            navigationItemContainer.setView(toItem.view, animate);
         } else {
             navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         }
