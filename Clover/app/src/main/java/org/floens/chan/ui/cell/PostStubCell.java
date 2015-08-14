@@ -49,6 +49,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     private Theme theme;
     private Post post;
     private PostViewMode postViewMode;
+    private boolean showDivider;
     private PostCellInterface.PostCellCallback callback;
 
     private TextView title;
@@ -137,7 +138,8 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback, boolean highlighted, int markedNo, PostCellInterface.PostViewMode postViewMode) {
+    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
+                        boolean highlighted, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode) {
         if (this.post == post) {
             return;
         }
@@ -155,6 +157,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         this.post = post;
         this.callback = callback;
         this.postViewMode = postViewMode;
+        this.showDivider = showDivider;
 
         bindPost(theme, post);
     }
@@ -188,7 +191,8 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
             title.setText(titleText);
         }
 
-        divider.setVisibility(postViewMode == PostViewMode.CARD ? GONE : VISIBLE);
+        divider.setVisibility(postViewMode == PostViewMode.CARD ? GONE :
+                (showDivider ? VISIBLE : GONE));
     }
 
     private void unbindPost(Post post) {

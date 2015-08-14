@@ -27,7 +27,7 @@ import org.floens.chan.ui.view.ThumbnailView;
 import java.util.List;
 
 public interface PostCellInterface {
-    void setPost(Theme theme, Post post, PostCellCallback callback, boolean highlighted, int markedNo, PostCellInterface.PostViewMode postViewMode);
+    void setPost(Theme theme, Post post, PostCellCallback callback, boolean highlighted, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode);
 
     Post getPost();
 

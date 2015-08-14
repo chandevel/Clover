@@ -98,6 +98,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private PostCellCallback callback;
     private boolean highlighted;
     private int markedNo;
+    private boolean showDivider;
 
     private OnClickListener selfClicked = new OnClickListener() {
         @Override
@@ -234,7 +235,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback, boolean highlighted, int markedNo, PostCellInterface.PostViewMode postViewMode) {
+    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
+                        boolean highlighted, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode) {
         if (this.post == post && this.highlighted == highlighted && this.markedNo == markedNo) {
             return;
         }
@@ -253,6 +255,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         this.callback = callback;
         this.highlighted = highlighted;
         this.markedNo = markedNo;
+        this.showDivider = showDivider;
 
         bindPost(theme, post);
     }
@@ -424,6 +427,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             comment.setPadding(comment.getPaddingLeft(), comment.getPaddingTop(), comment.getPaddingRight(), paddingPx);
             replies.setPadding(replies.getPaddingLeft(), 0, replies.getPaddingRight(), replies.getPaddingBottom());
         }
+
+        divider.setVisibility(showDivider ? VISIBLE : GONE);
     }
 
     private void unbindPost(Post post) {
