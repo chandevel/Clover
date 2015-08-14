@@ -49,25 +49,26 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private int fadeTime = 200;
 
     private boolean circular = false;
+    private int rounding = 0;
     private boolean clickable = false;
 
     private boolean calculate;
     private Bitmap bitmap;
     private RectF bitmapRect = new RectF();
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
     private RectF drawRect = new RectF();
     private RectF outputRect = new RectF();
 
     private Matrix matrix = new Matrix();
     BitmapShader bitmapShader;
-    private Paint roundPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+
+    private boolean foregroundCalculate = false;
+    private Drawable foreground;
 
     private boolean error = false;
     private String errorText;
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect tmpTextRect = new Rect();
-    private Drawable foreground;
-    private boolean foregroundBoundsChanged = false;
 
     public ThumbnailView(Context context) {
         super(context);
@@ -110,6 +111,10 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         this.circular = circular;
     }
 
+    public void setRounding(int rounding) {
+        this.rounding = rounding;
+    }
+
     @SuppressWarnings({"deprecation", "ConstantConditions"})
     @Override
     public void setClickable(boolean clickable) {
@@ -118,7 +123,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         if (clickable != this.clickable) {
             this.clickable = clickable;
 
-            foregroundBoundsChanged = clickable;
+            foregroundCalculate = clickable;
             if (clickable) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     foreground = getContext().getDrawable(R.drawable.item_background);
@@ -171,8 +176,6 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     protected boolean onSetAlpha(int alpha) {
         if (error) {
             textPaint.setAlpha(alpha);
-        } else if (circular) {
-            roundPaint.setAlpha(alpha);
         } else {
             paint.setAlpha(alpha);
         }
@@ -185,7 +188,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         calculate = true;
-        foregroundBoundsChanged = true;
+        foregroundCalculate = true;
     }
 
     @Override
@@ -229,25 +232,25 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
                 matrix.setRectToRect(bitmapRect, drawRect, Matrix.ScaleToFit.FILL);
 
-                if (circular) {
-                    bitmapShader.setLocalMatrix(matrix);
-                    roundPaint.setShader(bitmapShader);
-                }
+                bitmapShader.setLocalMatrix(matrix);
+                paint.setShader(bitmapShader);
             }
 
             canvas.save();
             canvas.clipRect(outputRect);
+
             if (circular) {
-                canvas.drawRoundRect(outputRect, width / 2, height / 2, roundPaint);
+                canvas.drawRoundRect(outputRect, width / 2, height / 2, paint);
             } else {
-                canvas.drawBitmap(bitmap, matrix, paint);
+                canvas.drawRoundRect(outputRect, rounding, rounding, paint);
             }
+
             canvas.restore();
             canvas.save();
 
             if (foreground != null) {
-                if (foregroundBoundsChanged) {
-                    foregroundBoundsChanged = false;
+                if (foregroundCalculate) {
+                    foregroundCalculate = false;
                     foreground.setBounds(0, 0, getRight(), getBottom());
                 }
 
@@ -302,14 +305,12 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     private void setImageBitmap(Bitmap bitmap) {
         bitmapShader = null;
-        roundPaint.setShader(null);
+        paint.setShader(null);
 
         this.bitmap = bitmap;
         if (bitmap != null) {
             calculate = true;
-            if (circular) {
-                bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-            }
+            bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         }
         invalidate();
     }
