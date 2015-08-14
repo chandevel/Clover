@@ -230,10 +230,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (loadable.isThreadMode()) {
             int postsSize = result.posts.size();
 
-            if (loadable.lastViewed < 0) {
-                loadable.lastViewed = result.posts.get(result.posts.size() - 1).no;
-            }
-
             if (notificationPostCount < 0) {
                 notificationPostCount = postsSize;
             } else if (postsSize > notificationPostCount) {
