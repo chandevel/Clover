@@ -27,6 +27,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.fragment.FolderPickFragment;
+import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.IntegerSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
@@ -37,11 +38,14 @@ import org.floens.chan.ui.settings.StringSettingView;
 
 import java.io.File;
 
+import de.greenrobot.event.EventBus;
+
 public class AdvancedSettingsController extends SettingsController {
     private static final String TAG = "AdvancedSettingsController";
 
     private LinkSettingView saveLocation;
     private SettingView forcePhoneLayoutSetting;
+    private SettingView postFullDate;
     private boolean needRestart;
 
     public AdvancedSettingsController(Context context) {
@@ -77,6 +81,10 @@ public class AdvancedSettingsController extends SettingsController {
 
         if (item == forcePhoneLayoutSetting) {
             needRestart = true;
+        }
+
+        if (item == postFullDate) {
+            EventBus.getDefault().post(new RefreshUIMessage("postdate"));
         }
     }
 
@@ -115,6 +123,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.confirmExit, string(R.string.setting_confirm_exit), null));
         settings.add(new BooleanSettingView(this, ChanSettings.tapNoReply, string(R.string.setting_tap_no_rely), null));
         settings.add(new BooleanSettingView(this, ChanSettings.volumeKeysScrolling, string(R.string.setting_volume_key_scrolling), null));
+        postFullDate = settings.add(new BooleanSettingView(this, ChanSettings.postFullDate, string(R.string.setting_post_full_date), null));
 
         groups.add(settings);
 

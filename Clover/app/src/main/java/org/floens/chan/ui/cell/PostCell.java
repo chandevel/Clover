@@ -316,9 +316,15 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         titleParts[titlePartsCount++] = post.nameTripcodeIdCapcodeSpan;
 
-        CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
+        CharSequence time;
+        if (ChanSettings.postFullDate.get()) {
+            time = post.date;
+        } else {
+            time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
+        }
+
         String noText = "No." + post.no;
-        SpannableString date = new SpannableString(noText + " " + relativeTime);
+        SpannableString date = new SpannableString(noText + " " + time);
         date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
         if (ChanSettings.tapNoReply.get()) {
