@@ -18,7 +18,6 @@
 package org.floens.chan.ui.layout;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,7 +43,6 @@ import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
-import org.floens.chan.utils.Logger;
 
 import java.util.List;
 

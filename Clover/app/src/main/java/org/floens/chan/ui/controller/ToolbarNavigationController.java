@@ -53,6 +53,14 @@ public abstract class ToolbarNavigationController extends NavigationController i
 
     @Override
     public void onMenuOrBackClicked(boolean isArrow) {
+        if (isArrow) {
+            onBack();
+        } else {
+            onMenuClicked();
+        }
+    }
+
+    public void onMenuClicked() {
     }
 
     @Override

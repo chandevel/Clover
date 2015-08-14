@@ -75,14 +75,10 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     }
 
     @Override
-    public void onMenuOrBackClicked(boolean isArrow) {
-        if (isArrow) {
-            onBack();
-        } else {
-            DrawerController drawerController = getDrawerController();
-            if (drawerController != null) {
-                drawerController.onMenuClicked();
-            }
+    public void onMenuClicked() {
+        DrawerController drawerController = getDrawerController();
+        if (drawerController != null) {
+            drawerController.onMenuClicked();
         }
     }
 
