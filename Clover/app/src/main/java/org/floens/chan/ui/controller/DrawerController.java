@@ -124,6 +124,10 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         this.childController = childController;
     }
 
+    public NavigationController getChildController() {
+        return childController;
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);

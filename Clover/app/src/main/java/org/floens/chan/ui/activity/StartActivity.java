@@ -67,7 +67,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     private final BoardManager boardManager;
     private DrawerController drawerController;
-    private NavigationController threadNavigationController;
+    private NavigationController mainNavigationController;
     private BrowseController browseController;
 
     private ImagePickDelegate imagePickDelegate;
@@ -100,14 +100,14 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             drawerController.setChildController(splitNavigationController);
 
             splitNavigationController.setLeftController(toolbarNavigationController);
-            threadNavigationController = toolbarNavigationController;
+            mainNavigationController = toolbarNavigationController;
         } else {
             drawerController.setChildController(toolbarNavigationController);
-            threadNavigationController = toolbarNavigationController;
+            mainNavigationController = toolbarNavigationController;
         }
 
         browseController = new BrowseController(this);
-        toolbarNavigationController.pushController(browseController, false);
+        mainNavigationController.pushController(browseController, false);
 
         setContentView(drawerController.view);
         addController(drawerController);
@@ -183,7 +183,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         // Handle WatchNotifier clicks
         if (intent.getExtras() != null) {
             int pinId = intent.getExtras().getInt("pin_id", -2);
-            if (pinId != -2 && threadNavigationController.getTop() instanceof BrowseController) {
+            if (pinId != -2 && mainNavigationController.getTop() instanceof BrowseController) {
                 if (pinId == -1) {
                     drawerController.onMenuClicked();
                 } else {
@@ -210,11 +210,26 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             Logger.w(TAG, "Can not save instance state, the board loadable is null");
         } else {
             Loadable thread = null;
-            List<Controller> controllers = threadNavigationController.getControllerList();
-            for (Controller controller : controllers) {
-                if (controller instanceof ViewThreadController) {
-                    thread = ((ViewThreadController) controller).getLoadable();
-                    break;
+
+            if (drawerController.getChildController() instanceof SplitNavigationController) {
+                SplitNavigationController splitNavigationController = (SplitNavigationController) drawerController.getChildController();
+                if (splitNavigationController.rightController instanceof NavigationController) {
+                    NavigationController rightNavigationController = (NavigationController) splitNavigationController.rightController;
+                    for (Controller controller : rightNavigationController.getControllerList()) {
+                        if (controller instanceof ViewThreadController) {
+                            thread = ((ViewThreadController) controller).getLoadable();
+                            break;
+                        }
+                    }
+
+                }
+            } else {
+                List<Controller> controllers = mainNavigationController.getControllerList();
+                for (Controller controller : controllers) {
+                    if (controller instanceof ViewThreadController) {
+                        thread = ((ViewThreadController) controller).getLoadable();
+                        break;
+                    }
                 }
             }
 
@@ -229,7 +244,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        Controller controller = threadNavigationController.getTop();
+        Controller controller = mainNavigationController.getTop();
         if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
             return ((NfcAdapter.CreateNdefMessageCallback) controller).createNdefMessage(event);
         } else {
