@@ -159,7 +159,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
      */
     public void requestMoreDataAndResetTimer() {
         if (request == null) {
-            currentTimeout = 0;
+            clearTimer();
             requestMoreData();
         }
     }
