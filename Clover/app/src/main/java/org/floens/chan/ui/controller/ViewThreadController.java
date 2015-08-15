@@ -104,6 +104,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     public void onEvent(WatchManager.PinChangedMessage message) {
         setPinIconState();
+        // Update title
+        if (message.pin.loadable == loadable) {
+            threadLayout.getPresenter().refreshUI();
+        }
     }
 
     @Override

@@ -230,7 +230,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
 
                         if (!TextUtils.isEmpty(value)) {
                             pin.loadable.title = value;
-                            pinAdapter.notifyDataSetChanged();
+                            Chan.getWatchManager().updatePin(pin);
                         }
                     }
                 })
