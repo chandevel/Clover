@@ -409,7 +409,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        presenter.scrollTo(-1, false);
+                        presenter.scrollTo(-1, true);
                     }
                 }).show();
                 fixSnackbarText(getContext(), newPostsNotification);
