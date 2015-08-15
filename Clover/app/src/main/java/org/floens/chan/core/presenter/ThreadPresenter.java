@@ -120,6 +120,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             historyAdded = false;
             notificationPostCount = -1;
 
+            threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
         }
     }
