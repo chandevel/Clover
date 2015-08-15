@@ -68,6 +68,8 @@ public class Post {
 
     public boolean hasImage = false;
 
+    public PostImage image;
+
     public String thumbnailUrl;
 
     public String imageUrl;
@@ -84,7 +86,7 @@ public class Post {
 
     public long time = -1;
 
-    public int fileSize;
+    public long fileSize;
 
     public String rawComment;
 
@@ -173,6 +175,8 @@ public class Post {
             } else {
                 thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
             }
+
+            image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize);
         }
 
         if (!TextUtils.isEmpty(country)) {

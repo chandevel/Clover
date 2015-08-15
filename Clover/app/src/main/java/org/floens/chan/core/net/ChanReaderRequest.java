@@ -269,7 +269,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                     post.imageHeight = reader.nextInt();
                     break;
                 case "fsize":
-                    post.fileSize = reader.nextInt();
+                    post.fileSize = reader.nextLong();
                     break;
                 case "sub":
                     post.subject = reader.nextString();

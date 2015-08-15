@@ -88,6 +88,7 @@ public class ChanSettings {
     public static final BooleanSetting tapNoReply;
     public static final BooleanSetting volumeKeysScrolling;
     public static final BooleanSetting postFullDate;
+    public static final BooleanSetting postFileInfo;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
@@ -150,6 +151,7 @@ public class ChanSettings {
         tapNoReply = new BooleanSetting(p, "preference_tap_no_reply", false);
         volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
         postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
+        postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false, new Setting.SettingCallback<Boolean>() {
             @Override

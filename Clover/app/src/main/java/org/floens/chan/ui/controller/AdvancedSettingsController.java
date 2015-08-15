@@ -46,6 +46,7 @@ public class AdvancedSettingsController extends SettingsController {
     private LinkSettingView saveLocation;
     private SettingView forcePhoneLayoutSetting;
     private SettingView postFullDate;
+    private SettingView postFileInfo;
     private boolean needRestart;
 
     public AdvancedSettingsController(Context context) {
@@ -83,8 +84,8 @@ public class AdvancedSettingsController extends SettingsController {
             needRestart = true;
         }
 
-        if (item == postFullDate) {
-            EventBus.getDefault().post(new RefreshUIMessage("postdate"));
+        if (item == postFullDate || item == postFileInfo) {
+            EventBus.getDefault().post(new RefreshUIMessage("postui"));
         }
     }
 
@@ -124,6 +125,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.tapNoReply, string(R.string.setting_tap_no_rely), null));
         settings.add(new BooleanSettingView(this, ChanSettings.volumeKeysScrolling, string(R.string.setting_volume_key_scrolling), null));
         postFullDate = settings.add(new BooleanSettingView(this, ChanSettings.postFullDate, string(R.string.setting_post_full_date), null));
+        postFileInfo = settings.add(new BooleanSettingView(this, ChanSettings.postFileInfo, string(R.string.setting_post_file_info), null));
 
         groups.add(settings);
 

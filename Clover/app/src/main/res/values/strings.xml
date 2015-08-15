@@ -330,6 +330,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_tap_no_rely">Tap the post number to reply</string>
     <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
     <string name="setting_post_full_date">Show the full date on posts</string>
+    <string name="setting_post_file_info">Show file info on posts</string>
 
     <string name="settings_group_proxy">HTTP Proxy</string>
     <string name="setting_proxy_enabled">Enable proxy</string>

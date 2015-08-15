@@ -52,6 +52,7 @@ import com.android.volley.toolbox.ImageLoader;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
@@ -60,6 +61,7 @@ import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -336,8 +338,16 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             Resources.getSystem().updateConfiguration(c, null);
         }
 
+        String fileInfo = "";
+        if (ChanSettings.postFileInfo.get() && post.hasImage) {
+            PostImage image = post.image;
+            fileInfo = "\n" + image.extension.toUpperCase() + " " +
+                    AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                    image.imageWidth + "x" + image.imageHeight;
+        }
+
         String noText = "No." + post.no;
-        SpannableString date = new SpannableString(noText + " " + time);
+        SpannableString date = new SpannableString(noText + " " + time + fileInfo);
         date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
         if (ChanSettings.tapNoReply.get()) {

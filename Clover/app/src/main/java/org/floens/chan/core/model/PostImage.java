@@ -30,10 +30,11 @@ public class PostImage {
     public int imageWidth;
     public int imageHeight;
     public boolean spoiler;
+    public long size;
 
     public Type type;
 
-    public PostImage(String originalName, String thumbnailUrl, String imageUrl, String filename, String extension, int imageWidth, int imageHeight, boolean spoiler) {
+    public PostImage(String originalName, String thumbnailUrl, String imageUrl, String filename, String extension, int imageWidth, int imageHeight, boolean spoiler, long size) {
         this.originalName = originalName;
         this.thumbnailUrl = thumbnailUrl;
         this.imageUrl = imageUrl;
@@ -42,6 +43,7 @@ public class PostImage {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.spoiler = spoiler;
+        this.size = size;
 
         switch (extension) {
             case "gif":
