@@ -88,7 +88,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
     public void update() {
         if (error != null) {
-            text.setText(error);
+            text.setText(error + "\n" + getContext().getString(R.string.thread_refresh_bar_inactive));
         } else {
             ChanThread chanThread = callback.getChanThread();
             if (chanThread == null) {
@@ -169,6 +169,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
+        error = null;
         callback.onListStatusClicked();
         update();
     }
