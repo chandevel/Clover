@@ -43,11 +43,14 @@ import de.greenrobot.event.EventBus;
 public class AdvancedSettingsController extends SettingsController {
     private static final String TAG = "AdvancedSettingsController";
 
+    private boolean needRestart;
     private LinkSettingView saveLocation;
     private SettingView forcePhoneLayoutSetting;
     private SettingView postFullDate;
     private SettingView postFileInfo;
-    private boolean needRestart;
+    private SettingView anonymize;
+    private SettingView anonymizeIds;
+    private SettingView tapNoReply;
 
     public AdvancedSettingsController(Context context) {
         super(context);
@@ -84,7 +87,7 @@ public class AdvancedSettingsController extends SettingsController {
             needRestart = true;
         }
 
-        if (item == postFullDate || item == postFileInfo) {
+        if (item == postFullDate || item == postFileInfo || item == anonymize || item == anonymizeIds || item == tapNoReply) {
             EventBus.getDefault().post(new RefreshUIMessage("postui"));
         }
     }
@@ -118,11 +121,11 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.shareUrl, string(R.string.setting_share_url), string(R.string.setting_share_url_description)));
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, string(R.string.setting_network_https), string(R.string.setting_network_https_description)));
         forcePhoneLayoutSetting = settings.add(new BooleanSettingView(this, ChanSettings.forcePhoneLayout, string(R.string.setting_force_phone_layout), null));
-        settings.add(new BooleanSettingView(this, ChanSettings.anonymize, string(R.string.setting_anonymize), null));
-        settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, string(R.string.setting_anonymize_ids), null));
+        anonymize = settings.add(new BooleanSettingView(this, ChanSettings.anonymize, string(R.string.setting_anonymize), null));
+        anonymizeIds = settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, string(R.string.setting_anonymize_ids), null));
         settings.add(new BooleanSettingView(this, ChanSettings.repliesButtonsBottom, string(R.string.setting_buttons_bottom), null));
         settings.add(new BooleanSettingView(this, ChanSettings.confirmExit, string(R.string.setting_confirm_exit), null));
-        settings.add(new BooleanSettingView(this, ChanSettings.tapNoReply, string(R.string.setting_tap_no_rely), null));
+        tapNoReply = settings.add(new BooleanSettingView(this, ChanSettings.tapNoReply, string(R.string.setting_tap_no_rely), null));
         settings.add(new BooleanSettingView(this, ChanSettings.volumeKeysScrolling, string(R.string.setting_volume_key_scrolling), null));
         postFullDate = settings.add(new BooleanSettingView(this, ChanSettings.postFullDate, string(R.string.setting_post_full_date), null));
         postFileInfo = settings.add(new BooleanSettingView(this, ChanSettings.postFileInfo, string(R.string.setting_post_file_info), null));

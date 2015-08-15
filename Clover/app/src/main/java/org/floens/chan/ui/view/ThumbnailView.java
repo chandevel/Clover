@@ -42,7 +42,6 @@ import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.utils.Logger;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.sp;
