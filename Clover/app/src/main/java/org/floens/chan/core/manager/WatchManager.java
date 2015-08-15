@@ -173,6 +173,8 @@ public class WatchManager {
         pins.remove(pin);
         pin.destroyWatcher();
         Chan.getDatabaseManager().removePin(pin);
+        // Update the new orders
+        updateDatabase();
 
         onPinsChanged();
 

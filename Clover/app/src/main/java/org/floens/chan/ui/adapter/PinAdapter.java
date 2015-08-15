@@ -180,6 +180,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     @Override
     public void removeItem(int position) {
+        applyOrder();
         callback.onPinRemoved(pins.get(position - PIN_OFFSET));
     }
 
@@ -197,10 +198,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     @Override
     public void movingDone() {
-        for (int i = 0; i < pins.size(); i++) {
-            Pin pin = pins.get(i);
-            pin.order = i;
-        }
+        applyOrder();
     }
 
     public void updatePinViewHolder(PinViewHolder holder, Pin pin) {
@@ -255,6 +253,13 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
             //noinspection deprecation
             holder.itemView.setBackgroundDrawable(AndroidUtils.getAttrDrawable(holder.itemView.getContext(), android.R.attr.selectableItemBackground));
             holder.highlighted = false;
+        }
+    }
+
+    private void applyOrder() {
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
+            pin.order = i;
         }
     }
 
