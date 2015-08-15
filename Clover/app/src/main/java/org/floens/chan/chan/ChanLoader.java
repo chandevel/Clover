@@ -124,7 +124,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
      * Request more data
      */
     public void requestMoreData() {
-        clearTimer();
+        clearPendingRunnable();
 
         if (loadable.isThreadMode() && request == null) {
             request = getData();
