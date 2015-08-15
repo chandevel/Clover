@@ -104,7 +104,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="thread_board_select_add">Add more&#8230;</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
-    <string name="thread_load_failed_network">No network</string>
+    <string name="thread_load_failed_network">Network error</string>
     <string name="thread_load_failed_parsing">API parse error</string>
     <string name="thread_load_failed_server">404 not found</string>
     <string name="thread_refresh_bar_inactive">Tap to refresh</string>

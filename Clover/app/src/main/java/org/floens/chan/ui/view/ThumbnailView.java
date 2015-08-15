@@ -33,13 +33,16 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.utils.Logger;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.sp;
@@ -163,7 +166,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     public void onErrorResponse(VolleyError e) {
         error = true;
 
-        if ((e instanceof NoConnectionError) || (e instanceof NetworkError)) {
+        if (e instanceof NetworkError || e instanceof TimeoutError || e instanceof ParseError || e instanceof AuthFailureError) {
             errorText = getString(R.string.thumbnail_load_failed_network);
         } else {
             errorText = getString(R.string.thumbnail_load_failed_server);
