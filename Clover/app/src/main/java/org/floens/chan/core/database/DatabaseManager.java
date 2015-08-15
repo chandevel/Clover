@@ -422,6 +422,8 @@ public class DatabaseManager {
             o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
             o += "Board rows: " + helper.boardsDao.countOf() + "\n";
             o += "ThreadHide rows: " + helper.threadHideDao.countOf() + "\n";
+            o += "History rows: " + helper.historyDao.countOf() + "\n";
+            o += "Filter rows: " + helper.filterDao.countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }
