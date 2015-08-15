@@ -225,6 +225,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
+        if (isWatching()) {
+            chanLoader.setTimer();
+        }
+
+        showPosts();
+
         if (loadable.isThreadMode()) {
             int postsSize = result.posts.size();
 
@@ -237,11 +243,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 threadPresenterCallback.showNewPostsNotification(true, more);
             }
         }
-
-        if (isWatching()) {
-            chanLoader.setTimer();
-        }
-        showPosts();
 
         if (loadable.markedNo >= 0) {
             Post markedPost = findPostById(loadable.markedNo);
@@ -277,6 +278,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
 
         threadPresenterCallback.showNewPostsNotification(false, -1);
+
         // Update the last seen indicator
         showPosts();
     }

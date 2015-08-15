@@ -305,19 +305,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
     }
 
     public boolean scrolledToBottom() {
-        switch (postViewMode) {
-            case LIST:
-                if (((LinearLayoutManager) layoutManager).findLastVisibleItemPosition() == postAdapter.getItemCount() - 1) {
-                    return true;
-                }
-                break;
-            case CARD:
-                if (((GridLayoutManager) layoutManager).findLastVisibleItemPosition() == postAdapter.getItemCount() - 1) {
-                    return true;
-                }
-                break;
-        }
-        return false;
+        return getCompleteBottomAdapterPosition() == postAdapter.getItemCount() - 1;
     }
 
     public void cleanup() {
