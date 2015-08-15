@@ -200,7 +200,12 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
             if (item instanceof FloatingMenuItemBoard) {
                 loadBoard(((FloatingMenuItemBoard) item).board);
             } else {
-                navigationController.pushController(new BoardEditController(context));
+                BoardEditController boardEditController = new BoardEditController(context);
+                if (navigationController.navigationController instanceof SplitNavigationController) {
+                    navigationController.navigationController.pushController(boardEditController);
+                } else {
+                    navigationController.pushController(boardEditController);
+                }
                 menu.dismiss();
             }
         }
