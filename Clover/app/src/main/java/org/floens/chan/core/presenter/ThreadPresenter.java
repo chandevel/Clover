@@ -113,6 +113,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public void unbindLoadable() {
         if (chanLoader != null) {
+            chanLoader.clearTimer();
             LoaderPool.getInstance().release(chanLoader, this);
             chanLoader = null;
             loadable = null;
@@ -138,13 +139,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public void onForegroundChanged(boolean foreground) {
         if (chanLoader != null) {
-            if (foreground) {
-                if (isWatching()) {
-                    chanLoader.setAutoLoadMore(true);
-                    chanLoader.requestMoreDataAndResetTimer();
-                }
+            if (foreground && isWatching()) {
+                chanLoader.requestMoreDataAndResetTimer();
             } else {
-                chanLoader.setAutoLoadMore(false);
+                chanLoader.clearTimer();
             }
         }
     }
@@ -240,7 +238,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
-        chanLoader.setAutoLoadMore(isWatching());
+        if (isWatching()) {
+            chanLoader.setTimer();
+        }
         showPosts();
 
         if (loadable.markedNo >= 0) {
@@ -506,7 +506,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public boolean isWatching() {
-        return loadable.isThreadMode() && ChanSettings.autoRefreshThread.get() && chanLoader.getThread() != null &&
+        return loadable.isThreadMode() && ChanSettings.autoRefreshThread.get() &&
+                Chan.getInstance().getApplicationInForeground() && chanLoader.getThread() != null &&
                 !chanLoader.getThread().closed && !chanLoader.getThread().archived;
     }
 
