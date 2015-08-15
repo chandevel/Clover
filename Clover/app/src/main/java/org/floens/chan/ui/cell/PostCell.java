@@ -169,7 +169,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
                 callback.onThumbnailClicked(post, thumbnailView);
             }
         });
-        thumbnailView.setRounding(dp(2));
+        thumbnailView.setRounding(dp(3));
 
         replies.setOnClickListener(new View.OnClickListener() {
             @Override
