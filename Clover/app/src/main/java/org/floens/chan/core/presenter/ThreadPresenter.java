@@ -142,6 +142,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (chanLoader != null) {
             if (foreground && isWatching()) {
                 chanLoader.requestMoreDataAndResetTimer();
+                if (chanLoader.getThread() != null) {
+                    // Show loading indicator in the status cell
+                    showPosts();
+                }
             } else {
                 chanLoader.clearTimer();
             }

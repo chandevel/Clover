@@ -45,7 +45,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> sourceList = new ArrayList<>();
     private final List<Post> displayList = new ArrayList<>();
-    private int lastPostCount = 0;
     private String error = null;
     private Post highlightedPost;
     private String highlightedPostId;
@@ -130,6 +129,20 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return size;
     }
 
+    public int getUnfilteredDisplaySize() {
+        int size = sourceList.size();
+
+        if (showStatusView()) {
+            size++;
+        }
+
+        if (lastSeenIndicatorPosition >= 0) {
+            size++;
+        }
+
+        return size;
+    }
+
     @Override
     public int getItemViewType(int position) {
         if (position == lastSeenIndicatorPosition) {
@@ -183,20 +196,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public int getUnfilteredDisplaySize() {
-        int size = sourceList.size();
-
-        if (showStatusView()) {
-            size++;
-        }
-
-        if (lastSeenIndicatorPosition >= 0) {
-            size++;
-        }
-
-        return size;
-    }
-
     public List<Post> getDisplayList() {
         return displayList;
     }
@@ -206,7 +205,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPostId = null;
         highlightedPostNo = -1;
         highlightedPostTripcode = null;
-        lastPostCount = 0;
         lastSeenIndicatorPosition = -1;
         bound = false;
     }
