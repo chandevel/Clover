@@ -38,7 +38,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
@@ -53,6 +52,7 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.core.saver.ImageSaveTask;
+import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
@@ -67,7 +67,6 @@ import org.floens.chan.ui.view.OptionalSwipeViewPager;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -322,7 +321,7 @@ public class ImageViewerController extends Controller implements View.OnClickLis
 
         startAnimation.play(progress);
         startAnimation.setDuration(TRANSITION_DURATION);
-        startAnimation.setInterpolator(new OvershootInterpolator(1.3f));
+        startAnimation.setInterpolator(new DecelerateInterpolator(3f));
         startAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
