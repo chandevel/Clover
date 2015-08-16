@@ -1,6 +1,7 @@
 gps/
 Clover/app/keys.properties
 Clover/app/version.properties
+Clover/app/src/main/res/values/private_strings.xml
 
 # Built application files
 *.apk

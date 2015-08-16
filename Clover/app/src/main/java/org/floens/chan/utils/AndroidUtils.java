@@ -113,28 +113,32 @@ public class AndroidUtils {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
 
         ComponentName resolvedActivity = intent.resolveActivity(pm);
-        boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
-        if (!thisAppIsDefault) {
-            openIntent(intent);
+        if (resolvedActivity == null) {
+            openIntentFailed();
         } else {
-            // Get all intents that match, and filter out this app
-            List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-            List<Intent> filteredIntents = new ArrayList<>(resolveInfos.size());
-            for (ResolveInfo info : resolveInfos) {
-                if (!info.activityInfo.packageName.equals(getAppContext().getPackageName())) {
-                    Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-                    i.setPackage(info.activityInfo.packageName);
-                    filteredIntents.add(i);
-                }
-            }
-
-            if (filteredIntents.size() > 0) {
-                // Create a chooser for the last app in the list, and add the rest with EXTRA_INITIAL_INTENTS that get placed above
-                Intent chooser = Intent.createChooser(filteredIntents.remove(filteredIntents.size() - 1), null);
-                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[filteredIntents.size()]));
-                openIntent(chooser);
+            boolean thisAppIsDefault = resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
+            if (!thisAppIsDefault) {
+                openIntent(intent);
             } else {
-                openIntentFailed();
+                // Get all intents that match, and filter out this app
+                List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+                List<Intent> filteredIntents = new ArrayList<>(resolveInfos.size());
+                for (ResolveInfo info : resolveInfos) {
+                    if (!info.activityInfo.packageName.equals(getAppContext().getPackageName())) {
+                        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                        i.setPackage(info.activityInfo.packageName);
+                        filteredIntents.add(i);
+                    }
+                }
+
+                if (filteredIntents.size() > 0) {
+                    // Create a chooser for the last app in the list, and add the rest with EXTRA_INITIAL_INTENTS that get placed above
+                    Intent chooser = Intent.createChooser(filteredIntents.remove(filteredIntents.size() - 1), null);
+                    chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[filteredIntents.size()]));
+                    openIntent(chooser);
+                } else {
+                    openIntentFailed();
+                }
             }
         }
     }

@@ -18,7 +18,10 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -37,6 +40,7 @@ import org.floens.chan.ui.settings.StringSettingView;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 
 import java.util.ArrayList;
@@ -239,6 +243,43 @@ public class MainSettingsController extends SettingsController implements Toolba
                 }
             }
         }));
+
+        int extraAbouts = context.getResources().getIdentifier("extra_abouts", "array", context.getPackageName());
+        if (extraAbouts != 0) {
+            String[] abouts = context.getResources().getStringArray(extraAbouts);
+            if (abouts.length % 3 == 0) {
+                for (int i = 0, aboutsLength = abouts.length; i < aboutsLength; i += 3) {
+                    String aboutName = abouts[i];
+                    String aboutDescription = abouts[i + 1];
+                    if (TextUtils.isEmpty(aboutDescription)) {
+                        aboutDescription = null;
+                    }
+                    String aboutLink = abouts[i + 2];
+                    if (TextUtils.isEmpty(aboutLink)) {
+                        aboutLink = null;
+                    }
+
+                    final String finalAboutLink = aboutLink;
+                    about.add(new LinkSettingView(this, aboutName, aboutDescription, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (finalAboutLink != null) {
+                                if (finalAboutLink.contains("__EMAIL__")) {
+                                    String[] email = finalAboutLink.split("__EMAIL__");
+                                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                                    intent.setData(Uri.parse("mailto:"));
+                                    intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email[0]});
+                                    intent.putExtra(Intent.EXTRA_SUBJECT, email[1]);
+                                    AndroidUtils.openIntent(intent);
+                                } else {
+                                    AndroidUtils.openLink(finalAboutLink);
+                                }
+                            }
+                        }
+                    }));
+                }
+            }
+        }
 
         about.add(new LinkSettingView(this, s(R.string.settings_about_license), s(R.string.settings_about_license_description), new View.OnClickListener() {
             @Override
