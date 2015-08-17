@@ -21,7 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="previous_version_1">
         <![CDATA[
             <h3>Clover was updated</h3>
-            Put recent changes here
+
+            This is the beta of Clover v2, redesigned with the Google Material Design guidelines in mind.<br>
+            <br>
+            <b>Biggest changes:</b><br>
+            - New inline reply layout.<br>
+            - Support for thread hiding.<br>
+            - Support for filtering threads, making posts either highlighted, hidden or completely removed.<br>
+            - Support for history.<br>
+            - More themes were added.<br>
+            - Album downloads have been improved.<br>
+            - Catalog mode now uses cards.<br>
+            - More advanced options added.<br>
+            - Minor features and bug fixes.<br>
+            <br>
+            <b>Please provide feedback on GitHub or by writing an email, links are at the bottom of the settings screen.</b>
         ]]>
     </string>
 

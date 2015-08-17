@@ -18,23 +18,41 @@
 package org.floens.chan.ui.helper;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.widget.Button;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.utils.AndroidUtils;
 
 public class PreviousVersionHandler {
     private static final int CURRENT_VERSION = 1;
 
     public void run(Context context) {
         if (ChanSettings.previousVersion.get() < CURRENT_VERSION) {
-            CharSequence message = Html.fromHtml(context.getString(R.string.previous_version_1));
+            int resource = context.getResources().getIdentifier("previous_version_" + CURRENT_VERSION, "string", context.getPackageName());
+            if (resource != 0) {
+                CharSequence message = Html.fromHtml(context.getString(resource));
 
-            new AlertDialog.Builder(context)
-                    .setMessage(message)
-                    .setPositiveButton(R.string.ok, null)
-                    .show();
+                final AlertDialog dialog = new AlertDialog.Builder(context)
+                        .setMessage(message)
+                        .setPositiveButton(R.string.ok, null)
+                        .create();
+                dialog.show();
+                dialog.setCanceledOnTouchOutside(false);
+
+                final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                button.setEnabled(false);
+                AndroidUtils.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.setCanceledOnTouchOutside(true);
+                        button.setEnabled(true);
+                    }
+                }, 1500);
+            }
 
             ChanSettings.previousVersion.set(CURRENT_VERSION);
         }
