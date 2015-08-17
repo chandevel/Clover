@@ -19,7 +19,6 @@ package org.floens.chan.ui.layout;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -28,6 +27,7 @@ import android.content.DialogInterface;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;

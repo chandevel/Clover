@@ -18,8 +18,8 @@
 package org.floens.chan.ui.controller;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.LinearLayout;
 

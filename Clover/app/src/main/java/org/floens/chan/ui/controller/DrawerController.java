@@ -17,12 +17,12 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;

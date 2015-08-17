@@ -17,9 +17,9 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;

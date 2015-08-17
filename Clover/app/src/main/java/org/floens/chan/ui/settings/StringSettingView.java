@@ -17,8 +17,8 @@
  */
 package org.floens.chan.ui.settings;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;

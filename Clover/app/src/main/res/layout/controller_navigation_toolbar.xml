@@ -20,14 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="match_parent"
     android:background="?backcolor">
 
-    <org.floens.chan.ui.toolbar.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height" />
-
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <org.floens.chan.ui.toolbar.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height" />
 
 </org.floens.chan.ui.view.TouchBlockingFrameLayout>

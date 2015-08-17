@@ -17,9 +17,9 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;

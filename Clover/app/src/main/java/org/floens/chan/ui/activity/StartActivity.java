@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -27,6 +26,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
