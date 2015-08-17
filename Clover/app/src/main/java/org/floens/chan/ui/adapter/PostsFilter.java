@@ -21,7 +21,6 @@ import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Post;
 
 import java.util.ArrayList;
@@ -61,7 +60,6 @@ public class PostsFilter {
     };
 
     private final DatabaseManager databaseManager;
-    private final FilterEngine filterEngine;
 
     private Order order;
     private String query;
@@ -70,7 +68,6 @@ public class PostsFilter {
         this.order = order;
         this.query = query;
         databaseManager = Chan.getDatabaseManager();
-        filterEngine = FilterEngine.getInstance();
     }
 
     /**

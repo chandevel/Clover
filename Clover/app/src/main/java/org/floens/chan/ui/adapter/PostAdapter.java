@@ -167,13 +167,19 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (itemViewType == TYPE_LAST_SEEN) {
             return -2;
         } else {
-            return displayList.get(getPostPosition(position)).no;
+            Post post = displayList.get(getPostPosition(position));
+            int repliesFromSize;
+            synchronized (post.repliesFrom) {
+                repliesFromSize = post.repliesFrom.size();
+            }
+            return ((long) repliesFromSize << 32) + (long) post.no;
         }
     }
 
     public void setThread(ChanThread thread, PostsFilter filter) {
         bound = true;
         showError(null);
+
         sourceList.clear();
         sourceList.addAll(thread.posts);
 
