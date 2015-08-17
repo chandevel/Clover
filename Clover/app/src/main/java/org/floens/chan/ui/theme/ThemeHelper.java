@@ -19,6 +19,8 @@ package org.floens.chan.ui.theme;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import org.floens.chan.R;
@@ -102,7 +104,9 @@ public class ThemeHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             context.getWindow().setStatusBarColor(theme.primaryColor.dark);
             context.getWindow().setNavigationBarColor(0xff000000);
-            context.setTaskDescription(new ActivityManager.TaskDescription(null, null, theme.primaryColor.color));
+
+            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_task_description);
+            context.setTaskDescription(new ActivityManager.TaskDescription(null, icon, theme.primaryColor.color));
         }
     }
 
