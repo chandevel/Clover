@@ -38,6 +38,7 @@ import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.CaptchaLayout;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +54,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     }
 
     private static final Pattern QUOTE_PATTERN = Pattern.compile(">>\\d+");
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     private ReplyPresenterCallback callback;
 
@@ -246,7 +248,8 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         makeSubmitCall();
     }
 
-    public void onCommentTextChanged(int length) {
+    public void onCommentTextChanged(CharSequence text) {
+        int length = text.toString().getBytes(UTF_8).length;
         callback.updateCommentCount(length, board.maxCommentChars, length > board.maxCommentChars);
     }
 

@@ -391,7 +391,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void afterTextChanged(Editable s) {
-        presenter.onCommentTextChanged(comment.length());
+        presenter.onCommentTextChanged(comment.getText());
     }
 
     @Override
