@@ -19,7 +19,6 @@ package org.floens.chan.ui.layout;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -141,11 +140,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         submit.setOnClickListener(this);
 
         setView(replyInputLayout);
-
-        setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setElevation(dp(4f));
-        }
     }
 
     public void setCallback(ReplyLayoutCallback callback) {

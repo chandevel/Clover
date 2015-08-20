@@ -21,11 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
+
     <org.floens.chan.ui.layout.ReplyLayout
         android:id="@+id/reply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:background="?backcolor"
+        android:elevation="4dp"
+        android:visibility="gone"
+        tools:ignore="UnusedAttribute" />
 
     <TextView
         android:id="@+id/search_status"
@@ -39,12 +49,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textColor="?text_color_secondary"
         android:visibility="gone"
         tools:ignore="UnusedAttribute" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:scrollbars="vertical" />
 
 </org.floens.chan.ui.layout.ThreadListLayout>
