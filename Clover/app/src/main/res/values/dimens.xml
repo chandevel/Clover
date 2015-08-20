@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <dimen name="toolbar_height">56dp</dimen>
 
-    <dimen name="grid_card_width">140dp</dimen>
-    <integer name="grid_card_max_spans">-1</integer>
+    <dimen name="grid_card_width">120dp</dimen>
+    <dimen name="grid_card_height">200dp</dimen>
 
     <dimen name="reply_height_loading">250dp</dimen>
 

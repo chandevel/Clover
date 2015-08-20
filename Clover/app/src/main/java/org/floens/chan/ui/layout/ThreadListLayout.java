@@ -129,12 +129,7 @@ public class ThreadListLayout extends LinearLayout implements ReplyLayout.ReplyL
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int cardWidth = getResources().getDimensionPixelSize(R.dimen.grid_card_width);
-        int maxSpans = getResources().getInteger(R.integer.grid_card_max_spans);
-
         spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
-        if (maxSpans > 1 && spanCount > maxSpans) {
-            spanCount = maxSpans;
-        }
 
         if (postViewMode == PostCellInterface.PostViewMode.CARD) {
             ((GridLayoutManager) layoutManager).setSpanCount(spanCount);

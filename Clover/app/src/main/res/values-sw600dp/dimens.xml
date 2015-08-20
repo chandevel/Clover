@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <resources>
     <bool name="is_tablet">true</bool>
 
-    <dimen name="grid_card_width">180dp</dimen>
-    <integer name="grid_card_max_spans">5</integer>
+    <dimen name="grid_card_width">105dp</dimen>
+    <dimen name="grid_card_height">240dp</dimen>
 
     <dimen name="reply_height_loading">400dp</dimen>
 
