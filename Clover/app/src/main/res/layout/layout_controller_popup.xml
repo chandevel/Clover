@@ -15,18 +15,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<FrameLayout
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/top_view"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#88000000">
 
-    <FrameLayout
+    <org.floens.chan.ui.layout.PopupControllerContainer
         android:id="@+id/container"
         android:layout_width="600dp"
-        android:layout_height="600dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/dialog_full_light"/>
+        android:background="@drawable/dialog_full_light" />
 
 </FrameLayout>
