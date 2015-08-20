@@ -413,6 +413,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         callback.requestNewPostLoad();
     }
 
+    @Override
+    public ChanThread getThread() {
+        return showingThread;
+    }
+
     private void attachToolbarScroll(boolean attach) {
         Toolbar toolbar = threadListLayoutCallback.getToolbar();
         if (toolbar != null && threadListLayoutCallback.collapseToolbar()) {

@@ -28,6 +28,7 @@ import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.Reply;
@@ -196,7 +197,10 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     public void onHttpSuccess(ReplyHttpCall replyCall) {
         if (replyCall.posted) {
             if (ChanSettings.postPinThread.get() && loadable.isThreadMode()) {
-                watchManager.addPin(loadable);
+                ChanThread thread = callback.getThread();
+                if (thread != null) {
+                    watchManager.addPin(loadable, thread.op);
+                }
             }
 
             databaseManager.saveReply(new SavedReply(loadable.board, replyCall.postNo, replyCall.password));
@@ -429,5 +433,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         void showThread(Loadable loadable);
 
         ImagePickDelegate getImagePickDelegate();
+
+        ChanThread getThread();
     }
 }
