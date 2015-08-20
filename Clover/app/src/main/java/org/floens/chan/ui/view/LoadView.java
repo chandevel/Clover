@@ -175,6 +175,12 @@ public class LoadView extends FrameLayout {
                     }
                 }
 
+                if (animateVertical) {
+                    newSize += getPaddingTop() + getPaddingBottom();
+                } else {
+                    newSize += getPaddingLeft() + getPaddingRight();
+                }
+
                 AnimationUtils.animateLayout(animateVertical, this, currentSize, newSize, layoutAnimationDuration, true, null);
             }
         } else {

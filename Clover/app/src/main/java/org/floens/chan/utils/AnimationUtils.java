@@ -28,6 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AnimationUtils {
+    public static int interpolate(int a, int b, float x) {
+        return (int) (a + (b - a) * x);
+    }
+
     public static void setHeight(View view, boolean expand, boolean animated) {
         setHeight(view, expand, animated, -1);
     }
@@ -42,16 +46,16 @@ public class AnimationUtils {
 
     private static Map<View, ValueAnimator> layoutAnimations = new HashMap<>();
 
-    public static void animateHeight(final View view, boolean expand) {
-        animateHeight(view, expand, -1);
+    public static int animateHeight(final View view, boolean expand) {
+        return animateHeight(view, expand, -1);
     }
 
-    public static void animateHeight(final View view, final boolean expand, int knownWidth) {
-        animateHeight(view, expand, knownWidth, 300);
+    public static int animateHeight(final View view, final boolean expand, int knownWidth) {
+        return animateHeight(view, expand, knownWidth, 300);
     }
 
-    public static void animateHeight(final View view, final boolean expand, int knownWidth, int duration) {
-        animateHeight(view, expand, knownWidth, duration, null);
+    public static int animateHeight(final View view, final boolean expand, int knownWidth, int duration) {
+        return animateHeight(view, expand, knownWidth, duration, null);
     }
 
     /**
@@ -61,7 +65,7 @@ public class AnimationUtils {
      * You can call this even when a height animation is currently running, it will resolve any issues.<br>
      * <b>This does cause some lag on complex views because requestLayout is called on each frame.</b>
      */
-    public static void animateHeight(final View view, final boolean expand, int knownWidth, int duration, final LayoutAnimationProgress progressCallback) {
+    public static int animateHeight(final View view, final boolean expand, int knownWidth, int duration, final LayoutAnimationProgress progressCallback) {
         final int fromHeight;
         int toHeight;
         if (expand) {
@@ -78,6 +82,8 @@ public class AnimationUtils {
         }
 
         animateLayout(true, view, fromHeight, toHeight, duration, true, progressCallback);
+
+        return toHeight;
     }
 
     public static void animateLayout(final boolean vertical, final View view, final int from, final int to, int duration, final boolean wrapAfterwards, final LayoutAnimationProgress callback) {
@@ -103,7 +109,7 @@ public class AnimationUtils {
                 view.requestLayout();
 
                 if (callback != null) {
-                    callback.onLayoutAnimationProgress(vertical, view, animation.getAnimatedFraction());
+                    callback.onLayoutAnimationProgress(view, vertical, from, to, value, animation.getAnimatedFraction());
                 }
             }
         });
@@ -145,6 +151,6 @@ public class AnimationUtils {
     }
 
     public interface LayoutAnimationProgress {
-        void onLayoutAnimationProgress(boolean vertical, View view, float progress);
+        void onLayoutAnimationProgress(View view, boolean vertical, int from, int to, int value, float progress);
     }
 }

@@ -331,7 +331,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
     @Override
     public void showSearch(boolean show) {
-        threadListLayout.showSearch(show);
+        threadListLayout.openSearch(show);
     }
 
     public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {

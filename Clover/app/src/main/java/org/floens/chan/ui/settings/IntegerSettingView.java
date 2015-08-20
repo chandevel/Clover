@@ -65,6 +65,7 @@ public class IntegerSettingView extends SettingView implements View.OnClickListe
         editText.setText(setting.get().toString());
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setSingleLine(true);
+        editText.setSelection(editText.getText().length());
 
         container.addView(editText, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 

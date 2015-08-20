@@ -175,7 +175,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     @Override
-    public void onLayoutAnimationProgress(boolean vertical, View view, float progress) {
+    public void onLayoutAnimationProgress(View view, boolean vertical, int from, int to, int value, float progress) {
         if (view == nameOptions) {
             moreDropdown.setRotation(openingName ? progress : 1f - progress);
         }

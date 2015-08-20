@@ -60,6 +60,7 @@ public class StringSettingView extends SettingView implements View.OnClickListen
         editText.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
         editText.setText(setting.get());
         editText.setSingleLine(true);
+        editText.setSelection(editText.getText().length());
 
         container.addView(editText, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 

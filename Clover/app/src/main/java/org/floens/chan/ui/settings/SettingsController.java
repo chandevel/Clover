@@ -74,7 +74,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     }
 
     private void setMargins() {
-        boolean tablet = context.getResources().getBoolean(R.bool.is_tablet);
+        boolean tablet = AndroidUtils.isTablet(context);
 
         int margin = 0;
         if (tablet) {
@@ -102,7 +102,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
 
     protected void setSettingViewVisibility(SettingView settingView, boolean visible, boolean animated) {
         if (animated) {
-            AnimationUtils.animateHeight(settingView.view, visible);
+            AnimationUtils.animateHeight(settingView.view, visible, ((View) settingView.view.getParent()).getWidth());
         } else {
             settingView.view.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
@@ -168,7 +168,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                     bottom.setText(bottomText);
                 }
 
-                AnimationUtils.animateHeight(bottom, bottomText != null);
+                AnimationUtils.animateHeight(bottom, bottomText != null, ((View) view.getParent()).getWidth());
             } else {
                 bottom.setText(bottomText);
                 bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);
