@@ -64,6 +64,20 @@ public abstract class ImageSearch {
             }
 
             public String getName() {
+                return "SauceNao";
+            }
+
+            public String getUrl(String imageUrl) {
+                return "https://saucenao.com/search.php?url=" + imageUrl;
+            }
+        });
+		
+        engines.add(new ImageSearch() {
+            public int getId() {
+                return 3;
+            }
+
+            public String getName() {
                 return "TinEye";
             }
 
