@@ -1,3 +1,16 @@
+New in 2.0.0 (2015-08-23)
+- New design.
+- New inline reply layout.
+- Support for thread hiding.
+- Support for filtering threads, making posts either highlighted, hidden or completely removed.
+- Support for history.
+- More themes were added.
+- Album downloads have been improved.
+- Catalog mode now uses cards.
+- More advanced options added.
+- Minor features and bug fixes.
+
+
 New in 1.2.11 (2015-06-20)
 - Update/fix captchas
 

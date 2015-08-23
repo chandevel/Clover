@@ -26,35 +26,66 @@ import android.widget.Button;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.Logger;
+
+import java.io.File;
 
 public class PreviousVersionHandler {
+    private static final String TAG = "PreviousVersionHandler";
     private static final int CURRENT_VERSION = 1;
 
     public void run(Context context) {
-        if (ChanSettings.previousVersion.get() < CURRENT_VERSION) {
-            int resource = context.getResources().getIdentifier("previous_version_" + CURRENT_VERSION, "string", context.getPackageName());
-            if (resource != 0) {
-                CharSequence message = Html.fromHtml(context.getString(resource));
-
-                final AlertDialog dialog = new AlertDialog.Builder(context)
-                        .setMessage(message)
-                        .setPositiveButton(R.string.ok, null)
-                        .create();
-                dialog.show();
-                dialog.setCanceledOnTouchOutside(false);
-
-                final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-                button.setEnabled(false);
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.setCanceledOnTouchOutside(true);
-                        button.setEnabled(true);
-                    }
-                }, 1500);
+        int previous = ChanSettings.previousVersion.get();
+        if (previous < CURRENT_VERSION) {
+            if (previous < 1) {
+                cleanupOutdatedIonFolder(context);
             }
 
+            showMessage(context, CURRENT_VERSION);
+
             ChanSettings.previousVersion.set(CURRENT_VERSION);
+        }
+    }
+
+    private void showMessage(Context context, int version) {
+        int resource = context.getResources().getIdentifier("previous_version_" + version, "string", context.getPackageName());
+        if (resource != 0) {
+            CharSequence message = Html.fromHtml(context.getString(resource));
+
+            final AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.ok, null)
+                    .create();
+            dialog.show();
+            dialog.setCanceledOnTouchOutside(false);
+
+            final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            button.setEnabled(false);
+            AndroidUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.setCanceledOnTouchOutside(true);
+                    button.setEnabled(true);
+                }
+            }, 1500);
+        }
+    }
+
+    private void cleanupOutdatedIonFolder(Context context) {
+        Logger.i(TAG, "Cleaning up old ion folder");
+        File ionCacheFolder = new File(context.getCacheDir() + "/ion");
+        if (ionCacheFolder.exists() && ionCacheFolder.isDirectory()) {
+            Logger.i(TAG, "Clearing old ion folder");
+            for (File file : ionCacheFolder.listFiles()) {
+                if (!file.delete()) {
+                    Logger.i(TAG, "Could not delete old ion file " + file.getName());
+                }
+            }
+            if (!ionCacheFolder.delete()) {
+                Logger.i(TAG, "Could not delete old ion folder");
+            } else {
+                Logger.i(TAG, "Deleted old ion folder");
+            }
         }
     }
 }

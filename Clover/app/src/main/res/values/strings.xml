@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             This is the beta of Clover v2, redesigned with the Google Material Design guidelines in mind.<br>
             <br>
             <b>Biggest changes:</b><br>
+            - New design.<br>
             - New inline reply layout.<br>
             - Support for thread hiding.<br>
             - Support for filtering threads, making posts either highlighted, hidden or completely removed.<br>

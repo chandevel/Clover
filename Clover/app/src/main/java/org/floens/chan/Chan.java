@@ -145,8 +145,6 @@ public class Chan extends Application {
         version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
         userAgent = getString(R.string.app_name) + "/" + version;
 
-        cleanupOutdated();
-
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
 
         replyManager = new ReplyManager(this);
@@ -195,23 +193,6 @@ public class Chan extends Application {
 
     public boolean getApplicationInForeground() {
         return activityForegroundCounter > 0;
-    }
-
-    private void cleanupOutdated() {
-        File ionCacheFolder = new File(getCacheDir() + "/ion");
-        if (ionCacheFolder.exists() && ionCacheFolder.isDirectory()) {
-            Logger.i(TAG, "Clearing old ion folder");
-            for (File file : ionCacheFolder.listFiles()) {
-                if (!file.delete()) {
-                    Logger.i(TAG, "Could not delete old ion file " + file.getName());
-                }
-            }
-            if (!ionCacheFolder.delete()) {
-                Logger.i(TAG, "Could not delete old ion folder");
-            } else {
-                Logger.i(TAG, "Deleted old ion folder");
-            }
-        }
     }
 
     public static class ForegroundChangedMessage {
