@@ -16,7 +16,7 @@ Please search before reporting an issue to avoid duplicates.
 
 ## Beta
 A beta version is occasionally uploaded before a normal release for testing and feedback.  
-To join the beta, [join this G+ community](https://plus.google.com/communities/108906508206092146956) and follow the instructions in the "About this community" box.
+To join the beta, [click here](https://play.google.com/apps/testing/org.floens.chan) and follow the instructions.
 
 
 ## Building Clover
