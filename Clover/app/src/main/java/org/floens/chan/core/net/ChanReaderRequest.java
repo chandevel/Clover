@@ -367,14 +367,10 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                         post.filterHighlightedColor = filter.color;
                         break;
                     case HIDE:
-                        if (!loadable.isThreadMode()) {
-                            post.filterStub = true;
-                        }
+                        post.filterStub = true;
                         break;
                     case REMOVE:
-                        if (!loadable.isThreadMode()) {
-                            post.filterRemove = true;
-                        }
+                        post.filterRemove = true;
                         break;
                 }
             }
