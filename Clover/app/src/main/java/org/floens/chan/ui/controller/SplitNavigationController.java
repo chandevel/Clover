@@ -175,7 +175,7 @@ public class SplitNavigationController extends NavigationController implements A
 
     @Override
     public boolean onMeasured(View view) {
-        int width = Math.max(dp(320), (int) (view.getWidth() * 0.35));
+        int width = Math.max(dp(300), (int) (view.getWidth() * 0.35));
         if (leftControllerView.getWidth() != width) {
             leftControllerView.getLayoutParams().width = width;
             leftControllerView.requestLayout();
