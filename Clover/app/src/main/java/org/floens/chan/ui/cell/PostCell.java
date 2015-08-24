@@ -38,6 +38,7 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -314,15 +315,14 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             thumbnailView.setUrl(null, 0, 0);
         }
 
-        CharSequence[] titleParts = new CharSequence[post.subjectSpan == null ? 2 : 4];
-        int titlePartsCount = 0;
+        List<CharSequence> titleParts = new ArrayList<>(5);
 
         if (post.subjectSpan != null) {
-            titleParts[titlePartsCount++] = post.subjectSpan;
-            titleParts[titlePartsCount++] = "\n";
+            titleParts.add(post.subjectSpan);
+            titleParts.add("\n");
         }
 
-        titleParts[titlePartsCount++] = post.nameTripcodeIdCapcodeSpan;
+        titleParts.add(post.nameTripcodeIdCapcodeSpan);
 
         CharSequence time;
         if (ChanSettings.postFullDate.get()) {
@@ -338,24 +338,38 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             Resources.getSystem().updateConfiguration(c, null);
         }
 
-        String fileInfo = "";
-        if (ChanSettings.postFileInfo.get() && post.hasImage) {
-            PostImage image = post.image;
-            fileInfo = "\n" + image.extension.toUpperCase() + " " +
-                    AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                    image.imageWidth + "x" + image.imageHeight;
-        }
-
         String noText = "No." + post.no;
-        SpannableString date = new SpannableString(noText + " " + time + fileInfo);
+        SpannableString date = new SpannableString(noText + " " + time);
         date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
+        titleParts.add(date);
         if (ChanSettings.tapNoReply.get()) {
             date.setSpan(new NoClickableSpan(), 0, noText.length(), 0);
         }
-        titleParts[titlePartsCount] = date;
 
-        title.setText(TextUtils.concat(titleParts));
+        if (post.hasImage) {
+            PostImage image = post.image;
+
+            boolean postFileName = ChanSettings.postFilename.get();
+            if (postFileName) {
+                SpannableString fileInfo = new SpannableString("\n" + image.filename + "." + image.extension);
+                fileInfo.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
+                titleParts.add(fileInfo);
+            }
+
+            if (ChanSettings.postFileInfo.get()) {
+                SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
+                        AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                        image.imageWidth + "x" + image.imageHeight);
+                fileInfo.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, fileInfo.length(), 0);
+                titleParts.add(fileInfo);
+            }
+        }
+
+        title.setText(TextUtils.concat(titleParts.toArray(new CharSequence[titleParts.size()])));
 
         iconsSpannable = new SpannableString("");
 

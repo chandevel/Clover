@@ -89,6 +89,7 @@ public class ChanSettings {
     public static final BooleanSetting volumeKeysScrolling;
     public static final BooleanSetting postFullDate;
     public static final BooleanSetting postFileInfo;
+    public static final BooleanSetting postFilename;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
@@ -152,6 +153,7 @@ public class ChanSettings {
         volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
         postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
         postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);
+        postFilename = new BooleanSetting(p, "preference_post_filename", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false, new Setting.SettingCallback<Boolean>() {
             @Override

@@ -48,6 +48,7 @@ public class AdvancedSettingsController extends SettingsController {
     private SettingView forcePhoneLayoutSetting;
     private SettingView postFullDate;
     private SettingView postFileInfo;
+    private SettingView postFilename;
     private SettingView anonymize;
     private SettingView anonymizeIds;
     private SettingView tapNoReply;
@@ -87,7 +88,7 @@ public class AdvancedSettingsController extends SettingsController {
             needRestart = true;
         }
 
-        if (item == postFullDate || item == postFileInfo || item == anonymize || item == anonymizeIds || item == tapNoReply) {
+        if (item == postFullDate || item == postFileInfo || item == anonymize || item == anonymizeIds || item == tapNoReply || item == postFilename) {
             EventBus.getDefault().post(new RefreshUIMessage("postui"));
         }
     }
@@ -129,6 +130,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.volumeKeysScrolling, string(R.string.setting_volume_key_scrolling), null));
         postFullDate = settings.add(new BooleanSettingView(this, ChanSettings.postFullDate, string(R.string.setting_post_full_date), null));
         postFileInfo = settings.add(new BooleanSettingView(this, ChanSettings.postFileInfo, string(R.string.setting_post_file_info), null));
+        postFilename = settings.add(new BooleanSettingView(this, ChanSettings.postFilename, string(R.string.setting_post_filename), null));
 
         groups.add(settings);
 
