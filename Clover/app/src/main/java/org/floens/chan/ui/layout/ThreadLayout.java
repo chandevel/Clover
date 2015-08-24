@@ -100,6 +100,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     private Visible visible;
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
+    private boolean replyButtonEnabled;
     private boolean showingReplyButton = false;
     private Snackbar newPostsNotification;
 
@@ -123,6 +124,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
         presenter = new ThreadPresenter(this);
 
+
         loadView = (LoadView) findViewById(R.id.loadview);
         replyButton = (FloatingActionButton) findViewById(R.id.reply_button);
         replyButton.setOnClickListener(this);
@@ -138,6 +140,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
         errorRetryButton = (Button) errorLayout.findViewById(R.id.button);
         errorRetryButton.setOnClickListener(this);
+
+        replyButtonEnabled = ChanSettings.enableReplyFab.get();
+        if (!replyButtonEnabled) {
+            AndroidUtils.removeFromParentView(replyButton);
+        }
 
         switchVisible(Visible.LOADING);
     }
@@ -435,8 +442,12 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         return postPopupHelper.isOpen();
     }
 
+    public void openReply(boolean open) {
+        threadListLayout.openReply(open);
+    }
+
     private void showReplyButton(boolean show) {
-        if (show != showingReplyButton) {
+        if (show != showingReplyButton && replyButtonEnabled) {
             showingReplyButton = show;
 
             replyButton.animate()

@@ -46,6 +46,7 @@ public class AdvancedSettingsController extends SettingsController {
     private boolean needRestart;
     private LinkSettingView saveLocation;
     private SettingView forcePhoneLayoutSetting;
+    private SettingView enableReplyFab;
     private SettingView postFullDate;
     private SettingView postFileInfo;
     private SettingView postFilename;
@@ -84,7 +85,7 @@ public class AdvancedSettingsController extends SettingsController {
     public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
 
-        if (item == forcePhoneLayoutSetting) {
+        if (item == forcePhoneLayoutSetting || item == enableReplyFab) {
             needRestart = true;
         }
 
@@ -122,6 +123,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.shareUrl, string(R.string.setting_share_url), string(R.string.setting_share_url_description)));
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, string(R.string.setting_network_https), string(R.string.setting_network_https_description)));
         forcePhoneLayoutSetting = settings.add(new BooleanSettingView(this, ChanSettings.forcePhoneLayout, string(R.string.setting_force_phone_layout), null));
+        enableReplyFab = settings.add(new BooleanSettingView(this, ChanSettings.enableReplyFab, string(R.string.setting_enable_reply_fab), string(R.string.setting_enable_reply_fab_description)));
         anonymize = settings.add(new BooleanSettingView(this, ChanSettings.anonymize, string(R.string.setting_anonymize), null));
         anonymizeIds = settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, string(R.string.setting_anonymize_ids), null));
         settings.add(new BooleanSettingView(this, ChanSettings.repliesButtonsBottom, string(R.string.setting_buttons_bottom), null));

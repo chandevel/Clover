@@ -48,11 +48,12 @@ import java.util.List;
 
 public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback {
     private static final int REFRESH_ID = 1;
-    private static final int SEARCH_ID = 101;
-    private static final int SHARE_ID = 102;
-    private static final int VIEW_MODE_ID = 103;
-    private static final int ORDER_ID = 104;
-    private static final int OPEN_BROWSER_ID = 105;
+    private static final int REPLY_ID = 101;
+    private static final int SEARCH_ID = 102;
+    private static final int SHARE_ID = 103;
+    private static final int VIEW_MODE_ID = 104;
+    private static final int ORDER_ID = 105;
+    private static final int OPEN_BROWSER_ID = 106;
 
     private PostCellInterface.PostViewMode postViewMode;
     private PostsFilter.Order order;
@@ -89,6 +90,9 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         overflow = menu.createOverflow(this);
 
         List<FloatingMenuItem> items = new ArrayList<>();
+        if (!ChanSettings.enableReplyFab.get()) {
+            items.add(new FloatingMenuItem(REPLY_ID, context.getString(R.string.action_reply)));
+        }
         items.add(new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)));
         items.add(new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)));
         viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, context.getString(
@@ -115,6 +119,9 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
         Integer id = (Integer) item.getId();
         switch (id) {
+            case REPLY_ID:
+                threadLayout.openReply(true);
+                break;
             case SEARCH_ID:
                 ((ToolbarNavigationController) navigationController).showSearch();
                 break;

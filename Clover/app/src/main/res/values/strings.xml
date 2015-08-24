@@ -91,6 +91,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_order">Order</string>
     <string name="action_rename_pin">Rename pin</string>
     <string name="action_rename">Rename</string>
+    <string name="action_reply">Reply</string>
 
     <string name="open_link_not_matched">Clover cannot open this link, opening in your browser.</string>
 
@@ -337,6 +338,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_network_https">Use HTTPS</string>
     <string name="setting_network_https_description">Use HTTPS for all network requests</string>
     <string name="setting_force_phone_layout">Force phone layout</string>
+    <string name="setting_enable_reply_fab">Enable the reply FAB</string>
+    <string name="setting_enable_reply_fab_description">Disabling replaces it with a menu option</string>
     <string name="setting_anonymize">Make everyone Anonymous</string>
     <string name="setting_anonymize_ids">Hide IDs</string>
     <string name="setting_buttons_bottom">Reply buttons on the bottom</string>

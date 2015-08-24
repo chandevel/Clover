@@ -28,6 +28,7 @@ import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -35,18 +36,20 @@ import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int PIN_ID = 2;
-    private static final int REFRESH_ID = 101;
-    private static final int SEARCH_ID = 102;
-    private static final int SHARE_ID = 103;
-    private static final int UP_ID = 104;
-    private static final int DOWN_ID = 105;
-    private static final int OPEN_BROWSER_ID = 106;
+    private static final int REPLY_ID = 101;
+    private static final int REFRESH_ID = 102;
+    private static final int SEARCH_ID = 103;
+    private static final int SHARE_ID = 104;
+    private static final int UP_ID = 105;
+    private static final int DOWN_ID = 106;
+    private static final int OPEN_BROWSER_ID = 107;
 
     private ToolbarMenuItem pinItem;
     private Loadable loadable;
@@ -71,14 +74,17 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         navigationItem.menu = new ToolbarMenu(context);
 
         pinItem = navigationItem.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
-        navigationItem.createOverflow(context, this, Arrays.asList(
-                new FloatingMenuItem(REFRESH_ID, context.getString(R.string.action_reload)),
-                new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)),
-                new FloatingMenuItem(OPEN_BROWSER_ID, context.getString(R.string.action_open_browser)),
-                new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)),
-                new FloatingMenuItem(UP_ID, context.getString(R.string.action_up)),
-                new FloatingMenuItem(DOWN_ID, context.getString(R.string.action_down))
-        ));
+        List<FloatingMenuItem> items = new ArrayList<>();
+        if (!ChanSettings.enableReplyFab.get()) {
+            items.add(new FloatingMenuItem(REPLY_ID, context.getString(R.string.action_reply)));
+        }
+        items.add(new FloatingMenuItem(REFRESH_ID, context.getString(R.string.action_reload)));
+        items.add(new FloatingMenuItem(SEARCH_ID, context.getString(R.string.action_search)));
+        items.add(new FloatingMenuItem(OPEN_BROWSER_ID, context.getString(R.string.action_open_browser)));
+        items.add(new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)));
+        items.add(new FloatingMenuItem(UP_ID, context.getString(R.string.action_up)));
+        items.add(new FloatingMenuItem(DOWN_ID, context.getString(R.string.action_down)));
+        navigationItem.createOverflow(context, this, items);
 
         loadThread(loadable);
     }
@@ -161,6 +167,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         Integer id = (Integer) item.getId();
 
         switch (id) {
+            case REPLY_ID:
+                threadLayout.openReply(true);
+                break;
             case REFRESH_ID:
                 threadLayout.getPresenter().requestData();
                 break;

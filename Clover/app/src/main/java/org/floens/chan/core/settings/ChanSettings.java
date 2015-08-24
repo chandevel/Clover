@@ -81,6 +81,7 @@ public class ChanSettings {
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting networkHttps;
     public static final BooleanSetting forcePhoneLayout;
+    public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting repliesButtonsBottom;
@@ -145,6 +146,7 @@ public class ChanSettings {
             }
         });
         forcePhoneLayout = new BooleanSetting(p, "preference_force_phone_layout", false);
+        enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
