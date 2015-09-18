@@ -198,7 +198,7 @@ public class FilterEngine {
     }
 
     private static final Pattern isRegexPattern = Pattern.compile("^/(.*)/(i?)$");
-    private static final Pattern filterFilthyPattern = Pattern.compile("(\\.|\\^|\\$|\\*|\\+|\\?|\\(|\\)|\\[|\\]|\\{|\\\\|\\||\\-)");
+    private static final Pattern filterFilthyPattern = Pattern.compile("(\\.|\\^|\\$|\\*|\\+|\\?|\\(|\\)|\\[|\\]|\\{|\\}|\\\\|\\||\\-)");
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*"); // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
 
     public Pattern compile(String rawPattern) {
@@ -222,7 +222,7 @@ public class FilterEngine {
             } catch (PatternSyntaxException e) {
                 return null;
             }
-        } else if (rawPattern.charAt(0) == '"' && rawPattern.charAt(rawPattern.length() - 1) == '"') {
+        } else if (rawPattern.length() >= 2 && rawPattern.charAt(0) == '"' && rawPattern.charAt(rawPattern.length() - 1) == '"') {
             // "matches an exact sentence"
             pattern = Pattern.compile(escapeRegex(rawPattern).substring(1, rawPattern.length() - 1));
         } else {
