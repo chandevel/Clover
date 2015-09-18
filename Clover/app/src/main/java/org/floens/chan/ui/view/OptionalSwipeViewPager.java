@@ -40,7 +40,12 @@ public class OptionalSwipeViewPager extends ViewPager {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return swipingEnabled && super.onInterceptTouchEvent(ev);
+        try {
+            return swipingEnabled && super.onInterceptTouchEvent(ev);
+        } catch (IllegalArgumentException ignored) {
+            // Ignore pointer index out of range exceptions
+            return false;
+        }
     }
 
     public void setSwipingEnabled(boolean swipingEnabled) {
