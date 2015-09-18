@@ -30,8 +30,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.ui.helper.RefreshUIMessage;
@@ -55,6 +57,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     private static final int CLEAR_ID = 101;
 
     private FilterEngine filterEngine;
+    private DatabaseManager databaseManager;
     private RecyclerView recyclerView;
     private FloatingActionButton add;
     private FilterAdapter adapter;
@@ -98,6 +101,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         super.onCreate();
 
         filterEngine = FilterEngine.getInstance();
+        databaseManager = Chan.getDatabaseManager();
 
         navigationItem.title = string(R.string.filters_screen);
         navigationItem.menu = new ToolbarMenu(context);
@@ -198,7 +202,8 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         public void onBindViewHolder(FilterCell holder, int position) {
             Filter filter = displayList.get(position);
             holder.text.setText(filter.pattern);
-            holder.text.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_primary : R.attr.text_color_secondary));
+            holder.text.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_primary : R.attr.text_color_hint));
+            holder.subtext.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_secondary : R.attr.text_color_hint));
             String subText = filterTypeName(FilterEngine.FilterType.forId(filter.type));
 
             subText += " - ";
@@ -231,7 +236,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         private void load() {
             sourceList.clear();
-            sourceList.addAll(filterEngine.getEnabledFilters());
+            sourceList.addAll(databaseManager.getFilters());
 
             filter();
         }
