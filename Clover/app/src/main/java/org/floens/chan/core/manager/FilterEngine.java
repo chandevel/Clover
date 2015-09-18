@@ -176,8 +176,10 @@ public class FilterEngine {
 
             if (matcher == null) {
                 Pattern compiledPattern = compile(filter.pattern);
-                matcher = filter.compiledMatcher = compiledPattern.matcher("");
-                Logger.d(TAG, "Resulting pattern: " + filter.compiledMatcher);
+                if (compiledPattern != null) {
+                    matcher = filter.compiledMatcher = compiledPattern.matcher("");
+                    Logger.d(TAG, "Resulting pattern: " + filter.compiledMatcher);
+                }
             }
 
             if (matcher != null) {
