@@ -125,6 +125,10 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         closeAll();
     }
 
+    public Page getPage() {
+        return page;
+    }
+
     public boolean onBack() {
         if (page == Page.LOADING) {
             return true;

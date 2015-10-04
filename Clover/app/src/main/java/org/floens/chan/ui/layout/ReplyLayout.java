@@ -17,6 +17,9 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.Editable;
@@ -25,6 +28,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -62,6 +66,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     private View replyInputLayout;
     private CaptchaLayout captchaLayout;
+
+    private ValueAnimator heightOffsetAnimator;
 
     private boolean openingName;
     private boolean blockSelectionChange = false;
@@ -105,7 +111,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        setAnimateLayout(true, true);
+//        setAnimateLayout(true, true);
 
         presenter = new ReplyPresenter(this);
 
@@ -159,7 +165,25 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         removeCallbacks(closeMessageRunnable);
     }
 
-    @Override
+    public void open(final boolean open) {
+        int height = getMeasuredHeight();
+        animateHeightOffset(open ? 0 : height, open ? height : 0);
+    }
+
+    public int getHeightOffset() {
+        if (heightOffsetAnimator == null) {
+            return 0;
+        } else {
+            int animatedValue = (int) heightOffsetAnimator.getAnimatedValue();
+            return animatedValue - getHeight();
+        }
+    }
+
+    public boolean wrapHeight() {
+        return presenter.getPage() == ReplyPresenter.Page.INPUT;
+    }
+
+    /*@Override
     public LayoutParams getLayoutParamsForView(View view) {
         if (view == replyInputLayout) {
             return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -167,7 +191,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
             // Captcha and the loadbar
             return new LayoutParams(LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(R.dimen.reply_height_loading));
         }
-    }
+    }*/
 
     @Override
     public void onLayoutAnimationProgress(View view, boolean vertical, int from, int to, int value, float progress) {
@@ -195,7 +219,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void setPage(ReplyPresenter.Page page, boolean animate) {
-        setAnimateLayout(animate, true);
+//        setAnimateLayout(animate, true);
         switch (page) {
             case LOADING:
                 setView(null);
@@ -209,6 +233,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
                 }
 
                 setView(captchaLayout);
+
+                animateHeightOffset(getHeight(), ((View) getParent()).getHeight());
 
                 AndroidUtils.hideKeyboard(this);
                 break;
@@ -401,6 +427,28 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     @Override
     public ChanThread getThread() {
         return callback.getThread();
+    }
+
+    private void animateHeightOffset(int from, final int to) {
+        requestLayout();
+
+        heightOffsetAnimator = ValueAnimator.ofInt(from, to);
+        heightOffsetAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                ((View) getParent()).invalidate();
+            }
+        });
+        heightOffsetAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                heightOffsetAnimator = null;
+                setVisibility(to != 0 ? VISIBLE : GONE);
+            }
+        });
+        heightOffsetAnimator.setInterpolator(new DecelerateInterpolator(2f));
+        heightOffsetAnimator.setDuration(300);
+        heightOffsetAnimator.start();
     }
 
     public interface ReplyLayoutCallback {

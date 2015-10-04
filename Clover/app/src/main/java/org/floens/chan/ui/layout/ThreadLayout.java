@@ -188,7 +188,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
-    public void replyLayoutOpen(boolean open) {
+    public void replyLayoutOpenChanged(boolean open) {
         showReplyButton(!open);
     }
 
