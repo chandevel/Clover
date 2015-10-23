@@ -18,6 +18,7 @@
 package org.floens.chan.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,6 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
-import org.floens.chan.ui.helper.SwipeListener;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -43,7 +43,7 @@ import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
-public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SwipeListener.Callback {
+public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int PIN_OFFSET = 3;
 
     private static final int TYPE_HEADER = 0;
@@ -62,6 +62,41 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
     public void setPinHighlighted(Pin highlighted) {
         this.highlighted = highlighted;
+    }
+
+    public ItemTouchHelper.Callback getItemTouchHelperCallback() {
+        return new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                boolean pin = getItemViewType(viewHolder.getAdapterPosition()) == TYPE_PIN;
+                int dragFlags = pin ? ItemTouchHelper.UP | ItemTouchHelper.DOWN : 0;
+                int swipeFlags = pin ? ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT : 0;
+
+                return makeMovementFlags(dragFlags, swipeFlags);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                int from = viewHolder.getAdapterPosition();
+                int to = target.getAdapterPosition();
+
+                if (getItemViewType(to) == TYPE_PIN) {
+                    Pin item = pins.remove(from - PIN_OFFSET);
+                    pins.add(to - PIN_OFFSET, item);
+                    notifyItemMoved(from, to);
+                    applyOrder();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                // Will call #onPinRemoved, and remove the pin from pins
+                callback.onPinRemoved(pins.get(viewHolder.getAdapterPosition() - PIN_OFFSET));
+            }
+        };
     }
 
     @Override
@@ -173,34 +208,6 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
         }
     }
 
-    @Override
-    public SwipeListener.Swipeable getSwipeable(int position) {
-        return getItemViewType(position) == TYPE_PIN ? SwipeListener.Swipeable.RIGHT : SwipeListener.Swipeable.NO;
-    }
-
-    @Override
-    public void removeItem(int position) {
-        applyOrder();
-        callback.onPinRemoved(pins.get(position - PIN_OFFSET));
-    }
-
-    @Override
-    public boolean isMoveable(int position) {
-        return getItemViewType(position) == TYPE_PIN;
-    }
-
-    @Override
-    public void moveItem(int from, int to) {
-        Pin item = pins.remove(from - PIN_OFFSET);
-        pins.add(to - PIN_OFFSET, item);
-        notifyItemMoved(from, to);
-    }
-
-    @Override
-    public void movingDone() {
-        applyOrder();
-    }
-
     public void updatePinViewHolder(PinViewHolder holder, Pin pin) {
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
@@ -290,7 +297,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
                 }
             });
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            /*itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     int pos = getAdapterPosition() - PIN_OFFSET;
@@ -300,7 +307,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> im
 
                     return true;
                 }
-            });
+            });*/
 
             watchCountText.setOnClickListener(new View.OnClickListener() {
                 @Override

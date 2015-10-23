@@ -23,14 +23,15 @@ import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Filter;
@@ -46,7 +47,6 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.ui.drawable.ThumbDrawable;
 import org.floens.chan.ui.helper.BoardHelper;
-import org.floens.chan.ui.helper.SwipeListener;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
@@ -61,7 +61,7 @@ import java.util.Locale;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
-public class BoardEditController extends Controller implements SwipeListener.Callback, View.OnClickListener, ToolbarMenuItem.ToolbarMenuItemCallback {
+public class BoardEditController extends Controller implements View.OnClickListener, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int OPTION_SORT_A_Z = 1;
 
     private final BoardManager boardManager = Chan.getBoardManager();
@@ -69,6 +69,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
     private RecyclerView recyclerView;
     private BoardEditAdapter adapter;
     private FloatingActionButton add;
+    private ItemTouchHelper itemTouchHelper;
 
     private List<Board> boards;
 
@@ -90,6 +91,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         view = inflateRes(R.layout.controller_board_edit);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         add = (FloatingActionButton) view.findViewById(R.id.add);
         add.setOnClickListener(this);
 
@@ -98,7 +100,53 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         adapter = new BoardEditAdapter();
         recyclerView.setAdapter(adapter);
 
-        new SwipeListener(context, recyclerView, this);
+        itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                boolean isBoardItem = viewHolder.getAdapterPosition() > 0;
+                int dragFlags = isBoardItem ? ItemTouchHelper.UP | ItemTouchHelper.DOWN : 0;
+                int swipeFlags = isBoardItem ? ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT : 0;
+                return makeMovementFlags(dragFlags, swipeFlags);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                int from = viewHolder.getAdapterPosition();
+                int to = target.getAdapterPosition();
+
+                if (to > 0) {
+                    Board item = boards.remove(from - 1);
+                    boards.add(to - 1, item);
+                    adapter.notifyItemMoved(from, to);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                final int position = viewHolder.getAdapterPosition();
+                final Board board = boards.get(position - 1);
+                board.saved = false;
+                boards.remove(position - 1);
+                adapter.notifyItemRemoved(position);
+
+                Snackbar snackbar = Snackbar.make(view, context.getString(R.string.board_edit_board_removed, board.key), Snackbar.LENGTH_LONG);
+                fixSnackbarText(context, snackbar);
+                snackbar.setAction(R.string.undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        board.saved = true;
+                        boards.add(position - 1, board);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+                snackbar.show();
+            }
+        });
+
+        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
     @Override
@@ -134,35 +182,6 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
         if (v == add) {
             showAddBoardDialog();
         }
-    }
-
-    @Override
-    public SwipeListener.Swipeable getSwipeable(int position) {
-        return (position > 0 && boards.size() > 1) ? SwipeListener.Swipeable.BOTH : SwipeListener.Swipeable.NO;
-    }
-
-    @Override
-    public void removeItem(int position) {
-        Board board = boards.get(position - 1);
-        board.saved = false;
-        boards.remove(position - 1);
-        adapter.notifyItemRemoved(position);
-    }
-
-    @Override
-    public boolean isMoveable(int position) {
-        return position > 0;
-    }
-
-    @Override
-    public void moveItem(int from, int to) {
-        Board item = boards.remove(from - 1);
-        boards.add(to - 1, item);
-        adapter.notifyItemMoved(from, to);
-    }
-
-    @Override
-    public void movingDone() {
     }
 
     private void showAddBoardDialog() {
@@ -303,10 +322,8 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
             @SuppressLint("ViewHolder")
-            TextView view = (TextView) inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+            TextView view = (TextView) LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
             Board b = filtered.get(position);
             view.setText("/" + b.value + "/ - " + b.key);
 
@@ -314,9 +331,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(
-                                Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(autoCompleteView.getWindowToken(), 0);
+                        AndroidUtils.hideKeyboard(autoCompleteView);
                     }
 
                     return false;
@@ -353,7 +368,7 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
 
         private List<Board> getBoards() {
             // Lets be cheaty here: if the user has nsfw boards in the list,
-            // show them in the autofiller.
+            // show them in the autofiller, hide them otherwise.
             boolean showUnsafe = false;
             for (Board has : currentlyEditing) {
                 if (!has.workSafe) {
@@ -422,16 +437,25 @@ public class BoardEditController extends Controller implements SwipeListener.Cal
     }
 
     private class BoardEditItem extends RecyclerView.ViewHolder {
-        private ImageView image;
+        private ImageView thumb;
         private TextView text;
         private TextView description;
 
         public BoardEditItem(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.thumb);
+            thumb = (ImageView) itemView.findViewById(R.id.thumb);
             text = (TextView) itemView.findViewById(R.id.text);
             description = (TextView) itemView.findViewById(R.id.description);
-            image.setImageDrawable(new ThumbDrawable());
+            thumb.setImageDrawable(new ThumbDrawable());
+
+            thumb.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        itemTouchHelper.startDrag(BoardEditItem.this);
+                    }
+                    return false;
+                }
+            });
         }
     }
 

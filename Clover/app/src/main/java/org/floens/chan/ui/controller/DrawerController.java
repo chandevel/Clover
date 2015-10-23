@@ -23,7 +23,9 @@ import android.content.res.Configuration;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -42,7 +44,6 @@ import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.ui.adapter.PinAdapter;
-import org.floens.chan.ui.helper.SwipeListener;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
@@ -85,6 +86,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         drawer = (LinearLayout) view.findViewById(R.id.drawer);
         recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         settings = (LinearLayout) view.findViewById(R.id.settings);
         settings.setOnClickListener(this);
         theme().settingsDrawable.apply((ImageView) settings.findViewById(R.id.image));
@@ -93,9 +95,10 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         pinAdapter = new PinAdapter(this);
         recyclerView.setAdapter(pinAdapter);
 
-        new SwipeListener(context, recyclerView, pinAdapter);
-
         pinAdapter.onPinsChanged(watchManager.getPins());
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(pinAdapter.getItemTouchHelperCallback());
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
 
