@@ -18,17 +18,13 @@
 package org.floens.chan.ui.layout;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
@@ -47,9 +43,7 @@ import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
-import org.floens.chan.utils.Logger;
 
-import java.util.Calendar;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
@@ -57,30 +51,24 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 /**
- * A layout that wraps around a {@link RecyclerView}, and a {@link ReplyLayout} to manage showing posts.
+ * A layout that wraps around a {@link RecyclerView} to manage showing posts.
  */
-public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayoutCallback {
+public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLayoutCallback {
     public static final int MAX_SMOOTH_SCROLL_DISTANCE = 20;
 
-    private RecyclerView recyclerView;
     private ReplyLayout reply;
     private TextView searchStatus;
-
+    private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private PostAdapter postAdapter;
-
+    private ChanThread showingThread;
     private ThreadListLayoutPresenterCallback callback;
     private ThreadListLayoutCallback threadListLayoutCallback;
-
+    private boolean replyOpen;
     private PostCellInterface.PostViewMode postViewMode;
     private int spanCount = 2;
-
-    private boolean replyOpen;
-    private boolean searchOpen;
-
-    private ChanThread showingThread;
-
     private int background;
+    private boolean searchOpen;
     private int lastPostCount;
     private int recyclerViewTopPadding;
 
@@ -135,6 +123,18 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
         reply.setPadding(0, topSpacing(), 0, 0);
         searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + topSpacing(),
                 searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        int cardWidth = getResources().getDimensionPixelSize(R.dimen.grid_card_width);
+        spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
+
+        if (postViewMode == PostCellInterface.PostViewMode.CARD) {
+            ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
+        }
     }
 
     public void setPostViewMode(PostCellInterface.PostViewMode postViewMode) {
@@ -196,8 +196,6 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
                     ((GridLayoutManager) layoutManager).scrollToPositionWithOffset(thread.loadable.listViewIndex, thread.loadable.listViewTop);
                     break;
             }
-
-            party();
         }
 
         postAdapter.setThread(thread, filter);
@@ -231,32 +229,32 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
     }
 
     public void openReply(boolean open) {
-        if (showingThread != null && replyOpen != open && !searchOpen) {
+        if (showingThread != null && replyOpen != open) {
             this.replyOpen = open;
-
-            reply.setVisibility(VISIBLE);
-            reply.measure(
-                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.AT_MOST));
-
-            reply.open(open);
-
-            /*int height = AnimationUtils.animateHeight(reply, replyOpen, getWidth(), 500);
+            int height = AnimationUtils.animateHeight(reply, replyOpen, getWidth(), 500);
             if (open) {
                 reply.focusComment();
                 recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + height, recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
             } else {
                 AndroidUtils.hideKeyboard(reply);
                 recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + topSpacing(), recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
-            }*/
-            threadListLayoutCallback.replyLayoutOpenChanged(open);
+            }
+            threadListLayoutCallback.replyLayoutOpen(open);
 
             attachToolbarScroll(!(open || searchOpen));
         }
     }
 
+    public ReplyPresenter getReplyPresenter() {
+        return reply.getPresenter();
+    }
+
+    public void showError(String error) {
+        postAdapter.showError(error);
+    }
+
     public void openSearch(boolean show) {
-        if (showingThread != null && searchOpen != show && !replyOpen) {
+        if (searchOpen != show) {
             searchOpen = show;
             int height = AnimationUtils.animateHeight(searchStatus, show);
 
@@ -269,14 +267,6 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
 
             attachToolbarScroll(!(show || replyOpen));
         }
-    }
-
-    public ReplyPresenter getReplyPresenter() {
-        return reply.getPresenter();
-    }
-
-    public void showError(String error) {
-        postAdapter.showError(error);
     }
 
     public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {
@@ -322,13 +312,27 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
     }
 
     public void cleanup() {
+        /*if (ChanBuild.DEVELOPER_MODE) {
+            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(showingThread.loadable);
+            if (pin == null) {
+                for (Post post : showingThread.posts) {
+                    if (post.comment instanceof SpannedString) {
+                        SpannedString commentSpannable = (SpannedString) post.comment;
+                        PostLinkable[] linkables = commentSpannable.getSpans(0, commentSpannable.length(), PostLinkable.class);
+                        for (PostLinkable linkable : linkables) {
+                            ChanApplication.getRefWatcher().watch(linkable, linkable.key + " " + linkable.value);
+                        }
+                    }
+                }
+            }
+        }*/
+
         postAdapter.cleanup();
         reply.cleanup();
         openReply(false);
         openSearch(false);
         showingThread = null;
         lastPostCount = 0;
-        noParty();
     }
 
     public List<Post> getDisplayingPosts() {
@@ -414,76 +418,6 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
         return showingThread;
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Logger.test("ThreadListLayout.onMeasure called");
-
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
-        if (widthMode != MeasureSpec.EXACTLY || heightMode != MeasureSpec.EXACTLY) {
-            throw new IllegalArgumentException("ThreadListLayout must be measured with MeasureSpec.EXACTLY");
-        }
-
-        setMeasuredDimension(widthSize, heightSize);
-
-        for (int i = 0, j = getChildCount(); i < j; i++) {
-            View child = getChildAt(i);
-            LayoutParams layoutParams = child.getLayoutParams();
-
-            if (child == recyclerView) {
-                child.measure(
-                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY)
-                );
-            } else if (child == searchStatus) {
-                child.measure(
-                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.AT_MOST)
-                );
-            } else if (child == reply) {
-                child.measure(
-                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(heightSize, reply.wrapHeight() ? MeasureSpec.AT_MOST : MeasureSpec.EXACTLY)
-                );
-            } else {
-                throw new IllegalArgumentException("Unknown child " + child);
-            }
-        }
-
-        int cardWidth = getResources().getDimensionPixelSize(R.dimen.grid_card_width);
-        spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
-
-        if (postViewMode == PostCellInterface.PostViewMode.CARD) {
-            ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
-        }
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        Logger.test("ThreadListLayout.onLayout called");
-
-        for (int i = 0, j = getChildCount(); i < j; i++) {
-            View child = getChildAt(i);
-            LayoutParams layoutParams = child.getLayoutParams();
-
-            child.layout(0, 0, child.getMeasuredWidth(), child.getMeasuredHeight());
-        }
-    }
-
-    @Override
-    protected boolean drawChild(@NonNull Canvas canvas, @NonNull View child, long drawingTime) {
-        Logger.test("ThreadListLayout.drawChild called " + child);
-
-        if (child == reply) {
-            canvas.translate(0f, reply.getHeightOffset());
-        }
-
-        return super.drawChild(canvas, child, drawingTime);
-    }
-
     private void attachToolbarScroll(boolean attach) {
         Toolbar toolbar = threadListLayoutCallback.getToolbar();
         if (toolbar != null && threadListLayoutCallback.collapseToolbar()) {
@@ -525,37 +459,6 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
         return -1;
     }
 
-    private Bitmap hat;
-
-    private final RecyclerView.ItemDecoration PARTY = new RecyclerView.ItemDecoration() {
-        @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            if (hat == null) {
-                hat = BitmapFactory.decodeResource(getResources(), R.drawable.partyhat);
-            }
-
-            for (int i = 0, j = parent.getChildCount(); i < j; i++) {
-                View child = parent.getChildAt(i);
-
-                RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-                int top = child.getBottom() + params.bottomMargin;
-                int left = child.getLeft() + params.leftMargin;
-                c.drawBitmap(hat, left - parent.getPaddingLeft() - dp(38), top - dp(125) - parent.getPaddingTop() + topSpacing(), null);
-            }
-        }
-    };
-
-    private void party() {
-        Calendar calendar = Calendar.getInstance();
-        if (showingThread.loadable.isCatalogMode() && calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            recyclerView.addItemDecoration(PARTY);
-        }
-    }
-
-    private void noParty() {
-        recyclerView.removeItemDecoration(PARTY);
-    }
-
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 
@@ -565,7 +468,7 @@ public class ThreadListLayout extends ViewGroup implements ReplyLayout.ReplyLayo
     }
 
     public interface ThreadListLayoutCallback {
-        void replyLayoutOpenChanged(boolean open);
+        void replyLayoutOpen(boolean open);
 
         Toolbar getToolbar();
 
