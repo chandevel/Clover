@@ -37,7 +37,8 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.net.LoaderPool;
+import org.floens.chan.core.pool.LoaderPool;
+import org.floens.chan.core.pool.LoadablePool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -333,8 +334,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
      */
     @Override
     public void onPostClicked(Post post) {
-        if (loadable.mode == Loadable.Mode.CATALOG) {
-            Loadable threadLoadable = new Loadable(post.board, post.no);
+        if (loadable.isCatalogMode()) {
+            Loadable threadLoadable = LoadablePool.getInstance().obtain(new Loadable(post.board, post.no));
             threadLoadable.title = PostHelper.getTitle(post, loadable);
             threadPresenterCallback.showThread(threadLoadable);
         } else {
@@ -475,7 +476,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             threadPresenterCallback.openLink((String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
-            Loadable thread = new Loadable(link.board, link.threadId);
+            Loadable thread = LoadablePool.getInstance().obtain(new Loadable(link.board, link.threadId));
             thread.markedNo = link.postId;
 
             threadPresenterCallback.showThread(thread);
@@ -623,7 +624,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             // Copy the loadable when adding to history
             // Otherwise the database will possible use the loadable from a pin, and when clearing the history also deleting the loadable from the pin.
             history.loadable = loadable.copy();
-            history.loadable.id = 0;
             history.thumbnailUrl = chanLoader.getThread().op.thumbnailUrl;
             databaseManager.addHistory(history);
         }

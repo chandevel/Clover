@@ -114,6 +114,7 @@ public class Loadable {
     }
 
     public void writeToParcel(Parcel parcel) {
+        parcel.writeInt(id);
         parcel.writeInt(mode);
         parcel.writeString(board);
         parcel.writeInt(no);
@@ -123,6 +124,7 @@ public class Loadable {
     }
 
     public void readFromParcel(Parcel parcel) {
+        id = parcel.readInt();
         mode = parcel.readInt();
         board = parcel.readString();
         no = parcel.readInt();

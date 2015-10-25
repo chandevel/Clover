@@ -172,7 +172,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             synchronized (post.repliesFrom) {
                 repliesFromSize = post.repliesFrom.size();
             }
-            return ((long) repliesFromSize << 32) + (long) post.no;
+            return ((long) repliesFromSize << 32L) + (long) post.no;
         }
     }
 

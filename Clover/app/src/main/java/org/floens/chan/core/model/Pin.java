@@ -28,7 +28,7 @@ public class Pin {
     public int id;
 
     @DatabaseField(canBeNull = false, foreign = true)
-    public Loadable loadable = new Loadable("", -1);
+    public Loadable loadable;
 
     @DatabaseField
     public boolean watching = true;

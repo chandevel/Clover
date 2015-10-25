@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.net;
+package org.floens.chan.core.pool;
 
 import android.util.LruCache;
 
@@ -40,6 +40,10 @@ public class LoaderPool {
 
     private LoaderPool() {
     }
+
+//    public Loadable obtainLoadable() {
+//
+//    }
 
     public ChanLoader obtain(Loadable loadable, ChanLoader.ChanLoaderCallback listener) {
         ChanLoader chanLoader;

@@ -33,6 +33,7 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.pool.LoadablePool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -261,7 +262,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     public void loadBoard(Board board) {
-        Loadable loadable = new Loadable(board.value);
+        Loadable loadable = LoadablePool.getInstance().obtain(new Loadable(board.value));
         loadable.mode = Loadable.Mode.CATALOG;
         loadable.title = board.key;
         navigationItem.title = board.key;

@@ -33,6 +33,7 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.Reply;
 import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.pool.LoadablePool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.CaptchaLayout;
@@ -218,7 +219,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
             callback.onPosted();
 
             if (!loadable.isThreadMode()) {
-                callback.showThread(new Loadable(loadable.board, replyCall.postNo));
+                callback.showThread(LoadablePool.getInstance().obtain(new Loadable(loadable.board, replyCall.postNo)));
             }
         } else {
             if (replyCall.errorMessage == null) {

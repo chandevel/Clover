@@ -24,6 +24,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.pool.LoadablePool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.WatchNotifier;
@@ -117,12 +118,6 @@ public class WatchManager {
         }
     }
 
-    /**
-     * Add a pin
-     *
-     * @param pin
-     * @return true if it was added, false if it wasn't (duplicated)
-     */
     public boolean addPin(Pin pin) {
         // No duplicates
         for (Pin e : pins) {
@@ -144,7 +139,7 @@ public class WatchManager {
 
     public boolean addPin(Post opPost) {
         Pin pin = new Pin();
-        pin.loadable = new Loadable(opPost.board, opPost.no);
+        pin.loadable = LoadablePool.getInstance().obtain(new Loadable(opPost.board, opPost.no));
         pin.loadable.title = PostHelper.getTitle(opPost, pin.loadable);
         pin.thumbnailUrl = opPost.thumbnailUrl;
         return addPin(pin);
@@ -158,11 +153,6 @@ public class WatchManager {
         return addPin(pin);
     }
 
-    /**
-     * Remove a pin
-     *
-     * @param pin
-     */
     public void removePin(Pin pin) {
         pins.remove(pin);
         pin.destroyWatcher();
