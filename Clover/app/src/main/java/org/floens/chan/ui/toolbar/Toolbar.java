@@ -230,7 +230,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         if (navigationItem != null && !navigationItem.search) {
             navigationItem.search = true;
             openKeyboardAfterSearchViewCreated = true;
-            setNavigationItem(true, true, navigationItem);
             setNavigationItemInternal(true, false, navigationItem);
             callback.onSearchVisibilityChanged(true);
             return true;
