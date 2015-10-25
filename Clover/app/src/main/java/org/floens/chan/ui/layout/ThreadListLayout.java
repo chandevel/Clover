@@ -108,7 +108,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 if (showingThread != null) {
                     int index = 0;
                     int top = 0;
-                    if (recyclerView.getChildCount() > 0) {
+                    if (recyclerView.getLayoutManager().getChildCount() > 0) {
                         View topChild = recyclerView.getLayoutManager().getChildAt(0);
 
                         index = ((RecyclerView.LayoutParams) topChild.getLayoutParams()).getViewLayoutPosition();
