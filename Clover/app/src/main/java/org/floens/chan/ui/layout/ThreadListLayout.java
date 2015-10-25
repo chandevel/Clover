@@ -18,6 +18,9 @@
 package org.floens.chan.ui.layout;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +47,7 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 
+import java.util.Calendar;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
@@ -51,7 +55,7 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 /**
- * A layout that wraps around a {@link RecyclerView} to manage showing posts.
+ * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
  */
 public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLayoutCallback {
     public static final int MAX_SMOOTH_SCROLL_DISTANCE = 20;
@@ -102,9 +106,16 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 // onScrolled can be called after cleanup()
                 if (showingThread != null) {
-                    int index = Math.max(0, getTopAdapterPosition());
-                    View topChild = recyclerView.getLayoutManager().getChildAt(0);
-                    int top = topChild == null ? 0 : topChild.getTop();
+                    int index = 0;
+                    int top = 0;
+                    if (recyclerView.getChildCount() > 0) {
+                        View topChild = recyclerView.getLayoutManager().getChildAt(0);
+
+                        index = ((RecyclerView.LayoutParams) topChild.getLayoutParams()).getViewLayoutPosition();
+
+                        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) topChild.getLayoutParams();
+                        top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
+                    }
 
                     showingThread.loadable.listViewIndex = index;
                     showingThread.loadable.listViewTop = top;
@@ -120,8 +131,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         attachToolbarScroll(true);
 
-        reply.setPadding(0, topSpacing(), 0, 0);
-        searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + topSpacing(),
+        reply.setPadding(0, toolbarHeight(), 0, 0);
+        searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + toolbarHeight(),
                 searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
     }
 
@@ -147,7 +158,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 case LIST:
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
                     recyclerViewTopPadding = 0;
-                    recyclerView.setPadding(0, recyclerViewTopPadding + topSpacing(), 0, 0);
+                    recyclerView.setPadding(0, recyclerViewTopPadding + toolbarHeight(), 0, 0);
                     recyclerView.setLayoutManager(linearLayoutManager);
                     layoutManager = linearLayoutManager;
 
@@ -161,7 +172,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     GridLayoutManager gridLayoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false);
                     // The cards have a 4dp padding, this way there is always 8dp between the edges
                     recyclerViewTopPadding = dp(4);
-                    recyclerView.setPadding(dp(4), recyclerViewTopPadding + topSpacing(), dp(4), dp(4));
+                    recyclerView.setPadding(dp(4), recyclerViewTopPadding + toolbarHeight(), dp(4), dp(4));
                     recyclerView.setLayoutManager(gridLayoutManager);
                     layoutManager = gridLayoutManager;
 
@@ -188,14 +199,19 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.getRecycledViewPool().clear();
 
+            int index = thread.loadable.listViewIndex;
+            int top = thread.loadable.listViewTop;
+
             switch (postViewMode) {
                 case LIST:
-                    ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(thread.loadable.listViewIndex, thread.loadable.listViewTop);
+                    ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(index, top);
                     break;
                 case CARD:
-                    ((GridLayoutManager) layoutManager).scrollToPositionWithOffset(thread.loadable.listViewIndex, thread.loadable.listViewTop);
+                    ((GridLayoutManager) layoutManager).scrollToPositionWithOffset(index, top);
                     break;
             }
+
+            party();
         }
 
         postAdapter.setThread(thread, filter);
@@ -237,7 +253,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + height, recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
             } else {
                 AndroidUtils.hideKeyboard(reply);
-                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + topSpacing(), recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
+                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + toolbarHeight(), recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
             }
             threadListLayoutCallback.replyLayoutOpen(open);
 
@@ -254,7 +270,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     public void openSearch(boolean show) {
-        if (searchOpen != show) {
+        if (showingThread != null && searchOpen != show) {
             searchOpen = show;
             int height = AnimationUtils.animateHeight(searchStatus, show);
 
@@ -262,7 +278,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 searchStatus.setText(R.string.search_empty);
                 recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + height, recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
             } else {
-                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + topSpacing(), recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
+                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + toolbarHeight(), recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
             }
 
             attachToolbarScroll(!(show || replyOpen));
@@ -294,13 +310,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             case LIST:
                 if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
-                    return top.getTop() != topSpacing();
+                    return top.getTop() != toolbarHeight();
                 }
                 break;
             case CARD:
                 if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
-                    return top.getTop() != dp(8) + topSpacing(); // 4dp for the cards, 4dp for this layout
+                    return top.getTop() != dp(8) + toolbarHeight(); // 4dp for the cards, 4dp for this layout
                 }
                 break;
         }
@@ -312,27 +328,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     public void cleanup() {
-        /*if (ChanBuild.DEVELOPER_MODE) {
-            Pin pin = ChanApplication.getWatchManager().findPinByLoadable(showingThread.loadable);
-            if (pin == null) {
-                for (Post post : showingThread.posts) {
-                    if (post.comment instanceof SpannedString) {
-                        SpannedString commentSpannable = (SpannedString) post.comment;
-                        PostLinkable[] linkables = commentSpannable.getSpans(0, commentSpannable.length(), PostLinkable.class);
-                        for (PostLinkable linkable : linkables) {
-                            ChanApplication.getRefWatcher().watch(linkable, linkable.key + " " + linkable.value);
-                        }
-                    }
-                }
-            }
-        }*/
-
         postAdapter.cleanup();
         reply.cleanup();
         openReply(false);
         openSearch(false);
         showingThread = null;
         lastPostCount = 0;
+        noParty();
     }
 
     public List<Post> getDisplayingPosts() {
@@ -419,8 +421,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     private void attachToolbarScroll(boolean attach) {
-        Toolbar toolbar = threadListLayoutCallback.getToolbar();
-        if (toolbar != null && threadListLayoutCallback.collapseToolbar()) {
+        if (!AndroidUtils.isTablet(getContext())) {
+            Toolbar toolbar = threadListLayoutCallback.getToolbar();
             if (attach) {
                 toolbar.attachRecyclerViewScrollStateListener(recyclerView);
             } else {
@@ -430,13 +432,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         }
     }
 
-    private int topSpacing() {
+    private int toolbarHeight() {
         Toolbar toolbar = threadListLayoutCallback.getToolbar();
-        if (toolbar != null && threadListLayoutCallback.collapseToolbar()) {
-            return toolbar.getToolbarHeight();
-        } else {
-            return 0;
-        }
+        return toolbar.getToolbarHeight();
     }
 
     private int getTopAdapterPosition() {
@@ -459,6 +457,41 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         return -1;
     }
 
+    private Bitmap hat;
+
+    private final RecyclerView.ItemDecoration PARTY = new RecyclerView.ItemDecoration() {
+        @Override
+        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+            if (hat == null) {
+                hat = BitmapFactory.decodeResource(getResources(), R.drawable.partyhat);
+            }
+
+            for (int i = 0, j = parent.getChildCount(); i < j; i++) {
+                View child = parent.getChildAt(i);
+                if (child instanceof PostCellInterface) {
+                    PostCellInterface postView = (PostCellInterface) child;
+                    if (postView.getPost().hasImage) {
+                        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+                        int top = child.getTop() + params.topMargin;
+                        int left = child.getLeft() + params.leftMargin;
+                        c.drawBitmap(hat, left - parent.getPaddingLeft() - dp(40), top - dp(130) - parent.getPaddingTop() + toolbarHeight(), null);
+                    }
+                }
+            }
+        }
+    };
+
+    private void party() {
+        Calendar calendar = Calendar.getInstance();
+        if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
+            recyclerView.addItemDecoration(PARTY);
+        }
+    }
+
+    private void noParty() {
+        recyclerView.removeItemDecoration(PARTY);
+    }
+
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 
@@ -471,7 +504,5 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         void replyLayoutOpen(boolean open);
 
         Toolbar getToolbar();
-
-        boolean collapseToolbar();
     }
 }

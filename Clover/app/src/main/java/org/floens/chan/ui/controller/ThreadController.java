@@ -44,7 +44,6 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.isTablet;
 
 public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "ThreadController";
@@ -62,7 +61,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         EventBus.getDefault().register(this);
 
-        navigationItem.collapseToolbar = !isTablet(context);
+        navigationItem.collapseToolbar = true;
 
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.setCallback(this);
@@ -76,9 +75,8 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         swipeRefreshLayout.addView(threadLayout);
 
         swipeRefreshLayout.setOnRefreshListener(this);
-        ToolbarNavigationController toolbarNavigationController = (ToolbarNavigationController) navigationController;
 
-        if (collapseToolbar()) {
+        if (navigationItem.collapseToolbar) {
             int toolbarHeight = getToolbar().getToolbarHeight();
             swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
         }
@@ -201,11 +199,6 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public Toolbar getToolbar() {
         return ((ToolbarNavigationController) navigationController).getToolbar();
-    }
-
-    @Override
-    public boolean collapseToolbar() {
-        return navigationItem.collapseToolbar;
     }
 
     @Override
