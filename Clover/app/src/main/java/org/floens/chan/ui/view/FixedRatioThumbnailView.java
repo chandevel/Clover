@@ -21,6 +21,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 public class FixedRatioThumbnailView extends ThumbnailView {
+    private float ratio;
+
     public FixedRatioThumbnailView(Context context) {
         super(context);
     }
@@ -33,13 +35,17 @@ public class FixedRatioThumbnailView extends ThumbnailView {
         super(context, attrs, defStyleAttr);
     }
 
+    public void setRatio(float ratio) {
+        this.ratio = ratio;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED || heightMode == MeasureSpec.AT_MOST)) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
-            super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) (width / 16f * 9f), MeasureSpec.EXACTLY));
+            super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY));
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }

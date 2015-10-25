@@ -36,7 +36,7 @@ import org.floens.chan.ChanBuild;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 
-public class CaptchaLayout extends WebView {
+public class CaptchaLayout extends WebView implements CaptchaLayoutInterface {
     private static final String TAG = "CaptchaLayout";
 
     private CaptchaCallback callback;
@@ -44,7 +44,6 @@ public class CaptchaLayout extends WebView {
     private String baseUrl;
     private String siteKey;
     private boolean lightTheme;
-    private boolean useNew;
 
     public CaptchaLayout(Context context) {
         super(context);
@@ -59,12 +58,11 @@ public class CaptchaLayout extends WebView {
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
-    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, boolean useNew, CaptchaCallback callback) {
+    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback) {
         this.callback = callback;
         this.baseUrl = baseUrl;
         this.siteKey = siteKey;
         this.lightTheme = lightTheme;
-        this.useNew = useNew;
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
@@ -98,27 +96,17 @@ public class CaptchaLayout extends WebView {
         }
     }
 
-    public void load() {
-        if (!loaded) {
+    public void reset() {
+        if (loaded) {
+            loadUrl("javascript:grecaptcha.reset()");
+        } else {
             loaded = true;
 
-            String html = IOUtils.assetAsString(getContext(), useNew ? "captcha/captcha.html" : "captcha/captcha1.html");
+            String html = IOUtils.assetAsString(getContext(), "captcha/captcha.html");
             html = html.replace("__site_key__", siteKey);
             html = html.replace("__theme__", lightTheme ? "light" : "dark");
 
             loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
-        }
-    }
-
-    public void reset() {
-        if (loaded) {
-            if (useNew) {
-                loadUrl("javascript:grecaptcha.reset()");
-            } else {
-                loadUrl("javascript:Recaptcha.reload()");
-            }
-        } else {
-            load();
         }
     }
 
@@ -132,12 +120,6 @@ public class CaptchaLayout extends WebView {
         } else {
             callback.captchaEntered(this, challenge, response);
         }
-    }
-
-    public interface CaptchaCallback {
-        void captchaLoaded(CaptchaLayout captchaLayout);
-
-        void captchaEntered(CaptchaLayout captchaLayout, String challenge, String response);
     }
 
     public static class CaptchaInterface {

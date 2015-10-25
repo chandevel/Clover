@@ -1,0 +1,40 @@
+<div id="captcha-container">
+    <div id="recaptcha_image"></div>
+    <input type="hidden" id="recaptcha_response_field" name="recaptcha_response_field">
+</div>
+
+<script type="text/javascript"
+        src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+<script type="text/javascript">
+(function() {
+
+Recaptcha.create('__site_key__', 'captcha-container', {
+    'theme': 'custom'
+});
+
+function checkLoaded() {
+    var imageSource = null;
+    var challengeKey = null;
+
+    var image = document.querySelector('#recaptcha_challenge_image');
+    if (image) {
+        imageSource = image.getAttribute('src');
+    }
+
+    var challenge = document.querySelector('#recaptcha_challenge_field');
+    if (challenge) {
+        challengeKey = challenge.getAttribute('value');
+    }
+
+    if (imageSource != null && challengeKey != null) {
+        CaptchaCallback.onCaptchaLoaded(imageSource, challengeKey);
+    } else {
+        setTimeout(checkLoaded, 100);
+    }
+}
+
+checkLoaded();
+
+})();
+
+</script>

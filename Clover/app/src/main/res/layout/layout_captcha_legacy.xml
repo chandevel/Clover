@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.floens.chan.ui.layout.LegacyCaptchaLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <org.floens.chan.ui.view.FixedRatioThumbnailView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <EditText
+            android:id="@+id/input"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="@string/reply_captcha_text"
+            android:singleLine="true"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/submit"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center_vertical"
+            android:padding="6dp" />
+
+    </LinearLayout>
+
+</org.floens.chan.ui.layout.LegacyCaptchaLayout>

@@ -45,6 +45,7 @@ public class AdvancedSettingsController extends SettingsController {
 
     private boolean needRestart;
     private LinkSettingView saveLocation;
+    private SettingView newCaptcha;
     private SettingView forcePhoneLayoutSetting;
     private SettingView enableReplyFab;
     private SettingView postFullDate;
@@ -85,7 +86,7 @@ public class AdvancedSettingsController extends SettingsController {
     public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
 
-        if (item == forcePhoneLayoutSetting || item == enableReplyFab) {
+        if (item == forcePhoneLayoutSetting || item == enableReplyFab || item == newCaptcha) {
             needRestart = true;
         }
 
@@ -118,7 +119,7 @@ public class AdvancedSettingsController extends SettingsController {
         }));
         setSaveLocationDescription();
 
-        settings.add(new BooleanSettingView(this, ChanSettings.postNewCaptcha, string(R.string.setting_use_new_captcha), string(R.string.setting_use_new_captcha_description)));
+        newCaptcha = settings.add(new BooleanSettingView(this, ChanSettings.postNewCaptcha, string(R.string.setting_use_new_captcha), string(R.string.setting_use_new_captcha_description)));
         settings.add(new BooleanSettingView(this, ChanSettings.saveOriginalFilename, string(R.string.setting_save_original_filename), null));
         settings.add(new BooleanSettingView(this, ChanSettings.shareUrl, string(R.string.setting_share_url), string(R.string.setting_share_url_description)));
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, string(R.string.setting_network_https), string(R.string.setting_network_https_description)));

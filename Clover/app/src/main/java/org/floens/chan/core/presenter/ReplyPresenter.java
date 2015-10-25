@@ -36,7 +36,8 @@ import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.pool.LoadablePool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.ui.layout.CaptchaLayout;
+import org.floens.chan.ui.layout.CaptchaCallback;
+import org.floens.chan.ui.layout.CaptchaLayoutInterface;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -47,7 +48,7 @@ import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>, CaptchaLayout.CaptchaCallback, ImagePickDelegate.ImagePickCallback {
+public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>, CaptchaCallback, ImagePickDelegate.ImagePickCallback {
     public enum Page {
         INPUT,
         CAPTCHA,
@@ -238,11 +239,11 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     }
 
     @Override
-    public void captchaLoaded(CaptchaLayout captchaLayout) {
+    public void captchaLoaded(CaptchaLayoutInterface captchaLayout) {
     }
 
     @Override
-    public void captchaEntered(CaptchaLayout captchaLayout, String challenge, String response) {
+    public void captchaEntered(CaptchaLayoutInterface captchaLayout, String challenge, String response) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
         captchaLayout.reset();
@@ -402,7 +403,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
         void setPage(Page page, boolean animate);
 
-        void initCaptcha(String baseUrl, String siteKey, CaptchaLayout.CaptchaCallback callback);
+        void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback);
 
         void resetCaptcha();
 

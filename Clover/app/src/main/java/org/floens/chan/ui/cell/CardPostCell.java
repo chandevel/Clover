@@ -33,6 +33,7 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.FastTextView;
+import org.floens.chan.ui.view.FixedRatioThumbnailView;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -50,7 +51,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
-    private ThumbnailView thumbnailView;
+    private FixedRatioThumbnailView thumbnailView;
     private TextView title;
     private FastTextView comment;
     private TextView replies;
@@ -73,7 +74,8 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        thumbnailView = (ThumbnailView) findViewById(R.id.thumbnail);
+        thumbnailView = (FixedRatioThumbnailView) findViewById(R.id.thumbnail);
+        thumbnailView.setRatio(16f / 9f);
         thumbnailView.setOnClickListener(this);
         title = (TextView) findViewById(R.id.title);
         comment = (FastTextView) findViewById(R.id.comment);

@@ -132,7 +132,7 @@ public class ChanSettings {
 
         postDefaultName = new StringSetting(p, "preference_default_name", "");
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
-        postNewCaptcha = new BooleanSetting(p, "preference_new_captcha", true);
+        postNewCaptcha = new BooleanSetting(p, "preference_new_captcha", false);
 
         developer = new BooleanSetting(p, "preference_developer", false);
 

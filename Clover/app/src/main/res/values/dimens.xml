@@ -23,7 +23,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <dimen name="grid_card_width">120dp</dimen>
     <dimen name="grid_card_height">200dp</dimen>
 
-    <dimen name="reply_height_loading">250dp</dimen>
-
     <dimen name="cell_post_thumbnail_size">72dp</dimen>
 </resources>

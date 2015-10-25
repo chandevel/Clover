@@ -237,6 +237,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply_submit">Submit</string>
     <string name="reply_error">Error posting</string>
     <string name="reply_success">Post successful</string>
+    <string name="reply_captcha_text">Type the text</string>
 
     <string name="delete_confirm">Delete your post?</string>
     <string name="delete_wait">Deleting post&#8230;</string>
@@ -332,7 +333,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_save_folder_error_create_folder">Error creating save folder</string>
     <string name="setting_folder_pick_ok">Choose</string>
     <string name="setting_use_new_captcha">Use the new captcha</string>
-    <string name="setting_use_new_captcha_description">Disable to fallback to the old captcha (EXPERIMENTAL).</string>
+    <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha.</string>
     <string name="setting_save_original_filename">Save original filename</string>
     <string name="setting_share_url">Share url to image</string>
     <string name="setting_share_url_description">Share the url to the image instead of the image itself</string>
@@ -409,8 +410,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="settings_screen_theme">Themes</string>
 </resources>
-
-
-
-
-

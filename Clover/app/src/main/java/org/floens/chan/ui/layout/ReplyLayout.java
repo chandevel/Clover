@@ -23,6 +23,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -61,7 +62,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     private ReplyLayoutCallback callback;
 
     private View replyInputLayout;
-    private CaptchaLayout captchaLayout;
+    private CaptchaLayoutInterface captchaLayout;
 
     private boolean openingName;
     private boolean blockSelectionChange = false;
@@ -161,11 +162,13 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public LayoutParams getLayoutParamsForView(View view) {
-        if (view == replyInputLayout) {
+        if (view == replyInputLayout || (view == captchaLayout && captchaLayout instanceof LegacyCaptchaLayout)) {
             return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        } else if (view == captchaLayout && captchaLayout instanceof CaptchaLayout) {
+            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(300));
         } else {
-            // Captcha and the loadbar
-            return new LayoutParams(LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(R.dimen.reply_height_loading));
+            // Loadbar
+            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(100));
         }
     }
 
@@ -194,6 +197,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
+
+    @Override
     public void setPage(ReplyPresenter.Page page, boolean animate) {
         setAnimateLayout(animate, true);
         switch (page) {
@@ -205,10 +213,14 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
                 break;
             case CAPTCHA:
                 if (captchaLayout == null) {
-                    captchaLayout = new CaptchaLayout(getContext());
+                    if (ChanSettings.postNewCaptcha.get()) {
+                        captchaLayout = new CaptchaLayout(getContext());
+                    } else {
+                        captchaLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext()).inflate(R.layout.layout_captcha_legacy, this, false);
+                    }
                 }
 
-                setView(captchaLayout);
+                setView((View) captchaLayout);
 
                 AndroidUtils.hideKeyboard(this);
                 break;
@@ -216,9 +228,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     @Override
-    public void initCaptcha(String baseUrl, String siteKey, CaptchaLayout.CaptchaCallback callback) {
-        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, ChanSettings.postNewCaptcha.get(), callback);
-        captchaLayout.load();
+    public void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback) {
+        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, callback);
+        captchaLayout.reset();
     }
 
     @Override
