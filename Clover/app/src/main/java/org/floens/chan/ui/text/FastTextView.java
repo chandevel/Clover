@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.Layout;
 import android.text.Spannable;
+import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -129,8 +130,8 @@ public class FastTextView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
 
-        if (movementMethod != null && text instanceof Spannable && layout != null && isEnabled()) {
-            handled |= movementMethod.onTouchEvent(this, (Spannable) layout.getText(), event);
+        if (movementMethod != null && text instanceof Spanned && layout != null && isEnabled()) {
+            handled |= movementMethod.onTouchEvent(this, (Spanned) text, (Spanned) layout.getText(), event);
         }
 
         return handled || super.onTouchEvent(event);

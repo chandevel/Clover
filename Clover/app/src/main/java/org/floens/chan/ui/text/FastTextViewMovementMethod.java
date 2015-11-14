@@ -17,9 +17,9 @@
  */
 package org.floens.chan.ui.text;
 
-import android.text.Spannable;
+import android.text.Spanned;
 import android.view.MotionEvent;
 
 public interface FastTextViewMovementMethod {
-    boolean onTouchEvent(FastTextView widget, Spannable text, MotionEvent event);
+    boolean onTouchEvent(FastTextView widget, Spanned buffer, Spanned cachedBuffer, MotionEvent event);
 }

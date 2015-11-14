@@ -42,6 +42,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -76,6 +77,7 @@ import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class PostCell extends LinearLayout implements PostCellInterface, PostLinkable.Callback {
+    private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 500;
 
     private ThumbnailView thumbnailView;
@@ -106,11 +108,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private OnClickListener selfClicked = new OnClickListener() {
         @Override
         public void onClick(View v) {
-//            if (ignoreNextOnClick) {
-//                ignoreNextOnClick = false;
-//            } else {
             callback.onPostClicked(post);
-//            }
         }
     };
 
@@ -344,10 +342,13 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         SpannableString date = new SpannableString(noText + " " + time);
         date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
-        titleParts.add(date);
-        if (ChanSettings.tapNoReply.get()) {
+
+        boolean noClickable = ChanSettings.tapNoReply.get();
+        if (noClickable) {
             date.setSpan(new NoClickableSpan(), 0, noText.length(), 0);
         }
+
+        titleParts.add(date);
 
         if (post.hasImage) {
             PostImage image = post.image;
@@ -404,12 +405,15 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
                 PostViewMovementMethod movementMethod = new PostViewMovementMethod();
                 comment.setMovementMethod(movementMethod);
                 comment.setOnClickListener(selfClicked);
-//                title.setMovementMethod(movementMethod);
+
+                if (noClickable) {
+                    title.setMovementMethod(movementMethod);
+                }
             } else {
                 comment.setOnClickListener(null);
                 comment.setClickable(false);
                 comment.setMovementMethod(null);
-//                title.setMovementMethod(null);
+                title.setMovementMethod(null);
             }
         }
 
@@ -491,7 +495,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
      */
     private class PostViewMovementMethod implements FastTextViewMovementMethod {
         @Override
-        public boolean onTouchEvent(@NonNull FastTextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {
+        public boolean onTouchEvent(@NonNull FastTextView widget, @NonNull Spanned buffer, @NonNull Spanned cachedBuffer, @NonNull MotionEvent event) {
             int action = event.getActionMasked();
 
             if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_DOWN) {
@@ -513,25 +517,44 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
                 if (link.length != 0) {
                     if (action == MotionEvent.ACTION_UP) {
                         link[0].onClick(widget);
-                        buffer.removeSpan(BACKGROUND_SPAN);
-                        widget.invalidate();
+                        removeBackgroundSpan(widget, cachedBuffer);
                     } else if (action == MotionEvent.ACTION_DOWN && link[0] instanceof PostLinkable) {
-                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]), 0);
-                        widget.invalidate();
+                        int spanStart = buffer.getSpanStart(link[0]);
+                        int spanEnd = buffer.getSpanEnd(link[0]);
+
+                        // Set the buffer on the visible buffer, not on the functional buffer
+                        // This is because the visible buffer may be a cached one or may be in use multiple times
+                        if (spanStart <= spanEnd && spanStart >= 0 && spanEnd >= 0 && spanStart <= cachedBuffer.length() && spanEnd <= cachedBuffer.length()) {
+                            showBackgroundSpan(widget, cachedBuffer, spanStart, spanEnd);
+                        } else {
+                            Log.e(TAG, "Could not add the background span because it was out of range!");
+                        }
                     } else if (action == MotionEvent.ACTION_CANCEL) {
-                        buffer.removeSpan(BACKGROUND_SPAN);
-                        widget.invalidate();
+                        removeBackgroundSpan(widget, cachedBuffer);
                     }
 
                     return true;
                 } else {
-                    buffer.removeSpan(BACKGROUND_SPAN);
-                    widget.invalidate();
+                    removeBackgroundSpan(widget, cachedBuffer);
                     return false;
                 }
             }
 
             return false;
+        }
+
+        private void showBackgroundSpan(FastTextView widget, Spanned buffer, int start, int end) {
+            if (buffer instanceof Spannable) {
+                ((Spannable) buffer).setSpan(BACKGROUND_SPAN, start, end, 0);
+                widget.invalidate();
+            }
+        }
+
+        private void removeBackgroundSpan(FastTextView widget, Spanned buffer) {
+            if (buffer instanceof Spannable) {
+                ((Spannable) buffer).removeSpan(BACKGROUND_SPAN);
+                widget.invalidate();
+            }
         }
     }
 
