@@ -15,18 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.utils;
+package org.floens.chan.ui.text;
 
-public class Time {
-    public static long get() {
-        return System.currentTimeMillis();
-    }
+import android.text.Spannable;
+import android.view.MotionEvent;
 
-    public static long startTiming() {
-        return System.nanoTime();
-    }
-
-    public static void endTiming(String tag, long start) {
-        Logger.test(tag + " took " + ((System.nanoTime() - start) / 1_000_000.0) + "ms");
-    }
+public interface FastTextViewMovementMethod {
+    boolean onTouchEvent(FastTextView widget, Spannable text, MotionEvent event);
 }

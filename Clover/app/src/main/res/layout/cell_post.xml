@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <org.floens.chan.ui.cell.PostCell xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_cell"
     android:layout_width="match_parent"
@@ -40,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:gravity="top" />
 
-        <TextView
+        <org.floens.chan.ui.text.FastTextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -50,8 +51,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_toRightOf="@id/thumbnail_view"
             android:paddingRight="25dp" />
 
-        <TextView
+        <view
             android:id="@+id/icons"
+            class="org.floens.chan.ui.cell.PostCell$PostIcons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -59,7 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_below="@id/title"
             android:layout_toRightOf="@id/thumbnail_view" />
 
-        <TextView
+        <org.floens.chan.ui.text.FastTextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,17 +69,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/icons"
             android:layout_toRightOf="@id/thumbnail_view"
-            android:textColor="?attr/text_color_primary" />
+            app:textColor="?attr/text_color_primary" />
 
-        <TextView
+        <org.floens.chan.ui.text.FastTextView
             android:id="@+id/replies"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/comment"
             android:layout_toRightOf="@id/thumbnail_view"
-            android:singleLine="true"
-            android:textColor="?attr/text_color_secondary" />
+            app:singleLine="true"
+            app:textColor="?attr/text_color_secondary" />
 
         <View
             android:id="@+id/divider"

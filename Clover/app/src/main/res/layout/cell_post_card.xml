@@ -68,7 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingRight="8dp"
             android:paddingTop="8dp" />
 
-        <org.floens.chan.ui.view.FastTextView
+        <org.floens.chan.ui.text.FastTextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="0dp"

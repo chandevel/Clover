@@ -166,4 +166,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:background">#ffffffff</item>
     </style>
 
+    <declare-styleable name="FastTextView">
+        <attr name="textColor" format="color" />
+        <attr name="textSize" format="dimension" />
+        <attr name="singleLine" format="boolean" />
+    </declare-styleable>
+
 </resources>

@@ -32,7 +32,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
-import org.floens.chan.ui.view.FastTextView;
+import org.floens.chan.ui.text.FastTextView;
 import org.floens.chan.ui.view.FixedRatioThumbnailView;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;

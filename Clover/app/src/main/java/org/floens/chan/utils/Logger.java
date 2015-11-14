@@ -30,22 +30,38 @@ public class Logger {
     }
 
     public static void v(String tag, String message) {
-        Log.v(TAG + TAG_SPACER + tag, message);
+        if (debugEnabled()) {
+            Log.v(TAG + TAG_SPACER + tag, message);
+        }
     }
 
     public static void v(String tag, String message, Throwable throwable) {
-        Log.v(TAG + TAG_SPACER + tag, message, throwable);
+        if (debugEnabled()) {
+            Log.v(TAG + TAG_SPACER + tag, message, throwable);
+        }
+    }
+
+    public static void v(String tag, String format, Object... args) {
+        if (debugEnabled()) {
+            Log.v(TAG + TAG_SPACER + tag, String.format(format, args));
+        }
     }
 
     public static void d(String tag, String message) {
-        if (ChanBuild.DEVELOPER_MODE) {
+        if (debugEnabled()) {
             Log.d(TAG + TAG_SPACER + tag, message);
         }
     }
 
     public static void d(String tag, String message, Throwable throwable) {
-        if (ChanBuild.DEVELOPER_MODE) {
+        if (debugEnabled()) {
             Log.d(TAG + TAG_SPACER + tag, message, throwable);
+        }
+    }
+
+    public static void d(String tag, String format, Object... args) {
+        if (debugEnabled()) {
+            Log.d(TAG + TAG_SPACER + tag, String.format(format, args));
         }
     }
 
@@ -57,12 +73,20 @@ public class Logger {
         Log.i(TAG + TAG_SPACER + tag, message, throwable);
     }
 
+    public static void i(String tag, String format, Object... args) {
+        Log.i(TAG + TAG_SPACER + tag, String.format(format, args));
+    }
+
     public static void w(String tag, String message) {
         Log.w(TAG + TAG_SPACER + tag, message);
     }
 
     public static void w(String tag, String message, Throwable throwable) {
         Log.w(TAG + TAG_SPACER + tag, message, throwable);
+    }
+
+    public static void w(String tag, String format, Object... args) {
+        Log.w(TAG + TAG_SPACER + tag, String.format(format, args));
     }
 
     public static void e(String tag, String message) {
@@ -73,6 +97,10 @@ public class Logger {
         Log.e(TAG + TAG_SPACER + tag, message, throwable);
     }
 
+    public static void e(String tag, String format, Object... args) {
+        Log.e(TAG + TAG_SPACER + tag, String.format(format, args));
+    }
+
     public static void wtf(String tag, String message) {
         Log.wtf(TAG + TAG_SPACER + tag, message);
     }
@@ -81,15 +109,25 @@ public class Logger {
         Log.wtf(TAG + TAG_SPACER + tag, message, throwable);
     }
 
+    public static void wtf(String tag, String format, Object... args) {
+        Log.wtf(TAG + TAG_SPACER + tag, String.format(format, args));
+    }
+
     public static void test(String message) {
-        if (ChanBuild.DEVELOPER_MODE) {
+        if (debugEnabled()) {
             Log.i(TAG + TAG_SPACER + "test", message);
         }
     }
 
     public static void test(String message, Throwable throwable) {
-        if (ChanBuild.DEVELOPER_MODE) {
+        if (debugEnabled()) {
             Log.i(TAG + TAG_SPACER + "test", message, throwable);
+        }
+    }
+
+    public static void test(String format, Object... args) {
+        if (debugEnabled()) {
+            Log.i(TAG + TAG_SPACER + "test", String.format(format, args));
         }
     }
 }

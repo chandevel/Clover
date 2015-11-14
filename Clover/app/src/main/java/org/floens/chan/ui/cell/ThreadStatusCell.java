@@ -51,11 +51,10 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
         @Override
         public boolean handleMessage(Message msg) {
             if (msg.what == MESSAGE_INVALIDATE) {
-                if (running) {
+                if (running && update()) {
                     schedule();
                 }
 
-                update();
                 return true;
             } else {
                 return false;
@@ -86,14 +85,18 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
         this.error = error;
     }
 
-    public void update() {
+    public boolean update() {
         if (error != null) {
             text.setText(error + "\n" + getContext().getString(R.string.thread_refresh_bar_inactive));
+            return false;
         } else {
             ChanThread chanThread = callback.getChanThread();
             if (chanThread == null) {
-                return; // Recyclerview not clearing immediately or view didn't receive onDetachedFromWindow
+                return false; // Recyclerview not clearing immediately or view didn't receive onDetachedFromWindow
             }
+
+            boolean update = false;
+
             String statusText = "";
 
             if (chanThread.archived) {
@@ -111,6 +114,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                 } else {
                     statusText += getContext().getString(R.string.thread_refresh_countdown, time) + "\n";
                 }
+                update = true;
             }
 
             Post op = chanThread.op;
@@ -128,14 +132,15 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
                 text.setText(TextUtils.concat(statusText, replies, " / ", images, " / ", String.valueOf(op.uniqueIps) + "P"));
             }
+
+            return update;
         }
     }
 
     private void schedule() {
         running = true;
-        Message message = handler.obtainMessage(1);
         if (!handler.hasMessages(MESSAGE_INVALIDATE)) {
-            handler.sendMessageDelayed(message, UPDATE_INTERVAL);
+            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_INVALIDATE), UPDATE_INTERVAL);
         }
     }
 
@@ -160,8 +165,9 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         if (hasWindowFocus) {
-            update();
-            schedule();
+            if (update()) {
+                schedule();
+            }
         } else {
             unschedule();
         }
