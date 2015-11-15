@@ -28,6 +28,7 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.http.DeleteHttpCall;
 import org.floens.chan.core.http.ReplyManager;
+import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.History;
@@ -37,8 +38,8 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.pool.LoaderPool;
 import org.floens.chan.core.pool.LoadablePool;
+import org.floens.chan.core.pool.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -74,6 +75,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
     private ReplyManager replyManager;
+    private BoardManager boardManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
 
@@ -91,6 +93,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         watchManager = Chan.getWatchManager();
         databaseManager = Chan.getDatabaseManager();
         replyManager = Chan.getReplyManager();
+        boardManager = Chan.getBoardManager();
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -478,10 +481,13 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             threadPresenterCallback.openLink((String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
-            Loadable thread = LoadablePool.getInstance().obtain(new Loadable(link.board, link.threadId));
-            thread.markedNo = link.postId;
 
-            threadPresenterCallback.showThread(thread);
+            if (boardManager.getBoardExists(link.board)) {
+                Loadable thread = LoadablePool.getInstance().obtain(new Loadable(link.board, link.threadId));
+                thread.markedNo = link.postId;
+
+                threadPresenterCallback.showThread(thread);
+            }
         }
     }
 
