@@ -421,7 +421,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     private void attachToolbarScroll(boolean attach) {
-        if (!AndroidUtils.isTablet(getContext())) {
+        if (!AndroidUtils.isTablet(getContext()) && !ChanSettings.neverHideToolbar.get()) {
             Toolbar toolbar = threadListLayoutCallback.getToolbar();
             if (attach) {
                 toolbar.attachRecyclerViewScrollStateListener(recyclerView);

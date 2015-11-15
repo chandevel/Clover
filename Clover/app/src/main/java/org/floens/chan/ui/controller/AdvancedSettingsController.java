@@ -48,12 +48,6 @@ public class AdvancedSettingsController extends SettingsController {
     private SettingView newCaptcha;
     private SettingView forcePhoneLayoutSetting;
     private SettingView enableReplyFab;
-    private SettingView postFullDate;
-    private SettingView postFileInfo;
-    private SettingView postFilename;
-    private SettingView anonymize;
-    private SettingView anonymizeIds;
-    private SettingView tapNoReply;
 
     public AdvancedSettingsController(Context context) {
         super(context);
@@ -88,9 +82,7 @@ public class AdvancedSettingsController extends SettingsController {
 
         if (item == forcePhoneLayoutSetting || item == enableReplyFab || item == newCaptcha) {
             needRestart = true;
-        }
-
-        if (item == postFullDate || item == postFileInfo || item == anonymize || item == anonymizeIds || item == tapNoReply || item == postFilename) {
+        } else {
             EventBus.getDefault().post(new RefreshUIMessage("postui"));
         }
     }
@@ -124,16 +116,17 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.shareUrl, R.string.setting_share_url, R.string.setting_share_url_description));
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, R.string.setting_network_https, R.string.setting_network_https_description));
         forcePhoneLayoutSetting = settings.add(new BooleanSettingView(this, ChanSettings.forcePhoneLayout, R.string.setting_force_phone_layout, 0));
-        enableReplyFab = settings.add(new BooleanSettingView(this, ChanSettings.enableReplyFab, R.string.setting_enable_reply_fab,R.string.setting_enable_reply_fab_description));
-        anonymize = settings.add(new BooleanSettingView(this, ChanSettings.anonymize, R.string.setting_anonymize, 0));
-        anonymizeIds = settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, R.string.setting_anonymize_ids, 0));
+        enableReplyFab = settings.add(new BooleanSettingView(this, ChanSettings.enableReplyFab, R.string.setting_enable_reply_fab, R.string.setting_enable_reply_fab_description));
+        settings.add(new BooleanSettingView(this, ChanSettings.anonymize, R.string.setting_anonymize, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, R.string.setting_anonymize_ids, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.repliesButtonsBottom, R.string.setting_buttons_bottom, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.confirmExit, R.string.setting_confirm_exit, 0));
-        tapNoReply = settings.add(new BooleanSettingView(this, ChanSettings.tapNoReply, R.string.setting_tap_no_rely, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.tapNoReply, R.string.setting_tap_no_rely, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.volumeKeysScrolling, R.string.setting_volume_key_scrolling, 0));
-        postFullDate = settings.add(new BooleanSettingView(this, ChanSettings.postFullDate, R.string.setting_post_full_date, 0));
-        postFileInfo = settings.add(new BooleanSettingView(this, ChanSettings.postFileInfo, R.string.setting_post_file_info, 0));
-        postFilename = settings.add(new BooleanSettingView(this, ChanSettings.postFilename, R.string.setting_post_filename, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.postFullDate, R.string.setting_post_full_date, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.postFileInfo, R.string.setting_post_file_info, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.postFilename, R.string.setting_post_filename, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.neverHideToolbar, R.string.setting_never_hide_toolbar, 0));
 
         groups.add(settings);
 
