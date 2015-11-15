@@ -17,6 +17,8 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -412,6 +414,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        newPostsNotification = null;
                         presenter.scrollTo(-1, true);
                     }
                 }).show();
@@ -441,7 +444,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         threadListLayout.openReply(open);
     }
 
-    private void showReplyButton(boolean show) {
+    private void showReplyButton(final boolean show) {
         if (show != showingReplyButton && replyButtonEnabled) {
             showingReplyButton = show;
 
@@ -452,6 +455,14 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                     .alpha(show ? 1f : 0f)
                     .scaleX(show ? 1f : 0f)
                     .scaleY(show ? 1f : 0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            replyButton.setAlpha(show ? 1f : 0f);
+                            replyButton.setScaleX(show ? 1f : 0f);
+                            replyButton.setScaleY(show ? 1f : 0f);
+                        }
+                    })
                     .start();
         }
     }
