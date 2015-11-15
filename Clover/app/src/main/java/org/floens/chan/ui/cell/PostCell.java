@@ -100,6 +100,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private Post post;
     private PostCellCallback callback;
     private boolean highlighted;
+    private boolean selected;
     private int markedNo;
     private boolean showDivider;
 
@@ -234,8 +235,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     }
 
     public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean highlighted, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode) {
-        if (this.post == post && this.highlighted == highlighted && this.markedNo == markedNo) {
+                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode) {
+        if (this.post == post && this.highlighted == highlighted && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider) {
             return;
         }
 
@@ -252,6 +253,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         this.post = post;
         this.callback = callback;
         this.highlighted = highlighted;
+        this.selected = selected;
         this.markedNo = markedNo;
         this.showDivider = showDivider;
 
@@ -289,6 +291,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             setBackgroundColor(theme.highlightedColor);
         } else if (post.isSavedReply) {
             setBackgroundColor(theme.savedReplyColor);
+        } else if (selected) {
+            setBackgroundColor(theme.selectedColor);
         } else if (threadMode) {
             setBackgroundResource(0);
         } else {

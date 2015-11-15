@@ -332,6 +332,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         threadPresenterCallback.highlightPost(post);
     }
 
+    public void selectPost(int post) {
+        threadPresenterCallback.selectPost(post);
+    }
+
     /*
      * PostView callbacks
      */
@@ -673,6 +677,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void highlightPostId(String id);
 
         void highlightPostTripcode(String tripcode);
+
+        void selectPost(int post);
 
         void showSearch(boolean show);
 

@@ -347,6 +347,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public void selectPost(int post) {
+        threadListLayout.selectPost(post);
+    }
+
+    @Override
     public void showSearch(boolean show) {
         threadListLayout.openSearch(show);
     }

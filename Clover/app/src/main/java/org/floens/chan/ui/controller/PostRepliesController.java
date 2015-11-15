@@ -191,7 +191,7 @@ public class PostRepliesController extends Controller {
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
-                postCell.setPost(null, p, presenter, false, data.forPost.no, showDivider, PostCellInterface.PostViewMode.LIST);
+                postCell.setPost(null, p, presenter, false, false, data.forPost.no, showDivider, PostCellInterface.PostViewMode.LIST);
 
                 return (View) postCell;
             }

@@ -24,6 +24,8 @@ import android.support.v7.app.AlertDialog;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.controller.Controller;
+import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -93,6 +95,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onDestroy() {
         super.onDestroy();
         updateDrawerHighlighting(null);
+        updateLeftPaneHighlighting(null);
     }
 
     @Override
@@ -140,6 +143,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             navigationItem.updateTitle();
             setPinIconState(presenter.isPinned());
             updateDrawerHighlighting(loadable);
+            updateLeftPaneHighlighting(loadable);
             presenter.requestInitialData();
         }
     }
@@ -205,6 +209,24 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         } else if (splitNavigationController != null) {
             if (splitNavigationController.parentController instanceof DrawerController) {
                 ((DrawerController) splitNavigationController.parentController).setPinHighlighted(pin);
+            }
+        }
+    }
+
+    private void updateLeftPaneHighlighting(Loadable loadable) {
+        if (splitNavigationController != null) {
+            if (splitNavigationController.leftController instanceof NavigationController) {
+                NavigationController leftNavigationController = (NavigationController) splitNavigationController.leftController;
+                ThreadController threadController = null;
+                for (Controller controller : leftNavigationController.childControllers) {
+                    if (controller instanceof ThreadController) {
+                        threadController = (ThreadController) controller;
+                        break;
+                    }
+                }
+                if (threadController != null) {
+                    threadController.selectPost(loadable != null ? loadable.no : -1);
+                }
             }
         }
     }

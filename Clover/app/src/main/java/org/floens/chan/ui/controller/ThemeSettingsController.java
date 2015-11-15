@@ -255,7 +255,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
 
             PostCell postCell = (PostCell) LayoutInflater.from(themeContext).inflate(R.layout.cell_post, null);
-            postCell.setPost(theme, post, DUMMY_POST_CALLBACK, false, -1, true, PostCellInterface.PostViewMode.LIST);
+            postCell.setPost(theme, post, DUMMY_POST_CALLBACK, false, false, -1, true, PostCellInterface.PostViewMode.LIST);
             linearLayout.addView(postCell, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             return linearLayout;

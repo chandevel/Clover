@@ -50,6 +50,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String highlightedPostId;
     private int highlightedPostNo = -1;
     private String highlightedPostTripcode;
+    private int selectedPost;
     private int lastSeenIndicatorPosition = -1;
     private boolean bound;
 
@@ -102,8 +103,9 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_POST_STUB:
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
-                boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo || post.tripcode.equals(highlightedPostTripcode);
-                postViewHolder.postView.setPost(null, post, postCellCallback, highlight, -1, true, postViewMode);
+                boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
+                        post.tripcode.equals(highlightedPostTripcode);
+                postViewHolder.postView.setPost(null, post, postCellCallback, highlight, post.no == selectedPost, -1, true, postViewMode);
                 break;
             case TYPE_STATUS:
                 ((StatusViewHolder) holder).threadStatusCell.update();
@@ -256,6 +258,11 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPostId = null;
         highlightedPostNo = no;
         highlightedPostTripcode = null;
+        notifyDataSetChanged();
+    }
+
+    public void selectPost(int no) {
+        selectedPost = no;
         notifyDataSetChanged();
     }
 

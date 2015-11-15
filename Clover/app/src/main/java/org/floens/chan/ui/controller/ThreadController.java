@@ -102,6 +102,10 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         return threadLayout.getPresenter().getLoadable();
     }
 
+    public void selectPost(int post) {
+        threadLayout.getPresenter().selectPost(post);
+    }
+
     @Override
     public boolean onBack() {
         return threadLayout.onBack();

@@ -54,6 +54,7 @@ public class Theme {
     public int detailsColor;
     public int highlightedColor;
     public int savedReplyColor;
+    public int selectedColor;
 
     public ThemeDrawable settingsDrawable;
     public ThemeDrawable imageDrawable;
@@ -106,6 +107,7 @@ public class Theme {
                 R.attr.post_details_color,
                 R.attr.post_highlighted_color,
                 R.attr.post_saved_reply_color,
+                R.attr.post_selected_color,
                 R.attr.text_color_primary,
                 R.attr.text_color_secondary,
                 R.attr.text_color_hint
@@ -124,9 +126,10 @@ public class Theme {
         detailsColor = ta.getColor(10, 0);
         highlightedColor = ta.getColor(11, 0);
         savedReplyColor = ta.getColor(12, 0);
-        textPrimary = ta.getColor(13, 0);
-        textSecondary = ta.getColor(14, 0);
-        textHint = ta.getColor(15, 0);
+        selectedColor = ta.getColor(13, 0);
+        textPrimary = ta.getColor(14, 0);
+        textSecondary = ta.getColor(15, 0);
+        textHint = ta.getColor(16, 0);
 
         ta.recycle();
     }

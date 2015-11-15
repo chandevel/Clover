@@ -400,6 +400,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         postAdapter.highlightPostTripcode(tripcode);
     }
 
+    public void selectPost(int post) {
+        postAdapter.selectPost(post);
+    }
+
     @Override
     public void highlightPostNo(int no) {
         postAdapter.highlightPostNo(no);
