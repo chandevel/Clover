@@ -238,8 +238,4 @@ public abstract class Controller {
     public ViewGroup inflateRes(int resId) {
         return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
     }
-
-    public String string(int id) {
-        return context.getString(id);
-    }
 }

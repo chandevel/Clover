@@ -118,10 +118,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
         overflowMenuItem = navigationItem.createOverflow(context, this, Arrays.asList(
-                new FloatingMenuItem(OPEN_BROWSER_ID, string(R.string.action_open_browser)),
-                new FloatingMenuItem(SHARE_ID, string(R.string.action_share)),
-                new FloatingMenuItem(SEARCH_ID, string(R.string.action_search_image)),
-                new FloatingMenuItem(SAVE_ALBUM, string(R.string.action_download_album))
+                new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser),
+                new FloatingMenuItem(SHARE_ID, R.string.action_share),
+                new FloatingMenuItem(SEARCH_ID, R.string.action_search_image),
+                new FloatingMenuItem(SAVE_ALBUM, R.string.action_download_album)
         ));
 
         view = inflateRes(R.layout.controller_image_viewer);

@@ -51,7 +51,7 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         boolean enabled = ChanSettings.watchEnabled.get();
 
-        navigationItem.title = string(R.string.settings_screen_watch);
+        navigationItem.setTitle(R.string.settings_screen_watch);
 
         view = inflateRes(R.layout.controller_watch);
         content = (LinearLayout) view.findViewById(R.id.scrollview_content);
@@ -99,10 +99,10 @@ public class WatchSettingsController extends SettingsController implements Compo
     }
 
     private void populatePreferences() {
-        SettingsGroup settings = new SettingsGroup(string(R.string.settings_group_watch));
+        SettingsGroup settings = new SettingsGroup(R.string.settings_group_watch);
 
 //        settings.add(new BooleanSettingView(this, ChanSettings.watchCountdown, string(R.string.setting_watch_countdown), string(R.string.setting_watch_countdown_description)));
-        enableBackground = settings.add(new BooleanSettingView(this, ChanSettings.watchBackground, string(R.string.setting_watch_enable_background), string(R.string.setting_watch_enable_background_description)));
+        enableBackground = settings.add(new BooleanSettingView(this, ChanSettings.watchBackground, R.string.setting_watch_enable_background, R.string.setting_watch_enable_background_description));
 
         int[] timeouts = new int[]{1, 2, 3, 5, 10, 30, 60};
         ListSettingView.Item[] timeoutsItems = new ListSettingView.Item[timeouts.length];
@@ -110,15 +110,15 @@ public class WatchSettingsController extends SettingsController implements Compo
             String name = context.getResources().getQuantityString(R.plurals.minutes, timeouts[i], timeouts[i]);
             timeoutsItems[i] = new ListSettingView.Item(name, String.valueOf(timeouts[i] * 60));
         }
-        backgroundTimeout = settings.add(new ListSettingView(this, ChanSettings.watchBackgroundTimeout, string(R.string.setting_watch_background_timeout), timeoutsItems));
+        backgroundTimeout = settings.add(new ListSettingView(this, ChanSettings.watchBackgroundTimeout, R.string.setting_watch_background_timeout, timeoutsItems));
 
-        notifyMode = settings.add(new ListSettingView(this, ChanSettings.watchNotifyMode, string(R.string.setting_watch_notify_mode),
+        notifyMode = settings.add(new ListSettingView(this, ChanSettings.watchNotifyMode, R.string.setting_watch_notify_mode,
                 context.getResources().getStringArray(R.array.setting_watch_notify_modes), new String[]{"all", "quotes"}));
 
-        soundMode = settings.add(new ListSettingView(this, ChanSettings.watchSound, string(R.string.setting_watch_sound),
+        soundMode = settings.add(new ListSettingView(this, ChanSettings.watchSound, R.string.setting_watch_sound,
                 context.getResources().getStringArray(R.array.setting_watch_sounds), new String[]{"all", "quotes"}));
 
-        ledMode = settings.add(new ListSettingView(this, ChanSettings.watchLed, string(R.string.setting_watch_led),
+        ledMode = settings.add(new ListSettingView(this, ChanSettings.watchLed, R.string.setting_watch_led,
                 context.getResources().getStringArray(R.array.setting_watch_leds),
                 new String[]{"-1", "ffffffff", "ffff0000", "ffffff00", "ff00ff00", "ff00ffff", "ff0000ff", "ffff00ff"}));
 

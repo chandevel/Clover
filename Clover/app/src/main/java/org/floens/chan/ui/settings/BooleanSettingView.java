@@ -30,6 +30,10 @@ public class BooleanSettingView extends SettingView implements View.OnClickListe
     private String description;
     private boolean building = true;
 
+    public BooleanSettingView(SettingsController settingsController, Setting<Boolean> setting, int name, int description) {
+        this(settingsController, setting, getString(name), getString(description));
+    }
+
     public BooleanSettingView(SettingsController settingsController, Setting<Boolean> setting, String name, String description) {
         super(settingsController, name);
         this.setting = setting;

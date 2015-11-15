@@ -38,6 +38,10 @@ public class IntegerSettingView extends SettingView implements View.OnClickListe
     private final Setting<Integer> setting;
     private final String dialogTitle;
 
+    public IntegerSettingView(SettingsController settingsController, Setting<Integer> setting, int name, int dialogTitle) {
+        this(settingsController, setting, getString(name), getString(dialogTitle));
+    }
+
     public IntegerSettingView(SettingsController settingsController, Setting<Integer> setting, String name, String dialogTitle) {
         super(settingsController, name);
         this.setting = setting;

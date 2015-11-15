@@ -60,6 +60,7 @@ import java.util.Locale;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
+import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class BoardEditController extends Controller implements View.OnClickListener, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int OPTION_SORT_A_Z = 1;
@@ -81,7 +82,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.title = string(R.string.board_edit);
+        navigationItem.setTitle(R.string.board_edit);
 
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(OPTION_SORT_A_Z, R.string.board_edit_sort_a_z));
@@ -244,7 +245,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
 
                 recyclerView.smoothScrollToPosition(boards.size());
 
-                Snackbar snackbar = Snackbar.make(view, string(R.string.board_add_success) + " " + board.key, Snackbar.LENGTH_LONG);
+                Snackbar snackbar = Snackbar.make(view, getString(R.string.board_add_success) + " " + board.key, Snackbar.LENGTH_LONG);
                 fixSnackbarText(context, snackbar);
                 snackbar.show();
 

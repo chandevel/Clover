@@ -34,6 +34,10 @@ public class StringSettingView extends SettingView implements View.OnClickListen
     private final Setting<String> setting;
     private final String dialogTitle;
 
+    public StringSettingView(SettingsController settingsController, Setting<String> setting, int name, int dialogTitle) {
+        this(settingsController, setting, getString(name), getString(dialogTitle));
+    }
+
     public StringSettingView(SettingsController settingsController, Setting<String> setting, String name, String dialogTitle) {
         super(settingsController, name);
         this.setting = setting;

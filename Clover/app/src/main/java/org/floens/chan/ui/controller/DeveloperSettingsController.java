@@ -45,7 +45,7 @@ public class DeveloperSettingsController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.title = string(R.string.settings_developer);
+        navigationItem.setTitle(R.string.settings_developer);
 
         LinearLayout wrapper = new LinearLayout(context);
         wrapper.setOrientation(LinearLayout.VERTICAL);

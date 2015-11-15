@@ -44,10 +44,12 @@ import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+
+import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener, PassSettingsController.PassSettingControllerListener {
     private static final int ADVANCED_SETTINGS = 1;
@@ -68,10 +70,10 @@ public class MainSettingsController extends SettingsController implements Toolba
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.title = s(R.string.settings_screen);
+        navigationItem.setTitle(R.string.settings_screen);
         navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.createOverflow(context, this, Arrays.asList(
-                new FloatingMenuItem(ADVANCED_SETTINGS, s(R.string.settings_screen_advanced))
+        navigationItem.createOverflow(context, this, Collections.singletonList(
+                new FloatingMenuItem(ADVANCED_SETTINGS, R.string.settings_screen_advanced)
         ));
 
         view = inflateRes(R.layout.settings_layout);
@@ -115,25 +117,25 @@ public class MainSettingsController extends SettingsController implements Toolba
 
     @Override
     public void onWatchEnabledChanged(boolean enabled) {
-        watchLink.setDescription(s(enabled ? R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled));
+        watchLink.setDescription(enabled ? R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled);
     }
 
     @Override
     public void onPassEnabledChanged(boolean enabled) {
-        passLink.setDescription(s(enabled ? R.string.setting_pass_summary_enabled : R.string.setting_pass_summary_disabled));
+        passLink.setDescription(enabled ? R.string.setting_pass_summary_enabled : R.string.setting_pass_summary_disabled);
     }
 
     private void populatePreferences() {
         // General group
-        SettingsGroup general = new SettingsGroup(s(R.string.settings_group_general));
-        general.add(new LinkSettingView(this, s(R.string.settings_board_edit), null, new View.OnClickListener() {
+        SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
+        general.add(new LinkSettingView(this, R.string.settings_board_edit, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new BoardEditController(context));
             }
         }));
 
-        watchLink = (LinkSettingView) general.add(new LinkSettingView(this, s(R.string.settings_watch), null, new View.OnClickListener() {
+        watchLink = (LinkSettingView) general.add(new LinkSettingView(this, R.string.settings_watch, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new WatchSettingsController(context));
@@ -142,9 +144,9 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         groups.add(general);
 
-        SettingsGroup appearance = new SettingsGroup(s(R.string.settings_group_appearance));
+        SettingsGroup appearance = new SettingsGroup(R.string.settings_group_appearance);
 
-        appearance.add(new LinkSettingView(this, s(R.string.settings_screen_theme), null, new View.OnClickListener() {
+        appearance.add(new LinkSettingView(this, R.string.settings_screen_theme, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new ThemeSettingsController(context));
@@ -153,48 +155,48 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         List<ListSettingView.Item> fontSizes = new ArrayList<>();
         for (int size = 10; size <= 19; size++) {
-            String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " " + s(R.string.setting_font_size_default) : "");
+            String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " " + getString(R.string.setting_font_size_default) : "");
             fontSizes.add(new ListSettingView.Item(name, String.valueOf(size)));
         }
 
-        fontView = appearance.add(new ListSettingView(this, ChanSettings.fontSize, s(R.string.setting_font_size), fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
+        fontView = appearance.add(new ListSettingView(this, ChanSettings.fontSize, R.string.setting_font_size, fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
 
         groups.add(appearance);
 
         // Browsing group
-        SettingsGroup browsing = new SettingsGroup(s(R.string.settings_group_browsing));
+        SettingsGroup browsing = new SettingsGroup(R.string.settings_group_browsing);
 
-        browsing.add(new LinkSettingView(this, s(R.string.filters_screen), null, new View.OnClickListener() {
+        browsing.add(new LinkSettingView(this, R.string.filters_screen, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new FiltersController(context));
             }
         }));
-        browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, s(R.string.setting_open_link_confirmation), null));
-        browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, s(R.string.setting_auto_refresh_thread), null));
+        browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, R.string.setting_open_link_confirmation, 0));
+        browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, R.string.setting_auto_refresh_thread, 0));
 
         List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
         for (ChanSettings.ImageAutoLoadMode mode : ChanSettings.ImageAutoLoadMode.values()) {
-            String name = "";
+            int name = 0;
             switch (mode) {
                 case ALL:
-                    name = string(R.string.setting_image_auto_load_all);
+                    name = R.string.setting_image_auto_load_all;
                     break;
                 case WIFI:
-                    name = string(R.string.setting_image_auto_load_wifi);
+                    name = R.string.setting_image_auto_load_wifi;
                     break;
                 case NONE:
-                    name = string(R.string.setting_image_auto_load_none);
+                    name = R.string.setting_image_auto_load_none;
                     break;
             }
 
-            imageAutoLoadTypes.add(new ListSettingView.Item(name, mode.name));
+            imageAutoLoadTypes.add(new ListSettingView.Item(getString(name), mode.name));
         }
 
-        imageAutoLoadView = browsing.add(new ListSettingView(this, ChanSettings.imageAutoLoadNetwork, s(R.string.setting_image_auto_load), imageAutoLoadTypes.toArray(new ListSettingView.Item[imageAutoLoadTypes.size()])));
-        videoAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.videoAutoLoad, s(R.string.setting_video_auto_load), s(R.string.setting_video_auto_load_description)));
-        browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, s(R.string.setting_video_open_external), s(R.string.setting_video_open_external_description)));
-        browsing.add(new LinkSettingView(this, string(R.string.setting_clear_thread_hides), null, new View.OnClickListener() {
+        imageAutoLoadView = browsing.add(new ListSettingView(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, imageAutoLoadTypes.toArray(new ListSettingView.Item[imageAutoLoadTypes.size()])));
+        videoAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.videoAutoLoad, R.string.setting_video_auto_load, R.string.setting_video_auto_load_description));
+        browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, R.string.setting_video_open_external, R.string.setting_video_open_external_description));
+        browsing.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Chan.getDatabaseManager().clearAllThreadHides();
@@ -206,22 +208,22 @@ public class MainSettingsController extends SettingsController implements Toolba
         groups.add(browsing);
 
         // Posting group
-        SettingsGroup posting = new SettingsGroup(s(R.string.settings_group_posting));
+        SettingsGroup posting = new SettingsGroup(R.string.settings_group_posting);
 
-        passLink = (LinkSettingView) posting.add(new LinkSettingView(this, s(R.string.settings_pass), null, new View.OnClickListener() {
+        passLink = (LinkSettingView) posting.add(new LinkSettingView(this, R.string.settings_pass, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new PassSettingsController(context));
             }
         }));
 
-        posting.add(new BooleanSettingView(this, ChanSettings.postPinThread, s(R.string.setting_post_pin), null));
-        posting.add(new StringSettingView(this, ChanSettings.postDefaultName, s(R.string.setting_post_default_name), s(R.string.setting_post_default_name)));
+        posting.add(new BooleanSettingView(this, ChanSettings.postPinThread, R.string.setting_post_pin, 0));
+        posting.add(new StringSettingView(this, ChanSettings.postDefaultName, R.string.setting_post_default_name, R.string.setting_post_default_name));
 
         groups.add(posting);
 
         // About group
-        SettingsGroup about = new SettingsGroup(s(R.string.settings_group_about));
+        SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
         String version = "";
         try {
             version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
@@ -229,7 +231,7 @@ public class MainSettingsController extends SettingsController implements Toolba
             e.printStackTrace();
         }
 
-        about.add(new LinkSettingView(this, s(R.string.app_name), version, new View.OnClickListener() {
+        about.add(new LinkSettingView(this, getString(R.string.app_name), version, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if ((++clickCount) % 5 == 0) {
@@ -281,23 +283,23 @@ public class MainSettingsController extends SettingsController implements Toolba
             }
         }
 
-        about.add(new LinkSettingView(this, s(R.string.settings_about_license), s(R.string.settings_about_license_description), new View.OnClickListener() {
+        about.add(new LinkSettingView(this, R.string.settings_about_license, R.string.settings_about_license_description, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new LicensesController(context,
-                        s(R.string.settings_about_license), "file:///android_asset/html/license.html"));
+                        getString(R.string.settings_about_license), "file:///android_asset/html/license.html"));
             }
         }));
 
-        about.add(new LinkSettingView(this, s(R.string.settings_about_licenses), s(R.string.settings_about_licenses_description), new View.OnClickListener() {
+        about.add(new LinkSettingView(this, R.string.settings_about_licenses, R.string.settings_about_licenses_description, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new LicensesController(context,
-                        s(R.string.settings_about_licenses), "file:///android_asset/html/licenses.html"));
+                        getString(R.string.settings_about_licenses), "file:///android_asset/html/licenses.html"));
             }
         }));
 
-        developerView = about.add(new LinkSettingView(this, s(R.string.settings_developer), null, new View.OnClickListener() {
+        developerView = about.add(new LinkSettingView(this, R.string.settings_developer, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new DeveloperSettingsController(context));
@@ -306,9 +308,4 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         groups.add(about);
     }
-
-    private String s(int id) {
-        return string(id);
-    }
-
 }

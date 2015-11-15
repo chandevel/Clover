@@ -68,7 +68,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
 
         databaseManager = Chan.getDatabaseManager();
 
-        navigationItem.title = string(R.string.history_screen);
+        navigationItem.setTitle(R.string.history_screen);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(CLEAR_ID, R.string.history_clear));
         navigationItem.menu = new ToolbarMenu(context);

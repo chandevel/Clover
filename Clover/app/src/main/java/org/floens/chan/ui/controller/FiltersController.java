@@ -103,7 +103,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         filterEngine = FilterEngine.getInstance();
         databaseManager = Chan.getDatabaseManager();
 
-        navigationItem.title = string(R.string.filters_screen);
+        navigationItem.setTitle(R.string.filters_screen);
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
 

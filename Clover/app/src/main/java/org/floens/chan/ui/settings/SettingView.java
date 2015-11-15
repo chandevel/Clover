@@ -19,6 +19,8 @@ package org.floens.chan.ui.settings;
 
 import android.view.View;
 
+import org.floens.chan.utils.AndroidUtils;
+
 public abstract class SettingView {
     public SettingsController settingsController;
     public final String name;
@@ -43,5 +45,9 @@ public abstract class SettingView {
 
     public String getBottomDescription() {
         return null;
+    }
+
+    public static String getString(int id) {
+        return id == 0 ? null : AndroidUtils.getString(id);
     }
 }

@@ -47,6 +47,8 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.getString;
+
 public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback {
     private static final int REFRESH_ID = 1;
     private static final int REPLY_ID = 101;
@@ -174,7 +176,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                             break;
                     }
 
-                    String name = string(nameId);
+                    String name = getString(nameId);
                     if (order == this.order) {
                         name = "\u2713 " + name; // Checkmark
                     }

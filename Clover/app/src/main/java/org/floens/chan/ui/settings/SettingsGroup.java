@@ -24,6 +24,10 @@ public class SettingsGroup {
     public final String name;
     public final List<SettingView> settingViews = new ArrayList<>();
 
+    public SettingsGroup(int name) {
+        this(SettingView.getString(name));
+    }
+
     public SettingsGroup(String name) {
         this.name = name;
     }

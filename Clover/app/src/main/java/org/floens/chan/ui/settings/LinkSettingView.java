@@ -26,6 +26,10 @@ public class LinkSettingView extends SettingView {
     private String description;
     private boolean built = false;
 
+    public LinkSettingView(SettingsController settingsController, int name, int description, View.OnClickListener clickListener) {
+        this(settingsController, getString(name), getString(description), clickListener);
+    }
+
     public LinkSettingView(SettingsController settingsController, String name, String description, View.OnClickListener clickListener) {
         super(settingsController, name);
         this.description = description;
@@ -52,6 +56,10 @@ public class LinkSettingView extends SettingView {
         if (bottom != null) {
             bottom.setEnabled(enabled);
         }
+    }
+
+    public void setDescription(int description) {
+        setDescription(getString(description));
     }
 
     public void setDescription(String description) {
