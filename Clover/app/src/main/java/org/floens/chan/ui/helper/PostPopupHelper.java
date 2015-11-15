@@ -75,6 +75,14 @@ public class PostPopupHelper {
         return presentingController != null && presentingController.alive;
     }
 
+    public List<Post> getDisplayingPosts() {
+        return presentingController.getPostRepliesData();
+    }
+
+    public void scrollTo(int displayPosition, boolean smooth) {
+        presentingController.scrollTo(displayPosition, smooth);
+    }
+
     public ThumbnailView getThumbnail(PostImage postImage) {
         return presentingController.getThumbnail(postImage);
     }

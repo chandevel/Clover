@@ -44,6 +44,8 @@ import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
 
+import java.util.List;
+
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 
 public class PostRepliesController extends Controller {
@@ -57,6 +59,7 @@ public class PostRepliesController extends Controller {
 
     private LoadView loadView;
     private ListView listView;
+    private PostPopupHelper.RepliesData displayingData;
 
     public PostRepliesController(Context context, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
         super(context);
@@ -122,7 +125,17 @@ public class PostRepliesController extends Controller {
         displayData(data);
     }
 
+    public List<Post> getPostRepliesData() {
+        return displayingData.posts;
+    }
+
+    public void scrollTo(int displayPosition, boolean smooth) {
+        listView.smoothScrollToPosition(displayPosition);
+    }
+
     private void displayData(final PostPopupHelper.RepliesData data) {
+        displayingData = data;
+
         View dataView;
         if (ChanSettings.repliesButtonsBottom.get()) {
             dataView = inflateRes(R.layout.layout_post_replies_bottombuttons);

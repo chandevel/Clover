@@ -310,7 +310,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
     @Override
     public List<Post> getDisplayingPosts() {
-        return threadListLayout.getDisplayingPosts();
+        if (postPopupHelper.isOpen()) {
+            return postPopupHelper.getDisplayingPosts();
+        } else {
+            return threadListLayout.getDisplayingPosts();
+        }
     }
 
     @Override
@@ -320,7 +324,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
     @Override
     public void scrollTo(int displayPosition, boolean smooth) {
-        threadListLayout.scrollTo(displayPosition, smooth);
+        if (postPopupHelper.isOpen()) {
+            postPopupHelper.scrollTo(displayPosition, smooth);
+        } else {
+            threadListLayout.scrollTo(displayPosition, smooth);
+        }
     }
 
     @Override

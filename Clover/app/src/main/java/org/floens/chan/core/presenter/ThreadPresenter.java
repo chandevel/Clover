@@ -203,7 +203,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             if (chanLoader != null) {
                 ChanThread thread = chanLoader.getThread();
                 if (thread != null) {
-                    threadPresenterCallback.scrollTo(0, false);
+                    scrollTo(0, false);
                     showPosts();
                 }
             }
