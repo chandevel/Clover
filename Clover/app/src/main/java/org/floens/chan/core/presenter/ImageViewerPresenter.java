@@ -195,14 +195,10 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
             if (imageAutoLoad() && !postImage.spoiler) {
-                if (videoAutoLoad()) {
-                    onExit();
+                if (postImage.type == PostImage.Type.MOVIE) {
+                    callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
                 } else {
-                    if (postImage.type == PostImage.Type.MOVIE) {
-                        callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
-                    } else {
-                        onExit();
-                    }
+                    onExit();
                 }
             } else {
                 MultiImageView.Mode currentMode = callback.getImageMode(postImage);
