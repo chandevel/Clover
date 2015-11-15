@@ -21,7 +21,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -30,6 +32,7 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.floens.chan.ChanBuild;
 import org.floens.chan.R;
@@ -75,6 +78,17 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
         image.setRatio(300f / 57f);
         image.setOnClickListener(this);
         input = (EditText) findViewById(R.id.input);
+        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    AndroidUtils.hideKeyboard(input);
+                    submitCaptcha();
+                    return true;
+                }
+                return false;
+            }
+        });
         submit = (ImageView) findViewById(R.id.submit);
         theme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
@@ -103,7 +117,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
     @Override
     public void onClick(View v) {
         if (v == submit) {
-            callback.captchaEntered(this, challenge, input.getText().toString());
+            submitCaptcha();
         } else if (v == image) {
             reset();
         }
@@ -123,6 +137,10 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
         image.setUrl(null, 0, 0);
+    }
+
+    private void submitCaptcha() {
+        callback.captchaEntered(this, challenge, input.getText().toString());
     }
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {
