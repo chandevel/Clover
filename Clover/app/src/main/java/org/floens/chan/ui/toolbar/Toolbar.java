@@ -186,7 +186,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
             setArrowMenuProgress(toItem.hasBack || toItem.search ? 1f : 0f);
         } else {
             removeNavigationItem(toItem);
-            setArrowMenuProgress(toItem.hasBack || toItem.search ? 1f : 0f);
+            setArrowMenuProgress(fromItem.hasBack || fromItem.search ? 1f : 0f);
             toItem = fromItem;
         }
 
