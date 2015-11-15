@@ -100,8 +100,6 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     @Override
     public void run() {
         try {
-            Logger.test("Start! " + toString());
-
             if (destination.exists()) {
                 onDestination();
             } else {
@@ -113,8 +111,6 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
                     fileCacheDownloader.getFuture().get();
                 }
             }
-
-            Logger.test("End! " + toString());
         } catch (InterruptedException e) {
             onInterrupted();
         } catch (Exception e) {
@@ -169,13 +165,14 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
             is = new FileInputStream(source);
             os = new FileOutputStream(destination);
             IOUtils.copy(is, os);
+
+            success = true;
         } catch (IOException e) {
             Logger.e(TAG, "Error writing to file", e);
         } finally {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
         }
-        success = true;
     }
 
     private void scanDestination() {

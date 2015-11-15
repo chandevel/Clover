@@ -50,6 +50,7 @@ import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.helper.PreviousVersionHandler;
+import org.floens.chan.ui.helper.RuntimePermissionsHelper;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.AndroidUtils;
@@ -72,6 +73,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private BrowseController browseController;
 
     private ImagePickDelegate imagePickDelegate;
+    private RuntimePermissionsHelper runtimePermissionsHelper;
 
     public StartActivity() {
         boardManager = Chan.getBoardManager();
@@ -84,6 +86,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         ThemeHelper.getInstance().setupContext(this);
 
         imagePickDelegate = new ImagePickDelegate(this);
+        runtimePermissionsHelper = new RuntimePermissionsHelper(this);
 
         contentView = (ViewGroup) findViewById(android.R.id.content);
 
@@ -277,6 +280,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         return imagePickDelegate;
     }
 
+    public RuntimePermissionsHelper getRuntimePermissionsHelper() {
+        return runtimePermissionsHelper;
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -335,6 +342,13 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         super.onActivityResult(requestCode, resultCode, data);
 
         imagePickDelegate.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        runtimePermissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private Controller stackTop() {

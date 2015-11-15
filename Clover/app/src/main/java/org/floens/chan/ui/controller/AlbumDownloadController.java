@@ -122,8 +122,9 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
                                     }
                                 }
 
-                                imageSaver.startBundledTask(folderForAlbum, tasks);
-                                navigationController.popController();
+                                if (imageSaver.startBundledTask(context, folderForAlbum, tasks)) {
+                                    navigationController.popController();
+                                }
                             }
                         })
                         .show();
