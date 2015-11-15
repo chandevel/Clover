@@ -76,7 +76,7 @@ import java.util.List;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ImageViewerController extends Controller implements View.OnClickListener, ImageViewerPresenter.Callback, ToolbarMenuItem.ToolbarMenuItemCallback {
+public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
@@ -125,7 +125,6 @@ public class ImageViewerController extends Controller implements View.OnClickLis
         ));
 
         view = inflateRes(R.layout.controller_image_viewer);
-        view.setOnClickListener(this);
         previewImage = (TransitionImageView) view.findViewById(R.id.preview_image);
         pager = (OptionalSwipeViewPager) view.findViewById(R.id.pager);
         pager.addOnPageChangeListener(presenter);
@@ -204,11 +203,6 @@ public class ImageViewerController extends Controller implements View.OnClickLis
             task.setShare(share);
             ImageSaver.getInstance().startDownloadTask(task);
         }
-    }
-
-    @Override
-    public void onClick(View v) {
-        presenter.onExit();
     }
 
     @Override
