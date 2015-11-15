@@ -18,11 +18,11 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.ViewGroup;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.ControllerTransition;
+import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 
@@ -36,7 +36,8 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
         super.onCreate();
 
         view = inflateRes(R.layout.controller_navigation_toolbar);
-        container = (ViewGroup) view.findViewById(R.id.container);
+        container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
+        container.setNavigationController(this);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
         toolbar.setCallback(this);
@@ -58,11 +59,10 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     public boolean onBack() {
         if (super.onBack()) {
             return true;
-        } else if (parentController instanceof PopupController && controllerList.size() == 1) {
+        } else if (parentController instanceof PopupController && childControllers.size() == 1) {
             ((PopupController) parentController).dismiss();
             return true;
-        } else if (navigationController instanceof SplitNavigationController && controllerList.size() == 1) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) navigationController;
+        } else if (splitNavigationController != null && childControllers.size() == 1) {
             if (splitNavigationController.rightController == this) {
                 splitNavigationController.setRightController(null);
                 return true;
@@ -85,8 +85,7 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     private DrawerController getDrawerController() {
         if (parentController instanceof DrawerController) {
             return (DrawerController) parentController;
-        } else if (navigationController instanceof SplitNavigationController) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) navigationController;
+        } else if (splitNavigationController != null) {
             if (splitNavigationController.parentController instanceof DrawerController) {
                 return (DrawerController) splitNavigationController.parentController;
             }

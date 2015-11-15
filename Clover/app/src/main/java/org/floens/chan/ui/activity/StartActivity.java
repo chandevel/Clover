@@ -220,11 +220,11 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         } else {
             Loadable thread = null;
 
-            if (drawerController.getChildController() instanceof SplitNavigationController) {
-                SplitNavigationController splitNavigationController = (SplitNavigationController) drawerController.getChildController();
+            if (drawerController.childControllers.get(0) instanceof SplitNavigationController) {
+                SplitNavigationController splitNavigationController = (SplitNavigationController) drawerController.childControllers.get(0);
                 if (splitNavigationController.rightController instanceof NavigationController) {
                     NavigationController rightNavigationController = (NavigationController) splitNavigationController.rightController;
-                    for (Controller controller : rightNavigationController.getControllerList()) {
+                    for (Controller controller : rightNavigationController.childControllers) {
                         if (controller instanceof ViewThreadController) {
                             thread = ((ViewThreadController) controller).getLoadable();
                             break;
@@ -233,7 +233,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
                 }
             } else {
-                List<Controller> controllers = mainNavigationController.getControllerList();
+                List<Controller> controllers = mainNavigationController.childControllers;
                 for (Controller controller : controllers) {
                     if (controller instanceof ViewThreadController) {
                         thread = ((ViewThreadController) controller).getLoadable();

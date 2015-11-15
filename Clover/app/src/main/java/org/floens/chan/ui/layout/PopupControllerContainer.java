@@ -21,6 +21,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
+import org.floens.chan.utils.Logger;
+
 import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class PopupControllerContainer extends FrameLayout {
@@ -38,10 +40,18 @@ public class PopupControllerContainer extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int maxHeight = dp(600);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        if (MeasureSpec.getSize(heightMeasureSpec) > maxHeight) {
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.getMode(heightMeasureSpec));
+        FrameLayout.LayoutParams child = (LayoutParams) getChildAt(0).getLayoutParams();
+
+        Logger.test("%s %s", MeasureSpec.toString(widthMeasureSpec), MeasureSpec.toString(heightMeasureSpec));
+        if (heightMode == MeasureSpec.EXACTLY && heightSize < dp(600)) {
+            child.height = heightSize;
+        } else {
+            child.height = dp(600);
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

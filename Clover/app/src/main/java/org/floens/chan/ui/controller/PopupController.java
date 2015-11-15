@@ -23,14 +23,11 @@ import android.widget.FrameLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.controller.ControllerLogic;
 import org.floens.chan.controller.NavigationController;
 
 public class PopupController extends Controller implements View.OnClickListener {
     private FrameLayout topView;
     private FrameLayout container;
-
-    private NavigationController childController;
 
     public PopupController(Context context) {
         super(context);
@@ -46,24 +43,10 @@ public class PopupController extends Controller implements View.OnClickListener 
         container = (FrameLayout) view.findViewById(R.id.container);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (childController != null) {
-            childController.onDestroy();
-        }
-    }
-
     public void setChildController(NavigationController childController) {
-        childController.parentController = this;
-        ControllerLogic.transition(this.childController, childController, true, true, container);
-        this.childController = childController;
-    }
-
-    @Override
-    public boolean onBack() {
-        return childController != null && childController.onBack();
+        addChildController(childController);
+        childController.attach(container, true);
+        childController.onShow();
     }
 
     @Override
@@ -72,8 +55,8 @@ public class PopupController extends Controller implements View.OnClickListener 
     }
 
     public void dismiss() {
-        if (presentingController instanceof SplitNavigationController) {
-            ((SplitNavigationController) presentingController).popAll();
+        if (presentingByController instanceof SplitNavigationController) {
+            ((SplitNavigationController) presentingByController).popAll();
         }
     }
 }

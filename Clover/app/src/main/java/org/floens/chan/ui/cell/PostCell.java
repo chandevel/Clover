@@ -78,7 +78,7 @@ import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class PostCell extends LinearLayout implements PostCellInterface, PostLinkable.Callback {
     private static final String TAG = "PostCell";
-    private static final int COMMENT_MAX_LENGTH_BOARD = 500;
+    private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
     private ThumbnailView thumbnailView;
     private FastTextView title;
@@ -91,11 +91,9 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
     private boolean commentClickable = false;
     private int detailsSizePx;
-    private int iconsTextSize;
     private int countrySizePx;
     private int paddingPx;
     private boolean threadMode;
-//    private boolean ignoreNextOnClick;
 
     private boolean bound = false;
     private Theme theme;
@@ -143,9 +141,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         title.setTextSize(textSizeSp);
         title.setPadding(paddingPx, paddingPx, dp(52), 0);
 
-        iconsTextSize = sp(textSizeSp);
         countrySizePx = sp(textSizeSp - 3);
-        icons.setHeight(iconsTextSize);
+        icons.setHeight(sp(textSizeSp));
         icons.setSpacing(dp(4));
         icons.setPadding(paddingPx, dp(4), paddingPx, 0);
 

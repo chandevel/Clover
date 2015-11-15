@@ -28,7 +28,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -39,7 +38,6 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.controller.ControllerLogic;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
@@ -64,8 +62,6 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     protected RecyclerView recyclerView;
     protected LinearLayout settings;
     protected PinAdapter pinAdapter;
-
-    private NavigationController childController;
 
     public DrawerController(Context context) {
         super(context);
@@ -114,21 +110,13 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     public void onDestroy() {
         super.onDestroy();
 
-        if (childController != null) {
-            childController.onDestroy();
-        }
-
         EventBus.getDefault().unregister(this);
     }
 
-    public void setChildController(NavigationController childController) {
-        childController.parentController = this;
-        ControllerLogic.transition(this.childController, childController, true, true, container);
-        this.childController = childController;
-    }
-
-    public NavigationController getChildController() {
-        return childController;
+    public void setChildController(Controller childController) {
+        addChildController(childController);
+        childController.attach(container, true);
+        childController.onShow();
     }
 
     @Override
@@ -151,7 +139,9 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     public void onMenuClicked() {
-        drawerLayout.openDrawer(drawer);
+        if (getStyledToolbarNavigationController().getTop().navigationItem.hasDrawer) {
+            drawerLayout.openDrawer(drawer);
+        }
     }
 
     @Override
@@ -159,35 +149,19 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         if (drawerLayout.isDrawerOpen(drawer)) {
             drawerLayout.closeDrawer(drawer);
             return true;
-        } else if (childController != null && childController.onBack()) {
-            return true;
         } else {
             return super.onBack();
         }
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        return (childController != null && childController.dispatchKeyEvent(event)) || super.dispatchKeyEvent(event);
-    }
-
-    @Override
     public void onPinClicked(Pin pin) {
         drawerLayout.closeDrawer(Gravity.LEFT);
 
-        if (childController instanceof StyledToolbarNavigationController) {
-            if (childController.getTop() instanceof ThreadController) {
-                ((ThreadController) childController.getTop()).openPin(pin);
-            }
-        } else if (childController instanceof SplitNavigationController) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) childController;
-            if (splitNavigationController.leftController instanceof NavigationController) {
-                NavigationController navigationController = (NavigationController) splitNavigationController.leftController;
-                if (navigationController.getTop() instanceof ThreadController) {
-                    ThreadController threadController = (ThreadController) navigationController.getTop();
-                    threadController.openPin(pin);
-                }
-            }
+        StyledToolbarNavigationController navigationController = getStyledToolbarNavigationController();
+        if (navigationController.getTop() instanceof ThreadController) {
+            ThreadController threadController = (ThreadController) navigationController.getTop();
+            threadController.openPin(pin);
         }
     }
 
@@ -295,13 +269,8 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
             }
         }
 
-        if (childController instanceof StyledToolbarNavigationController) {
-            ((StyledToolbarNavigationController) childController).toolbar.getArrowMenuDrawable().setBadge(count, color);
-        } else if (childController instanceof SplitNavigationController) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) childController;
-            if (splitNavigationController.leftController instanceof StyledToolbarNavigationController) {
-                ((StyledToolbarNavigationController) splitNavigationController.leftController).toolbar.getArrowMenuDrawable().setBadge(count, color);
-            }
+        if (getTop() != null) {
+            getStyledToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(count, color);
         }
     }
 
@@ -317,7 +286,34 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     private void openController(Controller controller) {
-        childController.pushController(controller);
+        Controller top = getTop();
+        if (top instanceof NavigationController) {
+            ((NavigationController) top).pushController(controller);
+        } else if (top instanceof SplitNavigationController) {
+            ((SplitNavigationController) top).pushController(controller);
+        }
+
         drawerLayout.closeDrawer(Gravity.LEFT);
+    }
+
+    private StyledToolbarNavigationController getStyledToolbarNavigationController() {
+        StyledToolbarNavigationController navigationController = null;
+
+        Controller top = getTop();
+        if (top instanceof StyledToolbarNavigationController) {
+            navigationController = (StyledToolbarNavigationController) top;
+        } else if (top instanceof SplitNavigationController) {
+            SplitNavigationController splitNavigationController = (SplitNavigationController) top;
+            if (splitNavigationController.leftController instanceof StyledToolbarNavigationController) {
+                navigationController = (StyledToolbarNavigationController) splitNavigationController.leftController;
+            }
+        }
+
+        if (navigationController == null) {
+            throw new IllegalStateException("The child controller of a DrawerController must either be StyledToolbarNavigationController" +
+                    "or an SplitNavigationController that has a StyledToolbarNavigationController.");
+        }
+
+        return navigationController;
     }
 }

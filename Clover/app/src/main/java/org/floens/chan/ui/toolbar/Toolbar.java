@@ -19,7 +19,6 @@ package org.floens.chan.ui.toolbar;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -45,9 +44,6 @@ import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.layout.SearchLayout;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -83,10 +79,12 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     private LoadView navigationItemContainer;
 
     private ToolbarCallback callback;
-    private NavigationItem navigationItem;
     private boolean openKeyboardAfterSearchViewCreated = false;
     private int lastScrollDeltaOffset;
     private int scrollOffset;
+
+    private NavigationItem fromItem;
+    private NavigationItem toItem;
 
     public Toolbar(Context context) {
         super(context);
@@ -136,13 +134,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         recyclerView.removeOnScrollListener(recyclerViewOnScrollListener);
     }
 
-    public void updateNavigation() {
-        closeSearchInternal();
-        setNavigationItem(false, false, navigationItem);
-    }
+//    public void updateNavigation() {
+//        closeSearchInternal();
+//        setNavigationItem(false, false, toItem);
+//    }
 
     public NavigationItem getNavigationItem() {
-        return navigationItem;
+        return toItem;
     }
 
     public boolean openSearch() {
@@ -155,6 +153,44 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
     public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item) {
         setNavigationItemInternal(animate, pushing, item);
+    }
+
+    public void beginTransition(NavigationItem newItem) {
+        attachNavigationItem(newItem);
+
+        navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    }
+
+    public void transitionProgress(float progress, boolean pushing) {
+        final int offset = dp(16);
+
+        toItem.view.setTranslationY((pushing ? offset : -offset) * (1f - progress));
+        toItem.view.setAlpha(progress);
+
+        if (fromItem != null) {
+            fromItem.view.setTranslationY((pushing ? -offset : offset) * progress);
+            fromItem.view.setAlpha(1f - progress);
+        }
+
+        float arrowEnd = toItem.hasBack || toItem.search ? 1f : 0f;
+        if (arrowMenuDrawable.getProgress() != arrowEnd) {
+            arrowMenuDrawable.setProgress(toItem.hasBack || toItem.search ? progress : 1f - progress);
+        }
+    }
+
+    public void finishTransition(boolean finished) {
+        if (finished) {
+            if (fromItem != null) {
+                removeNavigationItem(fromItem);
+            }
+            setArrowMenuProgress(toItem.hasBack || toItem.search ? 1f : 0f);
+        } else {
+            removeNavigationItem(toItem);
+            setArrowMenuProgress(toItem.hasBack || toItem.search ? 1f : 0f);
+            toItem = fromItem;
+        }
+
+        fromItem = null;
     }
 
     public void setCallback(ToolbarCallback callback) {
@@ -178,7 +214,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
     @Override
     public void onLoadViewRemoved(View view) {
-        // TODO: this is kinda a hack
+        // Remove the menu from the navigation item
         if (view instanceof ViewGroup) {
             ((ViewGroup) view).removeAllViews();
         }
@@ -227,10 +263,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     private boolean openSearchInternal() {
-        if (navigationItem != null && !navigationItem.search) {
-            navigationItem.search = true;
+        if (toItem != null && !toItem.search) {
+            toItem.search = true;
             openKeyboardAfterSearchViewCreated = true;
-            setNavigationItemInternal(true, false, navigationItem);
+            setNavigationItemInternal(true, false, toItem);
             callback.onSearchVisibilityChanged(true);
             return true;
         } else {
@@ -239,11 +275,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     private boolean closeSearchInternal() {
-        if (navigationItem != null && navigationItem.search) {
-            navigationItem.search = false;
-            navigationItem.searchText = null;
-            setNavigationItemInternal(true, false, navigationItem);
-            AndroidUtils.hideKeyboard(navigationItemContainer);
+        if (toItem != null && toItem.search) {
+            toItem.search = false;
+            toItem.searchText = null;
+            setNavigationItemInternal(true, false, toItem);
             callback.onSearchVisibilityChanged(false);
             return true;
         } else {
@@ -251,10 +286,49 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         }
     }
 
-    private void setNavigationItemInternal(boolean animate, boolean pushing, NavigationItem toItem) {
-        final NavigationItem fromItem = navigationItem;
+    private void setNavigationItemInternal(boolean animate, final boolean pushing, NavigationItem newItem) {
+        attachNavigationItem(newItem);
 
-        boolean same = toItem == navigationItem;
+        if (fromItem == toItem) {
+            // Search toggled
+            navigationItemContainer.setView(toItem.view, animate);
+
+            animateArrow(toItem.hasBack || toItem.search);
+        } else {
+            navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
+            if (animate) {
+                toItem.view.setAlpha(0f);
+
+                ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
+                animator.setDuration(300);
+                animator.setInterpolator(new DecelerateInterpolator(2f));
+                animator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        finishTransition(true);
+                    }
+                });
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        transitionProgress((float) animation.getAnimatedValue(), pushing);
+                    }
+                });
+                if (!pushing) {
+                    animator.setStartDelay(100);
+                }
+                animator.start();
+            } else {
+                arrowMenuDrawable.setProgress(toItem.hasBack || toItem.search ? 1f : 0f);
+                finishTransition(true);
+            }
+        }
+    }
+
+    private void attachNavigationItem(NavigationItem newItem) {
+        fromItem = toItem;
+        toItem = newItem;
 
         if (!toItem.search) {
             AndroidUtils.hideKeyboard(navigationItemContainer);
@@ -266,73 +340,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
         toItem.toolbar = this;
 
-        if (!animate) {
-            if (fromItem != null) {
-                removeNavigationItem(fromItem);
-            }
-            setArrowMenuProgress(toItem.hasBack ? 1f : 0f);
-        }
-
         toItem.view = createNavigationItemView(toItem);
-
-        // use the LoadView animation when from a search
-        if (same) {
-            navigationItemContainer.setView(toItem.view, animate);
-        } else {
-            navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        }
-
-        final int duration = 300;
-        final int offset = dp(16);
-        final int delay = pushing ? 0 : 100;
-
-        if (animate) {
-            animateArrow(toItem.hasBack || toItem.search, toItem.search ? 0 : delay);
-        }
-
-        // Use the LoadView animation when from a search
-        if (animate && !same) {
-            toItem.view.setAlpha(0f);
-
-            List<Animator> animations = new ArrayList<>(5);
-
-            Animator toYAnimation = ObjectAnimator.ofFloat(toItem.view, View.TRANSLATION_Y, pushing ? offset : -offset, 0f);
-            toYAnimation.setDuration(duration);
-            toYAnimation.setInterpolator(new DecelerateInterpolator(2f));
-            toYAnimation.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    if (fromItem != null) {
-                        removeNavigationItem(fromItem);
-                    }
-                }
-            });
-            animations.add(toYAnimation);
-
-            Animator toAlphaAnimation = ObjectAnimator.ofFloat(toItem.view, View.ALPHA, 0f, 1f);
-            toAlphaAnimation.setDuration(duration);
-            toAlphaAnimation.setInterpolator(new DecelerateInterpolator(2f));
-            animations.add(toAlphaAnimation);
-
-            if (fromItem != null) {
-                Animator fromYAnimation = ObjectAnimator.ofFloat(fromItem.view, View.TRANSLATION_Y, 0f, pushing ? -offset : offset);
-                fromYAnimation.setDuration(duration);
-                fromYAnimation.setInterpolator(new DecelerateInterpolator(2f));
-                animations.add(fromYAnimation);
-
-                Animator fromAlphaAnimation = ObjectAnimator.ofFloat(fromItem.view, View.ALPHA, 1f, 0f);
-                fromAlphaAnimation.setDuration(duration);
-                fromAlphaAnimation.setInterpolator(new DecelerateInterpolator(2f));
-                animations.add(fromAlphaAnimation);
-            }
-
-            AnimatorSet set = new AnimatorSet();
-            set.setStartDelay(delay);
-            set.playTogether(animations);
-            set.start();
-        }
-
-        navigationItem = toItem;
     }
 
     private void removeNavigationItem(NavigationItem item) {
@@ -428,7 +436,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         }
     }
 
-    private void animateArrow(boolean toArrow, long delay) {
+    private void animateArrow(boolean toArrow) {
         float to = toArrow ? 1f : 0f;
         if (to != arrowMenuDrawable.getProgress()) {
             ValueAnimator arrowAnimation = ValueAnimator.ofFloat(arrowMenuDrawable.getProgress(), to);
@@ -440,7 +448,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
                     setArrowMenuProgress((float) animation.getAnimatedValue());
                 }
             });
-            arrowAnimation.setStartDelay(delay);
             arrowAnimation.start();
         }
     }

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.controller;
+package org.floens.chan.controller.transition;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -24,10 +24,12 @@ import android.animation.ObjectAnimator;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-public class FadeInTransition extends ControllerTransition {
+import org.floens.chan.controller.ControllerTransition;
+
+public class FadeOutTransition extends ControllerTransition {
     @Override
     public void perform() {
-        Animator toAlpha = ObjectAnimator.ofFloat(to.view, View.ALPHA, 0f, 1f);
+        Animator toAlpha = ObjectAnimator.ofFloat(from.view, View.ALPHA, 1f, 0f);
         toAlpha.setDuration(200);
         toAlpha.setInterpolator(new AccelerateDecelerateInterpolator());
 

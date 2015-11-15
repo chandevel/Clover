@@ -21,12 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <org.floens.chan.ui.view.TouchBlockingFrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <LinearLayout
+    <org.floens.chan.ui.view.TouchBlockingLinearLayout
         android:id="@+id/drawer"
         android:layout_width="200dp"
         android:layout_height="match_parent"
@@ -87,6 +87,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         </LinearLayout>
 
-    </LinearLayout>
+    </org.floens.chan.ui.view.TouchBlockingLinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

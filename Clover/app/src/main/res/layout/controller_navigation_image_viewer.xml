@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:background="#87000000"
         tools:ignore="UnusedAttribute" />
 
-    <FrameLayout
+    <org.floens.chan.controller.ui.NavigationControllerContainerLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

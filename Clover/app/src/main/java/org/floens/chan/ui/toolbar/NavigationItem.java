@@ -37,6 +37,7 @@ public class NavigationItem {
     public View rightView;
     public boolean hasDrawer = false;
     public boolean collapseToolbar = false;
+    public boolean swipeable = true;
 
     boolean search = false;
     String searchText;

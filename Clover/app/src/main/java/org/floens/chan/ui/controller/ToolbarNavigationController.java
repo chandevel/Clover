@@ -52,6 +52,38 @@ public abstract class ToolbarNavigationController extends NavigationController i
     }
 
     @Override
+    public boolean beginSwipeTransition(Controller from, Controller to) {
+        if (!super.beginSwipeTransition(from, to)) {
+            return false;
+        }
+
+        toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
+        toolbar.beginTransition(to.navigationItem);
+
+        return true;
+    }
+
+    @Override
+    public void swipeTransitionProgress(float progress) {
+        super.swipeTransitionProgress(progress);
+
+        toolbar.transitionProgress(progress, false);
+    }
+
+    @Override
+    public void endSwipeTransition(Controller from, Controller to, boolean finish) {
+        super.endSwipeTransition(from, to, finish);
+
+        toolbar.finishTransition(finish);
+
+        if (finish) {
+            updateToolbarCollapse(to, controllerTransition != null);
+        } else {
+            updateToolbarCollapse(from, controllerTransition != null);
+        }
+    }
+
+    @Override
     public void onMenuOrBackClicked(boolean isArrow) {
         if (isArrow) {
             onBack();
@@ -103,9 +135,5 @@ public abstract class ToolbarNavigationController extends NavigationController i
         void onSearchVisibilityChanged(boolean visible);
 
         void onSearchEntered(String entered);
-    }
-
-    public interface ToolbarMenuCallback {
-        void onMenuOrBackClicked(boolean isArrow);
     }
 }

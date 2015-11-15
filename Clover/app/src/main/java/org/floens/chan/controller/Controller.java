@@ -23,9 +23,16 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import org.floens.chan.controller.transition.FadeInTransition;
+import org.floens.chan.controller.transition.FadeOutTransition;
 import org.floens.chan.ui.activity.StartActivity;
+import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.toolbar.NavigationItem;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Controller {
     private static final boolean LOG_STATES = false;
@@ -37,21 +44,26 @@ public abstract class Controller {
 
     public Controller parentController;
 
+    public List<Controller> childControllers = new ArrayList<>();
+
     // NavigationControllers members
     public Controller previousSiblingController;
     public NavigationController navigationController;
 
+    public SplitNavigationController splitNavigationController;
+
     /**
      * Controller that this controller is presented by.
      */
-    public Controller presentingController;
+    public Controller presentingByController;
 
     /**
      * Controller that this controller is presenting.
      */
-    public Controller presentedController;
+    public Controller presentingThisController;
 
     public boolean alive = false;
+    public boolean shown = false;
 
     public Controller(Context context) {
         this.context = context;
@@ -65,14 +77,28 @@ public abstract class Controller {
     }
 
     public void onShow() {
+        shown = true;
         if (LOG_STATES) {
             Logger.test(getClass().getSimpleName() + " onShow");
+        }
+
+        for (Controller controller : childControllers) {
+            if (!controller.shown) {
+                controller.onShow();
+            }
         }
     }
 
     public void onHide() {
+        shown = false;
         if (LOG_STATES) {
             Logger.test(getClass().getSimpleName() + " onHide");
+        }
+
+        for (Controller controller : childControllers) {
+            if (controller.shown) {
+                controller.onHide();
+            }
         }
     }
 
@@ -81,16 +107,72 @@ public abstract class Controller {
         if (LOG_STATES) {
             Logger.test(getClass().getSimpleName() + " onDestroy");
         }
+
+        while (childControllers.size() > 0) {
+            removeChildController(childControllers.get(0));
+        }
+    }
+
+    public void addChildController(Controller controller) {
+        childControllers.add(controller);
+        controller.parentController = this;
+        controller.splitNavigationController = splitNavigationController;
+        controller.onCreate();
+    }
+
+    public boolean removeChildController(Controller controller) {
+        controller.onDestroy();
+        return childControllers.remove(controller);
+    }
+
+    public void attach(ViewGroup parentView, boolean over) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+
+        if (params == null) {
+            params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        } else {
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        }
+
+        view.setLayoutParams(params);
+
+        if (over) {
+            parentView.addView(view, view.getLayoutParams());
+        } else {
+            parentView.addView(view, 0, view.getLayoutParams());
+        }
+    }
+
+    public void detach() {
+        AndroidUtils.removeFromParentView(view);
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
+        for (Controller controller : childControllers) {
+            controller.onConfigurationChanged(newConfig);
+        }
     }
 
     public boolean dispatchKeyEvent(KeyEvent event) {
+        for (int i = childControllers.size() - 1; i >= 0; i--) {
+            Controller controller = childControllers.get(i);
+            if (controller.dispatchKeyEvent(event)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
     public boolean onBack() {
+        for (int i = childControllers.size() - 1; i >= 0; i--) {
+            Controller controller = childControllers.get(i);
+            if (controller.onBack()) {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -100,21 +182,19 @@ public abstract class Controller {
 
     public void presentController(Controller controller, boolean animated) {
         ViewGroup contentView = ((StartActivity) context).getContentView();
-        presentedController = controller;
-        controller.presentingController = this;
+        presentingThisController = controller;
+        controller.presentingByController = this;
+
+        controller.onCreate();
+        controller.attach(contentView, true);
+        controller.onShow();
 
         if (animated) {
             ControllerTransition transition = new FadeInTransition();
-            transition.setCallback(new ControllerTransition.Callback() {
-                @Override
-                public void onControllerTransitionCompleted(ControllerTransition transition) {
-                    ControllerLogic.finishTransition(transition);
-                }
-            });
-            ControllerLogic.startTransition(null, controller, true, contentView, transition);
-        } else {
-            ControllerLogic.transition(null, controller, true, contentView);
+            transition.to = controller;
+            transition.perform();
         }
+
         ((StartActivity) context).addController(controller);
     }
 
@@ -123,22 +203,36 @@ public abstract class Controller {
     }
 
     public void stopPresenting(boolean animated) {
-        ViewGroup contentView = ((StartActivity) context).getContentView();
-
         if (animated) {
             ControllerTransition transition = new FadeOutTransition();
+            transition.from = this;
+            transition.perform();
             transition.setCallback(new ControllerTransition.Callback() {
                 @Override
                 public void onControllerTransitionCompleted(ControllerTransition transition) {
-                    ControllerLogic.finishTransition(transition);
+                    finishPresenting();
                 }
             });
-            ControllerLogic.startTransition(this, null, false, contentView, transition);
         } else {
-            ControllerLogic.transition(this, null, false, contentView);
+            finishPresenting();
         }
+
         ((StartActivity) context).removeController(this);
-        presentingController.presentedController = null;
+        presentingByController.presentingThisController = null;
+    }
+
+    private void finishPresenting() {
+        onHide();
+        detach();
+        onDestroy();
+    }
+
+    public Controller getTop() {
+        if (childControllers.size() > 0) {
+            return childControllers.get(childControllers.size() - 1);
+        } else {
+            return null;
+        }
     }
 
     public ViewGroup inflateRes(int resId) {

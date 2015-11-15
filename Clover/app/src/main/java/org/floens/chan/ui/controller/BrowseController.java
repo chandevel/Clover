@@ -209,8 +209,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 loadBoard(((FloatingMenuItemBoard) item).board);
             } else {
                 BoardEditController boardEditController = new BoardEditController(context);
-                if (navigationController.navigationController instanceof SplitNavigationController) {
-                    navigationController.navigationController.pushController(boardEditController);
+                if (splitNavigationController != null) {
+                    splitNavigationController.pushController(boardEditController);
                 } else {
                     navigationController.pushController(boardEditController);
                 }
@@ -234,9 +234,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     public void showThread(Loadable threadLoadable, boolean animated) {
-        if (navigationController.navigationController instanceof SplitNavigationController) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) navigationController.navigationController;
-
+        if (splitNavigationController != null) {
             if (splitNavigationController.rightController instanceof StyledToolbarNavigationController) {
                 StyledToolbarNavigationController navigationController = (StyledToolbarNavigationController) splitNavigationController.rightController;
 
@@ -274,6 +272,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         for (FloatingMenuItem item : boardItems) {
             if (((FloatingMenuItemBoard) item).board == board) {
                 navigationItem.middleMenu.setSelectedItem(item);
+                break;
             }
         }
         navigationItem.updateTitle();

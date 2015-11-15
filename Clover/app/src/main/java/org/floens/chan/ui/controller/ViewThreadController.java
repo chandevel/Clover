@@ -202,9 +202,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         if (navigationController.parentController instanceof DrawerController) {
             ((DrawerController) navigationController.parentController).setPinHighlighted(pin);
-        } else if (navigationController.navigationController instanceof SplitNavigationController) {
-            if (((SplitNavigationController) navigationController.navigationController).parentController instanceof DrawerController) {
-                ((DrawerController) ((SplitNavigationController) navigationController.navigationController).parentController).setPinHighlighted(pin);
+        } else if (splitNavigationController != null) {
+            if (splitNavigationController.parentController instanceof DrawerController) {
+                ((DrawerController) splitNavigationController.parentController).setPinHighlighted(pin);
             }
         }
     }

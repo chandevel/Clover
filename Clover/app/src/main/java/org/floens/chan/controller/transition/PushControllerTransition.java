@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.controller;
+package org.floens.chan.controller.transition;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
+import org.floens.chan.controller.ControllerTransition;
 import org.floens.chan.utils.AndroidUtils;
 
 public class PushControllerTransition extends ControllerTransition {

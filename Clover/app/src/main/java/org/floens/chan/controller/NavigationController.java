@@ -18,31 +18,20 @@
 package org.floens.chan.controller;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.floens.chan.controller.transition.PopControllerTransition;
+import org.floens.chan.controller.transition.PushControllerTransition;
+import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
 
-public abstract class NavigationController extends Controller implements ControllerTransition.Callback {
-    protected ViewGroup container;
+public abstract class NavigationController extends Controller {
+    protected NavigationControllerContainerLayout container;
 
-    protected List<Controller> controllerList = new ArrayList<>();
     protected ControllerTransition controllerTransition;
     protected boolean blockingInput = false;
 
     public NavigationController(Context context) {
         super(context);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        while (controllerList.size() > 0) {
-            popController(false);
-        }
     }
 
     public boolean pushController(final Controller to) {
@@ -56,7 +45,7 @@ public abstract class NavigationController extends Controller implements Control
     public boolean pushController(final Controller to, ControllerTransition controllerTransition) {
         if (blockingInput) return false;
 
-        final Controller from = controllerList.size() > 0 ? controllerList.get(controllerList.size() - 1) : null;
+        final Controller from = getTop();
 
         if (from == null && controllerTransition != null) {
             throw new IllegalArgumentException("Cannot animate push when from is null");
@@ -64,8 +53,6 @@ public abstract class NavigationController extends Controller implements Control
 
         to.navigationController = this;
         to.previousSiblingController = from;
-
-        controllerList.add(to);
 
         transition(from, to, true, controllerTransition);
 
@@ -83,33 +70,80 @@ public abstract class NavigationController extends Controller implements Control
     public boolean popController(ControllerTransition controllerTransition) {
         if (blockingInput) return false;
 
-        final Controller from = controllerList.get(controllerList.size() - 1);
-        final Controller to = controllerList.size() > 1 ? controllerList.get(controllerList.size() - 2) : null;
+        final Controller from = getTop();
+        final Controller to = childControllers.size() > 1 ? childControllers.get(childControllers.size() - 2) : null;
 
         transition(from, to, false, controllerTransition);
 
         return true;
     }
 
-    public void transition(Controller from, Controller to, boolean pushing, ControllerTransition controllerTransition) {
+    public boolean isBlockingInput() {
+        return blockingInput;
+    }
+
+    public boolean beginSwipeTransition(final Controller from, final Controller to) {
+        if (blockingInput) return false;
+
         if (this.controllerTransition != null) {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
         }
 
-        if (!pushing && controllerList.size() == 0) {
+        to.attach(container, false);
+        to.onShow();
+
+        return true;
+    }
+
+    public void swipeTransitionProgress(float progress) {
+    }
+
+    public void endSwipeTransition(final Controller from, final Controller to, boolean finish) {
+        if (finish) {
+            from.onHide();
+            from.detach();
+            removeChildController(from);
+        } else {
+            to.onHide();
+            to.detach();
+        }
+
+        controllerTransition = null;
+        blockingInput = false;
+    }
+
+    public void transition(final Controller from, final Controller to, final boolean pushing, ControllerTransition controllerTransition) {
+        if (this.controllerTransition != null) {
+            throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
+        }
+
+        if (!pushing && childControllers.size() == 0) {
             throw new IllegalArgumentException("Cannot pop with no controllers left");
         }
 
+        if (pushing && to != null) {
+            addChildController(to);
+        }
+
+        if (to != null) {
+            to.attach(container, pushing);
+            to.onShow();
+        }
+
         if (controllerTransition != null) {
+            controllerTransition.from = from;
+            controllerTransition.to = to;
             blockingInput = true;
             this.controllerTransition = controllerTransition;
-            controllerTransition.setCallback(this);
-            ControllerLogic.startTransition(from, to, pushing, container, controllerTransition);
+            controllerTransition.setCallback(new ControllerTransition.Callback() {
+                @Override
+                public void onControllerTransitionCompleted(ControllerTransition transition) {
+                    finishTransition(from, pushing);
+                }
+            });
+            controllerTransition.perform();
         } else {
-            ControllerLogic.transition(from, to, pushing, container);
-            if (!pushing) {
-                controllerList.remove(from);
-            }
+            finishTransition(from, pushing);
         }
 
         if (to != null) {
@@ -121,48 +155,35 @@ public abstract class NavigationController extends Controller implements Control
         }
     }
 
-    protected void controllerPushed(Controller controller) {
-    }
+    private void finishTransition(Controller from, boolean pushing) {
+        if (from != null) {
+            from.onHide();
+            from.detach();
+        }
 
-    protected void controllerPopped(Controller controller) {
-    }
-
-    @Override
-    public void onControllerTransitionCompleted(ControllerTransition transition) {
-        ControllerLogic.finishTransition(transition);
-
-        if (transition.destroyFrom) {
-            controllerList.remove(transition.from);
+        if (!pushing && from != null) {
+            removeChildController(from);
         }
 
         controllerTransition = null;
         blockingInput = false;
     }
 
-    public Controller getTop() {
-        if (controllerList.size() > 0) {
-            return controllerList.get(controllerList.size() - 1);
-        } else {
-            return null;
-        }
+    protected void controllerPushed(Controller controller) {
     }
 
-    /*
-     * Used to save instance state
-     */
-    public List<Controller> getControllerList() {
-        return controllerList;
+    protected void controllerPopped(Controller controller) {
     }
 
     public boolean onBack() {
         if (blockingInput) return true;
 
-        if (controllerList.size() > 0) {
-            Controller top = controllerList.get(controllerList.size() - 1);
+        if (childControllers.size() > 0) {
+            Controller top = getTop();
             if (top.onBack()) {
                 return true;
             } else {
-                if (controllerList.size() > 1) {
+                if (childControllers.size() > 1) {
                     popController();
                     return true;
                 } else {
@@ -177,13 +198,6 @@ public abstract class NavigationController extends Controller implements Control
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         Controller top = getTop();
-        return (top != null && top.dispatchKeyEvent(event)) || super.dispatchKeyEvent(event);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        for (Controller controller : controllerList) {
-            controller.onConfigurationChanged(newConfig);
-        }
+        return (top != null && top.dispatchKeyEvent(event));
     }
 }

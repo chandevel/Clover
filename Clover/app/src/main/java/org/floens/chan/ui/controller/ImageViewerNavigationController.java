@@ -18,14 +18,11 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import org.floens.chan.R;
-import org.floens.chan.controller.NavigationController;
+import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
-import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 
 import java.util.List;
@@ -42,15 +39,16 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
         super.onCreate();
 
         view = inflateRes(R.layout.controller_navigation_image_viewer);
-        container = (ViewGroup) view.findViewById(R.id.container);
+        container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
+        container.setNavigationController(this);
+        container.setSwipeEnabled(false);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setCallback(this);
-
-        imageViewerController = new ImageViewerController(context, toolbar);
-        pushController(imageViewerController, false);
     }
 
     public void showImages(final List<PostImage> images, final int index, final Loadable loadable, final ImageViewerController.PreviewCallback previewCallback) {
+        imageViewerController = new ImageViewerController(context, toolbar);
+        pushController(imageViewerController, false);
         imageViewerController.setPreviewCallback(previewCallback);
         imageViewerController.getPresenter().showImages(images, index, loadable);
     }
