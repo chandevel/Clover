@@ -411,9 +411,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void onPostOptionClicked(Post post, Object id) {
         switch ((Integer) id) {
             case POST_OPTION_QUOTE:
+                threadPresenterCallback.hidePostsPopup();
                 threadPresenterCallback.quote(post, false);
                 break;
             case POST_OPTION_QUOTE_TEXT:
+                threadPresenterCallback.hidePostsPopup();
                 threadPresenterCallback.quote(post, true);
                 break;
             case POST_OPTION_INFO:
@@ -651,6 +653,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void openWebView(String title, String link);
 
         void showPostsPopup(Post forPost, List<Post> posts);
+
+        void hidePostsPopup();
 
         List<Post> getDisplayingPosts();
 

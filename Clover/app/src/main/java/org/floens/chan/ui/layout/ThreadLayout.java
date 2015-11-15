@@ -304,6 +304,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public void hidePostsPopup() {
+        postPopupHelper.popAll();
+    }
+
+    @Override
     public List<Post> getDisplayingPosts() {
         return threadListLayout.getDisplayingPosts();
     }
