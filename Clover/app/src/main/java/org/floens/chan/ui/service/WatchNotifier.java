@@ -151,7 +151,7 @@ public class WatchNotifier extends Service {
         if (list.size() == 0) {
             // Idle notification
             String message = getString(R.string.watch_idle);
-            return getNotificationFor(null, title, message, -1, null, false, false, null);
+            return getNotificationFor(null, title, message, -1, null, false, false, false, null);
         } else {
             // New posts notification
             String message;
@@ -193,7 +193,7 @@ public class WatchNotifier extends Service {
                 ticker = message;
             }
 
-            return getNotificationFor(ticker, title, message, -1, lines, makeTicker, makeSound, subject);
+            return getNotificationFor(ticker, title, message, -1, lines, makeTicker, makeSound, true, subject);
         }
     }
 
@@ -211,7 +211,7 @@ public class WatchNotifier extends Service {
      */
     @SuppressWarnings("deprecation")
     private Notification getNotificationFor(String tickerText, String contentTitle, String contentText, int contentNumber,
-                                            List<CharSequence> expandedLines, boolean light, boolean makeSound, Pin target) {
+                                            List<CharSequence> expandedLines, boolean light, boolean makeSound, boolean alert, Pin target) {
         Intent intent = new Intent(this, BoardActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -250,7 +250,7 @@ public class WatchNotifier extends Service {
             builder.setNumber(contentNumber);
         }
 
-        builder.setSmallIcon(R.drawable.ic_stat_notify);
+        builder.setSmallIcon(alert ? R.drawable.ic_stat_notify_alert : R.drawable.ic_stat_notify);
 
         Intent pauseWatching = new Intent(this, WatchNotifier.class);
         pauseWatching.putExtra("pause_pins", true);
