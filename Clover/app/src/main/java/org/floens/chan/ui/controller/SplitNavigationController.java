@@ -82,7 +82,6 @@ public class SplitNavigationController extends Controller implements AndroidUtil
     public void setLeftController(Controller leftController) {
         if (this.leftController != null) {
             this.leftController.onHide();
-            this.leftController.detach();
             removeChildController(this.leftController);
         }
 
@@ -90,17 +89,14 @@ public class SplitNavigationController extends Controller implements AndroidUtil
 
         if (leftController != null) {
             addChildController(leftController);
-            leftController.attach(leftControllerView, true);
+            leftController.attachToParentView(leftControllerView, true);
             leftController.onShow();
-        } else {
-
         }
     }
 
     public void setRightController(Controller rightController) {
         if (this.rightController != null) {
             this.rightController.onHide();
-            this.rightController.detach();
             removeChildController(this.rightController);
         } else {
             rightControllerView.removeAllViews();
@@ -110,7 +106,7 @@ public class SplitNavigationController extends Controller implements AndroidUtil
 
         if (rightController != null) {
             addChildController(rightController);
-            rightController.attach(rightControllerView, true);
+            rightController.attachToParentView(rightControllerView, true);
             rightController.onShow();
         } else {
             rightControllerView.addView(emptyView);

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import org.floens.chan.controller.transition.FadeInTransition;
@@ -82,6 +83,8 @@ public abstract class Controller {
             Logger.test(getClass().getSimpleName() + " onShow");
         }
 
+        view.setVisibility(View.VISIBLE);
+
         for (Controller controller : childControllers) {
             if (!controller.shown) {
                 controller.onShow();
@@ -94,6 +97,8 @@ public abstract class Controller {
         if (LOG_STATES) {
             Logger.test(getClass().getSimpleName() + " onHide");
         }
+
+        view.setVisibility(View.GONE);
 
         for (Controller controller : childControllers) {
             if (controller.shown) {
@@ -111,6 +116,10 @@ public abstract class Controller {
         while (childControllers.size() > 0) {
             removeChildController(childControllers.get(0));
         }
+
+        if (AndroidUtils.removeFromParentView(view)) {
+            Logger.test(getClass().getSimpleName() + " view removed onDestroy");
+        }
     }
 
     public void addChildController(Controller controller) {
@@ -125,27 +134,20 @@ public abstract class Controller {
         return childControllers.remove(controller);
     }
 
-    public void attach(ViewGroup parentView, boolean over) {
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-
-        if (params == null) {
-            params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        } else {
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+    public void attachToParentView(ViewGroup parentView, boolean over) {
+        if (view.getParent() != null) {
+            if (LOG_STATES) {
+                Logger.test(getClass().getSimpleName() + " view removed");
+            }
+            AndroidUtils.removeFromParentView(view);
         }
 
-        view.setLayoutParams(params);
-
-        if (over) {
-            parentView.addView(view, view.getLayoutParams());
-        } else {
-            parentView.addView(view, 0, view.getLayoutParams());
+        if (parentView != null) {
+            if (LOG_STATES) {
+                Logger.test(getClass().getSimpleName() + " view attached");
+            }
+            attachToView(parentView, over);
         }
-    }
-
-    public void detach() {
-        AndroidUtils.removeFromParentView(view);
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
@@ -186,7 +188,7 @@ public abstract class Controller {
         controller.presentingByController = this;
 
         controller.onCreate();
-        controller.attach(contentView, true);
+        controller.attachToView(contentView, true);
         controller.onShow();
 
         if (animated) {
@@ -223,7 +225,6 @@ public abstract class Controller {
 
     private void finishPresenting() {
         onHide();
-        detach();
         onDestroy();
     }
 
@@ -237,5 +238,24 @@ public abstract class Controller {
 
     public ViewGroup inflateRes(int resId) {
         return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
+    }
+
+    private void attachToView(ViewGroup parentView, boolean over) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+
+        if (params == null) {
+            params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        } else {
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        }
+
+        view.setLayoutParams(params);
+
+        if (over) {
+            parentView.addView(view, view.getLayoutParams());
+        } else {
+            parentView.addView(view, 0, view.getLayoutParams());
+        }
     }
 }

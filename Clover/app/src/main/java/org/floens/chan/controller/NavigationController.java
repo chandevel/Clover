@@ -89,7 +89,6 @@ public abstract class NavigationController extends Controller {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
         }
 
-        to.attach(container, false);
         to.onShow();
 
         return true;
@@ -101,11 +100,9 @@ public abstract class NavigationController extends Controller {
     public void endSwipeTransition(final Controller from, final Controller to, boolean finish) {
         if (finish) {
             from.onHide();
-            from.detach();
             removeChildController(from);
         } else {
             to.onHide();
-            to.detach();
         }
 
         controllerTransition = null;
@@ -126,7 +123,7 @@ public abstract class NavigationController extends Controller {
         }
 
         if (to != null) {
-            to.attach(container, pushing);
+            to.attachToParentView(container, pushing);
             to.onShow();
         }
 
@@ -158,7 +155,6 @@ public abstract class NavigationController extends Controller {
     private void finishTransition(Controller from, boolean pushing) {
         if (from != null) {
             from.onHide();
-            from.detach();
         }
 
         if (!pushing && from != null) {
