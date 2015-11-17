@@ -32,6 +32,7 @@ import android.widget.Scroller;
 
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
+import org.floens.chan.utils.Time;
 
 public class NavigationControllerContainerLayout extends FrameLayout {
     private NavigationController navigationController;
@@ -183,12 +184,12 @@ public class NavigationControllerContainerLayout extends FrameLayout {
             swipingController = navigationController.getTop();
             drawShadow = true;
 
-//            long start = Time.startTiming();
+            long start = Time.startTiming();
 
             Controller below = getBelowTop();
             navigationController.beginSwipeTransition(swipingController, below);
 
-//            Time.endTiming("attach", start);
+            Time.endTiming("attach", start);
         }
 
         float translationX = Math.max(0, event.getX() - swipeStartEvent.getX());

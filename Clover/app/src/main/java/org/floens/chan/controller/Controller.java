@@ -118,7 +118,9 @@ public abstract class Controller {
         }
 
         if (AndroidUtils.removeFromParentView(view)) {
-            Logger.test(getClass().getSimpleName() + " view removed onDestroy");
+            if (LOG_STATES) {
+                Logger.test(getClass().getSimpleName() + " view removed onDestroy");
+            }
         }
     }
 

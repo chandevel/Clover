@@ -21,5 +21,5 @@ import android.text.Spanned;
 import android.view.MotionEvent;
 
 public interface FastTextViewMovementMethod {
-    boolean onTouchEvent(FastTextView widget, Spanned buffer, Spanned cachedBuffer, MotionEvent event);
+    boolean onTouchEvent(FastTextView widget, Spanned buffer, MotionEvent event);
 }

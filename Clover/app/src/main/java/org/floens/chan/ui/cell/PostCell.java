@@ -36,18 +36,19 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -83,7 +84,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private ThumbnailView thumbnailView;
     private FastTextView title;
     private PostIcons icons;
-    private FastTextView comment;
+    private TextView comment;
     private FastTextView replies;
     private ImageView options;
     private View divider;
@@ -94,6 +95,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private int countrySizePx;
     private int paddingPx;
     private boolean threadMode;
+    private boolean ignoreNextOnClick;
 
     private boolean bound = false;
     private Theme theme;
@@ -107,9 +109,15 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private OnClickListener selfClicked = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            callback.onPostClicked(post);
+            if (ignoreNextOnClick) {
+                ignoreNextOnClick = false;
+            } else {
+                callback.onPostClicked(post);
+            }
         }
     };
+    private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
+    private PostViewFastMovementMethod titleMovementMethod = new PostViewFastMovementMethod();
 
     public PostCell(Context context) {
         super(context);
@@ -130,7 +138,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
         thumbnailView = (ThumbnailView) findViewById(R.id.thumbnail_view);
         title = (FastTextView) findViewById(R.id.title);
         icons = (PostIcons) findViewById(R.id.icons);
-        comment = (FastTextView) findViewById(R.id.comment);
+        comment = (TextView) findViewById(R.id.comment);
         replies = (FastTextView) findViewById(R.id.replies);
         options = (ImageView) findViewById(R.id.options);
         divider = findViewById(R.id.divider);
@@ -397,18 +405,17 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             commentText = post.comment;
         }
 
-        comment.setText(new SpannableString(commentText));
+        comment.setText(commentText);
         comment.setVisibility(isEmpty(commentText) && !post.hasImage ? GONE : VISIBLE);
 
         if (commentClickable != threadMode) {
             commentClickable = threadMode;
             if (commentClickable) {
-                PostViewMovementMethod movementMethod = new PostViewMovementMethod();
-                comment.setMovementMethod(movementMethod);
+                comment.setMovementMethod(commentMovementMethod);
                 comment.setOnClickListener(selfClicked);
 
                 if (noClickable) {
-                    title.setMovementMethod(movementMethod);
+                    title.setMovementMethod(titleMovementMethod);
                 }
             } else {
                 comment.setOnClickListener(null);
@@ -494,12 +501,59 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
      * A MovementMethod that searches for PostLinkables.<br>
      * See {@link PostLinkable} for more information.
      */
-    private class PostViewMovementMethod implements FastTextViewMovementMethod {
+    private class PostViewMovementMethod extends LinkMovementMethod {
         @Override
-        public boolean onTouchEvent(@NonNull FastTextView widget, @NonNull Spanned buffer, @NonNull Spanned cachedBuffer, @NonNull MotionEvent event) {
+        public boolean onTouchEvent(@NonNull TextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {
             int action = event.getActionMasked();
 
             if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_DOWN) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+
+                x -= widget.getTotalPaddingLeft();
+                y -= widget.getTotalPaddingTop();
+
+                x += widget.getScrollX();
+                y += widget.getScrollY();
+
+                Layout layout = widget.getLayout();
+                int line = layout.getLineForVertical(y);
+                int off = layout.getOffsetForHorizontal(line, x);
+
+                ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+
+                if (link.length != 0) {
+                    if (action == MotionEvent.ACTION_UP) {
+                        ignoreNextOnClick = true;
+                        link[0].onClick(widget);
+                        buffer.removeSpan(BACKGROUND_SPAN);
+                    } else if (action == MotionEvent.ACTION_DOWN && link[0] instanceof PostLinkable) {
+                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]), 0);
+                    } else if (action == MotionEvent.ACTION_CANCEL) {
+                        buffer.removeSpan(BACKGROUND_SPAN);
+                    }
+
+                    return true;
+                } else {
+                    buffer.removeSpan(BACKGROUND_SPAN);
+                }
+            }
+
+            return true;
+        }
+    }
+
+    /**
+     * A MovementMethod that searches for PostLinkables.<br>
+     * This version is for the {@link FastTextView}.<br>
+     * See {@link PostLinkable} for more information.
+     */
+    private class PostViewFastMovementMethod implements FastTextViewMovementMethod {
+        @Override
+        public boolean onTouchEvent(@NonNull FastTextView widget, @NonNull Spanned buffer, @NonNull MotionEvent event) {
+            int action = event.getActionMasked();
+
+            if (action == MotionEvent.ACTION_UP) {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
 
@@ -516,46 +570,12 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
                 ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
 
                 if (link.length != 0) {
-                    if (action == MotionEvent.ACTION_UP) {
-                        link[0].onClick(widget);
-                        removeBackgroundSpan(widget, cachedBuffer);
-                    } else if (action == MotionEvent.ACTION_DOWN && link[0] instanceof PostLinkable) {
-                        int spanStart = buffer.getSpanStart(link[0]);
-                        int spanEnd = buffer.getSpanEnd(link[0]);
-
-                        // Set the buffer on the visible buffer, not on the functional buffer
-                        // This is because the visible buffer may be a cached one or may be in use multiple times
-                        if (spanStart <= spanEnd && spanStart >= 0 && spanEnd >= 0 && spanStart <= cachedBuffer.length() && spanEnd <= cachedBuffer.length()) {
-                            showBackgroundSpan(widget, cachedBuffer, spanStart, spanEnd);
-                        } else {
-                            Log.e(TAG, "Could not add the background span because it was out of range!");
-                        }
-                    } else if (action == MotionEvent.ACTION_CANCEL) {
-                        removeBackgroundSpan(widget, cachedBuffer);
-                    }
-
+                    link[0].onClick(widget);
                     return true;
-                } else {
-                    removeBackgroundSpan(widget, cachedBuffer);
-                    return false;
                 }
             }
 
             return false;
-        }
-
-        private void showBackgroundSpan(FastTextView widget, Spanned buffer, int start, int end) {
-            if (buffer instanceof Spannable) {
-                ((Spannable) buffer).setSpan(BACKGROUND_SPAN, start, end, 0);
-                widget.invalidate();
-            }
-        }
-
-        private void removeBackgroundSpan(FastTextView widget, Spanned buffer) {
-            if (buffer instanceof Spannable) {
-                ((Spannable) buffer).removeSpan(BACKGROUND_SPAN);
-                widget.invalidate();
-            }
         }
     }
 

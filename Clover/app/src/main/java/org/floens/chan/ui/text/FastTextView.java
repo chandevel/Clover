@@ -32,14 +32,13 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import org.floens.chan.R;
-import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.utils.Logger;
 
 import static org.floens.chan.utils.AndroidUtils.sp;
 
 /**
  * A simple implementation of a TextView that caches the used StaticLayouts for performance.<br>
- * This view was made for {@link PostCell} and may have untested behaviour with other layouts.
+ * This view was made for {@link org.floens.chan.ui.cell.PostCell} and {@link org.floens.chan.ui.cell.CardPostCell }and may have untested behaviour with other layouts.
  */
 public class FastTextView extends View {
     private static final String TAG = "FastTextView";
@@ -130,7 +129,7 @@ public class FastTextView extends View {
         boolean handled = false;
 
         if (movementMethod != null && text instanceof Spanned && layout != null && isEnabled()) {
-            handled |= movementMethod.onTouchEvent(this, (Spanned) text, (Spanned) layout.getText(), event);
+            handled |= movementMethod.onTouchEvent(this, (Spanned) text, event);
         }
 
         return handled || super.onTouchEvent(event);
