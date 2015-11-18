@@ -28,14 +28,13 @@ import java.util.List;
 public class ChanHelper {
     public static Loadable getLoadableFromStartUri(Uri uri) {
         Loadable loadable = null;
-        int markedNo = -1;
 
         List<String> parts = uri.getPathSegments();
 
         if (parts.size() > 0) {
             String rawBoard = parts.get(0);
             if (Chan.getBoardManager().getBoardExists(rawBoard)) {
-                if (parts.size() == 1) {
+                if (parts.size() == 1 || (parts.size() == 2 && "catalog".equals(parts.get(1)))) {
                     // Board mode
                     loadable = LoadablePool.getInstance().obtain(new Loadable(rawBoard));
                 } else if (parts.size() >= 3) {
