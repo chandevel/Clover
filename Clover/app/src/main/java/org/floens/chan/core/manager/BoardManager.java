@@ -140,6 +140,7 @@ public class BoardManager {
 
                 if (serverBoard.workSafe) {
                     serverBoard.saved = true;
+                    serverBoard.order = allBoards.size();
                 }
 
                 allBoards.add(serverBoard);
@@ -172,6 +173,11 @@ public class BoardManager {
         list.add(new Board("Anime & Manga", "a", true, true));
         list.add(new Board("Comics & Cartoons", "co", true, true));
         list.add(new Board("International", "int", true, true));
+        list.add(new Board("Sports", "sp", true, true));
+        list.add(new Board("Television & Film", "tv", true, true));
+
+        Collections.shuffle(list);
+
         return list;
     }
 
