@@ -86,9 +86,15 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         if (entering || exiting) return;
         exiting = true;
 
+        PostImage postImage = images.get(selectedPosition);
+        if (postImage.type == PostImage.Type.MOVIE) {
+            // VideoView doesn't work with invisible visibility
+            callback.setImageMode(postImage, MultiImageView.Mode.LOWRES);
+        }
+
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
-        callback.startPreviewOutTransition(images.get(selectedPosition));
+        callback.startPreviewOutTransition(postImage);
         callback.showProgress(false);
     }
 
