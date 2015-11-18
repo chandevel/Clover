@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Controller {
-    private static final boolean LOG_STATES = true;
+    private static final boolean LOG_STATES = false;
 
     public Context context;
     public ViewGroup view;

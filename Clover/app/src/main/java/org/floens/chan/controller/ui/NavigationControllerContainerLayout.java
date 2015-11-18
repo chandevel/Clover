@@ -216,14 +216,14 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                 if (translationX > 0) {
                     boolean doFlingAway = false;
 
-                    Logger.test("velocity = %d", velocity);
+//                    Logger.test("velocity = %d", velocity);
 
                     if ((velocity > 0 && Math.abs(velocity) > 2500 && Math.abs(velocity) < maxFlingPixels) || translationX >= getWidth() * 3 / 4) {
 //                        int left = getWidth() - translationX;
 //                        int flingVelocity = Math.max(velocity, 0);
 
                         scroller.fling(translationX, 0, velocity, 0, 0, Integer.MAX_VALUE, 0, 0);
-                        Logger.test("finalX = %d getWidth = %d", scroller.getFinalX(), getWidth());
+//                        Logger.test("finalX = %d getWidth = %d", scroller.getFinalX(), getWidth());
 
                         // Make sure the animation always goes past the end
                         if (scroller.getFinalX() < getWidth()) {
@@ -231,13 +231,13 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                         }
 
                         doFlingAway = true;
-                        Logger.test("Flinging away with velocity = %d", velocity);
+//                        Logger.test("Flinging away with velocity = %d", velocity);
                     }
 
                     if (doFlingAway) {
                         startFlingAnimation(true);
                     } else {
-                        Logger.test("Snapping back");
+//                        Logger.test("Snapping back");
                         scroller.forceFinished(true);
                         scroller.startScroll(translationX, 0, -translationX, 0, 250);
                         startFlingAnimation(false);
@@ -291,11 +291,11 @@ public class NavigationControllerContainerLayout extends FrameLayout {
 
         Time.endTiming("attach", start);
 
-        Logger.test("Start tracking " + trackingController.getClass().getSimpleName());
+//        Logger.test("Start tracking " + trackingController.getClass().getSimpleName());
     }
 
     private void endTracking(boolean finishTransition) {
-        Logger.test("endTracking finishTransition = " + finishTransition);
+//        Logger.test("endTracking finishTransition = " + finishTransition);
 
         if (!tracking) {
             throw new IllegalStateException("endTracking called but was not tracking");
