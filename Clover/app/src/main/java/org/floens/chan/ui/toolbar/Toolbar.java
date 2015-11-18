@@ -173,6 +173,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             throw new IllegalStateException("transitionProgress called while not transitioning");
         }
 
+        progress = Math.max(0f, Math.min(1f, progress));
+
         final int offset = dp(16);
 
         toItem.view.setTranslationY((pushing ? offset : -offset) * (1f - progress));
