@@ -147,6 +147,10 @@ public class FileCache {
         }
     }
 
+    public boolean exists(String key) {
+        return get(key).exists();
+    }
+
     public File get(String key) {
         makeDir();
 

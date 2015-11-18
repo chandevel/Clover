@@ -20,6 +20,7 @@ package org.floens.chan.core.presenter;
 import android.net.ConnectivityManager;
 import android.support.v4.view.ViewPager;
 
+import org.floens.chan.Chan;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
@@ -178,12 +179,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
 
-        if (imageAutoLoad() && !postImage.spoiler) {
+        if (imageAutoLoad(postImage) && !postImage.spoiler) {
             if (postImage.type == PostImage.Type.STATIC) {
                 callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE);
             } else if (postImage.type == PostImage.Type.GIF) {
                 callback.setImageMode(postImage, MultiImageView.Mode.GIF);
-            } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad()) {
+            } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(postImage)) {
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
             }
         }
@@ -194,7 +195,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
-            if (imageAutoLoad() && !postImage.spoiler) {
+            if (imageAutoLoad(postImage) && !postImage.spoiler) {
                 if (postImage.type == PostImage.Type.MOVIE) {
                     callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
                 } else {
@@ -253,22 +254,27 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.onVideoError(multiImageView);
     }
 
-    private boolean imageAutoLoad() {
-        String autoLoadMode = ChanSettings.imageAutoLoadNetwork.get();
-        if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.NONE.name)) {
-            return false;
-        } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.WIFI.name)) {
-            return isConnected(ConnectivityManager.TYPE_WIFI);
-        } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.ALL.name)) {
+    private boolean imageAutoLoad(PostImage postImage) {
+        // Auto load the image when it is cached
+        if (Chan.getFileCache().exists(postImage.imageUrl)) {
             return true;
-        }
+        } else {
+            String autoLoadMode = ChanSettings.imageAutoLoadNetwork.get();
+            if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.NONE.name)) {
+                return false;
+            } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.WIFI.name)) {
+                return isConnected(ConnectivityManager.TYPE_WIFI);
+            } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.ALL.name)) {
+                return true;
+            }
 
-        // Not connected or unrecognized
-        return false;
+            // Not connected or unrecognized
+            return false;
+        }
     }
 
-    private boolean videoAutoLoad() {
-        return imageAutoLoad() && ChanSettings.videoAutoLoad.get();
+    private boolean videoAutoLoad(PostImage postImage) {
+        return imageAutoLoad(postImage) && ChanSettings.videoAutoLoad.get();
     }
 
     private void setTitle(PostImage postImage, int position) {
