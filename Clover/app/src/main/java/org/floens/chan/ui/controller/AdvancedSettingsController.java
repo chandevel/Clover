@@ -48,6 +48,7 @@ public class AdvancedSettingsController extends SettingsController {
     private SettingView newCaptcha;
     private SettingView forcePhoneLayoutSetting;
     private SettingView enableReplyFab;
+    private SettingView neverHideToolbar;
 
     public AdvancedSettingsController(Context context) {
         super(context);
@@ -80,7 +81,7 @@ public class AdvancedSettingsController extends SettingsController {
     public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
 
-        if (item == forcePhoneLayoutSetting || item == enableReplyFab || item == newCaptcha) {
+        if (item == forcePhoneLayoutSetting || item == enableReplyFab || item == newCaptcha || item == neverHideToolbar) {
             needRestart = true;
         } else {
             EventBus.getDefault().post(new RefreshUIMessage("postui"));
@@ -126,7 +127,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.postFullDate, R.string.setting_post_full_date, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.postFileInfo, R.string.setting_post_file_info, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.postFilename, R.string.setting_post_filename, 0));
-        settings.add(new BooleanSettingView(this, ChanSettings.neverHideToolbar, R.string.setting_never_hide_toolbar, 0));
+        neverHideToolbar = settings.add(new BooleanSettingView(this, ChanSettings.neverHideToolbar, R.string.setting_never_hide_toolbar, 0));
 
         groups.add(settings);
 
