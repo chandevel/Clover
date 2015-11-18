@@ -32,7 +32,28 @@ import java.io.File;
 
 public class PreviousVersionHandler {
     private static final String TAG = "PreviousVersionHandler";
-    private static final int CURRENT_VERSION = 1;
+
+    /*
+     * Manifest version code, manifest version name, this version mapping:
+     *
+     * 28 = v1.1.2
+     * 32 = v1.1.3
+     * 36 = v1.2.0
+     * 39 = v1.2.1
+     * 40 = v1.2.2
+     * 41 = v1.2.3
+     * 42 = v1.2.4
+     * 43 = v1.2.5
+     * 44 = v1.2.6
+     * 46 = v1.2.7
+     * 47 = v1.2.8
+     * 48 = v1.2.9
+     * 49 = v1.2.10
+     * 50 = v1.2.11
+     * 51 = v2.0.0 = 1
+     * 52 = v2.1.0 = 2
+     */
+    private static final int CURRENT_VERSION = 2;
 
     public void run(Context context) {
         int previous = ChanSettings.previousVersion.get();
@@ -40,6 +61,8 @@ public class PreviousVersionHandler {
             if (previous < 1) {
                 cleanupOutdatedIonFolder(context);
             }
+
+            // Add more previous version checks here
 
             showMessage(context, CURRENT_VERSION);
 

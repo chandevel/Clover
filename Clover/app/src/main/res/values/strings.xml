@@ -40,6 +40,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         ]]>
     </string>
 
+    <string name="previous_version_2">
+        <![CDATA[
+            <h3>Clover was updated</h3>
+
+            This is the release of Clover v2, redesigned with the Material design guidelines in mind.<br>
+            <br>
+            <b>Biggest changes are:</b><br>
+            - New design.<br>
+            - New inline reply layout.<br>
+            - Added thread hiding.<br>
+            - Added filtering threads, making posts either highlighted, hidden or removed.<br>
+            - Added history.<br>
+            - Added more themes.<br>
+            - Better album download screen.<br>
+            - Catalog mode now uses cards.<br>
+            - More advanced options added.<br>
+            - Minor features and bug fixes.<br>
+            <br>
+            <b>Please provide feedback on GitHub or by writing an email, links are at the bottom of the settings screen.</b>
+        ]]>
+    </string>
+
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>

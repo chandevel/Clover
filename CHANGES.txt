@@ -1,3 +1,11 @@
+New in 2.1.0 (2015-11-18)
+This is the release version of 2.0.0 that added:
+- Swipeable controllers
+- Fixed recaptcha v1
+- Added some more advanced options
+- Bug fixes
+
+
 New in 2.0.0 (2015-08-23)
 - New design.
 - New inline reply layout.
