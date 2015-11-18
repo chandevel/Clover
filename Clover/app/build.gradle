@@ -37,7 +37,8 @@ android {
 
     if (doSign) {
         Properties props = new Properties()
-        props.load(new FileInputStream(f))
+        InputStream is = new FileInputStream(f)
+        props.load(is)
 
         signingConfigs {
             release {
@@ -47,6 +48,8 @@ android {
                 keyPassword props['keyPass']
             }
         }
+
+        is.close()
     }
 
     buildTypes {
@@ -65,6 +68,8 @@ android {
 
         debug {
             versionNameSuffix " Debug"
+//            minifyEnabled true
+//            proguardFiles 'proguard.cfg'
         }
     }
 
