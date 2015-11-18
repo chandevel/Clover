@@ -53,6 +53,7 @@ import java.util.List;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+import static org.floens.chan.utils.AndroidUtils.getDimen;
 
 /**
  * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
@@ -316,7 +317,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             case CARD:
                 if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
-                    return top.getTop() != dp(8) + toolbarHeight(); // 4dp for the cards, 4dp for this layout
+                    return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(4) + toolbarHeight(); // 4dp for the cards, 4dp for this layout
                 }
                 break;
         }

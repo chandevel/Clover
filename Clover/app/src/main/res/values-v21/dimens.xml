@@ -16,13 +16,5 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <bool name="is_tablet">false</bool>
-
-    <dimen name="toolbar_height">56dp</dimen>
-
-    <dimen name="grid_card_width">120dp</dimen>
-    <dimen name="grid_card_height">200dp</dimen>
-    <dimen name="grid_card_margin">0dp</dimen>
-
-    <dimen name="cell_post_thumbnail_size">72dp</dimen>
+    <dimen name="grid_card_margin">4dp</dimen>
 </resources>

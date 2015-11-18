@@ -20,8 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    android:padding="50dp"
+    android:layout_margin="@dimen/grid_card_margin"
     card_view:cardBackgroundColor="?backcolor"
     card_view:cardCornerRadius="2dp"
     card_view:cardElevation="4dp">
