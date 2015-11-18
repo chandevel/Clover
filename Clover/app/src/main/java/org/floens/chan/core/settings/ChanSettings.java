@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 
 import org.floens.chan.Chan;
-import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -118,7 +117,7 @@ public class ChanSettings {
 
         theme = new StringSetting(p, "preference_theme", "light");
 
-        boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
+        boolean tablet = false;
 
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", true);

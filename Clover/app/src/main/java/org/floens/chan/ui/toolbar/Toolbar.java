@@ -49,7 +49,7 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class Toolbar extends LinearLayout implements View.OnClickListener, LoadView.Listener {
+public class Toolbar extends LinearLayout implements View.OnClickListener {
     public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
     public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
 
@@ -83,6 +83,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     private int lastScrollDeltaOffset;
     private int scrollOffset;
 
+    private boolean transitioning = false;
     private NavigationItem fromItem;
     private NavigationItem toItem;
 
@@ -156,12 +157,22 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     public void beginTransition(NavigationItem newItem) {
+        if (transitioning) {
+            throw new IllegalStateException("beginTransition called when already transitioning");
+        }
+
         attachNavigationItem(newItem);
 
         navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
+        transitioning = true;
     }
 
     public void transitionProgress(float progress, boolean pushing) {
+        if (!transitioning) {
+            throw new IllegalStateException("transitionProgress called while not transitioning");
+        }
+
         final int offset = dp(16);
 
         toItem.view.setTranslationY((pushing ? offset : -offset) * (1f - progress));
@@ -179,9 +190,16 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     public void finishTransition(boolean finished) {
+        if (!transitioning) {
+            throw new IllegalStateException("finishTransition called when not transitioning");
+        }
+
         if (finished) {
             if (fromItem != null) {
-                removeNavigationItem(fromItem);
+                // From a search otherwise
+                if (fromItem != toItem) {
+                    removeNavigationItem(fromItem);
+                }
             }
             setArrowMenuProgress(toItem.hasBack || toItem.search ? 1f : 0f);
         } else {
@@ -191,6 +209,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         }
 
         fromItem = null;
+        transitioning = false;
     }
 
     public void setCallback(ToolbarCallback callback) {
@@ -210,14 +229,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
 
     public ArrowMenuDrawable getArrowMenuDrawable() {
         return arrowMenuDrawable;
-    }
-
-    @Override
-    public void onLoadViewRemoved(View view) {
-        // Remove the menu from the navigation item
-        if (view instanceof ViewGroup) {
-            ((ViewGroup) view).removeAllViews();
-        }
     }
 
     void setTitle(NavigationItem navigationItem) {
@@ -254,7 +265,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
         leftButtonContainer.addView(arrowMenuView, new FrameLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.toolbar_height), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL));
 
         navigationItemContainer = new LoadView(getContext());
-        navigationItemContainer.setListener(this);
         addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -287,10 +297,25 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     private void setNavigationItemInternal(boolean animate, final boolean pushing, NavigationItem newItem) {
+        if (transitioning) {
+            throw new IllegalStateException("setNavigationItemInternal called when already transitioning");
+        }
+
         attachNavigationItem(newItem);
+
+        transitioning = true;
 
         if (fromItem == toItem) {
             // Search toggled
+            navigationItemContainer.setListener(new LoadView.Listener() {
+                @Override
+                public void onLoadViewRemoved(View view) {
+                    // Remove the menu from the navigation item
+                    ((ViewGroup) view).removeAllViews();
+                    finishTransition(true);
+                    navigationItemContainer.setListener(null);
+                }
+            });
             navigationItemContainer.setView(toItem.view, animate);
 
             animateArrow(toItem.hasBack || toItem.search);
@@ -327,6 +352,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     private void attachNavigationItem(NavigationItem newItem) {
+        if (transitioning) {
+            throw new IllegalStateException("attachNavigationItem called while transitioning");
+        }
+
         fromItem = toItem;
         toItem = newItem;
 
@@ -344,6 +373,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener, LoadV
     }
 
     private void removeNavigationItem(NavigationItem item) {
+        if (!transitioning) {
+            throw new IllegalStateException("removeNavigationItem called while not transitioning");
+        }
+
         item.view.removeAllViews();
         navigationItemContainer.removeView(item.view);
         item.view = null;

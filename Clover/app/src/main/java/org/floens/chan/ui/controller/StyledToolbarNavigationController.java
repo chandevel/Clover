@@ -56,6 +56,18 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     }
 
     @Override
+    public void endSwipeTransition(Controller from, Controller to, boolean finish) {
+        super.endSwipeTransition(from, to, finish);
+
+        if (finish) {
+            DrawerController drawerController = getDrawerController();
+            if (drawerController != null) {
+                drawerController.setDrawerEnabled(to.navigationItem.hasDrawer);
+            }
+        }
+    }
+
+    @Override
     public boolean onBack() {
         if (super.onBack()) {
             return true;

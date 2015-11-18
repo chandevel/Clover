@@ -302,23 +302,28 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                         .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                stackTop().onHide();
                                 StartActivity.super.onBackPressed();
                             }
                         })
                         .show();
             } else {
-                // Don't destroy the view, let Android do that or it'll create artifacts
-                stackTop().onHide();
                 super.onBackPressed();
             }
         }
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        runtimePermissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
+        stackTop().onHide();
         stackTop().onDestroy();
         stack.clear();
     }
@@ -342,13 +347,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         super.onActivityResult(requestCode, resultCode, data);
 
         imagePickDelegate.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        runtimePermissionsHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private Controller stackTop() {

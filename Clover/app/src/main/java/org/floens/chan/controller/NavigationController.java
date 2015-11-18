@@ -89,6 +89,8 @@ public abstract class NavigationController extends Controller {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
         }
 
+        blockingInput = true;
+
         to.onShow();
 
         return true;
@@ -110,7 +112,7 @@ public abstract class NavigationController extends Controller {
     }
 
     public void transition(final Controller from, final Controller to, final boolean pushing, ControllerTransition controllerTransition) {
-        if (this.controllerTransition != null) {
+        if (this.controllerTransition != null || blockingInput) {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
         }
 

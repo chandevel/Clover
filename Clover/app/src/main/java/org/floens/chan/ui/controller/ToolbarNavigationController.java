@@ -75,12 +75,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
         super.endSwipeTransition(from, to, finish);
 
         toolbar.finishTransition(finish);
-
-        if (finish) {
-            updateToolbarCollapse(to, controllerTransition != null);
-        } else {
-            updateToolbarCollapse(from, controllerTransition != null);
-        }
+        updateToolbarCollapse(finish ? to : from, controllerTransition != null);
     }
 
     @Override
