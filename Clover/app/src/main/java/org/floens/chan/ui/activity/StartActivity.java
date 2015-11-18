@@ -256,9 +256,27 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        Controller controller = mainNavigationController.getTop();
-        if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
-            return ((NfcAdapter.CreateNdefMessageCallback) controller).createNdefMessage(event);
+        Controller threadController = null;
+        if (drawerController.childControllers.get(0) instanceof SplitNavigationController) {
+            SplitNavigationController splitNavigationController = (SplitNavigationController) drawerController.childControllers.get(0);
+            if (splitNavigationController.rightController instanceof NavigationController) {
+                NavigationController rightNavigationController = (NavigationController) splitNavigationController.rightController;
+                for (Controller controller : rightNavigationController.childControllers) {
+                    if (controller instanceof NfcAdapter.CreateNdefMessageCallback) {
+                        threadController = controller;
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        if (threadController == null) {
+            threadController = mainNavigationController.getTop();
+        }
+
+        if (threadController instanceof NfcAdapter.CreateNdefMessageCallback) {
+            return ((NfcAdapter.CreateNdefMessageCallback) threadController).createNdefMessage(event);
         } else {
             return null;
         }
