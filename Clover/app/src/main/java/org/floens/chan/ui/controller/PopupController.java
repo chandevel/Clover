@@ -45,7 +45,7 @@ public class PopupController extends Controller implements View.OnClickListener 
 
     public void setChildController(NavigationController childController) {
         addChildController(childController);
-        childController.attachToParentView(container, true);
+        childController.attachToParentView(container);
         childController.onShow();
     }
 

@@ -136,7 +136,7 @@ public abstract class Controller {
         return childControllers.remove(controller);
     }
 
-    public void attachToParentView(ViewGroup parentView, boolean over) {
+    public void attachToParentView(ViewGroup parentView) {
         if (view.getParent() != null) {
             if (LOG_STATES) {
                 Logger.test(getClass().getSimpleName() + " view removed");
@@ -148,7 +148,7 @@ public abstract class Controller {
             if (LOG_STATES) {
                 Logger.test(getClass().getSimpleName() + " view attached");
             }
-            attachToView(parentView, over);
+            attachToView(parentView, true);
         }
     }
 

@@ -89,7 +89,7 @@ public class SplitNavigationController extends Controller implements AndroidUtil
 
         if (leftController != null) {
             addChildController(leftController);
-            leftController.attachToParentView(leftControllerView, true);
+            leftController.attachToParentView(leftControllerView);
             leftController.onShow();
         }
     }
@@ -106,7 +106,7 @@ public class SplitNavigationController extends Controller implements AndroidUtil
 
         if (rightController != null) {
             addChildController(rightController);
-            rightController.attachToParentView(rightControllerView, true);
+            rightController.attachToParentView(rightControllerView);
             rightController.onShow();
         } else {
             rightControllerView.addView(emptyView);

@@ -122,10 +122,10 @@ public abstract class NavigationController extends Controller {
 
         if (pushing && to != null) {
             addChildController(to);
+            to.attachToParentView(container);
         }
 
         if (to != null) {
-            to.attachToParentView(container, pushing);
             to.onShow();
         }
 

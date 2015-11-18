@@ -115,7 +115,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
 
     public void setChildController(Controller childController) {
         addChildController(childController);
-        childController.attachToParentView(container, true);
+        childController.attachToParentView(container);
         childController.onShow();
     }
 

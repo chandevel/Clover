@@ -33,8 +33,6 @@ import android.widget.Scroller;
 
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
-import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -285,11 +283,11 @@ public class NavigationControllerContainerLayout extends FrameLayout {
         velocityTracker = VelocityTracker.obtain();
         velocityTracker.addMovement(startEvent);
 
-        long start = Time.startTiming();
+//        long start = Time.startTiming();
 
         navigationController.beginSwipeTransition(trackingController, behindTrackingController);
 
-        Time.endTiming("attach", start);
+//        Time.endTiming("attach", start);
 
 //        Logger.test("Start tracking " + trackingController.getClass().getSimpleName());
     }
