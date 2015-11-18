@@ -74,6 +74,7 @@ import java.util.List;
 
 import static android.text.TextUtils.isEmpty;
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
@@ -364,7 +365,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
             boolean postFileName = ChanSettings.postFilename.get();
             if (postFileName) {
-                SpannableString fileInfo = new SpannableString("\n" + image.filename + "." + image.extension);
+                String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
+                SpannableString fileInfo = new SpannableString("\n" + filename);
                 fileInfo.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
