@@ -210,6 +210,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
+    <string name="post_filter_tripcode">Filter tripcode</string>
     <string name="post_text_copied">Text copied to clipboard</string>
     <string name="post_quote">Quote</string>
     <string name="post_quote_text">Quote text</string>

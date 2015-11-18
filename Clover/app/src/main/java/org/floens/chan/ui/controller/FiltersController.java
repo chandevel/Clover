@@ -139,7 +139,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
     }
 
-    private void showFilterDialog(final Filter filter) {
+    public void showFilterDialog(final Filter filter) {
         final FilterLayout filterLayout = (FilterLayout) LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(context)

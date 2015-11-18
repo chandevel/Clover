@@ -347,6 +347,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public void filterPostTripcode(String tripcode) {
+        callback.openFilterForTripcode(tripcode);
+    }
+
+    @Override
     public void selectPost(int post) {
         threadListLayout.selectPost(post);
     }
@@ -543,5 +548,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         void hideSwipeRefreshLayout();
 
         Toolbar getToolbar();
+
+        void openFilterForTripcode(String tripcode);
     }
 }

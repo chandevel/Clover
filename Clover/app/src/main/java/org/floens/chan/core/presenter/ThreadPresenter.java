@@ -71,6 +71,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 11;
     private static final int POST_OPTION_HIDE = 12;
     private static final int POST_OPTION_OPEN_BROWSER = 13;
+    private static final int POST_OPTION_FILTER_TRIPCODE = 14;
 
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
@@ -403,6 +404,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
             if (!TextUtils.isEmpty(post.tripcode)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
+                menu.add(new FloatingMenuItem(POST_OPTION_FILTER_TRIPCODE, R.string.post_filter_tripcode));
             }
         }
 
@@ -444,6 +446,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 break;
             case POST_OPTION_HIGHLIGHT_TRIPCODE:
                 threadPresenterCallback.highlightPostTripcode(post.tripcode);
+                break;
+            case POST_OPTION_FILTER_TRIPCODE:
+                threadPresenterCallback.filterPostTripcode(post.tripcode);
                 break;
             case POST_OPTION_DELETE:
                 requestDeletePost(post);
@@ -677,6 +682,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void highlightPostId(String id);
 
         void highlightPostTripcode(String tripcode);
+
+        void filterPostTripcode(String tripcode);
 
         void selectPost(int post);
 

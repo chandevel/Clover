@@ -30,6 +30,8 @@ import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.PostImage;
@@ -211,5 +213,19 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     @Override
     public void onSearchEntered(String entered) {
         threadLayout.getPresenter().onSearchEntered(entered);
+    }
+
+    @Override
+    public void openFilterForTripcode(String tripcode) {
+        FiltersController filtersController = new FiltersController(context);
+        if (splitNavigationController != null) {
+            splitNavigationController.pushController(filtersController);
+        } else {
+            navigationController.pushController(filtersController);
+        }
+        Filter filter = new Filter();
+        filter.type = FilterEngine.FilterType.TRIPCODE.id;
+        filter.pattern = tripcode;
+        filtersController.showFilterDialog(filter);
     }
 }
