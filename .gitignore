@@ -4,27 +4,9 @@ Clover/app/version.properties
 Clover/app/src/main/res/values/private_strings.xml
 Clover/captures/
 
-# Built application files
-*.apk
-*.ap_
-
-# Files for the Dalvik VM
-*.dex
-
-# Java class files
-*.class
-
-# Generated files
-bin/
-gen/
-
-# Gradle files
-.gradle/
-build/
-
 
 #built application files
-*.apk
+# *.apk
 *.ap_
 
 # files for the dex VM
