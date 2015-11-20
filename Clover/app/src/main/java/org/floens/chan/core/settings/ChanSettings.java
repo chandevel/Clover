@@ -32,7 +32,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 public class ChanSettings {
-    public enum ImageAutoLoadMode {
+    public enum MediaAutoLoadMode {
         // ALways auto load, either wifi or mobile
         ALL("all"),
         // Only auto load if on wifi
@@ -42,12 +42,12 @@ public class ChanSettings {
 
         public String name;
 
-        ImageAutoLoadMode(String name) {
+        MediaAutoLoadMode(String name) {
             this.name = name;
         }
 
-        public static ImageAutoLoadMode find(String name) {
-            for (ImageAutoLoadMode mode : ImageAutoLoadMode.values()) {
+        public static MediaAutoLoadMode find(String name) {
+            for (MediaAutoLoadMode mode : MediaAutoLoadMode.values()) {
                 if (mode.name.equals(name)) {
                     return mode;
                 }
@@ -62,9 +62,8 @@ public class ChanSettings {
     public static final StringSetting fontSize;
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting autoRefreshThread;
-    //    public static final BooleanSetting imageAutoLoad;
     public static final StringSetting imageAutoLoadNetwork;
-    public static final BooleanSetting videoAutoLoad;
+    public static final StringSetting videoAutoLoadNetwork;
     public static final BooleanSetting videoOpenExternal;
     public static final BooleanSetting videoErrorIgnore;
     public static final StringSetting boardViewMode;
@@ -123,9 +122,8 @@ public class ChanSettings {
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", true);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
-//        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
-        imageAutoLoadNetwork = new StringSetting(p, "preference_image_auto_load_network", ImageAutoLoadMode.WIFI.name);
-        videoAutoLoad = new BooleanSetting(p, "preference_autoplay", false);
+        imageAutoLoadNetwork = new StringSetting(p, "preference_image_auto_load_network", MediaAutoLoadMode.WIFI.name);
+        videoAutoLoadNetwork = new StringSetting(p, "preference_autoplay", MediaAutoLoadMode.NONE.name);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
         boardViewMode = new StringSetting(p, "preference_board_view_mode", PostCellInterface.PostViewMode.LIST.name); // "list" or "grid"

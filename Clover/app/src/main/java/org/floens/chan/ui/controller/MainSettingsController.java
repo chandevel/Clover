@@ -25,18 +25,12 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import de.greenrobot.event.EventBus;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.RefreshUIMessage;
-import org.floens.chan.ui.settings.BooleanSettingView;
-import org.floens.chan.ui.settings.LinkSettingView;
-import org.floens.chan.ui.settings.ListSettingView;
-import org.floens.chan.ui.settings.SettingView;
-import org.floens.chan.ui.settings.SettingsController;
-import org.floens.chan.ui.settings.SettingsGroup;
-import org.floens.chan.ui.settings.StringSettingView;
+import org.floens.chan.ui.settings.*;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
@@ -46,8 +40,6 @@ import org.floens.chan.utils.AnimationUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -109,7 +101,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         super.onPreferenceChange(item);
 
         if (item == imageAutoLoadView) {
-            videoAutoLoadView.setEnabled(!ChanSettings.imageAutoLoadNetwork.get().equals(ChanSettings.ImageAutoLoadMode.NONE.name));
+            videoAutoLoadView.setEnabled(!ChanSettings.imageAutoLoadNetwork.get().equals(ChanSettings.MediaAutoLoadMode.NONE.name));
         } else if (item == fontView) {
             EventBus.getDefault().post(new RefreshUIMessage("fontsize"));
         }
@@ -175,8 +167,8 @@ public class MainSettingsController extends SettingsController implements Toolba
         browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, R.string.setting_open_link_confirmation, 0));
         browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, R.string.setting_auto_refresh_thread, 0));
 
-        List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
-        for (ChanSettings.ImageAutoLoadMode mode : ChanSettings.ImageAutoLoadMode.values()) {
+        List<ListSettingView.Item> mediaAutoLoadTypes = new ArrayList<>();
+        for (ChanSettings.MediaAutoLoadMode mode : ChanSettings.MediaAutoLoadMode.values()) {
             int name = 0;
             switch (mode) {
                 case ALL:
@@ -190,11 +182,11 @@ public class MainSettingsController extends SettingsController implements Toolba
                     break;
             }
 
-            imageAutoLoadTypes.add(new ListSettingView.Item(getString(name), mode.name));
+            mediaAutoLoadTypes.add(new ListSettingView.Item(getString(name), mode.name));
         }
 
-        imageAutoLoadView = browsing.add(new ListSettingView(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, imageAutoLoadTypes.toArray(new ListSettingView.Item[imageAutoLoadTypes.size()])));
-        videoAutoLoadView = browsing.add(new BooleanSettingView(this, ChanSettings.videoAutoLoad, R.string.setting_video_auto_load, R.string.setting_video_auto_load_description));
+        imageAutoLoadView = browsing.add(new ListSettingView(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, mediaAutoLoadTypes.toArray(new ListSettingView.Item[mediaAutoLoadTypes.size()])));
+        videoAutoLoadView = browsing.add(new ListSettingView(this, ChanSettings.videoAutoLoadNetwork, R.string.setting_video_auto_load, mediaAutoLoadTypes.toArray(new ListSettingView.Item[mediaAutoLoadTypes.size()])));
         browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, R.string.setting_video_open_external, R.string.setting_video_open_external_description));
         browsing.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, new View.OnClickListener() {
             @Override
