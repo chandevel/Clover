@@ -20,7 +20,6 @@ package org.floens.chan.ui.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,14 +31,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.*;
 
+import com.melnykov.fab.FloatingActionButton;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
@@ -52,15 +46,9 @@ import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
-import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
-import static org.floens.chan.utils.AndroidUtils.getString;
+import static org.floens.chan.utils.AndroidUtils.*;
 
 public class BoardEditController extends Controller implements View.OnClickListener, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int OPTION_SORT_A_Z = 1;
@@ -95,6 +83,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         add = (FloatingActionButton) view.findViewById(R.id.add);
         add.setOnClickListener(this);
+        add.attachToRecyclerView(recyclerView);
 
         boards = boardManager.getSavedBoards();
 

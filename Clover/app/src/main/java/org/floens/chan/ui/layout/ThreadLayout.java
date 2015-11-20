@@ -27,7 +27,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
@@ -35,29 +34,15 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
+import com.android.volley.*;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.ParseError;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-
+import com.melnykov.fab.FloatingActionButton;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.PostImage;
-import org.floens.chan.core.model.PostLinkable;
-import org.floens.chan.core.model.ThreadHide;
+import org.floens.chan.core.model.*;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -68,9 +53,8 @@ import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
-import java.util.List;
-
 import javax.net.ssl.SSLException;
+import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -128,11 +112,12 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
 
         loadView = (LoadView) findViewById(R.id.loadview);
+
         replyButton = (FloatingActionButton) findViewById(R.id.reply_button);
         replyButton.setOnClickListener(this);
 
         threadListLayout = (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
-        threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
+        threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this, replyButton);
 
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
 

@@ -20,7 +20,6 @@ package org.floens.chan.ui.controller;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
@@ -31,6 +30,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
+import com.melnykov.fab.FloatingActionButton;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Loadable;
@@ -81,13 +81,15 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, CHECK_ALL, R.drawable.ic_select_all_white_24dp));
 
-        download = (FloatingActionButton) view.findViewById(R.id.download);
-        download.setOnClickListener(this);
         recyclerView = (GridRecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         gridLayoutManager = new GridLayoutManager(context, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setSpanWidth(dp(90));
+
+        download = (FloatingActionButton) view.findViewById(R.id.download);
+        download.setOnClickListener(this);
+        download.attachToRecyclerView(recyclerView);
 
         adapter = new AlbumAdapter();
         recyclerView.setAdapter(adapter);
