@@ -18,24 +18,21 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.ControllerTransition;
 import org.floens.chan.controller.transition.PopControllerTransition;
 import org.floens.chan.controller.transition.PushControllerTransition;
-import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.ui.layout.SplitNavigationControllerLayout;
 
-import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
-public class SplitNavigationController extends Controller implements AndroidUtils.OnMeasuredCallback {
+public class SplitNavigationController extends Controller {
     public Controller leftController;
     public Controller rightController;
 
@@ -57,22 +54,22 @@ public class SplitNavigationController extends Controller implements AndroidUtil
 
         splitNavigationController = this;
 
-        LinearLayout wrap = new LinearLayout(context);
-        view = wrap;
+        SplitNavigationControllerLayout container = new SplitNavigationControllerLayout(context);
+        view = container;
 
         leftControllerView = new FrameLayout(context);
-        wrap.addView(leftControllerView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT));
 
         dividerView = new View(context);
         dividerView.setBackgroundColor(getAttrColor(context, R.attr.divider_split_color));
-        wrap.addView(dividerView, new LinearLayout.LayoutParams(dp(1), LinearLayout.LayoutParams.MATCH_PARENT));
 
         rightControllerView = new FrameLayout(context);
-        wrap.addView(rightControllerView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
+
+        container.setLeftView(leftControllerView);
+        container.setRightView(rightControllerView);
+        container.setDivider(dividerView);
+        container.build();
 
         setRightController(null);
-
-        AndroidUtils.waitForMeasure(view, this);
     }
 
     public void setEmptyView(ViewGroup emptyView) {
@@ -181,24 +178,5 @@ public class SplitNavigationController extends Controller implements AndroidUtil
         return (rightController != null && rightController.dispatchKeyEvent(event)) ||
                 (leftController != null && leftController.dispatchKeyEvent(event)) ||
                 super.dispatchKeyEvent(event);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        AndroidUtils.waitForMeasure(view, this);
-    }
-
-    @Override
-    public boolean onMeasured(View view) {
-        int width = Math.max(dp(300), (int) (view.getWidth() * 0.35));
-        if (leftControllerView.getWidth() != width) {
-            leftControllerView.getLayoutParams().width = width;
-            leftControllerView.requestLayout();
-            return true;
-        } else {
-            return false;
-        }
     }
 }
