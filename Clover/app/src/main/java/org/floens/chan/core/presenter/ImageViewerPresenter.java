@@ -131,6 +131,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     @Override
     public void onModeLoaded(MultiImageView multiImageView, MultiImageView.Mode mode) {
+        if (exiting) return;
+
         if (mode == MultiImageView.Mode.LOWRES) {
             // lowres is requested at the beginning of the transition,
             // the lowres is loaded before the in transition or after
