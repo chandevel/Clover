@@ -365,12 +365,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             AndroidUtils.hideKeyboard(navigationItemContainer);
         }
 
-        if (fromItem != null) {
-            fromItem.toolbar = null;
-        }
-
         toItem.toolbar = this;
-
         toItem.view = createNavigationItemView(toItem);
     }
 
@@ -382,6 +377,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         item.view.removeAllViews();
         navigationItemContainer.removeView(item.view);
         item.view = null;
+        item.toolbar = null;
     }
 
     private LinearLayout createNavigationItemView(final NavigationItem item) {
