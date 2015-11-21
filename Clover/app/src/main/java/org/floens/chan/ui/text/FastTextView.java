@@ -42,7 +42,7 @@ import static org.floens.chan.utils.AndroidUtils.sp;
  */
 public class FastTextView extends View {
     private static final String TAG = "FastTextView";
-    private static LruCache<Long, StaticLayout> textCache = new LruCache<>(1000);
+    private static LruCache<Long, StaticLayout> textCache = new LruCache<>(250);
 
     private TextPaint paint;
     private boolean singleLine;
@@ -164,7 +164,7 @@ public class FastTextView extends View {
         if (widthMode == MeasureSpec.EXACTLY) {
             width = widthSize;
         } else if ((widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) && !TextUtils.isEmpty(text)) {
-            width = (int) Layout.getDesiredWidth(text, paint) + getPaddingLeft() + getPaddingRight();
+            width = Math.round(Layout.getDesiredWidth(text, paint) + getPaddingLeft() + getPaddingRight());
             if (widthMode == MeasureSpec.AT_MOST) {
                 width = Math.min(width, widthSize);
             }
