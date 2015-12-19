@@ -25,6 +25,7 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
+import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,6 +187,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     // onModeLoaded when a unloaded image was swiped to the center earlier
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
+
+        Logger.test("onLowResInCenter " + postImage.imageUrl);
 
         if (imageAutoLoad(postImage) && !postImage.spoiler) {
             if (postImage.type == PostImage.Type.STATIC) {

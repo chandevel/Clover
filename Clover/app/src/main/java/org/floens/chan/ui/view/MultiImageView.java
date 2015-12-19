@@ -109,7 +109,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setMode(final Mode newMode) {
         if (this.mode != newMode) {
-//            Logger.d(TAG, "Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
+            Logger.d(TAG, "Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
+            Mode oldMode = this.mode;
             this.mode = newMode;
 
             AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
@@ -159,6 +160,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             return;
         }
 
+        if (thumbnailRequest != null) {
+            return;
+        }
+
         // Also use volley for the thumbnails
         thumbnailRequest = Chan.getVolleyImageLoader().get(thumbnailUrl, new com.android.volley.toolbox.ImageLoader.ImageListener() {
             @Override
@@ -183,6 +188,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     public void setBigImage(String imageUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
+            return;
+        }
+
+        if (bigImageRequest != null) {
             return;
         }
 
@@ -243,6 +252,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             return;
         }
 
+        if (gifRequest != null) {
+            return;
+        }
+
         callback.showProgress(this, true);
         gifRequest = Chan.getFileCache().downloadFile(gifUrl, new FileCache.DownloadedCallback() {
             @Override
@@ -294,6 +307,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setVideo(String videoUrl) {
+        if (videoRequest != null) {
+            return;
+        }
+
         callback.showProgress(this, true);
         videoRequest = Chan.getFileCache().downloadFile(videoUrl, new FileCache.DownloadedCallback() {
             @Override
@@ -358,6 +375,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             });
 
             videoView.setVideoPath(file.getAbsolutePath());
+
+            Logger.e(TAG, "videoView.start " + postImage.imageUrl + ", " + getWidth() + ", " + getHeight() + ", " + (isAttachedToWindow()));
 
             try {
                 videoView.start();
