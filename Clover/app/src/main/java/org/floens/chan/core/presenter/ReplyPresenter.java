@@ -65,6 +65,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
 
+    private boolean bound = false;
     private Loadable loadable;
     private Board board;
     private Reply draft;
@@ -88,12 +89,10 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         if (this.loadable != null) {
             unbindLoadable();
         }
+        bound = true;
         this.loadable = loadable;
 
-        Board board = boardManager.getBoardByValue(loadable.board);
-        if (board != null) {
-            this.board = board;
-        }
+        this.board = boardManager.getBoardByValue(loadable.board);
 
         draft = replyManager.getReply(loadable);
 
@@ -117,13 +116,12 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     }
 
     public void unbindLoadable() {
+        bound = false;
         draft.file = null;
         draft.fileName = "";
         callback.loadViewsIntoDraft(draft);
         replyManager.putReply(loadable, draft);
 
-        loadable = null;
-        board = null;
         closeAll();
     }
 
@@ -219,7 +217,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
-            if (!loadable.isThreadMode()) {
+            if (bound && !loadable.isThreadMode()) {
                 callback.showThread(LoadablePool.getInstance().obtain(new Loadable(loadable.board, replyCall.postNo)));
             }
         } else {

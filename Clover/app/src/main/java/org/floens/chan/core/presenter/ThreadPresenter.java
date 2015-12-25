@@ -553,7 +553,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public void requestNewPostLoad() {
-        if (loadable.isThreadMode()) {
+        if (loadable != null && loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
         }
     }
