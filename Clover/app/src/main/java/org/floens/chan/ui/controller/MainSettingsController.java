@@ -64,6 +64,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     private int clickCount;
     private SettingView developerView;
     private SettingView fontView;
+    private SettingView fontCondensed;
     private ToolbarMenuItem overflow;
 
     private PopupWindow advancedSettingsHint;
@@ -133,8 +134,8 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         if (item == imageAutoLoadView) {
             videoAutoLoadView.setEnabled(!ChanSettings.imageAutoLoadNetwork.get().equals(ChanSettings.ImageAutoLoadMode.NONE.name));
-        } else if (item == fontView) {
-            EventBus.getDefault().post(new RefreshUIMessage("fontsize"));
+        } else if (item == fontView || item == fontCondensed) {
+            EventBus.getDefault().post(new RefreshUIMessage("font"));
         }
     }
 
@@ -183,6 +184,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         }
 
         fontView = appearance.add(new ListSettingView(this, ChanSettings.fontSize, R.string.setting_font_size, fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
+        fontCondensed = appearance.add(new BooleanSettingView(this, ChanSettings.fontCondensed, R.string.setting_font_condensed, R.string.setting_font_condensed_description));
 
         groups.add(appearance);
 

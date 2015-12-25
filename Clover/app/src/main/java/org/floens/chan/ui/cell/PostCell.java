@@ -73,6 +73,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.text.TextUtils.isEmpty;
+import static org.floens.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -158,6 +159,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         comment.setTextSize(textSizeSp);
         comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
+
+        if (ChanSettings.fontCondensed.get()) {
+            comment.setTypeface(ROBOTO_CONDENSED_REGULAR);
+        }
 
         replies.setTextSize(textSizeSp);
         replies.setPadding(paddingPx, 0, paddingPx, paddingPx);

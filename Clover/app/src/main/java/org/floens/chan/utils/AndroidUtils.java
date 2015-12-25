@@ -62,12 +62,14 @@ public class AndroidUtils {
 
     public static Typeface ROBOTO_MEDIUM;
     public static Typeface ROBOTO_MEDIUM_ITALIC;
+    public static Typeface ROBOTO_CONDENSED_REGULAR;
 
     private static ConnectivityManager connectivityManager;
 
     public static void init() {
         ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
         ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
+        ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
 
         connectivityManager = (ConnectivityManager) getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     }
