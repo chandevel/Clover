@@ -19,7 +19,6 @@ package org.floens.chan.ui.controller;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,7 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import com.melnykov.fab.FloatingActionButton;
+import de.greenrobot.event.EventBus;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
@@ -45,8 +45,6 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -115,6 +113,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         add = (FloatingActionButton) view.findViewById(R.id.add);
         add.setOnClickListener(this);
+        add.attachToRecyclerView(recyclerView);
 
         adapter = new FilterAdapter();
         recyclerView.setAdapter(adapter);

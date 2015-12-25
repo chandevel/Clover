@@ -20,7 +20,6 @@ package org.floens.chan.ui.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.internal.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -31,6 +30,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.melnykov.fab.FloatingActionButton;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.controller.Controller;

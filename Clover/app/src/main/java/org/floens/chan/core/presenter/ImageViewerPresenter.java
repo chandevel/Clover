@@ -24,6 +24,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.ui.view.MultiImageView;
 import org.floens.chan.utils.Logger;
 
@@ -267,25 +268,25 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private boolean imageAutoLoad(PostImage postImage) {
         // Auto load the image when it is cached
-        if (Chan.getFileCache().exists(postImage.imageUrl)) {
-            return true;
-        } else {
-            String autoLoadMode = ChanSettings.imageAutoLoadNetwork.get();
-            if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.NONE.name)) {
-                return false;
-            } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.WIFI.name)) {
-                return isConnected(ConnectivityManager.TYPE_WIFI);
-            } else if (autoLoadMode.equals(ChanSettings.ImageAutoLoadMode.ALL.name)) {
-                return true;
-            }
-
-            // Not connected or unrecognized
-            return false;
-        }
+        return Chan.getFileCache().exists(postImage.imageUrl) || getAutoLoadMode(ChanSettings.imageAutoLoadNetwork);
     }
 
     private boolean videoAutoLoad(PostImage postImage) {
-        return imageAutoLoad(postImage) && ChanSettings.videoAutoLoad.get();
+        return imageAutoLoad(postImage) && getAutoLoadMode(ChanSettings.videoAutoLoadNetwork);
+    }
+
+    private boolean getAutoLoadMode(StringSetting setting) {
+        String imageAutoLoadMode = setting.get();
+        if (imageAutoLoadMode.equals(ChanSettings.MediaAutoLoadMode.NONE.name)) {
+            return false;
+        } else if (imageAutoLoadMode.equals(ChanSettings.MediaAutoLoadMode.WIFI.name)) {
+            return isConnected(ConnectivityManager.TYPE_WIFI);
+        } else if (imageAutoLoadMode.equals(ChanSettings.MediaAutoLoadMode.ALL.name)) {
+            return true;
+        }
+
+        // Not connected or unrecognized
+        return false;
     }
 
     private void setTitle(PostImage postImage, int position) {

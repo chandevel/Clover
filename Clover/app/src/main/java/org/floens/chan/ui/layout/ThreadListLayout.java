@@ -30,6 +30,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.melnykov.fab.FloatingActionButton;
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
@@ -96,12 +97,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback,
                              ThreadStatusCell.Callback statusCellCallback, ThreadListLayoutPresenterCallback callback,
-                             ThreadListLayoutCallback threadListLayoutCallback) {
+                             ThreadListLayoutCallback threadListLayoutCallback, FloatingActionButton floatingActionButton) {
         this.callback = callback;
         this.threadListLayoutCallback = threadListLayoutCallback;
 
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
+        floatingActionButton.attachToRecyclerView(recyclerView);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
