@@ -137,6 +137,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
         image.setUrl(null, 0, 0);
+        input.requestFocus();
     }
 
     private void submitCaptcha() {
