@@ -115,7 +115,8 @@ public class ChanSettings {
     public static final StringSetting proxyAddress;
     public static final IntegerSetting proxyPort;
 
-    public static final IntegerSetting settingsOpenCounter;
+    public static final CounterSetting settingsOpenCounter;
+    public static final CounterSetting historyOpenCounter;
 
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
@@ -211,7 +212,8 @@ public class ChanSettings {
         });
         loadProxy();
 
-        settingsOpenCounter = new IntegerSetting(p, "counter_settings_open", 0);
+        settingsOpenCounter = new CounterSetting(p, "counter_settings_open");
+        historyOpenCounter = new CounterSetting(p, "counter_history_open");
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

@@ -38,6 +38,7 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.History;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
@@ -77,10 +78,10 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
 
         view = inflateRes(R.layout.controller_history);
 
-        SwitchCompat globalSwitch = new SwitchCompat(context);
-        globalSwitch.setChecked(ChanSettings.historyEnabled.get());
-        globalSwitch.setOnCheckedChangeListener(this);
-        navigationItem.rightView = globalSwitch;
+        SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
+        historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
+        historyEnabledSwitch.setOnCheckedChangeListener(this);
+        navigationItem.rightView = historyEnabledSwitch;
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -89,6 +90,10 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);
         adapter.load();
+
+        if (ChanSettings.historyOpenCounter.increase() == 1) {
+            HintPopup.show(context, historyEnabledSwitch, R.string.history_toggle_hint);
+        }
     }
 
     @Override

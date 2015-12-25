@@ -99,8 +99,7 @@ public class MainSettingsController extends SettingsController implements Toolba
             developerView.view.getLayoutParams().height = 0;
         }
 
-        ChanSettings.settingsOpenCounter.set(ChanSettings.settingsOpenCounter.get() + 1);
-        if (ChanSettings.settingsOpenCounter.get() == 3) {
+        if (ChanSettings.settingsOpenCounter.increase() == 3) {
             ImageView view = overflow.getView();
             view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.menu_overflow_shake));
             advancedSettingsHint = HintPopup.show(context, view, R.string.settings_advanced_hint);
