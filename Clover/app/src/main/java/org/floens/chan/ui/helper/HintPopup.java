@@ -36,7 +36,8 @@ public class HintPopup {
         popupView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                popupWindow.showAsDropDown(anchor, 0, -dp(25));
+                popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+                popupWindow.showAsDropDown(anchor, -popupView.getMeasuredWidth() + anchor.getWidth(), -dp(25));
             }
         }, 100);
 
