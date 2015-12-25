@@ -141,7 +141,7 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                 float x = (event.getX() - interceptedEvent.getX());
                 float y = (event.getY() - interceptedEvent.getY());
 
-                if (Math.abs(y) >= slopPixels) {
+                if (Math.abs(y) >= slopPixels || interceptedEvent.getX() < dp(20)) {
 //                    Logger.test("blockTracking = true");
                     blockTracking = true;
                 }
@@ -214,11 +214,12 @@ public class NavigationControllerContainerLayout extends FrameLayout {
                 if (translationX > 0) {
                     boolean doFlingAway = false;
 
-//                    Logger.test("velocity = %d", velocity);
-
-                    if ((velocity > 0 && Math.abs(velocity) > 2500 && Math.abs(velocity) < maxFlingPixels) || translationX >= getWidth() * 3 / 4) {
+                    if ((velocity > 0 && Math.abs(velocity) > dp(800) && Math.abs(velocity) < maxFlingPixels) || translationX >= getWidth() * 3 / 4) {
 //                        int left = getWidth() - translationX;
 //                        int flingVelocity = Math.max(velocity, 0);
+
+//                        Logger.test("flinging with velocity = %d", velocity);
+                        velocity = Math.max(dp(2000), velocity);
 
                         scroller.fling(translationX, 0, velocity, 0, 0, Integer.MAX_VALUE, 0, 0);
 //                        Logger.test("finalX = %d getWidth = %d", scroller.getFinalX(), getWidth());
