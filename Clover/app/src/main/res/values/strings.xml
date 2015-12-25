@@ -262,6 +262,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="reply_error">Error posting</string>
     <string name="reply_success">Post successful</string>
     <string name="reply_captcha_text">Type the text</string>
+    <string name="reply_more_hint">More options here!</string>
 
     <string name="delete_confirm">Delete your post?</string>
     <string name="delete_wait">Deleting post&#8230;</string>

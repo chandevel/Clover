@@ -117,6 +117,7 @@ public class ChanSettings {
 
     public static final CounterSetting settingsOpenCounter;
     public static final CounterSetting historyOpenCounter;
+    public static final CounterSetting replyOpenCounter;
 
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
@@ -214,6 +215,7 @@ public class ChanSettings {
 
         settingsOpenCounter = new CounterSetting(p, "counter_settings_open");
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
+        replyOpenCounter = new CounterSetting(p, "counter_reply_open");
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

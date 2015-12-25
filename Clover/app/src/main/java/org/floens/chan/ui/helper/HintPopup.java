@@ -19,6 +19,10 @@ public class HintPopup {
     }
 
     public static PopupWindow show(final Context context, final View anchor, final String text) {
+        return show(context, anchor, text, 0, 0);
+    }
+
+    public static PopupWindow show(final Context context, final View anchor, final String text, final int offsetX, final int offsetY) {
         final LinearLayout popupView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.popup_hint, null);
 
         TextView textView = (TextView) popupView.findViewById(R.id.text);
@@ -37,7 +41,7 @@ public class HintPopup {
             @Override
             public void run() {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                popupWindow.showAsDropDown(anchor, -popupView.getMeasuredWidth() + anchor.getWidth(), -dp(25));
+                popupWindow.showAsDropDown(anchor, -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX, -dp(25) + offsetY);
             }
         }, 100);
 

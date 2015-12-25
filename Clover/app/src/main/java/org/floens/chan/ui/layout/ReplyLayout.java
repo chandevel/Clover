@@ -41,6 +41,7 @@ import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.LoadView;
@@ -149,6 +150,10 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     public ReplyPresenter getPresenter() {
         return presenter;
+    }
+
+    public void onOpen(boolean open) {
+        presenter.onOpen(open);
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -413,6 +418,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     @Override
     public ChanThread getThread() {
         return callback.getThread();
+    }
+
+    @Override
+    public void showMoreHint() {
+        HintPopup.show(getContext(), more, getString(R.string.reply_more_hint), dp(9), dp(4));
     }
 
     public interface ReplyLayoutCallback {

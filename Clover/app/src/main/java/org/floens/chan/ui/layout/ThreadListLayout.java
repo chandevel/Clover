@@ -249,8 +249,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (showingThread != null && replyOpen != open) {
             this.replyOpen = open;
             int height = AnimationUtils.animateHeight(reply, replyOpen, getWidth(), 500);
+            reply.onOpen(open);
             if (open) {
-                reply.focusComment();
                 recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + height, recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
             } else {
                 AndroidUtils.hideKeyboard(reply);

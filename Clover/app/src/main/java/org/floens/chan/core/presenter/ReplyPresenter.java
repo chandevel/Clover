@@ -125,6 +125,16 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         closeAll();
     }
 
+    public void onOpen(boolean open) {
+        if (open) {
+            callback.focusComment();
+
+            if (ChanSettings.replyOpenCounter.increase() == 2) {
+                callback.showMoreHint();
+            }
+        }
+    }
+
     public boolean onBack() {
         if (page == Page.LOADING) {
             return true;
@@ -438,5 +448,9 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         ImagePickDelegate getImagePickDelegate();
 
         ChanThread getThread();
+
+        void showMoreHint();
+
+        void focusComment();
     }
 }
