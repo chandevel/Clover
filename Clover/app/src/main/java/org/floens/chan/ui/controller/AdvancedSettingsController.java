@@ -49,6 +49,7 @@ public class AdvancedSettingsController extends SettingsController {
     private SettingView forcePhoneLayoutSetting;
     private SettingView enableReplyFab;
     private SettingView neverHideToolbar;
+    private SettingView controllersSwipeable;
 
     public AdvancedSettingsController(Context context) {
         super(context);
@@ -66,6 +67,8 @@ public class AdvancedSettingsController extends SettingsController {
         populatePreferences();
 
         buildPreferences();
+
+        ChanSettings.settingsOpenCounter.set(5);
     }
 
     @Override
@@ -81,7 +84,7 @@ public class AdvancedSettingsController extends SettingsController {
     public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
 
-        if (item == forcePhoneLayoutSetting || item == enableReplyFab || item == newCaptcha || item == neverHideToolbar) {
+        if (item == forcePhoneLayoutSetting || item == enableReplyFab || item == newCaptcha || item == neverHideToolbar || item == controllersSwipeable) {
             needRestart = true;
         } else {
             EventBus.getDefault().post(new RefreshUIMessage("postui"));
@@ -114,6 +117,7 @@ public class AdvancedSettingsController extends SettingsController {
 
         newCaptcha = settings.add(new BooleanSettingView(this, ChanSettings.postNewCaptcha, R.string.setting_use_new_captcha, R.string.setting_use_new_captcha_description));
         settings.add(new BooleanSettingView(this, ChanSettings.saveOriginalFilename, R.string.setting_save_original_filename, 0));
+        controllersSwipeable = settings.add(new BooleanSettingView(this, ChanSettings.controllerSwipeable, R.string.setting_controller_swipeable, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.shareUrl, R.string.setting_share_url, R.string.setting_share_url_description));
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, R.string.setting_network_https, R.string.setting_network_https_description));
         forcePhoneLayoutSetting = settings.add(new BooleanSettingView(this, ChanSettings.forcePhoneLayout, R.string.setting_force_phone_layout, 0));

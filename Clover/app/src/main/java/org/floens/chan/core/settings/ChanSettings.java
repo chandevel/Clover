@@ -92,6 +92,7 @@ public class ChanSettings {
     public static final BooleanSetting postFileInfo;
     public static final BooleanSetting postFilename;
     public static final BooleanSetting neverHideToolbar;
+    public static final BooleanSetting controllerSwipeable;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
@@ -112,6 +113,8 @@ public class ChanSettings {
     public static final BooleanSetting proxyEnabled;
     public static final StringSetting proxyAddress;
     public static final IntegerSetting proxyPort;
+
+    public static final IntegerSetting settingsOpenCounter;
 
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
@@ -158,6 +161,7 @@ public class ChanSettings {
         postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);
         postFilename = new BooleanSetting(p, "preference_post_filename", false);
         neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
+        controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false, new Setting.SettingCallback<Boolean>() {
             @Override
@@ -204,6 +208,8 @@ public class ChanSettings {
             }
         });
         loadProxy();
+
+        settingsOpenCounter = new IntegerSetting(p, "counter_settings_open", 0);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

@@ -23,6 +23,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.ControllerTransition;
 import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 
@@ -38,6 +39,7 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
         view = inflateRes(R.layout.controller_navigation_toolbar);
         container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
         container.setNavigationController(this);
+        container.setSwipeEnabled(ChanSettings.controllerSwipeable.get());
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
         toolbar.setCallback(this);
