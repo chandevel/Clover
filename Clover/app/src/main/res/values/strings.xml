@@ -154,6 +154,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_new_posts">%1$d new %2$s</string>
     <string name="thread_new_posts_goto">View</string>
     <string name="thread_empty_select">Please select a thread</string>
+    <string name="thread_pin_hint">Bookmark this thread</string>
 
     <string name="board_edit">Board editor</string>
     <string name="board_edit_header">Add, remove and reorder your boards here.\nThe topmost board will be loaded automatically.</string>
@@ -228,7 +229,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="drawer_board">Board</string>
     <string name="drawer_catalog">Catalog</string>
-    <string name="drawer_pinned">Watching threads</string>
+    <string name="drawer_pinned">Bookmarked threads</string>
     <string name="drawer_pin_removed">Removed \'%1$s\'</string>
 
     <string name="post_highlight_id">Highlight ID</string>

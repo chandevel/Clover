@@ -50,7 +50,7 @@ public class HintPopup {
             public void run() {
                 popupWindow.dismiss();
             }
-        }, 7500);
+        }, 5000);
 
         return popupWindow;
     }

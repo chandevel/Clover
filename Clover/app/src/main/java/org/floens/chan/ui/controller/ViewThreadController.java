@@ -32,6 +32,7 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCellInterface;
+import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -41,6 +42,7 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
@@ -145,6 +147,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             updateDrawerHighlighting(loadable);
             updateLeftPaneHighlighting(loadable);
             presenter.requestInitialData();
+
+            if (ChanSettings.threadOpenCounter.increase() == 2) {
+                HintPopup.show(context, pinItem.getView(), context.getString(R.string.thread_pin_hint), -dp(1), 0);
+            }
         }
     }
 
