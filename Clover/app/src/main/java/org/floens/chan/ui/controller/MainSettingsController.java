@@ -23,12 +23,15 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
@@ -61,6 +64,9 @@ public class MainSettingsController extends SettingsController implements Toolba
     private int clickCount;
     private SettingView developerView;
     private SettingView fontView;
+    private ToolbarMenuItem overflow;
+
+    private PopupWindow advancedSettingsHint;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -72,7 +78,7 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         navigationItem.setTitle(R.string.settings_screen);
         navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.createOverflow(context, this, Collections.singletonList(
+        overflow = navigationItem.createOverflow(context, this, Collections.singletonList(
                 new FloatingMenuItem(ADVANCED_SETTINGS, R.string.settings_screen_advanced)
         ));
 
@@ -90,6 +96,23 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         if (!ChanSettings.developer.get()) {
             developerView.view.getLayoutParams().height = 0;
+        }
+
+        ChanSettings.settingsOpenCounter.set(ChanSettings.settingsOpenCounter.get() + 1);
+        if (ChanSettings.settingsOpenCounter.get() == 3) {
+            ImageView view = overflow.getView();
+            view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.menu_overflow_shake));
+            advancedSettingsHint = HintPopup.show(context, view, R.string.settings_advanced_hint);
+        }
+    }
+
+    @Override
+    public void onHide() {
+        super.onHide();
+
+        if (advancedSettingsHint != null) {
+            advancedSettingsHint.dismiss();
+            advancedSettingsHint = null;
         }
     }
 
