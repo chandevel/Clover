@@ -21,9 +21,7 @@ package org.floens.chan.chan;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -34,6 +32,8 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.span.AbsoluteSizeSpanHashed;
+import org.floens.chan.ui.span.ForegroundColorSpanHashed;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.Logger;
@@ -129,19 +129,19 @@ public class ChanParser {
             post.subjectSpan = new SpannableString(post.subject);
             // Do not set another color when the post is in stub mode, it sets text_color_secondary
             if (!post.filterStub) {
-                post.subjectSpan.setSpan(new ForegroundColorSpan(theme.subjectColor), 0, post.subjectSpan.length(), 0);
+                post.subjectSpan.setSpan(new ForegroundColorSpanHashed(theme.subjectColor), 0, post.subjectSpan.length(), 0);
             }
         }
 
         if (!TextUtils.isEmpty(post.name) && !post.name.equals("Anonymous")) {
             post.nameSpan = new SpannableString(post.name);
-            post.nameSpan.setSpan(new ForegroundColorSpan(theme.nameColor), 0, post.nameSpan.length(), 0);
+            post.nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, post.nameSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
             post.tripcodeSpan = new SpannableString(post.tripcode);
-            post.tripcodeSpan.setSpan(new ForegroundColorSpan(theme.nameColor), 0, post.tripcodeSpan.length(), 0);
-            post.tripcodeSpan.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, post.tripcodeSpan.length(), 0);
+            post.tripcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, post.tripcodeSpan.length(), 0);
+            post.tripcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, post.tripcodeSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.id)) {
@@ -158,15 +158,15 @@ public class ChanParser {
             boolean lightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
             int idBgColor = lightColor ? theme.idBackgroundLight : theme.idBackgroundDark;
 
-            post.idSpan.setSpan(new ForegroundColorSpan(idColor), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new ForegroundColorSpanHashed(idColor), 0, post.idSpan.length(), 0);
             post.idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, post.idSpan.length(), 0);
-            post.idSpan.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, post.idSpan.length(), 0);
+            post.idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, post.idSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(post.capcode)) {
             post.capcodeSpan = new SpannableString("Capcode: " + post.capcode);
-            post.capcodeSpan.setSpan(new ForegroundColorSpan(theme.capcodeColor), 0, post.capcodeSpan.length(), 0);
-            post.capcodeSpan.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, post.capcodeSpan.length(), 0);
+            post.capcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.capcodeColor), 0, post.capcodeSpan.length(), 0);
+            post.capcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, post.capcodeSpan.length(), 0);
         }
 
         post.nameTripcodeIdCapcodeSpan = new SpannableString("");
@@ -234,7 +234,7 @@ public class ChanParser {
                     Set<String> classes = span.classNames();
                     if (classes.contains("deadlink")) {
                         quote = new SpannableString(span.text());
-                        quote.setSpan(new ForegroundColorSpan(theme.quoteColor), 0, quote.length(), 0);
+                        quote.setSpan(new ForegroundColorSpanHashed(theme.quoteColor), 0, quote.length(), 0);
                         quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
                     } else if (classes.contains("fortune")) {
                         // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
@@ -260,7 +260,7 @@ public class ChanParser {
                             }
 
                             if (hexColor >= 0 && hexColor <= 0xffffff) {
-                                quote.setSpan(new ForegroundColorSpan(0xff000000 + hexColor), 0, quote.length(), 0);
+                                quote.setSpan(new ForegroundColorSpanHashed(0xff000000 + hexColor), 0, quote.length(), 0);
                                 quote.setSpan(new StyleSpan(Typeface.BOLD), 0, quote.length(), 0);
                             }
                         }
@@ -268,7 +268,7 @@ public class ChanParser {
                         return null;
                     } else {
                         quote = new SpannableString(span.text());
-                        quote.setSpan(new ForegroundColorSpan(theme.inlineQuoteColor), 0, quote.length(), 0);
+                        quote.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, quote.length(), 0);
                         detectLinks(theme, post, span.text(), quote);
                     }
 
@@ -306,8 +306,8 @@ public class ChanParser {
                     }
 
                     SpannableString tableTotal = new SpannableString(TextUtils.concat(parts.toArray(new CharSequence[parts.size()])));
-                    tableTotal.setSpan(new ForegroundColorSpan(theme.inlineQuoteColor), 0, tableTotal.length(), 0);
-                    tableTotal.setSpan(new AbsoluteSizeSpan(sp(12f)), 0, tableTotal.length(), 0);
+                    tableTotal.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, tableTotal.length(), 0);
+                    tableTotal.setSpan(new AbsoluteSizeSpanHashed(sp(12f)), 0, tableTotal.length(), 0);
 
                     return tableTotal;
                 }
@@ -315,7 +315,7 @@ public class ChanParser {
                     Element strong = (Element) node;
 
                     SpannableString red = new SpannableString(strong.text());
-                    red.setSpan(new ForegroundColorSpan(theme.quoteColor), 0, red.length(), 0);
+                    red.setSpan(new ForegroundColorSpanHashed(theme.quoteColor), 0, red.length(), 0);
                     red.setSpan(new StyleSpan(Typeface.BOLD), 0, red.length(), 0);
 
                     return red;
@@ -347,7 +347,7 @@ public class ChanParser {
                         String text = getNodeText(pre);
                         SpannableString monospace = new SpannableString(text);
                         monospace.setSpan(new TypefaceSpan("monospace"), 0, monospace.length(), 0);
-                        monospace.setSpan(new AbsoluteSizeSpan(sp(12f)), 0, monospace.length(), 0);
+                        monospace.setSpan(new AbsoluteSizeSpanHashed(sp(12f)), 0, monospace.length(), 0);
                         return monospace;
                     } else {
                         return pre.text();

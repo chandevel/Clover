@@ -38,11 +38,11 @@ import static org.floens.chan.utils.AndroidUtils.sp;
 
 /**
  * A simple implementation of a TextView that caches the used StaticLayouts for performance.<br>
- * This view was made for {@link org.floens.chan.ui.cell.PostCell} and {@link org.floens.chan.ui.cell.CardPostCell }and may have untested behaviour with other layouts.
+ * This view was made for {@link org.floens.chan.ui.cell.PostCell} and {@link org.floens.chan.ui.cell.CardPostCell} and may have untested behaviour with other layouts.
  */
 public class FastTextView extends View {
     private static final String TAG = "FastTextView";
-    private static LruCache<Long, StaticLayout> textCache = new LruCache<>(250);
+    private static LruCache<FastTextViewItem, StaticLayout> textCache = new LruCache<>(250);
 
     private TextPaint paint;
     private boolean singleLine;
@@ -215,31 +215,16 @@ public class FastTextView extends View {
 //                    long start = Time.startTiming();
 
                     // The StaticLayouts are cached with the static textCache LRU map
+                    FastTextViewItem item = new FastTextViewItem(text, paint, layoutWidth);
 
-                    // Use .toString() to make sure we take the hashcode from the string representation
-                    // and not from any spannables that are in it
-                    long cacheKey = text.toString().hashCode();
-                    cacheKey = 31 * cacheKey + paint.getColor();
-                    cacheKey = 31 * cacheKey + Float.floatToIntBits(paint.getTextSize());
-                    cacheKey = 31 * cacheKey + layoutWidth;
-
-                    StaticLayout cached = textCache.get(cacheKey);
+                    StaticLayout cached = textCache.get(item);
                     if (cached == null) {
 //                        Logger.test("staticlayout cache miss: text = %s", text);
                         cached = getStaticLayout(layoutWidth);
-                        textCache.put(cacheKey, cached);
-                    } else {
-//                        Logger.test("staticlayout cache hit");
-                        // Make sure the layout has the actual text, color, size and width, hashcodes almost never collide
-                        Paint cachedPaint = cached.getPaint();
-                        if (!text.toString().equals(cached.getText().toString()) ||
-                                cachedPaint.getColor() != paint.getColor() ||
-                                cachedPaint.getTextSize() != paint.getTextSize() ||
-                                cached.getWidth() != layoutWidth) {
-                            Logger.w(TAG, "Cache miss with the same hashcode %x: \"%s\" \"%s\"!", cacheKey, text.toString(), cached.getText().toString());
-                            cached = getStaticLayout(layoutWidth);
-                        }
-                    }
+                        textCache.put(item, cached);
+                    }/* else {
+                        Logger.test("staticlayout cache hit");
+                    }*/
 
                     layout = cached;
 //                    Time.endTiming(Integer.toHexString(System.identityHashCode(this)) + " staticlayout for width = " + layoutWidth + "\t", start);
@@ -256,5 +241,41 @@ public class FastTextView extends View {
     private StaticLayout getStaticLayout(int layoutWidth) {
 //        Logger.test("new staticlayout width=%d", layoutWidth);
         return new StaticLayout(text, paint, layoutWidth, Layout.Alignment.ALIGN_NORMAL, 1f, 0f, false);
+    }
+
+    private static class FastTextViewItem {
+        private CharSequence text;
+        private int color;
+        private float textSize;
+        private int layoutWidth;
+
+        public FastTextViewItem(CharSequence text, TextPaint textPaint, int layoutWidth) {
+            this.text = text;
+            color = textPaint.getColor();
+            textSize = textPaint.getTextSize();
+            this.layoutWidth = layoutWidth;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            FastTextViewItem that = (FastTextViewItem) o;
+
+            if (color != that.color) return false;
+            if (Float.compare(that.textSize, textSize) != 0) return false;
+            if (layoutWidth != that.layoutWidth) return false;
+            return text.equals(that.text);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = text.hashCode();
+            result = 31 * result + color;
+            result = 31 * result + (textSize != +0.0f ? Float.floatToIntBits(textSize) : 0);
+            result = 31 * result + layoutWidth;
+            return result;
+        }
     }
 }

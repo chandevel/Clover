@@ -37,10 +37,8 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -59,6 +57,8 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.span.AbsoluteSizeSpanHashed;
+import org.floens.chan.ui.span.ForegroundColorSpanHashed;
 import org.floens.chan.ui.text.FastTextView;
 import org.floens.chan.ui.text.FastTextViewMovementMethod;
 import org.floens.chan.ui.theme.Theme;
@@ -355,8 +355,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         String noText = "No." + post.no;
         SpannableString date = new SpannableString(noText + " " + time);
-        date.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, date.length(), 0);
-        date.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, date.length(), 0);
+        date.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, date.length(), 0);
+        date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
 
         boolean noClickable = ChanSettings.tapNoReply.get();
         if (noClickable) {
@@ -372,8 +372,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
             if (postFileName) {
                 String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
                 SpannableString fileInfo = new SpannableString("\n" + filename);
-                fileInfo.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
                 titleParts.add(fileInfo);
             }
@@ -382,8 +382,8 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
                 SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
                         AndroidUtils.getReadableFileSize(image.size, false) + " " +
                         image.imageWidth + "x" + image.imageHeight);
-                fileInfo.setSpan(new ForegroundColorSpan(theme.detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpan(detailsSizePx), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 titleParts.add(fileInfo);
             }
         }
