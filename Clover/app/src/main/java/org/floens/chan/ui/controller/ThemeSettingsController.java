@@ -232,16 +232,16 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                 }
 
                 @Override
-                public void onSearchVisibilityChanged(boolean visible) {
+                public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
                 }
 
                 @Override
-                public String getSearchHint() {
+                public String getSearchHint(NavigationItem item) {
                     return null;
                 }
 
                 @Override
-                public void onSearchEntered(String entered) {
+                public void onSearchEntered(NavigationItem item, String entered) {
                 }
             });
             toolbar.setBackgroundColor(theme.primaryColor.color);

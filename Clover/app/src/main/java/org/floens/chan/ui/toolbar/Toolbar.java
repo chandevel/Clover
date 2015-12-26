@@ -279,7 +279,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             toItem.search = true;
             openKeyboardAfterSearchViewCreated = true;
             setNavigationItemInternal(true, false, toItem);
-            callback.onSearchVisibilityChanged(true);
+            callback.onSearchVisibilityChanged(toItem, true);
             return true;
         } else {
             return false;
@@ -291,7 +291,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             toItem.search = false;
             toItem.searchText = null;
             setNavigationItemInternal(true, false, toItem);
-            callback.onSearchVisibilityChanged(false);
+            callback.onSearchVisibilityChanged(toItem, false);
             return true;
         } else {
             return false;
@@ -388,7 +388,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
                 @Override
                 public void onSearchEntered(String entered) {
                     item.searchText = entered;
-                    callback.onSearchEntered(entered);
+                    callback.onSearchEntered(item, entered);
                 }
             });
 
@@ -396,7 +396,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
                 searchLayout.setText(item.searchText);
             }
 
-            searchLayout.setHint(callback.getSearchHint());
+            searchLayout.setHint(callback.getSearchHint(item));
 
             if (openKeyboardAfterSearchViewCreated) {
                 openKeyboardAfterSearchViewCreated = false;
@@ -486,10 +486,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     public interface ToolbarCallback {
         void onMenuOrBackClicked(boolean isArrow);
 
-        void onSearchVisibilityChanged(boolean visible);
+        void onSearchVisibilityChanged(NavigationItem item, boolean visible);
 
-        String getSearchHint();
+        String getSearchHint(NavigationItem item);
 
-        void onSearchEntered(String entered);
+        void onSearchEntered(NavigationItem item, String entered);
     }
 }
