@@ -254,6 +254,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+        final String finalVersion = version;
 
         about.add(new LinkSettingView(this, getString(R.string.app_name), version, new View.OnClickListener() {
             @Override
@@ -295,7 +296,9 @@ public class MainSettingsController extends SettingsController implements Toolba
                                     Intent intent = new Intent(Intent.ACTION_SENDTO);
                                     intent.setData(Uri.parse("mailto:"));
                                     intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email[0]});
-                                    intent.putExtra(Intent.EXTRA_SUBJECT, email[1]);
+                                    String subject = email[1];
+                                    subject = subject.replace("__VERSION__", finalVersion);
+                                    intent.putExtra(Intent.EXTRA_SUBJECT, subject);
                                     AndroidUtils.openIntent(intent);
                                 } else {
                                     AndroidUtils.openLink(finalAboutLink);
