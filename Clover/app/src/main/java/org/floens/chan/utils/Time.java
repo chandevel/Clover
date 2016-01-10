@@ -27,6 +27,6 @@ public class Time {
     }
 
     public static void endTiming(String tag, long start) {
-        Logger.test(tag + " took " + ((System.nanoTime() - start) / 1_000_000.0) + "ms");
+        Logger.v("Timer", tag + " took " + ((System.nanoTime() - start) / 1_000_000.0) + "ms");
     }
 }

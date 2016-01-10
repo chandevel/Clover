@@ -22,7 +22,6 @@ import android.content.Context;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 
@@ -38,12 +37,14 @@ public class ReplyManager {
     private static final int TIMEOUT = 30000;
 
     private final Context context;
+    private String userAgent;
     private OkHttpClient client;
 
     private Map<Loadable, Reply> drafts = new HashMap<>();
 
-    public ReplyManager(Context context) {
+    public ReplyManager(Context context, String userAgent) {
         this.context = context;
+        this.userAgent = userAgent;
 
         client = new OkHttpClient();
         client.setConnectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
@@ -85,7 +86,7 @@ public class ReplyManager {
 
         httpCall.setup(requestBuilder);
 
-        requestBuilder.header("User-Agent", Chan.getInstance().getUserAgent());
+        requestBuilder.header("User-Agent", userAgent);
         Request request = requestBuilder.build();
 
         client.newCall(request).enqueue(httpCall);

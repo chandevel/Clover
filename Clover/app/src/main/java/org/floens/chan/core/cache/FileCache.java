@@ -73,7 +73,7 @@ public class FileCache {
         httpClient.setReadTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
         httpClient.setWriteTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
 
-        // Disable SPDY, causes reproducable timeouts, only one download at the same time and other fun stuff
+        // Disable SPDY, causes reproducible timeouts, only one download at the same time and other fun stuff
         httpClient.setProtocols(Collections.singletonList(Protocol.HTTP_1_1));
 
         makeDir();
