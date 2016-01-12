@@ -80,13 +80,19 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         inputToken.setText(ChanSettings.passToken.get());
         inputPin.setText(ChanSettings.passPin.get());
 
-        AndroidUtils.waitForLayout(view, new AndroidUtils.OnMeasuredCallback() {
+        // Sanity check
+        if (parentController.view.getWindowToken() == null) {
+            throw new IllegalArgumentException("parentController.view not attached");
+        }
+
+        // TODO: remove
+        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, new AndroidUtils.OnMeasuredCallback() {
             @Override
             public boolean onMeasured(View view) {
                 crossfadeView.getLayoutParams().height = crossfadeView.getHeight();
                 crossfadeView.requestLayout();
                 crossfadeView.toggle(!loggedIn, false);
-                return true;
+                return false;
             }
         });
     }

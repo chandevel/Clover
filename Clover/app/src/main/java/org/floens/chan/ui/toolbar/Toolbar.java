@@ -42,6 +42,7 @@ import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.layout.SearchLayout;
+import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -453,15 +454,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
                 menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
             }
 
-            AndroidUtils.waitForMeasure(titleView, new AndroidUtils.OnMeasuredCallback() {
-                @Override
-                public boolean onMeasured(View view) {
-                    if (item.middleMenu != null) {
-                        item.middleMenu.setPopupWidth(Math.max(dp(200), titleView.getWidth()));
-                    }
-                    return false;
-                }
-            });
+            if (item.middleMenu != null) {
+                item.middleMenu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
+            }
 
             return menu;
         }

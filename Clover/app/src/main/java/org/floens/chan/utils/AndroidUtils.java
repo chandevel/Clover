@@ -40,7 +40,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -58,6 +57,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class AndroidUtils {
+    private static final String TAG = "AndroidUtils";
+
     private static HashMap<String, Typeface> typefaceCache = new HashMap<>();
 
     public static Typeface ROBOTO_MEDIUM;
@@ -254,43 +255,85 @@ public class AndroidUtils {
     }
 
     public interface OnMeasuredCallback {
+        /**
+         * Called when the layout is done.
+         *
+         * @param view same view as the argument.
+         * @return true to continue with rendering, false to cancel and redo the layout.
+         */
         boolean onMeasured(View view);
     }
 
     /**
      * Waits for a measure. Calls callback immediately if the view width and height are more than 0.
-     * Otherwise it registers an onpredrawlistener and rechedules a layout.
-     * Warning: the view you give must be attached to the view root!!!
+     * Otherwise it registers an onpredrawlistener.
+     * <b>Warning: the view you give must be attached to the view root!</b>
      */
     public static void waitForMeasure(final View view, final OnMeasuredCallback callback) {
-        waitForMeasure(true, view, callback);
+        if (view.getWindowToken() == null) {
+            // If you call getViewTreeObserver on a view when it's not attached to a window will result in the creation of a temporarily viewtreeobserver.
+            // This is almost always not what you want.
+            throw new IllegalArgumentException("The view given to waitForMeasure is not attached to the window and does not have a ViewTreeObserver.");
+        }
+
+        waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
     }
 
+    /**
+     * Always registers an onpredrawlistener.
+     * <b>Warning: the view you give must be attached to the view root!</b>
+     */
     public static void waitForLayout(final View view, final OnMeasuredCallback callback) {
-        waitForMeasure(false, view, callback);
+        if (view.getWindowToken() == null) {
+            // See comment above
+            throw new IllegalArgumentException("The view given to waitForLayout is not attached to the window and does not have a ViewTreeObserver.");
+        }
+
+        waitForLayoutInternal(false, view.getViewTreeObserver(), view, callback);
     }
 
-    private static void waitForMeasure(boolean returnIfNotZero, final View view, final OnMeasuredCallback callback) {
+    /**
+     * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.
+     */
+    public static void waitForLayout(final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback) {
+        waitForLayoutInternal(false, viewTreeObserver, view, callback);
+    }
+
+    private static void waitForLayoutInternal(boolean returnIfNotZero, final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback) {
         int width = view.getWidth();
         int height = view.getHeight();
 
         if (returnIfNotZero && width > 0 && height > 0) {
             callback.onMeasured(view);
         } else {
-            view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            Logger.d(TAG, "Adding OnPreDrawListener to ViewTreeObserver");
+            viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    final ViewTreeObserver observer = view.getViewTreeObserver();
-                    if (observer.isAlive()) {
-                        observer.removeOnPreDrawListener(this);
+                    Logger.d(TAG, "OnPreDraw callback");
+
+                    ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
+                    if (viewTreeObserver != view.getViewTreeObserver()) {
+                        Logger.e(TAG, "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one");
+                        usingViewTreeObserver = view.getViewTreeObserver();
+                    }
+
+                    if (usingViewTreeObserver.isAlive()) {
+                        usingViewTreeObserver.removeOnPreDrawListener(this);
+                    } else {
+                        Logger.w(TAG, "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well");
                     }
 
                     boolean ret;
                     try {
                         ret = callback.onMeasured(view);
                     } catch (Exception e) {
-                        Log.i("AndroidUtils", "Exception in onMeasured", e);
+                        Logger.i(TAG, "Exception in onMeasured", e);
                         throw e;
+                    }
+
+                    if (!ret) {
+                        Logger.w(TAG, "waitForLayout requested a re-layout by returning false");
                     }
 
                     return ret;

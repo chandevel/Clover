@@ -111,7 +111,7 @@ public class FloatingMenu {
         popupWindow.setVerticalOffset(-anchor.getHeight() + anchorOffsetY);
         popupWindow.setHorizontalOffset(anchorOffsetX);
         if (popupWidth == POPUP_WIDTH_ANCHOR) {
-            popupWindow.setContentWidth(Math.min(dp(4 * 56), anchor.getWidth()));
+            popupWindow.setContentWidth(Math.min(dp(8 * 56), Math.max(dp(4 * 56), anchor.getWidth())));
         } else if (popupWidth == POPUP_WIDTH_AUTO) {
             popupWindow.setContentWidth(dp(3 * 56));
         } else {

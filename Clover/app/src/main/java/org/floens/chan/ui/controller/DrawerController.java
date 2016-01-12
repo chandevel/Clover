@@ -19,7 +19,6 @@ package org.floens.chan.ui.controller;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Configuration;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -97,13 +96,6 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
-
-        AndroidUtils.waitForMeasure(drawer, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public boolean onMeasured(View view) {
-                return setDrawerWidth();
-            }
-        });
     }
 
     @Override
@@ -117,18 +109,6 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         addChildController(childController);
         childController.attachToParentView(container);
         childController.onShow();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        AndroidUtils.waitForLayout(drawer, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public boolean onMeasured(View view) {
-                return setDrawerWidth();
-            }
-        });
     }
 
     @Override
@@ -271,17 +251,6 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
 
         if (getTop() != null) {
             getStyledToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(count, color);
-        }
-    }
-
-    private boolean setDrawerWidth() {
-        int width = Math.min(view.getWidth() - dp(56), dp(56) * 6);
-        if (drawer.getWidth() != width) {
-            drawer.getLayoutParams().width = width;
-            drawer.requestLayout();
-            return true;
-        } else {
-            return false;
         }
     }
 

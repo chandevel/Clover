@@ -22,7 +22,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 import org.floens.chan.controller.ControllerTransition;
@@ -34,9 +33,9 @@ public class PushControllerTransition extends ControllerTransition {
         AndroidUtils.waitForMeasure(to.view, new AndroidUtils.OnMeasuredCallback() {
             @Override
             public boolean onMeasured(View view) {
-                Animator fromAlpha = ObjectAnimator.ofFloat(from.view, View.ALPHA, 1f, 0.7f);
+                /*Animator fromAlpha = ObjectAnimator.ofFloat(from.view, View.ALPHA, 1f, 0.7f);
                 fromAlpha.setDuration(217);
-                fromAlpha.setInterpolator(new AccelerateDecelerateInterpolator()); // new PathInterpolator(0.4f, 0f, 0.2f, 1f)
+                fromAlpha.setInterpolator(new AccelerateDecelerateInterpolator()); // new PathInterpolator(0.4f, 0f, 0.2f, 1f)*/
 
                 Animator toAlpha = ObjectAnimator.ofFloat(to.view, View.ALPHA, 0f, 1f);
                 toAlpha.setDuration(200);
@@ -56,7 +55,7 @@ public class PushControllerTransition extends ControllerTransition {
                 AnimatorSet set = new AnimatorSet();
                 set.playTogether(/*fromAlpha, */toAlpha, toY);
                 set.start();
-                return false;
+                return true;
             }
         });
     }

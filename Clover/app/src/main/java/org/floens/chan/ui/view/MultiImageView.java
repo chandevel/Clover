@@ -130,7 +130,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                             setVideo(postImage.imageUrl);
                             break;
                     }
-                    return false;
+                    return true;
                 }
             });
         }

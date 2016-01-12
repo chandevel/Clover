@@ -130,7 +130,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         pager.addOnPageChangeListener(presenter);
         loadingBar = (LoadingBar) view.findViewById(R.id.loading_bar);
 
-        AndroidUtils.waitForMeasure(view, new AndroidUtils.OnMeasuredCallback() {
+        // Sanity check
+        if (parentController.view.getWindowToken() == null) {
+            throw new IllegalArgumentException("parentController.view not attached");
+        }
+
+        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, new AndroidUtils.OnMeasuredCallback() {
             @Override
             public boolean onMeasured(View view) {
                 presenter.onViewMeasured();
