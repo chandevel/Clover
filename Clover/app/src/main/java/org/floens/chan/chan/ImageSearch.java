@@ -71,7 +71,7 @@ public abstract class ImageSearch {
                 return "https://saucenao.com/search.php?url=" + imageUrl;
             }
         });
-		
+
         engines.add(new ImageSearch() {
             public int getId() {
                 return 3;
