@@ -383,8 +383,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             videoView.setVideoPath(file.getAbsolutePath());
 
-            Logger.e(TAG, "videoView.start " + postImage.imageUrl + ", " + getWidth() + ", " + getHeight() + ", " + (isAttachedToWindow()));
-
             try {
                 videoView.start();
             } catch (IllegalStateException e) {
