@@ -32,6 +32,7 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 
@@ -109,8 +110,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setMode(final Mode newMode) {
         if (this.mode != newMode) {
-            Logger.d(TAG, "Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
-            Mode oldMode = this.mode;
+//            Logger.test("Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
             this.mode = newMode;
 
             AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
@@ -165,7 +165,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         // Also use volley for the thumbnails
-        thumbnailRequest = Chan.getVolleyImageLoader().get(thumbnailUrl, new com.android.volley.toolbox.ImageLoader.ImageListener() {
+        thumbnailRequest = Chan.getVolleyImageLoader().get(thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 thumbnailRequest = null;
@@ -183,6 +183,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 }
             }
         }, getWidth(), getHeight());
+
+        if (thumbnailRequest.getBitmap() != null) {
+            // Request was immediate and thumbnailRequest was first set to null in onResponse, and then set to the container
+            // when the method returned
+            // Still set it to null here
+            thumbnailRequest = null;
+        }
     }
 
     public void setBigImage(String imageUrl) {
@@ -295,7 +302,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             onError();
             return;
         } catch (OutOfMemoryError e) {
-            System.gc();
+            Runtime.getRuntime().gc();
             e.printStackTrace();
             onOutOfMemoryError();
             return;
@@ -387,10 +394,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
     }
 
-    public VideoView getVideoView() {
-        return videoView;
-    }
-
     private void onVideoError() {
         if (!videoError) {
             videoError = true;
@@ -423,15 +426,19 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     public void cancelLoad() {
         if (thumbnailRequest != null) {
             thumbnailRequest.cancelRequest();
+            thumbnailRequest = null;
         }
         if (bigImageRequest != null) {
             bigImageRequest.cancel();
+            bigImageRequest = null;
         }
         if (gifRequest != null) {
             gifRequest.cancel();
+            gifRequest = null;
         }
         if (videoRequest != null) {
             videoRequest.cancel();
+            videoRequest = null;
         }
     }
 
@@ -454,6 +461,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 View child = getChildAt(i);
                 if (child != playView) {
                     if (child != view) {
+                        if (child instanceof VideoView) {
+                            VideoView item = (VideoView) child;
+                            item.stopPlayback();
+                        }
+
                         removeViewAt(i);
                     } else {
                         alreadyAttached = true;
