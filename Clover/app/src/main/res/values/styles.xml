@@ -88,7 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_saved_reply_color">#ff5C5C5C</item>
         <item name="post_highlighted_color">#ff444444</item>
         <item name="post_subject_color">#ff625cff</item>
-        <item name="post_details_color">#ff646464</item>
+        <item name="post_details_color">#ffc5c8c6</item>
         <item name="post_link_color">#ff625cff</item>
         <item name="post_spoiler_color">#ff000000</item>
         <item name="post_id_background_light">#00000000</item>
@@ -157,7 +157,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_link_color">#ff5F89AC</item>
         <item name="post_highlight_quote_color">#2b435a</item>
         <item name="post_subject_color">#ffb294bb</item>
-        <item name="post_details_color">#ffc5c8c6</item>
         <item name="post_inline_quote_color">#ffb5bd68</item>
 
     </style>
