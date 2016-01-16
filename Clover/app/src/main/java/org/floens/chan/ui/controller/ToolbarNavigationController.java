@@ -60,6 +60,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
 
         toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
         toolbar.beginTransition(to.navigationItem);
+        toolbar.transitionProgress(0f, false);
 
         return true;
     }
