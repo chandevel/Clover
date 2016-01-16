@@ -17,8 +17,6 @@
  */
 package org.floens.chan.ui.layout;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -27,14 +25,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -64,6 +60,7 @@ import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
+import org.floens.chan.ui.view.HidingFloatingActionButton;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -92,7 +89,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     private ThreadPresenter presenter;
 
     private LoadView loadView;
-    private FloatingActionButton replyButton;
+    private HidingFloatingActionButton replyButton;
     private ThreadListLayout threadListLayout;
     private LinearLayout errorLayout;
 
@@ -126,10 +123,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
         presenter = new ThreadPresenter(this);
 
-
         loadView = (LoadView) findViewById(R.id.loadview);
-        replyButton = (FloatingActionButton) findViewById(R.id.reply_button);
-        replyButton.setOnClickListener(this);
+        replyButton = (HidingFloatingActionButton) findViewById(R.id.reply_button);
 
         threadListLayout = (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
@@ -146,6 +141,9 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         replyButtonEnabled = ChanSettings.enableReplyFab.get();
         if (!replyButtonEnabled) {
             AndroidUtils.removeFromParentView(replyButton);
+        } else {
+            replyButton.setOnClickListener(this);
+            replyButton.setToolbar(callback.getToolbar());
         }
 
         switchVisible(Visible.LOADING);
@@ -471,22 +469,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         if (show != showingReplyButton && replyButtonEnabled) {
             showingReplyButton = show;
 
-            replyButton.animate()
-                    .setInterpolator(new DecelerateInterpolator(2f))
-                    .setStartDelay(show ? 100 : 0)
-                    .setDuration(200)
-                    .alpha(show ? 1f : 0f)
-                    .scaleX(show ? 1f : 0f)
-                    .scaleY(show ? 1f : 0f)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                            replyButton.setAlpha(show ? 1f : 0f);
-                            replyButton.setScaleX(show ? 1f : 0f);
-                            replyButton.setScaleY(show ? 1f : 0f);
-                        }
-                    })
-                    .start();
+            if (show) {
+                replyButton.show();
+            } else {
+                replyButton.hide();
+            }
         }
     }
 

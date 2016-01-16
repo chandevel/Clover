@@ -46,6 +46,9 @@ import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
@@ -83,6 +86,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     private boolean openKeyboardAfterSearchViewCreated = false;
     private int lastScrollDeltaOffset;
     private int scrollOffset;
+    private List<ToolbarCollapseCallback> collapseCallbacks = new ArrayList<>();
 
     private boolean transitioning = false;
     private NavigationItem fromItem;
@@ -107,6 +111,14 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         return getHeight() == 0 ? getLayoutParams().height : getHeight();
     }
 
+    public void addCollapseCallback(ToolbarCollapseCallback callback) {
+        collapseCallbacks.add(callback);
+    }
+
+    public void removeCollapseCallback(ToolbarCollapseCallback callback) {
+        collapseCallbacks.remove(callback);
+    }
+
     public void processScrollCollapse(int offset) {
         processScrollCollapse(offset, false);
     }
@@ -122,9 +134,18 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         if (animated) {
             animate().translationY(-scrollOffset).setDuration(300).setInterpolator(new DecelerateInterpolator(2f)).start();
+
+            boolean collapse = scrollOffset > 0;
+            for (ToolbarCollapseCallback c : collapseCallbacks) {
+                c.onCollapseAnimation(collapse);
+            }
         } else {
             animate().cancel();
             setTranslationY(-scrollOffset);
+
+            for (ToolbarCollapseCallback c : collapseCallbacks) {
+                c.onCollapseTranslation(scrollOffset / (float) getHeight());
+            }
         }
     }
 
@@ -486,5 +507,11 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         String getSearchHint(NavigationItem item);
 
         void onSearchEntered(NavigationItem item, String entered);
+    }
+
+    public interface ToolbarCollapseCallback {
+        void onCollapseTranslation(float offset);
+
+        void onCollapseAnimation(boolean collapse);
     }
 }
