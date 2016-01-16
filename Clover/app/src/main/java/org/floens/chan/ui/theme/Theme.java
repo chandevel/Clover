@@ -18,9 +18,11 @@
 package org.floens.chan.ui.theme;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.FloatingActionButton;
 import android.widget.ImageView;
 
 import org.floens.chan.R;
@@ -37,6 +39,7 @@ public class Theme {
     public final int resValue;
     public boolean isLightTheme = true;
     public ThemeHelper.PrimaryColor primaryColor;
+    public ThemeHelper.PrimaryColor accentColor;
 
     public int textPrimary;
     public int textSecondary;
@@ -71,6 +74,7 @@ public class Theme {
         this.name = name;
         this.resValue = resValue;
         this.primaryColor = primaryColor;
+        accentColor = ThemeHelper.PrimaryColor.TEAL;
 
         resolveSpanColors();
         resolveDrawables();
@@ -86,6 +90,10 @@ public class Theme {
         historyDrawable = new ThemeDrawable(R.drawable.ic_history_black_24dp, 0.54f);
         listAddDrawable = new ThemeDrawable(R.drawable.ic_playlist_add_black_24dp, 0.54f);
         helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_black_24dp, 0.54f);
+    }
+
+    public void applyFabColor(FloatingActionButton fab) {
+        fab.setBackgroundTintList(ColorStateList.valueOf(accentColor.color));
     }
 
     private void resolveSpanColors() {

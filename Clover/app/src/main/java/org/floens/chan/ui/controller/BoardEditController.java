@@ -58,6 +58,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -95,6 +96,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         add = (FloatingActionButton) view.findViewById(R.id.add);
         add.setOnClickListener(this);
+        theme().applyFabColor(add);
 
         boards = boardManager.getSavedBoards();
 

@@ -69,6 +69,7 @@ import java.util.List;
 
 import javax.net.ssl.SSLException;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -144,6 +145,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         } else {
             replyButton.setOnClickListener(this);
             replyButton.setToolbar(callback.getToolbar());
+            theme().applyFabColor(replyButton);
         }
 
         switchVisible(Visible.LOADING);

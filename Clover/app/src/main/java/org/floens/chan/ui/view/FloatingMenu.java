@@ -49,6 +49,7 @@ public class FloatingMenu {
     private int anchorOffsetX;
     private int anchorOffsetY;
     private int popupWidth = POPUP_WIDTH_AUTO;
+    private int popupHeight = -1;
     private List<FloatingMenuItem> items;
     private FloatingMenuItem selectedItem;
     private ListAdapter adapter;
@@ -84,6 +85,13 @@ public class FloatingMenu {
         }
     }
 
+    public void setPopupHeight(int height) {
+        this.popupHeight = height;
+        if (popupWindow != null) {
+            popupWindow.setHeight(height);
+        }
+    }
+
     public void setItems(List<FloatingMenuItem> items) {
         this.items = items;
         if (popupWindow != null) {
@@ -116,6 +124,10 @@ public class FloatingMenu {
             popupWindow.setContentWidth(dp(3 * 56));
         } else {
             popupWindow.setContentWidth(popupWidth);
+        }
+
+        if (popupHeight > 0) {
+            popupWindow.setHeight(popupHeight);
         }
 
         int selectedPosition = 0;

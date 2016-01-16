@@ -19,6 +19,7 @@ package org.floens.chan.core.settings;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
@@ -235,22 +236,25 @@ public class ChanSettings {
 
         String theme = themeRaw;
         String color = null;
+        String accentColor = null;
 
         String[] splitted = themeRaw.split(",");
-        if (splitted.length == 2) {
+        if (splitted.length >= 2) {
             theme = splitted[0];
             color = splitted[1];
+            if (splitted.length == 3) {
+                accentColor = splitted[2];
+            }
         }
 
-        return new ThemeColor(theme, color);
+        return new ThemeColor(theme, color, accentColor);
     }
 
     public static void setThemeAndColor(ThemeColor themeColor) {
-        if (themeColor.color != null) {
-            ChanSettings.theme.set(themeColor.theme + "," + themeColor.color);
-        } else {
-            ChanSettings.theme.set(themeColor.theme);
+        if (TextUtils.isEmpty(themeColor.color) || TextUtils.isEmpty(themeColor.accentColor)) {
+            throw new IllegalArgumentException();
         }
+        ChanSettings.theme.set(themeColor.theme + "," + themeColor.color + "," + themeColor.accentColor);
     }
 
     /**
@@ -273,10 +277,12 @@ public class ChanSettings {
     public static class ThemeColor {
         public String theme;
         public String color;
+        public String accentColor;
 
-        public ThemeColor(String theme, String color) {
+        public ThemeColor(String theme, String color, String accentColor) {
             this.theme = theme;
             this.color = color;
+            this.accentColor = accentColor;
         }
     }
 }

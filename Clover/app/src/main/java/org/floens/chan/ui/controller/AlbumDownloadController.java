@@ -48,6 +48,7 @@ import org.floens.chan.utils.RecyclerUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class AlbumDownloadController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, View.OnClickListener {
@@ -83,6 +84,7 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
 
         download = (FloatingActionButton) view.findViewById(R.id.download);
         download.setOnClickListener(this);
+        theme().applyFabColor(download);
         recyclerView = (GridRecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         gridLayoutManager = new GridLayoutManager(context, 3);

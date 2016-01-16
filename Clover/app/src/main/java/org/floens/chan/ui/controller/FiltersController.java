@@ -115,6 +115,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         add = (FloatingActionButton) view.findViewById(R.id.add);
         add.setOnClickListener(this);
+        theme().applyFabColor(add);
 
         adapter = new FilterAdapter();
         recyclerView.setAdapter(adapter);
