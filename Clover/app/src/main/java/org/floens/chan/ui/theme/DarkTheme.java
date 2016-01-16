@@ -36,5 +36,6 @@ public class DarkTheme extends Theme {
         historyDrawable = new ThemeDrawable(R.drawable.ic_history_white_24dp, 1f);
         listAddDrawable = new ThemeDrawable(R.drawable.ic_playlist_add_white_24dp, 1f);
         helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_white_24dp, 1f);
+        refreshDrawable = new ThemeDrawable(R.drawable.ic_refresh_white_24dp, 1f);
     }
 }

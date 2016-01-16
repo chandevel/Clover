@@ -64,6 +64,8 @@ public class CaptchaLayout extends WebView implements CaptchaLayoutInterface {
         this.siteKey = siteKey;
         this.lightTheme = lightTheme;
 
+        AndroidUtils.hideKeyboard(this);
+
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
 
@@ -100,14 +102,19 @@ public class CaptchaLayout extends WebView implements CaptchaLayoutInterface {
         if (loaded) {
             loadUrl("javascript:grecaptcha.reset()");
         } else {
-            loaded = true;
-
-            String html = IOUtils.assetAsString(getContext(), "captcha/captcha.html");
-            html = html.replace("__site_key__", siteKey);
-            html = html.replace("__theme__", lightTheme ? "light" : "dark");
-
-            loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
+            hardReset();
         }
+    }
+
+    @Override
+    public void hardReset() {
+        loaded = true;
+
+        String html = IOUtils.assetAsString(getContext(), "captcha/captcha.html");
+        html = html.replace("__site_key__", siteKey);
+        html = html.replace("__theme__", lightTheme ? "light" : "dark");
+
+        loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
     }
 
     private void onCaptchaLoaded() {

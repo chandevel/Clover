@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -61,8 +62,11 @@ import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 public class ReplyLayout extends LoadView implements View.OnClickListener, AnimationUtils.LayoutAnimationProgress, ReplyPresenter.ReplyPresenterCallback, TextWatcher, ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener {
     private ReplyPresenter presenter;
     private ReplyLayoutCallback callback;
+    private boolean newCaptcha = ChanSettings.postNewCaptcha.get();
 
     private View replyInputLayout;
+    private FrameLayout captchaContainer;
+    private ImageView captchaHardReset;
     private CaptchaLayoutInterface captchaLayout;
 
     private boolean openingName;
@@ -141,6 +145,12 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 
+        captchaContainer = (FrameLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_captcha, this, false);
+        captchaHardReset = (ImageView) captchaContainer.findViewById(R.id.reset);
+        theme().refreshDrawable.apply(captchaHardReset);
+        setRoundItemBackground(captchaHardReset);
+        captchaHardReset.setOnClickListener(this);
+
         setView(replyInputLayout);
     }
 
@@ -167,9 +177,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public LayoutParams getLayoutParamsForView(View view) {
-        if (view == replyInputLayout || (view == captchaLayout && captchaLayout instanceof LegacyCaptchaLayout)) {
+        if (view == replyInputLayout || (view == captchaContainer && !newCaptcha)) {
             return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        } else if (view == captchaLayout && captchaLayout instanceof CaptchaLayout) {
+        } else if (view == captchaContainer && newCaptcha) {
             return new LayoutParams(LayoutParams.MATCH_PARENT, dp(300));
         } else {
             // Loadbar
@@ -198,7 +208,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
             presenter.onSubmitClicked();
         }/* else if (v == preview) {
             // TODO
-        }*/
+        }*/ else if (v == captchaHardReset) {
+            captchaLayout.hardReset();
+        }
     }
 
     @Override
@@ -218,16 +230,20 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
                 break;
             case CAPTCHA:
                 if (captchaLayout == null) {
-                    if (ChanSettings.postNewCaptcha.get()) {
+                    if (newCaptcha) {
                         captchaLayout = new CaptchaLayout(getContext());
                     } else {
-                        captchaLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext()).inflate(R.layout.layout_captcha_legacy, this, false);
+                        captchaLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext()).inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
                     }
+                    captchaContainer.addView((View) captchaLayout, 0);
                 }
 
-                setView((View) captchaLayout);
+                if (newCaptcha) {
+                    AndroidUtils.hideKeyboard(this);
+                }
 
-                AndroidUtils.hideKeyboard(this);
+                setView(captchaContainer);
+
                 break;
         }
     }
@@ -321,6 +337,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     @Override
     public void updateCommentCount(int count, int maxCount, boolean over) {
         commentCounter.setText(count + "/" + maxCount);
+        //noinspection ResourceAsColor
         commentCounter.setTextColor(over ? 0xffff0000 : getAttrColor(getContext(), R.attr.text_color_secondary));
     }
 

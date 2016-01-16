@@ -21,4 +21,6 @@ public interface CaptchaLayoutInterface {
     void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback);
 
     void reset();
+
+    void hardReset();
 }

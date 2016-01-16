@@ -131,6 +131,11 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
     }
 
     @Override
+    public void hardReset() {
+        reset();
+    }
+
+    @Override
     public void reset() {
         input.setText("");
         String html = IOUtils.assetAsString(getContext(), "captcha/captcha_legacy.html");
@@ -141,6 +146,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
     }
 
     private void submitCaptcha() {
+        AndroidUtils.hideKeyboard(this);
         callback.captchaEntered(this, challenge, input.getText().toString());
     }
 
