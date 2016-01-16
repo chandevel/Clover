@@ -22,15 +22,24 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class FloatingMenuItem {
     private Object id;
     private String text;
-
-    public FloatingMenuItem(Object id, String text) {
-        this.id = id;
-        this.text = text;
-    }
+    private boolean enabled = true;
 
     public FloatingMenuItem(Object id, int text) {
+        this(id, getString(text));
+    }
+
+    public FloatingMenuItem(Object id, int text, boolean enabled) {
+        this(id, getString(text), enabled);
+    }
+
+    public FloatingMenuItem(Object id, String text) {
+        this(id, text, true);
+    }
+
+    public FloatingMenuItem(Object id, String text, boolean enabled) {
         this.id = id;
-        this.text = getString(text);
+        this.text = text;
+        this.enabled = enabled;
     }
 
     public Object getId() {
@@ -47,5 +56,13 @@ public class FloatingMenuItem {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
