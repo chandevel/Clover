@@ -3,84 +3,166 @@
 <head>
     <title>Clover - 4chan browser</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
-    <link rel="stylesheet" href="assets/font-awesome/css/font-awesome.min.css">
-    <link rel="stylesheet" href="assets/main.css" type="text/css">
-    <script src="assets/js/jquery-1.11.0.min.js"></script>
-    <script src="assets/js/jquery.cycle.lite.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <div class="github">
-        <a href="https://github.com/floens/Clover"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+        <a href="https://github.com/Floens/Clover"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
     </div>
     <div class="header">
-        <p>
-            The new 4chan Android browser<br>Post from toilet. Heh.
-            <div class="dllinks">
-                <div class="top">download now</div>
-                <a href="https://play.google.com/store/apps/details?id=org.floens.chan">Play Store</a> | <a href="https://f-droid.org/app/org.floens.chan">F-Droid</a> | <a href="https://github.com/Floens/Clover/releases/download/v1.2.11/Clover_v1.2.11.apk">APK</a>
-            </div>
-        </p>
-    </div>
-    <div class="wrapper">
-        <div class="container">
-            <div class="box features">
-                <span class="fa fa-code-fork"></span>Open source
-                <br>
-                <span class="fa fa-camera-retro"></span>Smooth image viewer
-                <br>
-                <span class="fa fa-thumb-tack"></span>Pin threads
-                <br>
-                <span class="fa fa-envelope-o"></span>New post notifications
-                <br>
-                <span class="fa fa-comment-o"></span>Make threads &amp; post replies
-                <br>
-                <span class="fa fa-refresh"></span>Auto thread refresh
-                <br>
-            </div>
-            <div class="box screenshots">
-                <div id="slideshow">
-                    <img class="phone" id="phone1" src="assets/img/phone1.png">
-                    <img class="phone" id="phone2" src="assets/img/phone2.png">
-                    <img class="phone" id="phone3" src="assets/img/phone3.png">
+        <ul class="navbar">
+            <li><a href="#download">Download</a></li>
+            <li><a href="#releases">Releases</a></li>
+            <li><a href="#donate">Donate</a></li>
+            <li><a href="#beta">Beta</a></li>
+        </ul>
+        <div class="logotext">
+            <img class="logo" src="images/logo.png">
+            <div class="text">
+                Clover<br>
+                <div class="description">
+                    <small>The best 4chan browser for Android</small>
                 </div>
             </div>
-            <div class="box features right">
-                <span class="fa fa-money"></span>Free
-                <br>
-                <span class="fa fa-fast-forward"></span>Fast
-                <br>
-                <span class="fa fa-pencil"></span>Themes
-                <br>
-                <span class="fa fa-chevron-right"></span>4chan pass support
-                <br>
-                <span class="fa fa-play"></span>WebM support
-                <br>
-                <span class="fa fa-lock"></span>HTTPS support
-                <br>
+        </div>
+        <div class="links">
+            <a class="googleplay" href="https://play.google.com/store/apps/details?id=org.floens.chan&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
+                <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" />
+            </a>
+            <br>
+            <a href="https://f-droid.org/app/org.floens.chan">Available on F-Droid</a>
+            <br>
+            <br>
+            <a href="https://github.com/Floens/Clover">Source code on GitHub</a>
+        </div>
+    </div>
+    <div class="container">
+        <div id="page-download" class="page page-active">
+            <div class="box">
+            </div>
+            <div class="box-half box-float-right">
+                <h1>Features</h1>
+                <p>
+                    Clover is an unofficial fast app for browsing the imageboard 4chan.org
+                </p>
+                <p>
+                    <span class="feature"><i class="material-icons">code</i>Free software</span><br>
+                    <span class="feature"><i class="material-icons">smartphone</i>Material design</span><br>
+                    <span class="feature"><i class="material-icons">bookmark_border</i>Bookmark threads</span><br>
+                    <span class="feature"><i class="material-icons">notifications</i>Thread watching</span><br>
+                    <span class="feature"><i class="material-icons">movie</i>Inline WebM support</span><br>
+                    <span class="feature"><i class="material-icons">color_lens</i>Themes</span><br>
+                    <span class="feature"><i class="material-icons">payment</i>4chan pass support</span><br>
+                </p>
+            </div>
+            <div class="box-half box-float-right">
+                <div class="devices">
+                    <img class="tablet" src="images/nexus9_home_framed_500.png">
+                    <img class="phone" src="images/nexus5x_home_framed_400.png">
+                </div>
+                <!-- <img src="images/screenshot2_framed.png">
+                <img src="images/screenshot3_framed.png"> -->
             </div>
             <div class="clear"></div>
-            <div id="donate">
-                <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-                    <input type="hidden" name="cmd" value="_s-xclick">
-                    <input type="hidden" name="hosted_button_id" value="45YW6N3QEHSV8">
-                    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-                    <img alt="" border="0" src="https://www.paypalobjects.com/nl_NL/i/scr/pixel.gif" width="1" height="1">
-                </form>
-                <div class="bitcoin">Bitcoin: 1N7VtcNh8L8u4tF9CJ38GjnPbmxM4Vixi6</div>
-            </div>
+        </div>
+        <div id="page-releases" class="page page-inactive">
+            <div class="box">
+                <h1>Releases</h1>
+                <p>
+                    These are all the APK releases currently on GitHub. See <a href="https://github.com/Floens/Clover/tree/dev/releases">GitHub</a>.<br>
+                    <b>The APKs are signed with the same key as Google Play.</b> You can install it over an installed version if the already installed version was also signed with the Google Play key. Uninstall the already installed version otherwise before installing a new one.<br>
+                </p>
+                <p>
+                    It's recommended to download Clover with Google Play or F-Droid to get automatic updates!
+                </p>
 
-            <div class="footer">
-                <a href="https://github.com/Floens/Clover">GitHub</a> | <a href="https://play.google.com/store/apps/details?id=org.floens.chan">Play Store</a> | <a href="https://f-droid.org/app/org.floens.chan">F-Droid</a> | <a href="https://github.com/Floens/Clover/releases/download/v1.2.11/Clover_v1.2.11.apk">APK</a>
-                <br><br>
-                Site made by <a href="https://www.terryz.com/">Terry</a>
+                <ul class="releases-list">
+                    Loading...
+                </ul>
             </div>
+        </div>
+        <div id="page-donate" class="page page-inactive">
+            <h1>Donate</h1>
+            <div class="box-half box-float">
+                <p>
+                    Clover is a free project and has no advertisements. I do not make any money of Clover apart from donations.
+                </p>
+                <p>
+                    Donate to aid the development of Clover. Donating helps to keep development alive and motivates me to work on the project.
+                </p>
+            </div>
+            <div class="box-half box-float">
+                <p>
+                    Donate using PayPal:<br>
+                    <a class="paypal" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=45YW6N3QEHSV8">
+                        <img src="images/paypal.png">
+                    </a>
+                    <br>
+                    <small>
+                        PayPal takes 2.9% + $0.30 USD<br>
+                    </small>
+                </p>
+                <p>
+                    Donate using Bitcoin:<br>
+                    <code>1N7VtcNh8L8u4tF9CJ38GjnPbmxM4Vixi6</code>
+                </p>
+            </div>
+            <div class="clear"></div>
+            <div class="box">
+                <p>
+                    This is a list of all the donations I have received since January 2016. Enter a name in the optional <b>name</b> field when using PayPal to be credited on the donors list. "Anonymous" is credited otherwise.
+                </p>
+                <table class="donator-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100%;">Name</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Anonymous</td><td>$25.00</td></tr>
+                        <tr><td>Anonymous</td><td>$10.12</td></tr>
+                        <tr><td>Anonymous</td><td>$5.12</td></tr>
+                        <tr><td>Anonymous</td><td>$5.00</td></tr>
+                        <tr><td>Anonymous</td><td>$2.20</td></tr>
+                        <tr><td>Anonymous</td><td>$2.00</td></tr>
+                        <tr><td>Anonymous</td><td>$2.00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="page-beta" class="page page-inactive">
+            <h1>Clover beta</h1>
+            <div class="box">
+                <p>
+                    Join the beta of Clover to get the most recent developer version first.<br>
+                    The beta is distributed through the Google Play beta program. You have to be logged in with the same account as the account you use to download apps with the Play Store on your phone.<br>
+                </p>
+                <p>
+                    <b>Read the instructions carefully on this page.</b><br>
+                    <b>It can take a few hours for the update to arrive on your phone.</b><br>
+                    <a href="https://play.google.com/apps/testing/org.floens.chan">Clover Google Play beta</a><i class="material-icons external">exit_to_app</i><br>
+                </p>
+                <p>
+                    Alternatively download the APK from the releases page, but you won't get automatic updates.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a id="email">Email me</a><br>
+            <br>
+            Android, Google Play and the Google Play logo are trademarks of Google Inc.<br>
+            Clover is not affiliated with 4chan.org.
         </div>
     </div>
 
-    <script>
-        $('#slideshow').cycle()
-    </script>
+    <script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>

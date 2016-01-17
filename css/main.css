@@ -1,0 +1,341 @@
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #81C784;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 300;
+    min-width: 300px;
+    line-height: 1.4em;
+    overflow-y: scroll;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+a {
+    color: #ffffff;
+}
+
+.material-icons.external {
+    display: inline-block;
+    font-size: 18px;
+    vertical-align: middle;
+    line-height: 19px;
+    padding: 0 0 0 4px;
+}
+
+h1 {
+    font-size: 56px;
+    font-weight: 300;
+    margin: 0.5em 0 0.5em 0;
+}
+
+small {
+    font-size: 11px;
+}
+
+.github {
+    position: fixed;
+    z-index: 50;
+    height: 100px;
+    width: 100px;
+    float: right;
+    right: 0px;
+    top: 0px;
+}
+
+.header {
+    position: relative;
+    height: 460px;
+    text-align: center;
+    background-color: #f5f5f5;
+    color: #757575;
+    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: height .3s;
+}
+
+.header.collapsed {
+    height: 56px;
+}
+
+.header .navbar {
+    text-align: left;
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    height: 56px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.header .navbar li {
+    display: inline-block;
+    height: 100%;
+    margin: 0 20px;
+    line-height: 56px;
+}
+
+.header .navbar li a {
+    text-decoration: none;
+}
+
+.header .navbar li a: hover {
+    text-decoration: underline;
+}
+
+.header .logotext {
+    padding: 75px 0 0 0;
+}
+
+.header .logo {
+    display: inline-block;
+    width: 240px;
+    height: 192px;
+    vertical-align: middle;
+    padding: 0 24px 0 24px;
+}
+
+.header .text {
+    display: inline-block;
+    width: 240px;
+    vertical-align: middle;
+    text-align: left;
+    font-size: 56px;
+    color: #616161;
+}
+
+.header a {
+    color: #616161;
+    text-decoration: underline;
+}
+
+.header .text .description {
+    line-height: 1em;
+    margin: 6px 0 0 0;
+}
+
+.header .text small {
+    display: inline-block;
+    line-height: 1.2em;
+    font-size: 16px;
+}
+
+.header .links a.googleplay {
+    display: inline-block;
+    margin: 1.5em 0;
+}
+
+.header .links a.googleplay img {
+    height: 50px;
+}
+
+.container {
+    
+}
+
+.page {
+    max-width: 748px;
+    padding: 24px;
+    margin: 0 auto;
+    word-wrap: break-word;
+}
+
+.page-full {
+    max-width: 1500px;
+    margin: 0 auto;
+    word-wrap: break-word;
+}
+
+.box {
+    width: 700px;
+}
+
+.box-half {
+    width: 350px;
+    float: left;
+    padding: 0 12px 0 0;
+}
+
+.box-float-right {
+    float: right;
+}
+
+.page-active {
+    display: block;
+}
+
+.page-inactive {
+    display: none;
+}
+
+.device img {
+    height: 500px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.devices {
+    position: relative;
+    height: 500px;
+}
+
+.devices .tablet {
+    position: absolute;
+    height: 500px;
+    right: 50px;
+}
+
+.devices .phone {
+    position: absolute;
+    height: 400px;
+    right: 110px;
+    top: 100px;
+}
+
+.devices .text {
+    display: inline-block;
+    vertical-align: top;
+    width: 200px;
+    font-weight: 300;
+}
+
+.feature, .feature i {
+    line-height: 24px;
+    display: inline-block;
+    vertical-align: middle;
+    padding: 2px 0 2px 0px;
+}
+
+.releases-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.releases-list li {
+    line-height: 1.8em;
+}
+
+.feature i {
+    padding-right: 8px;
+}
+
+table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+table thead th {
+    text-align: left;
+}
+
+table th, table td {
+    padding: 0.6em;
+    border-bottom: 1px solid #eceeef;
+}
+
+.paypal {
+    display: inline-block;
+    background-color: #ffffff;
+    padding: 10px 10px 5px 10px;
+    margin: 5px 0 5px 0;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px 1px rgba(0, 0, 0, 0.15);
+    transition: box-shadow .3s;
+}
+
+.paypal:hover {
+    box-shadow: 0 2px 8px 2px rgba(0, 0, 0, 0.15);
+}
+
+.footer {
+    margin: 100px 10px 20px 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.clear {
+    clear: both;
+}
+
+.center-small-viewport {
+}
+
+/* 699 + 24 * 2 + 30 */
+@media (max-width: 777px) { 
+    .box {
+        width: 100%;
+    }
+
+    .box-half {
+        width: 100%;
+    }
+
+    .github {
+        display: none;
+    }
+
+    .devices {
+        position: static;
+        height: auto;
+    }
+
+    .devices .tablet {
+        display: none;
+    }
+
+    .devices .phone {
+        position: static;
+        display: block;
+        margin: 0 auto;
+        width: 300px;
+        height: 500px;
+    }
+
+    .center-small-viewport {
+        text-align: center;
+    }
+}
+
+/* 599 + 24 * 2 + 30 */
+@media (max-width: 677px) {
+    .header {
+        height: 560px;
+    }
+
+    .header .logotext .logo, .header .logotext .text {
+        display: block;
+        margin: 0 auto;
+    }
+
+    .header .text {
+        text-align: center;
+        padding: 20px 0 0 0;
+    }
+}
+
+@media (max-width: 500px) {
+    .header .navbar li {
+        margin: 0 5px;
+    }
+
+    .devices .phone {
+        width: 240px;
+        height: 400px;
+    }
+}
+
+@media (max-width: 400px) {
+    .header .navbar li {
+        font-size: 13px;
+    }
+}
