@@ -56,6 +56,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private static final int OPEN_BROWSER_ID = 107;
 
     private ToolbarMenuItem pinItem;
+    private ToolbarMenuItem overflowItem;
     private Loadable loadable;
 
     public ViewThreadController(Context context) {
@@ -88,7 +89,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         items.add(new FloatingMenuItem(SHARE_ID, context.getString(R.string.action_share)));
         items.add(new FloatingMenuItem(UP_ID, context.getString(R.string.action_up)));
         items.add(new FloatingMenuItem(DOWN_ID, context.getString(R.string.action_down)));
-        navigationItem.createOverflow(context, this, items);
+        overflowItem = navigationItem.createOverflow(context, this, items);
 
         loadThread(loadable);
     }
@@ -148,7 +149,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             updateLeftPaneHighlighting(loadable);
             presenter.requestInitialData();
 
-            if (ChanSettings.threadOpenCounter.increase() == 2) {
+            int counter = ChanSettings.threadOpenCounter.increase();
+            if (counter == 2) {
+                HintPopup.show(context, overflowItem.getView(), context.getString(R.string.thread_up_down_hint), -dp(1), 0);
+            } else if (counter == 3) {
                 HintPopup.show(context, pinItem.getView(), context.getString(R.string.thread_pin_hint), -dp(1), 0);
             }
         }

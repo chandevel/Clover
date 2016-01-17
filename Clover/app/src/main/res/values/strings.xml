@@ -154,6 +154,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="thread_new_posts">%1$d new %2$s</string>
     <string name="thread_new_posts_goto">View</string>
     <string name="thread_empty_select">Please select a thread</string>
+    <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
 
     <string name="board_edit">Board editor</string>
