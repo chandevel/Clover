@@ -16,13 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <!--<color name="primary">#ff4caf50</color>-->
-    <!--<color name="primary_dark">#ff388e3c</color>-->
-    <!--<color name="accent">#ff009688</color>-->
+    <color name="primary">#ff4caf50</color>
+    <color name="primary_dark">#ff388e3c</color>
+    <color name="accent">#ff009688</color>
 
     <!-- Main light theme -->
     <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!--<item name="colorAccent">#ff009688</item>-->
+        <item name="colorAccent">#ff009688</item>
 
         <item name="android:windowBackground">@android:color/white</item>
         <item name="windowActionModeOverlay">true</item>
