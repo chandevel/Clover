@@ -172,7 +172,6 @@ public class BoardManager {
         list.add(new Board("Food & Cooking", "ck", true, true));
         list.add(new Board("Do It Yourself", "diy", true, true));
         list.add(new Board("Animals & Nature", "an", true, true));
-        list.add(new Board("Sports", "sp", true, true));
 
         Collections.shuffle(list);
 
