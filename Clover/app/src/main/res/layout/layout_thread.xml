@@ -31,6 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
         android:layout_margin="16dp"
+        android:alpha="0"
+        android:scaleX="0"
+        android:scaleY="0"
         android:src="@drawable/ic_create_white_24dp"
         tools:ignore="RtlHardcoded" />
 

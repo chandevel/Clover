@@ -17,6 +17,8 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -31,6 +33,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -471,11 +474,22 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         if (show != showingReplyButton && replyButtonEnabled) {
             showingReplyButton = show;
 
-            if (show) {
-                replyButton.show();
-            } else {
-                replyButton.hide();
-            }
+            replyButton.animate()
+                    .setInterpolator(new DecelerateInterpolator(2f))
+                    .setStartDelay(show ? 100 : 0)
+                    .setDuration(200)
+                    .alpha(show ? 1f : 0f)
+                    .scaleX(show ? 1f : 0f)
+                    .scaleY(show ? 1f : 0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            replyButton.setAlpha(show ? 1f : 0f);
+                            replyButton.setScaleX(show ? 1f : 0f);
+                            replyButton.setScaleY(show ? 1f : 0f);
+                        }
+                    })
+                    .start();
         }
     }
 
