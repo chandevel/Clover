@@ -1,0 +1,8 @@
+On 2016-1-17 Clover was suspended from Google Play, with the reason "Violation of the sexually explicit material provision of the Content Policy."
+
+I made an appeal for this suspension, and that might take a few days to process. This happened about an hour after I uploaded the final beta to the Play Store, that had some changes to what top boards were displayed, and I think that triggered the suspension.
+
+You can still get Clover through F-Droid and with the available APK downloads, I do however recommend F-Droid so that you still get automatic updates.
+
+F-Droid (v2 should be up very soon): https://f-droid.org/repository/browse/?fdid=org.floens.chan
+APKs: https://floens.github.io/Clover/#releases

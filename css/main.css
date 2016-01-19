@@ -30,6 +30,13 @@ a {
     padding: 0 0 0 4px;
 }
 
+.material-icons.inline-text {
+    line-height: 16px;
+    vertical-align: middle;
+    font-size: 20px;
+    padding-right: 6px;
+}
+
 h1 {
     font-size: 56px;
     font-weight: 300;
