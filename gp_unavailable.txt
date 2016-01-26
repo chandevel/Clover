@@ -4,5 +4,9 @@ I made an appeal for this suspension, and that might take a few days to process.
 
 You can still get Clover through F-Droid and with the available APK downloads, I do however recommend F-Droid so that you still get automatic updates.
 
-F-Droid (v2 should be up very soon): https://f-droid.org/repository/browse/?fdid=org.floens.chan
+F-Droid (v2 is up): https://f-droid.org/repository/browse/?fdid=org.floens.chan
 APKs: https://floens.github.io/Clover/#releases
+
+UPDATE 2016-1-26:
+I've written about the appeal denial here:
+https://github.com/Floens/Clover/issues/149#issuecomment-174992326
