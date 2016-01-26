@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.model;
 
+import android.text.TextUtils;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -126,12 +128,12 @@ public class Board {
     public String description;
 
     public boolean finish() {
-        if (key == null || value == null || perPage < 0 || pages < 0)
+        if (TextUtils.isEmpty(key) || TextUtils.isEmpty(value) || perPage < 0 || pages < 0)
             return false;
 
-        // Also filters out /f/, it can't be viewed anyway
-        if (cooldownThreads < 0 || cooldownReplies < 0 || cooldownImages < 0 || cooldownRepliesIntra < 0 || cooldownImagesIntra < 0)
+        if (cooldownThreads < 0 || cooldownReplies < 0 || cooldownImages < 0 || cooldownRepliesIntra < 0 || cooldownImagesIntra < 0) {
             return false;
+        }
 
         return true;
     }

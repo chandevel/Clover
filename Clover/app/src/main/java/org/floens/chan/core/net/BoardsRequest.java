@@ -26,9 +26,19 @@ import org.floens.chan.core.model.Board;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class BoardsRequest extends JsonReaderRequest<List<Board>> {
+    public static List<String> BLOCKED = Collections.singletonList(
+            "f"
+    );
+
+    public static List<String> TREAT_AS_NOT_WORKSAFE = Arrays.asList(
+            "a", "c", "w", "cm", "jp", "mlp", "lgbt"
+    );
+
     public BoardsRequest(String url, Listener<List<Board>> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
     }
@@ -167,6 +177,14 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
         if (!board.finish()) {
             // Invalid data, ignore
             return null;
+        }
+
+        if (BLOCKED.contains(board.value)) {
+            return null;
+        }
+
+        if (TREAT_AS_NOT_WORKSAFE.contains(board.value)) {
+            board.workSafe = false;
         }
 
         return board;

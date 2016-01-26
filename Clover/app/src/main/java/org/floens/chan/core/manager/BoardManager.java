@@ -136,12 +136,12 @@ public class BoardManager {
             }
 
             if (!has) {
-                Logger.d(TAG, "Adding unknown board: " + serverBoard.value);
+                /*Logger.d(TAG, "Adding unknown board: " + serverBoard.value);
 
                 if (serverBoard.workSafe) {
                     serverBoard.saved = true;
                     serverBoard.order = allBoards.size();
-                }
+                }*/
 
                 allBoards.add(serverBoard);
             }
