@@ -54,6 +54,7 @@ public class PreviousVersionHandler {
      * 52 = v2.1.0 = 2
      * 53 = v2.1.1 = 2
      * 54 = v2.1.2 = 2
+     * 55 = v2.1.3 = 2
      */
     private static final int CURRENT_VERSION = 2;
 

@@ -1,3 +1,7 @@
+New in 2.1.3 (2016-01-28)
+- New Google Play release
+
+
 New in 2.1.2 (2016-01-17)
 - Fix for a crash on Android 4
 - Changed the top boards again

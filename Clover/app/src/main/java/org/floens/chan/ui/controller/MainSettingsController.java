@@ -262,7 +262,8 @@ public class MainSettingsController extends SettingsController implements Toolba
         }
         final String finalVersion = version;
 
-        about.add(new LinkSettingView(this, getString(R.string.app_name), version, new View.OnClickListener() {
+        String userVersion = version + " " + getString(R.string.app_flavor_name);
+        about.add(new LinkSettingView(this, getString(R.string.app_name), userVersion, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if ((++clickCount) % 5 == 0) {

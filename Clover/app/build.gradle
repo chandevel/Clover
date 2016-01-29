@@ -5,11 +5,12 @@ android {
     buildToolsVersion '23.0.2'
 
     defaultConfig {
+        applicationId "org.floens.chan"
         minSdkVersion 14
         targetSdkVersion 23
 
-        versionName "v2.1.2"
-        versionCode 54
+        versionName "v2.1.3"
+        versionCode 55
     }
 
     compileOptions {
@@ -61,15 +62,25 @@ android {
             proguardFiles 'proguard.cfg'
         }
 
-        beta.initWith(buildTypes.release)
-        beta {
-            versionNameSuffix " Beta"
-        }
-
         debug {
             versionNameSuffix " Debug"
 //            minifyEnabled true
 //            proguardFiles 'proguard.cfg'
+        }
+    }
+
+    productFlavors {
+        normal {
+            applicationId = "org.floens.chan"
+            // resValue "string", "app_name", "Clover F-Droid"
+            resValue "string", "app_name", "Clover"
+            resValue "string", "app_flavor_name", ""
+        }
+
+        play {
+            applicationId = "org.floens.clover"
+            resValue "string", "app_name", "Clover"
+            resValue "string", "app_flavor_name", "Google Play"
         }
     }
 
