@@ -10,3 +10,7 @@ APKs: https://floens.github.io/Clover/#releases
 UPDATE 2016-1-26:
 I've written about the appeal denial here:
 https://github.com/Floens/Clover/issues/149#issuecomment-174992326
+
+UPDATE 2016-1-29:
+Clover is back up on Google Play
+https://play.google.com/store/apps/details?id=org.floens.clover
