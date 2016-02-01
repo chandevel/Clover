@@ -14,3 +14,10 @@ https://github.com/Floens/Clover/issues/149#issuecomment-174992326
 UPDATE 2016-1-29:
 Clover is back up on Google Play
 https://play.google.com/store/apps/details?id=org.floens.clover
+
+UPDATE 2016-2-1:
+Clover has been suspended for the second time.
+The reason this time is: "we have determined that your app or app listing links the user to a website with pornographic or sexual content."
+This reason is very vague, and basically means that 4chan is just not allowed. Re-uploading will be useless because they're after me (Clover went unnoticed for years), so I'm not going to.
+Life is unfair.
+Clover will still be on F-Droid, and I recommend you get it from there so you will receive future updates. https://f-droid.org/app/org.floens.chan
