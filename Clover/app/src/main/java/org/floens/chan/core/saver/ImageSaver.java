@@ -67,8 +67,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     public void startDownloadTask(Context context, final ImageSaveTask task) {
         PostImage postImage = task.getPostImage();
-        String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
-        String fileName = filterName(name + "." + postImage.extension);
+        String fileName = filterName(decideFilename(postImage) + "." + postImage.extension);
         task.setDestination(findUnusedFileName(new File(getSaveLocation(), fileName), false));
 
 //        task.setMakeBitmap(true);
@@ -156,7 +155,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private void startBundledTaskInternal(String subFolder, List<ImageSaveTask> tasks) {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
-            String fileName = filterName(postImage.originalName + "." + postImage.extension);
+            String fileName = filterName(decideFilename(postImage) + "." + postImage.extension);
             task.setDestination(new File(getSaveLocation() + File.separator + subFolder + File.separator + fileName));
 
             startTask(task);
@@ -265,5 +264,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
         ((StartActivity) context).getRuntimePermissionsHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
+    }
+
+    private String decideFilename(PostImage postImage) {
+        return ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
     }
 }
