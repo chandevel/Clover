@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
+    // update the travis config when changing this
     buildToolsVersion '23.0.3'
 
     defaultConfig {
