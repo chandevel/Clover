@@ -111,7 +111,7 @@ public class ReplyHttpCall extends HttpCall {
 
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
-            errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().ownText().replace("[]", "");
+            errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
         } else {
             Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(result);
             if (threadNoMatcher.find()) {
