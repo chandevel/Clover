@@ -110,7 +110,12 @@ public class WatchSettingsController extends SettingsController implements Compo
             String name = context.getResources().getQuantityString(R.plurals.minutes, timeouts[i], timeouts[i]);
             timeoutsItems[i] = new ListSettingView.Item(name, String.valueOf(timeouts[i] * 60));
         }
-        backgroundTimeout = settings.add(new ListSettingView(this, ChanSettings.watchBackgroundTimeout, R.string.setting_watch_background_timeout, timeoutsItems));
+        backgroundTimeout = settings.add(new ListSettingView(this, ChanSettings.watchBackgroundTimeout, R.string.setting_watch_background_timeout, timeoutsItems) {
+            @Override
+            public String getBottomDescription() {
+                return getString(R.string.setting_watch_background_timeout_description) + "\n\n" + items.get(selected).name;
+            }
+        });
 
         notifyMode = settings.add(new ListSettingView(this, ChanSettings.watchNotifyMode, R.string.setting_watch_notify_mode,
                 context.getResources().getStringArray(R.array.setting_watch_notify_modes), new String[]{"all", "quotes"}));

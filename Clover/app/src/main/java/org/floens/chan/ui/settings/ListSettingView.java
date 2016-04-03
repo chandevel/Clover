@@ -34,9 +34,9 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 public class ListSettingView extends SettingView implements FloatingMenu.FloatingMenuCallback, View.OnClickListener {
     public final List<Item> items;
 
-    private Setting<String> setting;
+    public int selected;
 
-    private int selected;
+    private Setting<String> setting;
 
     public ListSettingView(SettingsController settingsController, Setting<String> setting, int name, String[] itemNames, String[] keys) {
         this(settingsController, setting, getString(name), itemNames, keys);
