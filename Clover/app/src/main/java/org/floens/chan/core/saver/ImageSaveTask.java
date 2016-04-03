@@ -214,7 +214,12 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     }
 
     private void postFinished(final boolean success) {
-        callback.imageSaveTaskFinished(ImageSaveTask.this, success);
+        AndroidUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                callback.imageSaveTaskFinished(ImageSaveTask.this, success);
+            }
+        });
     }
 
     public interface ImageSaveTaskCallback {
