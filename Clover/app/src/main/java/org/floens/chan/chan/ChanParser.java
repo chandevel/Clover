@@ -133,7 +133,7 @@ public class ChanParser {
             }
         }
 
-        if (!TextUtils.isEmpty(post.name) && !post.name.equals("Anonymous")) {
+        if (!TextUtils.isEmpty(post.name) && (!post.name.equals("Anonymous") || ChanSettings.showAnonymousName.get())) {
             post.nameSpan = new SpannableString(post.name);
             post.nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, post.nameSpan.length(), 0);
         }
