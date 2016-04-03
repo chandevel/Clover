@@ -25,7 +25,6 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.pool.LoaderPool;
-import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -119,12 +118,8 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         Logger.e(TAG, "PinWatcher onError");
         pin.isError = true;
 
-        AndroidUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Chan.getWatchManager().onPinsChanged();
-            }
-        });
+        pin.watching = false;
+        Chan.getWatchManager().pinWatcherUpdated(pin);
     }
 
     @Override
@@ -192,11 +187,11 @@ public class PinWatcher implements ChanLoader.ChanLoaderCallback {
                     pin.watchLastCount, pin.watchNewCount, wereNewPosts, pin.quoteLastCount, pin.quoteNewCount, wereNewQuotes));
         }
 
-        AndroidUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Chan.getWatchManager().pinWatcherUpdated(pin);
-            }
-        });
+        if (thread.archived || thread.closed) {
+            pin.archived = true;
+            pin.watching = false;
+        }
+
+        Chan.getWatchManager().pinWatcherUpdated(pin);
     }
 }
