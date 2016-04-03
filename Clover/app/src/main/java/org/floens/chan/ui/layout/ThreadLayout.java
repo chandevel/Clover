@@ -281,14 +281,14 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            AndroidUtils.openLink(link);
+                            AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
                         }
                     })
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
                     .show();
         } else {
-            AndroidUtils.openLink(link);
+            AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
         }
     }
 

@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.controller;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
@@ -198,7 +199,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 if (id == SHARE_ID) {
                     AndroidUtils.shareLink(link);
                 } else {
-                    AndroidUtils.openLink(link);
+                    AndroidUtils.openLinkInBrowser((Activity) context, link);
                 }
 
                 break;

@@ -18,6 +18,7 @@
 package org.floens.chan.ui.controller;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -135,7 +136,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 if (id == SHARE_ID) {
                     AndroidUtils.shareLink(link);
                 } else {
-                    AndroidUtils.openLink(link);
+                    AndroidUtils.openLinkInBrowser((Activity) context, link);
                 }
 
                 break;

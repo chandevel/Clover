@@ -39,6 +39,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +56,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -144,6 +147,13 @@ public class AndroidUtils {
                 }
             }
         }
+    }
+
+    public static void openLinkInBrowser(Activity activity, String link) {
+        CustomTabsIntent intent = new CustomTabsIntent.Builder()
+                .setToolbarColor(theme().primaryColor.color)
+                .build();
+        intent.launchUrl(activity, Uri.parse(link));
     }
 
     public static void shareLink(String link) {

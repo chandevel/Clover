@@ -166,7 +166,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 saveShare(true, postImage);
                 break;
             case OPEN_BROWSER_ID:
-                AndroidUtils.openLink(postImage.imageUrl);
+                AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl);
                 break;
             case SEARCH_ID:
                 List<FloatingMenuItem> items = new ArrayList<>();
@@ -179,7 +179,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
                         for (ImageSearch imageSearch : ImageSearch.engines) {
                             if (((Integer) item.getId()) == imageSearch.getId()) {
-                                AndroidUtils.openLink(imageSearch.getUrl(presenter.getCurrentPostImage().imageUrl));
+                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(presenter.getCurrentPostImage().imageUrl));
                                 break;
                             }
                         }

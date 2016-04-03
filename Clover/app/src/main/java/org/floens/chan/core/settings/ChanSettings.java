@@ -130,7 +130,7 @@ public class ChanSettings {
 
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
         fontCondensed = new BooleanSetting(p, "preference_font_condensed", false);
-        openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", true);
+        openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
 //        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
         imageAutoLoadNetwork = new StringSetting(p, "preference_image_auto_load_network", MediaAutoLoadMode.WIFI.name);
