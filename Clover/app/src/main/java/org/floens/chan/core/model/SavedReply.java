@@ -31,6 +31,15 @@ public class SavedReply {
         this.password = password;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (obj == this) return true;
+        if (!(obj instanceof SavedReply)) return false;
+        SavedReply o = (SavedReply) obj;
+        return o.board.equals(this.board) && o.id == this.id && o.no == this.no && o.password.equals(this.password);
+    }
+
     @DatabaseField(generatedId = true)
     private int id;
 

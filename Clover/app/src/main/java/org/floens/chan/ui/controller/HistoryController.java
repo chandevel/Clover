@@ -54,6 +54,7 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 public class HistoryController extends Controller implements CompoundButton.OnCheckedChangeListener, ToolbarMenuItem.ToolbarMenuItemCallback, ToolbarNavigationController.ToolbarSearchCallback {
     private static final int SEARCH_ID = 1;
     private static final int CLEAR_ID = 101;
+    private static final int SAVED_REPLY_CLEAR_ID = 102;
 
     private DatabaseManager databaseManager;
     private RecyclerView recyclerView;
@@ -72,6 +73,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         navigationItem.setTitle(R.string.history_screen);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(CLEAR_ID, R.string.history_clear));
+        items.add(new FloatingMenuItem(SAVED_REPLY_CLEAR_ID, R.string.saved_reply_clear));
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
         navigationItem.createOverflow(context, this, items);
@@ -113,6 +115,18 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             databaseManager.clearHistory();
+                            adapter.load();
+                        }
+                    })
+                    .show();
+        } else if ((Integer) item.getId() == SAVED_REPLY_CLEAR_ID) {
+            new AlertDialog.Builder(context)
+                    .setTitle(R.string.saved_reply_clear_confirm)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.saved_reply_clear_confirm_button, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            databaseManager.clearSavedReplyHistory();
                             adapter.load();
                         }
                     })

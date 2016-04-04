@@ -282,6 +282,59 @@ public class DatabaseManager {
         return list;
     }
 
+    /**
+     * Clears all stored saved replies
+     */
+    public void clearSavedReplyHistory() {
+        try {
+            TransactionManager.callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    List<SavedReply> replyList = getSavedReplyList();
+                    for (SavedReply savedReply : replyList) {
+                        removeSavedReply(savedReply);
+                    }
+
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error clearing saved replies", e);
+        }
+    }
+
+    /**
+     * Deletes a {@link SavedReply} from the saved table.
+     *
+     * @param savedReply SavedReply to delete
+     */
+    public void removeSavedReply(SavedReply savedReply) {
+        try {
+            helper.savedDao.delete(savedReply);
+            savedReplies.remove(savedReply);
+            savedRepliesIds.remove(savedReply.no);
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error removing saved reply from db", e);
+        }
+    }
+
+    /**
+     * Get a list of {@link SavedReply} entries from the saved table.
+     *
+     * @return List of SavedReply
+     */
+    public List<SavedReply> getSavedReplyList() {
+        List<SavedReply> list = null;
+        try {
+            QueryBuilder<SavedReply, Integer> savedReplyQuery = helper.savedDao.queryBuilder();
+            list = savedReplyQuery.query();
+        } catch (SQLException e) {
+            Logger.e(TAG, "Error getting saved replies from db", e);
+        }
+
+        return list;
+    }
+
     public void addOrUpdateFilter(Filter filter) {
         try {
             helper.filterDao.createOrUpdate(filter);
