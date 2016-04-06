@@ -90,7 +90,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         pinAdapter = new PinAdapter(this);
         recyclerView.setAdapter(pinAdapter);
 
-        pinAdapter.onPinsChanged(watchManager.getPins());
+        pinAdapter.onPinsChanged(watchManager.getAllPins());
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(pinAdapter.getItemTouchHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -157,14 +157,14 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
 
     @Override
     public void onPinRemoved(final Pin pin) {
-        watchManager.removePin(pin);
+        watchManager.deletePin(pin);
 
         Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
         fixSnackbarText(context, snackbar);
         snackbar.setAction(R.string.undo, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                watchManager.addPin(pin);
+                watchManager.createPin(pin);
             }
         });
         snackbar.show();

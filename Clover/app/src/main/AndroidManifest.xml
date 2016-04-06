@@ -15,15 +15,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<manifest
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.floens.chan"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.NFC"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".ChanApplication"
@@ -38,35 +38,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:label="@string/app_name">
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="http"/>
-                <data android:scheme="https"/>
-                <data android:host="4chan.org"/>
-                <data android:host="www.4chan.org"/>
-                <data android:host="boards.4chan.org"/>
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="4chan.org" />
+                <data android:host="www.4chan.org" />
+                <data android:host="boards.4chan.org" />
             </intent-filter>
 
         </activity>
 
-        <activity android:name=".test.TestActivity"/>
+        <activity android:name=".test.TestActivity" />
 
         <service
             android:name=".ui.service.WatchNotifier"
-            android:exported="false"/>
+            android:exported="false" />
 
         <service
             android:name=".ui.service.SavingNotification"
-            android:exported="false"/>
+            android:exported="false" />
+
+        <receiver
+            android:name=".core.receiver.WatchUpdateReceiver"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="org.floens.chan.intent.action.WATCHER_UPDATE" />
+            </intent-filter>
+
+        </receiver>
 
     </application>
 

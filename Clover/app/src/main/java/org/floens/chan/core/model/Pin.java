@@ -20,8 +20,6 @@ package org.floens.chan.core.model;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.floens.chan.core.watch.PinWatcher;
-
 @DatabaseTable
 public class Pin {
     @DatabaseField(generatedId = true)
@@ -57,8 +55,6 @@ public class Pin {
     @DatabaseField
     public boolean archived = false;
 
-    private PinWatcher pinWatcher;
-
     public int getNewPostCount() {
         if (watchLastCount < 0 || watchNewCount < 0) {
             return 0;
@@ -72,33 +68,6 @@ public class Pin {
             return 0;
         } else {
             return Math.max(0, quoteNewCount - quoteLastCount);
-        }
-    }
-
-    public PinWatcher getPinWatcher() {
-        return pinWatcher;
-    }
-
-    public void onBottomPostViewed() {
-        if (pinWatcher != null) {
-            pinWatcher.onViewed();
-        }
-    }
-
-    public boolean update() {
-        return pinWatcher != null && watching && pinWatcher.update();
-    }
-
-    public void createWatcher() {
-        if (pinWatcher == null) {
-            pinWatcher = new PinWatcher(this);
-        }
-    }
-
-    public void destroyWatcher() {
-        if (pinWatcher != null) {
-            pinWatcher.destroy();
-            pinWatcher = null;
         }
     }
 }

@@ -162,10 +162,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (pin == null) {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().op;
-                watchManager.addPin(loadable, op);
+                watchManager.createPin(loadable, op);
             }
         } else {
-            watchManager.removePin(pin);
+            watchManager.deletePin(pin);
         }
         return isPinned();
     }
@@ -275,8 +275,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         Pin pin = watchManager.findPinByLoadable(loadable);
         if (pin != null) {
-            pin.onBottomPostViewed();
-            watchManager.updatePin(pin);
+            watchManager.onBottomPostViewed(pin);
         }
 
         threadPresenterCallback.showNewPostsNotification(false, -1);
@@ -449,7 +448,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 databaseManager.saveReply(new SavedReply(post.board, post.no, "foo"));
                 break;
             case POST_OPTION_PIN:
-                watchManager.addPin(post);
+                Loadable pinLoadable = LoadablePool.getInstance().obtain(new Loadable(post.board, post.no));
+                watchManager.createPin(pinLoadable, post);
                 break;
             case POST_OPTION_OPEN_BROWSER:
                 AndroidUtils.openLink(

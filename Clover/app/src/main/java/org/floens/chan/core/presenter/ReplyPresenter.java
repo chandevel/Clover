@@ -211,7 +211,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
             if (ChanSettings.postPinThread.get() && loadable.isThreadMode()) {
                 ChanThread thread = callback.getThread();
                 if (thread != null) {
-                    watchManager.addPin(loadable, thread.op);
+                    watchManager.createPin(loadable, thread.op);
                 }
             }
 

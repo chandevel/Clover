@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.utils.AndroidUtils;
@@ -100,9 +101,10 @@ public class ChanSettings {
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
     public static final BooleanSetting watchBackground;
-    public static final StringSetting watchBackgroundTimeout;
+    public static final IntegerSetting watchBackgroundInterval;
     public static final StringSetting watchNotifyMode;
     public static final StringSetting watchSound;
+    public static final BooleanSetting watchPeek;
     public static final StringSetting watchLed;
 
     public static final StringSetting passToken;
@@ -184,9 +186,10 @@ public class ChanSettings {
                 Chan.getWatchManager().onBackgroundWatchingChanged(value);
             }
         });
-        watchBackgroundTimeout = new StringSetting(p, "preference_watch_background_timeout", "60");
+        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WatchManager.DEFAULT_BACKGROUND_INTERVAL);
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
+        watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
         watchLed = new StringSetting(p, "preference_watch_led", "ffffffff");
 
         passToken = new StringSetting(p, "preference_pass_token", "");
@@ -227,6 +230,7 @@ public class ChanSettings {
         // preference_board_editor_filler default false
         // preference_pass_enabled default false
         // preference_autoplay false
+        // preference_watch_background_timeout "60" the old timeout background setting in minutes
     }
 
     public static boolean passLoggedIn() {

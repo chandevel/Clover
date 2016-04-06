@@ -17,34 +17,89 @@
  */
 package org.floens.chan.core.manager;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.PowerManager;
+
+import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
+import org.floens.chan.chan.ChanLoader;
+import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.database.DatabasePinManager;
+import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.pool.LoadablePool;
+import org.floens.chan.core.pool.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.WatchNotifier;
-import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.utils.AndroidUtils.getAppContext;
+
+/**
+ * Manages all Pin related management.
+ * <p/>
+ * <p>Pins are threads that are pinned to a pane on the left.
+ * <p/>
+ * <p>The pin watcher is an optional feature that watches threads for new posts and displays a new
+ * post counter next to the pin view. Watching happens with the same backoff timer as used for
+ * the auto updater for open threads.
+ * <p/>
+ * <p>Background watching is a feature that can be enabled. With background watching enabled then
+ * the PinManager will register an AlarmManager to check for updates in intervals. It will acquire
+ * a wakelock shortly while checking for updates.
+ * <p/>
+ * <p>All pin adding and removing must go through this class to properly update the watchers.
+ */
 public class WatchManager {
     private static final String TAG = "WatchManager";
-    private static final int FOREGROUND_TIME = 5;
+
+    private enum IntervalType {
+        /**
+         * A timer that uses a {@link Handler} that calls {@link #update(boolean)} every {@value #FOREGROUND_INTERVAL}ms.
+         */
+        FOREGROUND,
+
+        /**
+         * A timer that schedules a broadcast to be send that calls {@link #update(boolean)}.
+         */
+        BACKGROUND,
+
+        /**
+         * No scheduling.
+         */
+        NONE
+    }
+
+    public static final int DEFAULT_BACKGROUND_INTERVAL = 15 * 60 * 1000;
+
+    private static final long FOREGROUND_INTERVAL = 15 * 1000;
+    private static final int MESSAGE_UPDATE = 1;
+    private static final int REQUEST_CODE_WATCH_UPDATE = 2;
+    private static final String WATCHER_UPDATE_ACTION = "org.floens.chan.intent.action.WATCHER_UPDATE";
+    private static final String WAKELOCK_TAG = "WatchManagerUpdateLock";
+    private static final long WAKELOCK_MAX_TIME = 60 * 1000;
+    private static final long BACKGROUND_UPDATE_MIN_DELAY = 90 * 1000;
 
     private static final Comparator<Pin> SORT_PINS = new Comparator<Pin>() {
         @Override
@@ -53,34 +108,102 @@ public class WatchManager {
         }
     };
 
-    private final Context context;
+    private final AlarmManager alarmManager;
+    private final PowerManager powerManager;
+
     private final List<Pin> pins;
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private PendingTimer pendingTimer;
+    private final DatabaseManager databaseManager;
+    private final DatabasePinManager databasePinManager;
 
-    public WatchManager(Context context) {
-        this.context = context;
+    private final Handler handler;
 
-        pins = Chan.getDatabaseManager().getPinned();
+    private IntervalType currentInterval = IntervalType.NONE;
+
+    private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
+
+    private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
+    private PowerManager.WakeLock wakeLock;
+    private long lastBackgroundUpdateTime;
+
+    public WatchManager() {
+        alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
+        powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
+
+        databaseManager = Chan.getDatabaseManager();
+        databasePinManager = databaseManager.getDatabasePinManager();
+        pins = databaseManager.runTaskSync(databasePinManager.getPins());
         Collections.sort(pins, SORT_PINS);
+
+        handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (msg.what == MESSAGE_UPDATE) {
+                    update(false);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
 
         EventBus.getDefault().register(this);
 
-        updateTimerState(true);
-        updateNotificationServiceState();
-        updatePinWatchers();
+        updateState();
     }
 
-    /**
-     * Look for a pin that has an loadable that is equal to the supplied
-     * loadable.
-     *
-     * @param other
-     * @return The pin whose loadable is equal to the supplied loadable, or null
-     * if no pin was found.
-     */
+    public boolean createPin(Loadable loadable, Post opPost) {
+        Pin pin = new Pin();
+        pin.loadable = loadable;
+        pin.loadable.title = PostHelper.getTitle(opPost, loadable);
+        pin.thumbnailUrl = opPost.thumbnailUrl;
+        return createPin(pin);
+    }
+
+    public boolean createPin(Pin pin) {
+        // No duplicates
+        for (int i = 0; i < pins.size(); i++) {
+            Pin e = pins.get(i);
+            if (e.loadable.equals(pin.loadable)) {
+                return false;
+            }
+        }
+
+        pin.order = pins.size();
+        pins.add(pin);
+        databaseManager.runTaskSync(databasePinManager.createPin(pin));
+
+        updateState();
+
+        EventBus.getDefault().post(new PinAddedMessage(pin));
+
+        return true;
+    }
+
+    public void deletePin(Pin pin) {
+        pins.remove(pin);
+
+        destroyPinWatcher(pin);
+
+        databaseManager.runTaskSync(databasePinManager.deletePin(pin));
+        // Update the new orders
+        updatePinsInDatabase();
+
+        updateState();
+
+        EventBus.getDefault().post(new PinRemovedMessage(pin));
+    }
+
+    public void updatePin(Pin pin) {
+        databaseManager.runTaskSync(databasePinManager.updatePin(pin));
+
+        updateState();
+
+        EventBus.getDefault().post(new PinChangedMessage(pin));
+    }
+
     public Pin findPinByLoadable(Loadable other) {
-        for (Pin pin : pins) {
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
             if (pin.loadable.equals(other)) {
                 return pin;
             }
@@ -90,7 +213,8 @@ public class WatchManager {
     }
 
     public Pin findPinById(int id) {
-        for (Pin pin : pins) {
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
             if (pin.id == id) {
                 return pin;
             }
@@ -99,15 +223,16 @@ public class WatchManager {
         return null;
     }
 
-    public List<Pin> getPins() {
+    public List<Pin> getAllPins() {
         return pins;
     }
 
     public List<Pin> getWatchingPins() {
-        if (ChanSettings.watchEnabled.get()) {
+        if (isWatchingSettingEnabled()) {
             List<Pin> l = new ArrayList<>();
 
-            for (Pin p : pins) {
+            for (int i = 0; i < pins.size(); i++) {
+                Pin p = pins.get(i);
                 if (p.watching)
                     l.add(p);
             }
@@ -118,243 +243,304 @@ public class WatchManager {
         }
     }
 
-    public boolean addPin(Pin pin) {
-        // No duplicates
-        for (Pin e : pins) {
-            if (e.loadable.equals(pin.loadable)) {
-                return false;
-            }
-        }
-
-        pin.order = pins.size();
-        pins.add(pin);
-        Chan.getDatabaseManager().addPin(pin);
-
-        onPinsChanged();
-
-        EventBus.getDefault().post(new PinAddedMessage(pin));
-
-        return true;
-    }
-
-    public boolean addPin(Post opPost) {
-        Pin pin = new Pin();
-        pin.loadable = LoadablePool.getInstance().obtain(new Loadable(opPost.board, opPost.no));
-        pin.loadable.title = PostHelper.getTitle(opPost, pin.loadable);
-        pin.thumbnailUrl = opPost.thumbnailUrl;
-        return addPin(pin);
-    }
-
-    public boolean addPin(Loadable loadable, Post opPost) {
-        Pin pin = new Pin();
-        pin.loadable = loadable;
-        pin.loadable.title = PostHelper.getTitle(opPost, loadable);
-        pin.thumbnailUrl = opPost.thumbnailUrl;
-        return addPin(pin);
-    }
-
-    public void removePin(Pin pin) {
-        pins.remove(pin);
-        pin.destroyWatcher();
-        Chan.getDatabaseManager().removePin(pin);
-        // Update the new orders
-        updateDatabase();
-
-        onPinsChanged();
-
-        EventBus.getDefault().post(new PinRemovedMessage(pin));
-    }
-
-    /**
-     * Update the pin in the database
-     *
-     * @param pin
-     */
-    public void updatePin(Pin pin) {
-        Chan.getDatabaseManager().updatePin(pin);
-
-        onPinsChanged();
-
-        EventBus.getDefault().post(new PinChangedMessage(pin));
-    }
-
-    /**
-     * Updates all the pins to the database.
-     */
-    public void updateDatabase() {
-        Chan.getDatabaseManager().updatePins(pins);
-    }
-
     public void toggleWatch(Pin pin) {
         pin.watching = !pin.watching;
 
+        updateState();
         EventBus.getDefault().post(new PinChangedMessage(pin));
-        onPinsChanged();
-        invokeLoadNow();
     }
 
-    public void pinWatcherUpdated(Pin pin) {
-        EventBus.getDefault().post(new PinChangedMessage(pin));
-        onPinsChanged();
-    }
-
-    public void onPinsChanged() {
-        updateTimerState(false);
-        updateNotificationServiceState();
-        updatePinWatchers();
-    }
-
-    public void invokeLoadNow() {
-        if (pendingTimer != null) {
-            pendingTimer.cancel();
-            pendingTimer = null;
-            Logger.d(TAG, "Canceled timer");
+    public void onBottomPostViewed(Pin pin) {
+        if (pin.watchNewCount >= 0) {
+            pin.watchLastCount = pin.watchNewCount;
         }
 
-        updateTimerState(true);
+        if (pin.quoteNewCount >= 0) {
+            pin.quoteLastCount = pin.quoteNewCount;
+        }
+
+        PinWatcher pinWatcher = getPinWatcher(pin);
+        if (pinWatcher != null) {
+            pinWatcher.onViewed();
+        }
+
+        updatePin(pin);
     }
 
-    public void pausePins() {
+    // Called when the app changes foreground state
+    public void onEvent(Chan.ForegroundChangedMessage message) {
+        updateState();
+        if (!message.inForeground) {
+            updatePinsInDatabase();
+        }
+    }
+
+    // Called when the broadcast scheduled by the alarmmanager was received
+    public void onBroadcastReceived() {
+        if (currentInterval != IntervalType.BACKGROUND) {
+            Logger.e(TAG, "Received a broadcast for a watchmanager update, but the current state is not BACKGROUND. Ignoring the broadcast.");
+        } else if (System.currentTimeMillis() - lastBackgroundUpdateTime < BACKGROUND_UPDATE_MIN_DELAY) {
+            Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
+        } else {
+            lastBackgroundUpdateTime = System.currentTimeMillis();
+            update(true);
+        }
+    }
+
+    // Called from the button on the notification
+    public void pauseAll() {
         List<Pin> watchingPins = getWatchingPins();
-        for (Pin pin : watchingPins) {
+        for (int i = 0; i < watchingPins.size(); i++) {
+            Pin pin = watchingPins.get(i);
             pin.watching = false;
         }
 
-        onPinsChanged();
-        updateDatabase();
+        updateState();
+        updatePinsInDatabase();
 
-        for (Pin pin : getPins()) {
+        List<Pin> allPins = getAllPins();
+        for (int i = 0; i < allPins.size(); i++) {
+            Pin pin = allPins.get(i);
             EventBus.getDefault().post(new PinChangedMessage(pin));
         }
     }
 
-    public void onEvent(Chan.ForegroundChangedMessage message) {
-        updateNotificationServiceState();
-        updateTimerState(true);
-        if (!message.inForeground) {
-            updateDatabase();
-        }
-    }
-
+    // Called when the user changes the watch enabled preference
     public void onWatchEnabledChanged(boolean watchEnabled) {
-        updateNotificationServiceState(watchEnabled, getWatchBackgroundEnabled());
-        updateTimerState(watchEnabled, getWatchBackgroundEnabled(), false);
-        updatePinWatchers(watchEnabled);
-        for (Pin pin : getPins()) {
+        updateState(watchEnabled, isBackgroundWatchingSettingEnabled());
+        List<Pin> pins = getAllPins();
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
             EventBus.getDefault().post(new PinChangedMessage(pin));
         }
     }
 
+    // Called when the user changes the watch background enabled preference
     public void onBackgroundWatchingChanged(boolean backgroundEnabled) {
-        updateNotificationServiceState(getTimerEnabled(), backgroundEnabled);
-        updateTimerState(getTimerEnabled(), backgroundEnabled, false);
-        for (Pin pin : getPins()) {
+        updateState(isTimerEnabled(), backgroundEnabled);
+        List<Pin> pins = getAllPins();
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
             EventBus.getDefault().post(new PinChangedMessage(pin));
         }
     }
 
-    private boolean getTimerEnabled() {
-        // getWatchingPins returns an empty list when ChanPreferences.getWatchEnabled() is false
-        return getWatchingPins().size() > 0;
+    public PinWatcher getPinWatcher(Pin pin) {
+        return pinWatchers.get(pin);
     }
 
-    public boolean getWatchBackgroundEnabled() {
+    private boolean createPinWatcher(Pin pin) {
+        if (!pinWatchers.containsKey(pin)) {
+            pinWatchers.put(pin, new PinWatcher(pin));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean destroyPinWatcher(Pin pin) {
+        PinWatcher pinWatcher = pinWatchers.remove(pin);
+        if (pinWatcher != null) {
+            pinWatcher.destroy();
+        }
+        return pinWatcher != null;
+    }
+
+    private void updatePinsInDatabase() {
+        databaseManager.runTask(databasePinManager.updatePins(pins));
+    }
+
+    private Boolean isWatchingSettingEnabled() {
+        return ChanSettings.watchEnabled.get();
+    }
+
+    private boolean isBackgroundWatchingSettingEnabled() {
         return ChanSettings.watchBackground.get();
     }
 
-    private void updatePinWatchers() {
-        updatePinWatchers(ChanSettings.watchEnabled.get());
+    private boolean isInForeground() {
+        return Chan.getInstance().getApplicationInForeground();
     }
 
-    private void updatePinWatchers(boolean watchEnabled) {
-        for (Pin pin : pins) {
-            if (watchEnabled) {
-                pin.createWatcher();
-            } else {
-                pin.destroyWatcher();
-            }
-        }
+    private boolean isTimerEnabled() {
+        return !getWatchingPins().isEmpty();
     }
 
-    private void updateNotificationServiceState() {
-        updateNotificationServiceState(getTimerEnabled(), getWatchBackgroundEnabled());
+    private int getBackgroundIntervalSetting() {
+        return ChanSettings.watchBackgroundInterval.get();
     }
 
-    private void updateNotificationServiceState(boolean watchEnabled, boolean backgroundEnabled) {
-        if (watchEnabled && backgroundEnabled) {
-            // Also calls onStartCommand, which updates the notification
-            context.startService(new Intent(context, WatchNotifier.class));
+    private void updateState() {
+        updateState(isTimerEnabled(), isBackgroundWatchingSettingEnabled());
+    }
+
+    // Update the interval type, according to the current settings,
+    // creates and destroys the PinWatchers where needed and
+    // updates the notification.
+    private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
+        Logger.d(TAG, "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground=" + isInForeground());
+
+        IntervalType intervalType;
+        if (!watchEnabled) {
+            intervalType = IntervalType.NONE;
         } else {
-            context.stopService(new Intent(context, WatchNotifier.class));
-        }
-    }
-
-    private void updateTimerState(boolean invokeLoadNow) {
-        updateTimerState(getTimerEnabled(), getWatchBackgroundEnabled(), invokeLoadNow);
-    }
-
-    private void updateTimerState(boolean watchEnabled, boolean backgroundEnabled, boolean invokeLoadNow) {
-        Logger.d(TAG, "updateTimerState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " invokeLoadNow=" + invokeLoadNow + " foreground=" + Chan.getInstance().getApplicationInForeground());
-        if (watchEnabled) {
-            if (Chan.getInstance().getApplicationInForeground()) {
-                setTimer(invokeLoadNow ? 1 : FOREGROUND_TIME);
+            if (isInForeground()) {
+                intervalType = IntervalType.FOREGROUND;
             } else {
                 if (backgroundEnabled) {
-                    setTimer(Integer.parseInt(ChanSettings.watchBackgroundTimeout.get()));
+                    intervalType = IntervalType.BACKGROUND;
                 } else {
-                    if (pendingTimer != null) {
-                        pendingTimer.cancel();
-                        pendingTimer = null;
-                        Logger.d(TAG, "Canceled timer");
-                    }
+                    intervalType = IntervalType.NONE;
                 }
             }
+        }
+
+        // Changing interval type, like when watching is disabled or the app goes to the background
+        if (currentInterval != intervalType) {
+            // Handle the preview state
+            switch (currentInterval) {
+                case FOREGROUND:
+                    // Stop receiving handler messages
+                    handler.removeMessages(MESSAGE_UPDATE);
+                    break;
+                case BACKGROUND:
+                    // Stop the scheduled broadcast
+                    scheduleAlarmManager(false);
+                    break;
+                case NONE:
+                    // Nothing to do when no timer was set.
+                    break;
+            }
+
+            Logger.d(TAG, "Setting interval type from " + currentInterval.name() + " to " + intervalType.name());
+            currentInterval = intervalType;
+
+            switch (currentInterval) {
+                case FOREGROUND:
+                    // Schedule a delayed handler that will call update(false)
+                    handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
+                    break;
+                case BACKGROUND:
+                    // Schedule an intervaled broadcast receiver
+                    scheduleAlarmManager(true);
+                    break;
+                case NONE:
+                    // Nothing to do when no timer is set.
+                    break;
+            }
+        }
+
+        // Update pin watchers
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
+            if (watchEnabled && pin.watching) {
+                createPinWatcher(pin);
+            } else {
+                destroyPinWatcher(pin);
+            }
+        }
+
+        // Update notification state
+        if (watchEnabled && backgroundEnabled) {
+            // Also calls onStartCommand, which updates the notification with new info
+            getAppContext().startService(new Intent(getAppContext(), WatchNotifier.class));
         } else {
-            if (pendingTimer != null) {
-                pendingTimer.cancel();
-                pendingTimer = null;
-                Logger.d(TAG, "Canceled timer");
-            }
+            getAppContext().stopService(new Intent(getAppContext(), WatchNotifier.class));
         }
     }
 
-    private void setTimer(int time) {
-        if (pendingTimer != null && pendingTimer.time == time) {
-            return;
+    // Schedule a broadcast that calls WatchUpdateReceiver.onReceive() if enabled is true,
+    // and unschedules it when false
+    private void scheduleAlarmManager(boolean enable) {
+        Intent intent = new Intent(WATCHER_UPDATE_ACTION);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), REQUEST_CODE_WATCH_UPDATE, intent, 0);
+        if (enable) {
+            int interval = getBackgroundIntervalSetting();
+            Logger.d(TAG, "Scheduled for an inexact repeating broadcast receiver with an interval of " + (interval / 1000 / 60) + " minutes");
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent);
+        } else {
+            Logger.d(TAG, "Unscheduled the repeating broadcast receiver");
+            alarmManager.cancel(pendingIntent);
         }
-
-        if (pendingTimer != null) {
-            pendingTimer.cancel();
-            pendingTimer = null;
-            Logger.d(TAG, "Canceled timer");
-        }
-
-        ScheduledFuture scheduledFuture = executor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        timerFired();
-                    }
-                });
-            }
-        }, time, TimeUnit.SECONDS);
-        pendingTimer = new PendingTimer(scheduledFuture, time);
-        Logger.d(TAG, "Timer firing in " + time + " seconds");
     }
 
-    private void timerFired() {
-        Logger.d(TAG, "Timer fired");
-        pendingTimer = null;
+    // Update the watching pins
+    private void update(boolean fromBackground) {
+        Logger.d(TAG, "update() fromBackground = " + fromBackground);
 
-        for (Pin pin : getWatchingPins()) {
-            if (pin.update()) {
+        switch (currentInterval) {
+            case FOREGROUND:
+                // reschedule handler message
+                handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
+                break;
+            case BACKGROUND:
+                // AlarmManager is scheduled as an interval
+                break;
+        }
+
+        // A set of watchers that all have to complete being updated
+        // before the wakelock is released again
+        waitingForPinWatchersForBackgroundUpdate = null;
+        if (fromBackground) {
+            waitingForPinWatchersForBackgroundUpdate = new HashSet<>();
+        }
+
+        List<Pin> watchingPins = getWatchingPins();
+        for (int i = 0; i < watchingPins.size(); i++) {
+            Pin pin = watchingPins.get(i);
+            PinWatcher pinWatcher = getPinWatcher(pin);
+            if (pinWatcher != null && pinWatcher.update(fromBackground)) {
                 EventBus.getDefault().post(new PinChangedMessage(pin));
+
+                if (fromBackground) {
+                    waitingForPinWatchersForBackgroundUpdate.add(pinWatcher);
+                }
             }
         }
 
-        updateTimerState(false);
+        if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
+            Logger.i(TAG, "Acquiring wakelock for pin watcher updates");
+            manageLock(true);
+        }
+    }
+
+    private void pinWatcherUpdated(PinWatcher pinWatcher) {
+        updateState();
+        EventBus.getDefault().post(new PinChangedMessage(pinWatcher.pin));
+
+        if (waitingForPinWatchersForBackgroundUpdate != null) {
+            waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
+
+            if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
+                Logger.i(TAG, "All watchers updated, removing wakelock");
+                waitingForPinWatchersForBackgroundUpdate = null;
+                manageLock(false);
+            }
+        }
+    }
+
+    private void manageLock(boolean lock) {
+        if (lock) {
+            if (wakeLock != null) {
+                Logger.e(TAG, "Wakelock not null while trying to acquire one");
+                if (wakeLock.isHeld()) {
+                    wakeLock.release();
+                }
+                wakeLock = null;
+            }
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG);
+            wakeLock.setReferenceCounted(false);
+            wakeLock.acquire(WAKELOCK_MAX_TIME);
+        } else {
+            if (wakeLock == null) {
+                Logger.e(TAG, "Wakelock null while trying to release it");
+            } else {
+                if (wakeLock.isHeld()) {
+                    wakeLock.release();
+                }
+                wakeLock = null;
+            }
+        }
     }
 
     public static class PinAddedMessage {
@@ -381,17 +567,172 @@ public class WatchManager {
         }
     }
 
-    private static class PendingTimer {
-        public ScheduledFuture scheduledFuture;
-        public int time;
+    public class PinWatcher implements ChanLoader.ChanLoaderCallback {
+        private static final String TAG = "PinWatcher";
 
-        public PendingTimer(ScheduledFuture scheduledFuture, int time) {
-            this.scheduledFuture = scheduledFuture;
-            this.time = time;
+        private final Pin pin;
+        private ChanLoader chanLoader;
+
+        private final List<Post> posts = new ArrayList<>();
+        private final List<Post> quotes = new ArrayList<>();
+        private boolean wereNewQuotes = false;
+        private boolean wereNewPosts = false;
+
+        public PinWatcher(Pin pin) {
+            this.pin = pin;
+
+            Logger.i(TAG, "PinWatcher: created for " + pin);
+            chanLoader = LoaderPool.getInstance().obtain(pin.loadable, this);
         }
 
-        public void cancel() {
-            scheduledFuture.cancel(false);
+        public List<Post> getUnviewedPosts() {
+            if (posts.size() == 0) {
+                return posts;
+            } else {
+                return posts.subList(Math.max(0, posts.size() - pin.getNewPostCount()), posts.size());
+            }
+        }
+
+        public List<Post> getUnviewedQuotes() {
+            return quotes.subList(Math.max(0, quotes.size() - pin.getNewQuoteCount()), quotes.size());
+        }
+
+        public boolean getWereNewQuotes() {
+            if (wereNewQuotes) {
+                wereNewQuotes = false;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean getWereNewPosts() {
+            if (wereNewPosts) {
+                wereNewPosts = false;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private void destroy() {
+            if (chanLoader != null) {
+                Logger.i(TAG, "PinWatcher: destroyed for " + pin);
+                LoaderPool.getInstance().release(chanLoader, this);
+                chanLoader = null;
+            }
+        }
+
+        private void onViewed() {
+            wereNewPosts = false;
+            wereNewQuotes = false;
+        }
+
+        private boolean update(boolean fromBackground) {
+            if (!pin.isError && pin.watching) {
+                if (fromBackground) {
+                    // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
+                    chanLoader.requestMoreData();
+                    return true;
+                } else {
+                    // true if a load was started
+                    return chanLoader.loadMoreIfTime();
+                }
+            } else {
+                return false;
+            }
+        }
+
+        /*private long getTimeUntilNextLoad() {
+            return chanLoader.getTimeUntilLoadMore();
+        }*/
+
+        /*public boolean isLoading() {
+            return chanLoader.isLoading();
+        }*/
+
+        @Override
+        public void onChanLoaderError(VolleyError error) {
+            pin.isError = true;
+
+            pin.watching = false;
+
+            pinWatcherUpdated(this);
+        }
+
+        @Override
+        public void onChanLoaderData(ChanThread thread) {
+            pin.isError = false;
+
+            if (pin.thumbnailUrl == null && thread.op != null && thread.op.hasImage) {
+                pin.thumbnailUrl = thread.op.thumbnailUrl;
+            }
+
+            // Populate posts list
+            posts.clear();
+            posts.addAll(thread.posts);
+
+            // Populate quotes list
+            quotes.clear();
+
+            // Get list of saved replies from this thread
+            List<Post> savedReplies = new ArrayList<>();
+            for (Post item : thread.posts) {
+                // saved.title = pin.loadable.title;
+
+                if (item.isSavedReply) {
+                    savedReplies.add(item);
+                }
+            }
+
+            // Now get a list of posts that have a quote to a saved reply
+            for (Post post : thread.posts) {
+                for (Post saved : savedReplies) {
+                    if (post.repliesTo.contains(saved.no)) {
+                        quotes.add(post);
+                    }
+                }
+            }
+
+            boolean isFirstLoad = pin.watchNewCount < 0 || pin.quoteNewCount < 0;
+
+            // If it was more than before processing
+            int lastWatchNewCount = pin.watchNewCount;
+            int lastQuoteNewCount = pin.quoteNewCount;
+
+            if (isFirstLoad) {
+                pin.watchLastCount = posts.size();
+                pin.quoteLastCount = quotes.size();
+            }
+
+            pin.watchNewCount = posts.size();
+            pin.quoteNewCount = quotes.size();
+
+            if (!isFirstLoad) {
+                // There were new posts after processing
+                if (pin.watchNewCount > lastWatchNewCount) {
+                    wereNewPosts = true;
+                }
+
+                // There were new quotes after processing
+                if (pin.quoteNewCount > lastQuoteNewCount) {
+                    wereNewQuotes = true;
+                }
+            }
+
+            if (Logger.debugEnabled()) {
+                Logger.d(TAG, String.format(Locale.ENGLISH,
+                        "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
+                        pin.watchLastCount, pin.watchNewCount, wereNewPosts, pin.quoteLastCount,
+                        pin.quoteNewCount, wereNewQuotes, chanLoader.getTimeUntilLoadMore() / 1000));
+            }
+
+            if (thread.archived || thread.closed) {
+                pin.archived = true;
+                pin.watching = false;
+            }
+
+            pinWatcherUpdated(this);
         }
     }
 }

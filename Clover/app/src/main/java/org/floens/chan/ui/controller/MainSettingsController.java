@@ -56,8 +56,8 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener, PassSettingsController.PassSettingControllerListener {
     private static final int ADVANCED_SETTINGS = 1;
-    private ListSettingView imageAutoLoadView;
-    private ListSettingView videoAutoLoadView;
+    private ListSettingView<String> imageAutoLoadView;
+    private ListSettingView<String> videoAutoLoadView;
 
     private LinkSettingView watchLink;
     private LinkSettingView passLink;
@@ -182,7 +182,7 @@ public class MainSettingsController extends SettingsController implements Toolba
             fontSizes.add(new ListSettingView.Item(name, String.valueOf(size)));
         }
 
-        fontView = appearance.add(new ListSettingView(this, ChanSettings.fontSize, R.string.setting_font_size, fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
+        fontView = appearance.add(new ListSettingView<>(this, ChanSettings.fontSize, R.string.setting_font_size, fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
         fontCondensed = appearance.add(new BooleanSettingView(this, ChanSettings.fontCondensed, R.string.setting_font_condensed, R.string.setting_font_condensed_description));
 
         groups.add(appearance);
@@ -215,13 +215,13 @@ public class MainSettingsController extends SettingsController implements Toolba
                     break;
             }
 
-            imageAutoLoadTypes.add(new ListSettingView.Item(getString(name), mode.name));
-            videoAutoLoadTypes.add(new ListSettingView.Item(getString(name), mode.name));
+            imageAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode.name));
+            videoAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode.name));
         }
 
-        imageAutoLoadView = new ListSettingView(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, imageAutoLoadTypes);
+        imageAutoLoadView = new ListSettingView<>(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, imageAutoLoadTypes);
         browsing.add(imageAutoLoadView);
-        videoAutoLoadView = new ListSettingView(this, ChanSettings.videoAutoLoadNetwork, R.string.setting_video_auto_load, videoAutoLoadTypes);
+        videoAutoLoadView = new ListSettingView<>(this, ChanSettings.videoAutoLoadNetwork, R.string.setting_video_auto_load, videoAutoLoadTypes);
         browsing.add(videoAutoLoadView);
         updateVideoLoadModes();
 

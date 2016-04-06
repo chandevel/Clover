@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
@@ -32,19 +33,21 @@ import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.watch.PinWatcher;
 import org.floens.chan.ui.activity.BoardActivity;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class WatchNotifier extends Service {
     private static final String TAG = "WatchNotifier";
     private static final int NOTIFICATION_ID = 1;
-    private static final PostAgeComparer POST_AGE_COMPARER = new PostAgeComparer();
+    private static final PostAgeComparator POST_AGE_COMPARATOR = new PostAgeComparator();
+    private static final int SUBJECT_LENGTH = 6;
+    private static final String IMAGE_TEXT = "(img) ";
+    private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
     private NotificationManager nm;
     private WatchManager wm;
@@ -86,49 +89,54 @@ public class WatchNotifier extends Service {
     }
 
     public void pausePins() {
-        wm.pausePins();
+        wm.pauseAll();
     }
 
     private Notification createNotification() {
         boolean notifyQuotesOnly = ChanSettings.watchNotifyMode.get().equals("quotes");
         boolean soundQuotesOnly = ChanSettings.watchSound.get().equals("quotes");
 
-        List<Post> list = new ArrayList<>();
+        List<Post> unviewedPosts = new ArrayList<>();
         List<Post> listQuoting = new ArrayList<>();
         List<Pin> pins = new ArrayList<>();
         List<Pin> subjectPins = new ArrayList<>();
 
-        boolean ticker = false;
+        boolean light = false;
         boolean sound = false;
+        boolean peek = false;
 
         for (Pin pin : wm.getWatchingPins()) {
-            PinWatcher watcher = pin.getPinWatcher();
-            if (watcher == null || pin.isError)
+            WatchManager.PinWatcher watcher = wm.getPinWatcher(pin);
+            if (watcher == null || pin.isError) {
                 continue;
+            }
 
             pins.add(pin);
 
             if (notifyQuotesOnly) {
-                list.addAll(watcher.getUnviewedQuotes());
+                unviewedPosts.addAll(watcher.getUnviewedQuotes());
                 listQuoting.addAll(watcher.getUnviewedQuotes());
                 if (watcher.getWereNewQuotes()) {
-                    ticker = true;
+                    light = true;
                     sound = true;
+                    peek = true;
                 }
                 if (pin.getNewQuoteCount() > 0) {
                     subjectPins.add(pin);
                 }
             } else {
-                list.addAll(watcher.getUnviewedPosts());
+                unviewedPosts.addAll(watcher.getUnviewedPosts());
                 listQuoting.addAll(watcher.getUnviewedQuotes());
                 if (watcher.getWereNewPosts()) {
-                    ticker = true;
+                    light = true;
                     if (!soundQuotesOnly) {
                         sound = true;
+                        peek = true;
                     }
                 }
                 if (watcher.getWereNewQuotes()) {
                     sound = true;
+                    peek = true;
                 }
                 if (pin.getNewPostCount() > 0) {
                     subjectPins.add(pin);
@@ -137,63 +145,69 @@ public class WatchNotifier extends Service {
         }
 
         if (Chan.getInstance().getApplicationInForeground()) {
-            ticker = false;
+            light = false;
             sound = false;
         }
 
-        return notifyAboutPosts(pins, subjectPins, list, listQuoting, notifyQuotesOnly, ticker, sound);
+        if (!ChanSettings.watchPeek.get()) {
+            peek = false;
+        }
+
+        return notifyAboutPosts(pins, subjectPins, unviewedPosts, listQuoting, notifyQuotesOnly, light, sound, peek);
     }
 
-    private Notification notifyAboutPosts(List<Pin> pins, List<Pin> subjectPins, List<Post> list, List<Post> listQuoting,
-                                          boolean notifyQuotesOnly, boolean makeTicker, boolean makeSound) {
+    private Notification notifyAboutPosts(List<Pin> pins, List<Pin> subjectPins, List<Post> unviewedPosts, List<Post> listQuoting,
+                                          boolean notifyQuotesOnly, boolean light, boolean sound, boolean peek) {
         String title = getResources().getQuantityString(R.plurals.watch_title, pins.size(), pins.size());
 
-        if (list.size() == 0) {
+        if (unviewedPosts.isEmpty()) {
             // Idle notification
             String message = getString(R.string.watch_idle);
-            return getNotificationFor(null, title, message, -1, null, false, false, false, null);
+            return get(title, message, null, false, false, false, false, null);
         } else {
             // New posts notification
             String message;
-            List<Post> notificationList;
+            List<Post> postsForExpandedLines;
             if (notifyQuotesOnly) {
                 message = getResources().getQuantityString(R.plurals.watch_new_quotes, listQuoting.size(), listQuoting.size());
-                notificationList = listQuoting;
+                postsForExpandedLines = listQuoting;
             } else {
-                notificationList = list;
+                postsForExpandedLines = unviewedPosts;
                 if (listQuoting.size() > 0) {
-                    message = getResources().getQuantityString(R.plurals.watch_new_quoting, list.size(), list.size(), listQuoting.size());
+                    message = getResources().getQuantityString(R.plurals.watch_new_quoting, unviewedPosts.size(), unviewedPosts.size(), listQuoting.size());
                 } else {
-                    message = getResources().getQuantityString(R.plurals.watch_new, list.size(), list.size());
+                    message = getResources().getQuantityString(R.plurals.watch_new, unviewedPosts.size(), unviewedPosts.size());
                 }
             }
 
-            Collections.sort(notificationList, POST_AGE_COMPARER);
-            List<CharSequence> lines = new ArrayList<>();
-            for (Post post : notificationList) {
-                CharSequence prefix = AndroidUtils.ellipsize(post.title, 18);
-
-                CharSequence comment;
-                if (post.comment.length() == 0) {
-                    comment = "(image)";
+            Collections.sort(postsForExpandedLines, POST_AGE_COMPARATOR);
+            List<CharSequence> expandedLines = new ArrayList<>();
+            for (Post postForExpandedLine : postsForExpandedLines) {
+                CharSequence prefix;
+                if (postForExpandedLine.title.length() <= SUBJECT_LENGTH) {
+                    prefix = postForExpandedLine.title;
                 } else {
-                    comment = post.comment;
+                    prefix = postForExpandedLine.title.subSequence(0, SUBJECT_LENGTH);
                 }
 
-                lines.add(prefix + ": " + comment);
+                String comment = postForExpandedLine.hasImage ? IMAGE_TEXT : "";
+                if (postForExpandedLine.comment.length() > 0) {
+                    comment += postForExpandedLine.comment;
+                }
+
+                // Replace >>132456798 with >789 to shorten the notification
+                comment = SHORTEN_NO_PATTERN.matcher(comment).replaceAll(">$1");
+
+                expandedLines.add(prefix + ": " + comment);
             }
 
-            Pin subject = null;
+            Pin targetPin = null;
             if (subjectPins.size() == 1) {
-                subject = subjectPins.get(0);
+                targetPin = subjectPins.get(0);
             }
 
-            String ticker = null;
-            if (makeTicker) {
-                ticker = message;
-            }
-
-            return getNotificationFor(ticker, title, message, -1, lines, makeTicker, makeSound, true, subject);
+            String smallText = TextUtils.join(", ", expandedLines);
+            return get(message, smallText, expandedLines, light, sound, peek, true, targetPin);
         }
     }
 
@@ -201,17 +215,16 @@ public class WatchNotifier extends Service {
      * Create a notification with the supplied parameters.
      * The style of the big notification is InboxStyle, a list of text.
      *
-     * @param tickerText    The tickertext to show, or null if no tickertext should be shown.
-     * @param contentTitle  The title of the notification
-     * @param contentText   The content of the small notification
-     * @param contentNumber The contentInfo and number, or -1 if not shown
+     * @param title         The title of the notification
+     * @param smallText     The content of the small notification
      * @param expandedLines A list of lines for the big notification, or null if not shown
-     * @param makeSound     Should the notification make a sound
+     * @param sound         Should the notification make a sound
+     * @param peek          Peek the notification into the screen
+     * @param alertIcon     Show the alert version of the icon
      * @param target        The target pin, or null to open the pinned pane on tap
      */
-    @SuppressWarnings("deprecation")
-    private Notification getNotificationFor(String tickerText, String contentTitle, String contentText, int contentNumber,
-                                            List<CharSequence> expandedLines, boolean light, boolean makeSound, boolean alert, Pin target) {
+    private Notification get(String title, String smallText, List<CharSequence> expandedLines,
+                             boolean light, boolean sound, boolean peek, boolean alertIcon, Pin target) {
         Intent intent = new Intent(this, BoardActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -223,7 +236,7 @@ public class WatchNotifier extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        if (makeSound) {
+        if (sound || peek) {
             builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
         }
 
@@ -234,23 +247,20 @@ public class WatchNotifier extends Service {
             }
         }
 
-
         builder.setContentIntent(pendingIntent);
 
-        if (tickerText != null) {
-            tickerText = tickerText.substring(0, Math.min(tickerText.length(), 50));
+        builder.setContentTitle(title);
+        if (smallText != null) {
+            builder.setContentText(smallText);
         }
 
-        builder.setTicker(tickerText);
-        builder.setContentTitle(contentTitle);
-        builder.setContentText(contentText);
-
-        if (contentNumber >= 0) {
-            builder.setContentInfo(Integer.toString(contentNumber));
-            builder.setNumber(contentNumber);
+        if (alertIcon || peek) {
+            builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
+            builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        } else {
+            builder.setSmallIcon(R.drawable.ic_stat_notify);
+            builder.setPriority(NotificationCompat.PRIORITY_MIN);
         }
-
-        builder.setSmallIcon(alert ? R.drawable.ic_stat_notify_alert : R.drawable.ic_stat_notify);
 
         Intent pauseWatching = new Intent(this, WatchNotifier.class);
         pauseWatching.putExtra("pause_pins", true);
@@ -266,14 +276,14 @@ public class WatchNotifier extends Service {
             for (CharSequence line : expandedLines.subList(Math.max(0, expandedLines.size() - 10), expandedLines.size())) {
                 style.addLine(line);
             }
-            style.setBigContentTitle(contentTitle);
+            style.setBigContentTitle(title);
             builder.setStyle(style);
         }
 
-        return builder.getNotification();
+        return builder.build();
     }
 
-    private static class PostAgeComparer implements Comparator<Post> {
+    private static class PostAgeComparator implements Comparator<Post> {
         @Override
         public int compare(Post lhs, Post rhs) {
             if (lhs.time < rhs.time) {

@@ -18,6 +18,8 @@
 package org.floens.chan.core.database;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
@@ -28,7 +30,6 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.model.ThreadHide;
@@ -69,8 +70,25 @@ public class DatabaseManager {
     private final Object historyLock = new Object();
     private final HashMap<Loadable, History> historyByLoadable = new HashMap<>();
 
+    private final DatabasePinManager databasePinManager;
+
     public DatabaseManager(Context context) {
         helper = new DatabaseHelper(context);
+        databasePinManager = new DatabasePinManager(this, helper);
+        initialize();
+    }
+
+    private void initialize() {
+        loadSavedReplies();
+        loadThreadHides();
+        loadHistory();
+    }
+
+    /**
+     * Reset all tables in the database. Used for the developer screen.
+     */
+    public void reset() {
+        helper.reset();
         initialize();
     }
 
@@ -127,91 +145,8 @@ public class DatabaseManager {
         return getSavedReply(board, no) != null;
     }
 
-    /**
-     * Adds a {@link Pin} to the pin table.
-     *
-     * @param pin Pin to save
-     */
-    public void addPin(Pin pin) {
-        try {
-            helper.loadableDao.create(pin.loadable);
-            helper.pinDao.create(pin);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error adding pin to db", e);
-        }
-    }
-
-    /**
-     * Deletes a {@link Pin} from the pin table.
-     *
-     * @param pin Pin to delete
-     */
-    public void removePin(Pin pin) {
-        try {
-            helper.pinDao.delete(pin);
-            helper.loadableDao.delete(pin.loadable);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error removing pin from db", e);
-        }
-    }
-
-    /**
-     * Updates a {@link Pin} in the pin table.
-     *
-     * @param pin Pin to update
-     */
-    public void updatePin(Pin pin) {
-        try {
-            helper.pinDao.update(pin);
-            helper.loadableDao.update(pin.loadable);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error updating pin in db", e);
-        }
-    }
-
-    /**
-     * Updates all {@link Pin}s in the list to the pin table.
-     *
-     * @param pins Pins to update
-     */
-    public void updatePins(final List<Pin> pins) {
-        try {
-            callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
-                @Override
-                public Void call() throws SQLException {
-                    for (Pin pin : pins) {
-                        helper.pinDao.update(pin);
-                    }
-
-                    for (Pin pin : pins) {
-                        helper.loadableDao.update(pin.loadable);
-                    }
-
-                    return null;
-                }
-            });
-        } catch (Exception e) {
-            Logger.e(TAG, "Error updating pins in db", e);
-        }
-    }
-
-    /**
-     * Get a list of {@link Pin}s from the pin table.
-     *
-     * @return List of Pins
-     */
-    public List<Pin> getPinned() {
-        List<Pin> list = null;
-        try {
-            list = helper.pinDao.queryForAll();
-            for (Pin p : list) {
-                helper.loadableDao.refresh(p.loadable);
-            }
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error getting pins from db", e);
-        }
-
-        return list;
+    public DatabasePinManager getDatabasePinManager() {
+        return databasePinManager;
     }
 
     /**
@@ -432,20 +367,6 @@ public class DatabaseManager {
     }
 
     /**
-     * Reset all tables in the database. Used for the developer screen.
-     */
-    public void reset() {
-        helper.reset();
-        initialize();
-    }
-
-    private void initialize() {
-        loadSavedReplies();
-        loadThreadHides();
-        loadHistory();
-    }
-
-    /**
      * Threadsafe.
      */
     private void loadSavedReplies() {
@@ -540,5 +461,46 @@ public class DatabaseManager {
         } catch (SQLException e) {
             Logger.e(TAG, "Error trimming table " + table, e);
         }
+    }
+
+    public <T> void runTask(final Callable<T> taskCallable) {
+        runTask(taskCallable, null);
+    }
+
+    public <T> void runTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
+        backgroundExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
+                    if (taskResult != null) {
+                        completeTask(taskResult, result);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    public <T> T runTaskSync(final Callable<T> taskCallable) {
+        try {
+            return TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public <T> void completeTask(final TaskResult<T> task, final T result) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                task.onComplete(result);
+            }
+        });
+    }
+
+    public interface TaskResult<T> {
+        void onComplete(T result);
     }
 }

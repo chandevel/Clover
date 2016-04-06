@@ -129,7 +129,7 @@ public class Chan extends Application {
 
         databaseManager = new DatabaseManager(this);
         boardManager = new BoardManager();
-        watchManager = new WatchManager(this);
+        watchManager = new WatchManager();
 
         Time.endTiming("Initializing application", startTime);
 

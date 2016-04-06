@@ -400,18 +400,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_watch_summary_disabled">Off</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
     <string name="setting_watch_enable_background_description">Watch pins when Clover is in the background</string>
-    <string name="setting_watch_background_timeout">Minimum time between loads in background</string>
-    <string name="setting_watch_background_timeout_description">Minimum time between loads, with exponential backoff</string>
+    <string name="setting_watch_background_timeout">Background update interval</string>
+    <string name="setting_watch_background_timeout_description">The time between updates in the background</string>
     <string name="setting_watch_notify_mode">Notify about</string>
     <string-array name="setting_watch_notify_modes">
         <item>All posts</item>
         <item>Only posts quoting you</item>
     </string-array>
-    <string name="setting_watch_sound">Notification sound and vibrate</string>
+    <string name="setting_watch_sound">Notification sound</string>
     <string-array name="setting_watch_sounds">
         <item>All posts</item>
         <item>Only posts quoting you</item>
     </string-array>
+    <string name="setting_watch_peek">Heads-up notification on mentions</string>
+    <string name="setting_watch_peek_description">Show a heads-up notification on mentions</string>
     <string name="setting_watch_led">Notification light</string>
     <string-array name="setting_watch_leds">
         <item>None</item>
