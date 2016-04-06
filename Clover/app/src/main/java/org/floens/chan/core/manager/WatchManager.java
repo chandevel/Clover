@@ -431,9 +431,10 @@ public class WatchManager {
         }
 
         // Update pin watchers
+        boolean isWatchingSettingEnabled = isWatchingSettingEnabled();
         for (int i = 0; i < pins.size(); i++) {
             Pin pin = pins.get(i);
-            if (watchEnabled && pin.watching) {
+            if (isWatchingSettingEnabled) {
                 createPinWatcher(pin);
             } else {
                 destroyPinWatcher(pin);
