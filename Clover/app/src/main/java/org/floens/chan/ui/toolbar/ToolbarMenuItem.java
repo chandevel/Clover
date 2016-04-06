@@ -55,12 +55,9 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
             imageView.setOnClickListener(this);
             imageView.setFocusable(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
-            imageView.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(56)));
-            int p = dp(16);
-            imageView.setPadding(p, p, p, p);
+            imageView.setLayoutParams(new LinearLayout.LayoutParams(dp(50), dp(56)));
 
             imageView.setImageDrawable(drawable);
-
             setRoundItemBackground(imageView);
         }
     }
