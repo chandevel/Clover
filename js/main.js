@@ -91,7 +91,7 @@ function getReleases() {
     }
 }
 
-var pages = ['download', 'releases', 'donate', 'beta']
+var pages = ['index', 'fdroid', 'releases', 'donate']
 
 function switchPage(page) {
     if (page[0] == '#') {
@@ -99,7 +99,7 @@ function switchPage(page) {
     }
 
     if (!page) {
-        page = 'download';
+        page = 'index';
     }
 
     if (inArray(pages, page)) {
@@ -119,7 +119,7 @@ function switchPage(page) {
         }
 
         var headerElement = document.querySelector('.header');
-        if (page == 'download') {
+        if (page == 'index') {
             headerElement.classList.remove('collapsed');
         } else {
             headerElement.classList.add('collapsed');

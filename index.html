@@ -19,10 +19,10 @@
     </div>
     <div class="header">
         <ul class="navbar">
-            <li><a href="#download">Download</a></li>
-            <li><a href="#releases">Releases</a></li>
+            <li><a href="#index">Index</a></li>
+            <li><a href="#fdroid">F-Droid</a></li>
+            <li><a href="#releases">APKs</a></li>
             <li><a href="#donate">Donate</a></li>
-            <li><a href="#beta">Beta</a></li>
         </ul>
         <div class="logotext">
             <img class="logo" src="images/logo.png">
@@ -34,20 +34,17 @@
             </div>
         </div>
         <div class="links">
-            <!--<a class="googleplay" href="https://play.google.com/store/apps/details?id=org.floens.clover&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
-                <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" />
-            </a>-->
             <br>
-            <i class="material-icons inline-text">warning</i><a href="gp_unavailable.txt">Google Play link unavailable, click here for more info</a><br>
+            <a href="#fdroid">Download on F-Droid</a>
             <br>
-            <a href="https://f-droid.org/app/org.floens.chan">Available on F-Droid</a>
             <br>
+            <i class="material-icons inline-text">warning</i><a href="gp_unavailable.txt">Google Play unavailable</a><br>
             <br>
             <a href="https://github.com/Floens/Clover">Source code on GitHub</a>
         </div>
     </div>
     <div class="container">
-        <div id="page-download" class="page page-active">
+        <div id="page-index" class="page page-active">
             <div class="box">
             </div>
             <div class="box-half box-float-right">
@@ -75,15 +72,44 @@
             </div>
             <div class="clear"></div>
         </div>
+        <div id="page-fdroid" class="page page-inactive">
+            <div class="box">
+                <h1>F-Droid</h1>
+                <p>
+                    <a href="https://f-droid.org/app/org.floens.chan">Clover on F-Droid</a><br>
+                    <br>
+                    Clover is available on <a href="https://f-droid.org/">F-Droid</a>, the <a href="https://en.wikipedia.org/wiki/Free_and_open-source_software">free and open-source software</a> app repository for Android Apps.<br>
+                    F-Droid makes it easy to browse, install, and keep track of app updates.<br>
+                    <b>F-Droid does not require root.</b>
+                </p>
+
+                Steps to install:
+                <ul>
+                    <li>Enable your device to install downloaded APKs in order to install F-Droid. Go to Settings &gt; Security &gt; and enable the "Unknown sources" checkbox. Accept the warning by pressing OK.<br>
+                    Note: F-Droid is safe to use because all F-Droid apps are free and open-source.</li>
+                    <li>
+                        Download the <a href="https://f-droid.org/FDroid.apk">F-Droid APK</a> and install it.
+                    </li>
+                    <li>
+                        Start F-Droid and wait for the repository to sync, this can take up to 3 minutes.
+                    </li>
+                    <li>
+                        Search for Clover in the F-Droid app or click <a href="https://f-droid.org/app/org.floens.chan">this link</a> from your phone's browser and download the latest version.
+                    </li>
+                </ul>
+                <p>
+                    You will receive notifications about new versions of Clover automatically.
+                </p>
+            </div>
+        </div>
         <div id="page-releases" class="page page-inactive">
             <div class="box">
                 <h1>Releases</h1>
                 <p>
-                    These are all the APK releases currently on GitHub. See <a href="https://github.com/Floens/Clover/tree/dev/releases">GitHub</a>.<br>
-                    <b>The APKs are signed with the same key as Google Play.</b> You can install it over an installed version if the already installed version was also signed with the Google Play key. Uninstall the already installed version otherwise before installing a new one.<br>
+                    These are all the APK releases currently on GitHub. See <a href="https://github.com/Floens/Clover/tree/dev/releases">GitHub</a>.
                 </p>
                 <p>
-                    It's recommended to download Clover with Google Play or F-Droid to get automatic updates!
+                    <b>It's recommended to download Clover with F-Droid to get automatic updates!</b>
                 </p>
 
                 <ul class="releases-list">
@@ -133,6 +159,12 @@
                     </thead>
                     <tbody>
                         <tr>
+                            <td>For your autism</td>
+                            <td>PayPal</td>
+                            <td>2016/03/08</td>
+                            <td>$40.00</td>
+                        </tr>
+                        <tr>
                             <td>alex</td>
                             <td>PayPal</td>
                             <td>2016/01/21</td>
@@ -161,6 +193,12 @@
                             <td>PayPal</td>
                             <td>2016/01/18</td>
                             <td>$10.00</td>
+                        </tr>
+                        <tr>
+                            <td>Anonymous</td>
+                            <td>PayPal</td>
+                            <td>2016/04/03</td>
+                            <td>$6.00</td>
                         </tr>
                         <tr>
                             <td>Anonymous</td>
@@ -220,33 +258,21 @@
                 </table>
             </div>
         </div>
-        <div id="page-beta" class="page page-inactive">
+        <!--<div id="page-beta" class="page page-inactive">
             <h1>Clover beta</h1>
             <div class="box">
-                <p>
-                    Join the beta of Clover to get the most recent developer version first.<br>
-                    The beta is distributed through the Google Play beta program. You have to be logged in with the same account as the account you use to download apps with the Play Store on your phone.<br>
-                </p>
-                <p>
-                    <b>There are currently no beta releases, check back later!</b>
-                    <!--<b>Read the instructions carefully on this page.</b><br>
-                    <b>It can take a few hours for the update to arrive on your phone.</b><br>
-                    <a href="https://play.google.com/apps/testing/org.floens.clover">Clover Google Play beta</a><i class="material-icons external">exit_to_app</i><br>-->
-                </p>
-                <p>
-                    Alternatively download the APK from the releases page, but you won't get automatic updates.
-                </p>
+                Maybe again when I setup a f-droid repo for it.
             </div>
-        </div>
+        </div>-->
 
         <div class="footer">
             <a id="email">Email me</a><br>
             <br>
-            Android, Google Play and the Google Play logo are trademarks of Google Inc.<br>
+            Android is a trademarks of Google Inc.<br>
             Clover is not affiliated with 4chan.org.
         </div>
     </div>
 
-    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/main.js?2"></script>
 </body>
 </html>

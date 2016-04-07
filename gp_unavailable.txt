@@ -1,3 +1,7 @@
+Clover has been permanently removed from Google Play, but is still being developed and available on F-Droid.
+Read the timeline below for more info.
+==================
+
 On 2016-1-17 Clover was suspended from Google Play, with the reason "Violation of the sexually explicit material provision of the Content Policy."
 
 I made an appeal for this suspension, and that might take a few days to process. This happened about an hour after I uploaded the final beta to the Play Store, that had some changes to what top boards were displayed, and I think that triggered the suspension.
