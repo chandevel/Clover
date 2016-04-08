@@ -46,10 +46,18 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
         toolbar.setCallback(this);
     }
 
-    public void showImages(final List<PostImage> images, final int index, final Loadable loadable, final ImageViewerController.PreviewCallback previewCallback) {
+    public void showImages(final List<PostImage> images, final int index, final Loadable loadable,
+                           ImageViewerController.ImageViewerCallback imageViewerCallback) {
+        showImages(images, index, loadable, imageViewerCallback, null);
+    }
+
+    public void showImages(final List<PostImage> images, final int index, final Loadable loadable,
+                           ImageViewerController.ImageViewerCallback imageViewerCallback,
+                           ImageViewerController.GoPostCallback goPostCallback) {
         imageViewerController = new ImageViewerController(context, toolbar);
+        imageViewerController.setGoPostCallback(goPostCallback);
         pushController(imageViewerController, false);
-        imageViewerController.setPreviewCallback(previewCallback);
+        imageViewerController.setImageViewerCallback(imageViewerCallback);
         imageViewerController.getPresenter().showImages(images, index, loadable);
     }
 }

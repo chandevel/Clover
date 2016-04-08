@@ -107,19 +107,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 // onScrolled can be called after cleanup()
                 if (showingThread != null) {
-                    int index = 0;
-                    int top = 0;
-                    if (recyclerView.getLayoutManager().getChildCount() > 0) {
-                        View topChild = recyclerView.getLayoutManager().getChildAt(0);
+                    int[] indexTop = getIndexAndTop();
 
-                        index = ((RecyclerView.LayoutParams) topChild.getLayoutParams()).getViewLayoutPosition();
-
-                        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) topChild.getLayoutParams();
-                        top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
-                    }
-
-                    showingThread.loadable.setListViewIndex(index);
-                    showingThread.loadable.setListViewTop(top);
+                    showingThread.loadable.setListViewIndex(indexTop[0]);
+                    showingThread.loadable.setListViewTop(indexTop[1]);
 
                     int last = getCompleteBottomAdapterPosition();
                     if (last == postAdapter.getUnfilteredDisplaySize() - 1 && last > lastPostCount) {
@@ -377,6 +368,15 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.smoothScrollToPosition(bottom);
             } else {
                 recyclerView.scrollToPosition(bottom);
+                // No animation means no animation, wait for the layout to finish and skip all animations
+                final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
+                AndroidUtils.waitForLayout(recyclerView, new AndroidUtils.OnMeasuredCallback() {
+                    @Override
+                    public boolean onMeasured(View view) {
+                        itemAnimator.endAnimations();
+                        return true;
+                    }
+                });
             }
         } else {
             int scrollPosition = postAdapter.getScrollPosition(displayPosition);
@@ -390,6 +390,15 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.smoothScrollToPosition(scrollPosition);
             } else {
                 recyclerView.scrollToPosition(scrollPosition);
+                // No animation means no animation, wait for the layout to finish and skip all animations
+                final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
+                AndroidUtils.waitForLayout(recyclerView, new AndroidUtils.OnMeasuredCallback() {
+                    @Override
+                    public boolean onMeasured(View view) {
+                        itemAnimator.endAnimations();
+                        return true;
+                    }
+                });
             }
         }
     }
@@ -428,6 +437,21 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     @Override
     public ChanThread getThread() {
         return showingThread;
+    }
+
+    public int[] getIndexAndTop() {
+        int index = 0;
+        int top = 0;
+        if (recyclerView.getLayoutManager().getChildCount() > 0) {
+            View topChild = recyclerView.getLayoutManager().getChildAt(0);
+
+            index = ((RecyclerView.LayoutParams) topChild.getLayoutParams()).getViewLayoutPosition();
+
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) topChild.getLayoutParams();
+            top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
+        }
+
+        return new int[]{index, top};
     }
 
     private void attachToolbarScroll(boolean attach) {

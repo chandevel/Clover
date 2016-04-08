@@ -178,6 +178,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         setNavigationItemInternal(animate, pushing, item);
     }
 
+    public boolean isTransitioning() {
+        return transitioning;
+    }
+
     public void beginTransition(NavigationItem newItem) {
         if (transitioning) {
             throw new IllegalStateException("beginTransition called when already transitioning");

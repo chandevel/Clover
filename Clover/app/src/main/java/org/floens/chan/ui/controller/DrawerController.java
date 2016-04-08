@@ -234,6 +234,9 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
 
     public void setDrawerEnabled(boolean enabled) {
         drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+        if (!enabled) {
+            drawerLayout.closeDrawer(drawer);
+        }
     }
 
     private void updateBadge() {

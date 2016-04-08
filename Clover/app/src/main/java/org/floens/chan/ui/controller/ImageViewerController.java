@@ -70,7 +70,6 @@ import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -81,17 +80,19 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
-    private static final int SAVE_ID = 101;
-    private static final int OPEN_BROWSER_ID = 102;
-    private static final int SHARE_ID = 103;
-    private static final int SEARCH_ID = 104;
-    private static final int SAVE_ALBUM = 105;
+    private static final int GO_POST_ID = 1;
+    private static final int SAVE_ID = 2;
+    private static final int OPEN_BROWSER_ID = 103;
+    private static final int SHARE_ID = 104;
+    private static final int SEARCH_ID = 105;
+    private static final int SAVE_ALBUM = 106;
 
     private int statusBarColorPrevious;
     private AnimatorSet startAnimation;
     private AnimatorSet endAnimation;
 
-    private PreviewCallback previewCallback;
+    private ImageViewerCallback imageViewerCallback;
+    private GoPostCallback goPostCallback;
     private ImageViewerPresenter presenter;
 
     private final Toolbar toolbar;
@@ -116,13 +117,17 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
         navigationItem.subtitle = "0";
         navigationItem.menu = new ToolbarMenu(context);
+        if (goPostCallback != null) {
+            navigationItem.menu.addItem(new ToolbarMenuItem(context, this, GO_POST_ID, R.drawable.ic_subdirectory_arrow_left_white_24dp));
+        }
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
-        overflowMenuItem = navigationItem.createOverflow(context, this, Arrays.asList(
-                new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser),
-                new FloatingMenuItem(SHARE_ID, R.string.action_share),
-                new FloatingMenuItem(SEARCH_ID, R.string.action_search_image),
-                new FloatingMenuItem(SAVE_ALBUM, R.string.action_download_album)
-        ));
+
+        List<FloatingMenuItem> items = new ArrayList<>();
+        items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
+        items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
+        items.add(new FloatingMenuItem(SEARCH_ID, R.string.action_search_image));
+        items.add(new FloatingMenuItem(SAVE_ALBUM, R.string.action_download_album));
+        overflowMenuItem = navigationItem.createOverflow(context, this, items);
 
         view = inflateRes(R.layout.controller_image_viewer);
         previewImage = (TransitionImageView) view.findViewById(R.id.preview_image);
@@ -153,8 +158,26 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public void onMenuItemClicked(ToolbarMenuItem item) {
-        if ((Integer) item.getId() == SAVE_ID) {
-            saveShare(false, presenter.getCurrentPostImage());
+        switch ((Integer) item.getId()) {
+            case GO_POST_ID:
+                PostImage postImage = presenter.getCurrentPostImage();
+                ImageViewerCallback imageViewerCallback = goPostCallback.goToPost(postImage);
+                if (imageViewerCallback != null) {
+                    // hax: we need to wait for the recyclerview to do a layout before we know
+                    // where the new thumbnails are to get the bounds from to animate to
+                    this.imageViewerCallback = imageViewerCallback;
+                    AndroidUtils.waitForLayout(view, new AndroidUtils.OnMeasuredCallback() {
+                        @Override
+                        public boolean onMeasured(View view) {
+                            presenter.onExit();
+                            return false;
+                        }
+                    });
+                }
+                break;
+            case SAVE_ID:
+                saveShare(false, presenter.getCurrentPostImage());
+                break;
         }
     }
 
@@ -216,8 +239,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         return true;
     }
 
-    public void setPreviewCallback(PreviewCallback previewCallback) {
-        this.previewCallback = previewCallback;
+    public void setImageViewerCallback(ImageViewerCallback imageViewerCallback) {
+        this.imageViewerCallback = imageViewerCallback;
+    }
+
+    public void setGoPostCallback(GoPostCallback goPostCallback) {
+        this.goPostCallback = goPostCallback;
     }
 
     public ImageViewerPresenter getPresenter() {
@@ -258,7 +285,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     public void scrollToImage(PostImage postImage) {
-        previewCallback.scrollToImage(postImage);
+        imageViewerCallback.scrollToImage(postImage);
     }
 
     public void showProgress(boolean show) {
@@ -324,7 +351,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         startAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                previewCallback.onPreviewCreate(ImageViewerController.this);
+                imageViewerCallback.onPreviewCreate(ImageViewerController.this);
             }
 
             @Override
@@ -431,7 +458,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private void previewOutAnimationEnded() {
         setBackgroundAlpha(0f);
 
-        previewCallback.onPreviewDestroy(this);
+        imageViewerCallback.onPreviewDestroy(this);
         navigationController.stopPresenting(false);
     }
 
@@ -482,14 +509,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private ThumbnailView getTransitionImageView(PostImage postImage) {
-        return previewCallback.getPreviewImageTransitionView(this, postImage);
+        return imageViewerCallback.getPreviewImageTransitionView(this, postImage);
     }
 
     private Window getWindow() {
         return ((Activity) context).getWindow();
     }
 
-    public interface PreviewCallback {
+    public interface ImageViewerCallback {
         ThumbnailView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage);
 
         void onPreviewCreate(ImageViewerController imageViewerController);
@@ -497,5 +524,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         void onPreviewDestroy(ImageViewerController imageViewerController);
 
         void scrollToImage(PostImage postImage);
+    }
+
+    public interface GoPostCallback {
+        ImageViewerCallback goToPost(PostImage postImage);
     }
 }

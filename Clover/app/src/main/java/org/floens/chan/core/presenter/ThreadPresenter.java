@@ -216,6 +216,26 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
     }
 
+    public void showAlbum() {
+        List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+        int[] pos = threadPresenterCallback.getCurrentPosition();
+        int displayPosition = pos[0];
+
+        List<PostImage> images = new ArrayList<>();
+        int index = 0;
+        for (int i = 0; i < posts.size(); i++) {
+            Post item = posts.get(i);
+            if (item.hasImage) {
+                images.add(item.image);
+            }
+            if (i == displayPosition) {
+                index = images.size();
+            }
+        }
+
+        threadPresenterCallback.showAlbum(images, index);
+    }
+
     @Override
     public Loadable getLoadable() {
         return loadable;
@@ -325,6 +345,18 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     public void selectPost(int post) {
         threadPresenterCallback.selectPost(post);
+    }
+
+    public void selectPostImage(PostImage postImage) {
+        List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            if (post.image == postImage) {
+                scrollToPost(post, false);
+                highlightPost(post);
+                break;
+            }
+        }
     }
 
     /*
@@ -662,7 +694,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         List<Post> getDisplayingPosts();
 
+        int[] getCurrentPosition();
+
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
+
+        void showAlbum(List<PostImage> images, int index);
 
         void scrollTo(int displayPosition, boolean smooth);
 

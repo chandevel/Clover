@@ -47,7 +47,7 @@ import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.PreviewCallback, SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback, SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "ThreadController";
 
     protected ThreadLayout threadLayout;
@@ -162,6 +162,10 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         presentController(controller);
     }
 
+    public void selectPostImage(PostImage postImage) {
+        threadLayout.getPresenter().selectPostImage(postImage);
+    }
+
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
@@ -187,8 +191,18 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 //        presentingImageView = null;
     }
 
+    @Override
     public void scrollToImage(PostImage postImage) {
         threadLayout.getPresenter().scrollToImage(postImage, true);
+    }
+
+    @Override
+    public void showAlbum(List<PostImage> images, int index) {
+        if (threadLayout.getPresenter().getChanThread() != null) {
+            AlbumViewController albumViewController = new AlbumViewController(context);
+            albumViewController.setImages(getLoadable(), images, index, navigationItem.title);
+            navigationController.pushController(albumViewController);
+        }
     }
 
     @Override

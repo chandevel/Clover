@@ -46,6 +46,17 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     }
 
     @Override
+    public boolean popController(ControllerTransition controllerTransition) {
+        return !toolbar.isTransitioning() && super.popController(controllerTransition);
+
+    }
+
+    @Override
+    public boolean pushController(Controller to, ControllerTransition controllerTransition) {
+        return !toolbar.isTransitioning() && super.pushController(to, controllerTransition);
+    }
+
+    @Override
     public void transition(Controller from, Controller to, boolean pushing, ControllerTransition controllerTransition) {
         super.transition(from, to, pushing, controllerTransition);
 

@@ -100,8 +100,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="card_stats">%1$dR %2$dI</string>
 
+    <string name="action_view_album">View album</string>
     <string name="action_reload">Reload</string>
     <string name="action_pin">Pin</string>
+    <string name="action_go_post">Go to post</string>
     <string name="action_open_browser">Open in browser</string>
     <string name="action_share">Share</string>
     <string name="action_download_album">Download album</string>
@@ -308,6 +310,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
+
+    <string name="album_view_screen">Album</string>
 
     <string name="image_save_notification_downloading">Downloading images</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
