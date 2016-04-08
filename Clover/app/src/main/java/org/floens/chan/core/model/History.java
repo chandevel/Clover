@@ -25,7 +25,7 @@ public class History {
     @DatabaseField(generatedId = true)
     public int id;
 
-    @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true)
+    @DatabaseField(canBeNull = false, foreign = true)
     public Loadable loadable;
 
     @DatabaseField

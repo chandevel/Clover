@@ -24,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -49,6 +50,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
     private final RequestQueue volleyRequestQueue;
+    private final DatabaseManager databaseManager;
     private ChanThread thread;
 
     private ChanReaderRequest request;
@@ -66,6 +68,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         }
 
         volleyRequestQueue = Chan.getVolleyRequestQueue();
+        databaseManager = Chan.getDatabaseManager();
     }
 
     /**
@@ -110,7 +113,8 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
 
         if (loadable.isCatalogMode()) {
             loadable.no = 0;
-            loadable.listViewIndex = 0;
+            loadable.
+                    listViewIndex = 0;
             loadable.listViewTop = 0;
         }
 
@@ -208,7 +212,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         processResponse(response);
 
         if (TextUtils.isEmpty(loadable.title)) {
-            loadable.title = PostHelper.getTitle(thread.op, loadable);
+            loadable.setTitle(PostHelper.getTitle(thread.op, loadable));
         }
 
         for (Post post : thread.posts) {

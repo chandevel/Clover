@@ -34,15 +34,19 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.database.DatabaseHistoryManager;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.History;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
+import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +60,10 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     private static final int CLEAR_ID = 101;
 
     private DatabaseManager databaseManager;
+    private DatabaseHistoryManager databaseHistoryManager;
+    private BoardManager boardManager;
+
+    private CrossfadeView crossfade;
     private RecyclerView recyclerView;
     private HistoryAdapter adapter;
 
@@ -68,6 +76,8 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         super.onCreate();
 
         databaseManager = Chan.getDatabaseManager();
+        databaseHistoryManager = databaseManager.getDatabaseHistoryManager();
+        boardManager = Chan.getBoardManager();
 
         navigationItem.setTitle(R.string.history_screen);
         List<FloatingMenuItem> items = new ArrayList<>();
@@ -76,24 +86,29 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
         navigationItem.createOverflow(context, this, items);
 
-        view = inflateRes(R.layout.controller_history);
-
         SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
         historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
         historyEnabledSwitch.setOnCheckedChangeListener(this);
         navigationItem.rightView = historyEnabledSwitch;
 
+        view = inflateRes(R.layout.controller_history);
+        crossfade = (CrossfadeView) view.findViewById(R.id.crossfade);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);
-        adapter.load();
 
         if (ChanSettings.historyOpenCounter.increase() == 1) {
             HintPopup.show(context, historyEnabledSwitch, R.string.history_toggle_hint);
         }
+    }
+
+    @Override
+    public void onShow() {
+        super.onShow();
+        adapter.load();
     }
 
     @Override
@@ -112,7 +127,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
                     .setPositiveButton(R.string.history_clear_confirm_button, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            databaseManager.clearHistory();
+                            databaseManager.runTask(databaseHistoryManager.clearHistory());
                             adapter.load();
                         }
                     })
@@ -132,7 +147,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     }
 
     private void deleteHistory(History history) {
-        databaseManager.removeHistory(history);
+        databaseManager.runTaskSync(databaseHistoryManager.removeHistory(history));
         adapter.load();
     }
 
@@ -148,10 +163,12 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         adapter.search(entered);
     }
 
-    private class HistoryAdapter extends RecyclerView.Adapter<HistoryCell> {
+    private class HistoryAdapter extends RecyclerView.Adapter<HistoryCell> implements DatabaseManager.TaskResult<List<History>> {
         private List<History> sourceList = new ArrayList<>();
         private List<History> displayList = new ArrayList<>();
         private String searchQuery;
+
+        private boolean resultPending = false;
 
         public HistoryAdapter() {
             setHasStableIds(true);
@@ -166,8 +183,13 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         public void onBindViewHolder(HistoryCell holder, int position) {
             History history = displayList.get(position);
             holder.thumbnail.setUrl(history.thumbnailUrl, dp(48), dp(48));
+
+            if (history.loadable == null) {
+                Logger.test("null!");
+            }
+
             holder.text.setText(history.loadable.title);
-            Board board = Chan.getBoardManager().getBoardByValue(history.loadable.board);
+            Board board = boardManager.getBoardByValue(history.loadable.board);
             holder.subtext.setText(board == null ? null : ("/" + board.value + "/ - " + board.key));
         }
 
@@ -187,9 +209,18 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         }
 
         private void load() {
-            sourceList.clear();
-            sourceList.addAll(databaseManager.getHistory());
+            if (!resultPending) {
+                resultPending = true;
+                databaseManager.runTask(databaseHistoryManager.getHistory(), this);
+            }
+        }
 
+        @Override
+        public void onComplete(List<History> result) {
+            resultPending = false;
+            sourceList.clear();
+            sourceList.addAll(result);
+            crossfade.toggle(!sourceList.isEmpty(), true);
             filter();
         }
 

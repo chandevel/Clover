@@ -66,7 +66,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
     private PostCell.PostCellCallback DUMMY_POST_CALLBACK = new PostCell.PostCellCallback() {
-        private Loadable loadable = new Loadable("g", 1234);
+        private Loadable loadable = Loadable.forThread("g", 1234);
 
         @Override
         public Loadable getLoadable() {

@@ -38,7 +38,6 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.pool.LoadablePool;
 import org.floens.chan.core.pool.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
@@ -270,7 +269,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void onListScrolledToBottom() {
         if (loadable.isThreadMode()) {
             List<Post> posts = chanLoader.getThread().posts;
-            loadable.lastViewed = posts.get(posts.size() - 1).no;
+            loadable.setLastViewed(posts.get(posts.size() - 1).no);
         }
 
         Pin pin = watchManager.findPinByLoadable(loadable);
@@ -334,7 +333,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     @Override
     public void onPostClicked(Post post) {
         if (loadable.isCatalogMode()) {
-            Loadable threadLoadable = LoadablePool.getInstance().obtain(new Loadable(post.board, post.no));
+            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(post.board, post.no));
             threadLoadable.title = PostHelper.getTitle(post, loadable);
             threadPresenterCallback.showThread(threadLoadable);
         } else {
@@ -448,7 +447,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 databaseManager.saveReply(new SavedReply(post.board, post.no, "foo"));
                 break;
             case POST_OPTION_PIN:
-                Loadable pinLoadable = LoadablePool.getInstance().obtain(new Loadable(post.board, post.no));
+                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(post.board, post.no));
                 watchManager.createPin(pinLoadable, post);
                 break;
             case POST_OPTION_OPEN_BROWSER:
@@ -484,7 +483,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
 
             if (boardManager.getBoardExists(link.board)) {
-                Loadable thread = LoadablePool.getInstance().obtain(new Loadable(link.board, link.threadId));
+                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(link.board, link.threadId));
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);
@@ -630,11 +629,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (!historyAdded && ChanSettings.historyEnabled.get() && loadable.isThreadMode()) {
             historyAdded = true;
             History history = new History();
-            // Copy the loadable when adding to history
-            // Otherwise the database will possible use the loadable from a pin, and when clearing the history also deleting the loadable from the pin.
-            history.loadable = loadable.copy();
+            history.loadable = loadable;
             history.thumbnailUrl = chanLoader.getThread().op.thumbnailUrl;
-            databaseManager.addHistory(history);
+            databaseManager.getDatabaseHistoryManager().add(history);
         }
     }
 

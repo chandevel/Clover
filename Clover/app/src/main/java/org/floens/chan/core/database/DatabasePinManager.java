@@ -27,17 +27,22 @@ public class DatabasePinManager {
 
     private DatabaseManager databaseManager;
     private DatabaseHelper helper;
+    private DatabaseLoadableManager databaseLoadableManager;
 
-    public DatabasePinManager(DatabaseManager databaseManager, DatabaseHelper helper) {
+    public DatabasePinManager(DatabaseManager databaseManager, DatabaseHelper helper, DatabaseLoadableManager databaseLoadableManager) {
         this.databaseManager = databaseManager;
         this.helper = helper;
+        this.databaseLoadableManager = databaseLoadableManager;
     }
 
     public Callable<Pin> createPin(final Pin pin) {
+        if (pin.loadable.id == 0) {
+            throw new IllegalArgumentException("Pin loadable is not yet in the db");
+        }
+
         return new Callable<Pin>() {
             @Override
             public Pin call() throws Exception {
-                helper.loadableDao.create(pin.loadable);
                 helper.pinDao.create(pin);
                 return pin;
             }
@@ -49,7 +54,6 @@ public class DatabasePinManager {
             @Override
             public Void call() throws Exception {
                 helper.pinDao.delete(pin);
-                helper.loadableDao.delete(pin.loadable);
 
                 return null;
             }
@@ -61,7 +65,6 @@ public class DatabasePinManager {
             @Override
             public Pin call() throws Exception {
                 helper.pinDao.update(pin);
-                helper.loadableDao.update(pin.loadable);
                 return pin;
             }
         };
@@ -76,11 +79,6 @@ public class DatabasePinManager {
                     helper.pinDao.update(pin);
                 }
 
-                for (int i = 0; i < pins.size(); i++) {
-                    Pin pin = pins.get(i);
-                    helper.loadableDao.update(pin.loadable);
-                }
-
                 return null;
             }
         };
@@ -93,7 +91,7 @@ public class DatabasePinManager {
                 List<Pin> list = helper.pinDao.queryForAll();
                 for (int i = 0; i < list.size(); i++) {
                     Pin p = list.get(i);
-                    helper.loadableDao.refresh(p.loadable);
+                    p.loadable = databaseLoadableManager.refreshForeign(p.loadable);
                 }
                 return list;
             }

@@ -32,10 +32,8 @@ public class ChanState implements Parcelable {
     }
 
     public ChanState(Parcel parcel) {
-        board = new Loadable();
-        board.readFromParcel(parcel);
-        thread = new Loadable();
-        thread.readFromParcel(parcel);
+        board = Loadable.readFromParcel(parcel);
+        thread = Loadable.readFromParcel(parcel);
     }
 
     @Override

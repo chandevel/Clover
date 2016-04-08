@@ -37,11 +37,11 @@ import org.floens.chan.R;
 import org.floens.chan.chan.ChanHelper;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
+import org.floens.chan.core.database.DatabaseLoadableManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.pool.LoadablePool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DrawerController;
@@ -132,8 +132,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             if (chanState == null) {
                 Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
             } else {
-                chanState.board = LoadablePool.getInstance().obtain(chanState.board);
-                chanState.thread = LoadablePool.getInstance().obtain(chanState.thread);
+                DatabaseLoadableManager loadableManager = Chan.getDatabaseManager().getDatabaseLoadableManager();
+                chanState.board = loadableManager.get(chanState.board);
+                chanState.thread = loadableManager.get(chanState.thread);
 
                 loadDefault = false;
                 Board board = boardManager.getBoardByValue(chanState.board.board);
@@ -247,7 +248,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
             if (thread == null) {
                 // Make the parcel happy
-                thread = new Loadable();
+                thread = Loadable.emptyLoadable();
             }
 
             outState.putParcelable(STATE_KEY, new ChanState(board, thread));

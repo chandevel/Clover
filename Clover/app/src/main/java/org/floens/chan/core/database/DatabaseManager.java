@@ -23,13 +23,11 @@ import android.os.Looper;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
-import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
+import org.floens.chan.Chan;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
-import org.floens.chan.core.model.History;
-import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.model.ThreadHide;
@@ -37,12 +35,15 @@ import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import de.greenrobot.event.EventBus;
 
 import static com.j256.ormlite.misc.TransactionManager.callInTransaction;
 
@@ -56,8 +57,7 @@ public class DatabaseManager {
     private static final long HISTORY_TRIM_TRIGGER = 500;
     private static final long HISTORY_TRIM_COUNT = 50;
 
-    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
-
+    private final ExecutorService backgroundExecutor;
     private final DatabaseHelper helper;
 
     private final Object savedRepliesLock = new Object();
@@ -67,21 +67,44 @@ public class DatabaseManager {
     private final List<ThreadHide> threadHides = new ArrayList<>();
     private final HashSet<Integer> threadHidesIds = new HashSet<>();
 
-    private final Object historyLock = new Object();
-    private final HashMap<Loadable, History> historyByLoadable = new HashMap<>();
-
     private final DatabasePinManager databasePinManager;
+    private final DatabaseLoadableManager databaseLoadableManager;
+    private final DatabaseHistoryManager databaseHistoryManager;
 
     public DatabaseManager(Context context) {
+        backgroundExecutor = Executors.newSingleThreadExecutor();
+
         helper = new DatabaseHelper(context);
-        databasePinManager = new DatabasePinManager(this, helper);
+        databaseLoadableManager = new DatabaseLoadableManager(this, helper);
+        databasePinManager = new DatabasePinManager(this, helper, databaseLoadableManager);
+        databaseHistoryManager = new DatabaseHistoryManager(this, helper, databaseLoadableManager);
         initialize();
+        EventBus.getDefault().register(this);
+    }
+
+    public DatabasePinManager getDatabasePinManager() {
+        return databasePinManager;
+    }
+
+    public DatabaseLoadableManager getDatabaseLoadableManager() {
+        return databaseLoadableManager;
+    }
+
+    public DatabaseHistoryManager getDatabaseHistoryManager() {
+        return databaseHistoryManager;
+    }
+
+    // Called when the app changes foreground state
+    public void onEvent(Chan.ForegroundChangedMessage message) {
+        if (!message.inForeground) {
+            runTask(databaseLoadableManager.flush());
+        }
     }
 
     private void initialize() {
         loadSavedReplies();
         loadThreadHides();
-        loadHistory();
+        databaseHistoryManager.load();
     }
 
     /**
@@ -143,78 +166,6 @@ public class DatabaseManager {
      */
     public boolean isSavedReply(String board, int no) {
         return getSavedReply(board, no) != null;
-    }
-
-    public DatabasePinManager getDatabasePinManager() {
-        return databasePinManager;
-    }
-
-    /**
-     * Adds or updates a {@link History} to the history table.
-     * Only updates the date if the history is already in the table.
-     *
-     * @param history History to save
-     */
-    public void addHistory(final History history) {
-        backgroundExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                addHistoryInternal(history);
-            }
-        });
-    }
-
-    /**
-     * Deletes a {@link History} from the history table.
-     *
-     * @param history History to delete
-     */
-    public void removeHistory(History history) {
-        try {
-            helper.historyDao.delete(history);
-            helper.loadableDao.delete(history.loadable);
-            historyByLoadable.remove(history.loadable);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error removing history from db", e);
-        }
-    }
-
-    /**
-     * Clears all history and the referenced loadables from the database.
-     */
-    public void clearHistory() {
-        try {
-            TransactionManager.callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    List<History> historyList = getHistory();
-                    for (History history : historyList) {
-                        removeHistory(history);
-                    }
-
-                    return null;
-                }
-            });
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error clearing history", e);
-        }
-    }
-
-    /**
-     * Get a list of {@link History} entries from the history table.
-     *
-     * @return List of History
-     */
-    public List<History> getHistory() {
-        List<History> list = null;
-        try {
-            QueryBuilder<History, Integer> historyQuery = helper.historyDao.queryBuilder();
-            list = historyQuery.orderBy("date", false).query();
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error getting history from db", e);
-        }
-
-        return list;
     }
 
     public void addOrUpdateFilter(Filter filter) {
@@ -401,48 +352,6 @@ public class DatabaseManager {
         }
     }
 
-    private void loadHistory() {
-        synchronized (historyLock) {
-            try {
-                trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
-
-                historyByLoadable.clear();
-                List<History> historyList = helper.historyDao.queryForAll();
-                for (History history : historyList) {
-                    historyByLoadable.put(history.loadable, history);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void addHistoryInternal(final History history) {
-        try {
-            TransactionManager.callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    synchronized (historyLock) {
-                        History existingHistory = historyByLoadable.get(history.loadable);
-                        if (existingHistory != null) {
-                            existingHistory.date = System.currentTimeMillis();
-                            helper.historyDao.update(existingHistory);
-                        } else {
-                            history.date = System.currentTimeMillis();
-                            helper.loadableDao.create(history.loadable);
-                            helper.historyDao.create(history);
-                            historyByLoadable.put(history.loadable, history);
-                        }
-                    }
-
-                    return null;
-                }
-            });
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error adding history", e);
-        }
-    }
-
     /**
      * Trim a table with the specified trigger and trim count.
      *
@@ -451,7 +360,7 @@ public class DatabaseManager {
      * @param trigger Trim if there are more rows than {@code trigger}.
      * @param trim    Count of rows to trim.
      */
-    private void trimTable(Dao dao, String table, long trigger, long trim) {
+    /*package*/ void trimTable(Dao dao, String table, long trigger, long trim) {
         try {
             long count = dao.countOf();
             if (count > trigger) {
@@ -468,34 +377,35 @@ public class DatabaseManager {
     }
 
     public <T> void runTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
-        backgroundExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
-                    if (taskResult != null) {
-                        completeTask(taskResult, result);
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        executeTask(taskCallable, taskResult);
     }
 
     public <T> T runTaskSync(final Callable<T> taskCallable) {
         try {
-            return TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
-        } catch (SQLException e) {
+            return executeTask(taskCallable, null).get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public <T> void completeTask(final TaskResult<T> task, final T result) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+    private <T> Future<T> executeTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
+        return backgroundExecutor.submit(new Callable<T>() {
             @Override
-            public void run() {
-                task.onComplete(result);
+            public T call() {
+                try {
+                    final T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
+                    if (taskResult != null) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskResult.onComplete(result);
+                            }
+                        });
+                    }
+                    return result;
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }

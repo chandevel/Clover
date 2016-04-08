@@ -30,11 +30,12 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.pool.LoadablePool;
+import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -59,6 +60,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int ORDER_ID = 105;
     private static final int OPEN_BROWSER_ID = 106;
 
+    private final DatabaseManager databaseManager;
+
     private PostCellInterface.PostViewMode postViewMode;
     private PostsFilter.Order order;
     private List<FloatingMenuItem> boardItems;
@@ -70,6 +73,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     public BrowseController(Context context) {
         super(context);
+        databaseManager = Chan.getDatabaseManager();
     }
 
     @Override
@@ -264,14 +268,14 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     public void loadBoard(Board board) {
-        Loadable loadable = LoadablePool.getInstance().obtain(new Loadable(board.value));
-        loadable.mode = Loadable.Mode.CATALOG;
+        Loadable loadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board.value));
         loadable.title = board.key;
         navigationItem.title = board.key;
 
-        threadLayout.getPresenter().unbindLoadable();
-        threadLayout.getPresenter().bindLoadable(loadable);
-        threadLayout.getPresenter().requestData();
+        ThreadPresenter presenter = threadLayout.getPresenter();
+        presenter.unbindLoadable();
+        presenter.bindLoadable(loadable);
+        presenter.requestData();
 
         for (FloatingMenuItem item : boardItems) {
             if (((FloatingMenuItemBoard) item).board == board) {

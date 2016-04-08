@@ -118,8 +118,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                         top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
                     }
 
-                    showingThread.loadable.listViewIndex = index;
-                    showingThread.loadable.listViewTop = top;
+                    showingThread.loadable.setListViewIndex(index);
+                    showingThread.loadable.setListViewTop(top);
 
                     int last = getCompleteBottomAdapterPosition();
                     if (last == postAdapter.getUnfilteredDisplaySize() - 1 && last > lastPostCount) {
