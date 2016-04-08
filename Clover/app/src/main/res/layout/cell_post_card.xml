@@ -22,12 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/grid_card_margin"
     card_view:cardBackgroundColor="?backcolor"
-    card_view:cardCornerRadius="2dp"
-    card_view:cardElevation="4dp">
+    card_view:cardCornerRadius="@dimen/grid_card_corner_radius"
+    card_view:cardElevation="1dp">
 
-    <LinearLayout
+    <org.floens.chan.ui.layout.FixedRatioLinearLayout
+        android:id="@+id/card_content"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/grid_card_height"
+        android:layout_height="wrap_content"
         android:background="@drawable/item_background"
         android:orientation="vertical">
 
@@ -88,6 +89,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:singleLine="true"
             android:textColor="?attr/text_color_secondary" />
 
-    </LinearLayout>
+    </org.floens.chan.ui.layout.FixedRatioLinearLayout>
 
 </org.floens.chan.ui.cell.CardPostCell>

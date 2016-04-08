@@ -142,7 +142,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int cardWidth = getResources().getDimensionPixelSize(R.dimen.grid_card_width);
-        spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
+        int gridCountSetting = ChanSettings.boardGridSpanCount.get();
+        if (gridCountSetting > 0) {
+            spanCount = gridCountSetting;
+        } else {
+            spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
+        }
 
         if (postViewMode == PostCellInterface.PostViewMode.CARD) {
             ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
@@ -171,9 +176,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     break;
                 case CARD:
                     GridLayoutManager gridLayoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false);
-                    // The cards have a 4dp padding, this way there is always 8dp between the edges
-                    recyclerViewTopPadding = dp(4);
-                    recyclerView.setPadding(dp(4), recyclerViewTopPadding + toolbarHeight(), dp(4), dp(4));
+                    // The cards have a 1dp padding, this way there is always 2dp between the edges
+                    recyclerViewTopPadding = dp(1);
+                    recyclerView.setPadding(dp(1), recyclerViewTopPadding + toolbarHeight(), dp(1), dp(1));
                     recyclerView.setLayoutManager(gridLayoutManager);
                     layoutManager = gridLayoutManager;
 
@@ -317,7 +322,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             case CARD:
                 if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
-                    return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(4) + toolbarHeight(); // 4dp for the cards, 4dp for this layout
+                    return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
                 }
                 break;
         }

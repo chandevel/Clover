@@ -334,6 +334,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_font_size_default">(default)</string>
     <string name="setting_font_condensed">Use condensed font</string>
     <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
+    <string name="setting_board_grid_span_count">Catalog mode columns</string>
+    <string name="setting_board_grid_span_count_default">Auto</string>
+    <string name="setting_board_grid_span_count_item">%1$d columns</string>
     <string name="setting_open_link_confirmation">Ask before opening links</string>
     <string name="setting_auto_refresh_thread">Auto refresh threads</string>
     <string name="setting_image_auto_load">Auto load images</string>

@@ -65,6 +65,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     private SettingView developerView;
     private SettingView fontView;
     private SettingView fontCondensed;
+    private SettingView gridColumnsView;
     private ToolbarMenuItem overflow;
 
     private PopupWindow advancedSettingsHint;
@@ -135,6 +136,8 @@ public class MainSettingsController extends SettingsController implements Toolba
             updateVideoLoadModes();
         } else if (item == fontView || item == fontCondensed) {
             EventBus.getDefault().post(new RefreshUIMessage("font"));
+        } else if (item == gridColumnsView) {
+            EventBus.getDefault().post(new RefreshUIMessage("gridcolumns"));
         }
     }
 
@@ -179,11 +182,18 @@ public class MainSettingsController extends SettingsController implements Toolba
         List<ListSettingView.Item> fontSizes = new ArrayList<>();
         for (int size = 10; size <= 19; size++) {
             String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " " + getString(R.string.setting_font_size_default) : "");
-            fontSizes.add(new ListSettingView.Item(name, String.valueOf(size)));
+            fontSizes.add(new ListSettingView.Item<>(name, String.valueOf(size)));
         }
 
         fontView = appearance.add(new ListSettingView<>(this, ChanSettings.fontSize, R.string.setting_font_size, fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
         fontCondensed = appearance.add(new BooleanSettingView(this, ChanSettings.fontCondensed, R.string.setting_font_condensed, R.string.setting_font_condensed_description));
+
+        List<ListSettingView.Item> gridColumns = new ArrayList<>();
+        gridColumns.add(new ListSettingView.Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
+        for (int columns = 2; columns <= 5; columns++) {
+            gridColumns.add(new ListSettingView.Item<>(context.getString(R.string.setting_board_grid_span_count_item, columns), columns));
+        }
+        gridColumnsView = appearance.add(new ListSettingView<>(this, ChanSettings.boardGridSpanCount, R.string.setting_board_grid_span_count, gridColumns));
 
         groups.add(appearance);
 

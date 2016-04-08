@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <bool name="is_tablet">true</bool>
 
     <dimen name="grid_card_width">105dp</dimen>
-    <dimen name="grid_card_height">240dp</dimen>
 
     <dimen name="cell_post_thumbnail_size">100dp</dimen>
 </resources>
