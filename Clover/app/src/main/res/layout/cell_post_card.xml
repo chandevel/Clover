@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_margin="@dimen/grid_card_margin"
     card_view:cardBackgroundColor="?backcolor"
     card_view:cardCornerRadius="@dimen/grid_card_corner_radius"
-    card_view:cardElevation="1dp">
+    card_view:cardElevation="2dp">
 
     <org.floens.chan.ui.layout.FixedRatioLinearLayout
         android:id="@+id/card_content"

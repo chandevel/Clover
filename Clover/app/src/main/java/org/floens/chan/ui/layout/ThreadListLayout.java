@@ -167,7 +167,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     break;
                 case CARD:
                     GridLayoutManager gridLayoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false);
-                    // The cards have a 1dp padding, this way there is always 2dp between the edges
                     recyclerViewTopPadding = dp(1);
                     recyclerView.setPadding(dp(1), recyclerViewTopPadding + toolbarHeight(), dp(1), dp(1));
                     recyclerView.setLayoutManager(gridLayoutManager);
