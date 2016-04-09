@@ -70,4 +70,19 @@ public class Pin {
             return Math.max(0, quoteNewCount - quoteLastCount);
         }
     }
+
+    public Pin copy() {
+        Pin copy = new Pin();
+        copy.loadable = loadable;
+        copy.watching = watching;
+        copy.watchLastCount = watchLastCount;
+        copy.watchNewCount = watchNewCount;
+        copy.quoteLastCount = quoteLastCount;
+        copy.quoteNewCount = quoteNewCount;
+        copy.isError = isError;
+        copy.thumbnailUrl = thumbnailUrl;
+        copy.order = order;
+        copy.archived = archived;
+        return copy;
+    }
 }

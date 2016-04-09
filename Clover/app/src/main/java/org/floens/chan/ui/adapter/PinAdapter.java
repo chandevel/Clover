@@ -26,7 +26,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
@@ -34,6 +36,8 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
@@ -44,6 +48,10 @@ import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    public enum HeaderAction {
+        SETTINGS, CLEAR, CLEAR_ALL
+    }
+
     private static final int PIN_OFFSET = 3;
 
     private static final int TYPE_HEADER = 0;
@@ -51,11 +59,20 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_LINK = 2;
     private static final int TYPE_DIVIDER = 3;
 
+    private static final Comparator<Pin> SORT_PINS = new Comparator<Pin>() {
+        @Override
+        public int compare(Pin lhs, Pin rhs) {
+            return lhs.order - rhs.order;
+        }
+    };
+
+    private final WatchManager watchManager;
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
 
     public PinAdapter(Callback callback) {
+        watchManager = Chan.getWatchManager();
         this.callback = callback;
         setHasStableIds(true);
     }
@@ -120,7 +137,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_HEADER:
                 HeaderHolder headerHolder = (HeaderHolder) holder;
                 headerHolder.text.setText(R.string.drawer_pinned);
-                theme().settingsDrawable.apply(headerHolder.image);
+                theme().clearDrawable.apply(headerHolder.clear);
+                theme().settingsDrawable.apply(headerHolder.settings);
 
                 break;
             case TYPE_PIN:
@@ -179,16 +197,19 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onPinsChanged(List<Pin> pins) {
         this.pins.clear();
         this.pins.addAll(pins);
+        Collections.sort(pins, SORT_PINS);
         notifyDataSetChanged();
     }
 
     public void onPinAdded(Pin pin) {
         pins.add(pin);
+        Collections.sort(pins, SORT_PINS);
         notifyDataSetChanged();
     }
 
     public void onPinRemoved(Pin pin) {
         pins.remove(pin);
+        Collections.sort(pins, SORT_PINS);
         notifyDataSetChanged();
     }
 
@@ -264,10 +285,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private void applyOrder() {
-        for (int i = 0; i < pins.size(); i++) {
-            Pin pin = pins.get(i);
-            pin.order = i;
-        }
+        watchManager.reorder(pins);
+        notifyDataSetChanged();
     }
 
     public class PinViewHolder extends RecyclerView.ViewHolder {
@@ -323,18 +342,34 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public class HeaderHolder extends RecyclerView.ViewHolder {
         private TextView text;
-        private ImageView image;
+        private ImageView clear;
+        private ImageView settings;
 
         public HeaderHolder(View itemView) {
             super(itemView);
             text = (TextView) itemView.findViewById(R.id.text);
             text.setTypeface(ROBOTO_MEDIUM);
-            image = (ImageView) itemView.findViewById(R.id.image);
-            setRoundItemBackground(image);
-            image.setOnClickListener(new View.OnClickListener() {
+            clear = (ImageView) itemView.findViewById(R.id.clear);
+            setRoundItemBackground(clear);
+            clear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    callback.onHeaderClicked(HeaderHolder.this);
+                    callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR);
+                }
+            });
+            clear.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR_ALL);
+                    return true;
+                }
+            });
+            settings = (ImageView) itemView.findViewById(R.id.settings);
+            setRoundItemBackground(settings);
+            settings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    callback.onHeaderClicked(HeaderHolder.this, HeaderAction.SETTINGS);
                 }
             });
         }
@@ -392,7 +427,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         void onWatchCountClicked(Pin pin);
 
-        void onHeaderClicked(HeaderHolder holder);
+        void onHeaderClicked(HeaderHolder holder, HeaderAction headerAction);
 
         void onPinRemoved(Pin pin);
 

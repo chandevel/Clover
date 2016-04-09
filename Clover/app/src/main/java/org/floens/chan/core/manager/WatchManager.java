@@ -168,8 +168,11 @@ public class WatchManager {
             }
         }
 
-        pin.order = pins.size();
+        if (pin.order < 0) {
+            pin.order = pins.size();
+        }
         pins.add(pin);
+        applyOrder();
         databaseManager.runTaskSync(databasePinManager.createPin(pin));
 
         updateState();
@@ -186,6 +189,7 @@ public class WatchManager {
 
         databaseManager.runTaskSync(databasePinManager.deletePin(pin));
         // Update the new orders
+        applyOrder();
         updatePinsInDatabase();
 
         updateState();
@@ -221,6 +225,14 @@ public class WatchManager {
         }
 
         return null;
+    }
+
+    public void reorder(List<Pin> pins) {
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
+            pin.order = i;
+        }
+        updatePinsInDatabase();
     }
 
     public List<Pin> getAllPins() {
@@ -305,6 +317,40 @@ public class WatchManager {
         }
     }
 
+    // Clear all non watching pins or all pins
+    // Returns a list of pins that can later be given to addAll
+    // to undo the clearing
+    public List<Pin> clearPins(boolean all) {
+        List<Pin> toRemove = new ArrayList<>();
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
+            if (all || !pin.watching) {
+                toRemove.add(pin);
+            }
+        }
+
+        List<Pin> undo = new ArrayList<>(toRemove.size());
+        for (int i = 0; i < toRemove.size(); i++) {
+            Pin pin = toRemove.get(i);
+            undo.add(pin.copy());
+        }
+
+        for (int i = 0; i < toRemove.size(); i++) {
+            Pin pin = toRemove.get(i);
+            deletePin(pin);
+        }
+
+        return undo;
+    }
+
+    public void addAll(List<Pin> pins) {
+        Collections.sort(pins, SORT_PINS);
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
+            createPin(pin);
+        }
+    }
+
     // Called when the user changes the watch enabled preference
     public void onWatchEnabledChanged(boolean watchEnabled) {
         updateState(watchEnabled, isBackgroundWatchingSettingEnabled());
@@ -327,6 +373,14 @@ public class WatchManager {
 
     public PinWatcher getPinWatcher(Pin pin) {
         return pinWatchers.get(pin);
+    }
+
+    private void applyOrder() {
+        Collections.sort(pins, SORT_PINS);
+        for (int i = 0; i < pins.size(); i++) {
+            Pin pin = pins.get(i);
+            pin.order = i;
+        }
     }
 
     private boolean createPinWatcher(Pin pin) {

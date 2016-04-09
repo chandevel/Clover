@@ -35,7 +35,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textSize="14sp" />
 
     <ImageView
-        android:id="@+id/image"
+        android:id="@+id/clear"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:scaleType="center"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/settings"
         android:layout_width="56dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"

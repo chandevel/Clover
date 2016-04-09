@@ -151,20 +151,43 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     @Override
-    public void onHeaderClicked(PinAdapter.HeaderHolder holder) {
-        openController(new WatchSettingsController(context));
+    public void onHeaderClicked(PinAdapter.HeaderHolder holder, PinAdapter.HeaderAction headerAction) {
+        if (headerAction == PinAdapter.HeaderAction.SETTINGS) {
+            openController(new WatchSettingsController(context));
+        } else if (headerAction == PinAdapter.HeaderAction.CLEAR || headerAction == PinAdapter.HeaderAction.CLEAR_ALL) {
+            boolean all = headerAction == PinAdapter.HeaderAction.CLEAR_ALL;
+            final List<Pin> pins = watchManager.clearPins(all);
+            if (!pins.isEmpty()) {
+                String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
+                //noinspection WrongConstant
+                Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pins_cleared, text), 4000);
+                fixSnackbarText(context, snackbar);
+                snackbar.setAction(R.string.undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        watchManager.addAll(pins);
+                    }
+                });
+                snackbar.show();
+            } else {
+                int text = watchManager.getAllPins().isEmpty() ? R.string.drawer_pins_non_cleared : R.string.drawer_pins_non_cleared_try_all;
+                Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
+                fixSnackbarText(context, snackbar);
+                snackbar.show();
+            }
+        }
     }
 
     @Override
-    public void onPinRemoved(final Pin pin) {
+    public void onPinRemoved(Pin pin) {
+        final Pin undoPin = pin.copy();
         watchManager.deletePin(pin);
-
         Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
         fixSnackbarText(context, snackbar);
         snackbar.setAction(R.string.undo, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                watchManager.createPin(pin);
+                watchManager.createPin(undoPin);
             }
         });
         snackbar.show();
