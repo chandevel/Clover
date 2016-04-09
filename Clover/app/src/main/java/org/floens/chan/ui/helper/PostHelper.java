@@ -29,6 +29,10 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.AndroidUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class PostHelper {
     public static BitmapDrawable stickyIcon;
     public static BitmapDrawable closedIcon;
@@ -80,5 +84,13 @@ public class PostHelper {
         } else {
             return "";
         }
+    }
+
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("LL/dd/yy(EEE)kk:mm:ss", Locale.US);
+    private static Date tmpDate = new Date();
+
+    public static String getLocalDate(Post post) {
+        tmpDate.setTime(post.time * 1000L);
+        return dateFormat.format(tmpDate);
     }
 }

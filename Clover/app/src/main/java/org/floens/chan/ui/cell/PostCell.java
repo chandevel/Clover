@@ -57,6 +57,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.span.AbsoluteSizeSpanHashed;
 import org.floens.chan.ui.span.ForegroundColorSpanHashed;
 import org.floens.chan.ui.text.FastTextView;
@@ -70,7 +71,9 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Time;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static android.text.TextUtils.isEmpty;
@@ -340,7 +343,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         CharSequence time;
         if (ChanSettings.postFullDate.get()) {
-            time = post.date;
+            time = PostHelper.getLocalDate(post);
         } else {
             // Disabled for performance reasons
             // Force the relative date to use the english locale, and restore the previous one.
