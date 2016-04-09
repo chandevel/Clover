@@ -15,15 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?backcolor">
+    android:layout_height="match_parent">
 
     <org.floens.chan.ui.view.GridRecyclerView
         android:id="@+id/recycler_view"
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ff000000"
@@ -31,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:padding="5dp"
         android:paddingBottom="72dp"
         android:scrollbarStyle="outsideOverlay"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/download"
@@ -39,6 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_file_download_white_24dp"/>
+        android:src="@drawable/ic_file_download_white_24dp" />
 
 </android.support.design.widget.CoordinatorLayout>

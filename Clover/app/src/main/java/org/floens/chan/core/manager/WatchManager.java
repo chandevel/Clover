@@ -582,7 +582,7 @@ public class WatchManager {
         public PinWatcher(Pin pin) {
             this.pin = pin;
 
-            Logger.i(TAG, "PinWatcher: created for " + pin);
+            Logger.d(TAG, "PinWatcher: created for " + pin);
             chanLoader = LoaderPool.getInstance().obtain(pin.loadable, this);
         }
 
@@ -618,7 +618,7 @@ public class WatchManager {
 
         private void destroy() {
             if (chanLoader != null) {
-                Logger.i(TAG, "PinWatcher: destroyed for " + pin);
+                Logger.d(TAG, "PinWatcher: destroyed for " + pin);
                 LoaderPool.getInstance().release(chanLoader, this);
                 chanLoader = null;
             }

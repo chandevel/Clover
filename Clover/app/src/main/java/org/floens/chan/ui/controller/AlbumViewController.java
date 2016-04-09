@@ -29,14 +29,20 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.cell.AlbumViewCell;
+import org.floens.chan.ui.toolbar.ToolbarMenu;
+import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.GridRecyclerView;
 import org.floens.chan.ui.view.ThumbnailView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class AlbumViewController extends Controller implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback {
+public class AlbumViewController extends Controller implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
+    private static final int SAVE_ALBUM_ID = 101;
+
     private GridRecyclerView recyclerView;
     private GridLayoutManager gridLayoutManager;
 
@@ -56,6 +62,11 @@ public class AlbumViewController extends Controller implements ImageViewerContro
 
         view = inflateRes(R.layout.controller_album_view);
 
+        navigationItem.menu = new ToolbarMenu(context);
+        List<FloatingMenuItem> items = new ArrayList<>();
+        items.add(new FloatingMenuItem(SAVE_ALBUM_ID, R.string.action_download_album));
+        navigationItem.createOverflow(context, this, items);
+
         recyclerView = (GridRecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         gridLayoutManager = new GridLayoutManager(context, 3);
@@ -72,7 +83,23 @@ public class AlbumViewController extends Controller implements ImageViewerContro
         this.loadable = loadable;
         this.postImages = postImages;
         navigationItem.title = title;
+        navigationItem.subtitle = context.getResources().getQuantityString(R.plurals.image, postImages.size(), postImages.size());
         targetIndex = index;
+    }
+
+    @Override
+    public void onMenuItemClicked(ToolbarMenuItem item) {
+    }
+
+    @Override
+    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+        switch ((Integer)item.getId()) {
+            case SAVE_ALBUM_ID:
+                AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
+                albumDownloadController.setPostImages(loadable, postImages);
+                navigationController.pushController(albumDownloadController);
+                break;
+        }
     }
 
     @Override
