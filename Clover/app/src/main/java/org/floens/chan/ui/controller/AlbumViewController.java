@@ -33,6 +33,7 @@ import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.GridRecyclerView;
+import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ public class AlbumViewController extends Controller implements ImageViewerContro
 
     @Override
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        switch ((Integer)item.getId()) {
+        switch ((Integer) item.getId()) {
             case SAVE_ALBUM_ID:
                 AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
                 albumDownloadController.setPostImages(loadable, postImages);
@@ -183,12 +184,12 @@ public class AlbumViewController extends Controller implements ImageViewerContro
 
     private class AlbumItemCellHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private AlbumViewCell cell;
-        private ThumbnailView thumbnailView;
+        private PostImageThumbnailView thumbnailView;
 
         public AlbumItemCellHolder(View itemView) {
             super(itemView);
             cell = (AlbumViewCell) itemView;
-            thumbnailView = (ThumbnailView) itemView.findViewById(R.id.thumbnail_view);
+            thumbnailView = (PostImageThumbnailView) itemView.findViewById(R.id.thumbnail_view);
             thumbnailView.setOnClickListener(this);
         }
 

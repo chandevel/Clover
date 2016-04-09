@@ -65,6 +65,7 @@ import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Time;
@@ -83,7 +84,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
-    private ThumbnailView thumbnailView;
+    private PostImageThumbnailView thumbnailView;
     private FastTextView title;
     private PostIcons icons;
     private TextView comment;
@@ -137,7 +138,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        thumbnailView = (ThumbnailView) findViewById(R.id.thumbnail_view);
+        thumbnailView = (PostImageThumbnailView) findViewById(R.id.thumbnail_view);
         title = (FastTextView) findViewById(R.id.title);
         icons = (PostIcons) findViewById(R.id.icons);
         comment = (TextView) findViewById(R.id.comment);
@@ -322,10 +323,10 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         if (post.hasImage) {
             thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setUrl(post.thumbnailUrl, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
+            thumbnailView.setPostImage(post.image, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
         } else {
             thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setUrl(null, 0, 0);
+            thumbnailView.setPostImage(null, 0, 0);
         }
 
         List<CharSequence> titleParts = new ArrayList<>(5);

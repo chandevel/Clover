@@ -42,7 +42,7 @@ import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.GridRecyclerView;
-import org.floens.chan.ui.view.ThumbnailView;
+import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
@@ -211,7 +211,7 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
         public void onBindViewHolder(AlbumDownloadCell holder, int position) {
             AlbumDownloadItem item = items.get(position);
 
-            holder.thumbnailView.setUrl(item.postImage.thumbnailUrl, dp(100), dp(100));
+            holder.thumbnailView.setPostImage(item.postImage, dp(100), dp(100));
             setItemChecked(holder, item.checked, false);
         }
 
@@ -228,13 +228,13 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
 
     private class AlbumDownloadCell extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ImageView checkbox;
-        private ThumbnailView thumbnailView;
+        private PostImageThumbnailView thumbnailView;
 
         public AlbumDownloadCell(View itemView) {
             super(itemView);
             itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
             checkbox = (ImageView) itemView.findViewById(R.id.checkbox);
-            thumbnailView = (ThumbnailView) itemView.findViewById(R.id.thumbnail_view);
+            thumbnailView = (PostImageThumbnailView) itemView.findViewById(R.id.thumbnail_view);
             itemView.setOnClickListener(this);
         }
 

@@ -31,12 +31,12 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.layout.FixedRatioLinearLayout;
+import org.floens.chan.ui.text.FastTextView;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
-import org.floens.chan.ui.text.FastTextView;
-import org.floens.chan.ui.view.FixedRatioThumbnailView;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private PostCellInterface.PostCellCallback callback;
 
     private FixedRatioLinearLayout content;
-    private FixedRatioThumbnailView thumbnailView;
+    private PostImageThumbnailView thumbnailView;
     private TextView title;
     private FastTextView comment;
     private TextView replies;
@@ -78,7 +78,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
         content = (FixedRatioLinearLayout) findViewById(R.id.card_content);
         content.setRatio(9f / 16f);
-        thumbnailView = (FixedRatioThumbnailView) findViewById(R.id.thumbnail);
+        thumbnailView = (PostImageThumbnailView) findViewById(R.id.thumbnail);
         thumbnailView.setRatio(16f / 9f);
         thumbnailView.setOnClickListener(this);
         title = (TextView) findViewById(R.id.title);
@@ -186,10 +186,10 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
         if (post.hasImage) {
             thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setUrl(post.thumbnailUrl, thumbnailView.getWidth(), thumbnailView.getHeight());
+            thumbnailView.setPostImage(post.image, thumbnailView.getWidth(), thumbnailView.getHeight());
         } else {
             thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setUrl(null, 0, 0);
+            thumbnailView.setPostImage(null, 0, 0);
         }
 
         if (post.filterHighlightedColor != 0) {

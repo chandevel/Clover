@@ -40,6 +40,7 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PinAdapter;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -155,7 +156,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         if (headerAction == PinAdapter.HeaderAction.SETTINGS) {
             openController(new WatchSettingsController(context));
         } else if (headerAction == PinAdapter.HeaderAction.CLEAR || headerAction == PinAdapter.HeaderAction.CLEAR_ALL) {
-            boolean all = headerAction == PinAdapter.HeaderAction.CLEAR_ALL;
+            boolean all = headerAction == PinAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
             final List<Pin> pins = watchManager.clearPins(all);
             if (!pins.isEmpty()) {
                 String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());

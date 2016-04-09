@@ -39,8 +39,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="56dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:scaleType="center"
         tools:ignore="ContentDescription" />
 
@@ -49,8 +49,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="56dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:layout_marginRight="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:scaleType="center"
         tools:ignore="ContentDescription" />
 
