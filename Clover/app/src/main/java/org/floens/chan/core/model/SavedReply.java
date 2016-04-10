@@ -34,12 +34,29 @@ public class SavedReply {
     @DatabaseField(generatedId = true)
     private int id;
 
-    @DatabaseField
-    public String board = "";
+    @DatabaseField(index = true, canBeNull = false)
+    public String board;
 
-    @DatabaseField
+    @DatabaseField(index = true)
     public int no;
 
     @DatabaseField
     public String password = "";
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SavedReply that = (SavedReply) o;
+
+        return no == that.no && board.equals(that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = board.hashCode();
+        result = 31 * result + no;
+        return result;
+    }
 }

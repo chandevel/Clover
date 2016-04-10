@@ -29,9 +29,9 @@ import org.floens.chan.Chan;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.utils.Logger;
+import org.floens.chan.utils.Time;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -50,19 +50,11 @@ import static com.j256.ormlite.misc.TransactionManager.callInTransaction;
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
-    private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
-    private static final long SAVED_REPLY_TRIM_COUNT = 50;
     private static final long THREAD_HIDE_TRIM_TRIGGER = 250;
     private static final long THREAD_HIDE_TRIM_COUNT = 50;
-    private static final long HISTORY_TRIM_TRIGGER = 500;
-    private static final long HISTORY_TRIM_COUNT = 50;
 
     private final ExecutorService backgroundExecutor;
     private final DatabaseHelper helper;
-
-    private final Object savedRepliesLock = new Object();
-    private final List<SavedReply> savedReplies = new ArrayList<>();
-    private final HashSet<Integer> savedRepliesIds = new HashSet<>();
 
     private final List<ThreadHide> threadHides = new ArrayList<>();
     private final HashSet<Integer> threadHidesIds = new HashSet<>();
@@ -70,6 +62,7 @@ public class DatabaseManager {
     private final DatabasePinManager databasePinManager;
     private final DatabaseLoadableManager databaseLoadableManager;
     private final DatabaseHistoryManager databaseHistoryManager;
+    private final DatabaseSavedReplyManager databaseSavedReplyManager;
 
     public DatabaseManager(Context context) {
         backgroundExecutor = Executors.newSingleThreadExecutor();
@@ -78,6 +71,7 @@ public class DatabaseManager {
         databaseLoadableManager = new DatabaseLoadableManager(this, helper);
         databasePinManager = new DatabasePinManager(this, helper, databaseLoadableManager);
         databaseHistoryManager = new DatabaseHistoryManager(this, helper, databaseLoadableManager);
+        databaseSavedReplyManager = new DatabaseSavedReplyManager(this, helper);
         initialize();
         EventBus.getDefault().register(this);
     }
@@ -94,6 +88,10 @@ public class DatabaseManager {
         return databaseHistoryManager;
     }
 
+    public DatabaseSavedReplyManager getDatabaseSavedReplyManager() {
+        return databaseSavedReplyManager;
+    }
+
     // Called when the app changes foreground state
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
@@ -102,9 +100,9 @@ public class DatabaseManager {
     }
 
     private void initialize() {
-        loadSavedReplies();
         loadThreadHides();
-        databaseHistoryManager.load();
+        runTaskSync(databaseHistoryManager.load());
+        runTaskSync(databaseSavedReplyManager.load());
     }
 
     /**
@@ -113,59 +111,6 @@ public class DatabaseManager {
     public void reset() {
         helper.reset();
         initialize();
-    }
-
-    /**
-     * Save a reply to the savedreply table.
-     * Threadsafe.
-     *
-     * @param saved the {@link SavedReply} to save
-     */
-    public void saveReply(SavedReply saved) {
-        try {
-            helper.savedDao.create(saved);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error saving reply", e);
-        }
-
-        synchronized (savedRepliesLock) {
-            savedReplies.add(saved);
-            savedRepliesIds.add(saved.no);
-        }
-    }
-
-    /**
-     * Searches a saved reply. This is done through caching members, no database lookups.
-     * Threadsafe.
-     *
-     * @param board board for the reply to search
-     * @param no    no for the reply to search
-     * @return A {@link SavedReply} that matches {@code board} and {@code no}, or {@code null}
-     */
-    public SavedReply getSavedReply(String board, int no) {
-        synchronized (savedRepliesLock) {
-            if (savedRepliesIds.contains(no)) {
-                for (SavedReply r : savedReplies) {
-                    if (r.no == no && r.board.equals(board)) {
-                        return r;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Searches if a saved reply exists. This is done through caching members, no database lookups.
-     * Threadsafe.
-     *
-     * @param board board for the reply to search
-     * @param no    no for the reply to search
-     * @return true if a {@link SavedReply} matched {@code board} and {@code no}, {@code false} otherwise
-     */
-    public boolean isSavedReply(String board, int no) {
-        return getSavedReply(board, no) != null;
     }
 
     public void addOrUpdateFilter(Filter filter) {
@@ -317,26 +262,6 @@ public class DatabaseManager {
         return o;
     }
 
-    /**
-     * Threadsafe.
-     */
-    private void loadSavedReplies() {
-        try {
-            trimTable(helper.savedDao, "savedreply", SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
-
-            synchronized (savedRepliesLock) {
-                savedReplies.clear();
-                savedReplies.addAll(helper.savedDao.queryForAll());
-                savedRepliesIds.clear();
-                for (SavedReply reply : savedReplies) {
-                    savedRepliesIds.add(reply.no);
-                }
-            }
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error loading saved replies", e);
-        }
-    }
-
     private void loadThreadHides() {
         try {
             trimTable(helper.threadHideDao, "threadhide", THREAD_HIDE_TRIM_TRIGGER, THREAD_HIDE_TRIM_COUNT);
@@ -364,8 +289,9 @@ public class DatabaseManager {
         try {
             long count = dao.countOf();
             if (count > trigger) {
+                long start = Time.startTiming();
                 dao.executeRaw("DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)", String.valueOf(trim));
-                Logger.i(TAG, "Trimmed " + table + " from " + count + " to " + dao.countOf() + " rows");
+                Time.endTiming("Trimmed " + table + " from " + count + " to " + dao.countOf() + " rows", start);
             }
         } catch (SQLException e) {
             Logger.e(TAG, "Error trimming table " + table, e);

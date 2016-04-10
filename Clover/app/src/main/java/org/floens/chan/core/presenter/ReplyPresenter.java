@@ -214,7 +214,8 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
                 }
             }
 
-            databaseManager.saveReply(new SavedReply(loadable.board, replyCall.postNo, replyCall.password));
+            SavedReply savedReply = new SavedReply(loadable.board, replyCall.postNo, replyCall.password);
+            databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
             switchPage(Page.INPUT, false);
             closeAll();

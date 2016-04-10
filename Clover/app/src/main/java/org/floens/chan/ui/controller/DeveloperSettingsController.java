@@ -27,6 +27,7 @@ import android.widget.TextView;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.SavedReply;
 
 import java.util.Random;
@@ -37,6 +38,8 @@ import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 public class DeveloperSettingsController extends Controller {
     private TextView summaryText;
 
+    private DatabaseManager databaseManager;
+
     public DeveloperSettingsController(Context context) {
         super(context);
     }
@@ -44,6 +47,8 @@ public class DeveloperSettingsController extends Controller {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        databaseManager = Chan.getDatabaseManager();
 
         navigationItem.setTitle(R.string.settings_developer);
 
@@ -87,7 +92,9 @@ public class DeveloperSettingsController extends Controller {
                 int j = 0;
                 for (int i = 0; i < 100; i++) {
                     j += r.nextInt(10000);
-                    Chan.getDatabaseManager().saveReply(new SavedReply("g", j, "pass"));
+
+                    SavedReply saved = new SavedReply("g", j, "");
+                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(saved));
                 }
                 setDbSummary();
             }

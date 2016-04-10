@@ -378,7 +378,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     }
 
     private void processPostAfterFinish(Post post) {
-        post.isSavedReply = databaseManager.isSavedReply(post.board, post.no);
+        post.isSavedReply = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
     }
 
     public static class ChanReaderResponse {

@@ -430,7 +430,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
-        if (databaseManager.isSavedReply(post.board, post.no)) {
+        if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
@@ -476,7 +476,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
-                databaseManager.saveReply(new SavedReply(post.board, post.no, "foo"));
+                SavedReply savedReply = new SavedReply(post.board, post.no, "");
+                databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
                 break;
             case POST_OPTION_PIN:
                 Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(post.board, post.no));
@@ -584,7 +585,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
-        SavedReply reply = databaseManager.getSavedReply(post.board, post.no);
+        SavedReply reply = databaseManager.runTaskSync(
+                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
+        );
         if (reply != null) {
             replyManager.makeHttpCall(new DeleteHttpCall(reply, onlyImageDelete), new ReplyManager.HttpCallback<DeleteHttpCall>() {
                 @Override
@@ -609,7 +612,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private void requestDeletePost(Post post) {
-        SavedReply reply = databaseManager.getSavedReply(post.board, post.no);
+        SavedReply reply = databaseManager.runTaskSync(
+                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
+        );
         if (reply != null) {
             threadPresenterCallback.confirmPostDelete(post);
         }
