@@ -18,8 +18,10 @@
 package org.floens.chan.core.database;
 
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +38,6 @@ public class DatabaseSavedReplyManager {
     private DatabaseManager databaseManager;
     private DatabaseHelper helper;
 
-    private final Object lock = new Object();
     private final Map<Integer, List<SavedReply>> savedRepliesByNo = new HashMap<>();
 
     public DatabaseSavedReplyManager(DatabaseManager databaseManager, DatabaseHelper helper) {
@@ -46,7 +47,7 @@ public class DatabaseSavedReplyManager {
 
     // optimized and threadsafe
     public boolean isSaved(String board, int no) {
-        synchronized (lock) {
+        synchronized (savedRepliesByNo) {
             if (savedRepliesByNo.containsKey(no)) {
                 List<SavedReply> items = savedRepliesByNo.get(no);
                 for (int i = 0; i < items.size(); i++) {
@@ -70,7 +71,7 @@ public class DatabaseSavedReplyManager {
 
                 final List<SavedReply> all = helper.savedDao.queryForAll();
 
-                synchronized (lock) {
+                synchronized (savedRepliesByNo) {
                     savedRepliesByNo.clear();
                     for (int i = 0; i < all.size(); i++) {
                         SavedReply savedReply = all.get(i);
@@ -88,12 +89,28 @@ public class DatabaseSavedReplyManager {
         };
     }
 
+    public Callable<Void> clearSavedReplies() {
+        return new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                long start = Time.startTiming();
+                TableUtils.clearTable(helper.getConnectionSource(), SavedReply.class);
+                synchronized (savedRepliesByNo) {
+                    savedRepliesByNo.clear();
+                }
+                Time.endTiming("Clear saved replies", start);
+
+                return null;
+            }
+        };
+    }
+
     public Callable<SavedReply> saveReply(final SavedReply savedReply) {
         return new Callable<SavedReply>() {
             @Override
             public SavedReply call() throws Exception {
                 helper.savedDao.create(savedReply);
-                synchronized (lock) {
+                synchronized (savedRepliesByNo) {
                     if (savedRepliesByNo.containsKey(savedReply.no)) {
                         savedRepliesByNo.get(savedReply.no).add(savedReply);
                     } else {

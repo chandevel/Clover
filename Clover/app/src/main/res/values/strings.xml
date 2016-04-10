@@ -237,6 +237,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="history_toggle_hint">Enable or disable history</string>
     <string name="history_empty_info">No history</string>
 
+    <string name="saved_reply_clear">Clear posting history</string>
+    <string name="saved_reply_clear_confirm">Clear posting history?</string>
+    <string name="saved_reply_clear_confirm_button">Clear</string>
+
     <string name="drawer_board">Board</string>
     <string name="drawer_catalog">Catalog</string>
     <string name="drawer_pinned">Bookmarked threads</string>

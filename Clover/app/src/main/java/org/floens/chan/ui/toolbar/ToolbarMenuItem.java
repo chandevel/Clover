@@ -75,6 +75,10 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
         subMenu.setCallback(this);
     }
 
+    public FloatingMenu getSubMenu() {
+        return subMenu;
+    }
+
     @Override
     public void onClick(View v) {
         if (subMenu != null && !subMenu.isShowing()) {

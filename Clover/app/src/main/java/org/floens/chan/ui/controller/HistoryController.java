@@ -36,6 +36,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseHistoryManager;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.History;
@@ -58,9 +59,11 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 public class HistoryController extends Controller implements CompoundButton.OnCheckedChangeListener, ToolbarMenuItem.ToolbarMenuItemCallback, ToolbarNavigationController.ToolbarSearchCallback {
     private static final int SEARCH_ID = 1;
     private static final int CLEAR_ID = 101;
+    private static final int SAVED_REPLY_CLEAR_ID = 102;
 
     private DatabaseManager databaseManager;
     private DatabaseHistoryManager databaseHistoryManager;
+    private DatabaseSavedReplyManager databaseSavedReplyManager;
     private BoardManager boardManager;
 
     private CrossfadeView crossfade;
@@ -77,14 +80,17 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
 
         databaseManager = Chan.getDatabaseManager();
         databaseHistoryManager = databaseManager.getDatabaseHistoryManager();
+        databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
         boardManager = Chan.getBoardManager();
 
         navigationItem.setTitle(R.string.history_screen);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(CLEAR_ID, R.string.history_clear));
+        items.add(new FloatingMenuItem(SAVED_REPLY_CLEAR_ID, R.string.saved_reply_clear));
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
-        navigationItem.createOverflow(context, this, items);
+        ToolbarMenuItem overflow = navigationItem.createOverflow(context, this, items);
+        overflow.getSubMenu().setPopupWidth(dp(4 * 56));
 
         SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
         historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
@@ -120,18 +126,32 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
 
     @Override
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        if ((Integer) item.getId() == CLEAR_ID) {
-            new AlertDialog.Builder(context)
-                    .setTitle(R.string.history_clear_confirm)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.history_clear_confirm_button, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            databaseManager.runTask(databaseHistoryManager.clearHistory());
-                            adapter.load();
-                        }
-                    })
-                    .show();
+        switch ((Integer) item.getId()) {
+            case CLEAR_ID:
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.history_clear_confirm)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.history_clear_confirm_button, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                databaseManager.runTask(databaseHistoryManager.clearHistory());
+                                adapter.load();
+                            }
+                        })
+                        .show();
+                break;
+            case SAVED_REPLY_CLEAR_ID:
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.saved_reply_clear_confirm)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.saved_reply_clear_confirm_button, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                databaseManager.runTask(databaseSavedReplyManager.clearSavedReplies());
+                            }
+                        })
+                        .show();
+                break;
         }
     }
 
