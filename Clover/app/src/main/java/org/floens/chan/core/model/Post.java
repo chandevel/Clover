@@ -166,7 +166,7 @@ public class Post {
             filename = Parser.unescapeEntities(filename, false);
 
             if (spoiler) {
-                Board b = Chan.getBoardManager().getBoardByValue(board);
+                Board b = Chan.getBoardManager().getBoardByCode(board);
                 if (b != null && b.customSpoilers >= 0) {
                     thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);
                 } else {

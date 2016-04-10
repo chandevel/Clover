@@ -128,8 +128,8 @@ public class Chan extends Application {
         fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, getUserAgent());
 
         databaseManager = new DatabaseManager(this);
-        boardManager = new BoardManager();
-        watchManager = new WatchManager();
+        boardManager = new BoardManager(databaseManager);
+        watchManager = new WatchManager(databaseManager);
 
         Time.endTiming("Initializing application", startTime);
 

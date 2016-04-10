@@ -72,7 +72,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         for (Filter filter : request.filterEngine.getEnabledFilters()) {
             List<Board> boards = request.filterEngine.getBoardsForFilter(filter);
             for (Board board : boards) {
-                if (board.value.equals(loadable.board)) {
+                if (board.code.equals(loadable.board)) {
                     request.filters.add(filter.copy());
                     break;
                 }

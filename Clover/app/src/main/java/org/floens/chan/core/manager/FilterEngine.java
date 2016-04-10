@@ -252,7 +252,7 @@ public class FilterEngine {
         } else if (!TextUtils.isEmpty(filter.boards)) {
             List<Board> appliedBoards = new ArrayList<>();
             for (String value : filter.boards.split(",")) {
-                Board boardByValue = Chan.getBoardManager().getBoardByValue(value);
+                Board boardByValue = Chan.getBoardManager().getBoardByCode(value);
                 if (boardByValue != null) {
                     appliedBoards.add(boardByValue);
                 }
@@ -267,7 +267,7 @@ public class FilterEngine {
         filter.boards = "";
         for (int i = 0; i < appliedBoards.size(); i++) {
             Board board = appliedBoards.get(i);
-            filter.boards += board.value;
+            filter.boards += board.code;
             if (i < appliedBoards.size() - 1) {
                 filter.boards += ",";
             }

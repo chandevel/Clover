@@ -189,8 +189,8 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
             }
 
             holder.text.setText(history.loadable.title);
-            Board board = boardManager.getBoardByValue(history.loadable.board);
-            holder.subtext.setText(board == null ? null : ("/" + board.value + "/ - " + board.key));
+            Board board = boardManager.getBoardByCode(history.loadable.board);
+            holder.subtext.setText(board == null ? null : ("/" + board.code + "/ \u2013 " + board.name));
         }
 
         @Override

@@ -91,7 +91,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         bound = true;
         this.loadable = loadable;
 
-        this.board = boardManager.getBoardByValue(loadable.board);
+        this.board = boardManager.getBoardByCode(loadable.board);
 
         draft = replyManager.getReply(loadable);
 

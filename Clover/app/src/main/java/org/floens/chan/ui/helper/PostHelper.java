@@ -71,7 +71,7 @@ public class PostHelper {
             if (!TextUtils.isEmpty(post.subject)) {
                 return post.subject;
             } else if (!TextUtils.isEmpty(post.comment)) {
-                return "/" + post.board + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), 200)).toString();
+                return "/" + post.board + "/ \u2013 " + post.comment.subSequence(0, Math.min(post.comment.length(), 200)).toString();
             } else {
                 return "/" + post.board + "/" + post.no;
             }

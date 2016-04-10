@@ -118,7 +118,7 @@ public class BoardSelectLayout extends LinearLayout implements SearchLayout.Sear
     public void setCheckedBoards(List<Board> checked) {
         for (BoardChecked board : boards) {
             for (Board check : checked) {
-                if (check.value.equals(board.board.value)) {
+                if (check.code.equals(board.board.code)) {
                     board.checked = true;
                     break;
                 }
@@ -206,8 +206,8 @@ public class BoardSelectLayout extends LinearLayout implements SearchLayout.Sear
                 String query = searchQuery.toLowerCase(Locale.ENGLISH);
                 for (BoardChecked boardChecked : sourceList) {
                     String description = boardChecked.board.description == null ? "" : boardChecked.board.description;
-                    if (boardChecked.board.key.toLowerCase(Locale.ENGLISH).contains(query) ||
-                            boardChecked.board.value.toLowerCase(Locale.ENGLISH).contains(query) ||
+                    if (boardChecked.board.name.toLowerCase(Locale.ENGLISH).contains(query) ||
+                            boardChecked.board.code.toLowerCase(Locale.ENGLISH).contains(query) ||
                             description.toLowerCase(Locale.ENGLISH).contains(query)) {
                         displayList.add(boardChecked);
                     }

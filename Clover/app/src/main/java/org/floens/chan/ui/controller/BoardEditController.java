@@ -89,6 +89,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
         items.add(new FloatingMenuItem(OPTION_SORT_A_Z, R.string.board_edit_sort_a_z));
         navigationItem.menu = new ToolbarMenu(context);
         navigationItem.createOverflow(context, this, items);
+        navigationItem.swipeable = false;
 
         view = inflateRes(R.layout.controller_board_edit);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
@@ -135,7 +136,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
                 boards.remove(position - 1);
                 adapter.notifyItemRemoved(position);
 
-                Snackbar snackbar = Snackbar.make(view, context.getString(R.string.board_edit_board_removed, board.key), Snackbar.LENGTH_LONG);
+                Snackbar snackbar = Snackbar.make(view, context.getString(R.string.board_edit_board_removed, board.name), Snackbar.LENGTH_LONG);
                 fixSnackbarText(context, snackbar);
                 snackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
@@ -162,7 +163,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
             Collections.sort(boards, new Comparator<Board>() {
                 @Override
                 public int compare(Board lhs, Board rhs) {
-                    return lhs.value.compareTo(rhs.value);
+                    return lhs.code.compareTo(rhs.code);
                 }
             });
             adapter.notifyDataSetChanged();
@@ -177,7 +178,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
             boards.get(i).order = i;
         }
 
-        boardManager.updateSavedBoards();
+        boardManager.flushOrderAndSaved();
     }
 
     @Override
@@ -230,7 +231,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
 
         // Duplicate
         for (Board board : boards) {
-            if (board.value.equals(value)) {
+            if (board.code.equals(value)) {
                 new AlertDialog.Builder(context).setMessage(R.string.board_add_duplicate).setPositiveButton(R.string.ok, null).show();
 
                 return;
@@ -240,14 +241,14 @@ public class BoardEditController extends Controller implements View.OnClickListe
         // Normal add
         List<Board> all = Chan.getBoardManager().getAllBoards();
         for (Board board : all) {
-            if (board.value.equals(value)) {
+            if (board.code.equals(value)) {
                 board.saved = true;
                 boards.add(board);
                 adapter.notifyDataSetChanged();
 
                 recyclerView.smoothScrollToPosition(boards.size());
 
-                Snackbar snackbar = Snackbar.make(view, getString(R.string.board_add_success) + " " + board.key, Snackbar.LENGTH_LONG);
+                Snackbar snackbar = Snackbar.make(view, getString(R.string.board_add_success) + " " + board.name, Snackbar.LENGTH_LONG);
                 fixSnackbarText(context, snackbar);
                 snackbar.show();
 
@@ -320,7 +321,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
 
         @Override
         public String getItem(int position) {
-            return filtered.get(position).value;
+            return filtered.get(position).code;
         }
 
         @Override
@@ -328,7 +329,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
             @SuppressLint("ViewHolder")
             TextView view = (TextView) LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
             Board b = filtered.get(position);
-            view.setText("/" + b.value + "/ - " + b.key);
+            view.setText("/" + b.code + "/ - " + b.name);
 
             view.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -353,7 +354,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
             String lowered = filter.toLowerCase(Locale.ENGLISH);
             List<Board> list = new ArrayList<>();
             for (Board b : getBoards()) {
-                if ((b.key.toLowerCase(Locale.ENGLISH).contains(lowered) || b.value.toLowerCase(Locale.ENGLISH)
+                if ((b.name.toLowerCase(Locale.ENGLISH).contains(lowered) || b.code.toLowerCase(Locale.ENGLISH)
                         .contains(lowered))) {
                     list.add(b);
                 }
@@ -363,7 +364,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
 
         private boolean haveBoard(String value) {
             for (Board b : currentlyEditing) {
-                if (b.value.equals(value))
+                if (b.code.equals(value))
                     return true;
             }
             return false;
@@ -372,18 +373,18 @@ public class BoardEditController extends Controller implements View.OnClickListe
         private List<Board> getBoards() {
             // Lets be cheaty here: if the user has nsfw boards in the list,
             // show them in the autofiller, hide them otherwise.
-            boolean showUnsafe = false;
+            /*boolean showUnsafe = false;
             for (Board has : currentlyEditing) {
                 if (!has.workSafe) {
                     showUnsafe = true;
                     break;
                 }
-            }
-
+            }*/
             List<Board> s = new ArrayList<>();
             for (Board b : boardManager.getAllBoards()) {
-                if (!haveBoard(b.value) && (showUnsafe || b.workSafe))
+                if (!haveBoard(b.code)/* && (showUnsafe || b.workSafe)*/) {
                     s.add(b);
+                }
             }
             return s;
         }

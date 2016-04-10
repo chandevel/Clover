@@ -268,9 +268,9 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     public void loadBoard(Board board) {
-        Loadable loadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board.value));
-        loadable.title = board.key;
-        navigationItem.title = board.key;
+        Loadable loadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board.code));
+        loadable.title = board.name;
+        navigationItem.title = board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
         presenter.unbindLoadable();
@@ -302,7 +302,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         public Board board;
 
         public FloatingMenuItemBoard(Board board) {
-            super(board.id, board.key);
+            super(board.id, board.name);
             this.board = board;
         }
     }

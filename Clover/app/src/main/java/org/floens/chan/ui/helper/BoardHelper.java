@@ -22,7 +22,7 @@ import org.jsoup.parser.Parser;
 
 public class BoardHelper {
     public static String getName(Board board) {
-        return "/" + board.value + "/ " + board.key;
+        return "/" + board.code + "/ " + board.name;
     }
 
     public static String getDescription(Board board) {

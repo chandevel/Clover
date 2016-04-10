@@ -26,7 +26,6 @@ import org.floens.chan.core.model.Board;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,9 +34,9 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
             "f"
     );
 
-    public static List<String> TREAT_AS_NOT_WORKSAFE = Arrays.asList(
-            "a", "c", "w", "cm", "jp", "mlp", "lgbt"
-    );
+//    public static List<String> TREAT_AS_NOT_WORKSAFE = Arrays.asList(
+//            "a", "c", "w", "cm", "jp", "mlp", "lgbt"
+//    );
 
     public BoardsRequest(String url, Listener<List<Board>> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
@@ -85,10 +84,10 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
 
             switch (key) {
                 case "title":
-                    board.key = reader.nextString();
+                    board.name = reader.nextString();
                     break;
                 case "board":
-                    board.value = reader.nextString();
+                    board.code = reader.nextString();
                     break;
                 case "ws_board":
                     board.workSafe = reader.nextInt() == 1;
@@ -179,13 +178,13 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
             return null;
         }
 
-        if (BLOCKED.contains(board.value)) {
+        if (BLOCKED.contains(board.code)) {
             return null;
         }
 
-        if (TREAT_AS_NOT_WORKSAFE.contains(board.value)) {
-            board.workSafe = false;
-        }
+//        if (TREAT_AS_NOT_WORKSAFE.contains(board.code)) {
+//            board.workSafe = false;
+//        }
 
         return board;
     }

@@ -119,7 +119,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             Post op = chanThread.op;
 
-            Board board = Chan.getBoardManager().getBoardByValue(chanThread.loadable.board);
+            Board board = Chan.getBoardManager().getBoardByCode(chanThread.loadable.board);
             if (board != null) {
                 SpannableString replies = new SpannableString(op.replies + "R");
                 if (op.replies >= board.bumpLimit) {

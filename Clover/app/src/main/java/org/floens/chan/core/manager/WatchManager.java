@@ -125,11 +125,11 @@ public class WatchManager {
     private PowerManager.WakeLock wakeLock;
     private long lastBackgroundUpdateTime;
 
-    public WatchManager() {
+    public WatchManager(DatabaseManager databaseManager) {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
 
-        databaseManager = Chan.getDatabaseManager();
+        this.databaseManager = databaseManager;
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTaskSync(databasePinManager.getPins());
         Collections.sort(pins, SORT_PINS);
