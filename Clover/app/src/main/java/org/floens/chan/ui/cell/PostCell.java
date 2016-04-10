@@ -83,7 +83,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
-public class PostCell extends LinearLayout implements PostCellInterface, PostLinkable.Callback {
+public class PostCell extends LinearLayout implements PostCellInterface {
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
@@ -297,7 +297,7 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         threadMode = callback.getLoadable().isThreadMode();
 
-        setPostLinkableListener(post, this);
+        setPostLinkableListener(post, true);
 
         replies.setClickable(threadMode);
 
@@ -468,42 +468,24 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
 
         icons.cancelCountryRequest();
 
-        setPostLinkableListener(post, null);
+        setPostLinkableListener(post, false);
     }
 
-    private void setPostLinkableListener(Post post, PostLinkable.Callback callback) {
+    private void setPostLinkableListener(Post post, boolean bind) {
         if (post.comment instanceof Spanned) {
             Spanned commentSpanned = (Spanned) post.comment;
             PostLinkable[] linkables = commentSpanned.getSpans(0, commentSpanned.length(), PostLinkable.class);
             for (PostLinkable linkable : linkables) {
-                if (callback == null) {
-                    while (linkable.hasCallback(this)) {
-                        linkable.removeCallback(this);
-                    }
-                } else {
-                    if (!linkable.hasCallback(this)) {
-                        linkable.addCallback(callback);
-                    }
-                }
+                linkable.setMarkedNo(bind ? markedNo : -1);
             }
 
-            if (callback == null) {
+            if (!bind) {
                 if (commentSpanned instanceof Spannable) {
                     Spannable commentSpannable = (Spannable) commentSpanned;
                     commentSpannable.removeSpan(BACKGROUND_SPAN);
                 }
             }
         }
-    }
-
-    @Override
-    public void onLinkableClick(PostLinkable postLinkable) {
-        callback.onPostLinkableClicked(postLinkable);
-    }
-
-    @Override
-    public int getMarkedNo(PostLinkable postLinkable) {
-        return markedNo;
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
@@ -534,12 +516,16 @@ public class PostCell extends LinearLayout implements PostCellInterface, PostLin
                 ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
 
                 if (link.length != 0) {
+                    ClickableSpan clickableSpan = link[0];
                     if (action == MotionEvent.ACTION_UP) {
                         ignoreNextOnClick = true;
-                        link[0].onClick(widget);
+                        clickableSpan.onClick(widget);
+                        if (clickableSpan instanceof PostLinkable) {
+                            callback.onPostLinkableClicked((PostLinkable) clickableSpan);
+                        }
                         buffer.removeSpan(BACKGROUND_SPAN);
-                    } else if (action == MotionEvent.ACTION_DOWN && link[0] instanceof PostLinkable) {
-                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]), 0);
+                    } else if (action == MotionEvent.ACTION_DOWN && clickableSpan instanceof PostLinkable) {
+                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(clickableSpan), buffer.getSpanEnd(clickableSpan), 0);
                     } else if (action == MotionEvent.ACTION_CANCEL) {
                         buffer.removeSpan(BACKGROUND_SPAN);
                     }
