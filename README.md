@@ -1,16 +1,17 @@
 # Clover - 4chan browser for Android  
-[![build status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover) [![PayPal donaton](https://img.shields.io/badge/donate-paypal-brightgreen.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=45YW6N3QEHSV8)
+[![build status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
 
 Clover is a fast Android app for browsing [4chan](https://www.4chan.org/).  
 
-Get it on F-Droid  
-[F-Droid](https://floens.github.io/Clover/#fdroid)  
-[APK releases](https://floens.github.io/Clover/#releases)  
 [Clover website](http://floens.github.io/Clover/)  
+[Download on F-Droid](https://floens.github.io/Clover/#fdroid)  
+[APK releases](https://floens.github.io/Clover/#releases)  
+[Donate](https://floens.github.io/Clover/#donate)  
 
-
-## TODO
-[Clover Trello board](https://trello.com/b/V6gclKvM/clover)
+## Contributing
+Contributing to Clover is appreciated, there's always stuff to do or bugs to fix. I keep the todo list of Clover in the 
+[Clover Trello board](https://trello.com/b/V6gclKvM/clover).  
+[Make a new theme](https://github.com/Floens/Clover/wiki/Adding-a-new-theme)  
 
 
 ## Issues and features
