@@ -27,7 +27,6 @@ import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.utils.Logger;
@@ -63,6 +62,7 @@ public class DatabaseManager {
     private final DatabaseLoadableManager databaseLoadableManager;
     private final DatabaseHistoryManager databaseHistoryManager;
     private final DatabaseSavedReplyManager databaseSavedReplyManager;
+    private final DatabaseFilterManager databaseFilterManager;
 
     public DatabaseManager(Context context) {
         backgroundExecutor = Executors.newSingleThreadExecutor();
@@ -72,6 +72,7 @@ public class DatabaseManager {
         databasePinManager = new DatabasePinManager(this, helper, databaseLoadableManager);
         databaseHistoryManager = new DatabaseHistoryManager(this, helper, databaseLoadableManager);
         databaseSavedReplyManager = new DatabaseSavedReplyManager(this, helper);
+        databaseFilterManager = new DatabaseFilterManager(this, helper);
         initialize();
         EventBus.getDefault().register(this);
     }
@@ -90,6 +91,10 @@ public class DatabaseManager {
 
     public DatabaseSavedReplyManager getDatabaseSavedReplyManager() {
         return databaseSavedReplyManager;
+    }
+
+    public DatabaseFilterManager getDatabaseFilterManager() {
+        return databaseFilterManager;
     }
 
     // Called when the app changes foreground state
@@ -111,33 +116,6 @@ public class DatabaseManager {
     public void reset() {
         helper.reset();
         initialize();
-    }
-
-    public void addOrUpdateFilter(Filter filter) {
-        try {
-            helper.filterDao.createOrUpdate(filter);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error adding filter to db", e);
-        }
-    }
-
-    public void removeFilter(Filter filter) {
-        try {
-            helper.filterDao.delete(filter);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error removing filter from db", e);
-        }
-    }
-
-    public List<Filter> getFilters() {
-        List<Filter> list = null;
-        try {
-            list = helper.filterDao.queryForAll();
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error getting filters from db", e);
-        }
-
-        return list;
     }
 
     /**

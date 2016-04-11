@@ -20,6 +20,7 @@ package org.floens.chan.core.manager;
 import android.text.TextUtils;
 
 import org.floens.chan.Chan;
+import org.floens.chan.core.database.DatabaseFilterManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
@@ -96,48 +97,36 @@ public class FilterEngine {
     }
 
     private final DatabaseManager databaseManager;
+    private final DatabaseFilterManager databaseFilterManager;
 
     private List<Filter> filters;
     private final List<Filter> enabledFilters = new ArrayList<>();
 
     private FilterEngine() {
         databaseManager = Chan.getDatabaseManager();
-        filters = databaseManager.getFilters();
-        updateEnabledFilters();
+        databaseFilterManager = databaseManager.getDatabaseFilterManager();
+        update();
     }
 
-    /**
-     * Add or update a filter, thread-safe.
-     * The filter will be updated in the db if the {@link Filter#id} was non-null.
-     *
-     * @param filter filter too add or update.
-     */
-    public void addOrUpdate(Filter filter) {
-        databaseManager.addOrUpdateFilter(filter);
-        filters = databaseManager.getFilters();
-        updateEnabledFilters();
+    public void deleteFilter(Filter filter) {
+        databaseManager.runTaskSync(databaseFilterManager.deleteFilter(filter));
+        update();
     }
 
-    /**
-     * Remove a filter, thread-safe.
-     *
-     * @param filter filter to remove
-     */
-    public void remove(Filter filter) {
-        databaseManager.removeFilter(filter);
-        filters = databaseManager.getFilters();
-        updateEnabledFilters();
+    public void createOrUpdateFilter(Filter filter) {
+        if (filter.id == 0) {
+            databaseManager.runTaskSync(databaseFilterManager.createFilter(filter));
+        } else {
+            databaseManager.runTaskSync(databaseFilterManager.updateFilter(filter));
+        }
+        update();
     }
 
-    /**
-     * Get all enabled filters.
-     *
-     * @return List of enabled filters
-     */
     public List<Filter> getEnabledFilters() {
         return enabledFilters;
     }
 
+    // threadsafe
     public boolean matches(Filter filter, Post post) {
         // Post has not been finish()ed yet, account for invalid values
         String text = null;
@@ -166,6 +155,7 @@ public class FilterEngine {
         return !TextUtils.isEmpty(text) && matches(filter, text, false);
     }
 
+    // threadsafe
     public boolean matches(Filter filter, String text, boolean forceCompile) {
         FilterType type = FilterType.forId(filter.type);
         if (type.isRegex) {
@@ -203,6 +193,7 @@ public class FilterEngine {
     private static final Pattern filterFilthyPattern = Pattern.compile("(\\.|\\^|\\$|\\*|\\+|\\?|\\(|\\)|\\[|\\]|\\{|\\}|\\\\|\\||\\-)");
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*"); // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
 
+    // threadsafe
     public Pattern compile(String rawPattern) {
         Pattern pattern;
 
@@ -279,7 +270,8 @@ public class FilterEngine {
         return filterFilthyPattern.matcher(filthy).replaceAll("\\\\$1"); // Escape regex special characters with a \
     }
 
-    private void updateEnabledFilters() {
+    private void update() {
+        filters = databaseManager.runTaskSync(databaseFilterManager.getFilters());
         List<Filter> enabled = new ArrayList<>();
         for (Filter filter : filters) {
             if (filter.enabled) {
@@ -287,9 +279,7 @@ public class FilterEngine {
             }
         }
 
-        synchronized (enabledFilters) {
-            enabledFilters.clear();
-            enabledFilters.addAll(enabled);
-        }
+        enabledFilters.clear();
+        enabledFilters.addAll(enabled);
     }
 }

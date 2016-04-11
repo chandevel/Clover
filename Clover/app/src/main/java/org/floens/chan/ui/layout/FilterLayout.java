@@ -47,6 +47,7 @@ import org.floens.chan.core.model.Filter;
 import org.floens.chan.ui.controller.FiltersController;
 import org.floens.chan.ui.dialog.ColorPickerView;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 
@@ -74,7 +75,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private BoardManager boardManager;
 
     private FilterLayoutCallback callback;
-    private Filter filter = new Filter();
+    private Filter filter;
 
     private List<Board> appliedBoards = new ArrayList<>();
 
@@ -154,7 +155,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     }
 
     public void setFilter(Filter filter) {
-        this.filter.apply(filter);
+        this.filter = filter;
         appliedBoards.clear();
         appliedBoards.addAll(FilterEngine.getInstance().getBoardsForFilter(filter));
 
@@ -208,18 +209,49 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             menu.setItems(menuItems);
             menu.show();
         } else if (v == boardsSelector) {
-            final BoardSelectLayout boardSelectLayout = (BoardSelectLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_board_select, null);
+            @SuppressWarnings("unchecked")
+            final SelectLayout<Board> selectLayout = (SelectLayout<Board>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
 
-            boardSelectLayout.setCheckedBoards(appliedBoards);
+            List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
+            List<Board> savedList = boardManager.getSavedBoards();
+            for (int i = 0; i < savedList.size(); i++) {
+                Board saved = savedList.get(i);
+                String name = BoardHelper.getName(saved);
+                String description = BoardHelper.getDescription(saved);
+                String search = name + " " + saved.code;
+
+                boolean checked = false;
+                for (int j = 0; j < appliedBoards.size(); j++) {
+                    Board appliedBoard = appliedBoards.get(j);
+                    if (appliedBoard.code.equals(saved.code)) {
+                        checked = true;
+                        break;
+                    }
+                }
+
+                items.add(new SelectLayout.SelectItem<>(
+                        saved, saved.id, name, description, search, checked
+                ));
+            }
+
+            selectLayout.setItems(items);
 
             new AlertDialog.Builder(getContext())
-                    .setView(boardSelectLayout)
+                    .setView(selectLayout)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             appliedBoards.clear();
-                            appliedBoards.addAll(boardSelectLayout.getCheckedBoards());
-                            filter.allBoards = boardSelectLayout.getAllChecked();
+
+                            List<SelectLayout.SelectItem<Board>> items = selectLayout.getItems();
+                            for (int i = 0; i < items.size(); i++) {
+                                SelectLayout.SelectItem<Board> selectItem = items.get(i);
+                                if (selectItem.checked) {
+                                    appliedBoards.add(selectItem.item);
+                                }
+                            }
+
+                            filter.allBoards = selectLayout.areAllChecked();
                             updateBoardsSummary();
                         }
                     })

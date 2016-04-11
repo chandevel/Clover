@@ -148,9 +148,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Filter newFilter = filterLayout.getFilter();
-                        newFilter.id = filter.id;
-                        filterEngine.addOrUpdate(newFilter);
+                        filterEngine.createOrUpdateFilter(filterLayout.getFilter());
                         EventBus.getDefault().post(new RefreshUIMessage("filters"));
                         adapter.load();
                     }
@@ -163,11 +161,12 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
             }
         });
+
         filterLayout.setFilter(filter);
     }
 
     private void deleteFilter(Filter filter) {
-        filterEngine.remove(filter);
+        filterEngine.deleteFilter(filter);
         EventBus.getDefault().post(new RefreshUIMessage("filters"));
         adapter.load();
         //TODO: undo
@@ -237,7 +236,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         private void load() {
             sourceList.clear();
-            sourceList.addAll(databaseManager.getFilters());
+            sourceList.addAll(databaseManager.runTaskSync(databaseManager.getDatabaseFilterManager().getFilters()));
 
             filter();
         }

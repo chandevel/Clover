@@ -55,6 +55,10 @@ public class Filter {
      */
     public Matcher compiledMatcher;
 
+    public String[] boardCodes() {
+        return boards.split(",");
+    }
+
     public void apply(Filter filter) {
         enabled = filter.enabled;
         type = filter.type;
@@ -67,7 +71,6 @@ public class Filter {
 
     public Filter copy() {
         Filter copy = new Filter();
-        copy.id = id;
         copy.enabled = enabled;
         copy.type = type;
         copy.pattern = pattern;

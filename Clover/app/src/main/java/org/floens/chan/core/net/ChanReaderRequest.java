@@ -26,7 +26,6 @@ import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.FilterEngine;
-import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -69,12 +68,21 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         request.cached = new ArrayList<>(cached);
 
         request.filters = new ArrayList<>();
-        for (Filter filter : request.filterEngine.getEnabledFilters()) {
-            List<Board> boards = request.filterEngine.getBoardsForFilter(filter);
-            for (Board board : boards) {
-                if (board.code.equals(loadable.board)) {
-                    request.filters.add(filter.copy());
-                    break;
+        List<Filter> enabledFilters = request.filterEngine.getEnabledFilters();
+        for (int i = 0; i < enabledFilters.size(); i++) {
+            Filter filter = enabledFilters.get(i);
+
+            if (filter.allBoards) {
+                // copy the filter because it will get used on other threads
+                request.filters.add(filter.copy());
+            } else {
+                String[] boardCodes = filter.boardCodes();
+                for (String code : boardCodes) {
+                    if (code.equals(loadable.board)) {
+                        // copy the filter because it will get used on other threads
+                        request.filters.add(filter.copy());
+                        break;
+                    }
                 }
             }
         }
