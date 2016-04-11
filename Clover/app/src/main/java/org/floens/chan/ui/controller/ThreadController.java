@@ -30,7 +30,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.manager.FilterType;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -238,7 +238,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
             navigationController.pushController(filtersController);
         }
         Filter filter = new Filter();
-        filter.type = FilterEngine.FilterType.TRIPCODE.id;
+        filter.type = FilterType.TRIPCODE.flag;
         filter.pattern = tripcode;
         filtersController.showFilterDialog(filter);
     }

@@ -150,7 +150,7 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
 
         @Override
         public BoardSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new BoardSelectViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_board_select, parent, false));
+            return new BoardSelectViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_select, parent, false));
         }
 
         @Override
@@ -158,7 +158,12 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
             SelectItem item = displayList.get(position);
             holder.checkBox.setChecked(item.checked);
             holder.text.setText(item.name);
-            holder.description.setText(item.description);
+            if (item.description != null) {
+                holder.description.setVisibility(View.VISIBLE);
+                holder.description.setText(item.description);
+            } else {
+                holder.description.setVisibility(View.GONE);
+            }
         }
 
         @Override

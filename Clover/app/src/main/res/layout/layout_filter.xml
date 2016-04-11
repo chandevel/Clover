@@ -138,6 +138,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/pattern"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/filter_pattern_hint_regex"
         android:textSize="14sp"
         tools:ignore="TextFields" />
 

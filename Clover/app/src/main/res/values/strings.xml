@@ -98,6 +98,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%d boards</item>
     </plurals>
 
+    <plurals name="type">
+        <item quantity="one">%d type</item>
+        <item quantity="other">%d types</item>
+    </plurals>
+
     <plurals name="bookmark">
         <item quantity="one">%d bookmark</item>
         <item quantity="other">%d bookmarks</item>
@@ -182,10 +187,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filter_action">Action</string>
     <string name="filter_pattern">Pattern</string>
     <string name="filter_match_test">Test pattern</string>
-    <string name="filter_pattern_hint_exact">Exact text</string>
     <string name="filter_pattern_hint_regex">Pattern</string>
     <string name="filter_boards">Boards</string>
-    <string name="filter_boards_all">all</string>
+    <string name="filter_types">Types</string>
+    <string name="filter_type_string_matching">String matching</string>
+    <string name="filter_type_regex_matching">Regex matching</string>
+    <string name="filter_all">all</string>
     <string name="filter_hide">Hide post</string>
     <string name="filter_color">Highlight post</string>
     <string name="filter_remove">Remove post</string>

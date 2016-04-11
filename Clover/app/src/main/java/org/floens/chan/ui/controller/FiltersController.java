@@ -35,6 +35,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.manager.FilterType;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.FilterLayout;
@@ -66,7 +67,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         super(context);
     }
 
-    public static String filterTypeName(FilterEngine.FilterType type) {
+    public static String filterTypeName(FilterType type) {
         switch (type) {
             case TRIPCODE:
                 return getString(R.string.filter_tripcode);
@@ -204,9 +205,10 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
             holder.text.setText(filter.pattern);
             holder.text.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_primary : R.attr.text_color_hint));
             holder.subtext.setTextColor(getAttrColor(context, filter.enabled ? R.attr.text_color_secondary : R.attr.text_color_hint));
-            String subText = filterTypeName(FilterEngine.FilterType.forId(filter.type));
+            int types = FilterType.forFlags(filter.type).size();
+            String subText = context.getResources().getQuantityString(R.plurals.type, types, types);
 
-            subText += " - ";
+            subText += " \u2013 ";
             if (filter.allBoards) {
                 subText += context.getString(R.string.filter_summary_all_boards);
             } else {
@@ -214,7 +216,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
                 subText += context.getResources().getQuantityString(R.plurals.board, size, size);
             }
 
-            subText += " - " + FiltersController.actionName(FilterEngine.FilterAction.forId(filter.action));
+            subText += " \u2013 " + FiltersController.actionName(FilterEngine.FilterAction.forId(filter.action));
 
             holder.subtext.setText(subText);
         }

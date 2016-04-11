@@ -43,35 +43,6 @@ public class FilterEngine {
         return instance;
     }
 
-    public enum FilterType {
-        TRIPCODE(0, false),
-        NAME(1, false),
-        COMMENT(2, true),
-        ID(3, false),
-        SUBJECT(4, true),
-        FILENAME(5, true);
-
-        public final int id;
-        public final boolean isRegex;
-
-        FilterType(int id, boolean isRegex) {
-            this.id = id;
-            this.isRegex = isRegex;
-        }
-
-        public static FilterType forId(int id) {
-            return enums[id];
-        }
-
-        private static FilterType[] enums = new FilterType[6];
-
-        static {
-            for (FilterType type : values()) {
-                enums[type.id] = type;
-            }
-        }
-    }
-
     public enum FilterAction {
         HIDE(0),
         COLOR(1),
@@ -128,37 +99,40 @@ public class FilterEngine {
 
     // threadsafe
     public boolean matches(Filter filter, Post post) {
-        // Post has not been finish()ed yet, account for invalid values
-        String text = null;
-        FilterType type = FilterType.forId(filter.type);
-        switch (type) {
-            case TRIPCODE:
-                text = post.tripcode;
-                break;
-            case NAME:
-                text = post.name;
-                break;
-            case COMMENT:
-                text = post.rawComment;
-                break;
-            case ID:
-                text = post.id;
-                break;
-            case SUBJECT:
-                text = post.subject;
-                break;
-            case FILENAME:
-                text = post.filename;
-                break;
+        if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, FilterType.TRIPCODE.isRegex, post.tripcode, false)) {
+            return true;
         }
 
-        return !TextUtils.isEmpty(text) && matches(filter, text, false);
+        if ((filter.type & FilterType.NAME.flag) != 0 && matches(filter, FilterType.NAME.isRegex, post.name, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.rawComment, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.id, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, FilterType.SUBJECT.isRegex, post.subject, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, post.filename, false)) {
+            return true;
+        }
+
+        return false;
     }
 
     // threadsafe
-    public boolean matches(Filter filter, String text, boolean forceCompile) {
-        FilterType type = FilterType.forId(filter.type);
-        if (type.isRegex) {
+    public boolean matches(Filter filter, boolean matchRegex, String text, boolean forceCompile) {
+        if (TextUtils.isEmpty(text)) {
+            return false;
+        }
+
+        if (matchRegex) {
             Matcher matcher = null;
             if (!forceCompile) {
                 matcher = filter.compiledMatcher;
@@ -195,11 +169,11 @@ public class FilterEngine {
 
     // threadsafe
     public Pattern compile(String rawPattern) {
-        Pattern pattern;
-
         if (TextUtils.isEmpty(rawPattern)) {
             return null;
         }
+
+        Pattern pattern;
 
         Matcher isRegex = isRegexPattern.matcher(rawPattern);
         if (isRegex.matches()) {
