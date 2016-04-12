@@ -2,9 +2,10 @@
 [![build status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
 
 Clover is a fast Android app for browsing [4chan](https://www.4chan.org/).  
+Clover adds inline replying, thread watching, notifications, themes, pass support, filters and a whole lot more. Clover is licensed under the GPL and will always be free.
 
 [Clover website](http://floens.github.io/Clover/)  
-[Download on F-Droid](https://floens.github.io/Clover/#fdroid)  
+[Get Clover from F-Droid](https://floens.github.io/Clover/#fdroid)  
 [APK releases](https://floens.github.io/Clover/#releases)  
 [Donate](https://floens.github.io/Clover/#donate)  
 
