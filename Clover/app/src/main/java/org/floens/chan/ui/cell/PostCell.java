@@ -71,6 +71,7 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Time;
 
+import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -411,7 +412,11 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         CharSequence commentText;
         if (post.comment.length() > COMMENT_MAX_LENGTH_BOARD && !threadMode) {
-            commentText = post.comment.subSequence(0, COMMENT_MAX_LENGTH_BOARD);
+            BreakIterator bi = BreakIterator.getWordInstance();
+            bi.setText(post.comment.toString());
+            int precedingBoundary = bi.preceding(COMMENT_MAX_LENGTH_BOARD);
+            // Fallback to old method in case the comment does not have any spaces/individual words
+            commentText = precedingBoundary > 0 ? post.comment.subSequence(0, precedingBoundary) : post.comment.subSequence(0, COMMENT_MAX_LENGTH_BOARD);
         } else {
             commentText = post.comment;
         }
