@@ -22,8 +22,6 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import org.floens.chan.core.manager.FilterType;
 
-import java.util.regex.Matcher;
-
 @DatabaseTable
 public class Filter {
     @DatabaseField(generatedId = true)
@@ -50,11 +48,6 @@ public class Filter {
 
     @DatabaseField(canBeNull = false)
     public int color;
-
-    /**
-     * Cached version of {@link #pattern} compiled by {@link org.floens.chan.core.manager.FilterEngine#compile(String)}.
-     */
-    public Matcher compiledMatcher;
 
     public boolean hasFilter(FilterType filterType) {
         return (type & filterType.flag) != 0;

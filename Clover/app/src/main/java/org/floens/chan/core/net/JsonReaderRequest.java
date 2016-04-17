@@ -31,9 +31,11 @@ import org.floens.chan.utils.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 public abstract class JsonReaderRequest<T> extends Request<T> {
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+
     protected final Listener<T> listener;
 
     public JsonReaderRequest(String url, Listener<T> listener, ErrorListener errorListener) {
@@ -50,19 +52,14 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
     @Override
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
         ByteArrayInputStream baos = new ByteArrayInputStream(response.data);
-
-        JsonReader reader = null;
-        try {
-            reader = new JsonReader(new InputStreamReader(baos, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        JsonReader reader = new JsonReader(new InputStreamReader(baos, UTF8));
 
         Exception exception = null;
         T read = null;
         try {
             read = readJson(reader);
         } catch (Exception e) {
+
             exception = e;
         }
 

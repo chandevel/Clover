@@ -29,7 +29,9 @@ import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -66,6 +68,8 @@ public class FilterEngine {
             }
         }
     }
+
+    private final Map<String, Pattern> patternCache = new HashMap<>();
 
     private final DatabaseManager databaseManager;
     private final DatabaseFilterManager databaseFilterManager;
@@ -133,21 +137,25 @@ public class FilterEngine {
         }
 
         if (matchRegex) {
-            Matcher matcher = null;
+            Pattern pattern = null;
             if (!forceCompile) {
-                matcher = filter.compiledMatcher;
-            }
-
-            if (matcher == null) {
-                Pattern compiledPattern = compile(filter.pattern);
-                if (compiledPattern != null) {
-                    matcher = filter.compiledMatcher = compiledPattern.matcher("");
-                    Logger.d(TAG, "Resulting pattern: " + filter.compiledMatcher);
+                synchronized (patternCache) {
+                    pattern = patternCache.get(filter.pattern);
                 }
             }
 
-            if (matcher != null) {
-                matcher.reset(text);
+            if (pattern == null) {
+                pattern = compile(filter.pattern);
+                if (pattern != null) {
+                    synchronized (patternCache) {
+                        patternCache.put(filter.pattern, pattern);
+                    }
+                    Logger.d(TAG, "Resulting pattern: " + pattern.pattern());
+                }
+            }
+
+            if (pattern != null) {
+                Matcher matcher = pattern.matcher(text);
                 try {
                     return matcher.find();
                 } catch (IllegalArgumentException e) {

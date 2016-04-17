@@ -92,13 +92,12 @@ public class ChanParser {
             e.printStackTrace();
         }
 
-        if (!post.parsedSpans) {
-            post.parsedSpans = true;
-            parseSpans(theme, post);
-        }
+        parseSpans(theme, post);
 
         if (post.rawComment != null) {
             post.comment = parseComment(theme, post, post.rawComment);
+        } else {
+            post.comment = "";
         }
     }
 

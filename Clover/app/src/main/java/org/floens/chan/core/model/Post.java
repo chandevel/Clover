@@ -110,8 +110,6 @@ public class Post {
 
     public final ArrayList<PostLinkable> linkables = new ArrayList<>();
 
-    public boolean parsedSpans = false;
-
     public SpannableString subjectSpan;
 
     public SpannableString nameSpan;
@@ -149,16 +147,15 @@ public class Post {
      * @return false if this data is invalid
      */
     public boolean finish() {
-        if (board == null)
+        if (board == null || no < 0 || resto < 0 || date == null || time < 0) {
             return false;
-
-        if (no < 0 || resto < 0 || date == null || time < 0)
-            return false;
+        }
 
         isOP = resto == 0;
 
-        if (isOP && (replies < 0 || images < 0))
+        if (isOP && (replies < 0 || images < 0)) {
             return false;
+        }
 
         if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0 && tim >= 0) {
             hasImage = true;
