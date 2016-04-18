@@ -461,7 +461,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 threadPresenterCallback.clipboardPost(post);
                 break;
             case POST_OPTION_REPORT:
-                threadPresenterCallback.openWebView("Report /" + post.board + "/" + post.no, ChanUrls.getReportUrl(post.board, post.no));
+                threadPresenterCallback.openReportView(post);
                 break;
             case POST_OPTION_HIGHLIGHT_ID:
                 threadPresenterCallback.highlightPostId(post.id);
@@ -691,7 +691,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         void openLink(String link);
 
-        void openWebView(String title, String link);
+        void openReportView(Post post);
 
         void showPostsPopup(Post forPost, List<Post> posts);
 

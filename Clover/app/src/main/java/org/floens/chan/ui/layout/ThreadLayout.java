@@ -293,8 +293,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
-    public void openWebView(String title, String link) {
-        AndroidUtils.openWebView((Activity) getContext(), title, link);
+    public void openReportView(Post post) {
+        callback.openReportController(post);
     }
 
     @Override
@@ -559,6 +559,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         void onShowPosts();
 
         void presentRepliesController(Controller controller);
+
+        void openReportController(Post post);
 
         void hideSwipeRefreshLayout();
 

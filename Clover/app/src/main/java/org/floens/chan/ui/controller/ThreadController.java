@@ -34,6 +34,7 @@ import org.floens.chan.core.manager.FilterType;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
@@ -160,6 +161,11 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
     public void presentRepliesController(Controller controller) {
         presentController(controller);
+    }
+
+    @Override
+    public void openReportController(final Post post) {
+        navigationController.pushController(new ReportController(context, post));
     }
 
     public void selectPostImage(PostImage postImage) {

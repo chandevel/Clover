@@ -20,7 +20,9 @@ package org.floens.chan;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.StrictMode;
+import android.webkit.WebView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -148,6 +150,11 @@ public class Chan extends Application {
                             .detectAll()
                             .penaltyLog()
                             .build());
+
+            //noinspection PointlessBooleanExpression
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                WebView.setWebContentsDebuggingEnabled(true);
+            }
         }
     }
 

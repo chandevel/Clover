@@ -19,7 +19,6 @@ package org.floens.chan.ui.layout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -34,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.ChanBuild;
 import org.floens.chan.R;
 import org.floens.chan.ui.view.FixedRatioThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -107,11 +105,6 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
         settings.setJavaScriptEnabled(true);
 
         internalWebView.addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
-
-        //noinspection PointlessBooleanExpression
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && ChanBuild.DEVELOPER_MODE) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
     }
 
     @Override

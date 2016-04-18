@@ -94,18 +94,6 @@ public class AndroidUtils {
         return PreferenceManager.getDefaultSharedPreferences(Chan.con);
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    public static void openWebView(Activity activity, String title, String link) {
-        Dialog dialog = new Dialog(activity);
-        dialog.setContentView(R.layout.dialog_web);
-        WebView wb = (WebView) dialog.findViewById(R.id.web_view);
-        wb.getSettings().setJavaScriptEnabled(true);
-        wb.loadUrl(link);
-        dialog.setTitle(title);
-        dialog.setCancelable(true);
-        dialog.show();
-    }
-
     /**
      * Tries to open an app that can open the specified URL.<br>
      * If this app will open the link then show a chooser to the user without this app.<br>

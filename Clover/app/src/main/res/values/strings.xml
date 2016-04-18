@@ -332,6 +332,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="album_view_screen">Album</string>
 
+    <string name="report_screen">Report %1$s</string>
+
     <string name="image_save_notification_downloading">Downloading images</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>

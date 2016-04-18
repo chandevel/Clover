@@ -94,6 +94,14 @@ public class ChanUrls {
         return "https://sys.4chan.org/auth";
     }
 
+    public static String getReportDomain() {
+        return "https://sys.4chan.org/";
+    }
+
+    public static String[] getReportCookies(String passId) {
+        return new String[]{"pass_enabled=1;", "pass_id=" + passId + ";"};
+    }
+
     public static String getReportUrl(String board, int no) {
         return "https://sys.4chan.org/" + board + "/imgboard.php?mode=report&no=" + no;
     }
