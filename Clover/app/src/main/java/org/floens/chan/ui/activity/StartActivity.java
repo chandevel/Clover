@@ -97,17 +97,29 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         StyledToolbarNavigationController toolbarNavigationController = new StyledToolbarNavigationController(this);
 
-        if (AndroidUtils.isTablet(this) && !ChanSettings.forcePhoneLayout.get()) {
-            SplitNavigationController splitNavigationController = new SplitNavigationController(this);
-            splitNavigationController.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
+        ChanSettings.LayoutMode layoutMode = ChanSettings.layoutMode.get();
+        if (layoutMode == ChanSettings.LayoutMode.AUTO) {
+            if (AndroidUtils.isTablet(this)) {
+                layoutMode = ChanSettings.LayoutMode.SPLIT;
+            } else {
+                layoutMode = ChanSettings.LayoutMode.PHONE;
+            }
+        }
 
-            drawerController.setChildController(splitNavigationController);
+        switch (layoutMode) {
+            case SPLIT:
+                SplitNavigationController splitNavigationController = new SplitNavigationController(this);
+                splitNavigationController.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
 
-            splitNavigationController.setLeftController(toolbarNavigationController);
-            mainNavigationController = toolbarNavigationController;
-        } else {
-            drawerController.setChildController(toolbarNavigationController);
-            mainNavigationController = toolbarNavigationController;
+                drawerController.setChildController(splitNavigationController);
+
+                splitNavigationController.setLeftController(toolbarNavigationController);
+                mainNavigationController = toolbarNavigationController;
+                break;
+            case PHONE:
+                drawerController.setChildController(toolbarNavigationController);
+                mainNavigationController = toolbarNavigationController;
+                break;
         }
 
         browseController = new BrowseController(this);

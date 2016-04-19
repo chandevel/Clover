@@ -46,7 +46,6 @@ public class AdvancedSettingsController extends SettingsController {
     private boolean needRestart;
     private LinkSettingView saveLocation;
     private SettingView newCaptcha;
-    private SettingView forcePhoneLayoutSetting;
     private SettingView enableReplyFab;
     private SettingView neverHideToolbar;
     private SettingView controllersSwipeable;
@@ -84,7 +83,7 @@ public class AdvancedSettingsController extends SettingsController {
     public void onPreferenceChange(SettingView item) {
         super.onPreferenceChange(item);
 
-        if (item == forcePhoneLayoutSetting || item == enableReplyFab || item == newCaptcha || item == neverHideToolbar || item == controllersSwipeable) {
+        if (item == enableReplyFab || item == newCaptcha || item == neverHideToolbar || item == controllersSwipeable) {
             needRestart = true;
         } else {
             EventBus.getDefault().post(new RefreshUIMessage("postui"));
@@ -120,7 +119,6 @@ public class AdvancedSettingsController extends SettingsController {
         controllersSwipeable = settings.add(new BooleanSettingView(this, ChanSettings.controllerSwipeable, R.string.setting_controller_swipeable, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.shareUrl, R.string.setting_share_url, R.string.setting_share_url_description));
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, R.string.setting_network_https, R.string.setting_network_https_description));
-        forcePhoneLayoutSetting = settings.add(new BooleanSettingView(this, ChanSettings.forcePhoneLayout, R.string.setting_force_phone_layout, 0));
         enableReplyFab = settings.add(new BooleanSettingView(this, ChanSettings.enableReplyFab, R.string.setting_enable_reply_fab, R.string.setting_enable_reply_fab_description));
         settings.add(new BooleanSettingView(this, ChanSettings.anonymize, R.string.setting_anonymize, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, R.string.setting_anonymize_ids, 0));

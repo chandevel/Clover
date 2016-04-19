@@ -68,9 +68,27 @@ public class ChanSettings {
         }
     }
 
+    public enum LayoutMode implements OptionSettingItem {
+        AUTO("auto"),
+        PHONE("phone"),
+        SPLIT("split");
+
+        String name;
+
+        LayoutMode(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+    }
+
     private static Proxy proxy;
 
     private static final StringSetting theme;
+    public static final OptionsSetting<LayoutMode> layoutMode;
     public static final StringSetting fontSize;
     public static final BooleanSetting fontCondensed;
     public static final BooleanSetting openLinkConfirmation;
@@ -94,7 +112,6 @@ public class ChanSettings {
     public static final BooleanSetting saveOriginalFilename;
     public static final BooleanSetting shareUrl;
     public static final BooleanSetting networkHttps;
-    public static final BooleanSetting forcePhoneLayout;
     public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
@@ -156,6 +173,8 @@ public class ChanSettings {
 
         theme = new StringSetting(p, "preference_theme", "light");
 
+        layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.values(), LayoutMode.AUTO);
+
         boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
 
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
@@ -181,7 +200,6 @@ public class ChanSettings {
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         networkHttps = new BooleanSetting(p, "preference_network_https", true);
-        forcePhoneLayout = new BooleanSetting(p, "preference_force_phone_layout", false);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);

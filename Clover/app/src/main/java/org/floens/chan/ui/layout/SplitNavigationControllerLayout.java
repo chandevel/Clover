@@ -84,7 +84,8 @@ public class SplitNavigationControllerLayout extends LinearLayout {
             throw new IllegalArgumentException();
         }
 
-        int leftWidth = Math.max(minimumLeftWidth, (int) (widthSize * ratio));
+        int minWidth = Math.min(minimumLeftWidth, widthSize / 2);
+        int leftWidth = Math.max(minWidth, (int) (widthSize * ratio));
         int rightWidth = widthSize - dividerWidth - leftWidth;
         leftView.getLayoutParams().width = leftWidth;
         rightView.getLayoutParams().width = rightWidth;

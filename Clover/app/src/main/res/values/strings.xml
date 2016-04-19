@@ -355,6 +355,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_theme">Theme</string>
     <string name="setting_theme_explanation">Swipe to change the theme.\nTap the toolbar to change its color.\n</string>
     <string name="setting_theme_accent">Click here to change the FAB color</string>
+    <string name="setting_layout_mode">Layout mode</string>
+    <string name="setting_layout_mode_auto">Auto</string>
+    <string name="setting_layout_mode_phone">Phone layout</string>
+    <string name="setting_layout_mode_split">Split mode</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_default">(default)</string>
     <string name="setting_font_condensed">Use condensed font</string>
@@ -400,7 +404,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_share_url_description">Share the url to the image instead of the image itself</string>
     <string name="setting_network_https">Use HTTPS</string>
     <string name="setting_network_https_description">Use HTTPS for all network requests</string>
-    <string name="setting_force_phone_layout">Force phone layout</string>
     <string name="setting_enable_reply_fab">Enable the reply FAB</string>
     <string name="setting_enable_reply_fab_description">Disabling replaces it with a menu option</string>
     <string name="setting_anonymize">Make everyone Anonymous</string>

@@ -31,6 +31,7 @@ import android.widget.Toast;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
@@ -64,9 +65,12 @@ public class MainSettingsController extends SettingsController implements Toolba
     private int clickCount;
     private SettingView developerView;
     private SettingView fontView;
+    private SettingView layoutModeView;
     private SettingView fontCondensed;
     private SettingView gridColumnsView;
     private ToolbarMenuItem overflow;
+
+    private ChanSettings.LayoutMode previousLayoutMode;
 
     private PopupWindow advancedSettingsHint;
 
@@ -86,6 +90,8 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         view = inflateRes(R.layout.settings_layout);
         content = (LinearLayout) view.findViewById(R.id.scrollview_content);
+
+        previousLayoutMode = ChanSettings.layoutMode.get();
 
         populatePreferences();
 
@@ -114,6 +120,15 @@ public class MainSettingsController extends SettingsController implements Toolba
         if (advancedSettingsHint != null) {
             advancedSettingsHint.dismiss();
             advancedSettingsHint = null;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (previousLayoutMode != ChanSettings.layoutMode.get()) {
+            ((StartActivity) context).restart();
         }
     }
 
@@ -179,6 +194,26 @@ public class MainSettingsController extends SettingsController implements Toolba
             }
         }));
 
+        List<ListSettingView.Item> layoutModes = new ArrayList<>();
+        for (ChanSettings.LayoutMode mode : ChanSettings.LayoutMode.values()) {
+            int name = 0;
+            switch (mode) {
+                case AUTO:
+                    name = R.string.setting_layout_mode_auto;
+                    break;
+                case PHONE:
+                    name = R.string.setting_layout_mode_phone;
+                    break;
+                case SPLIT:
+                    name = R.string.setting_layout_mode_split;
+                    break;
+            }
+            layoutModes.add(new ListSettingView.Item<>(getString(name), mode));
+        }
+
+        layoutModeView = new ListSettingView<>(this, ChanSettings.layoutMode, R.string.setting_layout_mode, layoutModes);
+        appearance.add(layoutModeView);
+
         List<ListSettingView.Item> fontSizes = new ArrayList<>();
         for (int size = 10; size <= 19; size++) {
             String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " " + getString(R.string.setting_font_size_default) : "");
@@ -225,8 +260,8 @@ public class MainSettingsController extends SettingsController implements Toolba
                     break;
             }
 
-            imageAutoLoadTypes.add(new ListSettingView.Item<ChanSettings.MediaAutoLoadMode>(getString(name), mode));
-            videoAutoLoadTypes.add(new ListSettingView.Item<ChanSettings.MediaAutoLoadMode>(getString(name), mode));
+            imageAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
+            videoAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
         }
 
         imageAutoLoadView = new ListSettingView<>(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, imageAutoLoadTypes);
