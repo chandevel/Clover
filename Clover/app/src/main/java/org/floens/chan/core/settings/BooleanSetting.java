@@ -27,10 +27,6 @@ public class BooleanSetting extends Setting<Boolean> {
         super(sharedPreferences, key, def);
     }
 
-    public BooleanSetting(SharedPreferences sharedPreferences, String key, Boolean def, SettingCallback<Boolean> callback) {
-        super(sharedPreferences, key, def, callback);
-    }
-
     @Override
     public Boolean get() {
         if (hasCached) {

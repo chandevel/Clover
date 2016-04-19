@@ -271,12 +271,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         return imageAutoLoad(postImage) && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
     }
 
-    private boolean shouldLoadForNetworkType(String networkType) {
-        if (networkType.equals(ChanSettings.MediaAutoLoadMode.NONE.name)) {
+    private boolean shouldLoadForNetworkType(ChanSettings.MediaAutoLoadMode networkType) {
+        if (networkType == ChanSettings.MediaAutoLoadMode.NONE) {
             return false;
-        } else if (networkType.equals(ChanSettings.MediaAutoLoadMode.WIFI.name)) {
+        } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI) {
             return isConnected(ConnectivityManager.TYPE_WIFI);
-        } else if (networkType.equals(ChanSettings.MediaAutoLoadMode.ALL.name)) {
+        } else if (networkType == ChanSettings.MediaAutoLoadMode.ALL) {
             return true;
         }
 

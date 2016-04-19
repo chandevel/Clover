@@ -70,7 +70,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private ThreadListLayoutPresenterCallback callback;
     private ThreadListLayoutCallback threadListLayoutCallback;
     private boolean replyOpen;
-    private PostCellInterface.PostViewMode postViewMode;
+    private ChanSettings.PostViewMode postViewMode;
     private int spanCount = 2;
     private int background;
     private boolean searchOpen;
@@ -140,12 +140,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
         }
 
-        if (postViewMode == PostCellInterface.PostViewMode.CARD) {
+        if (postViewMode == ChanSettings.PostViewMode.CARD) {
             ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
         }
     }
 
-    public void setPostViewMode(PostCellInterface.PostViewMode postViewMode) {
+    public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         if (this.postViewMode != postViewMode) {
             this.postViewMode = postViewMode;
 

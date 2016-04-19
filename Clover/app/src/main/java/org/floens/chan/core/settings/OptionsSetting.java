@@ -19,29 +19,42 @@ package org.floens.chan.core.settings;
 
 import android.content.SharedPreferences;
 
-public class IntegerSetting extends Setting<Integer> {
+public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
     private boolean hasCached = false;
-    private Integer cached;
+    private T cached;
+    private T[] items;
 
-    public IntegerSetting(SharedPreferences sharedPreferences, String key, Integer def) {
+    public OptionsSetting(SharedPreferences sharedPreferences, String key, T[] items, T def) {
         super(sharedPreferences, key, def);
+        this.items = items;
     }
 
     @Override
-    public Integer get() {
+    public T get() {
         if (hasCached) {
             return cached;
         } else {
-            cached = sharedPreferences.getInt(key, def);
+            String itemName = sharedPreferences.getString(key, def.getName());
+            T selectedItem = null;
+            for (T item : items) {
+                if (item.getName().equals(itemName)) {
+                    selectedItem = item;
+                }
+            }
+            if (selectedItem == null) {
+                selectedItem = def;
+            }
+
+            cached = selectedItem;
             hasCached = true;
             return cached;
         }
     }
 
     @Override
-    public void set(Integer value) {
+    public void set(T value) {
         if (!value.equals(get())) {
-            sharedPreferences.edit().putInt(key, value).apply();
+            sharedPreferences.edit().putString(key, value.getName()).apply();
             cached = value;
             onValueChanged();
         }

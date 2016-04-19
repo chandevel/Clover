@@ -27,10 +27,6 @@ public class StringSetting extends Setting<String> {
         super(sharedPreferences, key, def);
     }
 
-    public StringSetting(SharedPreferences sharedPreferences, String key, String def, SettingCallback<String> callback) {
-        super(sharedPreferences, key, def, callback);
-    }
-
     @Override
     public String get() {
         if (hasCached) {

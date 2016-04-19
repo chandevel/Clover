@@ -60,7 +60,6 @@ import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
-import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.HidingFloatingActionButton;
@@ -188,7 +187,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         presenter.requestData();
     }
 
-    public void setPostViewMode(PostCellInterface.PostViewMode postViewMode) {
+    public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         threadListLayout.setPostViewMode(postViewMode);
     }
 

@@ -17,25 +17,21 @@
  */
 package org.floens.chan.chan;
 
+import org.floens.chan.core.settings.ChanSettings;
+
 import java.util.Locale;
 
 public class ChanUrls {
-    private static String scheme;
-
-    public static void loadScheme(boolean useHttps) {
-        scheme = useHttps ? "https" : "http";
-    }
-
     public static String getCatalogUrl(String board) {
-        return scheme + "://a.4cdn.org/" + board + "/catalog.json";
+        return scheme() + "://a.4cdn.org/" + board + "/catalog.json";
     }
 
     public static String getPageUrl(String board, int pageNumber) {
-        return scheme + "://a.4cdn.org/" + board + "/" + (pageNumber + 1) + ".json";
+        return scheme() + "://a.4cdn.org/" + board + "/" + (pageNumber + 1) + ".json";
     }
 
     public static String getThreadUrl(String board, int no) {
-        return scheme + "://a.4cdn.org/" + board + "/thread/" + no + ".json";
+        return scheme() + "://a.4cdn.org/" + board + "/thread/" + no + ".json";
     }
 
     public static String getCaptchaSiteKey() {
@@ -43,27 +39,27 @@ public class ChanUrls {
     }
 
     public static String getImageUrl(String board, String code, String extension) {
-        return scheme + "://i.4cdn.org/" + board + "/" + code + "." + extension;
+        return scheme() + "://i.4cdn.org/" + board + "/" + code + "." + extension;
     }
 
     public static String getThumbnailUrl(String board, String code) {
-        return scheme + "://t.4cdn.org/" + board + "/" + code + "s.jpg";
+        return scheme() + "://t.4cdn.org/" + board + "/" + code + "s.jpg";
     }
 
     public static String getSpoilerUrl() {
-        return scheme + "://s.4cdn.org/image/spoiler.png";
+        return scheme() + "://s.4cdn.org/image/spoiler.png";
     }
 
     public static String getCustomSpoilerUrl(String board, int value) {
-        return scheme + "://s.4cdn.org/image/spoiler-" + board + value + ".png";
+        return scheme() + "://s.4cdn.org/image/spoiler-" + board + value + ".png";
     }
 
     public static String getCountryFlagUrl(String countryCode) {
-        return scheme + "://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
+        return scheme() + "://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
     }
 
     public static String getBoardsUrl() {
-        return scheme + "://a.4cdn.org/boards.json";
+        return scheme() + "://a.4cdn.org/boards.json";
     }
 
     public static String getReplyUrl(String board) {
@@ -75,19 +71,19 @@ public class ChanUrls {
     }
 
     public static String getBoardUrlDesktop(String board) {
-        return scheme + "://boards.4chan.org/" + board + "/";
+        return scheme() + "://boards.4chan.org/" + board + "/";
     }
 
     public static String getThreadUrlDesktop(String board, int no) {
-        return scheme + "://boards.4chan.org/" + board + "/thread/" + no;
+        return scheme() + "://boards.4chan.org/" + board + "/thread/" + no;
     }
 
     public static String getThreadUrlDesktop(String board, int no, int postNo) {
-        return scheme + "://boards.4chan.org/" + board + "/thread/" + no + "#p" + postNo;
+        return scheme() + "://boards.4chan.org/" + board + "/thread/" + no + "#p" + postNo;
     }
 
     public static String getCatalogUrlDesktop(String board) {
-        return scheme + "://boards.4chan.org/" + board + "/catalog";
+        return scheme() + "://boards.4chan.org/" + board + "/catalog";
     }
 
     public static String getPassUrl() {
@@ -104,5 +100,9 @@ public class ChanUrls {
 
     public static String getReportUrl(String board, int no) {
         return "https://sys.4chan.org/" + board + "/imgboard.php?mode=report&no=" + no;
+    }
+
+    private static String scheme() {
+        return ChanSettings.networkHttps.get() ? "https" : "http";
     }
 }

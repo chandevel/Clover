@@ -32,7 +32,6 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -73,7 +72,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onCreate() {
         super.onCreate();
 
-        threadLayout.setPostViewMode(PostCellInterface.PostViewMode.LIST);
+        threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
 
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 

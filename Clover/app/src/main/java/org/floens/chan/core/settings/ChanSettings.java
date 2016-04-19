@@ -23,10 +23,8 @@ import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.ui.adapter.PostsFilter;
-import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
@@ -34,7 +32,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 public class ChanSettings {
-    public enum MediaAutoLoadMode {
+    public enum MediaAutoLoadMode implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
         ALL("all"),
         // Only auto load if on wifi
@@ -42,19 +40,31 @@ public class ChanSettings {
         // Never auto load
         NONE("none");
 
-        public String name;
+        String name;
 
         MediaAutoLoadMode(String name) {
             this.name = name;
         }
 
-        public static MediaAutoLoadMode find(String name) {
-            for (MediaAutoLoadMode mode : MediaAutoLoadMode.values()) {
-                if (mode.name.equals(name)) {
-                    return mode;
-                }
-            }
-            return null;
+        @Override
+        public String getName() {
+            return name;
+        }
+    }
+
+    public enum PostViewMode implements OptionSettingItem {
+        LIST("list"),
+        CARD("grid");
+
+        String name;
+
+        PostViewMode(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
     }
 
@@ -66,11 +76,11 @@ public class ChanSettings {
     public static final BooleanSetting openLinkConfirmation;
     public static final BooleanSetting autoRefreshThread;
     //    public static final BooleanSetting imageAutoLoad;
-    public static final StringSetting imageAutoLoadNetwork;
-    public static final StringSetting videoAutoLoadNetwork;
+    public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
+    public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
     public static final BooleanSetting videoOpenExternal;
     public static final BooleanSetting videoErrorIgnore;
-    public static final StringSetting boardViewMode;
+    public static final OptionsSetting<PostViewMode> boardViewMode;
     public static final IntegerSetting boardGridSpanCount;
     public static final StringSetting boardOrder;
 
@@ -125,6 +135,22 @@ public class ChanSettings {
     public static final CounterSetting replyOpenCounter;
     public static final CounterSetting threadOpenCounter;
 
+    public enum TestOptions implements OptionSettingItem {
+        ONE("one"),
+        TWO("two"),
+        THREE("three");
+
+        String name;
+
+        TestOptions(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
 
@@ -137,11 +163,11 @@ public class ChanSettings {
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
 //        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
-        imageAutoLoadNetwork = new StringSetting(p, "preference_image_auto_load_network", MediaAutoLoadMode.WIFI.name);
-        videoAutoLoadNetwork = new StringSetting(p, "preference_video_auto_load_network", MediaAutoLoadMode.WIFI.name);
+        imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
+        videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
-        boardViewMode = new StringSetting(p, "preference_board_view_mode", PostCellInterface.PostViewMode.LIST.name); // "list" or "grid"
+        boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.values(), PostViewMode.LIST);
         boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
         boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name);
 
@@ -154,12 +180,7 @@ public class ChanSettings {
         saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover");
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
-        networkHttps = new BooleanSetting(p, "preference_network_https", true, new Setting.SettingCallback<Boolean>() {
-            @Override
-            public void onValueChange(Setting setting, Boolean value) {
-                ChanUrls.loadScheme(value);
-            }
-        });
+        networkHttps = new BooleanSetting(p, "preference_network_https", true);
         forcePhoneLayout = new BooleanSetting(p, "preference_force_phone_layout", false);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
@@ -175,14 +196,16 @@ public class ChanSettings {
         neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
         controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
 
-        watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false, new Setting.SettingCallback<Boolean>() {
+        watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
+        watchEnabled.addCallback(new Setting.SettingCallback<Boolean>() {
             @Override
             public void onValueChange(Setting setting, Boolean value) {
                 Chan.getWatchManager().onWatchEnabledChanged(value);
             }
         });
         watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
-        watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false, new Setting.SettingCallback<Boolean>() {
+        watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
+        watchBackground.addCallback(new Setting.SettingCallback<Boolean>() {
             @Override
             public void onValueChange(Setting setting, Boolean value) {
                 Chan.getWatchManager().onBackgroundWatchingChanged(value);
@@ -202,19 +225,22 @@ public class ChanSettings {
 
         previousVersion = new IntegerSetting(p, "preference_previous_version", 0);
 
-        proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false, new Setting.SettingCallback<Boolean>() {
+        proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
+        proxyEnabled.addCallback(new Setting.SettingCallback<Boolean>() {
             @Override
             public void onValueChange(Setting setting, Boolean value) {
                 loadProxy();
             }
         });
-        proxyAddress = new StringSetting(p, "preference_proxy_address", "", new Setting.SettingCallback<String>() {
+        proxyAddress = new StringSetting(p, "preference_proxy_address", "");
+        proxyAddress.addCallback(new Setting.SettingCallback<String>() {
             @Override
             public void onValueChange(Setting setting, String value) {
                 loadProxy();
             }
         });
-        proxyPort = new IntegerSetting(p, "preference_proxy_port", 80, new Setting.SettingCallback<Integer>() {
+        proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
+        proxyPort.addCallback(new Setting.SettingCallback<Integer>() {
             @Override
             public void onValueChange(Setting setting, Integer value) {
                 loadProxy();

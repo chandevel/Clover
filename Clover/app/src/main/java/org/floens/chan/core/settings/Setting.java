@@ -19,21 +19,19 @@ package org.floens.chan.core.settings;
 
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Setting<T> {
     protected final SharedPreferences sharedPreferences;
     protected final String key;
     protected final T def;
-    private SettingCallback<T> callback;
+    private List<SettingCallback<T>> callbacks = new ArrayList<>();
 
     public Setting(SharedPreferences sharedPreferences, String key, T def) {
-        this(sharedPreferences, key, def, null);
-    }
-
-    public Setting(SharedPreferences sharedPreferences, String key, T def, SettingCallback<T> callback) {
         this.sharedPreferences = sharedPreferences;
         this.key = key;
         this.def = def;
-        this.callback = callback;
     }
 
     public abstract T get();
@@ -44,9 +42,17 @@ public abstract class Setting<T> {
         return def;
     }
 
+    public void addCallback(SettingCallback<T> callback) {
+        this.callbacks.add(callback);
+    }
+
+    public void removeCallback(SettingCallback<T> callback) {
+        this.callbacks.remove(callback);
+    }
+
     protected final void onValueChanged() {
-        if (callback != null) {
-            callback.onValueChange(this, get());
+        for (int i = 0; i < callbacks.size(); i++) {
+            callbacks.get(i).onValueChange(this, get());
         }
     }
 

@@ -24,10 +24,6 @@ public class CounterSetting extends IntegerSetting {
         super(sharedPreferences, key, 0);
     }
 
-    public CounterSetting(SharedPreferences sharedPreferences, String key, SettingCallback<Integer> callback) {
-        super(sharedPreferences, key, 0, callback);
-    }
-
     public int increase() {
         set(get() + 1);
         return get();

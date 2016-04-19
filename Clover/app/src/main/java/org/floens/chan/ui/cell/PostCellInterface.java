@@ -20,6 +20,7 @@ package org.floens.chan.ui.cell;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -27,31 +28,11 @@ import org.floens.chan.ui.view.ThumbnailView;
 import java.util.List;
 
 public interface PostCellInterface {
-    void setPost(Theme theme, Post post, PostCellCallback callback, boolean highlighted, boolean selected, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode);
+    void setPost(Theme theme, Post post, PostCellCallback callback, boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode);
 
     Post getPost();
 
     ThumbnailView getThumbnailView();
-
-    enum PostViewMode {
-        LIST("list"),
-        CARD("grid");
-
-        public String name;
-
-        PostViewMode(String name) {
-            this.name = name;
-        }
-
-        public static PostViewMode find(String name) {
-            for (PostViewMode mode : PostViewMode.values()) {
-                if (mode.name.equals(name)) {
-                    return mode;
-                }
-            }
-            return null;
-        }
-    }
 
     interface PostCellCallback {
         Loadable getLoadable();

@@ -28,7 +28,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.http.ReplyManager;
@@ -36,7 +35,6 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.core.net.ProxiedHurlStack;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
@@ -111,8 +109,6 @@ public class Chan extends Application {
         final long startTime = Time.startTiming();
 
         AndroidUtils.init();
-
-        ChanUrls.loadScheme(ChanSettings.networkHttps.get());
 
         userAgent = createUserAgent();
 

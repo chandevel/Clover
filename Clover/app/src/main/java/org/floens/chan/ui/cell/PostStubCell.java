@@ -48,7 +48,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     private boolean bound;
     private Theme theme;
     private Post post;
-    private PostViewMode postViewMode;
+    private ChanSettings.PostViewMode postViewMode;
     private boolean showDivider;
     private PostCellInterface.PostCellCallback callback;
 
@@ -139,7 +139,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     }
 
     public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode) {
+                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode) {
         if (this.post == post) {
             return;
         }
@@ -191,7 +191,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
             title.setText(titleText);
         }
 
-        divider.setVisibility(postViewMode == PostViewMode.CARD ? GONE :
+        divider.setVisibility(postViewMode == ChanSettings.PostViewMode.CARD ? GONE :
                 (showDivider ? VISIBLE : GONE));
     }
 

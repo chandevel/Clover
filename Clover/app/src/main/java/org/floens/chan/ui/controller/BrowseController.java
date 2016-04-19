@@ -38,7 +38,6 @@ import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
-import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -62,7 +61,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     private final DatabaseManager databaseManager;
 
-    private PostCellInterface.PostViewMode postViewMode;
+    private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
     private List<FloatingMenuItem> boardItems;
 
@@ -80,7 +79,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void onCreate() {
         super.onCreate();
 
-        postViewMode = PostCellInterface.PostViewMode.find(ChanSettings.boardViewMode.get());
+        postViewMode = ChanSettings.boardViewMode.get();
         order = PostsFilter.Order.find(ChanSettings.boardOrder.get());
         threadLayout.setPostViewMode(postViewMode);
         threadLayout.getPresenter().setOrder(order);
@@ -104,7 +103,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
             items.add(new FloatingMenuItem(REPLY_ID, R.string.action_reply));
         }
         items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
-        viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, postViewMode == PostCellInterface.PostViewMode.LIST ?
+        viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, postViewMode == ChanSettings.PostViewMode.LIST ?
                 R.string.action_switch_catalog : R.string.action_switch_board);
         items.add(viewModeMenuItem);
         items.add(new FloatingMenuItem(ORDER_ID, R.string.action_order));
@@ -146,16 +145,16 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
                 break;
             case VIEW_MODE_ID:
-                if (postViewMode == PostCellInterface.PostViewMode.LIST) {
-                    postViewMode = PostCellInterface.PostViewMode.CARD;
+                if (postViewMode == ChanSettings.PostViewMode.LIST) {
+                    postViewMode = ChanSettings.PostViewMode.CARD;
                 } else {
-                    postViewMode = PostCellInterface.PostViewMode.LIST;
+                    postViewMode = ChanSettings.PostViewMode.LIST;
                 }
 
-                ChanSettings.boardViewMode.set(postViewMode.name);
+                ChanSettings.boardViewMode.set(postViewMode);
 
                 viewModeMenuItem.setText(context.getString(
-                        postViewMode == PostCellInterface.PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board));
+                        postViewMode == ChanSettings.PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board));
 
                 threadLayout.setPostViewMode(postViewMode);
 

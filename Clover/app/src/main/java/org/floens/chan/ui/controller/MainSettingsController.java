@@ -56,8 +56,8 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener, PassSettingsController.PassSettingControllerListener {
     private static final int ADVANCED_SETTINGS = 1;
-    private ListSettingView<String> imageAutoLoadView;
-    private ListSettingView<String> videoAutoLoadView;
+    private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
+    private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
 
     private LinkSettingView watchLink;
     private LinkSettingView passLink;
@@ -225,8 +225,8 @@ public class MainSettingsController extends SettingsController implements Toolba
                     break;
             }
 
-            imageAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode.name));
-            videoAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode.name));
+            imageAutoLoadTypes.add(new ListSettingView.Item<ChanSettings.MediaAutoLoadMode>(getString(name), mode));
+            videoAutoLoadTypes.add(new ListSettingView.Item<ChanSettings.MediaAutoLoadMode>(getString(name), mode));
         }
 
         imageAutoLoadView = new ListSettingView<>(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, imageAutoLoadTypes);
@@ -354,21 +354,21 @@ public class MainSettingsController extends SettingsController implements Toolba
     }
 
     private void updateVideoLoadModes() {
-        String currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
+        ChanSettings.MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
         ChanSettings.MediaAutoLoadMode[] modes = ChanSettings.MediaAutoLoadMode.values();
         boolean enabled = false;
         boolean resetVideoMode = false;
         for (int i = 0; i < modes.length; i++) {
-            if (modes[i].name.equals(currentImageLoadMode)) {
+            if (modes[i].getName().equals(currentImageLoadMode.getName())) {
                 enabled = true;
                 if (resetVideoMode) {
-                    ChanSettings.videoAutoLoadNetwork.set(modes[i].name);
+                    ChanSettings.videoAutoLoadNetwork.set(modes[i]);
                     videoAutoLoadView.updateSelection();
                     onPreferenceChange(videoAutoLoadView);
                 }
             }
             videoAutoLoadView.items.get(i).enabled = enabled;
-            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().equals(modes[i].name)) {
+            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().getName().equals(modes[i].getName())) {
                 resetVideoMode = true;
             }
         }

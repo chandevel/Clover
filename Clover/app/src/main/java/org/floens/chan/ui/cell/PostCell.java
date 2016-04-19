@@ -72,9 +72,7 @@ import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Time;
 
 import java.text.BreakIterator;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static android.text.TextUtils.isEmpty;
@@ -254,7 +252,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     }
 
     public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, PostCellInterface.PostViewMode postViewMode) {
+                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode) {
         if (this.post == post && this.highlighted == highlighted && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider) {
             return;
         }
