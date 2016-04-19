@@ -30,6 +30,8 @@ import android.widget.Toast;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.helper.HintPopup;
@@ -53,6 +55,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener, PassSettingsController.PassSettingControllerListener {
@@ -60,6 +63,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
 
+    private LinkSettingView boardEditorView;
     private LinkSettingView watchLink;
     private LinkSettingView passLink;
     private int clickCount;
@@ -81,6 +85,8 @@ public class MainSettingsController extends SettingsController implements Toolba
     @Override
     public void onCreate() {
         super.onCreate();
+
+        EventBus.getDefault().register(this);
 
         navigationItem.setTitle(R.string.settings_screen);
         navigationItem.menu = new ToolbarMenu(context);
@@ -127,9 +133,15 @@ public class MainSettingsController extends SettingsController implements Toolba
     public void onDestroy() {
         super.onDestroy();
 
+        EventBus.getDefault().unregister(this);
+
         if (previousLayoutMode != ChanSettings.layoutMode.get()) {
             ((StartActivity) context).restart();
         }
+    }
+
+    public void onEvent(BoardManager.BoardsChangedMessage message) {
+        updateBoardLinkDescription();
     }
 
     @Override
@@ -169,12 +181,14 @@ public class MainSettingsController extends SettingsController implements Toolba
     private void populatePreferences() {
         // General group
         SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
-        general.add(new LinkSettingView(this, R.string.settings_board_edit, 0, new View.OnClickListener() {
+        boardEditorView = new LinkSettingView(this, R.string.settings_board_edit, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new BoardEditController(context));
             }
-        }));
+        });
+        general.add(boardEditorView);
+        updateBoardLinkDescription();
 
         watchLink = (LinkSettingView) general.add(new LinkSettingView(this, R.string.settings_watch, 0, new View.OnClickListener() {
             @Override
@@ -187,7 +201,7 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         SettingsGroup appearance = new SettingsGroup(R.string.settings_group_appearance);
 
-        appearance.add(new LinkSettingView(this, R.string.settings_screen_theme, 0, new View.OnClickListener() {
+        appearance.add(new LinkSettingView(this, getString(R.string.settings_screen_theme), theme().displayName, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 navigationController.pushController(new ThemeSettingsController(context));
@@ -386,6 +400,11 @@ public class MainSettingsController extends SettingsController implements Toolba
         }));
 
         groups.add(about);
+    }
+
+    private void updateBoardLinkDescription() {
+        List<Board> savedBoards = Chan.getBoardManager().getSavedBoards();
+        boardEditorView.setDescription(context.getResources().getQuantityString(R.plurals.board, savedBoards.size(), savedBoards.size()));
     }
 
     private void updateVideoLoadModes() {
