@@ -75,7 +75,7 @@ public class ThreadSlidingPaneLayout extends SlidingPaneLayout {
         ViewGroup.LayoutParams leftParams = leftPane.getLayoutParams();
         ViewGroup.LayoutParams rightParams = rightPane.getLayoutParams();
 
-        if (width < dp(400)) {
+        if (width < dp(500)) {
             leftParams.width = width - dp(30);
             rightParams.width = width;
         } else {
