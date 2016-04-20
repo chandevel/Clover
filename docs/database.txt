@@ -60,3 +60,7 @@ CREATE TABLE `filter` (`action` INTEGER NOT NULL , `allBoards` SMALLINT NOT NULL
 
 Changes in version 20:
 ALTER TABLE loadable ADD COLUMN lastViewed default -1;
+
+
+Changes in version 21:
+ALTER TABLE loadable ADD COLUMN lastLoaded default -1;

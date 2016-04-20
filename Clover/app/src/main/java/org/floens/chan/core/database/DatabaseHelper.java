@@ -43,7 +43,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 20;
+    private static final int DATABASE_VERSION = 21;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -193,6 +193,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 loadableDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN lastViewed default -1;");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 20", e);
+            }
+        }
+
+        if (oldVersion < 21) {
+            try {
+                loadableDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN lastLoaded default -1;");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 21", e);
             }
         }
     }

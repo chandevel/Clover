@@ -113,8 +113,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
 
         if (loadable.isCatalogMode()) {
             loadable.no = 0;
-            loadable.
-                    listViewIndex = 0;
+            loadable.listViewIndex = 0;
             loadable.listViewTop = 0;
         }
 

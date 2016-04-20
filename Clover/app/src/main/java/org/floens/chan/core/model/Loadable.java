@@ -18,6 +18,7 @@
 package org.floens.chan.core.model;
 
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -50,6 +51,9 @@ public class Loadable {
 
     @DatabaseField
     public int lastViewed = -1;
+
+    @DatabaseField
+    public int lastLoaded = -1;
 
     public int markedNo = -1;
 
@@ -87,23 +91,38 @@ public class Loadable {
     }
 
     public void setTitle(String title) {
-        this.title = title;
-        dirty = true;
+        if (!TextUtils.equals(this.title, title)) {
+            this.title = title;
+            dirty = true;
+        }
     }
 
     public void setLastViewed(int lastViewed) {
-        this.lastViewed = lastViewed;
-        dirty = true;
+        if (this.lastViewed != lastViewed) {
+            this.lastViewed = lastViewed;
+            dirty = true;
+        }
+    }
+
+    public void setLastLoaded(int lastLoaded) {
+        if (this.lastLoaded != lastLoaded) {
+            this.lastLoaded = lastLoaded;
+            dirty = true;
+        }
     }
 
     public void setListViewTop(int listViewTop) {
-        this.listViewTop = listViewTop;
-        dirty = true;
+        if (this.listViewTop != listViewTop) {
+            this.listViewTop = listViewTop;
+            dirty = true;
+        }
     }
 
     public void setListViewIndex(int listViewIndex) {
-        this.listViewIndex = listViewIndex;
-        dirty = true;
+        if (this.listViewIndex != listViewIndex) {
+            this.listViewIndex = listViewIndex;
+            dirty = true;
+        }
     }
 
     /**
@@ -157,6 +176,7 @@ public class Loadable {
                 ", listViewIndex=" + listViewIndex +
                 ", listViewTop=" + listViewTop +
                 ", lastViewed=" + lastViewed +
+                ", lastLoaded=" + lastLoaded +
                 ", markedNo=" + markedNo +
                 ", dirty=" + dirty +
                 '}';
@@ -202,6 +222,7 @@ public class Loadable {
         copy.listViewIndex = listViewIndex;
         copy.listViewTop = listViewTop;
         copy.lastViewed = lastViewed;
+        copy.lastLoaded = lastLoaded;
 
         return copy;
     }

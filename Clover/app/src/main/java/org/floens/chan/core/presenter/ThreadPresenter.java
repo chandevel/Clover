@@ -85,7 +85,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private String searchQuery;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded = false;
-    private int notificationPostCount = -1;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -122,7 +121,6 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             chanLoader = null;
             loadable = null;
             historyAdded = false;
-            notificationPostCount = -1;
 
             threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
@@ -253,14 +251,21 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         showPosts();
 
         if (loadable.isThreadMode()) {
-            int postsSize = result.posts.size();
+            int lastLoaded = loadable.lastLoaded;
+            List<Post> posts = result.posts;
+            int more = 0;
+            if (lastLoaded > 0) {
+                for (int i = 0; i < posts.size(); i++) {
+                    Post post = posts.get(i);
+                    if (post.no == lastLoaded) {
+                        more = posts.size() - i - 1;
+                        break;
+                    }
+                }
+            }
+            loadable.setLastLoaded(posts.get(posts.size() - 1).no);
 
-            if (notificationPostCount < 0) {
-                notificationPostCount = postsSize;
-            } else if (postsSize > notificationPostCount) {
-                int more = postsSize - notificationPostCount;
-                notificationPostCount = postsSize;
-
+            if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
             }
         }

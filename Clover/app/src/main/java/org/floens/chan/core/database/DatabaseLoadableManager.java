@@ -62,7 +62,7 @@ public class DatabaseLoadableManager {
                 }
 
                 if (!toFlush.isEmpty()) {
-                    Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s) list positions");
+                    Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s)");
                     long start = Time.startTiming();
                     for (int i = 0; i < toFlush.size(); i++) {
                         Loadable loadable = toFlush.get(i);
