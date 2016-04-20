@@ -17,7 +17,6 @@
  */
 package org.floens.chan.utils;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
@@ -45,7 +44,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -319,7 +317,7 @@ public class AndroidUtils {
                     if (usingViewTreeObserver.isAlive()) {
                         usingViewTreeObserver.removeOnPreDrawListener(this);
                     } else {
-                        Logger.w(TAG, "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well");
+                        Logger.e(TAG, "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well");
                     }
 
                     boolean ret;
@@ -331,7 +329,7 @@ public class AndroidUtils {
                     }
 
                     if (!ret) {
-                        Logger.w(TAG, "waitForLayout requested a re-layout by returning false");
+                        Logger.d(TAG, "waitForLayout requested a re-layout by returning false");
                     }
 
                     return ret;

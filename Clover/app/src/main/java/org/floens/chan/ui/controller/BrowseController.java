@@ -216,8 +216,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 loadBoard(((FloatingMenuItemBoard) item).board);
             } else {
                 BoardEditController boardEditController = new BoardEditController(context);
-                if (splitNavigationController != null) {
-                    splitNavigationController.pushController(boardEditController);
+                if (doubleNavigationController != null) {
+                    doubleNavigationController.pushController(boardEditController);
                 } else {
                     navigationController.pushController(boardEditController);
                 }
@@ -240,22 +240,55 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         showThread(threadLoadable, true);
     }
 
+    // Creates or updates the target ThreadViewController
+    // This controller can be in various places depending on the layout
+    // We dynamically search for it
     public void showThread(Loadable threadLoadable, boolean animated) {
-        if (splitNavigationController != null) {
-            if (splitNavigationController.rightController instanceof StyledToolbarNavigationController) {
-                StyledToolbarNavigationController navigationController = (StyledToolbarNavigationController) splitNavigationController.rightController;
+        // The target ThreadViewController is in a split nav
+        // (BrowseController -> ToolbarNavigationController -> SplitNavigationController)
+        SplitNavigationController splitNav = null;
+
+        // The target ThreadViewController is in a slide nav
+        // (BrowseController -> SlideController -> ToolbarNavigationController)
+        ThreadSlideController slideNav = null;
+
+        if (doubleNavigationController instanceof SplitNavigationController) {
+            splitNav = (SplitNavigationController) doubleNavigationController;
+        }
+
+        if (doubleNavigationController instanceof ThreadSlideController) {
+            slideNav = (ThreadSlideController) doubleNavigationController;
+        }
+
+        if (splitNav != null) {
+            // Create a threadview inside a toolbarnav in the right part of the split layout
+            if (splitNav.getRightController() instanceof StyledToolbarNavigationController) {
+                StyledToolbarNavigationController navigationController = (StyledToolbarNavigationController) splitNav.getRightController();
 
                 if (navigationController.getTop() instanceof ViewThreadController) {
                     ((ViewThreadController) navigationController.getTop()).loadThread(threadLoadable);
                 }
             } else {
                 StyledToolbarNavigationController navigationController = new StyledToolbarNavigationController(context);
-                splitNavigationController.setRightController(navigationController);
+                splitNav.setRightController(navigationController);
                 ViewThreadController viewThreadController = new ViewThreadController(context);
                 viewThreadController.setLoadable(threadLoadable);
                 navigationController.pushController(viewThreadController, false);
             }
+            splitNav.switchToController(false);
+        } else if (slideNav != null) {
+            // Create a threadview in the right part of the slide nav *without* a toolbar
+            if (slideNav.getRightController() instanceof ViewThreadController) {
+                ((ViewThreadController) slideNav.getRightController()).loadThread(threadLoadable);
+            } else {
+                ViewThreadController viewThreadController = new ViewThreadController(context);
+                viewThreadController.setLoadable(threadLoadable);
+                slideNav.setRightController(viewThreadController);
+            }
+            slideNav.switchToController(false);
         } else {
+            // the target ThreadNav must be pushed to the parent nav controller
+            // (BrowseController -> ToolbarNavigationController)
             ViewThreadController viewThreadController = new ViewThreadController(context);
             viewThreadController.setLoadable(threadLoadable);
             navigationController.pushController(viewThreadController, animated);
@@ -282,7 +315,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 break;
             }
         }
-        navigationItem.updateTitle();
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
     }
 
     private void loadBoards() {

@@ -55,7 +55,7 @@ public class PopupController extends Controller implements View.OnClickListener 
     }
 
     public void dismiss() {
-        if (presentingByController instanceof SplitNavigationController) {
+        if (presentingByController instanceof DoubleNavigationController) {
             ((SplitNavigationController) presentingByController).popAll();
         }
     }

@@ -71,6 +71,7 @@ public class ChanSettings {
     public enum LayoutMode implements OptionSettingItem {
         AUTO("auto"),
         PHONE("phone"),
+        SLIDE("slide"),
         SPLIT("split");
 
         String name;

@@ -135,11 +135,21 @@ public class AlbumViewController extends Controller implements ImageViewerContro
 
     @Override
     public ImageViewerController.ImageViewerCallback goToPost(PostImage postImage) {
+        ThreadController threadController = null;
+
         if (previousSiblingController instanceof ThreadController) {
-            ThreadController sibling = (ThreadController) previousSiblingController;
-            sibling.selectPostImage(postImage);
+            threadController = (ThreadController) previousSiblingController;
+        } else if (previousSiblingController instanceof DoubleNavigationController) {
+            DoubleNavigationController doubleNav = (DoubleNavigationController) previousSiblingController;
+            if (doubleNav.getRightController() instanceof ThreadController) {
+                threadController = (ThreadController) doubleNav.getRightController();
+            }
+        }
+
+        if (threadController != null) {
+            threadController.selectPostImage(postImage);
             navigationController.popController(false);
-            return sibling;
+            return threadController;
         } else {
             return null;
         }

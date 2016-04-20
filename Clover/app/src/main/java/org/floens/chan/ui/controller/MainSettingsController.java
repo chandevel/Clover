@@ -218,6 +218,9 @@ public class MainSettingsController extends SettingsController implements Toolba
                 case PHONE:
                     name = R.string.setting_layout_mode_phone;
                     break;
+                case SLIDE:
+                    name = R.string.setting_layout_mode_slide;
+                    break;
                 case SPLIT:
                     name = R.string.setting_layout_mode_split;
                     break;

@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 import org.floens.chan.controller.transition.FadeInTransition;
 import org.floens.chan.controller.transition.FadeOutTransition;
 import org.floens.chan.ui.activity.StartActivity;
-import org.floens.chan.ui.controller.SplitNavigationController;
+import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -51,7 +51,7 @@ public abstract class Controller {
     public Controller previousSiblingController;
     public NavigationController navigationController;
 
-    public SplitNavigationController splitNavigationController;
+    public DoubleNavigationController doubleNavigationController;
 
     /**
      * Controller that this controller is presented by.
@@ -127,7 +127,12 @@ public abstract class Controller {
     public void addChildController(Controller controller) {
         childControllers.add(controller);
         controller.parentController = this;
-        controller.splitNavigationController = splitNavigationController;
+        if (doubleNavigationController != null) {
+            controller.doubleNavigationController = doubleNavigationController;
+        }
+        if (navigationController != null) {
+            controller.navigationController = navigationController;
+        }
         controller.onCreate();
     }
 

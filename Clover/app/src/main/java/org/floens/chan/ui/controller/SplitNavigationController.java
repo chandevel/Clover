@@ -32,7 +32,7 @@ import org.floens.chan.ui.layout.SplitNavigationControllerLayout;
 
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
-public class SplitNavigationController extends Controller {
+public class SplitNavigationController extends Controller implements DoubleNavigationController {
     public Controller leftController;
     public Controller rightController;
 
@@ -52,7 +52,7 @@ public class SplitNavigationController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        splitNavigationController = this;
+        doubleNavigationController = this;
 
         SplitNavigationControllerLayout container = new SplitNavigationControllerLayout(context);
         view = container;
@@ -72,10 +72,12 @@ public class SplitNavigationController extends Controller {
         setRightController(null);
     }
 
+    @Override
     public void setEmptyView(ViewGroup emptyView) {
         this.emptyView = emptyView;
     }
 
+    @Override
     public void setLeftController(Controller leftController) {
         if (this.leftController != null) {
             this.leftController.onHide();
@@ -91,6 +93,7 @@ public class SplitNavigationController extends Controller {
         }
     }
 
+    @Override
     public void setRightController(Controller rightController) {
         if (this.rightController != null) {
             this.rightController.onHide();
@@ -110,14 +113,32 @@ public class SplitNavigationController extends Controller {
         }
     }
 
+    @Override
+    public Controller getLeftController() {
+        return leftController;
+    }
+
+    @Override
+    public Controller getRightController() {
+        return rightController;
+    }
+
+    @Override
+    public void switchToController(boolean leftController) {
+        // both are always visible
+    }
+
+    @Override
     public boolean pushController(final Controller to) {
         return pushController(to, true);
     }
 
+    @Override
     public boolean pushController(final Controller to, boolean animated) {
         return pushController(to, animated ? new PushControllerTransition() : null);
     }
 
+    @Override
     public boolean pushController(Controller to, ControllerTransition controllerTransition) {
         if (popup == null) {
             popup = new PopupController(context);
@@ -132,14 +153,17 @@ public class SplitNavigationController extends Controller {
         return true;
     }
 
+    @Override
     public boolean popController() {
         return popController(true);
     }
 
+    @Override
     public boolean popController(boolean animated) {
         return popController(animated ? new PopControllerTransition() : null);
     }
 
+    @Override
     public boolean popController(ControllerTransition controllerTransition) {
         if (popup != null) {
             if (popupChild.childControllers.size() == 1) {

@@ -173,6 +173,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                             return false;
                         }
                     });
+                } else {
+                    presenter.onExit();
                 }
                 break;
             case SAVE_ID:
@@ -281,7 +283,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             navigationItem.title = postImage.filename + "." + postImage.extension;
         }
         navigationItem.subtitle = (index + 1) + "/" + count;
-        navigationItem.updateTitle();
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
     }
 
     public void scrollToImage(PostImage postImage) {

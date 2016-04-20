@@ -87,9 +87,9 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
         } else if (parentController instanceof PopupController && childControllers.size() == 1) {
             ((PopupController) parentController).dismiss();
             return true;
-        } else if (splitNavigationController != null && childControllers.size() == 1) {
-            if (splitNavigationController.rightController == this) {
-                splitNavigationController.setRightController(null);
+        } else if (doubleNavigationController != null && childControllers.size() == 1) {
+            if (doubleNavigationController.getRightController() == this) {
+                doubleNavigationController.setRightController(null);
                 return true;
             } else {
                 return false;
@@ -110,9 +110,10 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
     private DrawerController getDrawerController() {
         if (parentController instanceof DrawerController) {
             return (DrawerController) parentController;
-        } else if (splitNavigationController != null) {
-            if (splitNavigationController.parentController instanceof DrawerController) {
-                return (DrawerController) splitNavigationController.parentController;
+        } else if (doubleNavigationController != null) {
+            Controller doubleNav = (Controller) doubleNavigationController;
+            if (doubleNav.parentController instanceof DrawerController) {
+                return (DrawerController) doubleNav.parentController;
             }
         }
         return null;

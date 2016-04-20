@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -51,6 +52,7 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+import static org.floens.chan.utils.AndroidUtils.removeFromParentView;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class Toolbar extends LinearLayout implements View.OnClickListener {
@@ -90,7 +92,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
     private boolean transitioning = false;
     private NavigationItem fromItem;
+    private LinearLayout fromView;
     private NavigationItem toItem;
+    private LinearLayout toView;
 
     public Toolbar(Context context) {
         super(context);
@@ -105,6 +109,11 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     public Toolbar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return transitioning || super.dispatchTouchEvent(ev);
     }
 
     public int getToolbarHeight() {
@@ -189,7 +198,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         attachNavigationItem(newItem);
 
-        navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        navigationItemContainer.addView(toView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
         transitioning = true;
     }
@@ -203,12 +212,12 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         final int offset = dp(16);
 
-        toItem.view.setTranslationY((pushing ? offset : -offset) * (1f - progress));
-        toItem.view.setAlpha(progress);
+        toView.setTranslationY((pushing ? offset : -offset) * (1f - progress));
+        toView.setAlpha(progress);
 
         if (fromItem != null) {
-            fromItem.view.setTranslationY((pushing ? -offset : offset) * progress);
-            fromItem.view.setAlpha(1f - progress);
+            fromView.setTranslationY((pushing ? -offset : offset) * progress);
+            fromView.setAlpha(1f - progress);
         }
 
         float arrowEnd = toItem.hasBack || toItem.search ? 1f : 0f;
@@ -226,17 +235,20 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             if (fromItem != null) {
                 // From a search otherwise
                 if (fromItem != toItem) {
-                    removeNavigationItem(fromItem);
+                    removeNavigationItem(fromItem, fromView);
+                    fromView = null;
                 }
             }
             setArrowMenuProgress(toItem.hasBack || toItem.search ? 1f : 0f);
         } else {
-            removeNavigationItem(toItem);
+            removeNavigationItem(toItem, toView);
             setArrowMenuProgress(fromItem.hasBack || fromItem.search ? 1f : 0f);
             toItem = fromItem;
+            toView = fromView;
         }
 
         fromItem = null;
+        fromView = null;
         transitioning = false;
     }
 
@@ -259,15 +271,16 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         return arrowMenuDrawable;
     }
 
-    void setTitle(NavigationItem navigationItem) {
-        if (navigationItem.view != null) {
-            TextView titleView = (TextView) navigationItem.view.findViewById(R.id.title);
+    public void updateTitle(NavigationItem navigationItem) {
+        LinearLayout view = navigationItem == fromItem ? fromView : (navigationItem == toItem ? toView : null);
+        if (view != null) {
+            TextView titleView = (TextView) view.findViewById(R.id.title);
             if (titleView != null) {
                 titleView.setText(navigationItem.title);
             }
 
             if (!TextUtils.isEmpty(navigationItem.subtitle)) {
-                TextView subtitleView = (TextView) navigationItem.view.findViewById(R.id.subtitle);
+                TextView subtitleView = (TextView) view.findViewById(R.id.subtitle);
                 if (subtitleView != null) {
                     subtitleView.setText(navigationItem.subtitle);
                 }
@@ -344,14 +357,14 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
                     navigationItemContainer.setListener(null);
                 }
             });
-            navigationItemContainer.setView(toItem.view, animate);
+            navigationItemContainer.setView(toView, animate);
 
             animateArrow(toItem.hasBack || toItem.search);
         } else {
-            navigationItemContainer.addView(toItem.view, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            navigationItemContainer.addView(toView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
             if (animate) {
-                toItem.view.setAlpha(0f);
+                toView.setAlpha(0f);
 
                 ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
                 animator.setDuration(300);
@@ -385,25 +398,22 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
 
         fromItem = toItem;
+        fromView = toView;
         toItem = newItem;
+        toView = createNavigationItemView(toItem);
 
         if (!toItem.search) {
             AndroidUtils.hideKeyboard(navigationItemContainer);
         }
-
-        toItem.toolbar = this;
-        toItem.view = createNavigationItemView(toItem);
     }
 
-    private void removeNavigationItem(NavigationItem item) {
+    private void removeNavigationItem(NavigationItem item, LinearLayout view) {
         if (!transitioning) {
             throw new IllegalStateException("removeNavigationItem called while not transitioning");
         }
 
-        item.view.removeAllViews();
-        navigationItemContainer.removeView(item.view);
-        item.view = null;
-        item.toolbar = null;
+        view.removeAllViews();
+        navigationItemContainer.removeView(view);
     }
 
     private LinearLayout createNavigationItemView(final NavigationItem item) {
@@ -471,11 +481,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             }
 
             if (item.rightView != null) {
+                removeFromParentView(item.rightView);
                 item.rightView.setPadding(0, 0, dp(16), 0);
                 menu.addView(item.rightView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
             }
 
             if (item.menu != null) {
+                removeFromParentView(item.menu);
                 menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
             }
 

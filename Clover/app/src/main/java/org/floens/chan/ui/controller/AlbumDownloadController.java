@@ -168,7 +168,7 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
 
     private void updateTitle() {
         navigationItem.title = context.getString(R.string.album_download_screen, getCheckCount(), items.size());
-        navigationItem.updateTitle();
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
     }
 
     private void updateAllChecked() {

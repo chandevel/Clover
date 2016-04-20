@@ -358,6 +358,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_layout_mode">Layout mode</string>
     <string name="setting_layout_mode_auto">Auto</string>
     <string name="setting_layout_mode_phone">Phone layout</string>
+    <string name="setting_layout_mode_slide">Slide mode</string>
     <string name="setting_layout_mode_split">Split mode</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_default">(default)</string>

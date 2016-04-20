@@ -120,7 +120,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     public void onMenuClicked() {
-        if (getStyledToolbarNavigationController().getTop().navigationItem.hasDrawer) {
+        if (getMainToolbarNavigationController().getTop().navigationItem.hasDrawer) {
             drawerLayout.openDrawer(drawer);
         }
     }
@@ -138,12 +138,8 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     @Override
     public void onPinClicked(Pin pin) {
         drawerLayout.closeDrawer(Gravity.LEFT);
-
-        StyledToolbarNavigationController navigationController = getStyledToolbarNavigationController();
-        if (navigationController.getTop() instanceof ThreadController) {
-            ThreadController threadController = (ThreadController) navigationController.getTop();
-            threadController.openPin(pin);
-        }
+        ThreadController threadController = getTopThreadController();
+        threadController.openPin(pin);
     }
 
     @Override
@@ -277,7 +273,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         }
 
         if (getTop() != null) {
-            getStyledToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(count, color);
+            getMainToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(count, color);
         }
     }
 
@@ -285,29 +281,45 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         Controller top = getTop();
         if (top instanceof NavigationController) {
             ((NavigationController) top).pushController(controller);
-        } else if (top instanceof SplitNavigationController) {
-            ((SplitNavigationController) top).pushController(controller);
+        } else if (top instanceof DoubleNavigationController) {
+            ((DoubleNavigationController) top).pushController(controller);
         }
 
         drawerLayout.closeDrawer(Gravity.LEFT);
     }
 
-    private StyledToolbarNavigationController getStyledToolbarNavigationController() {
-        StyledToolbarNavigationController navigationController = null;
+    private ThreadController getTopThreadController() {
+        ToolbarNavigationController nav = getMainToolbarNavigationController();
+        if (nav.getTop() instanceof ThreadController) {
+            return (ThreadController) nav.getTop();
+        } else if (nav.getTop() instanceof ThreadSlideController) {
+            ThreadSlideController slideNav = (ThreadSlideController) nav.getTop();
+            if (slideNav.leftController instanceof ThreadController) {
+                return (ThreadController) slideNav.leftController;
+            }
+        }
+        throw new IllegalStateException();
+    }
+
+    private ToolbarNavigationController getMainToolbarNavigationController() {
+        ToolbarNavigationController navigationController = null;
 
         Controller top = getTop();
         if (top instanceof StyledToolbarNavigationController) {
             navigationController = (StyledToolbarNavigationController) top;
         } else if (top instanceof SplitNavigationController) {
-            SplitNavigationController splitNavigationController = (SplitNavigationController) top;
-            if (splitNavigationController.leftController instanceof StyledToolbarNavigationController) {
-                navigationController = (StyledToolbarNavigationController) splitNavigationController.leftController;
+            SplitNavigationController splitNav = (SplitNavigationController) top;
+            if (splitNav.getLeftController() instanceof StyledToolbarNavigationController) {
+                navigationController = (StyledToolbarNavigationController) splitNav.getLeftController();
             }
+        } else if (top instanceof ThreadSlideController) {
+            ThreadSlideController slideNav = (ThreadSlideController) top;
+            navigationController = (StyledToolbarNavigationController) slideNav.leftController;
         }
 
         if (navigationController == null) {
             throw new IllegalStateException("The child controller of a DrawerController must either be StyledToolbarNavigationController" +
-                    "or an SplitNavigationController that has a StyledToolbarNavigationController.");
+                    "or an DoubleNavigationController that has a ToolbarNavigationController.");
         }
 
         return navigationController;

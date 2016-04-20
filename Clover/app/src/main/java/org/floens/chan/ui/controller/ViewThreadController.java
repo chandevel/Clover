@@ -145,7 +145,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             presenter.bindLoadable(loadable);
             this.loadable = presenter.getLoadable();
             navigationItem.title = loadable.title;
-            navigationItem.updateTitle();
+            ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
             setPinIconState(presenter.isPinned());
             updateDrawerHighlighting(loadable);
             updateLeftPaneHighlighting(loadable);
@@ -165,7 +165,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         super.onShowPosts();
 
         navigationItem.title = loadable.title;
-        navigationItem.updateTitle();
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
     }
 
     @Override
@@ -221,27 +221,31 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         if (navigationController.parentController instanceof DrawerController) {
             ((DrawerController) navigationController.parentController).setPinHighlighted(pin);
-        } else if (splitNavigationController != null) {
-            if (splitNavigationController.parentController instanceof DrawerController) {
-                ((DrawerController) splitNavigationController.parentController).setPinHighlighted(pin);
+        } else if (doubleNavigationController != null) {
+            Controller doubleNav = (Controller) doubleNavigationController;
+            if (doubleNav.parentController instanceof DrawerController) {
+                ((DrawerController) doubleNav.parentController).setPinHighlighted(pin);
             }
         }
     }
 
     private void updateLeftPaneHighlighting(Loadable loadable) {
-        if (splitNavigationController != null) {
-            if (splitNavigationController.leftController instanceof NavigationController) {
-                NavigationController leftNavigationController = (NavigationController) splitNavigationController.leftController;
-                ThreadController threadController = null;
+        if (doubleNavigationController != null) {
+            ThreadController threadController = null;
+            Controller leftController = doubleNavigationController.getLeftController();
+            if (leftController instanceof ThreadController) {
+                threadController = (ThreadController) leftController;
+            } else if (leftController instanceof NavigationController) {
+                NavigationController leftNavigationController = (NavigationController) leftController;
                 for (Controller controller : leftNavigationController.childControllers) {
                     if (controller instanceof ThreadController) {
                         threadController = (ThreadController) controller;
                         break;
                     }
                 }
-                if (threadController != null) {
-                    threadController.selectPost(loadable != null ? loadable.no : -1);
-                }
+            }
+            if (threadController != null) {
+                threadController.selectPost(loadable != null ? loadable.no : -1);
             }
         }
     }

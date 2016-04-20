@@ -123,7 +123,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
     }
 
     protected void updateToolbarCollapse(Controller controller, boolean animate) {
-        if (!controller.navigationItem.collapseToolbar) {
+        if (!controller.navigationItem.handlesToolbarInset) {
             FrameLayout.LayoutParams toViewParams = (FrameLayout.LayoutParams) controller.view.getLayoutParams();
             toViewParams.topMargin = toolbar.getToolbarHeight();
             controller.view.setLayoutParams(toViewParams);
