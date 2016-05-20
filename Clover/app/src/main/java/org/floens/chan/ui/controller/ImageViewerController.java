@@ -277,7 +277,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     public void setTitle(PostImage postImage, int index, int count, boolean spoiler) {
-        if (spoiler) {
+        if (spoiler && !ChanSettings.revealImageSpoilers.get()) {
             navigationItem.title = getString(R.string.image_spoiler_filename);
         } else {
             navigationItem.title = postImage.filename + "." + postImage.extension;

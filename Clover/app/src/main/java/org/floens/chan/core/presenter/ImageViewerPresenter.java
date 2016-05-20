@@ -187,7 +187,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
 
-        if (imageAutoLoad(postImage) && !postImage.spoiler) {
+        if (imageAutoLoad(postImage) && (!postImage.spoiler || ChanSettings.revealImageSpoilers.get())) {
             if (postImage.type == PostImage.Type.STATIC) {
                 callback.setImageMode(postImage, MultiImageView.Mode.BIGIMAGE);
             } else if (postImage.type == PostImage.Type.GIF) {
