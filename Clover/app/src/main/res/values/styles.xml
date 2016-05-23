@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="text_color_primary">#DE000000</item>
         <item name="text_color_secondary">#89000000</item>
         <item name="text_color_hint">#42000000</item>
+        <item name="text_color_reveal_spoiler">#ffffffff</item>
 
         <item name="post_name_color">#ff117743</item>
         <item name="post_subject_color">#ff0F0C5D</item>

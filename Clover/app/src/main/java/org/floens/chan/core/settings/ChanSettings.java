@@ -117,6 +117,7 @@ public class ChanSettings {
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting showAnonymousName;
+    public static final BooleanSetting revealTextSpoilers;
     public static final BooleanSetting repliesButtonsBottom;
     public static final BooleanSetting confirmExit;
     public static final BooleanSetting tapNoReply;
@@ -205,6 +206,7 @@ public class ChanSettings {
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         showAnonymousName = new BooleanSetting(p, "preference_show_anonymous_name", false);
+        revealTextSpoilers = new BooleanSetting(p, "preference_reveal_text_spoilers", false);
         repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);
         confirmExit = new BooleanSetting(p, "preference_confirm_exit", false);
         tapNoReply = new BooleanSetting(p, "preference_tap_no_reply", false);

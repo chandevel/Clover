@@ -22,6 +22,7 @@ import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.theme.Theme;
 
@@ -41,7 +42,7 @@ public class PostLinkable extends ClickableSpan {
     public final Object value;
     public final Type type;
 
-    private boolean spoilerVisible = false;
+    private boolean spoilerVisible = ChanSettings.revealTextSpoilers.get();
     private int markedNo = -1;
 
     public PostLinkable(Theme theme, Post post, String key, Object value, Type type) {
@@ -78,10 +79,12 @@ public class PostLinkable extends ClickableSpan {
 
             ds.setUnderlineText(true);
         } else if (type == Type.SPOILER) {
+            ds.bgColor = theme.spoilerColor;
+            ds.setUnderlineText(false);
             if (!spoilerVisible) {
                 ds.setColor(theme.spoilerColor);
-                ds.bgColor = theme.spoilerColor;
-                ds.setUnderlineText(false);
+            } else {
+                ds.setColor(theme.textColorRevealSpoiler);
             }
         }
     }
