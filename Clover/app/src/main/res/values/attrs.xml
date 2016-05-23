@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="text_color_primary" format="color" />
     <attr name="text_color_secondary" format="color" />
     <attr name="text_color_hint" format="color" />
+    <attr name="text_color_reveal_spoiler" format="color" />
 
     <attr name="backcolor" format="color" />
     <attr name="backcolor_secondary" format="color" />
