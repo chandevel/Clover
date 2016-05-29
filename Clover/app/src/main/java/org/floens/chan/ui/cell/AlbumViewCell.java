@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -62,7 +63,7 @@ public class AlbumViewCell extends FrameLayout {
         int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
         thumbnailView.setPostImage(postImage, thumbnailSize, thumbnailSize);
 
-        String filename = postImage.spoiler ? getString(R.string.image_spoiler_filename) : postImage.filename + "." + postImage.extension;
+        String filename = postImage.spoiler && !ChanSettings.revealImageSpoilers.get() ? getString(R.string.image_spoiler_filename) : postImage.filename + "." + postImage.extension;
         String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight +
                 " " + AndroidUtils.getReadableFileSize(postImage.size, false);
         text.setText(details);

@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.settings.ChanSettings;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
@@ -162,7 +163,7 @@ public class Post {
             imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
             filename = Parser.unescapeEntities(filename, false);
 
-            if (spoiler) {
+            if (spoiler && !ChanSettings.revealImageSpoilers.get()) {
                 Board b = Chan.getBoardManager().getBoardByCode(board);
                 if (b != null && b.customSpoilers >= 0) {
                     thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);

@@ -123,6 +123,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.anonymize, R.string.setting_anonymize, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, R.string.setting_anonymize_ids, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.showAnonymousName, R.string.setting_show_anonymous_name, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.revealImageSpoilers, R.string.settings_reveal_image_spoilers, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.repliesButtonsBottom, R.string.setting_buttons_bottom, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.confirmExit, R.string.setting_confirm_exit, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.tapNoReply, R.string.setting_tap_no_rely, 0));
