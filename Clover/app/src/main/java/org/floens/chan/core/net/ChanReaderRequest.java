@@ -30,6 +30,7 @@ import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -410,7 +411,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                     post.images = reader.nextInt();
                     break;
                 case "spoiler":
-                    post.spoiler = reader.nextInt() == 1;
+                    post.spoiler = reader.nextInt() == 1 && !ChanSettings.revealImageSpoilers.get();
                     break;
                 case "unique_ips":
                     post.uniqueIps = reader.nextInt();

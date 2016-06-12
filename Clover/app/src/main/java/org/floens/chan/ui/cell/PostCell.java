@@ -373,7 +373,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
             boolean postFileName = ChanSettings.postFilename.get();
             if (postFileName) {
-                String filename = image.spoiler && !ChanSettings.revealImageSpoilers.get() ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
+                String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
                 SpannableString fileInfo = new SpannableString("\n" + filename);
                 fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
