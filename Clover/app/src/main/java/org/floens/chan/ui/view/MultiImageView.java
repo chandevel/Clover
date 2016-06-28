@@ -241,7 +241,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         else {
             image.setImage(ImageSource.uri(file.getAbsolutePath()));
         }
-
+        image.setOnClickListener(MultiImageView.this);
         addView(image, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         image.setCallback(new CustomScaleImageView.Callback() {
 

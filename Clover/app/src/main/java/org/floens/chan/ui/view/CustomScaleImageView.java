@@ -19,7 +19,7 @@ package org.floens.chan.ui.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
+
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
