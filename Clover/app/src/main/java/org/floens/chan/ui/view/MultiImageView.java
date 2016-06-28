@@ -25,7 +25,6 @@ import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -248,11 +247,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             @Override
             public void onReady() {
-                if (!hasContent || mode == Mode.BIGIMAGE ) {
+                if (!hasContent || mode == Mode.BIGIMAGE) {
                     callback.showProgress(MultiImageView.this, false);
                     onModeLoaded(Mode.BIGIMAGE, image);
                 }
-                else if (!hasContent || mode == Mode.GIF ) {
+                else if (!hasContent || mode == Mode.GIF) {
                     callback.showProgress(MultiImageView.this, false);
                     onModeLoaded(Mode.GIF, image);
                 }
@@ -320,8 +319,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             return;
         }
         if(drawable.getNumberOfFrames() == 1){
+            drawable.recycle();
             setBigImageFile(file);
-
         }
         else {
             GifImageView view = new GifImageView(getContext());
