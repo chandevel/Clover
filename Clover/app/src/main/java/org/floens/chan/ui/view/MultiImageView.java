@@ -20,9 +20,12 @@ package org.floens.chan.ui.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -72,6 +75,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private VideoView videoView;
     private boolean videoError = false;
+
+
 
     public MultiImageView(Context context) {
         super(context);
@@ -197,11 +202,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
             return;
         }
-
         if (bigImageRequest != null) {
             return;
         }
-
         callback.showProgress(this, true);
         bigImageRequest = Chan.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
@@ -232,17 +235,26 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setBigImageFile(File file) {
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
-        image.setImage(ImageSource.uri(file.getAbsolutePath()));
-        image.setOnClickListener(MultiImageView.this);
+        if(mode == Mode.GIF) {
+            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath()); //had to preconvert to bitmap as just sending the file gives an error
+            image.setImage(ImageSource.bitmap(bitmap));
+        }
+        else {
+            image.setImage(ImageSource.uri(file.getAbsolutePath()));
+        }
 
         addView(image, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
         image.setCallback(new CustomScaleImageView.Callback() {
+
             @Override
             public void onReady() {
-                if (!hasContent || mode == Mode.BIGIMAGE) {
+                if (!hasContent || mode == Mode.BIGIMAGE ) {
                     callback.showProgress(MultiImageView.this, false);
                     onModeLoaded(Mode.BIGIMAGE, image);
+                }
+                else if (!hasContent || mode == Mode.GIF ) {
+                    callback.showProgress(MultiImageView.this, false);
+                    onModeLoaded(Mode.GIF, image);
                 }
             }
 
@@ -294,7 +306,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setGifFile(File file) {
-        GifDrawable drawable;
+       GifDrawable drawable;
         try {
             drawable = new GifDrawable(file.getAbsolutePath());
         } catch (IOException e) {
@@ -307,10 +319,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             onOutOfMemoryError();
             return;
         }
+        if(drawable.getNumberOfFrames() == 1){
+            setBigImageFile(file);
 
-        GifImageView view = new GifImageView(getContext());
-        view.setImageDrawable(drawable);
-        onModeLoaded(Mode.GIF, view);
+        }
+        else {
+            GifImageView view = new GifImageView(getContext());
+            view.setImageDrawable(drawable);
+            onModeLoaded(Mode.GIF, view);
+        }
     }
 
     public void setVideo(String videoUrl) {

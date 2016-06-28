@@ -19,22 +19,26 @@ package org.floens.chan.ui.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import org.floens.chan.utils.Logger;
 
 public class CustomScaleImageView extends SubsamplingScaleImageView {
+
     private static final String TAG = "CustomScaleImageView";
 
     private Callback callback;
 
     public CustomScaleImageView(Context context, AttributeSet attr) {
+
         super(context, attr);
         init();
     }
 
     public CustomScaleImageView(Context context) {
+
         super(context);
         init();
     }
@@ -49,12 +53,10 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
             public void onReady() {
                 float scale = Math.min(getWidth() / (float) getSWidth(), getHeight() / (float) getSHeight());
                 setMinScale(scale);
-
                 if (getMaxScale() < scale * 2f) {
                     setMaxScale(scale * 2f);
                 }
                 setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
-
                 if (callback != null) {
                     callback.onReady();
                 }
