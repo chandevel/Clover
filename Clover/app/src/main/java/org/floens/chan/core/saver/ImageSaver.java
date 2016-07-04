@@ -49,6 +49,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
     private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
     private static final ImageSaver instance = new ImageSaver();
+    public static final int MAX_RENAME_TRIES = 500;
 
     private NotificationManager notificationManager;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -247,7 +248,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
         int index = 0;
         int tries = 0;
-        while (test.exists() && tries++ < 100) {
+        while (test.exists() && tries++ < MAX_RENAME_TRIES) {
             if (directory) {
                 test = new File(base + "_" + index);
             } else {
