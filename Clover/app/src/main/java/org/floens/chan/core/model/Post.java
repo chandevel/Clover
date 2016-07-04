@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -104,9 +106,9 @@ public class Post {
 
 
     /**
-     * This post replies to the these ids. Is an unmodifiable list after finish().
+     * This post replies to the these ids. Is an unmodifiable set after finish().
      */
-    public List<Integer> repliesTo = new ArrayList<>();
+    public Set<Integer> repliesTo = new TreeSet<>();
 
     public final ArrayList<PostLinkable> linkables = new ArrayList<>();
 
@@ -182,7 +184,7 @@ public class Post {
 
         ChanParser.getInstance().parse(this);
 
-        repliesTo = Collections.unmodifiableList(repliesTo);
+        repliesTo = Collections.unmodifiableSet(repliesTo);
 
         return true;
     }
