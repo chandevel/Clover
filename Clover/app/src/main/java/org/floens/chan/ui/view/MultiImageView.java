@@ -154,7 +154,18 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return bigImage;
     }
 
-    public void setThumbnail(String thumbnailUrl) {
+    @Override
+    public void onClick(View v) {
+        callback.onTap(this);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        cancelLoad();
+    }
+
+    private void setThumbnail(String thumbnailUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
             return;
@@ -192,7 +203,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
     }
 
-    public void setBigImage(String imageUrl) {
+    private void setBigImage(String imageUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading big image");
             return;
@@ -230,30 +241,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         });
     }
 
-    public void setBigImageFile(File file) {
-        final CustomScaleImageView image = new CustomScaleImageView(getContext());
-        image.setImage(ImageSource.uri(file.getAbsolutePath()));
-        image.setOnClickListener(MultiImageView.this);
-
-        addView(image, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-        image.setCallback(new CustomScaleImageView.Callback() {
-            @Override
-            public void onReady() {
-                if (!hasContent || mode == Mode.BIGIMAGE) {
-                    callback.showProgress(MultiImageView.this, false);
-                    onModeLoaded(Mode.BIGIMAGE, image);
-                }
-            }
-
-            @Override
-            public void onError(boolean wasInitial) {
-                onBigImageError(wasInitial);
-            }
-        });
+    private void setBigImageFile(File file) {
+        setBitImageFileInternal(file, true, Mode.BIGIMAGE);
     }
 
-    public void setGif(String gifUrl) {
+    private void setGif(String gifUrl) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
             return;
@@ -293,10 +285,19 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         });
     }
 
-    public void setGifFile(File file) {
+    private void setGifFile(File file) {
         GifDrawable drawable;
         try {
             drawable = new GifDrawable(file.getAbsolutePath());
+
+            // For single frame gifs, use the scaling image instead
+            // The region decoder doesn't work for gifs, so we unfortunately
+            // have to use the more memory intensive non tiling mode.
+            if (drawable.getNumberOfFrames() == 1) {
+                drawable.recycle();
+                setBitImageFileInternal(file, false, Mode.GIF);
+                return;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             onError();
@@ -313,7 +314,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         onModeLoaded(Mode.GIF, view);
     }
 
-    public void setVideo(String videoUrl) {
+    private void setVideo(String videoUrl) {
         if (videoRequest != null) {
             return;
         }
@@ -348,7 +349,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         });
     }
 
-    public void setVideoFile(final File file) {
+    private void setVideoFile(final File file) {
         if (ChanSettings.videoOpenExternal.get()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "video/*");
@@ -399,6 +400,27 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
     }
 
+    private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
+        final CustomScaleImageView image = new CustomScaleImageView(getContext());
+        image.setImage(ImageSource.uri(file.getAbsolutePath()).tiling(tiling));
+        image.setOnClickListener(MultiImageView.this);
+        addView(image, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        image.setCallback(new CustomScaleImageView.Callback() {
+            @Override
+            public void onReady() {
+                if (!hasContent || mode == forMode) {
+                    callback.showProgress(MultiImageView.this, false);
+                    onModeLoaded(Mode.BIGIMAGE, image);
+                }
+            }
+
+            @Override
+            public void onError(boolean wasInitial) {
+                onBigImageError(wasInitial);
+            }
+        });
+    }
+
     private void onError() {
         Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
         callback.showProgress(this, false);
@@ -421,7 +443,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
     }
 
-    public void cancelLoad() {
+    private void cancelLoad() {
         if (thumbnailRequest != null) {
             thumbnailRequest.cancelRequest();
             thumbnailRequest = null;
@@ -438,17 +460,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             videoRequest.cancel();
             videoRequest = null;
         }
-    }
-
-    @Override
-    public void onClick(View v) {
-        callback.onTap(this);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        cancelLoad();
     }
 
     private void onModeLoaded(Mode mode, View view) {
