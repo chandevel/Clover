@@ -43,30 +43,32 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
+    public static final int MAX_RENAME_TRIES = 500;
     private static final String TAG = "ImageSaver";
     private static final int NOTIFICATION_ID = 3;
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
     private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
     private static final ImageSaver instance = new ImageSaver();
-    public static final int MAX_RENAME_TRIES = 500;
-
     private NotificationManager notificationManager;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private int doneTasks = 0;
     private int totalTasks = 0;
     private Toast toast;
-
-    public static ImageSaver getInstance() {
-        return instance;
-    }
+    private String Board_Name;
 
     private ImageSaver() {
         EventBus.getDefault().register(this);
         notificationManager = (NotificationManager) getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
-    public void startDownloadTask(Context context, final ImageSaveTask task) {
+    public static ImageSaver getInstance() {
+        return instance;
+    }
+
+    public void startDownloadTask(Context context, final ImageSaveTask task, String board) {
+
+        Board_Name = board;
         PostImage postImage = task.getPostImage();
         String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
@@ -123,7 +125,12 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     public File getSaveLocation() {
-        return new File(ChanSettings.saveLocation.get());
+        if (ChanSettings.saveBoardFolder.get()) {
+            return new File(ChanSettings.saveLocation.get() + File.separator + Board_Name
+            );
+        } else {
+            return new File(ChanSettings.saveLocation.get());
+        }
     }
 
     @Override
