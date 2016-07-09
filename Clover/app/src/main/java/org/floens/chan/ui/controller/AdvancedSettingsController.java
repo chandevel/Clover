@@ -134,6 +134,8 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.postFilename, R.string.setting_post_filename, 0));
         neverHideToolbar = settings.add(new BooleanSettingView(this, ChanSettings.neverHideToolbar, R.string.setting_never_hide_toolbar, 0));
 
+        settings.add(new BooleanSettingView(this, ChanSettings.saveBoardFolder, R.string.setting_save_board_folder, 0));
+
         groups.add(settings);
 
         SettingsGroup proxy = new SettingsGroup(R.string.settings_group_proxy);
