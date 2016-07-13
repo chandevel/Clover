@@ -17,15 +17,15 @@
  */
 package org.floens.chan.core.http;
 
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import org.floens.chan.chan.ChanUrls;
 
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.List;
+
+import okhttp3.FormBody;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class PassHttpCall extends HttpCall {
     public boolean success;
@@ -42,7 +42,7 @@ public class PassHttpCall extends HttpCall {
 
     @Override
     public void setup(Request.Builder requestBuilder) {
-        FormEncodingBuilder formBuilder = new FormEncodingBuilder();
+        FormBody.Builder formBuilder = new FormBody.Builder();
 
         formBuilder.add("act", "do_login");
 

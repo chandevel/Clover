@@ -19,12 +19,6 @@ package org.floens.chan.core.http;
 
 import android.text.TextUtils;
 
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.Reply;
 import org.jsoup.Jsoup;
@@ -33,6 +27,12 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class ReplyHttpCall extends HttpCall {
     private static final String TAG = "ReplyHttpCall";
@@ -59,8 +59,8 @@ public class ReplyHttpCall extends HttpCall {
 
         password = Long.toHexString(RANDOM.nextLong());
 
-        MultipartBuilder formBuilder = new MultipartBuilder();
-        formBuilder.type(MultipartBuilder.FORM);
+        MultipartBody.Builder formBuilder = new MultipartBody.Builder();
+        formBuilder.setType(MultipartBody.FORM);
 
         formBuilder.addFormDataPart("mode", "regist");
         formBuilder.addFormDataPart("pwd", password);
