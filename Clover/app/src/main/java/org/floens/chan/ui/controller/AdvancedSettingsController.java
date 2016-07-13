@@ -17,26 +17,19 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.app.Activity;
 import android.content.Context;
-import android.support.v7.app.AlertDialog;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
-import org.floens.chan.ui.fragment.FolderPickFragment;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.IntegerSettingView;
-import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.SettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
 import org.floens.chan.ui.settings.StringSettingView;
-
-import java.io.File;
 
 import de.greenrobot.event.EventBus;
 
@@ -44,7 +37,6 @@ public class AdvancedSettingsController extends SettingsController {
     private static final String TAG = "AdvancedSettingsController";
 
     private boolean needRestart;
-    private LinkSettingView saveLocation;
     private SettingView newCaptcha;
     private SettingView enableReplyFab;
     private SettingView neverHideToolbar;
@@ -93,27 +85,6 @@ public class AdvancedSettingsController extends SettingsController {
     private void populatePreferences() {
         SettingsGroup settings = new SettingsGroup(R.string.settings_group_advanced);
 
-        // TODO change this to a presenting controller
-        saveLocation = (LinkSettingView) settings.add(new LinkSettingView(this, R.string.setting_save_folder, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                File dir = new File(ChanSettings.saveLocation.get());
-                if (!dir.mkdirs() && !dir.isDirectory()) {
-                    new AlertDialog.Builder(context).setMessage(R.string.setting_save_folder_error_create_folder).show();
-                } else {
-                    FolderPickFragment frag = FolderPickFragment.newInstance(new FolderPickFragment.FolderPickListener() {
-                        @Override
-                        public void folderPicked(File path) {
-                            ChanSettings.saveLocation.set(path.getAbsolutePath());
-                            setSaveLocationDescription();
-                        }
-                    }, dir);
-                    ((Activity) context).getFragmentManager().beginTransaction().add(frag, null).commit();
-                }
-            }
-        }));
-        setSaveLocationDescription();
-
         newCaptcha = settings.add(new BooleanSettingView(this, ChanSettings.postNewCaptcha, R.string.setting_use_new_captcha, R.string.setting_use_new_captcha_description));
         settings.add(new BooleanSettingView(this, ChanSettings.saveOriginalFilename, R.string.setting_save_original_filename, 0));
         controllersSwipeable = settings.add(new BooleanSettingView(this, ChanSettings.controllerSwipeable, R.string.setting_controller_swipeable, 0));
@@ -141,9 +112,5 @@ public class AdvancedSettingsController extends SettingsController {
         proxy.add(new StringSettingView(this, ChanSettings.proxyAddress, R.string.setting_proxy_address, R.string.setting_proxy_address));
         proxy.add(new IntegerSettingView(this, ChanSettings.proxyPort, R.string.setting_proxy_port, R.string.setting_proxy_port));
         groups.add(proxy);
-    }
-
-    private void setSaveLocationDescription() {
-        saveLocation.setDescription(ChanSettings.saveLocation.get());
     }
 }
