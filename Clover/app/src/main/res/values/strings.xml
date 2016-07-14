@@ -411,7 +411,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setting_use_new_captcha">Use the new captcha</string>
     <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha.</string>
     <string name="setting_save_original_filename">Save original filename</string>
-    <string name="setting_save_board_folder">Save in board folder</string>
+    <string name="setting_save_board_folder">Save images in a board folder</string>
+    <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
     <string name="setting_share_url">Share url to image</string>
     <string name="setting_share_url_description">Share the url to the image instead of the image itself</string>
     <string name="setting_network_https">Use HTTPS</string>

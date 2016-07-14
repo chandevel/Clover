@@ -43,8 +43,8 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
-    public static final int MAX_RENAME_TRIES = 500;
     private static final String TAG = "ImageSaver";
+    private static final int MAX_RENAME_TRIES = 500;
     private static final int NOTIFICATION_ID = 3;
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
@@ -55,25 +55,21 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private int doneTasks = 0;
     private int totalTasks = 0;
     private Toast toast;
-    private String boardName;
 
+    public static ImageSaver getInstance() {
+        return instance;
+    }
 
     private ImageSaver() {
         EventBus.getDefault().register(this);
         notificationManager = (NotificationManager) getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
-    public static ImageSaver getInstance() {
-        return instance;
-    }
-
     public void startDownloadTask(Context context, final ImageSaveTask task) {
-
-        boardName = task.getBoardName();
         PostImage postImage = task.getPostImage();
         String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
-        task.setDestination(findUnusedFileName(new File(getSaveLocation(), fileName), false));
+        task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName), false));
 
 //        task.setMakeBitmap(true);
         task.setShowToast(true);
@@ -125,11 +121,13 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return filtered;
     }
 
-    public File getSaveLocation() {
-        if (ChanSettings.saveBoardFolder.get()) {
-            return new File(ChanSettings.saveLocation.get() + File.separator + boardName);
+    public File getSaveLocation(ImageSaveTask task) {
+        String base = ChanSettings.saveLocation.get();
+        String boardName = task.getSubFolder();
+        if (boardName != null) {
+            return new File(base + File.separator + boardName);
         } else {
-            return new File(ChanSettings.saveLocation.get());
+            return new File(base);
         }
     }
 
@@ -165,7 +163,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
             String fileName = filterName(postImage.originalName + "." + postImage.extension);
-            task.setDestination(new File(getSaveLocation() + File.separator + subFolder + File.separator + fileName));
+            task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder + File.separator + fileName));
 
             startTask(task);
         }

@@ -231,7 +231,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         } else {
             ImageSaveTask task = new ImageSaveTask(postImage);
             task.setShare(share);
-            task.setBoardName(presenter.getLoadable().board);
+            if (ChanSettings.saveBoardFolder.get()) {
+                task.setSubFolder(presenter.getLoadable().board);
+            }
             ImageSaver.getInstance().startDownloadTask(context, task);
         }
     }

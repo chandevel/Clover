@@ -50,14 +50,16 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     private boolean makeBitmap;
     private Bitmap bitmap;
     private boolean showToast;
-    private String boardName;
+    private String subFolder;
 
     private boolean success = false;
 
-    public void setBoardName(String boardName) {this.boardName = boardName;}
+    public void setSubFolder(String boardName) {
+        this.subFolder = boardName;
+    }
 
-    public String getBoardName() {
-        return boardName;
+    public String getSubFolder() {
+        return subFolder;
     }
 
     public ImageSaveTask(PostImage postImage) {

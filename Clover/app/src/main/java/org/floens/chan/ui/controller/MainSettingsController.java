@@ -272,6 +272,7 @@ public class MainSettingsController extends SettingsController implements Toolba
             }
         }));
         setSaveLocationDescription();
+        browsing.add(new BooleanSettingView(this, ChanSettings.saveBoardFolder, R.string.setting_save_board_folder, R.string.setting_save_board_folder_description));
         browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, R.string.setting_open_link_confirmation, 0));
         browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, R.string.setting_auto_refresh_thread, 0));
 
