@@ -99,6 +99,7 @@ public class Theme {
         fab.setBackgroundTintList(ColorStateList.valueOf(accentColor.color));
     }
 
+    @SuppressWarnings("ResourceType")
     private void resolveSpanColors() {
         Resources.Theme theme = AndroidUtils.getAppContext().getResources().newTheme();
         theme.applyStyle(R.style.Chan_Theme, true);

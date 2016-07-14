@@ -18,6 +18,7 @@
 package org.floens.chan.utils;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import java.lang.reflect.Field;
 
@@ -33,5 +34,17 @@ public class RecyclerUtils {
         } catch (Exception e) {
             Logger.e(TAG, "Error clearing RecyclerView cache with reflection", e);
         }
+    }
+
+    public static int[] getIndexAndTop(RecyclerView recyclerView) {
+        int index = 0, top = 0;
+        if (recyclerView.getLayoutManager().getChildCount() > 0) {
+            View topChild = recyclerView.getLayoutManager().getChildAt(0);
+            index = ((RecyclerView.LayoutParams) topChild.getLayoutParams()).getViewLayoutPosition();
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) topChild.getLayoutParams();
+            RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+            top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
+        }
+        return new int[]{index, top};
     }
 }

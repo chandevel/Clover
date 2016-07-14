@@ -42,6 +42,10 @@ public abstract class Setting<T> {
         return def;
     }
 
+    public String getKey() {
+        return key;
+    }
+
     public void addCallback(SettingCallback<T> callback) {
         this.callbacks.add(callback);
     }

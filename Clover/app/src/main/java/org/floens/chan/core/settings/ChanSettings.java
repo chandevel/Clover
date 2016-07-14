@@ -31,6 +31,8 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
+import de.greenrobot.event.EventBus;
+
 public class ChanSettings {
     public enum MediaAutoLoadMode implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
@@ -202,6 +204,12 @@ public class ChanSettings {
         developer = new BooleanSetting(p, "preference_developer", false);
 
         saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover");
+        saveLocation.addCallback(new Setting.SettingCallback<String>() {
+            @Override
+            public void onValueChange(Setting setting, String value) {
+                EventBus.getDefault().post(new SettingChanged<>(saveLocation));
+            }
+        });
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         networkHttps = new BooleanSetting(p, "preference_network_https", true);
@@ -344,6 +352,14 @@ public class ChanSettings {
             this.theme = theme;
             this.color = color;
             this.accentColor = accentColor;
+        }
+    }
+
+    public static class SettingChanged<T> {
+        public final Setting<T> setting;
+
+        public SettingChanged(Setting<T> setting) {
+            this.setting = setting;
         }
     }
 }

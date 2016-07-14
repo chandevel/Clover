@@ -17,10 +17,6 @@
  */
 package org.floens.chan.core.http;
 
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.SavedReply;
 import org.jsoup.Jsoup;
@@ -28,6 +24,10 @@ import org.jsoup.Jsoup;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.FormBody;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class DeleteHttpCall extends HttpCall {
     private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)<\\/span");
@@ -45,7 +45,7 @@ public class DeleteHttpCall extends HttpCall {
 
     @Override
     public void setup(Request.Builder requestBuilder) {
-        FormEncodingBuilder formBuilder = new FormEncodingBuilder();
+        FormBody.Builder formBuilder = new FormBody.Builder();
         formBuilder.add(Integer.toString(reply.no), "delete");
         if (onlyImageDelete) {
             formBuilder.add("onlyimgdel", "on");

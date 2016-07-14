@@ -27,7 +27,7 @@ import android.graphics.drawable.Drawable;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class ThumbDrawable extends Drawable {
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint paint = new Paint();
     private Path path = new Path();
     private int width;
     private int height;
@@ -38,7 +38,7 @@ public class ThumbDrawable extends Drawable {
 
         paint.setStrokeWidth(dp(2));
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeCap(Paint.Cap.BUTT);
         paint.setColor(0xff757575);
 
         path.reset();
@@ -47,7 +47,6 @@ public class ThumbDrawable extends Drawable {
             path.moveTo(dp(8), top);
             path.lineTo(getMinimumWidth() - dp(8), top);
         }
-        path.moveTo(0f, 0f);
         path.close();
     }
 

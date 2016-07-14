@@ -17,15 +17,16 @@
  */
 package org.floens.chan.core.http;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 
 import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public abstract class HttpCall implements Callback {
     private static final String TAG = "HttpCall";
@@ -51,14 +52,14 @@ public abstract class HttpCall implements Callback {
     }
 
     @Override
-    public void onResponse(Response response) {
+    public void onResponse(Call call, Response response) {
         try {
             if (response.isSuccessful() && response.body() != null) {
                 String responseString = response.body().string();
                 process(response, responseString);
                 successful = true;
             } else {
-                onFailure(response.request(), null);
+                onFailure(call, null);
             }
         } catch (IOException e) {
             Logger.e(TAG, "IOException processing response", e);
@@ -75,7 +76,7 @@ public abstract class HttpCall implements Callback {
     }
 
     @Override
-    public void onFailure(Request request, IOException e) {
+    public void onFailure(Call call, IOException e) {
         AndroidUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {

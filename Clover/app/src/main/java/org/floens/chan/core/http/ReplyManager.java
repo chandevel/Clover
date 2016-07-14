@@ -19,9 +19,6 @@ package org.floens.chan.core.http;
 
 import android.content.Context;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 
@@ -29,6 +26,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * To send an reply to 4chan.
@@ -46,10 +46,11 @@ public class ReplyManager {
         this.context = context;
         this.userAgent = userAgent;
 
-        client = new OkHttpClient();
-        client.setConnectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-        client.setReadTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-        client.setWriteTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
+        client = new OkHttpClient.Builder()
+                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .build();
     }
 
     public Reply getReply(Loadable loadable) {

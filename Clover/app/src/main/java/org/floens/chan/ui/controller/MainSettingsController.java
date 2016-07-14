@@ -64,6 +64,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
 
     private LinkSettingView boardEditorView;
+    private LinkSettingView saveLocation;
     private LinkSettingView watchLink;
     private LinkSettingView passLink;
     private int clickCount;
@@ -142,6 +143,12 @@ public class MainSettingsController extends SettingsController implements Toolba
 
     public void onEvent(BoardManager.BoardsChangedMessage message) {
         updateBoardLinkDescription();
+    }
+
+    public void onEvent(ChanSettings.SettingChanged setting) {
+        if (setting.setting == ChanSettings.saveLocation) {
+            setSaveLocationDescription();
+        }
     }
 
     @Override
@@ -258,6 +265,13 @@ public class MainSettingsController extends SettingsController implements Toolba
                 navigationController.pushController(new FiltersController(context));
             }
         }));
+        saveLocation = (LinkSettingView) browsing.add(new LinkSettingView(this, R.string.save_location_screen, 0, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigationController.pushController(new SaveLocationController(context));
+            }
+        }));
+        setSaveLocationDescription();
         browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, R.string.setting_open_link_confirmation, 0));
         browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, R.string.setting_auto_refresh_thread, 0));
 
@@ -408,6 +422,10 @@ public class MainSettingsController extends SettingsController implements Toolba
     private void updateBoardLinkDescription() {
         List<Board> savedBoards = Chan.getBoardManager().getSavedBoards();
         boardEditorView.setDescription(context.getResources().getQuantityString(R.plurals.board, savedBoards.size(), savedBoards.size()));
+    }
+
+    private void setSaveLocationDescription() {
+        saveLocation.setDescription(ChanSettings.saveLocation.get());
     }
 
     private void updateVideoLoadModes() {

@@ -17,14 +17,6 @@
  */
 package org.floens.chan.core.cache;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Protocol;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
-import com.squareup.okhttp.internal.Util;
-
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -45,6 +37,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okhttp3.internal.Util;
 import okio.BufferedSource;
 
 public class FileCache {
@@ -68,13 +67,13 @@ public class FileCache {
         this.maxSize = maxSize;
         this.userAgent = userAgent;
 
-        httpClient = new OkHttpClient();
-        httpClient.setConnectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-        httpClient.setReadTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-        httpClient.setWriteTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-
-        // Disable SPDY, causes reproducible timeouts, only one download at the same time and other fun stuff
-        httpClient.setProtocols(Collections.singletonList(Protocol.HTTP_1_1));
+        httpClient = new OkHttpClient.Builder()
+                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                // Disable SPDY, causes reproducible timeouts, only one download at the same time and other fun stuff
+                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
+                .build();
 
         makeDir();
         calculateSize();
@@ -428,9 +427,11 @@ public class FileCache {
                     .header("User-Agent", userAgent)
                     .build();
 
-            fileCache.httpClient.setProxy(ChanSettings.getProxy());
+            call = fileCache.httpClient.newBuilder()
+                    .proxy(ChanSettings.getProxy())
+                    .build()
+                    .newCall(request);
 
-            call = fileCache.httpClient.newCall(request);
             Response response = call.execute();
             if (!response.isSuccessful()) {
                 cancelDueToHttpError(response.code());
@@ -459,8 +460,6 @@ public class FileCache {
                     totalLast = total;
                     postProgress(total, contentLength <= 0 ? total : contentLength, false);
                 }
-
-                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
             }
 
             if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
