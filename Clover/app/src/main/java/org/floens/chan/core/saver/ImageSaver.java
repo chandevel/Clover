@@ -55,7 +55,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private int doneTasks = 0;
     private int totalTasks = 0;
     private Toast toast;
-    private String Board_Name;
+    private String boardName;
+
 
     private ImageSaver() {
         EventBus.getDefault().register(this);
@@ -66,9 +67,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return instance;
     }
 
-    public void startDownloadTask(Context context, final ImageSaveTask task, String board) {
+    public void startDownloadTask(Context context, final ImageSaveTask task) {
 
-        Board_Name = board;
+        boardName = task.getBoardName();
         PostImage postImage = task.getPostImage();
         String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
@@ -126,8 +127,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     public File getSaveLocation() {
         if (ChanSettings.saveBoardFolder.get()) {
-            return new File(ChanSettings.saveLocation.get() + File.separator + Board_Name
-            );
+            return new File(ChanSettings.saveLocation.get() + File.separator + boardName);
         } else {
             return new File(ChanSettings.saveLocation.get());
         }
