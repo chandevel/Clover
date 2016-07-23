@@ -136,10 +136,26 @@ public class AndroidUtils {
     }
 
     public static void openLinkInBrowser(Activity activity, String link) {
-        CustomTabsIntent intent = new CustomTabsIntent.Builder()
-                .setToolbarColor(theme().primaryColor.color)
-                .build();
-        intent.launchUrl(activity, Uri.parse(link));
+        // Hack that's sort of the same as openLink
+        // The link won't be opened in a custom tab if this app is the default handler for that link.
+        // Manually check if this app opens it instead of a custom tab, and use the logic of
+        // openLink to avoid that and show a chooser instead.
+        boolean openWithCustomTabs = true;
+        Intent urlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+        PackageManager pm = getAppContext().getPackageManager();
+        ComponentName resolvedActivity = urlIntent.resolveActivity(pm);
+        if (resolvedActivity != null) {
+            openWithCustomTabs = !resolvedActivity.getPackageName().equals(getAppContext().getPackageName());
+        }
+
+        if (openWithCustomTabs) {
+            CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder()
+                    .setToolbarColor(theme().primaryColor.color)
+                    .build();
+            tabsIntent.launchUrl(activity, Uri.parse(link));
+        } else {
+            openLink(link);
+        }
     }
 
     public static void shareLink(String link) {
