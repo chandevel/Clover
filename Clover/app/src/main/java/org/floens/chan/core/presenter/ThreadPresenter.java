@@ -628,11 +628,17 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         String text = "";
 
         if (post.hasImage) {
-            text += "File: " + post.filename + "." + post.ext + " \nDimensions: " + post.imageWidth + "x"
-                    + post.imageHeight + "\nSize: " + AndroidUtils.getReadableFileSize(post.fileSize, false) + "\n\n";
+            text += "Filename: " + post.filename + "." + post.ext + " \nDimensions: " + post.imageWidth + "x"
+                    + post.imageHeight + "\nSize: " + AndroidUtils.getReadableFileSize(post.fileSize, false);
+
+            if (post.spoiler) {
+                text += "\nSpoilered";
+            }
+
+            text += "\n\n";
         }
 
-        text += "Time: " + post.date;
+        text += "Date: " + post.date;
 
         if (!TextUtils.isEmpty(post.id)) {
             text += "\nId: " + post.id;
@@ -643,7 +649,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
 
         if (!TextUtils.isEmpty(post.countryName)) {
-            text += "\nCountry: " + post.countryName;
+            text += "\nCountry: " + post.country + ", " + post.countryName;
         }
 
         if (!TextUtils.isEmpty(post.capcode)) {
