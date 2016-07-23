@@ -19,13 +19,12 @@ package org.floens.chan.core.presenter;
 
 import android.text.TextUtils;
 
-import com.android.volley.VolleyError;
-
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.http.DeleteHttpCall;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
@@ -283,7 +282,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public void onChanLoaderError(VolleyError error) {
+    public void onChanLoaderError(ChanLoaderException error) {
         threadPresenterCallback.showError(error);
     }
 
@@ -682,7 +681,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         void postClicked(Post post);
 
-        void showError(VolleyError error);
+        void showError(ChanLoaderException error);
 
         void showLoading();
 

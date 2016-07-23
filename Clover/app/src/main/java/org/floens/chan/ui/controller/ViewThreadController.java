@@ -120,7 +120,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         setPinIconState();
         // Update title
         if (message.pin.loadable == loadable) {
-            threadLayout.getPresenter().refreshUI();
+            onShowPosts();
         }
     }
 

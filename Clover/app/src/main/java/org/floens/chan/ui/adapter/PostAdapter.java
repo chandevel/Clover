@@ -51,7 +51,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String highlightedPostId;
     private int highlightedPostNo = -1;
     private String highlightedPostTripcode;
-    private int selectedPost;
+    private int selectedPost = -1;
     private int lastSeenIndicatorPosition = -1;
     private boolean bound;
 
@@ -213,19 +213,23 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         highlightedPostId = null;
         highlightedPostNo = -1;
         highlightedPostTripcode = null;
+        selectedPost = -1;
         lastSeenIndicatorPosition = -1;
+        error = null;
         bound = false;
     }
 
     public void showError(String error) {
         this.error = error;
         if (showStatusView()) {
-            RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(getItemCount() - 1);
-            // Recyclerview did not sync yet
-            if (viewHolder instanceof StatusViewHolder) {
-                ThreadStatusCell threadStatusCell = ((StatusViewHolder) viewHolder).threadStatusCell;
-                threadStatusCell.setError(error);
-                threadStatusCell.update();
+            final int childCount = recyclerView.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = recyclerView.getChildAt(i);
+                if (child instanceof ThreadStatusCell) {
+                    ThreadStatusCell threadStatusCell = (ThreadStatusCell) child;
+                    threadStatusCell.setError(error);
+                    threadStatusCell.update();
+                }
             }
         }
     }

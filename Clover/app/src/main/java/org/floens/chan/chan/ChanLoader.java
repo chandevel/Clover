@@ -25,6 +25,7 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -241,8 +242,10 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
 
         clearTimer();
 
+        ChanLoaderException loaderException = new ChanLoaderException(error);
+
         for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderError(error);
+            l.onChanLoaderError(loaderException);
         }
     }
 
@@ -318,6 +321,6 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     public interface ChanLoaderCallback {
         void onChanLoaderData(ChanThread result);
 
-        void onChanLoaderError(VolleyError error);
+        void onChanLoaderError(ChanLoaderException error);
     }
 }

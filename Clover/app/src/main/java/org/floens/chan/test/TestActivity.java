@@ -25,11 +25,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.android.volley.VolleyError;
-
 import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -230,7 +229,7 @@ public class TestActivity extends Activity implements View.OnClickListener {
             }
 
             @Override
-            public void onChanLoaderError(VolleyError error) {
+            public void onChanLoaderError(ChanLoaderException error) {
 
             }
         });

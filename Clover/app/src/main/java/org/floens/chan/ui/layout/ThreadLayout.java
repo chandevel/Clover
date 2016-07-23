@@ -40,17 +40,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.ParseError;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -68,8 +62,6 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
-
-import javax.net.ssl.SSLException;
 
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
@@ -221,17 +213,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
-    public void showError(VolleyError error) {
-        String errorMessage;
-        if (error.getCause() instanceof SSLException) {
-            errorMessage = getContext().getString(R.string.thread_load_failed_ssl);
-        } else if (error instanceof NetworkError || error instanceof TimeoutError || error instanceof ParseError || error instanceof AuthFailureError) {
-            errorMessage = getContext().getString(R.string.thread_load_failed_network);
-        } else if (error instanceof ServerError) {
-            errorMessage = getContext().getString(R.string.thread_load_failed_server);
-        } else {
-            errorMessage = getContext().getString(R.string.thread_load_failed_parsing);
-        }
+    public void showError(ChanLoaderException error) {
+        String errorMessage = getString(error.getErrorMessage());
 
         if (visible == Visible.THREAD) {
             threadListLayout.showError(errorMessage);
@@ -343,7 +326,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     public void scrollTo(int displayPosition, boolean smooth) {
         if (postPopupHelper.isOpen()) {
             postPopupHelper.scrollTo(displayPosition, smooth);
-        } else {
+        } else if (visible == Visible.THREAD) {
             threadListLayout.scrollTo(displayPosition, smooth);
         }
     }

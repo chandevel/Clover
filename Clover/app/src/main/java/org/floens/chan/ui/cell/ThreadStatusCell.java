@@ -83,6 +83,9 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
     public void setError(String error) {
         this.error = error;
+        if (error == null) {
+            schedule();
+        }
     }
 
     public boolean update() {

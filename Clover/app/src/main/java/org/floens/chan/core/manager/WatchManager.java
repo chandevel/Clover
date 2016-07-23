@@ -26,12 +26,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 
-import com.android.volley.VolleyError;
-
 import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabasePinManager;
+import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -698,19 +697,14 @@ public class WatchManager {
             }
         }
 
-        /*private long getTimeUntilNextLoad() {
-            return chanLoader.getTimeUntilLoadMore();
-        }*/
-
-        /*public boolean isLoading() {
-            return chanLoader.isLoading();
-        }*/
-
         @Override
-        public void onChanLoaderError(VolleyError error) {
-            pin.isError = true;
-
-            pin.watching = false;
+        public void onChanLoaderError(ChanLoaderException error) {
+            // Ignore normal network errors, we only pause pins when there is absolutely no way
+            // we'll ever need watching again: a 404.
+            if (error.isNotFound()) {
+                pin.isError = true;
+                pin.watching = false;
+            }
 
             pinWatcherUpdated(this);
         }
