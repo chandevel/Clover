@@ -686,6 +686,7 @@ public class WatchManager {
             if (!pin.isError && pin.watching) {
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
+                    chanLoader.clearTimer();
                     chanLoader.requestMoreData();
                     return true;
                 } else {
