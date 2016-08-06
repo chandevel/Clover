@@ -323,7 +323,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             filterMatchColor.setVisibility(View.GONE);
         }
 
-        if (post.hasImage) {
+        if (post.hasImage && !ChanSettings.textOnly.get()) {
             thumbnailView.setVisibility(View.VISIBLE);
             thumbnailView.setPostImage(post.image, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
         } else {
