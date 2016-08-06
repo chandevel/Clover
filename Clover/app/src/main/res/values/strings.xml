@@ -390,6 +390,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setting_video_auto_load_description">Depends on auto load images</string>
     <string name="setting_video_open_external">Open videos external</string>
     <string name="setting_video_open_external_description">Open videos in an external media player</string>
+    <string name="setting_text_only">Text only mode</string>
+    <string name="setting_text_only_description">Hide images when in board and thread view</string>
     <string name="setting_clear_thread_hides">Clear all thread hides</string>
     <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
 

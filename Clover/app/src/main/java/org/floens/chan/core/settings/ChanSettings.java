@@ -100,6 +100,7 @@ public class ChanSettings {
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
     public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
     public static final BooleanSetting videoOpenExternal;
+    public static final BooleanSetting textOnly;
     public static final BooleanSetting videoErrorIgnore;
     public static final OptionsSetting<PostViewMode> boardViewMode;
     public static final IntegerSetting boardGridSpanCount;
@@ -191,6 +192,7 @@ public class ChanSettings {
         imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
         videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
+        textOnly = new BooleanSetting(p, "preference_text_only", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
         boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.values(), PostViewMode.LIST);
         boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);

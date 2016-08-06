@@ -72,6 +72,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     private SettingView fontView;
     private SettingView layoutModeView;
     private SettingView fontCondensed;
+    private SettingView textOnly;
     private SettingView gridColumnsView;
     private ToolbarMenuItem overflow;
 
@@ -172,6 +173,8 @@ public class MainSettingsController extends SettingsController implements Toolba
             EventBus.getDefault().post(new RefreshUIMessage("font"));
         } else if (item == gridColumnsView) {
             EventBus.getDefault().post(new RefreshUIMessage("gridcolumns"));
+        } else if (item == textOnly) {
+            EventBus.getDefault().post(new RefreshUIMessage("textonly"));
         }
     }
 
@@ -303,6 +306,8 @@ public class MainSettingsController extends SettingsController implements Toolba
         updateVideoLoadModes();
 
         browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, R.string.setting_video_open_external, R.string.setting_video_open_external_description));
+        textOnly = new BooleanSettingView(this, ChanSettings.textOnly, R.string.setting_text_only, R.string.setting_text_only_description);
+        browsing.add(textOnly);
         browsing.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
