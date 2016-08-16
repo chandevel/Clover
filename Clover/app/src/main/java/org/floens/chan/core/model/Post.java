@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.settings.ChanSettings;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
@@ -180,6 +181,10 @@ public class Post {
 
         if (!TextUtils.isEmpty(country)) {
             countryUrl = ChanUrls.getCountryFlagUrl(country);
+        }
+
+        if (ChanSettings.revealImageSpoilers.get()) {
+            spoiler = false;
         }
 
         ChanParser.getInstance().parse(this);
