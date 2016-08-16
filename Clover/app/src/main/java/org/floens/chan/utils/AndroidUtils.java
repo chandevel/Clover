@@ -20,6 +20,7 @@ package org.floens.chan.utils;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -152,7 +153,12 @@ public class AndroidUtils {
             CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder()
                     .setToolbarColor(theme().primaryColor.color)
                     .build();
-            tabsIntent.launchUrl(activity, Uri.parse(link));
+            try {
+                tabsIntent.launchUrl(activity, Uri.parse(link));
+            } catch (ActivityNotFoundException e) {
+                // Can't check it beforehand so catch the exception
+                openIntentFailed();
+            }
         } else {
             openLink(link);
         }
