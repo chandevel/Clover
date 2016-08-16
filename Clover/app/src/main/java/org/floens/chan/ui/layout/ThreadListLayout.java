@@ -113,7 +113,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     showingThread.loadable.setListViewTop(indexTop[1]);
 
                     int last = getCompleteBottomAdapterPosition();
-                    if (last == postAdapter.getUnfilteredDisplaySize() - 1 && last > lastPostCount) {
+                    if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
                         lastPostCount = last;
                         ThreadListLayout.this.callback.onListScrolledToBottom();
                     }

@@ -131,20 +131,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return size;
     }
 
-    public int getUnfilteredDisplaySize() {
-        int size = sourceList.size();
-
-        if (showStatusView()) {
-            size++;
-        }
-
-        if (lastSeenIndicatorPosition >= 0) {
-            size++;
-        }
-
-        return size;
-    }
-
     @Override
     public int getItemViewType(int position) {
         if (position == lastSeenIndicatorPosition) {
