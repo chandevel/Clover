@@ -200,7 +200,7 @@ public class FilterEngine {
         } else if (rawPattern.length() >= 2 && rawPattern.charAt(0) == '"' && rawPattern.charAt(rawPattern.length() - 1) == '"') {
             // "matches an exact sentence"
             String text = escapeRegex(rawPattern.substring(1, rawPattern.length() - 1));
-            pattern = Pattern.compile(text);
+            pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
         } else {
             String[] words = rawPattern.split(" ");
             String text = "";
