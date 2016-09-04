@@ -330,6 +330,12 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         navigationItem.middleMenu.setAdapter(new BoardsAdapter(context, boardItems));
     }
 
+    @Override
+    public void threadCrossLinkOpen(Loadable threadLoadable) { }
+
+    @Override
+    public boolean threadBackPressed() { return false; }
+
     private static class FloatingMenuItemBoard extends FloatingMenuItem {
         public Board board;
 

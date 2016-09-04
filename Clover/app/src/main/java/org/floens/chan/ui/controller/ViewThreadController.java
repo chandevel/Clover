@@ -30,6 +30,7 @@ import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.pool.ThreadFollowerPool;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.HintPopup;
@@ -59,6 +60,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private ToolbarMenuItem pinItem;
     private ToolbarMenuItem overflowItem;
     private Loadable loadable;
+    private ThreadFollowerPool threadFollowerPool;
 
     public ViewThreadController(Context context) {
         super(context);
@@ -92,6 +94,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         items.add(new FloatingMenuItem(UP_ID, R.string.action_up));
         items.add(new FloatingMenuItem(DOWN_ID, R.string.action_down));
         overflowItem = navigationItem.createOverflow(context, this, items);
+
+        threadFollowerPool = new ThreadFollowerPool();
 
         loadThread(loadable);
     }
@@ -131,18 +135,23 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, final int which) {
+                        if(loadable.isThreadMode()) {
+                            threadCrossLinkOpen(loadable);
+                        }
+
                         loadThread(threadLoadable);
                     }
                 })
                 .setTitle(R.string.open_thread_confirmation)
                 .setMessage("/" + threadLoadable.board + "/" + threadLoadable.no)
                 .show();
+
     }
 
-    public void loadThread(Loadable loadable) {
+    public void loadThread(Loadable loadable, boolean addToHistory) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (!loadable.equals(presenter.getLoadable())) {
-            presenter.bindLoadable(loadable);
+            presenter.bindLoadable(loadable, addToHistory);
             this.loadable = presenter.getLoadable();
             navigationItem.title = loadable.title;
             ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
@@ -158,6 +167,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 HintPopup.show(context, pinItem.getView(), context.getString(R.string.thread_pin_hint), -dp(1), 0);
             }
         }
+    }
+
+    public void loadThread(Loadable loadable) {
+        loadThread(loadable, true);
     }
 
     @Override
@@ -257,5 +270,22 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void setPinIconState(boolean pinned) {
         pinItem.setImage(pinned ? R.drawable.ic_bookmark_white_24dp : R.drawable.ic_bookmark_outline_white_24dp);
+    }
+
+    @Override
+    public void threadCrossLinkOpen(Loadable threadLoadable) {
+        threadFollowerPool.put(threadLoadable);
+    }
+
+    @Override
+    public boolean threadBackPressed() {
+        if(threadFollowerPool.empty()) {
+            return false;
+        } else {
+            Loadable threadLoadable = threadFollowerPool.get();
+            loadThread(threadLoadable, false);
+
+            return true;
+        }
     }
 }

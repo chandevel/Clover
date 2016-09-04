@@ -36,6 +36,7 @@ import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.pool.ThreadFollowerPool;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
@@ -50,7 +51,7 @@ import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback, SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
+public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ThreadFollowerPool.Callback, ImageViewerController.ImageViewerCallback, SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "ThreadController";
 
     protected ThreadLayout threadLayout;
@@ -69,7 +70,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         navigationItem.handlesToolbarInset = true;
 
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
-        threadLayout.setCallback(this);
+        threadLayout.setCallbacks(this, this);
 
         swipeRefreshLayout = new SwipeRefreshLayout(context) {
             @Override

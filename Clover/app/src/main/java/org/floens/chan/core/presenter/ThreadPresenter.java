@@ -84,6 +84,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private String searchQuery;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded = false;
+    private boolean addToHistory = true;
 
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
@@ -94,7 +95,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         boardManager = Chan.getBoardManager();
     }
 
-    public void bindLoadable(Loadable loadable) {
+    public void bindLoadable(Loadable loadable, boolean addToHistory) {
         if (!loadable.equals(this.loadable)) {
             if (chanLoader != null) {
                 unbindLoadable();
@@ -108,9 +109,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 loadable = pin.loadable;
             }
             this.loadable = loadable;
+            this.addToHistory = addToHistory;
 
             chanLoader = LoaderPool.getInstance().obtain(loadable, this);
         }
+    }
+
+    public void bindLoadable(Loadable loadable) {
+        bindLoadable(loadable, true);
     }
 
     public void unbindLoadable() {
@@ -120,6 +126,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             chanLoader = null;
             loadable = null;
             historyAdded = false;
+            addToHistory = true;
 
             threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
@@ -520,6 +527,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
 
             if (boardManager.getBoardExists(link.board)) {
+
+
+
                 Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(link.board, link.threadId));
                 thread.markedNo = link.postId;
 
@@ -673,7 +683,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private void addHistory() {
-        if (!historyAdded && ChanSettings.historyEnabled.get() && loadable.isThreadMode()) {
+        if (!historyAdded && addToHistory && ChanSettings.historyEnabled.get() && loadable.isThreadMode()) {
             historyAdded = true;
             History history = new History();
             history.loadable = loadable;

@@ -419,7 +419,7 @@ public class ChanParser {
                         key += " (OP)";
                     }
 
-                    // Append You when it's a reply to an saved reply
+                    // Append You when it's a reply to a saved reply
                     if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, id)) {
                         key += " (You)";
                     }

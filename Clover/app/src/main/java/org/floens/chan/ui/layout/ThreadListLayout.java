@@ -35,6 +35,7 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.pool.ThreadFollowerPool;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
@@ -69,6 +70,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private ChanThread showingThread;
     private ThreadListLayoutPresenterCallback callback;
     private ThreadListLayoutCallback threadListLayoutCallback;
+    private ThreadFollowerPool.Callback threadFollowerPoolCallback;
     private boolean replyOpen;
     private ChanSettings.PostViewMode postViewMode;
     private int spanCount = 2;
@@ -96,9 +98,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback,
                              ThreadStatusCell.Callback statusCellCallback, ThreadListLayoutPresenterCallback callback,
-                             ThreadListLayoutCallback threadListLayoutCallback) {
+                             ThreadListLayoutCallback threadListLayoutCallback, ThreadFollowerPool.Callback threadFollowerPoolCallback) {
         this.callback = callback;
         this.threadListLayoutCallback = threadListLayoutCallback;
+        this.threadFollowerPoolCallback = threadFollowerPoolCallback;
 
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
@@ -220,7 +223,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             openReply(false);
             return true;
         } else {
-            return false;
+            return threadFollowerPoolCallback.threadBackPressed();
         }
     }
 

@@ -33,6 +33,7 @@ import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
+import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;

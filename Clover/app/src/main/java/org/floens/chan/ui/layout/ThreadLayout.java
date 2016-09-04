@@ -51,6 +51,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.ThreadHide;
+import org.floens.chan.core.pool.ThreadFollowerPool;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -113,7 +114,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         init();
     }
 
-    public void setCallback(ThreadLayoutCallback callback) {
+    public void setCallbacks(ThreadLayoutCallback callback, ThreadFollowerPool.Callback threadFollowerPoolCallback) {
         this.callback = callback;
 
         presenter = new ThreadPresenter(this);
@@ -122,7 +123,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         replyButton = (HidingFloatingActionButton) findViewById(R.id.reply_button);
 
         threadListLayout = (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
-        threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
+        threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this, threadFollowerPoolCallback);
 
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
 
