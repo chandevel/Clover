@@ -1,26 +1,27 @@
 package org.floens.chan.core.pool;
 
 import org.floens.chan.core.model.Loadable;
-import java.util.Stack;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class ThreadFollowerPool {
-
-    Stack<Loadable> pool;
+    Deque<Loadable> pool;
 
     public ThreadFollowerPool() {
-        pool = new Stack<>();
+        pool = new ArrayDeque<>();
     }
 
     public void put(Loadable threadLoadable) {
-        pool.push(threadLoadable);
+        pool.addFirst(threadLoadable);
     }
 
     public Loadable get() {
-        return pool.pop();
+        return pool.removeFirst();
     }
 
     public boolean empty() {
-        return pool.empty();
+        return pool.isEmpty();
     }
 
     public interface Callback {
