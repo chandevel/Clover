@@ -88,7 +88,7 @@ public class Theme {
         sendDrawable = new ThemeDrawable(R.drawable.ic_send_black_24dp, 0.54f);
         clearDrawable = new ThemeDrawable(R.drawable.ic_clear_black_24dp, 0.54f);
         backDrawable = new ThemeDrawable(R.drawable.ic_arrow_back_black_24dp, 0.54f);
-        doneDrawable = new ThemeDrawable(R.drawable.ic_done_black_24dp, 0.54f);
+        doneDrawable = new ThemeDrawable(R.drawable.ic_clear_black_24dp, 0.54f);
         historyDrawable = new ThemeDrawable(R.drawable.ic_history_black_24dp, 0.54f);
         listAddDrawable = new ThemeDrawable(R.drawable.ic_playlist_add_black_24dp, 0.54f);
         helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_black_24dp, 0.54f);
