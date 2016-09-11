@@ -265,10 +265,15 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         pager.setSwipingEnabled(visible);
     }
 
+    private ImageViewerAdapter adapter;
     public void setPagerItems(List<PostImage> images, int initialIndex) {
-        ImageViewerAdapter adapter = new ImageViewerAdapter(context, images, presenter);
+        this.adapter = new ImageViewerAdapter(context, images, presenter);
         pager.setAdapter(adapter);
         pager.setCurrentItem(initialIndex);
+    }
+
+    public void addPagerItems(List<PostImage> images) {
+        this.adapter.addImages(images);
     }
 
     public void setImageMode(PostImage postImage, MultiImageView.Mode mode) {

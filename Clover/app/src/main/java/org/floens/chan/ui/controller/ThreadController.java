@@ -25,17 +25,13 @@ import android.nfc.NfcEvent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-
+import de.greenrobot.event.EventBus;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.FilterType;
-import org.floens.chan.core.model.Filter;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.*;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
@@ -45,8 +41,6 @@ import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.List;
-
-import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -174,13 +168,22 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         threadLayout.getPresenter().selectPostImage(postImage);
     }
 
+    private ImageViewerNavigationController imageViewerNavigationController;
+
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
         if (thumbnail.getBitmap() != null) {
-            final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
+            imageViewerNavigationController = new ImageViewerNavigationController(context);
             presentController(imageViewerNavigationController, false);
             imageViewerNavigationController.showImages(images, index, loadable, this);
+        }
+    }
+
+    @Override
+    public void addImages(List<PostImage> images, Loadable loadable) {
+        if(imageViewerNavigationController != null) {
+            imageViewerNavigationController.addImages(images, loadable);
         }
     }
 

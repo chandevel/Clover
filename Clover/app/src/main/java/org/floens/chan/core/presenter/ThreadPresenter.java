@@ -250,15 +250,26 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         showPosts();
 
         if (loadable.isThreadMode()) {
+            boolean newPosts = false;
             int lastLoaded = loadable.lastLoaded;
+
             List<Post> posts = result.posts;
+            List<PostImage> images = new ArrayList<>();
+
             int more = 0;
             if (lastLoaded > 0) {
                 for (int i = 0; i < posts.size(); i++) {
                     Post post = posts.get(i);
+
+                    if(newPosts) {
+                        if(post.hasImage) {
+                            images.add(post.image);
+                        }
+                    }
+
                     if (post.no == lastLoaded) {
                         more = posts.size() - i - 1;
-                        break;
+                        newPosts = true;
                     }
                 }
             }
@@ -266,6 +277,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
             if (more > 0) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
+                if(images.size() > 0) {
+                    threadPresenterCallback.addImages(images, loadable);
+                }
             }
         }
 
@@ -712,6 +726,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         int[] getCurrentPosition();
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
+
+        void addImages(List<PostImage> images, Loadable loadable);
 
         void showAlbum(List<PostImage> images, int index);
 

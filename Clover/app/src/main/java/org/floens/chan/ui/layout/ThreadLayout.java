@@ -318,6 +318,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public void addImages(List<PostImage> images, Loadable loadable) {
+        callback.addImages(images, loadable);
+    }
+
+    @Override
     public void showAlbum(List<PostImage> images, int index) {
         callback.showAlbum(images, index);
     }
@@ -540,6 +545,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         void showThread(Loadable threadLoadable);
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
+
+        void addImages(List<PostImage> images, Loadable loadable);
 
         void showAlbum(List<PostImage> images, int index);
 

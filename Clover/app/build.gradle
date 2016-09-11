@@ -6,7 +6,7 @@ android {
     buildToolsVersion '24.0.1'
 
     defaultConfig {
-        applicationId "org.floens.chan"
+        applicationId "org.floens.chan.dev"
         minSdkVersion 15
         targetSdkVersion 24
 
@@ -72,7 +72,7 @@ android {
 
     productFlavors {
         normal {
-            applicationId = "org.floens.chan"
+            applicationId = "org.floens.chan.dev"
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", ""
         }

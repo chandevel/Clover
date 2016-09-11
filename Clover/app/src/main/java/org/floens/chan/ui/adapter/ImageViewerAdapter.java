@@ -110,6 +110,12 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
         return null;
     }
 
+    public void addImages(List<PostImage> postImages) {
+        this.images.addAll(postImages);
+
+        notifyDataSetChanged();
+    }
+
     private static class ModeChange {
         public MultiImageView.Mode mode;
         public PostImage postImage;

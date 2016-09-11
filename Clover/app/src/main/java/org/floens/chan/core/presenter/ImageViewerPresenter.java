@@ -38,7 +38,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private boolean entering = true;
     private boolean exiting = false;
-    private List<PostImage> images;
+    private List<PostImage> images = new ArrayList<>();
     private List<Float> progress;
     private int selectedPosition;
     private Loadable loadable;
@@ -52,18 +52,29 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
-        this.images = images;
-        selectedPosition = position;
+        MultiImageView.Mode newMode;
+        if(this.images.size() < 1) {
+            newMode = MultiImageView.Mode.LOWRES;
+        } else {
+            newMode = callback.getImageMode(getCurrentPostImage());
+        }
+
+        this.images.addAll(images);
+        this.selectedPosition = position;
         this.loadable = loadable;
 
-        progress = new ArrayList<>(images.size());
-        for (int i = 0; i < images.size(); i++) {
-            progress.add(i, -1f);
+        this.progress = new ArrayList<>(this.images.size());
+        for (int i = 0; i < this.images.size(); i++) {
+            this.progress.add(i, -1f);
         }
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
-        callback.setPagerItems(images, selectedPosition);
-        callback.setImageMode(images.get(selectedPosition), MultiImageView.Mode.LOWRES);
+        callback.setPagerItems(this.images, selectedPosition);
+        callback.setImageMode(this.images.get(selectedPosition), newMode);
+    }
+
+    public void addImages(List<PostImage> images, Loadable loadable) {
+        this.showImages(images, selectedPosition, loadable);
     }
 
     public void onViewMeasured() {
@@ -313,6 +324,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void setPagerVisiblity(boolean visible);
 
         void setPagerItems(List<PostImage> images, int initialIndex);
+
+        void addPagerItems(List<PostImage> images);
 
         void setImageMode(PostImage postImage, MultiImageView.Mode mode);
 

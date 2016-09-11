@@ -60,4 +60,8 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
         imageViewerController.setImageViewerCallback(imageViewerCallback);
         imageViewerController.getPresenter().showImages(images, index, loadable);
     }
+
+    public void addImages(final List<PostImage> images, Loadable loadable) {
+        imageViewerController.getPresenter().addImages(images, loadable);
+    }
 }
