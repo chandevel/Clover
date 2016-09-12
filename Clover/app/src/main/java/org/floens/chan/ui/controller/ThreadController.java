@@ -50,6 +50,8 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     protected ThreadLayout threadLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private ImageViewerNavigationController imageViewerNavigationController;
+
     public ThreadController(Context context) {
         super(context);
     }
@@ -167,8 +169,6 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     public void selectPostImage(PostImage postImage) {
         threadLayout.getPresenter().selectPostImage(postImage);
     }
-
-    private ImageViewerNavigationController imageViewerNavigationController;
 
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {

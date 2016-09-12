@@ -261,10 +261,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 for (int i = 0; i < posts.size(); i++) {
                     Post post = posts.get(i);
 
-                    if(newPosts) {
-                        if(post.hasImage) {
-                            images.add(post.image);
-                        }
+                    if(newPosts && post.hasImage) {
+                        images.add(post.image);
                     }
 
                     if (post.no == lastLoaded) {

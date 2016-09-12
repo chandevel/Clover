@@ -94,6 +94,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private ImageViewerCallback imageViewerCallback;
     private GoPostCallback goPostCallback;
     private ImageViewerPresenter presenter;
+    private ImageViewerAdapter imageViewerAdapter;
 
     private final Toolbar toolbar;
     private TransitionImageView previewImage;
@@ -260,20 +261,19 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         previewImage.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
-    public void setPagerVisiblity(boolean visible) {
+    public void setPagerVisibility(boolean visible) {
         pager.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
         pager.setSwipingEnabled(visible);
     }
 
-    private ImageViewerAdapter adapter;
     public void setPagerItems(List<PostImage> images, int initialIndex) {
-        this.adapter = new ImageViewerAdapter(context, images, presenter);
-        pager.setAdapter(adapter);
+        imageViewerAdapter = new ImageViewerAdapter(context, images, presenter);
+        pager.setAdapter(imageViewerAdapter);
         pager.setCurrentItem(initialIndex);
     }
 
     public void addPagerItems(List<PostImage> images) {
-        this.adapter.addImages(images);
+        imageViewerAdapter.addImages(images);
     }
 
     public void setImageMode(PostImage postImage, MultiImageView.Mode mode) {

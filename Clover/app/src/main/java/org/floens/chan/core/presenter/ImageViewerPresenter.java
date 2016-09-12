@@ -53,7 +53,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
         MultiImageView.Mode newMode;
-        if(this.images.size() < 1) {
+        if(this.images.isEmpty()) {
             newMode = MultiImageView.Mode.LOWRES;
         } else {
             newMode = callback.getImageMode(getCurrentPostImage());
@@ -63,9 +63,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         this.selectedPosition = position;
         this.loadable = loadable;
 
-        this.progress = new ArrayList<>(this.images.size());
+        progress = new ArrayList<>(this.images.size());
         for (int i = 0; i < this.images.size(); i++) {
-            this.progress.add(i, -1f);
+            progress.add(i, -1f);
         }
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
@@ -74,7 +74,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     public void addImages(List<PostImage> images, Loadable loadable) {
-        this.showImages(images, selectedPosition, loadable);
+        showImages(images, selectedPosition, loadable);
     }
 
     public void onViewMeasured() {
@@ -89,7 +89,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         // Depends on what onModeLoaded did
         if (changeViewsOnInTransitionEnd) {
             callback.setPreviewVisibility(false);
-            callback.setPagerVisiblity(true);
+            callback.setPagerVisibility(true);
         }
     }
 
@@ -103,7 +103,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             callback.setImageMode(postImage, MultiImageView.Mode.LOWRES);
         }
 
-        callback.setPagerVisiblity(false);
+        callback.setPagerVisibility(false);
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(postImage);
         callback.showProgress(false);
@@ -152,7 +152,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 if (!entering) {
                     // Entering transition was already ended, switch now
                     callback.setPreviewVisibility(false);
-                    callback.setPagerVisiblity(true);
+                    callback.setPagerVisibility(true);
                 } else {
                     // Wait for enter animation to finish before changing views
                     changeViewsOnInTransitionEnd = true;
@@ -321,7 +321,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         void setPreviewVisibility(boolean visible);
 
-        void setPagerVisiblity(boolean visible);
+        void setPagerVisibility(boolean visible);
 
         void setPagerItems(List<PostImage> images, int initialIndex);
 
