@@ -323,8 +323,19 @@ public class WatchManager {
         List<Pin> toRemove = new ArrayList<>();
         for (int i = 0; i < pins.size(); i++) {
             Pin pin = pins.get(i);
-            if (all || !pin.watching) {
+
+            if (all) {
                 toRemove.add(pin);
+            } else {
+                if (isWatchingSettingEnabled()) {
+                    if (!pin.watching) {
+                        toRemove.add(pin);
+                    }
+                } else {
+                    if (pin.archived || pin.isError) {
+                        toRemove.add(pin);
+                    }
+                }
             }
         }
 
