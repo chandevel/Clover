@@ -115,7 +115,7 @@ function switchPage(page) {
         }
 
         if (page == 'releases') {
-            getReleases();
+            /*getReleases();*/
         }
 
         var headerElement = document.querySelector('.header');
