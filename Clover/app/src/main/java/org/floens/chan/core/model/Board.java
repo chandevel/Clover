@@ -58,10 +58,10 @@ public class Board {
     public boolean workSafe = false;
 
     @DatabaseField
-    public int perPage = -1;
+    public int perPage = 15;
 
     @DatabaseField
-    public int pages = -1;
+    public int pages = 10;
 
     @DatabaseField
     public int maxFileSize = -1;
@@ -79,17 +79,19 @@ public class Board {
     public int imageLimit = -1;
 
     @DatabaseField
-    public int cooldownThreads = -1;
+    public int cooldownThreads = 0;
 
     @DatabaseField
-    public int cooldownReplies = -1;
+    public int cooldownReplies = 0;
 
     @DatabaseField
-    public int cooldownImages = -1;
+    public int cooldownImages = 0;
 
+    // unused, to be removed
     @DatabaseField
     public int cooldownRepliesIntra = -1;
 
+    // unused, to be removed
     @DatabaseField
     public int cooldownImagesIntra = -1;
 
@@ -122,10 +124,7 @@ public class Board {
     public String description;
 
     public boolean finish() {
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0)
-            return false;
-
-        if (cooldownThreads < 0 || cooldownReplies < 0 || cooldownImages < 0 || cooldownRepliesIntra < 0 || cooldownImagesIntra < 0) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0) {
             return false;
         }
 
@@ -136,6 +135,4 @@ public class Board {
     public String toString() {
         return name;
     }
-
-
 }

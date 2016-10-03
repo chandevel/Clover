@@ -127,12 +127,6 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
                             case "images":
                                 board.cooldownImages = reader.nextInt();
                                 break;
-                            case "replies_intra":
-                                board.cooldownRepliesIntra = reader.nextInt();
-                                break;
-                            case "images_intra":
-                                board.cooldownImagesIntra = reader.nextInt();
-                                break;
                             default:
                                 reader.skipValue();
                                 break;
