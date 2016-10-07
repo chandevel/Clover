@@ -63,6 +63,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         ]]>
     </string>
 
+    <string name="previous_version_3">
+        <![CDATA[
+            <h3>Clover was updated</h3>
+
+            Clover was updated to v2.2.0<br>
+            <br>
+            <b>New in this version:</b><br>
+            Add sliding of threads back.<br>
+            Rewrote thread watching, it\'s more stable and works correctly with doze now.<br>
+            Optimized parsing with multithreading.<br>
+            Added album view.<br>
+            Added bookmark clearing.<br>
+            <br>
+            Added inline reporting.<br>
+            All boards are added by default now.<br>
+            Thread positions are retained across restarts.<br>
+            Allow setting of multiple types on filters simultaneously.<br>
+            Made single frame gifs zoomable.<br>
+            Add saving of images into their own board folder.<br>
+            More advanced settings.<br>
+            Many bug fixes.<br>
+            <br>
+            Many thanks to the contributors on GitHub!
+        ]]>
+    </string>
+
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>

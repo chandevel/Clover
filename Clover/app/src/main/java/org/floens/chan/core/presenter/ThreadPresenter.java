@@ -329,7 +329,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             List<Post> posts = threadPresenterCallback.getDisplayingPosts();
             for (int i = 0; i < posts.size(); i++) {
                 Post post = posts.get(i);
-                if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
+                if (post.hasImage && post.image == postImage) {
                     position = i;
                     break;
                 }

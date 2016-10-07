@@ -172,7 +172,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             if (AndroidUtils.isTablet(this)) {
                 layoutMode = ChanSettings.LayoutMode.SPLIT;
             } else {
-                layoutMode = ChanSettings.LayoutMode.PHONE;
+                layoutMode = ChanSettings.LayoutMode.SLIDE;
             }
         }
 
