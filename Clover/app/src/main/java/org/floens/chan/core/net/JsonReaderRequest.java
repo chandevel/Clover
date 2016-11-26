@@ -59,7 +59,6 @@ public abstract class JsonReaderRequest<T> extends Request<T> {
         try {
             read = readJson(reader);
         } catch (Exception e) {
-
             exception = e;
         }
 

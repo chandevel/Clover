@@ -20,7 +20,6 @@ package org.floens.chan.core.model;
 import android.text.SpannableString;
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.settings.ChanSettings;
@@ -29,7 +28,6 @@ import org.jsoup.parser.Parser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,10 +38,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * This class has members that are threadsafe and some that are not, see the source for more info.
  */
 public class Post {
-    private static final Random random = new Random();
-
     // *** These next members don't get changed after finish() is called. Effectively final. ***
-    public String board;
+    public String boardId;
+
+    public Board board;
 
     public int no = -1;
 
@@ -150,7 +148,7 @@ public class Post {
      * @return false if this data is invalid
      */
     public boolean finish() {
-        if (board == null || no < 0 || resto < 0 || date == null || time < 0) {
+        if (boardId == null || no < 0 || resto < 0 || date == null || time < 0) {
             return false;
         }
 
@@ -162,25 +160,15 @@ public class Post {
 
         if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0 && tim >= 0) {
             hasImage = true;
-            imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
+            // TODO: only use #image
+            imageUrl = board.site.endpoints().imageUrl(this);
             filename = Parser.unescapeEntities(filename, false);
-
-            if (spoiler) {
-                Board b = Chan.getBoardManager().getBoardByCode(board);
-                if (b != null && b.customSpoilers >= 0) {
-                    thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);
-                } else {
-                    thumbnailUrl = ChanUrls.getSpoilerUrl();
-                }
-            } else {
-                thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
-            }
-
+            thumbnailUrl = board.site.endpoints().thumbnailUrl(this);
             image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize);
         }
 
         if (!TextUtils.isEmpty(country)) {
-            countryUrl = ChanUrls.getCountryFlagUrl(country);
+            countryUrl = board.site.endpoints().flag(this);
         }
 
         if (ChanSettings.revealImageSpoilers.get()) {

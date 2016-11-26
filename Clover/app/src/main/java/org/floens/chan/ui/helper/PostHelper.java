@@ -71,15 +71,15 @@ public class PostHelper {
             if (!TextUtils.isEmpty(post.subject)) {
                 return post.subject;
             } else if (!TextUtils.isEmpty(post.comment)) {
-                return "/" + post.board + "/ \u2013 " + post.comment.subSequence(0, Math.min(post.comment.length(), 200)).toString();
+                return "/" + post.boardId + "/ \u2013 " + post.comment.subSequence(0, Math.min(post.comment.length(), 200)).toString();
             } else {
-                return "/" + post.board + "/" + post.no;
+                return "/" + post.boardId + "/" + post.no;
             }
         } else if (loadable != null) {
             if (loadable.mode == Loadable.Mode.CATALOG) {
-                return "/" + loadable.board + "/";
+                return "/" + loadable.boardCode + "/";
             } else {
-                return "/" + loadable.board + "/" + loadable.no;
+                return "/" + loadable.boardCode + "/" + loadable.no;
             }
         } else {
             return "";

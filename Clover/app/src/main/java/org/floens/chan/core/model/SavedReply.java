@@ -34,6 +34,9 @@ public class SavedReply {
     @DatabaseField(generatedId = true)
     private int id;
 
+    @DatabaseField(columnName = "site")
+    public int site;
+
     @DatabaseField(index = true, canBeNull = false)
     public String board;
 

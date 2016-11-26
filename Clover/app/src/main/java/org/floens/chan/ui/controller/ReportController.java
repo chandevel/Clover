@@ -55,7 +55,7 @@ public class ReportController extends Controller {
         WebView webView = new WebView(context);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.loadUrl(ChanUrls.getReportUrl(post.board, post.no));
+        webView.loadUrl(ChanUrls.getReportUrl(post.boardId, post.no));
         view = webView;
     }
 }

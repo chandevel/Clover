@@ -91,7 +91,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         bound = true;
         this.loadable = loadable;
 
-        this.board = boardManager.getBoardByCode(loadable.board);
+        this.board = boardManager.getBoardByCode(loadable.boardCode);
 
         draft = replyManager.getReply(loadable);
 
@@ -183,7 +183,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
     public void onSubmitClicked() {
         callback.loadViewsIntoDraft(draft);
-        draft.board = loadable.board;
+        draft.board = loadable.boardCode;
         draft.resto = loadable.isThreadMode() ? loadable.no : -1;
 
         if (ChanSettings.passLoggedIn()) {
@@ -214,7 +214,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
                 }
             }
 
-            SavedReply savedReply = new SavedReply(loadable.board, replyCall.postNo, replyCall.password);
+            SavedReply savedReply = new SavedReply(loadable.boardCode, replyCall.postNo, replyCall.password);
             databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
             switchPage(Page.INPUT, false);
@@ -228,7 +228,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
             callback.onPosted();
 
             if (bound && !loadable.isThreadMode()) {
-                callback.showThread(databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.board, replyCall.postNo)));
+                callback.showThread(databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, loadable.board, replyCall.postNo)));
             }
         } else {
             if (replyCall.errorMessage == null) {
@@ -237,6 +237,9 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
             switchPage(Page.INPUT, true);
             callback.openMessage(true, false, replyCall.errorMessage, true);
+            if (replyCall.probablyBanned) {
+//                callback.openMessageWebview();
+            }
         }
     }
 
@@ -349,8 +352,8 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
                     if (!captchaInited) {
                         captchaInited = true;
                         String baseUrl = loadable.isThreadMode() ?
-                                ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no) :
-                                ChanUrls.getBoardUrlDesktop(loadable.board);
+                                ChanUrls.getThreadUrlDesktop(loadable.boardCode, loadable.no) :
+                                ChanUrls.getBoardUrlDesktop(loadable.boardCode);
                         callback.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), this);
                     }
                     break;
@@ -416,6 +419,8 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         void resetCaptcha();
 
         void openMessage(boolean open, boolean animate, String message, boolean autoHide);
+
+        void openMessageWebview(String rawMessage);
 
         void onPosted();
 

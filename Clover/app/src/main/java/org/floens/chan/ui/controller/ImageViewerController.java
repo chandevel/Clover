@@ -232,7 +232,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             ImageSaveTask task = new ImageSaveTask(postImage);
             task.setShare(share);
             if (ChanSettings.saveBoardFolder.get()) {
-                task.setSubFolder(presenter.getLoadable().board);
+                task.setSubFolder(presenter.getLoadable().boardCode);
             }
             ImageSaver.getInstance().startDownloadTask(context, task);
         }

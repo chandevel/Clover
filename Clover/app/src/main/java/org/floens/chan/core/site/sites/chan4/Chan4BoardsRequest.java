@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.net;
+package org.floens.chan.core.site.sites.chan4;
 
 import android.util.JsonReader;
 
@@ -23,13 +23,15 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
 import org.floens.chan.core.model.Board;
+import org.floens.chan.core.net.JsonReaderRequest;
+import org.floens.chan.core.site.Site;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class BoardsRequest extends JsonReaderRequest<List<Board>> {
+public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
     public static List<String> BLOCKED = Collections.singletonList(
             "f"
     );
@@ -38,8 +40,11 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
 //            "a", "c", "w", "cm", "jp", "mlp", "lgbt"
 //    );
 
-    public BoardsRequest(String url, Listener<List<Board>> listener, ErrorListener errorListener) {
-        super(url, listener, errorListener);
+    private final Site site;
+
+    public Chan4BoardsRequest(Site site, Listener<List<Board>> listener, ErrorListener errorListener) {
+        super(site.endpoints().boards(), listener, errorListener);
+        this.site = site;
     }
 
     @Override
@@ -69,15 +74,12 @@ public class BoardsRequest extends JsonReaderRequest<List<Board>> {
         return list;
     }
 
-    @Override
-    public Priority getPriority() {
-        return Priority.LOW;
-    }
-
     private Board readBoardEntry(JsonReader reader) throws IOException {
         reader.beginObject();
 
         Board board = new Board();
+        board.siteId = site.id();
+        board.site = site;
 
         while (reader.hasNext()) {
             String key = reader.nextName();

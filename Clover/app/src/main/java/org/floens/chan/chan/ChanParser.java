@@ -420,7 +420,7 @@ public class ChanParser {
                     }
 
                     // Append You when it's a reply to an saved reply
-                    if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, id)) {
+                    if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.boardId, id)) {
                         key += " (You)";
                     }
                 }

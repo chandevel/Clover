@@ -135,7 +135,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                     }
                 })
                 .setTitle(R.string.open_thread_confirmation)
-                .setMessage("/" + threadLoadable.board + "/" + threadLoadable.no)
+                .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no)
                 .show();
     }
 
@@ -198,7 +198,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             case SHARE_ID:
             case OPEN_BROWSER_ID:
                 Loadable loadable = threadLayout.getPresenter().getLoadable();
-                String link = ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no);
+                String link = ChanUrls.getThreadUrlDesktop(loadable.boardCode, loadable.no);
 
                 if (id == SHARE_ID) {
                     AndroidUtils.shareLink(link);

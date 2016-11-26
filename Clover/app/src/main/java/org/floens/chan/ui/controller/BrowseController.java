@@ -19,6 +19,7 @@ package org.floens.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +65,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
     private List<FloatingMenuItem> boardItems;
+
+    private ProgressDialog waitingForBoardsDialog;
 
     private FloatingMenuItem viewModeMenuItem;
     private ToolbarMenuItem search;
@@ -135,7 +138,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 break;
             case SHARE_ID:
             case OPEN_BROWSER_ID:
-                String link = ChanUrls.getCatalogUrlDesktop(threadLayout.getPresenter().getLoadable().board);
+                String link = ChanUrls.getCatalogUrlDesktop(threadLayout.getPresenter().getLoadable().boardCode);
 
                 if (id == SHARE_ID) {
                     AndroidUtils.shareLink(link);
@@ -299,10 +302,18 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         loadBoards();
     }
 
+    public void loadDefault() {
+        BoardManager boardManager = Chan.getBoardManager();
+        List<Board> savedBoards = boardManager.getSavedBoards();
+        if (!savedBoards.isEmpty()) {
+            loadBoard(savedBoards.get(0));
+        }
+    }
+
     public void loadBoard(Board board) {
-        Loadable loadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board.code));
-        loadable.title = board.name;
-        navigationItem.title = board.name;
+        Loadable loadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+        loadable.title = board.getName();
+        navigationItem.title = board.getName();
 
         ThreadPresenter presenter = threadLayout.getPresenter();
         presenter.unbindLoadable();
@@ -318,23 +329,47 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
     }
 
+    /**
+     * Load the menu with saved boards. Called on creation of this controller and when there's a
+     * board change event.
+     */
     private void loadBoards() {
         List<Board> boards = Chan.getBoardManager().getSavedBoards();
-        boardItems = new ArrayList<>();
-        for (Board board : boards) {
-            FloatingMenuItem item = new FloatingMenuItemBoard(board);
-            boardItems.add(item);
-        }
 
-        navigationItem.middleMenu.setItems(boardItems);
-        navigationItem.middleMenu.setAdapter(new BoardsAdapter(context, boardItems));
+        if (boards.isEmpty()) {
+            if (waitingForBoardsDialog == null) {
+                String title = getString(R.string.thread_fetching_boards_title);
+                String message = getString(R.string.thread_fetching_boards);
+                waitingForBoardsDialog = ProgressDialog.show(context, title, message, true, false);
+                waitingForBoardsDialog.show();
+            }
+        } else {
+            boolean wasWaiting = waitingForBoardsDialog != null;
+            if (waitingForBoardsDialog != null) {
+                waitingForBoardsDialog.dismiss();
+                waitingForBoardsDialog = null;
+            }
+
+            boardItems = new ArrayList<>();
+            for (Board board : boards) {
+                FloatingMenuItem item = new FloatingMenuItemBoard(board);
+                boardItems.add(item);
+            }
+
+            navigationItem.middleMenu.setItems(boardItems);
+            navigationItem.middleMenu.setAdapter(new BoardsAdapter(context, boardItems));
+
+            if (wasWaiting) {
+                loadDefault();
+            }
+        }
     }
 
     private static class FloatingMenuItemBoard extends FloatingMenuItem {
         public Board board;
 
         public FloatingMenuItemBoard(Board board) {
-            super(board.id, board.name);
+            super(board.id, board.getName());
             this.board = board;
         }
     }

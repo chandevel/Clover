@@ -46,6 +46,7 @@ public class ReplyHttpCall extends HttpCall {
     public String password;
     public int threadNo = -1;
     public int postNo = -1;
+    public boolean probablyBanned;
 
     private final Reply reply;
 
@@ -112,6 +113,7 @@ public class ReplyHttpCall extends HttpCall {
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
             errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
+            probablyBanned = errorMessage.contains("banned");
         } else {
             Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(result);
             if (threadNoMatcher.find()) {

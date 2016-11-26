@@ -302,6 +302,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     @Override
+    public void openMessageWebview(String rawMessage) {
+//        callback.
+    }
+
+    @Override
     public void onPosted() {
         Toast.makeText(getContext(), R.string.reply_success, Toast.LENGTH_SHORT).show();
         callback.openReply(false);

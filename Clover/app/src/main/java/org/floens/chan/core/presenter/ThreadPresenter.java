@@ -29,6 +29,7 @@ import org.floens.chan.core.http.DeleteHttpCall;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
@@ -39,6 +40,7 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.pool.LoaderPool;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -369,7 +371,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     @Override
     public void onPostClicked(Post post) {
         if (loadable.isCatalogMode()) {
-            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(post.board, post.no));
+            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
             threadLoadable.title = PostHelper.getTitle(post, loadable);
             threadPresenterCallback.showThread(threadLoadable);
         } else {
@@ -434,7 +436,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
-        if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
+        if (loadable.site.feature(Site.Feature.POST_DELETE) &&
+                databaseManager.getDatabaseSavedReplyManager().isSaved(post.boardId, post.no)) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
@@ -480,25 +483,25 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
-                SavedReply savedReply = new SavedReply(post.board, post.no, "");
+                SavedReply savedReply = new SavedReply(post.boardId, post.no, "");
                 databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
                 break;
             case POST_OPTION_PIN:
-                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(post.board, post.no));
+                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
                 watchManager.createPin(pinLoadable, post);
                 break;
             case POST_OPTION_OPEN_BROWSER:
                 AndroidUtils.openLink(
                         post.isOP ?
-                                ChanUrls.getThreadUrlDesktop(post.board, post.no) :
-                                ChanUrls.getThreadUrlDesktop(post.board, loadable.no, post.no)
+                                ChanUrls.getThreadUrlDesktop(post.boardId, post.no) :
+                                ChanUrls.getThreadUrlDesktop(post.boardId, loadable.no, post.no)
                 );
                 break;
             case POST_OPTION_SHARE:
                 AndroidUtils.shareLink(
                         post.isOP ?
-                                ChanUrls.getThreadUrlDesktop(post.board, post.no) :
-                                ChanUrls.getThreadUrlDesktop(post.board, loadable.no, post.no)
+                                ChanUrls.getThreadUrlDesktop(post.boardId, post.no) :
+                                ChanUrls.getThreadUrlDesktop(post.boardId, loadable.no, post.no)
                 );
                 break;
             case POST_OPTION_HIDE:
@@ -519,8 +522,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
 
-            if (boardManager.getBoardExists(link.board)) {
-                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(link.board, link.threadId));
+            Board board = loadable.site.board(link.board);
+            if (board != null) {
+                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, link.threadId));
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);
@@ -590,7 +594,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         threadPresenterCallback.showDeleting();
 
         SavedReply reply = databaseManager.runTaskSync(
-                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
+                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.boardId, post.no)
         );
         if (reply != null) {
             replyManager.makeHttpCall(new DeleteHttpCall(reply, onlyImageDelete), new ReplyManager.HttpCallback<DeleteHttpCall>() {
@@ -617,7 +621,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseManager.runTaskSync(
-                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
+                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.boardId, post.no)
         );
         if (reply != null) {
             threadPresenterCallback.confirmPostDelete(post);

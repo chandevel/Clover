@@ -17,15 +17,11 @@
  */
 package org.floens.chan.core.manager;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-
-import org.floens.chan.Chan;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Board;
-import org.floens.chan.core.net.BoardsRequest;
-import org.floens.chan.utils.Logger;
+import org.floens.chan.core.site.Boards;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.Sites;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +32,7 @@ import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 
-public class BoardManager implements Response.Listener<List<Board>>, Response.ErrorListener {
+public class BoardManager {
     private static final String TAG = "BoardManager";
 
     private static final Comparator<Board> ORDER_SORT = new Comparator<Board>() {
@@ -54,6 +50,7 @@ public class BoardManager implements Response.Listener<List<Board>>, Response.Er
     };
 
     private final DatabaseManager databaseManager;
+    private final Site defaultSite;
 
     private final List<Board> boards;
     private final List<Board> savedBoards = new ArrayList<>();
@@ -61,34 +58,31 @@ public class BoardManager implements Response.Listener<List<Board>>, Response.Er
 
     public BoardManager(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
-        boards = databaseManager.getBoards();
+        defaultSite = Sites.defaultSite();
+        boards = databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().getBoards(defaultSite));
 
         if (boards.isEmpty()) {
-            Logger.d(TAG, "Loading default boards");
-            boards.addAll(getDefaultBoards());
-            saveDatabase();
-            update(true);
+            defaultSite.boards(new Site.BoardsListener() {
+                @Override
+                public void onBoardsReceived(Boards boards) {
+                    appendBoards(boards);
+                }
+            });
         } else {
             update(false);
         }
-
-        Chan.getVolleyRequestQueue().add(new BoardsRequest(ChanUrls.getBoardsUrl(), this, this));
     }
 
-    @Override
-    public void onResponse(List<Board> response) {
+    private void appendBoards(Boards response) {
         List<Board> boardsToAddWs = new ArrayList<>();
         List<Board> boardsToAddNws = new ArrayList<>();
 
-        for (int i = 0; i < response.size(); i++) {
-            Board serverBoard = response.get(i);
+        for (int i = 0; i < response.boards.size(); i++) {
+            Board serverBoard = response.boards.get(i);
 
             Board existing = getBoardByCode(serverBoard.code);
             if (existing != null) {
-                serverBoard.id = existing.id;
-                serverBoard.saved = existing.saved;
-                serverBoard.order = existing.order;
-                boards.set(boards.indexOf(existing), serverBoard);
+                existing.update(serverBoard);
             } else {
                 serverBoard.saved = true;
                 if (serverBoard.workSafe) {
@@ -116,11 +110,6 @@ public class BoardManager implements Response.Listener<List<Board>>, Response.Er
 
         saveDatabase();
         update(true);
-    }
-
-    @Override
-    public void onErrorResponse(VolleyError error) {
-        Logger.e(TAG, "Failed to get boards from server");
     }
 
     // Thread-safe
@@ -163,19 +152,7 @@ public class BoardManager implements Response.Listener<List<Board>>, Response.Er
     }
 
     private void saveDatabase() {
-        databaseManager.setBoards(boards);
-    }
-
-    private List<Board> getDefaultBoards() {
-        List<Board> list = new ArrayList<>();
-        list.add(new Board("Technology", "g", true, true));
-        list.add(new Board("Food & Cooking", "ck", true, true));
-        list.add(new Board("Do It Yourself", "diy", true, true));
-        list.add(new Board("Animals & Nature", "an", true, true));
-
-        Collections.shuffle(list);
-
-        return list;
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager().setBoards(boards));
     }
 
     private List<Board> filterSaved(List<Board> all) {

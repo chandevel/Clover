@@ -53,7 +53,7 @@ class PostParseCallable implements Callable<Post> {
             return null;
         }
 
-        post.isSavedReply = savedReplyManager.isSaved(post.board, post.no);
+        post.isSavedReply = savedReplyManager.isSaved(post.boardId, post.no);
 
         return post;
     }

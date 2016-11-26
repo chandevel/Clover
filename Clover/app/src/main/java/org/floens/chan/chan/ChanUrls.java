@@ -19,47 +19,9 @@ package org.floens.chan.chan;
 
 import org.floens.chan.core.settings.ChanSettings;
 
-import java.util.Locale;
-
 public class ChanUrls {
-    public static String getCatalogUrl(String board) {
-        return scheme() + "://a.4cdn.org/" + board + "/catalog.json";
-    }
-
-    public static String getPageUrl(String board, int pageNumber) {
-        return scheme() + "://a.4cdn.org/" + board + "/" + (pageNumber + 1) + ".json";
-    }
-
-    public static String getThreadUrl(String board, int no) {
-        return scheme() + "://a.4cdn.org/" + board + "/thread/" + no + ".json";
-    }
-
     public static String getCaptchaSiteKey() {
         return "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
-    }
-
-    public static String getImageUrl(String board, String code, String extension) {
-        return scheme() + "://i.4cdn.org/" + board + "/" + code + "." + extension;
-    }
-
-    public static String getThumbnailUrl(String board, String code) {
-        return scheme() + "://t.4cdn.org/" + board + "/" + code + "s.jpg";
-    }
-
-    public static String getSpoilerUrl() {
-        return scheme() + "://s.4cdn.org/image/spoiler.png";
-    }
-
-    public static String getCustomSpoilerUrl(String board, int value) {
-        return scheme() + "://s.4cdn.org/image/spoiler-" + board + value + ".png";
-    }
-
-    public static String getCountryFlagUrl(String countryCode) {
-        return scheme() + "://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
-    }
-
-    public static String getBoardsUrl() {
-        return scheme() + "://a.4cdn.org/boards.json";
     }
 
     public static String getReplyUrl(String board) {

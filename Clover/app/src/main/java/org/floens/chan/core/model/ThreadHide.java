@@ -25,6 +25,9 @@ public class ThreadHide {
     @DatabaseField(generatedId = true)
     public int id;
 
+    @DatabaseField(columnName = "site")
+    public int site;
+
     @DatabaseField
     public String board;
 

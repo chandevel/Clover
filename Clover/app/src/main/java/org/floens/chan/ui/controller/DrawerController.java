@@ -41,7 +41,7 @@ import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.adapter.PinAdapter;
+import org.floens.chan.ui.adapter.DrawerAdapter;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
@@ -53,7 +53,7 @@ import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
-public class DrawerController extends Controller implements PinAdapter.Callback, View.OnClickListener {
+public class DrawerController extends Controller implements DrawerAdapter.Callback, View.OnClickListener {
     private WatchManager watchManager;
 
     protected FrameLayout container;
@@ -61,7 +61,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
     protected LinearLayout settings;
-    protected PinAdapter pinAdapter;
+    protected DrawerAdapter drawerAdapter;
 
     public DrawerController(Context context) {
         super(context);
@@ -88,12 +88,12 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
         theme().settingsDrawable.apply((ImageView) settings.findViewById(R.id.image));
         ((TextView) settings.findViewById(R.id.text)).setTypeface(ROBOTO_MEDIUM);
 
-        pinAdapter = new PinAdapter(this);
-        recyclerView.setAdapter(pinAdapter);
+        drawerAdapter = new DrawerAdapter(this);
+        recyclerView.setAdapter(drawerAdapter);
 
-        pinAdapter.onPinsChanged(watchManager.getAllPins());
+        drawerAdapter.onPinsChanged(watchManager.getAllPins());
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(pinAdapter.getItemTouchHelperCallback());
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(drawerAdapter.getItemTouchHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
@@ -148,11 +148,11 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     @Override
-    public void onHeaderClicked(PinAdapter.HeaderHolder holder, PinAdapter.HeaderAction headerAction) {
-        if (headerAction == PinAdapter.HeaderAction.SETTINGS) {
+    public void onHeaderClicked(DrawerAdapter.HeaderHolder holder, DrawerAdapter.HeaderAction headerAction) {
+        if (headerAction == DrawerAdapter.HeaderAction.SETTINGS) {
             openController(new WatchSettingsController(context));
-        } else if (headerAction == PinAdapter.HeaderAction.CLEAR || headerAction == PinAdapter.HeaderAction.CLEAR_ALL) {
-            boolean all = headerAction == PinAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
+        } else if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
+            boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
             final List<Pin> pins = watchManager.clearPins(all);
             if (!pins.isEmpty()) {
                 String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
@@ -232,23 +232,23 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     public void setPinHighlighted(Pin pin) {
-        pinAdapter.setPinHighlighted(pin);
-        pinAdapter.updateHighlighted(recyclerView);
+        drawerAdapter.setPinHighlighted(pin);
+        drawerAdapter.updateHighlighted(recyclerView);
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
-        pinAdapter.onPinAdded(message.pin);
+        drawerAdapter.onPinAdded(message.pin);
         drawerLayout.openDrawer(drawer);
         updateBadge();
     }
 
     public void onEvent(WatchManager.PinRemovedMessage message) {
-        pinAdapter.onPinRemoved(message.pin);
+        drawerAdapter.onPinRemoved(message.pin);
         updateBadge();
     }
 
     public void onEvent(WatchManager.PinChangedMessage message) {
-        pinAdapter.onPinChanged(recyclerView, message.pin);
+        drawerAdapter.onPinChanged(recyclerView, message.pin);
         updateBadge();
     }
 

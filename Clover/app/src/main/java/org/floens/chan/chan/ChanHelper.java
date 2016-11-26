@@ -22,7 +22,10 @@ import android.net.Uri;
 import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseLoadableManager;
 import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.Sites;
 
 import java.util.List;
 
@@ -32,14 +35,18 @@ public class ChanHelper {
 
         List<String> parts = uri.getPathSegments();
 
+        // TODO(multi-site) get correct site
+        Site site = Sites.defaultSite();
+
         if (parts.size() > 0) {
             String rawBoard = parts.get(0);
             BoardManager boardManager = Chan.getBoardManager();
             DatabaseLoadableManager loadableManager = Chan.getDatabaseManager().getDatabaseLoadableManager();
-            if (boardManager.getBoardExists(rawBoard)) {
+            Board board = site.board(rawBoard);
+            if (board != null) {
                 if (parts.size() == 1 || (parts.size() == 2 && "catalog".equals(parts.get(1)))) {
                     // Board mode
-                    loadable = loadableManager.get(Loadable.forCatalog(rawBoard));
+                    loadable = loadableManager.get(Loadable.forCatalog(board));
                 } else if (parts.size() >= 3) {
                     // Thread mode
                     int no = -1;
@@ -62,7 +69,7 @@ public class ChanHelper {
                     }
 
                     if (no >= 0) {
-                        loadable = loadableManager.get(Loadable.forThread(rawBoard, no));
+                        loadable = loadableManager.get(Loadable.forThread(site, board, no));
                         if (post >= 0) {
                             loadable.markedNo = post;
                         }

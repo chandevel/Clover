@@ -308,7 +308,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     }
 
     private ChanReaderRequest getData() {
-        Logger.d(TAG, "Requested " + loadable.board + ", " + loadable.no);
+        Logger.d(TAG, "Requested " + loadable.boardCode + ", " + loadable.no);
 
         List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
         ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cached, this, this);

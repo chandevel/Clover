@@ -142,9 +142,9 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         if (loadable != null) {
             if (loadable.isThreadMode()) {
-                url = ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no);
+                url = ChanUrls.getThreadUrlDesktop(loadable.boardCode, loadable.no);
             } else if (loadable.isCatalogMode()) {
-                url = ChanUrls.getCatalogUrlDesktop(loadable.board);
+                url = ChanUrls.getCatalogUrlDesktop(loadable.boardCode);
             }
         }
 

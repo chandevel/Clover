@@ -55,6 +55,9 @@ public class Pin {
     @DatabaseField
     public boolean archived = false;
 
+    public Pin() {
+    }
+
     public int getNewPostCount() {
         if (watchLastCount < 0 || watchNewCount < 0) {
             return 0;

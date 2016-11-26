@@ -23,7 +23,6 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
 import org.floens.chan.Chan;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
@@ -42,6 +41,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * Process a typical imageboard json response.<br>
+ * This class is highly multithreaded, take good care to don't access models that are to be only
+ * changed on the main thread.
+ */
 public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanReaderResponse> {
     private static final String TAG = "ChanReaderRequest";
     private static final boolean LOG_TIMING = false;
@@ -71,13 +75,22 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
     }
 
-    public static ChanReaderRequest newInstance(Loadable loadable, List<Post> cached, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
+    public static ChanReaderRequest newInstance(
+            Loadable loadable, List<Post> cached, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
         String url;
 
+        if (loadable.site == null) {
+            throw new NullPointerException("Loadable.site == null");
+        }
+
+        if (loadable.board == null) {
+            throw new NullPointerException("Loadable.board == null");
+        }
+
         if (loadable.isThreadMode()) {
-            url = ChanUrls.getThreadUrl(loadable.board, loadable.no);
+            url = loadable.site.endpoints().thread(loadable.board, loadable);
         } else if (loadable.isCatalogMode()) {
-            url = ChanUrls.getCatalogUrl(loadable.board);
+            url = loadable.site.endpoints().catalog(loadable.board);
         } else {
             throw new IllegalArgumentException("Unknown mode");
         }
@@ -99,7 +112,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
             } else {
                 String[] boardCodes = filter.boardCodes();
                 for (String code : boardCodes) {
-                    if (code.equals(loadable.board)) {
+                    if (code.equals(loadable.boardCode)) {
                         // copy the filter because it will get used on other threads
                         request.filters.add(filter.copy());
                         break;
@@ -334,6 +347,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     private void readPostObject(JsonReader reader, ProcessingQueue queue, Map<Integer, Post> cachedByNo) throws Exception {
         Post post = new Post();
         post.board = loadable.board;
+        post.boardId = loadable.boardCode;
 
         reader.beginObject();
         while (reader.hasNext()) {

@@ -26,7 +26,6 @@ import com.j256.ormlite.misc.TransactionManager;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.Chan;
-import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.utils.Logger;
@@ -44,8 +43,14 @@ import java.util.concurrent.Future;
 
 import de.greenrobot.event.EventBus;
 
-import static com.j256.ormlite.misc.TransactionManager.callInTransaction;
-
+/**
+ * The central point for database related access.<br>
+ * <b>All database queries are run on a single database thread</b>, therefor all functions return a
+ * {@link Callable} that needs to be queued on either {@link #runTask(Callable)},
+ * {@link #runTask(Callable, TaskResult)} or {@link #runTaskSync(Callable)}.<br>
+ * You often want the sync flavour for queries that return data, it waits for the task to be finished on the other thread.<br>
+ * Use the async versions when you don't care when the query is done.
+ */
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
@@ -63,6 +68,7 @@ public class DatabaseManager {
     private final DatabaseHistoryManager databaseHistoryManager;
     private final DatabaseSavedReplyManager databaseSavedReplyManager;
     private final DatabaseFilterManager databaseFilterManager;
+    private final DatabaseBoardManager databaseBoardManager;
 
     public DatabaseManager(Context context) {
         backgroundExecutor = Executors.newSingleThreadExecutor();
@@ -73,6 +79,7 @@ public class DatabaseManager {
         databaseHistoryManager = new DatabaseHistoryManager(this, helper, databaseLoadableManager);
         databaseSavedReplyManager = new DatabaseSavedReplyManager(this, helper);
         databaseFilterManager = new DatabaseFilterManager(this, helper);
+        databaseBoardManager = new DatabaseBoardManager(this, helper);
         initialize();
         EventBus.getDefault().register(this);
     }
@@ -97,6 +104,10 @@ public class DatabaseManager {
         return databaseFilterManager;
     }
 
+    public DatabaseBoardManager getDatabaseBoardManager() {
+        return databaseBoardManager;
+    }
+
     // Called when the app changes foreground state
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
@@ -119,44 +130,6 @@ public class DatabaseManager {
     }
 
     /**
-     * Create or updates these boards in the boards table.
-     *
-     * @param boards List of boards to create or update
-     */
-    public void setBoards(final List<Board> boards) {
-        try {
-            callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
-                @Override
-                public Void call() throws SQLException {
-                    for (Board b : boards) {
-                        helper.boardsDao.createOrUpdate(b);
-                    }
-
-                    return null;
-                }
-            });
-        } catch (Exception e) {
-            Logger.e(TAG, "Error setting boards in db", e);
-        }
-    }
-
-    /**
-     * Get all boards from the boards table.
-     *
-     * @return all boards from the boards table
-     */
-    public List<Board> getBoards() {
-        List<Board> boards = null;
-        try {
-            boards = helper.boardsDao.queryForAll();
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error getting boards from db", e);
-        }
-
-        return boards;
-    }
-
-    /**
      * Check if the post is added in the threadhide table.
      *
      * @param post Post to check the board and no on
@@ -165,7 +138,7 @@ public class DatabaseManager {
     public boolean isThreadHidden(Post post) {
         if (threadHidesIds.contains(post.no)) {
             for (ThreadHide hide : threadHides) {
-                if (hide.no == post.no && hide.board.equals(post.board)) {
+                if (hide.no == post.no && hide.board.equals(post.boardId)) {
                     return true;
                 }
             }

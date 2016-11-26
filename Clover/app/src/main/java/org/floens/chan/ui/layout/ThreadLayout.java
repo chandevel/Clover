@@ -411,7 +411,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
     @Override
     public void hideThread(Post post) {
-        final ThreadHide threadHide = new ThreadHide(post.board, post.no);
+        final ThreadHide threadHide = new ThreadHide(post.boardId, post.no);
         databaseManager.addThreadHide(threadHide);
         presenter.refreshUI();
 

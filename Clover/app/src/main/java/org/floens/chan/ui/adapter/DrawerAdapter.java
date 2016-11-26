@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,17 +48,18 @@ import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
-public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public enum HeaderAction {
         SETTINGS, CLEAR, CLEAR_ALL
     }
 
-    private static final int PIN_OFFSET = 3;
+    private static final int PIN_OFFSET = 4;
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_PIN = 1;
     private static final int TYPE_LINK = 2;
-    private static final int TYPE_DIVIDER = 3;
+    private static final int TYPE_BOARD_INPUT = 3;
+    private static final int TYPE_DIVIDER = 4;
 
     private static final Comparator<Pin> SORT_PINS = new Comparator<Pin>() {
         @Override
@@ -71,7 +73,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
 
-    public PinAdapter(Callback callback) {
+    public DrawerAdapter(Callback callback) {
         watchManager = Chan.getWatchManager();
         this.callback = callback;
         setHasStableIds(true);
@@ -125,6 +127,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new PinViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_pin, parent, false));
             case TYPE_LINK:
                 return new LinkHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
+            case TYPE_BOARD_INPUT:
+                return new BoardInputHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_board_input, parent, false));
             case TYPE_DIVIDER:
                 return new DividerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
         }
@@ -160,6 +164,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         break;
                 }
                 break;
+            case TYPE_BOARD_INPUT:
+                break;
             case TYPE_DIVIDER:
                 ((DividerHolder) holder).withBackground(position != 0);
                 break;
@@ -188,6 +194,8 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case 1:
                 return TYPE_LINK;
             case 2:
+                return TYPE_BOARD_INPUT;
+            case 3:
                 return TYPE_HEADER;
             default:
                 return TYPE_PIN;
@@ -229,7 +237,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public void updatePinViewHolder(PinViewHolder holder, Pin pin) {
+    private void updatePinViewHolder(PinViewHolder holder, Pin pin) {
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
             text = TextUtils.concat(PostHelper.addIcon(PostHelper.archivedIcon, sp(14 + 2)), text);
@@ -289,13 +297,13 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public class PinViewHolder extends RecyclerView.ViewHolder {
+    private class PinViewHolder extends RecyclerView.ViewHolder {
         private boolean highlighted;
         private ThumbnailView image;
         private TextView textView;
         private TextView watchCountText;
 
-        public PinViewHolder(View itemView) {
+        private PinViewHolder(View itemView) {
             super(itemView);
             image = (ThumbnailView) itemView.findViewById(R.id.thumb);
             image.setCircular(true);
@@ -345,7 +353,7 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private ImageView clear;
         private ImageView settings;
 
-        public HeaderHolder(View itemView) {
+        private HeaderHolder(View itemView) {
             super(itemView);
             text = (TextView) itemView.findViewById(R.id.text);
             text.setTypeface(ROBOTO_MEDIUM);
@@ -375,11 +383,11 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public class LinkHolder extends RecyclerView.ViewHolder {
+    private class LinkHolder extends RecyclerView.ViewHolder {
         private ImageView image;
         private TextView text;
 
-        public LinkHolder(View itemView) {
+        private LinkHolder(View itemView) {
             super(itemView);
             image = (ImageView) itemView.findViewById(R.id.image);
             text = (TextView) itemView.findViewById(R.id.text);
@@ -401,16 +409,25 @@ public class PinAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public class DividerHolder extends RecyclerView.ViewHolder {
+    private class BoardInputHolder extends RecyclerView.ViewHolder {
+        private EditText input;
+
+        private BoardInputHolder(View itemView) {
+            super(itemView);
+            input = (EditText) itemView.findViewById(R.id.input);
+        }
+    }
+
+    private class DividerHolder extends RecyclerView.ViewHolder {
         private boolean withBackground = false;
         private View divider;
 
-        public DividerHolder(View itemView) {
+        private DividerHolder(View itemView) {
             super(itemView);
             divider = itemView.findViewById(R.id.divider);
         }
 
-        public void withBackground(boolean withBackground) {
+        private void withBackground(boolean withBackground) {
             if (withBackground != this.withBackground) {
                 this.withBackground = withBackground;
                 if (withBackground) {

@@ -123,7 +123,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 chanState.thread = loadableManager.get(chanState.thread);
 
                 loadDefault = false;
-                Board board = boardManager.getBoardByCode(chanState.board.board);
+                Board board = boardManager.getBoardByCode(chanState.board.boardCode);
                 browseController.loadBoard(board);
 
                 if (chanState.thread.mode == Loadable.Mode.THREAD) {
@@ -136,7 +136,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 Loadable fromUri = ChanHelper.getLoadableFromStartUri(data);
                 if (fromUri != null) {
                     loadDefault = false;
-                    Board board = boardManager.getBoardByCode(fromUri.board);
+                    Board board = boardManager.getBoardByCode(fromUri.boardCode);
                     browseController.loadBoard(board);
 
                     if (fromUri.isThreadMode()) {
@@ -157,7 +157,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         }
 
         if (loadDefault) {
-            browseController.loadBoard(boardManager.getSavedBoards().get(0));
+            browseController.loadDefault();
         }
 
         PreviousVersionHandler previousVersionHandler = new PreviousVersionHandler();

@@ -23,20 +23,40 @@ import android.text.TextUtils;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.site.Site;
+
 /**
  * Something that can be loaded, like a board or thread.
+ * Used instead of {@link Board} or {@link Post} because of the unique things a loadable can do and save in the database:<br>
+ * - It keeps track of the list index where the user last viewed.<br>
+ * - It keeps track of what post was last seen and loaded.<br>
+ * - It keeps track of the title the toolbar should show, generated from the first post (so after loading).<br>
  */
 @DatabaseTable
 public class Loadable {
     @DatabaseField(generatedId = true)
     public int id;
 
+    @DatabaseField(columnName = "site")
+    public int siteId;
+
+    public transient Site site;
+
+    /**
+     * Mode for the loadable.
+     * Either thread or catalog. Board is deprecated.
+     */
     @DatabaseField
     public int mode = Mode.INVALID;
 
-    @DatabaseField(canBeNull = false, index = true)
-    public String board;
+    @DatabaseField(columnName = "board", canBeNull = false, index = true)
+    public String boardCode;
 
+    public Board board;
+
+    /**
+     * Thread number.
+     */
     @DatabaseField(index = true)
     public int no = -1;
 
@@ -63,28 +83,34 @@ public class Loadable {
     /**
      * Constructs an empty loadable. The mode is INVALID.
      */
-    private Loadable() {
+    protected Loadable() {
     }
 
     public static Loadable emptyLoadable() {
         return new Loadable();
     }
 
-    public static Loadable forCatalog(String board) {
+    public static Loadable forCatalog(Board board) {
         Loadable loadable = new Loadable();
-        loadable.mode = Mode.CATALOG;
+        loadable.siteId = board.site.id();
+        loadable.site = board.site;
         loadable.board = board;
+        loadable.boardCode = board.code;
+        loadable.mode = Mode.CATALOG;
         return loadable;
     }
 
-    public static Loadable forThread(String board, int no) {
-        return Loadable.forThread(board, no, "");
+    public static Loadable forThread(Site site, Board board, int no) {
+        return Loadable.forThread(site, board, no, "");
     }
 
-    public static Loadable forThread(String board, int no, String title) {
+    public static Loadable forThread(Site site, Board board, int no, String title) {
         Loadable loadable = new Loadable();
+        loadable.siteId = site.id();
+        loadable.site = site;
         loadable.mode = Mode.THREAD;
         loadable.board = board;
+        loadable.boardCode = board.code;
         loadable.no = no;
         loadable.title = title;
         return loadable;
@@ -135,15 +161,19 @@ public class Loadable {
 
         Loadable other = (Loadable) object;
 
+        if (site != other.site) {
+            return false;
+        }
+
         if (mode == other.mode) {
             switch (mode) {
                 case Mode.INVALID:
                     return true;
                 case Mode.CATALOG:
                 case Mode.BOARD:
-                    return board.equals(other.board);
+                    return boardCode.equals(other.boardCode);
                 case Mode.THREAD:
-                    return board.equals(other.board) && no == other.no;
+                    return boardCode.equals(other.boardCode) && no == other.no;
                 default:
                     throw new IllegalArgumentException();
             }
@@ -157,7 +187,7 @@ public class Loadable {
         int result = mode;
 
         if (mode == Mode.THREAD || mode == Mode.CATALOG || mode == Mode.BOARD) {
-            result = 31 * result + (board != null ? board.hashCode() : 0);
+            result = 31 * result + (boardCode != null ? boardCode.hashCode() : 0);
         }
         if (mode == Mode.THREAD) {
             result = 31 * result + no;
@@ -170,7 +200,7 @@ public class Loadable {
         return "Loadable{" +
                 "id=" + id +
                 ", mode=" + mode +
-                ", board='" + board + '\'' +
+                ", board='" + boardCode + '\'' +
                 ", no=" + no +
                 ", title='" + title + '\'' +
                 ", listViewIndex=" + listViewIndex +
@@ -194,8 +224,9 @@ public class Loadable {
         Loadable loadable = new Loadable();
         /*loadable.id = */
         parcel.readInt();
+        loadable.siteId = parcel.readInt();
         loadable.mode = parcel.readInt();
-        loadable.board = parcel.readString();
+        loadable.boardCode = parcel.readString();
         loadable.no = parcel.readInt();
         loadable.title = parcel.readString();
         loadable.listViewIndex = parcel.readInt();
@@ -205,8 +236,11 @@ public class Loadable {
 
     public void writeToParcel(Parcel parcel) {
         parcel.writeInt(id);
+        // TODO(multi-site)
+        parcel.writeInt(siteId);
         parcel.writeInt(mode);
-        parcel.writeString(board);
+        // TODO(multi-site)
+        parcel.writeString(boardCode);
         parcel.writeInt(no);
         parcel.writeString(title);
         parcel.writeInt(listViewIndex);
@@ -215,8 +249,13 @@ public class Loadable {
 
     public Loadable copy() {
         Loadable copy = new Loadable();
+        copy.id = id;
+        copy.siteId = siteId;
+        copy.site = site;
         copy.mode = mode;
-        copy.board = board;
+        // TODO: for empty loadables
+        if (board != null) copy.board = board.copy();
+        copy.boardCode = boardCode;
         copy.no = no;
         copy.title = title;
         copy.listViewIndex = listViewIndex;

@@ -64,3 +64,7 @@ ALTER TABLE loadable ADD COLUMN lastViewed default -1;
 
 Changes in version 21:
 ALTER TABLE loadable ADD COLUMN lastLoaded default -1;
+
+
+Changes in version 22:
+ALTER TABLE loadable ADD COLUMN lastLoaded default -1;

@@ -39,10 +39,12 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.theme.Theme;
@@ -65,7 +67,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
     private PostCell.PostCellCallback DUMMY_POST_CALLBACK = new PostCell.PostCellCallback() {
-        private Loadable loadable = Loadable.forThread("g", 1234);
+        private Loadable loadable = Loadable.forThread(Sites.defaultSite(), new Board(Sites.defaultSite(), "a", "a", false, false), 1234);
 
         @Override
         public Loadable getLoadable() {

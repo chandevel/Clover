@@ -29,14 +29,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+/**
+ * Saved replies are posts-password combinations used to track what posts are posted by the app,
+ * and used to delete posts.
+ */
 public class DatabaseSavedReplyManager {
     private static final String TAG = "DatabaseSavedReplyManager";
 
     private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
 
-    private DatabaseManager databaseManager;
-    private DatabaseHelper helper;
+    private final DatabaseManager databaseManager;
+    private final DatabaseHelper helper;
 
     private final Map<Integer, List<SavedReply>> savedRepliesByNo = new HashMap<>();
 
@@ -45,8 +49,16 @@ public class DatabaseSavedReplyManager {
         this.helper = helper;
     }
 
-    // optimized and threadsafe
+    /**
+     * Check if the given board-no combination is in the database.<br>
+     * This is unlike other methods in that it immediately returns the result instead of
+     * a Callable. This method is thread-safe and optimized.
+     * @param board board code of the post
+     * @param no post number
+     * @return {@code true} if the post is in the saved reply database, {@code false} otherwise.
+     */
     public boolean isSaved(String board, int no) {
+        // TODO(multi-site)
         synchronized (savedRepliesByNo) {
             if (savedRepliesByNo.containsKey(no)) {
                 List<SavedReply> items = savedRepliesByNo.get(no);

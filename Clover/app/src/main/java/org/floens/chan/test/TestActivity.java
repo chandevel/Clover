@@ -200,7 +200,8 @@ public class TestActivity extends Activity implements View.OnClickListener {
     }
 
     private void testCache() {
-        Loadable loadable = Loadable.forCatalog("g");
+//        Loadable loadable = Loadable.forCatalog(Sites.defaultSite().boards().boards.get(0));
+        Loadable loadable = null;
         ChanLoader loader = new ChanLoader(loadable);
         loader.addListener(new ChanLoader.ChanLoaderCallback() {
             @Override
