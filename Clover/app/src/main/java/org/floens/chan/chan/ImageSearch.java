@@ -99,5 +99,19 @@ public abstract class ImageSearch {
                 return "https://whatanime.ga/?url=" + imageUrl;
             }
         });
+        
+        engines.add(new ImageSearch() {
+            public int getId() {
+                return 5;
+            }
+
+            public String getName() {
+                return "Yandex";
+            }
+
+            public String getUrl(String imageUrl) {
+                return "https://www.yandex.com/images/search?rpt=imageview&img_url=" + imageUrl;
+            }
+        });
     }
 }
