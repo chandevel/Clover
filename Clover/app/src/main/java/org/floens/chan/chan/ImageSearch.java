@@ -85,5 +85,19 @@ public abstract class ImageSearch {
                 return "http://tineye.com/search/?url=" + imageUrl;
             }
         });
+        
+        engines.add(new ImageSearch() {
+            public int getId() {
+                return 4;
+            }
+
+            public String getName() {
+                return "WAIT";
+            }
+
+            public String getUrl(String imageUrl) {
+                return "https://whatanime.ga/?url=" + imageUrl;
+            }
+        });
     }
 }
