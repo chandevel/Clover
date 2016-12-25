@@ -355,6 +355,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filters_screen">Filters</string>
 
     <string name="save_location_screen">Save location</string>
+    <string name="folder_not_found">The folder \"%1$s\" has not been found; showing \"%2$s\" instead</string>
     <string name="write_permission_required_title">Storage permission required</string>
     <string name="write_permission_required">
 "Permission to access storage is required for browsing files.

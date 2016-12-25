@@ -19,15 +19,19 @@ package org.floens.chan.core.saver;
 
 import android.os.FileObserver;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.floens.chan.core.model.FileItem;
 import org.floens.chan.core.model.FileItems;
+import org.floens.chan.R;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 public class FileWatcher {
     private static final String TAG = "FileWatcher";
@@ -70,7 +74,13 @@ public class FileWatcher {
 
     public void navigateTo(File to) {
         if (!StorageHelper.canNavigate(to)) {
-            throw new IllegalArgumentException("Cannot navigate to " + to.getAbsolutePath());
+            if (to.getParentFile() != null) {
+                Toast.makeText(getAppContext(), String.format(getAppContext().getResources().getString(R.string.folder_not_found), to.getAbsolutePath(), to.getParentFile().getAbsolutePath()), Toast.LENGTH_LONG).show();
+                navigateTo(to.getParentFile());
+                return;
+            }
+            else
+                throw new IllegalArgumentException("Cannot navigate to " + to.getAbsolutePath());
         }
 
         if (fileObserver != null) {
