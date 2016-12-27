@@ -409,12 +409,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         icons.apply();
 
         CharSequence commentText;
-        if (post.comment.length() > COMMENT_MAX_LENGTH_BOARD && !threadMode) {
-            BreakIterator bi = BreakIterator.getWordInstance();
-            bi.setText(post.comment.toString());
-            int precedingBoundary = bi.preceding(COMMENT_MAX_LENGTH_BOARD);
-            // Fallback to old method in case the comment does not have any spaces/individual words
-            commentText = precedingBoundary > 0 ? post.comment.subSequence(0, precedingBoundary) : post.comment.subSequence(0, COMMENT_MAX_LENGTH_BOARD);
+        if (!threadMode && post.comment.length() > COMMENT_MAX_LENGTH_BOARD) {
+            commentText = truncatePostComment(post, COMMENT_MAX_LENGTH_BOARD);
         } else {
             commentText = post.comment;
         }
@@ -489,6 +485,15 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                 }
             }
         }
+    }
+
+    private CharSequence truncatePostComment(Post post, int maxCommentLength) {
+        BreakIterator bi = BreakIterator.getWordInstance();
+        bi.setText(post.comment.toString());
+        int precedingBoundary = bi.following(maxCommentLength);
+        // Fallback to old method in case the comment does not have any spaces/individual words
+        CharSequence commentText = precedingBoundary > 0 ? post.comment.subSequence(0, precedingBoundary) : post.comment.subSequence(0, maxCommentLength);
+        return TextUtils.concat(commentText, "\u2026"); // append ellipsis
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
