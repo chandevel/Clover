@@ -450,6 +450,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setting_enable_reply_fab_description">Disabling replaces it with a menu option</string>
     <string name="setting_anonymize">Make everyone Anonymous</string>
     <string name="setting_anonymize_ids">Hide IDs</string>
+    <string name="setting_pass_icon">Hide 4chan Pass Icon</string>
     <string name="setting_show_anonymous_name">Show Anonymous username</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
     <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>

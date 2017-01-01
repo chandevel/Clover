@@ -92,6 +92,7 @@ public class AdvancedSettingsController extends SettingsController {
         settings.add(new BooleanSettingView(this, ChanSettings.networkHttps, R.string.setting_network_https, R.string.setting_network_https_description));
         enableReplyFab = settings.add(new BooleanSettingView(this, ChanSettings.enableReplyFab, R.string.setting_enable_reply_fab, R.string.setting_enable_reply_fab_description));
         settings.add(new BooleanSettingView(this, ChanSettings.anonymize, R.string.setting_anonymize, 0));
+        settings.add(new BooleanSettingView(this, ChanSettings.passIcon, R.string.setting_pass_icon, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.anonymizeIds, R.string.setting_anonymize_ids, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.showAnonymousName, R.string.setting_show_anonymous_name, 0));
         settings.add(new BooleanSettingView(this, ChanSettings.revealImageSpoilers, R.string.settings_reveal_image_spoilers, 0));
