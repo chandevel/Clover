@@ -398,6 +398,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         icons.set(PostIcons.CLOSED, post.closed);
         icons.set(PostIcons.DELETED, post.deleted.get());
         icons.set(PostIcons.ARCHIVED, post.archived);
+        icons.set(PostIcons.PASS, post.since4pass > 0);
 
         if (!isEmpty(post.country)) {
             icons.set(PostIcons.COUNTRY, true);
@@ -600,6 +601,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private static Bitmap closedIcon;
     private static Bitmap trashIcon;
     private static Bitmap archivedIcon;
+    private static Bitmap passIcon;
 
     static {
         Resources res = AndroidUtils.getRes();
@@ -607,6 +609,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         closedIcon = BitmapFactory.decodeResource(res, R.drawable.closed_icon);
         trashIcon = BitmapFactory.decodeResource(res, R.drawable.trash_icon);
         archivedIcon = BitmapFactory.decodeResource(res, R.drawable.archived_icon);
+        passIcon = BitmapFactory.decodeResource(res, R.drawable.pass_icon);
     }
 
     public static class PostIcons extends View {
@@ -615,6 +618,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         private static final int DELETED = 0x4;
         private static final int ARCHIVED = 0x8;
         private static final int COUNTRY = 0x10;
+        private static final int PASS = 0x20;
 
         private int height;
         private int spacing;
@@ -755,6 +759,10 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                     textPaint.getTextBounds(countryName, 0, countryName.length(), textRect);
                     float y = height / 2f - textRect.exactCenterY();
                     canvas.drawText(countryName, offset, y, textPaint);
+                }
+
+                if (get(PASS)) {
+                    offset += drawBitmap(canvas, passIcon, offset);
                 }
 
                 canvas.restore();
