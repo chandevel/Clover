@@ -44,7 +44,7 @@ public class NoSSLv3Compat {
             if (protocols != null && protocols.length == 1 && "SSLv3".equals(protocols[0])) {
                 // no way jose
                 // see issue https://code.google.com/p/android/issues/detail?id=78187
-                List<String> enabledProtocols = new ArrayList<>(Arrays.asList(delegate.getEnabledProtocols()));
+                List<String> enabledProtocols = new ArrayList<String>(Arrays.asList(delegate.getEnabledProtocols()));
                 if (enabledProtocols.size() > 1) {
                     enabledProtocols.remove("SSLv3");
                     VolleyLog.d("Removed SSLv3 from enabled protocols");
