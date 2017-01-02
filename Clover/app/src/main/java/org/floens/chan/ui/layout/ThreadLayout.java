@@ -40,7 +40,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
@@ -63,6 +62,9 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -77,7 +79,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         ERROR;
     }
 
-    private DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
 
     private ThreadLayoutCallback callback;
 
@@ -528,7 +531,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     private void init() {
-        databaseManager = Chan.getDatabaseManager();
+        getGraph().inject(this);
     }
 
     @Override

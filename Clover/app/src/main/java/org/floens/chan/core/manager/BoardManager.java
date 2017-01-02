@@ -30,8 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.greenrobot.event.EventBus;
 
+@Singleton
 public class BoardManager {
     private static final String TAG = "BoardManager";
 
@@ -56,6 +60,7 @@ public class BoardManager {
     private final List<Board> savedBoards = new ArrayList<>();
     private final Map<String, Board> boardsByCode = new HashMap<>();
 
+    @Inject
     public BoardManager(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
         defaultSite = Sites.defaultSite();

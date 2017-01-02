@@ -51,6 +51,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
@@ -70,6 +73,7 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
  * <p/>
  * <p>All pin adding and removing must go through this class to properly update the watchers.
  */
+@Singleton
 public class WatchManager {
     private static final String TAG = "WatchManager";
 
@@ -124,6 +128,7 @@ public class WatchManager {
     private PowerManager.WakeLock wakeLock;
     private long lastBackgroundUpdateTime;
 
+    @Inject
     public WatchManager(DatabaseManager databaseManager) {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);

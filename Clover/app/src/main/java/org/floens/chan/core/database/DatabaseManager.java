@@ -41,6 +41,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.greenrobot.event.EventBus;
 
 /**
@@ -51,6 +54,7 @@ import de.greenrobot.event.EventBus;
  * You often want the sync flavour for queries that return data, it waits for the task to be finished on the other thread.<br>
  * Use the async versions when you don't care when the query is done.
  */
+@Singleton
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
@@ -70,6 +74,7 @@ public class DatabaseManager {
     private final DatabaseFilterManager databaseFilterManager;
     private final DatabaseBoardManager databaseBoardManager;
 
+    @Inject
     public DatabaseManager(Context context) {
         backgroundExecutor = Executors.newSingleThreadExecutor();
 

@@ -21,7 +21,6 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 
 import org.floens.chan.chan.ChanParser;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.settings.ChanSettings;
 import org.jsoup.parser.Parser;
 
@@ -31,6 +30,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.floens.chan.Chan.getGraph;
 
 /**
  * Contains all data needed to represent a single post.<br>
@@ -175,7 +176,8 @@ public class Post {
             spoiler = false;
         }
 
-        ChanParser.getInstance().parse(this);
+        ChanParser chanParser = getGraph().getChanParser();
+        chanParser.parse(this);
 
         repliesTo = Collections.unmodifiableSet(repliesTo);
 

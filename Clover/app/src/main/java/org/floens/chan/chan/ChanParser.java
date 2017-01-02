@@ -27,7 +27,6 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
@@ -54,21 +53,21 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import static org.floens.chan.utils.AndroidUtils.sp;
 
+@Singleton
 public class ChanParser {
     private static final String TAG = "ChanParser";
     private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
 
-    private static ChanParser instance = new ChanParser();
-    private final DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
 
+    @Inject
     public ChanParser() {
-        databaseManager = Chan.getDatabaseManager();
-    }
-
-    public static ChanParser getInstance() {
-        return instance;
     }
 
     public void parse(Post post) {

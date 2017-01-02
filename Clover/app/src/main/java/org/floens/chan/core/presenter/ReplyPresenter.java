@@ -19,7 +19,6 @@ package org.floens.chan.core.presenter;
 
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
@@ -43,6 +42,9 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -59,10 +61,17 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
     private ReplyPresenterCallback callback;
 
-    private ReplyManager replyManager;
-    private BoardManager boardManager;
-    private WatchManager watchManager;
-    private DatabaseManager databaseManager;
+    @Inject
+    ReplyManager replyManager;
+
+    @Inject
+    BoardManager boardManager;
+
+    @Inject
+    WatchManager watchManager;
+
+    @Inject
+    DatabaseManager databaseManager;
 
     private boolean bound = false;
     private Loadable loadable;
@@ -78,10 +87,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
     public ReplyPresenter(ReplyPresenterCallback callback) {
         this.callback = callback;
-        replyManager = Chan.getReplyManager();
-        boardManager = Chan.getBoardManager();
-        watchManager = Chan.getWatchManager();
-        databaseManager = Chan.getDatabaseManager();
+        getGraph().inject(this);
     }
 
     public void bindLoadable(Loadable loadable) {

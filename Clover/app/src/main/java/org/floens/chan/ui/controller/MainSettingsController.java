@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.settings.ChanSettings;
@@ -53,8 +54,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -80,6 +84,9 @@ public class MainSettingsController extends SettingsController implements Toolba
 
     private PopupWindow advancedSettingsHint;
 
+    @Inject
+    DatabaseManager databaseManager;
+
     public MainSettingsController(Context context) {
         super(context);
     }
@@ -88,6 +95,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     public void onCreate() {
         super.onCreate();
 
+        getGraph().inject(this);
         EventBus.getDefault().register(this);
 
         navigationItem.setTitle(R.string.settings_screen);

@@ -19,6 +19,7 @@ package org.floens.chan.core.http;
 
 import android.content.Context;
 
+import org.floens.chan.core.UserAgentProvider;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 
@@ -27,12 +28,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 /**
  * To send an reply to 4chan.
  */
+@Singleton
 public class ReplyManager {
     private static final int TIMEOUT = 30000;
 
@@ -42,9 +47,10 @@ public class ReplyManager {
 
     private Map<Loadable, Reply> drafts = new HashMap<>();
 
-    public ReplyManager(Context context, String userAgent) {
+    @Inject
+    public ReplyManager(Context context, UserAgentProvider userAgentProvider) {
         this.context = context;
-        this.userAgent = userAgent;
+        userAgent = userAgentProvider.getUserAgent();
 
         client = new OkHttpClient.Builder()
                 .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)

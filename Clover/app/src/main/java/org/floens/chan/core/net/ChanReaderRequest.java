@@ -22,7 +22,6 @@ import android.util.JsonReader;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
@@ -41,9 +40,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static org.floens.chan.Chan.getGraph;
+
 /**
  * Process a typical imageboard json response.<br>
- * This class is highly multithreaded, take good care to don't access models that are to be only
+ * This class is highly multithreaded, take good care to not access models that are to be only
  * changed on the main thread.
  */
 public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanReaderResponse> {
@@ -58,11 +59,12 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
+    DatabaseManager databaseManager;
+
     private Loadable loadable;
     private List<Post> cached;
     private Post op;
     private FilterEngine filterEngine;
-    private DatabaseManager databaseManager;
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private List<Filter> filters;
@@ -70,8 +72,10 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
 
     private ChanReaderRequest(String url, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
         super(url, listener, errorListener);
+
+        getGraph().inject(this);
+
         filterEngine = FilterEngine.getInstance();
-        databaseManager = Chan.getDatabaseManager();
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
     }
 

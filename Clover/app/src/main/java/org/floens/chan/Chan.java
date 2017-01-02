@@ -27,8 +27,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
+import org.floens.chan.core.UserAgentProvider;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.di.AppModule;
+import org.floens.chan.core.di.ChanGraph;
+import org.floens.chan.core.di.DaggerChanGraph;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
@@ -41,9 +45,11 @@ import org.floens.chan.utils.Time;
 import java.io.File;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
-public class Chan extends Application {
+public class Chan extends Application implements UserAgentProvider {
     private static final String TAG = "ChanApplication";
 
     private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
@@ -55,14 +61,15 @@ public class Chan extends Application {
     private static Chan instance;
     private static RequestQueue volleyRequestQueue;
     private static ImageLoader imageLoader;
-    private static BoardManager boardManager;
-    private static WatchManager watchManager;
-    private static ReplyManager replyManager;
-    private static DatabaseManager databaseManager;
     private static FileCache fileCache;
 
     private String userAgent;
     private int activityForegroundCounter = 0;
+
+    protected ChanGraph graph;
+
+    @Inject
+    DatabaseManager databaseManager;
 
     public Chan() {
         instance = this;
@@ -82,23 +89,27 @@ public class Chan extends Application {
     }
 
     public static BoardManager getBoardManager() {
-        return boardManager;
+        throw new IllegalArgumentException();
     }
 
     public static WatchManager getWatchManager() {
-        return watchManager;
+        throw new IllegalArgumentException();
     }
 
     public static ReplyManager getReplyManager() {
-        return replyManager;
+        throw new IllegalArgumentException();
     }
 
     public static DatabaseManager getDatabaseManager() {
-        return databaseManager;
+        throw new IllegalArgumentException();
     }
 
     public static FileCache getFileCache() {
         return fileCache;
+    }
+
+    public static ChanGraph getGraph() {
+        return instance.graph;
     }
 
     @Override
@@ -108,12 +119,15 @@ public class Chan extends Application {
         final long startTime = Time.startTiming();
 
         AndroidUtils.init();
+        graph = DaggerChanGraph.builder()
+                .appModule(new AppModule(this, this))
+                .build();
+
+        graph.inject(this);
 
         userAgent = createUserAgent();
 
         File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
-
-        replyManager = new ReplyManager(this, userAgent);
 
         volleyRequestQueue = Volley.newRequestQueue(this, userAgent, new ProxiedHurlStack(userAgent), new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
 
@@ -124,9 +138,9 @@ public class Chan extends Application {
 
         fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, getUserAgent());
 
-        databaseManager = new DatabaseManager(this);
-        boardManager = new BoardManager(databaseManager);
-        watchManager = new WatchManager(databaseManager);
+//        sDatabaseManager = new DatabaseManager(this);
+//        boardManager = new BoardManager(null);
+//        watchManager = new WatchManager(null);
 
         Time.endTiming("Initializing application", startTime);
 
@@ -153,6 +167,7 @@ public class Chan extends Application {
         }
     }
 
+    @Override
     public String getUserAgent() {
         return userAgent;
     }
