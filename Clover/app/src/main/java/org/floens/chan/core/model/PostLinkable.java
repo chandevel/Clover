@@ -37,7 +37,6 @@ public class PostLinkable extends ClickableSpan {
     }
 
     public final Theme theme;
-    public final Post post;
     public final String key;
     public final Object value;
     public final Type type;
@@ -45,9 +44,8 @@ public class PostLinkable extends ClickableSpan {
     private boolean spoilerVisible = ChanSettings.revealTextSpoilers.get();
     private int markedNo = -1;
 
-    public PostLinkable(Theme theme, Post post, String key, Object value, Type type) {
+    public PostLinkable(Theme theme, String key, Object value, Type type) {
         this.theme = theme;
-        this.post = post;
         this.key = key;
         this.value = value;
         this.type = type;

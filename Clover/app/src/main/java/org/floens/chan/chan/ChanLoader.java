@@ -27,7 +27,6 @@ import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.net.ChanReaderRequest;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -44,11 +43,18 @@ import javax.inject.Inject;
 
 import static org.floens.chan.Chan.getGraph;
 
-public class ChanLoader implements Response.ErrorListener, Response.Listener<ChanReaderRequest.ChanReaderResponse> {
+/**
+ * A ChanLoader is the loader for Loadables.
+ * <p>Obtain ChanLoaders with {@link org.floens.chan.core.pool.ChanLoaderFactory}.
+ * <p>ChanLoaders can load boards and threads, and return {@link ChanThread} objects on success, through
+ * {@link ChanLoaderCallback}.
+ * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
+ */
+public class ChanLoader implements Response.ErrorListener, Response.Listener<ChanLoaderResponse> {
     private static final String TAG = "ChanLoader";
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
+    private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
     @Inject
     RequestQueue volleyRequestQueue;
@@ -57,13 +63,16 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     private final Loadable loadable;
     private ChanThread thread;
 
-    private ChanReaderRequest request;
+    private ChanLoaderRequest request;
 
     private int currentTimeout = 0;
     private int lastPostCount;
     private long lastLoadTime;
     private ScheduledFuture<?> pendingFuture;
 
+    /**
+     * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link org.floens.chan.core.pool.ChanLoaderFactory}</b>
+     */
     public ChanLoader(Loadable loadable) {
         this.loadable = loadable;
 
@@ -94,13 +103,17 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         if (listeners.isEmpty()) {
             clearTimer();
             if (request != null) {
-                request.cancel();
+                request.getVolleyRequest().cancel();
                 request = null;
             }
             return true;
         } else {
             return false;
         }
+    }
+
+    public ChanThread getThread() {
+        return thread;
     }
 
     /**
@@ -110,7 +123,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         clearTimer();
 
         if (request != null) {
-            request.cancel();
+            request.getVolleyRequest().cancel();
             // request = null;
         }
 
@@ -127,9 +140,10 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     }
 
     /**
-     * Request more data
+     * Request more data. This only works for thread loaders.<br>
+     * This clears any pending pending timers, created with {@link #setTimer()}.
      *
-     * @return true if a request was started, false otherwise
+     * @return {@code true} if a new request was started, {@code false} otherwise.
      */
     public boolean requestMoreData() {
         clearPendingRunnable();
@@ -179,6 +193,31 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         return loadable;
     }
 
+    public void setTimer() {
+        clearPendingRunnable();
+
+        int watchTimeout = WATCH_TIMEOUTS[currentTimeout];
+        Logger.d(TAG, "Scheduled reload in " + watchTimeout + "s");
+
+        pendingFuture = executor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                AndroidUtils.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pendingFuture = null;
+                        requestMoreData();
+                    }
+                });
+            }
+        }, watchTimeout, TimeUnit.SECONDS);
+    }
+
+    public void clearTimer() {
+        currentTimeout = 0;
+        clearPendingRunnable();
+    }
+
     /**
      * Get the time in milliseconds until another loadMore is recommended
      */
@@ -186,20 +225,28 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         if (request != null) {
             return 0L;
         } else {
-            long waitTime = watchTimeouts[Math.max(0, currentTimeout)] * 1000L;
+            long waitTime = WATCH_TIMEOUTS[Math.max(0, currentTimeout)] * 1000L;
             return lastLoadTime + waitTime - Time.get();
         }
     }
 
-    public ChanThread getThread() {
-        return thread;
+    private ChanLoaderRequest getData() {
+        Logger.d(TAG, "Requested " + loadable.boardCode + ", " + loadable.no);
+
+        List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
+
+        request = loadable.getSite().loaderRequest(new ChanLoaderRequestParams(loadable, cached, this, this));
+
+        volleyRequestQueue.add(request.getVolleyRequest());
+
+        return request;
     }
 
     @Override
-    public void onResponse(ChanReaderRequest.ChanReaderResponse response) {
+    public void onResponse(ChanLoaderResponse response) {
         request = null;
 
-        if (response.posts.size() == 0) {
+        if (response.posts.isEmpty()) {
             onErrorResponse(new VolleyError("Post size is 0"));
             return;
         }
@@ -228,11 +275,36 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
             lastPostCount = postCount;
             currentTimeout = 0;
         } else {
-            currentTimeout = Math.min(currentTimeout + 1, watchTimeouts.length - 1);
+            currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
 
         for (ChanLoaderCallback l : listeners) {
             l.onChanLoaderData(thread);
+        }
+    }
+
+    /**
+     * Final processing af a response that needs to happen on the main thread.
+     *
+     * @param response Response to process
+     */
+    private void processResponse(ChanLoaderResponse response) {
+        if (loadable.isThreadMode() && thread.posts.size() > 0) {
+            // Replace some op parameters to the real op (index 0).
+            // This is done on the main thread to avoid race conditions.
+            Post realOp = thread.posts.get(0);
+            thread.op = realOp;
+            Post.Builder fakeOp = response.op;
+            if (fakeOp != null) {
+                thread.closed = realOp.closed = fakeOp.closed;
+                thread.archived = realOp.archived = fakeOp.archived;
+                realOp.sticky = fakeOp.sticky;
+                realOp.replies = fakeOp.replies;
+                realOp.images = fakeOp.images;
+                realOp.uniqueIps = fakeOp.uniqueIps;
+            } else {
+                Logger.e(TAG, "Thread has no op!");
+            }
         }
     }
 
@@ -251,73 +323,12 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         }
     }
 
-    /**
-     * Final processing af a response that needs to happen on the main thread.
-     *
-     * @param response Response to process
-     */
-    private void processResponse(ChanReaderRequest.ChanReaderResponse response) {
-        if (loadable.isThreadMode() && thread.posts.size() > 0) {
-            // Replace some op parameters to the real op (index 0).
-            // This is done on the main thread to avoid race conditions.
-            Post realOp = thread.posts.get(0);
-            thread.op = realOp;
-            Post fakeOp = response.op;
-            if (fakeOp != null) {
-                thread.closed = realOp.closed = fakeOp.closed;
-                thread.archived = realOp.archived = fakeOp.archived;
-                realOp.sticky = fakeOp.sticky;
-                realOp.replies = fakeOp.replies;
-                realOp.images = fakeOp.images;
-                realOp.uniqueIps = fakeOp.uniqueIps;
-            } else {
-                Logger.e(TAG, "Thread has no op!");
-            }
-        }
-    }
-
-    public void setTimer() {
-        clearPendingRunnable();
-
-        int watchTimeout = watchTimeouts[currentTimeout];
-        Logger.d(TAG, "Scheduled reload in " + watchTimeout + "s");
-
-        pendingFuture = executor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        pendingFuture = null;
-                        requestMoreData();
-                    }
-                });
-            }
-        }, watchTimeout, TimeUnit.SECONDS);
-    }
-
-    public void clearTimer() {
-        currentTimeout = 0;
-        clearPendingRunnable();
-    }
-
     private void clearPendingRunnable() {
         if (pendingFuture != null) {
             Logger.d(TAG, "Cleared timer");
             pendingFuture.cancel(false);
             pendingFuture = null;
         }
-    }
-
-    private ChanReaderRequest getData() {
-        Logger.d(TAG, "Requested " + loadable.boardCode + ", " + loadable.no);
-
-        List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
-        ChanReaderRequest request = ChanReaderRequest.newInstance(loadable, cached, this, this);
-
-        volleyRequestQueue.add(request);
-
-        return request;
     }
 
     public interface ChanLoaderCallback {

@@ -4,6 +4,8 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 
+import java.util.Map;
+
 /**
  * Endpoints for {@link Site}.
  */
@@ -12,11 +14,11 @@ public interface SiteEndpoints {
 
     String thread(Board board, Loadable loadable);
 
-    String imageUrl(Post post);
+    String imageUrl(Post.Builder post, Map<String, String> arg);
 
-    String thumbnailUrl(Post post);
+    String thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
 
-    String flag(Post post);
+    String flag(Post.Builder post, String countryCode, Map<String, String> arg);
 
     String boards();
 

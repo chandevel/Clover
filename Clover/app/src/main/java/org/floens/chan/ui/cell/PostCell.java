@@ -324,7 +324,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             filterMatchColor.setVisibility(View.GONE);
         }
 
-        if (post.hasImage && !ChanSettings.textOnly.get()) {
+        if (post.image != null && !ChanSettings.textOnly.get()) {
             thumbnailView.setVisibility(View.VISIBLE);
             thumbnailView.setPostImage(post.image, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
         } else {
@@ -369,7 +369,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         titleParts.add(date);
 
-        if (post.hasImage) {
+        if (post.image != null) {
             PostImage image = post.image;
 
             boolean postFileName = ChanSettings.postFilename.get();
@@ -421,7 +421,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
 
         comment.setText(commentText);
-        comment.setVisibility(isEmpty(commentText) && !post.hasImage ? GONE : VISIBLE);
+        comment.setVisibility(isEmpty(commentText) && post.image == null ? GONE : VISIBLE);
 
         if (commentClickable != threadMode) {
             commentClickable = threadMode;
@@ -525,7 +525,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                         ignoreNextOnClick = true;
                         clickableSpan.onClick(widget);
                         if (clickableSpan instanceof PostLinkable) {
-                            callback.onPostLinkableClicked((PostLinkable) clickableSpan);
+                            callback.onPostLinkableClicked(post, (PostLinkable) clickableSpan);
                         }
                         buffer.removeSpan(BACKGROUND_SPAN);
                     } else if (action == MotionEvent.ACTION_DOWN && clickableSpan instanceof PostLinkable) {

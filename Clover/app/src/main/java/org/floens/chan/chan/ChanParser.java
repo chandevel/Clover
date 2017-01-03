@@ -61,7 +61,9 @@ import static org.floens.chan.utils.AndroidUtils.sp;
 @Singleton
 public class ChanParser {
     private static final String TAG = "ChanParser";
-    private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
+    private static final Pattern COLOR_PATTERN = Pattern.compile("color:#([0-9a-fA-F]*)");
+    private static final String SAVED_REPLY_SUFFIX = " (You)";
+    private static final String OP_REPLY_SUFFIX = " (OP)";
 
     @Inject
     DatabaseManager databaseManager;
@@ -70,34 +72,36 @@ public class ChanParser {
     public ChanParser() {
     }
 
-    public void parse(Post post) {
-        parse(null, post);
+    public Post parse(Post.Builder post) {
+        return parse(null, post);
     }
 
-    public void parse(Theme theme, Post post) {
+    public Post parse(Theme theme, Post.Builder builder) {
         if (theme == null) {
             theme = ThemeHelper.getInstance().getTheme();
         }
 
         try {
-            if (!TextUtils.isEmpty(post.name)) {
-                post.name = Parser.unescapeEntities(post.name, false);
+            if (!TextUtils.isEmpty(builder.name)) {
+                builder.name = Parser.unescapeEntities(builder.name, false);
             }
 
-            if (!TextUtils.isEmpty(post.subject)) {
-                post.subject = Parser.unescapeEntities(post.subject, false);
+            if (!TextUtils.isEmpty(builder.subject)) {
+                builder.subject = Parser.unescapeEntities(builder.subject, false);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        parseSpans(theme, post);
+        parseSpans(theme, builder);
 
-        if (post.rawComment != null) {
-            post.comment = parseComment(theme, post, post.rawComment);
+        if (builder.comment != null) {
+            builder.comment = parseComment(theme, builder, builder.comment);
         } else {
-            post.comment = "";
+            builder.comment = "";
         }
+
+        return builder.build();
     }
 
     /**
@@ -105,48 +109,55 @@ public class ChanParser {
      * This is done on a background thread for performance, even when it is UI code.<br>
      * The results will be placed on the Post.*Span members.
      *
-     * @param theme Theme to use for parsing
-     * @param post  Post to get data from
+     * @param theme   Theme to use for parsing
+     * @param builder Post builder to get data from
      */
-    private void parseSpans(Theme theme, Post post) {
+    private void parseSpans(Theme theme, Post.Builder builder) {
         boolean anonymize = ChanSettings.anonymize.get();
         boolean anonymizeIds = ChanSettings.anonymizeIds.get();
 
+        final String defaultName = "Anonymous";
         if (anonymize) {
-            post.name = "Anonymous";
-            post.tripcode = "";
+            builder.name(defaultName);
+            builder.tripcode("");
         }
 
         if (anonymizeIds) {
-            post.id = "";
+            builder.posterId("");
         }
+
+        SpannableString subjectSpan = null;
+        SpannableString nameSpan = null;
+        SpannableString tripcodeSpan = null;
+        SpannableString idSpan = null;
+        SpannableString capcodeSpan = null;
 
         int detailsSizePx = sp(Integer.parseInt(ChanSettings.fontSize.get()) - 4);
 
-        if (!TextUtils.isEmpty(post.subject)) {
-            post.subjectSpan = new SpannableString(post.subject);
+        if (!TextUtils.isEmpty(builder.subject)) {
+            subjectSpan = new SpannableString(builder.subject);
             // Do not set another color when the post is in stub mode, it sets text_color_secondary
-            if (!post.filterStub) {
-                post.subjectSpan.setSpan(new ForegroundColorSpanHashed(theme.subjectColor), 0, post.subjectSpan.length(), 0);
+            if (!builder.filterStub) {
+                subjectSpan.setSpan(new ForegroundColorSpanHashed(theme.subjectColor), 0, subjectSpan.length(), 0);
             }
         }
 
-        if (!TextUtils.isEmpty(post.name) && (!post.name.equals("Anonymous") || ChanSettings.showAnonymousName.get())) {
-            post.nameSpan = new SpannableString(post.name);
-            post.nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, post.nameSpan.length(), 0);
+        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName) || ChanSettings.showAnonymousName.get())) {
+            nameSpan = new SpannableString(builder.name);
+            nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, nameSpan.length(), 0);
         }
 
-        if (!TextUtils.isEmpty(post.tripcode)) {
-            post.tripcodeSpan = new SpannableString(post.tripcode);
-            post.tripcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, post.tripcodeSpan.length(), 0);
-            post.tripcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, post.tripcodeSpan.length(), 0);
+        if (!TextUtils.isEmpty(builder.tripcode)) {
+            tripcodeSpan = new SpannableString(builder.tripcode);
+            tripcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, tripcodeSpan.length(), 0);
+            tripcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, tripcodeSpan.length(), 0);
         }
 
-        if (!TextUtils.isEmpty(post.id)) {
-            post.idSpan = new SpannableString("  ID: " + post.id + "  ");
+        if (!TextUtils.isEmpty(builder.posterId)) {
+            idSpan = new SpannableString("  ID: " + builder.posterId + "  ");
 
             // Stolen from the 4chan extension
-            int hash = post.id.hashCode();
+            int hash = builder.posterId.hashCode();
 
             int r = (hash >> 24) & 0xff;
             int g = (hash >> 16) & 0xff;
@@ -156,40 +167,42 @@ public class ChanParser {
             boolean lightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
             int idBgColor = lightColor ? theme.idBackgroundLight : theme.idBackgroundDark;
 
-            post.idSpan.setSpan(new ForegroundColorSpanHashed(idColor), 0, post.idSpan.length(), 0);
-            post.idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, post.idSpan.length(), 0);
-            post.idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, post.idSpan.length(), 0);
+            idSpan.setSpan(new ForegroundColorSpanHashed(idColor), 0, idSpan.length(), 0);
+            idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, idSpan.length(), 0);
+            idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, idSpan.length(), 0);
         }
 
-        if (!TextUtils.isEmpty(post.capcode)) {
-            post.capcodeSpan = new SpannableString("Capcode: " + post.capcode);
-            post.capcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.capcodeColor), 0, post.capcodeSpan.length(), 0);
-            post.capcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, post.capcodeSpan.length(), 0);
+        if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
+            capcodeSpan = new SpannableString("Capcode: " + builder.moderatorCapcode);
+            capcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.capcodeColor), 0, capcodeSpan.length(), 0);
+            capcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, capcodeSpan.length(), 0);
         }
 
-        post.nameTripcodeIdCapcodeSpan = new SpannableString("");
-        if (post.nameSpan != null) {
-            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.nameSpan, " ");
+        CharSequence nameTripcodeIdCapcodeSpan = new SpannableString("");
+        if (nameSpan != null) {
+            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, nameSpan, " ");
         }
 
-        if (post.tripcodeSpan != null) {
-            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.tripcodeSpan, " ");
+        if (tripcodeSpan != null) {
+            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, tripcodeSpan, " ");
         }
 
-        if (post.idSpan != null) {
-            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.idSpan, " ");
+        if (idSpan != null) {
+            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, idSpan, " ");
         }
 
-        if (post.capcodeSpan != null) {
-            post.nameTripcodeIdCapcodeSpan = TextUtils.concat(post.nameTripcodeIdCapcodeSpan, post.capcodeSpan, " ");
+        if (capcodeSpan != null) {
+            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, capcodeSpan, " ");
         }
+
+        builder.spans(subjectSpan, nameTripcodeIdCapcodeSpan);
     }
 
-    private CharSequence parseComment(Theme theme, Post post, String commentRaw) {
+    private CharSequence parseComment(Theme theme, Post.Builder post, CharSequence commentRaw) {
         CharSequence total = new SpannableString("");
 
         try {
-            String comment = commentRaw.replace("<wbr>", "");
+            String comment = commentRaw.toString().replace("<wbr>", "");
 
             Document document = Jsoup.parseBodyFragment(comment);
 
@@ -211,7 +224,7 @@ public class ChanParser {
         return total;
     }
 
-    private CharSequence parseNode(Theme theme, Post post, Node node) {
+    private CharSequence parseNode(Theme theme, Post.Builder post, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
             SpannableString spannable = new SpannableString(text);
@@ -243,8 +256,8 @@ public class ChanParser {
                         if (!TextUtils.isEmpty(style)) {
                             style = style.replace(" ", "");
 
-                            // private static final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
-                            Matcher matcher = colorPattern.matcher(style);
+                            // private static final Pattern COLOR_PATTERN = Pattern.compile("color:#([0-9a-fA-F]*)");
+                            Matcher matcher = COLOR_PATTERN.matcher(style);
 
                             int hexColor = 0xff0000;
                             if (matcher.find()) {
@@ -331,9 +344,9 @@ public class ChanParser {
 
                     SpannableString link = new SpannableString(spoiler.text());
 
-                    PostLinkable pl = new PostLinkable(theme, post, spoiler.text(), spoiler.text(), PostLinkable.Type.SPOILER);
+                    PostLinkable pl = new PostLinkable(theme, spoiler.text(), spoiler.text(), PostLinkable.Type.SPOILER);
                     link.setSpan(pl, 0, link.length(), 0);
-                    post.linkables.add(pl);
+                    post.addLinkable(pl);
 
                     return link;
                 }
@@ -363,7 +376,7 @@ public class ChanParser {
         }
     }
 
-    private CharSequence parseAnchor(Theme theme, Post post, Element anchor) {
+    private CharSequence parseAnchor(Theme theme, Post.Builder post, Element anchor) {
         String href = anchor.attr("href");
         Set<String> classes = anchor.classNames();
 
@@ -411,16 +424,16 @@ public class ChanParser {
                     t = PostLinkable.Type.QUOTE;
                     key = anchor.text();
                     value = id;
-                    post.repliesTo.add(id);
+                    post.addReplyTo(id);
 
                     // Append OP when its a reply to OP
-                    if (id == post.resto) {
-                        key += " (OP)";
+                    if (id == post.opId) {
+                        key += OP_REPLY_SUFFIX;
                     }
 
                     // Append You when it's a reply to an saved reply
-                    if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.boardId, id)) {
-                        key += " (You)";
+                    if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board.code, id)) {
+                        key += SAVED_REPLY_SUFFIX;
                     }
                 }
             }
@@ -433,9 +446,9 @@ public class ChanParser {
 
         if (t != null && key != null && value != null) {
             SpannableString link = new SpannableString(key);
-            PostLinkable pl = new PostLinkable(theme, post, key, value, t);
+            PostLinkable pl = new PostLinkable(theme, key, value, t);
             link.setSpan(pl, 0, link.length(), 0);
-            post.linkables.add(pl);
+            post.addLinkable(pl);
 
             return link;
         } else {
@@ -443,7 +456,7 @@ public class ChanParser {
         }
     }
 
-    private void detectLinks(Theme theme, Post post, String text, SpannableString spannable) {
+    private void detectLinks(Theme theme, Post.Builder post, String text, SpannableString spannable) {
         int startPos = 0;
         int endPos;
         while (true) {
@@ -466,9 +479,9 @@ public class ChanParser {
 
             String linkString = text.substring(startPos, endPos);
 
-            PostLinkable pl = new PostLinkable(theme, post, linkString, linkString, PostLinkable.Type.LINK);
+            PostLinkable pl = new PostLinkable(theme, linkString, linkString, PostLinkable.Type.LINK);
             spannable.setSpan(pl, startPos, endPos, 0);
-            post.linkables.add(pl);
+            post.addLinkable(pl);
 
             startPos = endPos;
         }

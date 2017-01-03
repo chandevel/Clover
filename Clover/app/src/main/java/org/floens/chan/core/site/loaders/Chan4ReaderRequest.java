@@ -15,22 +15,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.net;
+package org.floens.chan.core.site.loaders;
 
 import android.util.JsonReader;
 
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-
+import org.floens.chan.chan.ChanLoaderRequestParams;
+import org.floens.chan.chan.ChanLoaderResponse;
+import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.net.JsonReaderRequest;
+import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.utils.Time;
+import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +54,8 @@ import static org.floens.chan.Chan.getGraph;
  * This class is highly multithreaded, take good care to not access models that are to be only
  * changed on the main thread.
  */
-public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanReaderResponse> {
-    private static final String TAG = "ChanReaderRequest";
+public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
+    private static final String TAG = "Chan4ReaderRequest";
     private static final boolean LOG_TIMING = false;
 
     private static final int THREAD_COUNT;
@@ -64,26 +69,54 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     @Inject
     DatabaseManager databaseManager;
 
+    @Inject
+    FilterEngine filterEngine;
+
+    @Inject
+    ChanParser chanParser;
+
     private Loadable loadable;
     private List<Post> cached;
-    private Post op;
-    private FilterEngine filterEngine;
+    private Post.Builder op;
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private List<Filter> filters;
     private long startLoad;
 
-    private ChanReaderRequest(String url, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
-        super(url, listener, errorListener);
-
+    public Chan4ReaderRequest(ChanLoaderRequestParams request) {
+        super(getChanUrl(request.loadable), request.listener, request.errorListener);
         getGraph().inject(this);
 
-        filterEngine = FilterEngine.getInstance();
+        // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
+        loadable = request.loadable.copy();
+        cached = new ArrayList<>(request.cached);
+
+        filters = new ArrayList<>();
+        List<Filter> enabledFilters = filterEngine.getEnabledFilters();
+        for (int i = 0; i < enabledFilters.size(); i++) {
+            Filter filter = enabledFilters.get(i);
+
+            if (filter.allBoards) {
+                // copy the filter because it will get used on other threads
+                filters.add(filter.copy());
+            } else {
+                String[] boardCodes = filter.boardCodes();
+                for (String code : boardCodes) {
+                    if (code.equals(loadable.boardCode)) {
+                        // copy the filter because it will get used on other threads
+                        filters.add(filter.copy());
+                        break;
+                    }
+                }
+            }
+        }
+
+        startLoad = Time.startTiming();
+
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
     }
 
-    public static ChanReaderRequest newInstance(
-            Loadable loadable, List<Post> cached, Listener<ChanReaderResponse> listener, ErrorListener errorListener) {
+    private static String getChanUrl(Loadable loadable) {
         String url;
 
         if (loadable.site == null) {
@@ -101,36 +134,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         } else {
             throw new IllegalArgumentException("Unknown mode");
         }
-
-        ChanReaderRequest request = new ChanReaderRequest(url, listener, errorListener);
-
-        // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
-        request.loadable = loadable.copy();
-        request.cached = new ArrayList<>(cached);
-
-        request.filters = new ArrayList<>();
-        List<Filter> enabledFilters = request.filterEngine.getEnabledFilters();
-        for (int i = 0; i < enabledFilters.size(); i++) {
-            Filter filter = enabledFilters.get(i);
-
-            if (filter.allBoards) {
-                // copy the filter because it will get used on other threads
-                request.filters.add(filter.copy());
-            } else {
-                String[] boardCodes = filter.boardCodes();
-                for (String code : boardCodes) {
-                    if (code.equals(loadable.boardCode)) {
-                        // copy the filter because it will get used on other threads
-                        request.filters.add(filter.copy());
-                        break;
-                    }
-                }
-            }
-        }
-
-        request.startLoad = Time.startTiming();
-
-        return request;
+        return url;
     }
 
     @Override
@@ -139,7 +143,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     }
 
     @Override
-    public ChanReaderResponse readJson(JsonReader reader) throws Exception {
+    public ChanLoaderResponse readJson(JsonReader reader) throws Exception {
         if (LOG_TIMING) {
             Time.endTiming("Network", startLoad);
         }
@@ -180,8 +184,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
 
         List<Callable<Post>> tasks = new ArrayList<>(queue.toParse.size());
         for (int i = 0; i < queue.toParse.size(); i++) {
-            Post post = queue.toParse.get(i);
-            tasks.add(new PostParseCallable(filterEngine, filters, databaseSavedReplyManager, post));
+            Post.Builder post = queue.toParse.get(i);
+            tasks.add(new PostParseCallable(filterEngine, filters, databaseSavedReplyManager, post, chanParser));
         }
 
         if (!tasks.isEmpty()) {
@@ -202,10 +206,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         return total;
     }
 
-    private ChanReaderResponse processPosts(List<Post> serverPosts) throws Exception {
-        ChanReaderResponse response = new ChanReaderResponse();
-        response.posts = new ArrayList<>(serverPosts.size());
-        response.op = op;
+    private ChanLoaderResponse processPosts(List<Post> serverPosts) throws Exception {
+        ChanLoaderResponse response = new ChanLoaderResponse(op, new ArrayList<Post>(serverPosts.size()));
 
         List<Post> cachedPosts = new ArrayList<>();
         List<Post> newPosts = new ArrayList<>();
@@ -352,9 +354,21 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     }
 
     private void readPostObject(JsonReader reader, ProcessingQueue queue, Map<Integer, Post> cachedByNo) throws Exception {
-        Post post = new Post();
-        post.board = loadable.board;
-        post.boardId = loadable.boardCode;
+        Post.Builder builder = new Post.Builder();
+        builder.board(loadable.board);
+
+        // File
+        long fileId = 0;
+        String fileExt = null;
+        int fileWidth = 0;
+        int fileHeight = 0;
+        long fileSize = 0;
+        boolean fileSpoiler = false;
+        String fileName = null;
+
+        // Country flag
+        String countryCode = null;
+        String countryName = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -362,79 +376,81 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
 
             switch (key) {
                 case "no":
-                    post.no = reader.nextInt();
+                    builder.id(reader.nextInt());
                     break;
-                case "now":
+                /*case "now":
                     post.date = reader.nextString();
+                    break;*/
+                case "sub":
+                    builder.subject(reader.nextString());
                     break;
                 case "name":
-                    post.name = reader.nextString();
+                    builder.name(reader.nextString());
                     break;
                 case "com":
-                    post.rawComment = reader.nextString();
+                    builder.comment(reader.nextString());
                     break;
                 case "tim":
-                    post.tim = reader.nextLong();
+                    fileId = reader.nextLong();
                     break;
                 case "time":
-                    post.time = reader.nextLong();
+                    builder.setUnixTimestampSeconds(reader.nextLong());
                     break;
                 case "ext":
-                    post.ext = reader.nextString().replace(".", "");
-                    break;
-                case "resto":
-                    post.resto = reader.nextInt();
+                    fileExt = reader.nextString().replace(".", "");
                     break;
                 case "w":
-                    post.imageWidth = reader.nextInt();
+                    fileWidth = reader.nextInt();
                     break;
                 case "h":
-                    post.imageHeight = reader.nextInt();
+                    fileHeight = reader.nextInt();
                     break;
                 case "fsize":
-                    post.fileSize = reader.nextLong();
-                    break;
-                case "sub":
-                    post.subject = reader.nextString();
-                    break;
-                case "replies":
-                    post.replies = reader.nextInt();
+                    fileSize = reader.nextLong();
                     break;
                 case "filename":
-                    post.filename = reader.nextString();
-                    break;
-                case "sticky":
-                    post.sticky = reader.nextInt() == 1;
-                    break;
-                case "closed":
-                    post.closed = reader.nextInt() == 1;
-                    break;
-                case "archived":
-                    post.archived = reader.nextInt() == 1;
+                    fileName = reader.nextString();
                     break;
                 case "trip":
-                    post.tripcode = reader.nextString();
+                    builder.tripcode(reader.nextString());
                     break;
                 case "country":
-                    post.country = reader.nextString();
+                    countryCode = reader.nextString();
                     break;
                 case "country_name":
-                    post.countryName = reader.nextString();
-                    break;
-                case "id":
-                    post.id = reader.nextString();
-                    break;
-                case "capcode":
-                    post.capcode = reader.nextString();
-                    break;
-                case "images":
-                    post.images = reader.nextInt();
+                    countryName = reader.nextString();
                     break;
                 case "spoiler":
-                    post.spoiler = reader.nextInt() == 1;
+                    fileSpoiler = reader.nextInt() == 1;
+                    break;
+                case "resto":
+                    int opId = reader.nextInt();
+                    builder.op(opId == 0);
+                    builder.opId(opId);
+                    break;
+                case "sticky":
+                    builder.sticky(reader.nextInt() == 1);
+                    break;
+                case "closed":
+                    builder.closed(reader.nextInt() == 1);
+                    break;
+                case "archived":
+                    builder.archived(reader.nextInt() == 1);
+                    break;
+                case "replies":
+                    builder.replies(reader.nextInt());
+                    break;
+                case "images":
+                    builder.images(reader.nextInt());
                     break;
                 case "unique_ips":
-                    post.uniqueIps = reader.nextInt();
+                    builder.uniqueIps(reader.nextInt());
+                    break;
+                case "id":
+                    builder.posterId(reader.nextString());
+                    break;
+                case "capcode":
+                    builder.moderatorCapcode(reader.nextString());
                     break;
                 default:
                     // Unknown/ignored key
@@ -444,34 +460,52 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
         }
         reader.endObject();
 
-        if (post.resto == 0) {
+        if (builder.op) {
             // Update OP fields later on the main thread
-            op = new Post();
-            op.closed = post.closed;
-            op.archived = post.archived;
-            op.sticky = post.sticky;
-            op.replies = post.replies;
-            op.images = post.images;
-            op.uniqueIps = post.uniqueIps;
+            op = new Post.Builder();
+            op.closed(builder.closed);
+            op.archived(builder.archived);
+            op.sticky(builder.sticky);
+            op.replies(builder.replies);
+            op.images(builder.images);
+            op.uniqueIps(builder.uniqueIps);
         }
 
-        Post cached = cachedByNo.get(post.no);
+        Post cached = cachedByNo.get(builder.id);
         if (cached != null) {
+            // Id is known, use the cached post object.
             queue.cached.add(cached);
-        } else {
-            queue.toParse.add(post);
+            return;
         }
-    }
 
-    public static class ChanReaderResponse {
-        // Op Post that is created new each time.
-        // Used to later copy members like image count to the real op on the main thread.
-        public Post op;
-        public List<Post> posts;
+        SiteEndpoints endpoints = loadable.getSite().endpoints();
+        if (fileId != 0 && fileName != null && fileExt != null) {
+            Map<String, String> hack = new HashMap<>(2);
+            hack.put("tim", String.valueOf(fileId));
+            hack.put("ext", fileExt);
+            builder.image(new PostImage.Builder()
+                    .originalName(String.valueOf(fileId))
+                    .thumbnailUrl(endpoints.thumbnailUrl(builder, fileSpoiler, hack))
+                    .imageUrl(endpoints.imageUrl(builder, hack))
+                    .filename(Parser.unescapeEntities(fileName, false))
+                    .extension(fileExt)
+                    .imageWidth(fileWidth)
+                    .imageHeight(fileHeight)
+                    .spoiler(fileSpoiler)
+                    .size(fileSize)
+                    .build());
+        }
+
+        if (countryCode != null && countryName != null) {
+            String countryUrl = endpoints.flag(builder, countryCode, Collections.<String, String>emptyMap());
+            builder.country(countryCode, countryName, countryUrl);
+        }
+
+        queue.toParse.add(builder);
     }
 
     private static class ProcessingQueue {
         public List<Post> cached = new ArrayList<>();
-        public List<Post> toParse = new ArrayList<>();
+        public List<Post.Builder> toParse = new ArrayList<>();
     }
 }

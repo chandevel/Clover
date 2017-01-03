@@ -35,7 +35,8 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.pool.LoaderPool;
+import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.WatchNotifier;
@@ -56,6 +57,7 @@ import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 /**
@@ -159,7 +161,8 @@ public class WatchManager {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
-        pin.thumbnailUrl = opPost.thumbnailUrl;
+        PostImage image = opPost.image;
+        pin.thumbnailUrl = image == null ? "" : image.thumbnailUrl;
         return createPin(pin);
     }
 
@@ -648,6 +651,9 @@ public class WatchManager {
     public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         private static final String TAG = "PinWatcher";
 
+        @Inject
+        ChanLoaderFactory chanLoaderFactory;
+
         private final Pin pin;
         private ChanLoader chanLoader;
 
@@ -658,9 +664,10 @@ public class WatchManager {
 
         public PinWatcher(Pin pin) {
             this.pin = pin;
+            getGraph().inject(this);
 
             Logger.d(TAG, "PinWatcher: created for " + pin);
-            chanLoader = LoaderPool.getInstance().obtain(pin.loadable, this);
+            chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
         }
 
         public List<Post> getUnviewedPosts() {
@@ -696,7 +703,7 @@ public class WatchManager {
         private void destroy() {
             if (chanLoader != null) {
                 Logger.d(TAG, "PinWatcher: destroyed for " + pin);
-                LoaderPool.getInstance().release(chanLoader, this);
+                chanLoaderFactory.release(chanLoader, this);
                 chanLoader = null;
             }
         }
@@ -738,8 +745,8 @@ public class WatchManager {
         public void onChanLoaderData(ChanThread thread) {
             pin.isError = false;
 
-            if (pin.thumbnailUrl == null && thread.op != null && thread.op.hasImage) {
-                pin.thumbnailUrl = thread.op.thumbnailUrl;
+            if (pin.thumbnailUrl == null && thread.op != null && thread.op.image != null) {
+                pin.thumbnailUrl = thread.op.image.thumbnailUrl;
             }
 
             // Populate posts list

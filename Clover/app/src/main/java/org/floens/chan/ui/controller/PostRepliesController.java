@@ -111,7 +111,7 @@ public class PostRepliesController extends Controller {
                 if (view instanceof PostCellInterface) {
                     PostCellInterface postView = (PostCellInterface) view;
                     Post post = postView.getPost();
-                    if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
+                    if (post.image != null && post.image.imageUrl.equals(postImage.imageUrl)) {
                         thumbnail = postView.getThumbnailView();
                         break;
                     }

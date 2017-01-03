@@ -17,33 +17,35 @@
  */
 package org.floens.chan.core.model;
 
+import org.floens.chan.core.settings.ChanSettings;
+
 public class PostImage {
     public enum Type {
         STATIC, GIF, MOVIE
     }
 
-    public String originalName;
-    public String thumbnailUrl;
-    public String imageUrl;
-    public String filename;
-    public String extension;
-    public int imageWidth;
-    public int imageHeight;
-    public boolean spoiler;
-    public long size;
+    public final String originalName;
+    public final String thumbnailUrl;
+    public final String imageUrl;
+    public final String filename;
+    public final String extension;
+    public final int imageWidth;
+    public final int imageHeight;
+    public final boolean spoiler;
+    public final long size;
 
-    public Type type;
+    public final Type type;
 
-    public PostImage(String originalName, String thumbnailUrl, String imageUrl, String filename, String extension, int imageWidth, int imageHeight, boolean spoiler, long size) {
-        this.originalName = originalName;
-        this.thumbnailUrl = thumbnailUrl;
-        this.imageUrl = imageUrl;
-        this.filename = filename;
-        this.extension = extension;
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
-        this.spoiler = spoiler;
-        this.size = size;
+    private PostImage(Builder builder) {
+        this.originalName = builder.originalName;
+        this.thumbnailUrl = builder.thumbnailUrl;
+        this.imageUrl = builder.imageUrl;
+        this.filename = builder.filename;
+        this.extension = builder.extension;
+        this.imageWidth = builder.imageWidth;
+        this.imageHeight = builder.imageHeight;
+        this.spoiler = builder.spoiler;
+        this.size = builder.size;
 
         switch (extension) {
             case "gif":
@@ -55,6 +57,74 @@ public class PostImage {
             default:
                 type = Type.STATIC;
                 break;
+        }
+    }
+
+    public static final class Builder {
+        private String originalName;
+        private String thumbnailUrl;
+        private String imageUrl;
+        private String filename;
+        private String extension;
+        private int imageWidth;
+        private int imageHeight;
+        private boolean spoiler;
+        private long size;
+
+        public Builder() {
+        }
+
+        public Builder originalName(String originalName) {
+            this.originalName = originalName;
+            return this;
+        }
+
+        public Builder thumbnailUrl(String thumbnailUrl) {
+            this.thumbnailUrl = thumbnailUrl;
+            return this;
+        }
+
+        public Builder imageUrl(String imageUrl) {
+            this.imageUrl = imageUrl;
+            return this;
+        }
+
+        public Builder filename(String filename) {
+            this.filename = filename;
+            return this;
+        }
+
+        public Builder extension(String extension) {
+            this.extension = extension;
+            return this;
+        }
+
+        public Builder imageWidth(int imageWidth) {
+            this.imageWidth = imageWidth;
+            return this;
+        }
+
+        public Builder imageHeight(int imageHeight) {
+            this.imageHeight = imageHeight;
+            return this;
+        }
+
+        public Builder spoiler(boolean spoiler) {
+            this.spoiler = spoiler;
+            return this;
+        }
+
+        public Builder size(long size) {
+            this.size = size;
+            return this;
+        }
+
+        public PostImage build() {
+            if (ChanSettings.revealImageSpoilers.get()) {
+                spoiler = false;
+            }
+
+            return new PostImage(this);
         }
     }
 }

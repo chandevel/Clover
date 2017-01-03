@@ -30,7 +30,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
@@ -63,7 +62,8 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     @Inject
     DatabaseManager databaseManager;
 
-    private FilterEngine filterEngine;
+    @Inject
+    FilterEngine filterEngine;
 
     private RecyclerView recyclerView;
     private FloatingActionButton add;
@@ -107,8 +107,6 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     public void onCreate() {
         super.onCreate();
         getGraph().inject(this);
-
-        filterEngine = FilterEngine.getInstance();
 
         navigationItem.setTitle(R.string.filters_screen);
         navigationItem.menu = new ToolbarMenu(context);

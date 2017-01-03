@@ -17,9 +17,9 @@
  */
 package org.floens.chan.core.manager;
 
+import android.support.annotation.AnyThread;
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseFilterManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Board;
@@ -37,17 +37,11 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import static org.floens.chan.Chan.getGraph;
-
+@Singleton
 public class FilterEngine {
     private static final String TAG = "FilterEngine";
-
-    private static final FilterEngine instance = new FilterEngine();
-
-    public static FilterEngine getInstance() {
-        return instance;
-    }
 
     public enum FilterAction {
         HIDE(0),
@@ -73,21 +67,18 @@ public class FilterEngine {
         }
     }
 
-    private final Map<String, Pattern> patternCache = new HashMap<>();
-
-    @Inject
-    DatabaseManager databaseManager;
-
-    @Inject
-    BoardManager boardManager;
+    private final DatabaseManager databaseManager;
+    private final BoardManager boardManager;
 
     private final DatabaseFilterManager databaseFilterManager;
 
-    private List<Filter> filters;
+    private final Map<String, Pattern> patternCache = new HashMap<>();
     private final List<Filter> enabledFilters = new ArrayList<>();
 
-    private FilterEngine() {
-        getGraph().inject(this);
+    @Inject
+    public FilterEngine(DatabaseManager databaseManager, BoardManager boardManager) {
+        this.databaseManager = databaseManager;
+        this.boardManager = boardManager;
         databaseFilterManager = databaseManager.getDatabaseFilterManager();
         update();
     }
@@ -111,7 +102,7 @@ public class FilterEngine {
     }
 
     // threadsafe
-    public boolean matches(Filter filter, Post post) {
+    public boolean matches(Filter filter, Post.Builder post) {
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, FilterType.TRIPCODE.isRegex, post.tripcode, false)) {
             return true;
         }
@@ -120,11 +111,11 @@ public class FilterEngine {
             return true;
         }
 
-        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.rawComment, false)) {
+        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.comment.toString(), false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.id, false)) {
+        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.posterId, false)) {
             return true;
         }
 
@@ -132,14 +123,15 @@ public class FilterEngine {
             return true;
         }
 
-        if ((filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, post.filename, false)) {
+        String filename = post.image != null ? post.image.filename : null;
+        if (filename != null && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename, false)) {
             return true;
         }
 
         return false;
     }
 
-    // threadsafe
+    @AnyThread
     public boolean matches(Filter filter, boolean matchRegex, String text, boolean forceCompile) {
         if (TextUtils.isEmpty(text)) {
             return false;
@@ -184,7 +176,7 @@ public class FilterEngine {
     private static final Pattern filterFilthyPattern = Pattern.compile("(\\.|\\^|\\$|\\*|\\+|\\?|\\(|\\)|\\[|\\]|\\{|\\}|\\\\|\\||\\-)");
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*"); // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
 
-    // threadsafe
+    @AnyThread
     public Pattern compile(String rawPattern) {
         if (TextUtils.isEmpty(rawPattern)) {
             return null;
@@ -262,7 +254,7 @@ public class FilterEngine {
     }
 
     private void update() {
-        filters = databaseManager.runTaskSync(databaseFilterManager.getFilters());
+        List<Filter> filters = databaseManager.runTaskSync(databaseFilterManager.getFilters());
         List<Filter> enabled = new ArrayList<>();
         for (Filter filter : filters) {
             if (filter.enabled) {

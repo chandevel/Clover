@@ -11,7 +11,8 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.http.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
-import org.floens.chan.core.net.ChanReaderRequest;
+import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.site.loaders.Chan4ReaderRequest;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.presenter.ThreadPresenter;
@@ -66,7 +67,7 @@ public interface ChanGraph {
 
     void inject(ReplyPresenter replyPresenter);
 
-    void inject(ChanReaderRequest chanReaderRequest);
+    void inject(Chan4ReaderRequest chanReaderRequest);
 
     void inject(ThreadLayout threadLayout);
 
@@ -113,4 +114,6 @@ public interface ChanGraph {
     void inject(ImageSaveTask imageSaveTask);
 
     void inject(ViewThreadController viewThreadController);
+
+    void inject(WatchManager.PinWatcher pinWatcher);
 }

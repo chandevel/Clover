@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.database;
 
+import android.support.annotation.AnyThread;
+
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
@@ -57,6 +59,7 @@ public class DatabaseSavedReplyManager {
      * @param no post number
      * @return {@code true} if the post is in the saved reply database, {@code false} otherwise.
      */
+    @AnyThread
     public boolean isSaved(String board, int no) {
         // TODO(multi-site)
         synchronized (savedRepliesByNo) {

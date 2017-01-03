@@ -47,7 +47,7 @@ public interface PostCellInterface {
 
         void onPostOptionClicked(Post post, Object id);
 
-        void onPostLinkableClicked(PostLinkable linkable);
+        void onPostLinkableClicked(Post post, PostLinkable linkable);
 
         void onPostNoClicked(Post post);
     }

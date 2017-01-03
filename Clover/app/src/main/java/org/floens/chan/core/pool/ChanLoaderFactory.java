@@ -25,29 +25,34 @@ import org.floens.chan.core.model.Loadable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoaderPool {
-    // private static final String TAG = "LoaderPool";
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+/**
+ * ChanLoaderFactory is a factory for ChanLoaders. ChanLoaders for threads are cached.
+ * <p>Each reference to a loader is a {@link org.floens.chan.chan.ChanLoader.ChanLoaderCallback}, these
+ * references can be obtained with {@link #obtain(Loadable, ChanLoader.ChanLoaderCallback)}} and released
+ * with {@link #release(ChanLoader, ChanLoader.ChanLoaderCallback)}.
+ */
+@Singleton
+public class ChanLoaderFactory {
+    // private static final String TAG = "ChanLoaderFactory";
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;
-
-    private static LoaderPool instance = new LoaderPool();
-
-    public static LoaderPool getInstance() {
-        return instance;
-    }
 
     private Map<Loadable, ChanLoader> threadLoaders = new HashMap<>();
     private LruCache<Loadable, ChanLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
-    private LoaderPool() {
+    @Inject
+    public ChanLoaderFactory() {
     }
-
-//    public Loadable obtainLoadable() {
-//
-//    }
 
     public ChanLoader obtain(Loadable loadable, ChanLoader.ChanLoaderCallback listener) {
         ChanLoader chanLoader;
         if (loadable.isThreadMode()) {
+            if (!loadable.isFromDatabase()) {
+                throw new IllegalArgumentException();
+            }
+
             chanLoader = threadLoaders.get(loadable);
             if (chanLoader == null) {
                 chanLoader = threadLoadersCache.get(loadable);

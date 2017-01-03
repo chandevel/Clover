@@ -25,7 +25,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import org.floens.chan.core.site.Site;
 
 @DatabaseTable
-public class Board {
+public class Board implements SiteReference {
     public Board() {
     }
 
@@ -146,6 +146,11 @@ public class Board {
         }
 
         return true;
+    }
+
+    @Override
+    public Site getSite() {
+        return site;
     }
 
     public String getName() {

@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.net;
+package org.floens.chan.core.site.loaders;
 
+import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.utils.Logger;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -33,14 +33,19 @@ class PostParseCallable implements Callable<Post> {
     private FilterEngine filterEngine;
     private List<Filter> filters;
     private DatabaseSavedReplyManager savedReplyManager;
-    private Post post;
+    private Post.Builder post;
+    private ChanParser parser;
 
-    public PostParseCallable(FilterEngine filterEngine, List<Filter> filters,
-                             DatabaseSavedReplyManager savedReplyManager, Post post) {
+    public PostParseCallable(FilterEngine filterEngine,
+                             List<Filter> filters,
+                             DatabaseSavedReplyManager savedReplyManager,
+                             Post.Builder post,
+                             ChanParser parser) {
         this.filterEngine = filterEngine;
         this.filters = filters;
         this.savedReplyManager = savedReplyManager;
         this.post = post;
+        this.parser = parser;
     }
 
     @Override
@@ -48,17 +53,16 @@ class PostParseCallable implements Callable<Post> {
         // Process the filters before finish, because parsing the html is dependent on filter matches
         processPostFilter(post);
 
-        if (!post.finish()) {
-            Logger.e(TAG, "Incorrect data about post received for post " + post.no);
-            return null;
-        }
+        post.isSavedReply(savedReplyManager.isSaved(post.board.code, post.id));
 
-        post.isSavedReply = savedReplyManager.isSaved(post.boardId, post.no);
-
-        return post;
+//        if (!post.parse(parser)) {
+//            Logger.e(TAG, "Incorrect data about post received for post " + post.no);
+//            return null;
+//        }
+        return parser.parse(post);
     }
 
-    private void processPostFilter(Post post) {
+    private void processPostFilter(Post.Builder post) {
         int filterSize = filters.size();
         for (int i = 0; i < filterSize; i++) {
             Filter filter = filters.get(i);
@@ -66,13 +70,13 @@ class PostParseCallable implements Callable<Post> {
                 FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
                 switch (action) {
                     case COLOR:
-                        post.filterHighlightedColor = filter.color;
+                        post.filter(filter.color, false, false);
                         break;
                     case HIDE:
-                        post.filterStub = true;
+                        post.filter(0, true, false);
                         break;
                     case REMOVE:
-                        post.filterRemove = true;
+                        post.filter(0, false, true);
                         break;
                 }
             }

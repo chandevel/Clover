@@ -240,7 +240,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                 .show();
     }
 
-    public void showPostLinkables(final List<PostLinkable> linkables) {
+    public void showPostLinkables(final Post post) {
+        final List<PostLinkable> linkables = post.linkables;
         String[] keys = new String[linkables.size()];
         for (int i = 0; i < linkables.size(); i++) {
             keys[i] = linkables.get(i).key;
@@ -250,7 +251,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                 .setItems(keys, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        presenter.onPostLinkableClicked(linkables.get(which));
+                        presenter.onPostLinkableClicked(post, linkables.get(which));
                     }
                 })
                 .show();

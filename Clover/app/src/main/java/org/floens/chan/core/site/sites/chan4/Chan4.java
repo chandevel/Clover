@@ -3,18 +3,22 @@ package org.floens.chan.core.site.sites.chan4;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
+import org.floens.chan.chan.ChanLoaderRequest;
+import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteEndpoints;
+import org.floens.chan.core.site.loaders.Chan4ReaderRequest;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import static org.floens.chan.Chan.getGraph;
@@ -36,13 +40,13 @@ public class Chan4 implements Site {
         }
 
         @Override
-        public String imageUrl(Post post) {
-            return "https://i.4cdn.org/" + post.boardId + "/" + Long.toString(post.tim) + "." + post.ext;
+        public String imageUrl(Post.Builder post, Map<String, String> arg) {
+            return "https://i.4cdn.org/" + post.board.code + "/" + arg.get("tim") + "." + arg.get("ext");
         }
 
         @Override
-        public String thumbnailUrl(Post post) {
-            if (post.spoiler) {
+        public String thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
+            if (spoiler) {
                 if (post.board.customSpoilers >= 0) {
                     int i = random.nextInt(post.board.customSpoilers) + 1;
                     return "https://s.4cdn.org/image/spoiler-" + post.board.code + i + ".png";
@@ -50,13 +54,13 @@ public class Chan4 implements Site {
                     return "https://s.4cdn.org/image/spoiler.png";
                 }
             } else {
-                return "https://t.4cdn.org/" + post.board.code + "/" + post.tim + "s.jpg";
+                return "https://t.4cdn.org/" + post.board.code + "/" + arg.get("tim") + "s.jpg";
             }
         }
 
         @Override
-        public String flag(Post post) {
-            return "https://s.4cdn.org/image/country/" + post.country.toLowerCase(Locale.ENGLISH) + ".gif";
+        public String flag(Post.Builder post, String countryCode, Map<String, String> arg) {
+            return "https://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
         }
 
         @Override
@@ -90,9 +94,6 @@ public class Chan4 implements Site {
             case POSTING:
                 // yes, we support posting.
                 return true;
-            case DYNAMIC_BOARDS:
-                // yes, boards.json
-                return true;
             case LOGIN:
                 // 4chan pass.
                 return true;
@@ -106,6 +107,7 @@ public class Chan4 implements Site {
 
     @Override
     public BoardsType boardsType() {
+        // yes, boards.json
         return BoardsType.DYNAMIC;
     }
 
@@ -162,5 +164,10 @@ public class Chan4 implements Site {
                 listener.onBoardsReceived(new Boards(list));
             }
         }));
+    }
+
+    @Override
+    public ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request) {
+        return new ChanLoaderRequest(new Chan4ReaderRequest(request));
     }
 }

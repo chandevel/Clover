@@ -184,7 +184,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private void bindPost(Theme theme, Post post) {
         bound = true;
 
-        if (post.hasImage && !ChanSettings.textOnly.get()) {
+        if (post.image != null && !ChanSettings.textOnly.get()) {
             thumbnailView.setVisibility(View.VISIBLE);
             thumbnailView.setPostImage(post.image, thumbnailView.getWidth(), thumbnailView.getHeight());
         } else {

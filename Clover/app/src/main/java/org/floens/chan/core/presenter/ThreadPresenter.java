@@ -27,7 +27,6 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.http.DeleteHttpCall;
 import org.floens.chan.core.http.ReplyManager;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
@@ -38,7 +37,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.pool.LoaderPool;
+import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.adapter.PostAdapter;
@@ -52,6 +51,7 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -85,6 +85,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     @Inject
     ReplyManager replyManager;
 
+    @Inject
+    ChanLoaderFactory chanLoaderFactory;
+
     private ThreadPresenterCallback threadPresenterCallback;
 
     private Loadable loadable;
@@ -115,14 +118,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
             this.loadable = loadable;
 
-            chanLoader = LoaderPool.getInstance().obtain(loadable, this);
+            chanLoader = chanLoaderFactory.obtain(loadable, this);
         }
     }
 
     public void unbindLoadable() {
         if (chanLoader != null) {
             chanLoader.clearTimer();
-            LoaderPool.getInstance().release(chanLoader, this);
+            chanLoaderFactory.release(chanLoader, this);
             chanLoader = null;
             loadable = null;
             historyAdded = false;
@@ -228,7 +231,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         int index = 0;
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (item.hasImage) {
+            if (item.image != null) {
                 images.add(item.image);
             }
             if (i == displayPosition) {
@@ -323,7 +326,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             List<Post> posts = threadPresenterCallback.getDisplayingPosts();
             for (int i = 0; i < posts.size(); i++) {
                 Post post = posts.get(i);
-                if (post.hasImage && post.image == postImage) {
+                if (post.image == postImage) {
                     position = i;
                     break;
                 }
@@ -398,7 +401,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (item.hasImage) {
+            if (item.image != null) {
                 images.add(item.image);
                 if (item.no == post.no) {
                     index = images.size() - 1;
@@ -465,7 +468,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 break;
             case POST_OPTION_LINKS:
                 if (post.linkables.size() > 0) {
-                    threadPresenterCallback.showPostLinkables(post.linkables);
+                    threadPresenterCallback.showPostLinkables(post);
                 }
                 break;
             case POST_OPTION_COPY_TEXT:
@@ -514,13 +517,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public void onPostLinkableClicked(PostLinkable linkable) {
+    public void onPostLinkableClicked(Post post, PostLinkable linkable) {
         if (linkable.type == PostLinkable.Type.QUOTE) {
-            Post post = findPostById((Integer) linkable.value);
-
-            List<Post> list = new ArrayList<>(1);
-            list.add(post);
-            threadPresenterCallback.showPostsPopup(linkable.post, list);
+            Post linked = findPostById((int) linkable.value);
+            if (linked != null) {
+                threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
+            }
         } else if (linkable.type == PostLinkable.Type.LINK) {
             threadPresenterCallback.openLink((String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
@@ -635,18 +637,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private void showPostInfo(Post post) {
         String text = "";
 
-        if (post.hasImage) {
-            text += "Filename: " + post.filename + "." + post.ext + " \nDimensions: " + post.imageWidth + "x"
-                    + post.imageHeight + "\nSize: " + AndroidUtils.getReadableFileSize(post.fileSize, false);
+        if (post.image != null) {
+            text += "Filename: " + post.image.filename + "." + post.image.extension + " \nDimensions: " + post.image.imageWidth + "x"
+                    + post.image.imageHeight + "\nSize: " + AndroidUtils.getReadableFileSize(post.image.size, false);
 
-            if (post.spoiler) {
+            if (post.image.spoiler) {
                 text += "\nSpoilered";
             }
 
-            text += "\n\n";
+            text += "\n";
         }
 
-        text += "Date: " + post.date;
+        // TODO(multi-site) get this from the timestamp
+//        text += "Date: " + post.date;
 
         if (!TextUtils.isEmpty(post.id)) {
             text += "\nId: " + post.id;
@@ -685,7 +688,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             historyAdded = true;
             History history = new History();
             history.loadable = loadable;
-            history.thumbnailUrl = chanLoader.getThread().op.thumbnailUrl;
+            PostImage image = chanLoader.getThread().op.image;
+            history.thumbnailUrl = image == null ? "" : image.thumbnailUrl;
             databaseManager.getDatabaseHistoryManager().add(history);
         }
     }
@@ -701,7 +705,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         void showPostInfo(String info);
 
-        void showPostLinkables(List<PostLinkable> linkables);
+        void showPostLinkables(Post post);
 
         void clipboardPost(Post post);
 

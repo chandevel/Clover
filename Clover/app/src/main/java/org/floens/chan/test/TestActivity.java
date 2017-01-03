@@ -207,8 +207,8 @@ public class TestActivity extends Activity implements View.OnClickListener {
             @Override
             public void onChanLoaderData(ChanThread result) {
                 for (Post post : result.posts) {
-                    if (post.hasImage) {
-                        final String imageUrl = post.imageUrl;
+                    if (post.image != null) {
+                        final String imageUrl = post.image.imageUrl;
                         fileCache.downloadFile(imageUrl, new FileCache.DownloadedCallback() {
                             @Override
                             public void onProgress(long downloaded, long total, boolean done) {

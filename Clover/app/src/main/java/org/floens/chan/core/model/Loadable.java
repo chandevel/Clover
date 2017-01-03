@@ -31,9 +31,11 @@ import org.floens.chan.core.site.Site;
  * - It keeps track of the list index where the user last viewed.<br>
  * - It keeps track of what post was last seen and loaded.<br>
  * - It keeps track of the title the toolbar should show, generated from the first post (so after loading).<br>
+ * <p>Obtain Loadables through {@link org.floens.chan.core.database.DatabaseLoadableManager} to make sure everyone
+ * references the same loadable and that the loadable is properly saved in the database.
  */
 @DatabaseTable
-public class Loadable {
+public class Loadable implements SiteReference {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -116,6 +118,11 @@ public class Loadable {
         return loadable;
     }
 
+    @Override
+    public Site getSite() {
+        return site;
+    }
+
     public void setTitle(String title) {
         if (!TextUtils.equals(this.title, title)) {
             this.title = title;
@@ -160,6 +167,10 @@ public class Loadable {
             return false;
 
         Loadable other = (Loadable) object;
+
+        if ((site.id() == other.site.id() && (site != other.site))) {
+            throw new IllegalStateException(); // TODO(multi-site) remove
+        }
 
         if (site != other.site) {
             return false;
@@ -218,6 +229,11 @@ public class Loadable {
 
     public boolean isCatalogMode() {
         return mode == Mode.CATALOG;
+    }
+
+    // TODO(multi-site) remove
+    public boolean isFromDatabase() {
+        return id > 0;
     }
 
     public static Loadable readFromParcel(Parcel parcel) {

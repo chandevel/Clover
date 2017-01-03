@@ -38,7 +38,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
@@ -78,6 +77,9 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     @Inject
     BoardManager boardManager;
+
+    @Inject
+    FilterEngine filterEngine;
 
     private FilterLayoutCallback callback;
     private Filter filter;
@@ -161,7 +163,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public void setFilter(Filter filter) {
         this.filter = filter;
         appliedBoards.clear();
-        appliedBoards.addAll(FilterEngine.getInstance().getBoardsForFilter(filter));
+        appliedBoards.addAll(filterEngine.getBoardsForFilter(filter));
 
         pattern.setText(filter.pattern);
 
@@ -180,7 +182,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
 
-        FilterEngine.getInstance().saveBoardsToFilter(appliedBoards, filter);
+        filterEngine.saveBoardsToFilter(appliedBoards, filter);
 
         return filter;
     }
@@ -341,7 +343,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     }
 
     private void updateFilterValidity() {
-        boolean valid = !TextUtils.isEmpty(filter.pattern) && FilterEngine.getInstance().compile(filter.pattern) != null;
+        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern) != null;
 
         if (valid != patternContainerErrorShowing) {
             patternContainerErrorShowing = valid;
@@ -386,7 +388,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = text.length() > 0 && FilterEngine.getInstance().matches(filter, true, text, true);
+        boolean matches = text.length() > 0 && filterEngine.matches(filter, true, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
 

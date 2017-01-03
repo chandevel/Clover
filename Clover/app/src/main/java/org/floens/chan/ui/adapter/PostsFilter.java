@@ -19,7 +19,6 @@ package org.floens.chan.ui.adapter;
 
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
 
@@ -117,7 +116,7 @@ public class PostsFilter {
                     add = true;
                 } else if (item.name.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
                     add = true;
-                } else if (item.filename != null && item.filename.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
+                } else if (item.image != null && item.image.filename != null && item.image.filename.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
                     add = true;
                 }
                 if (!add) {

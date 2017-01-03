@@ -1,5 +1,7 @@
 package org.floens.chan.core.site;
 
+import org.floens.chan.chan.ChanLoaderRequest;
+import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.core.model.Board;
 
 public interface Site {
@@ -8,11 +10,6 @@ public interface Site {
          * This site supports posting. (Or rather, we've implemented support for it.)
          */
         POSTING,
-
-        /**
-         * This site supports a 4chan like boards.json endpoint.
-         */
-        DYNAMIC_BOARDS,
 
         /**
          * This site supports deleting posts.
@@ -79,6 +76,8 @@ public interface Site {
     void boards(BoardsListener boardsListener);
 
     Board board(String name);
+
+    ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request);
 
     interface BoardsListener {
         void onBoardsReceived(Boards boards);

@@ -346,7 +346,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             if (view instanceof PostCellInterface) {
                 PostCellInterface postView = (PostCellInterface) view;
                 Post post = postView.getPost();
-                if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
+                if (post.image != null && post.image.imageUrl.equals(postImage.imageUrl)) {
                     thumbnail = postView.getThumbnailView();
                     break;
                 }
@@ -503,7 +503,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {
                     PostCellInterface postView = (PostCellInterface) child;
-                    if (postView.getPost().hasImage) {
+                    Post post = postView.getPost();
+                    if (post.isOP && post.image != null) {
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
                         int top = child.getTop() + params.topMargin;
                         int left = child.getLeft() + params.leftMargin;

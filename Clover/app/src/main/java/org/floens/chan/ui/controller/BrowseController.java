@@ -28,7 +28,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;

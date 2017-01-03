@@ -96,7 +96,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public void onPostLinkableClicked(PostLinkable linkable) {
+        public void onPostLinkableClicked(Post post, PostLinkable linkable) {
         }
 
         @Override
@@ -236,22 +236,20 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
 
-            Post post = new Post();
-            post.no = 123456789;
-            post.time = (Time.get() - (30 * 60 * 1000)) / 1000;
-            // No synchronization needed, this is a dummy
-            post.repliesFrom.add(1);
-            post.repliesFrom.add(2);
-            post.repliesFrom.add(3);
-            post.subject = "Lorem ipsum";
-            post.rawComment = "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +
-                    "<br>" +
-                    "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
-                    "http://example.com/" +
-                    "<br>" +
-                    "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.";
-            getGraph().getChanParser().parse(theme, post);
+            Post.Builder builder = new Post.Builder()
+                    .board(new Board(Sites.defaultSite(), "a", "a", false, false))
+                    .id(123456789)
+                    .opId(1)
+                    .setUnixTimestampSeconds((Time.get() - (30 * 60 * 1000)) / 1000)
+                    .subject("Lorem ipsum")
+                    .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +
+                            "<br>" +
+                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
+                            "http://example.com/" +
+                            "<br>" +
+                            "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.");
+            Post post = getGraph().getChanParser().parse(theme, builder);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
