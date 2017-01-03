@@ -1,4 +1,4 @@
-package org.floens.chan.core;
+package org.floens.chan.core.di;
 
 public interface UserAgentProvider {
     String getUserAgent();

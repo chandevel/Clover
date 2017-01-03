@@ -19,7 +19,7 @@ package org.floens.chan.core.http;
 
 import android.content.Context;
 
-import org.floens.chan.core.UserAgentProvider;
+import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Reply;
 

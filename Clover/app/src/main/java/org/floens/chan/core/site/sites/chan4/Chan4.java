@@ -3,7 +3,6 @@ package org.floens.chan.core.site.sites.chan4;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -17,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+
+import static org.floens.chan.Chan.getGraph;
 
 public class Chan4 implements Site {
     private static final String TAG = "Chan4";
@@ -124,7 +125,7 @@ public class Chan4 implements Site {
 
     @Override
     public Board board(String name) {
-        List<Board> allBoards = Chan.getBoardManager().getAllBoards();
+        List<Board> allBoards = getGraph().getBoardManager().getAllBoards();
         for (Board board : allBoards) {
             if (board.code.equals(name)) {
                 return board;
@@ -141,7 +142,7 @@ public class Chan4 implements Site {
 
     @Override
     public void boards(final BoardsListener listener) {
-        Chan.getVolleyRequestQueue().add(new Chan4BoardsRequest(this, new Response.Listener<List<Board>>() {
+        getGraph().getRequestQueue().add(new Chan4BoardsRequest(this, new Response.Listener<List<Board>>() {
             @Override
             public void onResponse(List<Board> response) {
                 listener.onBoardsReceived(new Boards(response));

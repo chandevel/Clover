@@ -40,9 +40,9 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
@@ -105,7 +105,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = Chan.getVolleyImageLoader().get(url, this, width, height);
+            container = getGraph().getImageLoader().get(url, this, width, height);
         }
     }
 

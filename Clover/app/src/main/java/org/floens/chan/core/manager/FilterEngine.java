@@ -36,6 +36,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
+
 public class FilterEngine {
     private static final String TAG = "FilterEngine";
 
@@ -71,14 +75,19 @@ public class FilterEngine {
 
     private final Map<String, Pattern> patternCache = new HashMap<>();
 
-    private final DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    BoardManager boardManager;
+
     private final DatabaseFilterManager databaseFilterManager;
 
     private List<Filter> filters;
     private final List<Filter> enabledFilters = new ArrayList<>();
 
     private FilterEngine() {
-        databaseManager = Chan.getDatabaseManager();
+        getGraph().inject(this);
         databaseFilterManager = databaseManager.getDatabaseFilterManager();
         update();
     }
@@ -222,11 +231,11 @@ public class FilterEngine {
 
     public List<Board> getBoardsForFilter(Filter filter) {
         if (filter.allBoards) {
-            return Chan.getBoardManager().getSavedBoards();
+            return boardManager.getSavedBoards();
         } else if (!TextUtils.isEmpty(filter.boards)) {
             List<Board> appliedBoards = new ArrayList<>();
             for (String value : filter.boards.split(",")) {
-                Board boardByValue = Chan.getBoardManager().getBoardByCode(value);
+                Board boardByValue = boardManager.getBoardByCode(value);
                 if (boardByValue != null) {
                     appliedBoards.add(boardByValue);
                 }

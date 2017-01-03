@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
@@ -36,6 +37,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.runOnUiThread;
 
 public class ImagePickDelegate implements Runnable {
@@ -45,7 +49,9 @@ public class ImagePickDelegate implements Runnable {
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
 
-    private ReplyManager replyManager;
+    @Inject
+    ReplyManager replyManager;
+
     private Activity activity;
 
     private ImagePickCallback callback;
@@ -56,8 +62,7 @@ public class ImagePickDelegate implements Runnable {
 
     public ImagePickDelegate(Activity activity) {
         this.activity = activity;
-
-        replyManager = Chan.getReplyManager();
+        getGraph().inject(this);
     }
 
     public boolean pick(ImagePickCallback callback) {
@@ -143,7 +148,13 @@ public class ImagePickDelegate implements Runnable {
         } catch (IOException | SecurityException e) {
             Logger.e(TAG, "Error copying file from the file descriptor", e);
         } finally {
-            IOUtils.closeQuietly(fileDescriptor);
+            // FileDescriptor isn't closeable on API 15
+            if (fileDescriptor != null) {
+                try {
+                    fileDescriptor.close();
+                } catch (IOException ignored) {
+                }
+            }
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
         }

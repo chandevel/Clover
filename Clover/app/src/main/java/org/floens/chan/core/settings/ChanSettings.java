@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -235,7 +234,7 @@ public class ChanSettings {
         watchEnabled.addCallback(new Setting.SettingCallback<Boolean>() {
             @Override
             public void onValueChange(Setting setting, Boolean value) {
-                Chan.getWatchManager().onWatchEnabledChanged(value);
+                EventBus.getDefault().post(new SettingChanged<>(watchEnabled));
             }
         });
         watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
@@ -243,7 +242,7 @@ public class ChanSettings {
         watchBackground.addCallback(new Setting.SettingCallback<Boolean>() {
             @Override
             public void onValueChange(Setting setting, Boolean value) {
-                Chan.getWatchManager().onBackgroundWatchingChanged(value);
+                EventBus.getDefault().post(new SettingChanged<>(watchBackground));
             }
         });
         watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WatchManager.DEFAULT_BACKGROUND_INTERVAL);

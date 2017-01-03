@@ -36,7 +36,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.model.PostImage;
@@ -47,8 +46,12 @@ import org.floens.chan.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
+
+import static org.floens.chan.Chan.getGraph;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener {
     public enum Mode {
@@ -56,6 +59,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private static final String TAG = "MultiImageView";
+
+    @Inject
+    FileCache fileCache;
+
+    @Inject
+    ImageLoader imageLoader;
 
     private ImageView playView;
 
@@ -89,6 +98,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private void init() {
+        getGraph().inject(this);
+
         setOnClickListener(this);
 
         playView = new ImageView(getContext());
@@ -176,7 +187,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         // Also use volley for the thumbnails
-        thumbnailRequest = Chan.getVolleyImageLoader().get(thumbnailUrl, new ImageLoader.ImageListener() {
+        thumbnailRequest = imageLoader.get(thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 thumbnailRequest = null;
@@ -214,7 +225,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        bigImageRequest = Chan.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
+        bigImageRequest = fileCache.downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
@@ -256,7 +267,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        gifRequest = Chan.getFileCache().downloadFile(gifUrl, new FileCache.DownloadedCallback() {
+        gifRequest = fileCache.downloadFile(gifUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
@@ -320,7 +331,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        videoRequest = Chan.getFileCache().downloadFile(videoUrl, new FileCache.DownloadedCallback() {
+        videoRequest = fileCache.downloadFile(videoUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 callback.onProgress(MultiImageView.this, downloaded, total);

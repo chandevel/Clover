@@ -78,11 +78,11 @@ public class AndroidUtils {
     }
 
     public static Resources getRes() {
-        return Chan.con.getResources();
+        return Chan.getInstance().getResources();
     }
 
     public static Context getAppContext() {
-        return Chan.con;
+        return Chan.getInstance();
     }
 
     public static String getString(int res) {
@@ -90,7 +90,7 @@ public class AndroidUtils {
     }
 
     public static SharedPreferences getPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(Chan.con);
+        return PreferenceManager.getDefaultSharedPreferences(Chan.getInstance());
     }
 
     /**

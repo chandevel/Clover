@@ -76,6 +76,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.text.TextUtils.isEmpty;
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -673,7 +674,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             countryTextColor = theme.detailsColor;
             countryTextSize = textSize;
 
-            countryIconRequest = Chan.getVolleyImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
+            countryIconRequest = getGraph().getImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {

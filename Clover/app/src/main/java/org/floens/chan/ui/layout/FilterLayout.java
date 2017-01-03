@@ -55,6 +55,9 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -73,7 +76,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private LinearLayout colorContainer;
     private View colorPreview;
 
-    private BoardManager boardManager;
+    @Inject
+    BoardManager boardManager;
 
     private FilterLayoutCallback callback;
     private Filter filter;
@@ -95,8 +99,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-
-        boardManager = Chan.getBoardManager();
+        getGraph().inject(this);
 
         typeText = (TextView) findViewById(R.id.type);
         boardsSelector = (TextView) findViewById(R.id.boards);

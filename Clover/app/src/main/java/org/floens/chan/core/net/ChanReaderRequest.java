@@ -40,6 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.inject.Inject;
+
 import static org.floens.chan.Chan.getGraph;
 
 /**
@@ -52,13 +54,14 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
     private static final boolean LOG_TIMING = false;
 
     private static final int THREAD_COUNT;
-    private static ExecutorService EXECUTOR;
+    private static final ExecutorService EXECUTOR;
 
     static {
         THREAD_COUNT = Runtime.getRuntime().availableProcessors();
         EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
+    @Inject
     DatabaseManager databaseManager;
 
     private Loadable loadable;

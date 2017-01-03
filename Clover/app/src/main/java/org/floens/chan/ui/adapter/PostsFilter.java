@@ -30,6 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
+
 public class PostsFilter {
     public static final Comparator<Post> IMAGE_COMPARATOR = new Comparator<Post>() {
         @Override
@@ -59,7 +63,8 @@ public class PostsFilter {
         }
     };
 
-    private final DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
 
     private Order order;
     private String query;
@@ -67,7 +72,7 @@ public class PostsFilter {
     public PostsFilter(Order order, String query) {
         this.order = order;
         this.query = query;
-        databaseManager = Chan.getDatabaseManager();
+        getGraph().inject(this);
     }
 
     /**

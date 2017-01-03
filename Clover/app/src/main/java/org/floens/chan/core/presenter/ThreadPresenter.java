@@ -54,6 +54,9 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutPresenterCallback {
@@ -73,10 +76,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_OPEN_BROWSER = 13;
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
 
-    private WatchManager watchManager;
-    private DatabaseManager databaseManager;
-    private ReplyManager replyManager;
-    private BoardManager boardManager;
+    @Inject
+    WatchManager watchManager;
+
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    ReplyManager replyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
 
@@ -90,10 +97,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
         this.threadPresenterCallback = threadPresenterCallback;
 
-        watchManager = Chan.getWatchManager();
-        databaseManager = Chan.getDatabaseManager();
-        replyManager = Chan.getReplyManager();
-        boardManager = Chan.getBoardManager();
+        getGraph().inject(this);
     }
 
     public void bindLoadable(Loadable loadable) {

@@ -46,22 +46,26 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
 public class DrawerController extends Controller implements DrawerAdapter.Callback, View.OnClickListener {
-    private WatchManager watchManager;
-
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
     protected LinearLayout settings;
     protected DrawerAdapter drawerAdapter;
+
+    @Inject
+    WatchManager watchManager;
 
     public DrawerController(Context context) {
         super(context);
@@ -70,8 +74,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Override
     public void onCreate() {
         super.onCreate();
-
-        watchManager = Chan.getWatchManager();
+        getGraph().inject(this);
 
         EventBus.getDefault().register(this);
 
@@ -207,7 +210,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
                         if (!TextUtils.isEmpty(value)) {
                             pin.loadable.title = value;
-                            Chan.getWatchManager().updatePin(pin);
+                            watchManager.updatePin(pin);
                         }
                     }
                 })

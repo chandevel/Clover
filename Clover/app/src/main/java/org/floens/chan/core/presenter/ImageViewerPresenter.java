@@ -20,7 +20,7 @@ package org.floens.chan.core.presenter;
 import android.net.ConnectivityManager;
 import android.support.v4.view.ViewPager;
 
-import org.floens.chan.Chan;
+import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
@@ -29,12 +29,18 @@ import org.floens.chan.ui.view.MultiImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.isConnected;
 
 public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
 
     private final Callback callback;
+
+    @Inject
+    FileCache fileCache;
 
     private boolean entering = true;
     private boolean exiting = false;
@@ -49,6 +55,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     public ImageViewerPresenter(Callback callback) {
         this.callback = callback;
+        getGraph().inject(this);
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
@@ -264,7 +271,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     private boolean imageAutoLoad(PostImage postImage) {
         // Auto load the image when it is cached
-        return Chan.getFileCache().exists(postImage.imageUrl) || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
+        return fileCache.exists(postImage.imageUrl) || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
     }
 
     private boolean videoAutoLoad(PostImage postImage) {

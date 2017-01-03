@@ -58,6 +58,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
@@ -66,7 +69,8 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class BoardEditController extends Controller implements View.OnClickListener, ToolbarMenuItem.ToolbarMenuItemCallback {
     private static final int OPTION_SORT_A_Z = 1;
 
-    private final BoardManager boardManager = Chan.getBoardManager();
+    @Inject
+    BoardManager boardManager;
 
     private RecyclerView recyclerView;
     private BoardEditAdapter adapter;
@@ -82,6 +86,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
     @Override
     public void onCreate() {
         super.onCreate();
+        getGraph().inject(this);
 
         navigationItem.setTitle(R.string.board_edit);
 
@@ -239,7 +244,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
         }
 
         // Normal add
-        List<Board> all = Chan.getBoardManager().getAllBoards();
+        List<Board> all = boardManager.getAllBoards();
         for (Board board : all) {
             if (board.code.equals(value)) {
                 board.saved = true;

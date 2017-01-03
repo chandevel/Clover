@@ -45,7 +45,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ImageSearch;
 import org.floens.chan.controller.Controller;
@@ -72,6 +71,9 @@ import org.floens.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -86,6 +88,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private static final int SHARE_ID = 104;
     private static final int SEARCH_ID = 105;
     private static final int SAVE_ALBUM = 106;
+
+    @Inject
+    ImageLoader imageLoader;
 
     private int statusBarColorPrevious;
     private AnimatorSet startAnimation;
@@ -104,6 +109,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
+        getGraph().inject(this);
+
         this.toolbar = toolbar;
 
         presenter = new ImageViewerPresenter(this);
@@ -366,7 +373,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        Chan.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+        imageLoader.get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
@@ -388,7 +395,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return;
         }
 
-        Chan.getVolleyImageLoader().get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+        imageLoader.get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");

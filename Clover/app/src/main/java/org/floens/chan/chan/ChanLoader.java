@@ -23,7 +23,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
@@ -41,15 +40,21 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
+
 public class ChanLoader implements Response.ErrorListener, Response.Listener<ChanReaderRequest.ChanReaderResponse> {
     private static final String TAG = "ChanLoader";
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private static final int[] watchTimeouts = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
+    @Inject
+    RequestQueue volleyRequestQueue;
+
     private final List<ChanLoaderCallback> listeners = new ArrayList<>();
     private final Loadable loadable;
-    private final RequestQueue volleyRequestQueue;
     private ChanThread thread;
 
     private ChanReaderRequest request;
@@ -62,11 +67,11 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     public ChanLoader(Loadable loadable) {
         this.loadable = loadable;
 
+        getGraph().inject(this);
+
         if (loadable.mode == Loadable.Mode.BOARD) {
             loadable.mode = Loadable.Mode.CATALOG;
         }
-
-        volleyRequestQueue = Chan.getVolleyRequestQueue();
     }
 
     /**

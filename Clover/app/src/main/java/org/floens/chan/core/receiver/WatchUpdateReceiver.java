@@ -25,13 +25,18 @@ import org.floens.chan.Chan;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.utils.Logger;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
+
 public class WatchUpdateReceiver extends BroadcastReceiver {
     private static final String TAG = "WatchUpdateReceiver";
 
-    private final WatchManager watchManager;
+    @Inject
+    WatchManager watchManager;
 
     public WatchUpdateReceiver() {
-        watchManager = Chan.getWatchManager();
+        getGraph().inject(this);
     }
 
     @Override

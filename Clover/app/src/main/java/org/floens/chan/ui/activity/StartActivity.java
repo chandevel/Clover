@@ -38,7 +38,9 @@ import org.floens.chan.chan.ChanHelper;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.database.DatabaseLoadableManager;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
@@ -61,6 +63,10 @@ import org.floens.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
+
 public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "StartActivity";
 
@@ -69,7 +75,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private ViewGroup contentView;
     private List<Controller> stack = new ArrayList<>();
 
-    private final BoardManager boardManager;
     private DrawerController drawerController;
     private NavigationController mainNavigationController;
     private BrowseController browseController;
@@ -77,13 +82,19 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private ImagePickDelegate imagePickDelegate;
     private RuntimePermissionsHelper runtimePermissionsHelper;
 
-    public StartActivity() {
-        boardManager = Chan.getBoardManager();
-    }
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    BoardManager boardManager;
+
+    @Inject
+    WatchManager watchManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getGraph().inject(this);
 
         ThemeHelper.getInstance().setupContext(this);
 
@@ -118,7 +129,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             if (chanState == null) {
                 Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
             } else {
-                DatabaseLoadableManager loadableManager = Chan.getDatabaseManager().getDatabaseLoadableManager();
+                DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
                 chanState.board = loadableManager.get(chanState.board);
                 chanState.thread = loadableManager.get(chanState.thread);
 
@@ -220,7 +231,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 if (pinId == -1) {
                     drawerController.onMenuClicked();
                 } else {
-                    Pin pin = Chan.getWatchManager().findPinById(pinId);
+                    Pin pin = watchManager.findPinById(pinId);
                     if (pin != null) {
                         browseController.showThread(pin.loadable, false);
                     }

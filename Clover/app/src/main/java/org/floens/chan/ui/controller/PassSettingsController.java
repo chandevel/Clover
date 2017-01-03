@@ -36,9 +36,15 @@ import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class PassSettingsController extends Controller implements View.OnClickListener, ReplyManager.HttpCallback<PassHttpCall> {
+    @Inject
+    ReplyManager replyManager;
+
     private LinearLayout container;
     private CrossfadeView crossfadeView;
     private TextView errors;
@@ -55,6 +61,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     @Override
     public void onCreate() {
         super.onCreate();
+        getGraph().inject(this);
 
         navigationItem.setTitle(R.string.settings_screen_pass);
 
@@ -163,7 +170,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         ChanSettings.passToken.set(inputToken.getText().toString());
         ChanSettings.passPin.set(inputPin.getText().toString());
 
-        Chan.getReplyManager().makeHttpCall(new PassHttpCall(ChanSettings.passToken.get(), ChanSettings.passPin.get()), this);
+        replyManager.makeHttpCall(new PassHttpCall(ChanSettings.passToken.get(), ChanSettings.passPin.get()), this);
     }
 
     private void showError(String error) {

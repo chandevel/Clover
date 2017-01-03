@@ -49,6 +49,9 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, FloatingMenu.FloatingMenuCallback {
@@ -60,7 +63,11 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int ORDER_ID = 105;
     private static final int OPEN_BROWSER_ID = 106;
 
-    private final DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    BoardManager boardManager;
 
     private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
@@ -75,12 +82,12 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     public BrowseController(Context context) {
         super(context);
-        databaseManager = Chan.getDatabaseManager();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        getGraph().inject(this);
 
         postViewMode = ChanSettings.boardViewMode.get();
         order = PostsFilter.Order.find(ChanSettings.boardOrder.get());
@@ -303,7 +310,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     public void loadDefault() {
-        BoardManager boardManager = Chan.getBoardManager();
         List<Board> savedBoards = boardManager.getSavedBoards();
         if (!savedBoards.isEmpty()) {
             loadBoard(savedBoards.get(0));
@@ -334,7 +340,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
      * board change event.
      */
     private void loadBoards() {
-        List<Board> boards = Chan.getBoardManager().getSavedBoards();
+        List<Board> boards = boardManager.getSavedBoards();
 
         if (boards.isEmpty()) {
             if (waitingForBoardsDialog == null) {

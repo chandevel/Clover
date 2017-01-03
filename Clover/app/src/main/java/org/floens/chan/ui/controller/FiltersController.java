@@ -47,8 +47,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -57,8 +60,11 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     private static final int SEARCH_ID = 1;
     private static final int CLEAR_ID = 101;
 
+    @Inject
+    DatabaseManager databaseManager;
+
     private FilterEngine filterEngine;
-    private DatabaseManager databaseManager;
+
     private RecyclerView recyclerView;
     private FloatingActionButton add;
     private FilterAdapter adapter;
@@ -100,9 +106,9 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     @Override
     public void onCreate() {
         super.onCreate();
+        getGraph().inject(this);
 
         filterEngine = FilterEngine.getInstance();
-        databaseManager = Chan.getDatabaseManager();
 
         navigationItem.setTitle(R.string.filters_screen);
         navigationItem.menu = new ToolbarMenu(context);

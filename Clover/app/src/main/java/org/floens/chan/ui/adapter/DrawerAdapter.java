@@ -41,6 +41,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -68,13 +71,15 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     };
 
-    private final WatchManager watchManager;
+    @Inject
+    WatchManager watchManager;
+
     private final Callback callback;
     private List<Pin> pins = new ArrayList<>();
     private Pin highlighted;
 
     public DrawerAdapter(Callback callback) {
-        watchManager = Chan.getWatchManager();
+        getGraph().inject(this);
         this.callback = callback;
         setHasStableIds(true);
     }

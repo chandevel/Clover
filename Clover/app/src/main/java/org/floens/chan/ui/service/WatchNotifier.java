@@ -41,6 +41,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
+
 public class WatchNotifier extends Service {
     private static final String TAG = "WatchNotifier";
     private static final int NOTIFICATION_ID = 1;
@@ -50,7 +54,9 @@ public class WatchNotifier extends Service {
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
     private NotificationManager nm;
-    private WatchManager wm;
+
+    @Inject
+    WatchManager watchManager;
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -60,9 +66,9 @@ public class WatchNotifier extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        getGraph().inject(this);
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        wm = Chan.getWatchManager();
 
         startForeground(NOTIFICATION_ID, createNotification());
     }
@@ -89,7 +95,7 @@ public class WatchNotifier extends Service {
     }
 
     public void pausePins() {
-        wm.pauseAll();
+        watchManager.pauseAll();
     }
 
     private Notification createNotification() {
@@ -105,8 +111,8 @@ public class WatchNotifier extends Service {
         boolean sound = false;
         boolean peek = false;
 
-        for (Pin pin : wm.getWatchingPins()) {
-            WatchManager.PinWatcher watcher = wm.getPinWatcher(pin);
+        for (Pin pin : watchManager.getWatchingPins()) {
+            WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
             if (watcher == null || pin.isError) {
                 continue;
             }

@@ -291,6 +291,14 @@ public class WatchManager {
         }
     }
 
+    public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
+        if (settingChanged.setting == ChanSettings.watchBackground) {
+            onBackgroundWatchingChanged(ChanSettings.watchBackground.get());
+        } else if (settingChanged.setting == ChanSettings.watchEnabled) {
+            onWatchEnabledChanged(ChanSettings.watchEnabled.get());
+        }
+    }
+
     // Called when the broadcast scheduled by the alarmmanager was received
     public void onBroadcastReceived() {
         if (currentInterval != IntervalType.BACKGROUND) {
@@ -366,8 +374,12 @@ public class WatchManager {
         }
     }
 
+    public PinWatcher getPinWatcher(Pin pin) {
+        return pinWatchers.get(pin);
+    }
+
     // Called when the user changes the watch enabled preference
-    public void onWatchEnabledChanged(boolean watchEnabled) {
+    private void onWatchEnabledChanged(boolean watchEnabled) {
         updateState(watchEnabled, isBackgroundWatchingSettingEnabled());
         List<Pin> pins = getAllPins();
         for (int i = 0; i < pins.size(); i++) {
@@ -377,17 +389,13 @@ public class WatchManager {
     }
 
     // Called when the user changes the watch background enabled preference
-    public void onBackgroundWatchingChanged(boolean backgroundEnabled) {
+    private void onBackgroundWatchingChanged(boolean backgroundEnabled) {
         updateState(isTimerEnabled(), backgroundEnabled);
         List<Pin> pins = getAllPins();
         for (int i = 0; i < pins.size(); i++) {
             Pin pin = pins.get(i);
             EventBus.getDefault().post(new PinChangedMessage(pin));
         }
-    }
-
-    public PinWatcher getPinWatcher(Pin pin) {
-        return pinWatchers.get(pin);
     }
 
     private void applyOrder() {

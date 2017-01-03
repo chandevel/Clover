@@ -2,7 +2,10 @@ package org.floens.chan.core.di;
 
 import android.content.Context;
 
-import org.floens.chan.core.UserAgentProvider;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+
+import org.floens.chan.core.net.BitmapLruImageCache;
 
 import javax.inject.Singleton;
 
@@ -29,5 +32,13 @@ public class AppModule {
     @Singleton
     public UserAgentProvider provideUserAgentProvider() {
         return userAgentProvider;
+    }
+
+    @Provides
+    @Singleton
+    public ImageLoader provideImageLoader(RequestQueue requestQueue) {
+        final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int lruImageCacheSize = runtimeMemory / 8;
+        return new ImageLoader(requestQueue, new BitmapLruImageCache(lruImageCacheSize));
     }
 }

@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
@@ -42,6 +41,9 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -55,6 +57,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private static final int UP_ID = 106;
     private static final int DOWN_ID = 107;
     private static final int OPEN_BROWSER_ID = 108;
+
+    @Inject
+    WatchManager watchManager;
 
     private ToolbarMenuItem pinItem;
     private ToolbarMenuItem overflowItem;
@@ -71,6 +76,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onCreate() {
         super.onCreate();
+        getGraph().inject(this);
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
 
@@ -216,8 +222,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
-        WatchManager wm = Chan.getWatchManager();
-        Pin pin = loadable == null ? null : wm.findPinByLoadable(loadable);
+        Pin pin = loadable == null ? null : watchManager.findPinByLoadable(loadable);
 
         if (navigationController.parentController instanceof DrawerController) {
             ((DrawerController) navigationController.parentController).setPinHighlighted(pin);
@@ -251,8 +256,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void setPinIconState() {
-        WatchManager wm = Chan.getWatchManager();
-        setPinIconState(wm.findPinByLoadable(loadable) != null);
+        setPinIconState(watchManager.findPinByLoadable(loadable) != null);
     }
 
     private void setPinIconState(boolean pinned) {

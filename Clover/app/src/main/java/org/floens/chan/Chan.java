@@ -17,32 +17,21 @@
  */
 package org.floens.chan;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.StrictMode;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
-
-import org.floens.chan.core.UserAgentProvider;
-import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.di.AppModule;
 import org.floens.chan.core.di.ChanGraph;
 import org.floens.chan.core.di.DaggerChanGraph;
-import org.floens.chan.core.http.ReplyManager;
-import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.net.BitmapLruImageCache;
-import org.floens.chan.core.net.ProxiedHurlStack;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
-import java.io.File;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -52,16 +41,8 @@ import de.greenrobot.event.EventBus;
 public class Chan extends Application implements UserAgentProvider {
     private static final String TAG = "ChanApplication";
 
-    private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
-    private static final String FILE_CACHE_NAME = "filecache";
-    private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
-
-    public static Context con;
-
+    @SuppressLint("StaticFieldLeak")
     private static Chan instance;
-    private static RequestQueue volleyRequestQueue;
-    private static ImageLoader imageLoader;
-    private static FileCache fileCache;
 
     private String userAgent;
     private int activityForegroundCounter = 0;
@@ -73,39 +54,10 @@ public class Chan extends Application implements UserAgentProvider {
 
     public Chan() {
         instance = this;
-        con = this;
     }
 
     public static Chan getInstance() {
         return instance;
-    }
-
-    public static RequestQueue getVolleyRequestQueue() {
-        return volleyRequestQueue;
-    }
-
-    public static ImageLoader getVolleyImageLoader() {
-        return imageLoader;
-    }
-
-    public static BoardManager getBoardManager() {
-        throw new IllegalArgumentException();
-    }
-
-    public static WatchManager getWatchManager() {
-        throw new IllegalArgumentException();
-    }
-
-    public static ReplyManager getReplyManager() {
-        throw new IllegalArgumentException();
-    }
-
-    public static DatabaseManager getDatabaseManager() {
-        throw new IllegalArgumentException();
-    }
-
-    public static FileCache getFileCache() {
-        return fileCache;
     }
 
     public static ChanGraph getGraph() {
@@ -119,28 +71,13 @@ public class Chan extends Application implements UserAgentProvider {
         final long startTime = Time.startTiming();
 
         AndroidUtils.init();
+
+        userAgent = createUserAgent();
         graph = DaggerChanGraph.builder()
                 .appModule(new AppModule(this, this))
                 .build();
 
         graph.inject(this);
-
-        userAgent = createUserAgent();
-
-        File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
-
-        volleyRequestQueue = Volley.newRequestQueue(this, userAgent, new ProxiedHurlStack(userAgent), new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
-
-        final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int lruImageCacheSize = runtimeMemory / 8;
-
-        imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(lruImageCacheSize));
-
-        fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, getUserAgent());
-
-//        sDatabaseManager = new DatabaseManager(this);
-//        boardManager = new BoardManager(null);
-//        watchManager = new WatchManager(null);
 
         Time.endTiming("Initializing application", startTime);
 

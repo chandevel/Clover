@@ -87,6 +87,9 @@ public class MainSettingsController extends SettingsController implements Toolba
     @Inject
     DatabaseManager databaseManager;
 
+    @Inject
+    BoardManager boardManager;
+
     public MainSettingsController(Context context) {
         super(context);
     }
@@ -319,7 +322,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         browsing.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Chan.getDatabaseManager().clearAllThreadHides();
+                databaseManager.clearAllThreadHides();
                 Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG).show();
                 EventBus.getDefault().post(new RefreshUIMessage("clearhides"));
             }
@@ -434,7 +437,7 @@ public class MainSettingsController extends SettingsController implements Toolba
     }
 
     private void updateBoardLinkDescription() {
-        List<Board> savedBoards = Chan.getBoardManager().getSavedBoards();
+        List<Board> savedBoards = boardManager.getSavedBoards();
         boardEditorView.setDescription(context.getResources().getQuantityString(R.plurals.board, savedBoards.size(), savedBoards.size()));
     }
 

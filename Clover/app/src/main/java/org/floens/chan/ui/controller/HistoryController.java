@@ -53,6 +53,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -61,10 +64,14 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     private static final int CLEAR_ID = 101;
     private static final int SAVED_REPLY_CLEAR_ID = 102;
 
-    private DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    BoardManager boardManager;
+
     private DatabaseHistoryManager databaseHistoryManager;
     private DatabaseSavedReplyManager databaseSavedReplyManager;
-    private BoardManager boardManager;
 
     private CrossfadeView crossfade;
     private RecyclerView recyclerView;
@@ -77,11 +84,10 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     @Override
     public void onCreate() {
         super.onCreate();
+        getGraph().inject(this);
 
-        databaseManager = Chan.getDatabaseManager();
         databaseHistoryManager = databaseManager.getDatabaseHistoryManager();
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
-        boardManager = Chan.getBoardManager();
 
         navigationItem.setTitle(R.string.history_screen);
         List<FloatingMenuItem> items = new ArrayList<>();
@@ -105,16 +111,11 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
 
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);
+        adapter.load();
 
         if (ChanSettings.historyOpenCounter.increase() == 1) {
             HintPopup.show(context, historyEnabledSwitch, R.string.history_toggle_hint);
         }
-    }
-
-    @Override
-    public void onShow() {
-        super.onShow();
-        adapter.load();
     }
 
     @Override
