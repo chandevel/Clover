@@ -3,13 +3,13 @@ apply plugin: 'com.android.application'
 /**
  * Gets the version name from the latest Git tag
  */
-def getVersionName = { ->
+def getCommitHash = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
-        commandLine 'git', 'describe', '--tags', '--always'
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
         standardOutput = stdout
     }
-    return stdout.toString().trim()
+    return "-" + stdout.toString().trim()
 }
 
 android {
@@ -22,7 +22,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 24
 
-        versionName getVersionName()
+        versionName "v2.2.0"
         versionCode 56
     }
 
@@ -76,7 +76,7 @@ android {
         }
 
         debug {
-            versionNameSuffix " Debug"
+            versionNameSuffix getCommitHash()
 //            minifyEnabled true
 //            proguardFiles 'proguard.cfg'
         }
