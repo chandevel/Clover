@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+/**
+ * Gets the version name from the latest Git tag
+ */
+def getCommitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return "-" + stdout.toString().trim()
+}
+
 android {
     compileSdkVersion 24
     // update the travis config when changing this
@@ -64,7 +76,7 @@ android {
         }
 
         debug {
-            versionNameSuffix " Debug"
+            versionNameSuffix getCommitHash()
 //            minifyEnabled true
 //            proguardFiles 'proguard.cfg'
         }
