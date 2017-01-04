@@ -21,12 +21,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
-import org.floens.chan.Chan;
-import org.floens.chan.core.http.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 

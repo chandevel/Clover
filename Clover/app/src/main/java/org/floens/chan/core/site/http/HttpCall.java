@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.http;
+package org.floens.chan.core.site.http;
 
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
@@ -28,28 +28,23 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 
+/**
+ * Http calls are an abstraction over a normal OkHttp call.
+ * <p>These HttpCalls are used for emulating &lt;form&gt; elements used for posting, reporting, deleting, etc.
+ * <p>Implement {@link #setup(Request.Builder)} and {@link #process(Response, String)}.
+ * {@code setup()} is called on the main thread, set up up the request builder here. {@code execute()} is
+ * called on a worker thread after the response was executed, do something with the response here.
+ */
 public abstract class HttpCall implements Callback {
     private static final String TAG = "HttpCall";
 
     private boolean successful = false;
-    private ReplyManager.HttpCallback callback;
-
-    public void setSuccessful(boolean successful) {
-        this.successful = successful;
-    }
+    private HttpCallback callback;
+    private Exception exception;
 
     public abstract void setup(Request.Builder requestBuilder);
 
     public abstract void process(Response response, String result) throws IOException;
-
-    @SuppressWarnings("unchecked")
-    public void postUI(boolean successful) {
-        if (successful) {
-            callback.onHttpSuccess(this);
-        } else {
-            callback.onHttpFail(this);
-        }
-    }
 
     @Override
     public void onResponse(Call call, Response response) {
@@ -61,31 +56,60 @@ public abstract class HttpCall implements Callback {
             } else {
                 onFailure(call, null);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            exception = e;
             Logger.e(TAG, "IOException processing response", e);
         } finally {
             IOUtils.closeQuietly(response.body());
         }
 
-        AndroidUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                postUI(successful);
-            }
-        });
+        if (successful) {
+            callSuccess();
+        } else {
+            callFail(exception);
+        }
     }
 
     @Override
     public void onFailure(Call call, IOException e) {
+        callFail(e);
+    }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public boolean isSuccessful() {
+        return successful;
+    }
+
+    private void callSuccess() {
         AndroidUtils.runOnUiThread(new Runnable() {
+            @SuppressWarnings("unchecked")
             @Override
             public void run() {
-                postUI(false);
+                callback.onHttpSuccess(HttpCall.this);
             }
         });
     }
 
-    void setCallback(ReplyManager.HttpCallback<? extends HttpCall> callback) {
+    private void callFail(final Exception e) {
+        AndroidUtils.runOnUiThread(new Runnable() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public void run() {
+                callback.onHttpFail(HttpCall.this, e);
+            }
+        });
+    }
+
+    public void setCallback(HttpCallback<? extends HttpCall> callback) {
         this.callback = callback;
+    }
+
+    public interface HttpCallback<T extends HttpCall> {
+        void onHttpSuccess(T httpCall);
+
+        void onHttpFail(T httpCall, Exception e);
     }
 }

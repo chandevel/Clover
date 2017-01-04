@@ -15,48 +15,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.http;
+package org.floens.chan.core.manager;
 
 import android.content.Context;
 
-import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Reply;
+import org.floens.chan.core.site.http.Reply;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-
 /**
- * To send an reply to 4chan.
+ * Manages replies.
  */
 @Singleton
 public class ReplyManager {
-    private static final int TIMEOUT = 30000;
-
     private final Context context;
-    private String userAgent;
-    private OkHttpClient client;
 
     private Map<Loadable, Reply> drafts = new HashMap<>();
 
     @Inject
-    public ReplyManager(Context context, UserAgentProvider userAgentProvider) {
+    public ReplyManager(Context context) {
         this.context = context;
-        userAgent = userAgentProvider.getUserAgent();
-
-        client = new OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .build();
     }
 
     public Reply getReply(Loadable loadable) {
@@ -84,24 +68,5 @@ public class ReplyManager {
 
     public File getPickFile() {
         return new File(context.getCacheDir(), "picked_file");
-    }
-
-    public void makeHttpCall(HttpCall httpCall, HttpCallback<? extends HttpCall> callback) {
-        httpCall.setCallback(callback);
-
-        Request.Builder requestBuilder = new Request.Builder();
-
-        httpCall.setup(requestBuilder);
-
-        requestBuilder.header("User-Agent", userAgent);
-        Request request = requestBuilder.build();
-
-        client.newCall(request).enqueue(httpCall);
-    }
-
-    public interface HttpCallback<T extends HttpCall> {
-        void onHttpSuccess(T httpPost);
-
-        void onHttpFail(T httpPost);
     }
 }

@@ -15,35 +15,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site;
+package org.floens.chan.core.site.http;
 
-import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Post;
 
-import java.util.Map;
+import java.io.File;
 
 /**
- * Endpoints for {@link Site}.
+ * The data needed to send a reply.
  */
-public interface SiteEndpoints {
-    String catalog(Board board);
+public class Reply {
+    /**
+     * Optional. {@code null} when ReCaptcha v2 was used or a 4pass
+     */
+    public String captchaChallenge;
 
-    String thread(Board board, Loadable loadable);
+    /**
+     * Optional. {@code null} when a 4pass was used.
+     */
+    public String captchaResponse;
 
-    String imageUrl(Post.Builder post, Map<String, String> arg);
+    // TODO(multi-site) flip boolean
+    public boolean noVerification = false;
 
-    String thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
+    public Loadable loadable;
 
-    String flag(Post.Builder post, String countryCode, Map<String, String> arg);
-
-    String boards();
-
-    String reply(Loadable thread);
-
-    String delete(Post post);
-
-    String report(Post post);
-
-    String login();
+    public String passId;
+    public File file;
+    public String fileName = "";
+    public String name = "";
+    public String options = "";
+    public String subject = "";
+    public String comment = "";
+    public int selection;
+    public boolean spoilerImage = false;
 }

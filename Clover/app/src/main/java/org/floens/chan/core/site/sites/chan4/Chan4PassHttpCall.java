@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.http;
+package org.floens.chan.core.site.sites.chan4;
 
-import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.LoginRequest;
+import org.floens.chan.core.site.http.LoginResponse;
 
 import java.io.IOException;
 import java.net.HttpCookie;
@@ -27,17 +29,12 @@ import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class PassHttpCall extends HttpCall {
-    public boolean success;
-    public String message;
-    public String passId;
+public class Chan4PassHttpCall extends HttpCall {
+    private final LoginRequest loginRequest;
+    public final LoginResponse loginResponse = new LoginResponse();
 
-    private String token;
-    private String pin;
-
-    public PassHttpCall(String token, String pin) {
-        this.token = token;
-        this.pin = pin;
+    public Chan4PassHttpCall(LoginRequest loginRequest) {
+        this.loginRequest = loginRequest;
     }
 
     @Override
@@ -46,10 +43,10 @@ public class PassHttpCall extends HttpCall {
 
         formBuilder.add("act", "do_login");
 
-        formBuilder.add("id", token);
-        formBuilder.add("pin", pin);
+        formBuilder.add("id", loginRequest.user);
+        formBuilder.add("pin", loginRequest.pass);
 
-        requestBuilder.url(ChanUrls.getPassUrl());
+        requestBuilder.url(loginRequest.site.endpoints().login());
         requestBuilder.post(formBuilder.build());
     }
 
@@ -59,6 +56,7 @@ public class PassHttpCall extends HttpCall {
         if (result.contains("Success! Your device is now authorized")) {
             authSuccess = true;
         } else {
+            String message;
             if (result.contains("Your Token must be exactly 10 characters")) {
                 message = "Incorrect token";
             } else if (result.contains("You have left one or more fields blank")) {
@@ -68,6 +66,7 @@ public class PassHttpCall extends HttpCall {
             } else {
                 message = "Unknown error";
             }
+            loginResponse.message = message;
         }
 
         if (authSuccess) {
@@ -86,11 +85,11 @@ public class PassHttpCall extends HttpCall {
             }
 
             if (passId != null) {
-                this.passId = passId;
-                message = "Success! Your device is now authorized.";
-                success = true;
+                loginResponse.token = passId;
+                loginResponse.message = "Success! Your device is now authorized.";
+                loginResponse.success = true;
             } else {
-                message = "Could not get pass id";
+                loginResponse.message = "Could not get pass id";
             }
         }
     }

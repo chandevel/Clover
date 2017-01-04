@@ -8,16 +8,18 @@ import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.http.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.site.loaders.Chan4ReaderRequest;
+import org.floens.chan.core.site.http.HttpCallManager;
+import org.floens.chan.core.site.sites.chan4.Chan4ReaderRequest;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.receiver.WatchUpdateReceiver;
 import org.floens.chan.core.saver.ImageSaveTask;
+import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.adapter.DrawerAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -46,6 +48,9 @@ import dagger.Component;
         NetModule.class
 })
 @Singleton
+/**
+ * Note: please avoid adding inject() statements for Sites.
+ */
 public interface ChanGraph {
     ChanParser getChanParser();
 
@@ -60,6 +65,8 @@ public interface ChanGraph {
     ImageLoader getImageLoader();
 
     FileCache getFileCache();
+
+    HttpCallManager getHttpCallManager();
 
     void inject(Chan chan);
 
@@ -116,4 +123,6 @@ public interface ChanGraph {
     void inject(ViewThreadController viewThreadController);
 
     void inject(WatchManager.PinWatcher pinWatcher);
+
+    void inject(Chan4 chan4);
 }

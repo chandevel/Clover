@@ -1,5 +1,23 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.floens.chan.core.site.sites.chan4;
 
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
@@ -11,7 +29,11 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteEndpoints;
-import org.floens.chan.core.site.loaders.Chan4ReaderRequest;
+import org.floens.chan.core.site.http.DeleteRequest;
+import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.HttpCallManager;
+import org.floens.chan.core.site.http.LoginRequest;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -21,12 +43,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import javax.inject.Inject;
+
 import static org.floens.chan.Chan.getGraph;
 
 public class Chan4 implements Site {
     private static final String TAG = "Chan4";
 
     private static final Random random = new Random();
+
+    @Inject
+    HttpCallManager httpCallManager;
+
+    @Inject
+    RequestQueue requestQueue;
 
     private final SiteEndpoints endpoints = new SiteEndpoints() {
         @Override
@@ -69,12 +99,28 @@ public class Chan4 implements Site {
         }
 
         @Override
-        public String reply(Board board, Loadable thread) {
-            return "https://sys.4chan.org/" + board.code + "/post";
+        public String reply(Loadable loadable) {
+            return "https://sys.4chan.org/" + loadable.getBoard().code + "/post";
+        }
+
+        @Override
+        public String delete(Post post) {
+            return "https://sys.4chan.org/" + post.board.code + "/imgboard.php";
+        }
+
+        @Override
+        public String report(Post post) {
+            return "https://sys.4chan.org/" + post.board.code + "/imgboard.php?mode=report&no=" + post.no;
+        }
+
+        @Override
+        public String login() {
+            return "https://sys.4chan.org/auth";
         }
     };
 
     public Chan4() {
+        getGraph().inject(this);
     }
 
     /**
@@ -99,6 +145,9 @@ public class Chan4 implements Site {
                 return true;
             case POST_DELETE:
                 // yes, with the password saved when posting.
+                return true;
+            case POST_REPORT:
+                // yes, with a custom url
                 return true;
             default:
                 return false;
@@ -144,7 +193,7 @@ public class Chan4 implements Site {
 
     @Override
     public void boards(final BoardsListener listener) {
-        getGraph().getRequestQueue().add(new Chan4BoardsRequest(this, new Response.Listener<List<Board>>() {
+        requestQueue.add(new Chan4BoardsRequest(this, new Response.Listener<List<Board>>() {
             @Override
             public void onResponse(List<Board> response) {
                 listener.onBoardsReceived(new Boards(response));
@@ -169,5 +218,50 @@ public class Chan4 implements Site {
     @Override
     public ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request) {
         return new ChanLoaderRequest(new Chan4ReaderRequest(request));
+    }
+
+    @Override
+    public void post(Reply reply, final PostListener postListener) {
+        httpCallManager.makeHttpCall(new Chan4ReplyHttpCall(reply), new HttpCall.HttpCallback<Chan4ReplyHttpCall>() {
+            @Override
+            public void onHttpSuccess(Chan4ReplyHttpCall httpPost) {
+                postListener.onPostComplete(httpPost, httpPost.replyResponse);
+            }
+
+            @Override
+            public void onHttpFail(Chan4ReplyHttpCall httpPost, Exception e) {
+                postListener.onPostError(httpPost);
+            }
+        });
+    }
+
+    @Override
+    public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
+        httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(deleteRequest), new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
+            @Override
+            public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
+                deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
+            }
+
+            @Override
+            public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
+                deleteListener.onDeleteError(httpPost);
+            }
+        });
+    }
+
+    @Override
+    public void login(LoginRequest loginRequest, final LoginListener loginListener) {
+        httpCallManager.makeHttpCall(new Chan4PassHttpCall(loginRequest), new HttpCall.HttpCallback<Chan4PassHttpCall>() {
+            @Override
+            public void onHttpSuccess(Chan4PassHttpCall httpCall) {
+                loginListener.onLoginComplete(httpCall, httpCall.loginResponse);
+            }
+
+            @Override
+            public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
+                loginListener.onLoginError(httpCall);
+            }
+        });
     }
 }

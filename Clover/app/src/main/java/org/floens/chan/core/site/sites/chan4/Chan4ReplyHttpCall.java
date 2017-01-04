@@ -15,12 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.http;
+package org.floens.chan.core.site.sites.chan4;
 
 import android.text.TextUtils;
 
-import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.model.Reply;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.ReplyResponse;
+import org.floens.chan.core.site.http.Reply;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
@@ -34,40 +36,34 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class ReplyHttpCall extends HttpCall {
-    private static final String TAG = "ReplyHttpCall";
+public class Chan4ReplyHttpCall extends HttpCall {
+    private static final String TAG = "Chan4ReplyHttpCall";
     private static final Random RANDOM = new Random();
     private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
     private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)<\\/span");
+    private static final String PROBABLY_BANNED_TEXT = "banned";
 
-    public boolean posted;
-    public String errorMessage;
-    public String text;
-    public String password;
-    public int threadNo = -1;
-    public int postNo = -1;
-    public boolean probablyBanned;
+    public final Reply reply;
+    public final ReplyResponse replyResponse = new ReplyResponse();
 
-    private final Reply reply;
-
-    public ReplyHttpCall(Reply reply) {
+    public Chan4ReplyHttpCall(Reply reply) {
         this.reply = reply;
     }
 
     @Override
     public void setup(Request.Builder requestBuilder) {
-        boolean thread = reply.resto >= 0;
+        boolean thread = reply.loadable.isThreadMode();
 
-        password = Long.toHexString(RANDOM.nextLong());
+        replyResponse.password = Long.toHexString(RANDOM.nextLong());
 
         MultipartBody.Builder formBuilder = new MultipartBody.Builder();
         formBuilder.setType(MultipartBody.FORM);
 
         formBuilder.addFormDataPart("mode", "regist");
-        formBuilder.addFormDataPart("pwd", password);
+        formBuilder.addFormDataPart("pwd", replyResponse.password);
 
         if (thread) {
-            formBuilder.addFormDataPart("resto", String.valueOf(reply.resto));
+            formBuilder.addFormDataPart("resto", String.valueOf(reply.loadable.no));
         }
 
         formBuilder.addFormDataPart("name", reply.name);
@@ -79,7 +75,7 @@ public class ReplyHttpCall extends HttpCall {
 
         formBuilder.addFormDataPart("com", reply.comment);
 
-        if (reply.captchaResponse != null) {
+        if (!reply.noVerification) {
             if (reply.captchaChallenge != null) {
                 formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
                 formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
@@ -98,33 +94,32 @@ public class ReplyHttpCall extends HttpCall {
             formBuilder.addFormDataPart("spoiler", "on");
         }
 
-        requestBuilder.url(ChanUrls.getReplyUrl(reply.board));
+        Site site = reply.loadable.getSite();
+        requestBuilder.url(site.endpoints().reply(reply.loadable));
         requestBuilder.post(formBuilder.build());
 
-        if (reply.usePass) {
+        if (reply.noVerification) {
             requestBuilder.addHeader("Cookie", "pass_id=" + reply.passId);
         }
     }
 
     @Override
     public void process(Response response, String result) throws IOException {
-        text = result;
-
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
-            errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
-            probablyBanned = errorMessage.contains("banned");
+            replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
+            replyResponse.probablyBanned = replyResponse.errorMessage.contains(PROBABLY_BANNED_TEXT);
         } else {
             Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(result);
             if (threadNoMatcher.find()) {
                 try {
-                    threadNo = Integer.parseInt(threadNoMatcher.group(1));
-                    postNo = Integer.parseInt(threadNoMatcher.group(2));
+                    replyResponse.threadNo = Integer.parseInt(threadNoMatcher.group(1));
+                    replyResponse.postNo = Integer.parseInt(threadNoMatcher.group(2));
                 } catch (NumberFormatException ignored) {
                 }
 
-                if (threadNo >= 0 && postNo >= 0) {
-                    posted = true;
+                if (replyResponse.threadNo >= 0 && replyResponse.postNo >= 0) {
+                    replyResponse.posted = true;
                 }
             }
         }

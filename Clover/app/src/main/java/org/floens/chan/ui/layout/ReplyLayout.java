@@ -37,7 +37,7 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Reply;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;

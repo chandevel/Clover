@@ -26,12 +26,16 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.http.PassHttpCall;
-import org.floens.chan.core.http.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.Sites;
+import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.HttpCallManager;
+import org.floens.chan.core.site.http.LoginRequest;
+import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.AnimationUtils;
@@ -41,9 +45,12 @@ import javax.inject.Inject;
 import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class PassSettingsController extends Controller implements View.OnClickListener, ReplyManager.HttpCallback<PassHttpCall> {
+public class PassSettingsController extends Controller implements View.OnClickListener, Site.LoginListener {
     @Inject
     ReplyManager replyManager;
+
+    @Inject
+    HttpCallManager httpCallManager;
 
     private LinearLayout container;
     private CrossfadeView crossfadeView;
@@ -120,36 +127,37 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     }
 
     @Override
-    public void onHttpSuccess(PassHttpCall httpPost) {
-        if (httpPost.success) {
-            authSuccess(httpPost);
+    public void onLoginComplete(HttpCall httpCall, LoginResponse loginResponse) {
+        if (loginResponse.success) {
+            authSuccess(loginResponse);
         } else {
-            authFail(httpPost);
+            authFail(loginResponse);
         }
 
         authAfter();
     }
 
     @Override
-    public void onHttpFail(PassHttpCall httpPost) {
-        authFail(httpPost);
+    public void onLoginError(HttpCall httpCall) {
+        authFail(null);
         authAfter();
     }
 
-    private void authSuccess(PassHttpCall httpPost) {
+    private void authSuccess(LoginResponse response) {
         crossfadeView.toggle(false, true);
         button.setText(R.string.setting_pass_logout);
-        ChanSettings.passId.set(httpPost.passId);
-        authenticated.setText(httpPost.message);
+        ChanSettings.passId.set(response.token);
+        authenticated.setText(response.message);
         ((PassSettingControllerListener) previousSiblingController).onPassEnabledChanged(true);
     }
 
-    private void authFail(PassHttpCall httpPost) {
-        if (httpPost.message == null) {
-            httpPost.message = getString(R.string.setting_pass_error);
+    private void authFail(LoginResponse response) {
+        String message = getString(R.string.setting_pass_error);
+        if (response != null && response.message != null) {
+            message = response.message;
         }
 
-        showError(httpPost.message);
+        showError(message);
         button.setText(R.string.setting_pass_login);
     }
 
@@ -170,7 +178,9 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         ChanSettings.passToken.set(inputToken.getText().toString());
         ChanSettings.passPin.set(inputPin.getText().toString());
 
-        replyManager.makeHttpCall(new PassHttpCall(ChanSettings.passToken.get(), ChanSettings.passPin.get()), this);
+        // TODO(multi-site) some selector of some sorts
+        Site site = Sites.defaultSite();
+        site.login(new LoginRequest(site, ChanSettings.passToken.get(), ChanSettings.passPin.get()), this);
     }
 
     private void showError(String error) {

@@ -25,8 +25,7 @@ import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
-import org.floens.chan.core.http.DeleteHttpCall;
-import org.floens.chan.core.http.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
@@ -40,6 +39,10 @@ import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.http.DeleteRequest;
+import org.floens.chan.core.site.http.DeleteResponse;
+import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -84,6 +87,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Inject
     ReplyManager replyManager;
+
+    @Inject
+    HttpCallManager httpCallManager;
 
     @Inject
     ChanLoaderFactory chanLoaderFactory;
@@ -426,7 +432,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         menu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         menu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
         menu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
-        menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
+
+        if (loadable.getSite().feature(Site.Feature.POST_REPORT)) {
+            menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
+        }
 
         if (!loadable.isThreadMode()) {
             menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
@@ -603,14 +612,14 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.boardId, post.no)
         );
         if (reply != null) {
-            replyManager.makeHttpCall(new DeleteHttpCall(reply, onlyImageDelete), new ReplyManager.HttpCallback<DeleteHttpCall>() {
+            loadable.getSite().delete(new DeleteRequest(loadable.getSite(), post, reply, onlyImageDelete), new Site.DeleteListener() {
                 @Override
-                public void onHttpSuccess(DeleteHttpCall httpPost) {
+                public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
                     String message;
-                    if (httpPost.deleted) {
+                    if (deleteResponse.deleted) {
                         message = getString(R.string.delete_success);
-                    } else if (!TextUtils.isEmpty(httpPost.errorMessage)) {
-                        message = httpPost.errorMessage;
+                    } else if (!TextUtils.isEmpty(deleteResponse.errorMessage)) {
+                        message = deleteResponse.errorMessage;
                     } else {
                         message = getString(R.string.delete_error);
                     }
@@ -618,7 +627,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 }
 
                 @Override
-                public void onHttpFail(DeleteHttpCall httpPost) {
+                public void onDeleteError(HttpCall httpCall) {
                     threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
                 }
             });

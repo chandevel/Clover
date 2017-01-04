@@ -20,6 +20,7 @@ package org.floens.chan.ui.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.webkit.CookieManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import org.floens.chan.R;
@@ -27,7 +28,11 @@ import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.helper.PostHelper;
+
+import okhttp3.HttpUrl;
 
 public class ReportController extends Controller {
     private Post post;
@@ -44,18 +49,26 @@ public class ReportController extends Controller {
         super.onCreate();
         navigationItem.title = context.getString(R.string.report_screen, PostHelper.getTitle(post, null));
 
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.removeAllCookie();
-        if (ChanSettings.passLoggedIn()) {
-            for (String cookie : ChanUrls.getReportCookies(ChanSettings.passId.get())) {
-                cookieManager.setCookie(ChanUrls.getReportDomain(), cookie);
+        Site site = post.board.getSite();
+        String url = site.endpoints().report(post);
+
+        if (site == Sites.CHAN4) {
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.removeAllCookie();
+            if (ChanSettings.passLoggedIn()) {
+                HttpUrl parsed = HttpUrl.parse(url);
+                String domain = parsed.scheme() + "://" + parsed.host() + "/";
+                for (String cookie : ChanUrls.getReportCookies(ChanSettings.passId.get())) {
+                    cookieManager.setCookie(domain, cookie);
+                }
             }
         }
 
         WebView webView = new WebView(context);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.loadUrl(ChanUrls.getReportUrl(post.boardId, post.no));
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        webView.loadUrl(url);
         view = webView;
     }
 }

@@ -15,35 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site;
+package org.floens.chan.core.site.http;
 
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Post;
 
-import java.util.Map;
+import org.floens.chan.core.site.Site;
 
-/**
- * Endpoints for {@link Site}.
- */
-public interface SiteEndpoints {
-    String catalog(Board board);
+public class LoginRequest {
+    public final Site site;
+    public final String user;
+    public final String pass;
 
-    String thread(Board board, Loadable loadable);
-
-    String imageUrl(Post.Builder post, Map<String, String> arg);
-
-    String thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
-
-    String flag(Post.Builder post, String countryCode, Map<String, String> arg);
-
-    String boards();
-
-    String reply(Loadable thread);
-
-    String delete(Post post);
-
-    String report(Post post);
-
-    String login();
+    public LoginRequest(Site site, String user, String pass) {
+        this.site = site;
+        this.user = user;
+        this.pass = pass;
+    }
 }

@@ -15,35 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site;
+package org.floens.chan.core.site.http;
 
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Post;
-
-import java.util.Map;
+import org.floens.chan.core.site.Site;
 
 /**
- * Endpoints for {@link Site}.
+ * Generic response for {@link Site#post(Reply, Site.PostListener)} that the reply layout uses.
  */
-public interface SiteEndpoints {
-    String catalog(Board board);
+public class ReplyResponse {
+    /**
+     * {@code true} if the post when through, {@code false} otherwise.
+     */
+    public boolean posted;
 
-    String thread(Board board, Loadable loadable);
+    /**
+     * Error message used to show to the user if {@link #posted} is {@code false}.
+     * <p>Optional
+     */
+    public String errorMessage;
 
-    String imageUrl(Post.Builder post, Map<String, String> arg);
-
-    String thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
-
-    String flag(Post.Builder post, String countryCode, Map<String, String> arg);
-
-    String boards();
-
-    String reply(Loadable thread);
-
-    String delete(Post post);
-
-    String report(Post post);
-
-    String login();
+    // TODO(multi-site)
+    public int threadNo;
+    public int postNo;
+    public String password;
+    public boolean probablyBanned;
 }

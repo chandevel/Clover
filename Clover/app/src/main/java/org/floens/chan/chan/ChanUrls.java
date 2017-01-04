@@ -24,14 +24,6 @@ public class ChanUrls {
         return "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
     }
 
-    public static String getReplyUrl(String board) {
-        return "https://sys.4chan.org/" + board + "/post";
-    }
-
-    public static String getDeleteUrl(String board) {
-        return "https://sys.4chan.org/" + board + "/imgboard.php";
-    }
-
     public static String getBoardUrlDesktop(String board) {
         return scheme() + "://boards.4chan.org/" + board + "/";
     }
@@ -50,10 +42,6 @@ public class ChanUrls {
 
     public static String getPassUrl() {
         return "https://sys.4chan.org/auth";
-    }
-
-    public static String getReportDomain() {
-        return "https://sys.4chan.org/";
     }
 
     public static String[] getReportCookies(String passId) {

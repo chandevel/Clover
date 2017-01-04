@@ -35,7 +35,7 @@ import org.floens.chan.core.site.Site;
  * references the same loadable and that the loadable is properly saved in the database.
  */
 @DatabaseTable
-public class Loadable implements SiteReference {
+public class Loadable implements SiteReference, BoardReference {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -121,6 +121,11 @@ public class Loadable implements SiteReference {
     @Override
     public Site getSite() {
         return site;
+    }
+
+    @Override
+    public Board getBoard() {
+        return board;
     }
 
     public void setTitle(String title) {

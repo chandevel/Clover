@@ -15,34 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.site.http;
 
-import java.io.File;
 
-/**
- * The data needed to send a reply.
- */
-public class Reply {
-    /**
-     * Optional. Null when ReCaptcha v2 was used or a 4pass
-     */
-    public String captchaChallenge;
-
-    /**
-     * Optional. Null when a 4pass was used.
-     */
-    public String captchaResponse;
-    public boolean usePass = false;
-    public String board;
-    public int resto;
-
-    public String passId;
-    public File file;
-    public String fileName = "";
-    public String name = "";
-    public String options = "";
-    public String subject = "";
-    public String comment = "";
-    public int selection;
-    public boolean spoilerImage = false;
+public class DeleteResponse {
+    public boolean deleted;
+    public String errorMessage;
 }
