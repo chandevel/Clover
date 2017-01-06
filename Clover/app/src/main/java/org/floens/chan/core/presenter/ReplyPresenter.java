@@ -197,18 +197,10 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         callback.loadViewsIntoDraft(draft);
         draft.loadable = loadable;
 
-        if (ChanSettings.passLoggedIn()) {
-            draft.noVerification = true;
-            draft.passId = ChanSettings.passId.get();
-        } else {
-            draft.noVerification = false;
-            draft.passId = null;
-        }
-
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
 
         draft.captchaResponse = null;
-        if (draft.noVerification) {
+        if (loadable.getSite().isLoggedIn()) {
             makeSubmitCall();
         } else {
             switchPage(Page.CAPTCHA, true);

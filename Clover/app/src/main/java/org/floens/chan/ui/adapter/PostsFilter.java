@@ -37,14 +37,14 @@ public class PostsFilter {
     public static final Comparator<Post> IMAGE_COMPARATOR = new Comparator<Post>() {
         @Override
         public int compare(Post lhs, Post rhs) {
-            return rhs.images - lhs.images;
+            return rhs.getImages() - lhs.getImages();
         }
     };
 
     public static final Comparator<Post> REPLY_COMPARATOR = new Comparator<Post>() {
         @Override
         public int compare(Post lhs, Post rhs) {
-            return rhs.replies - lhs.replies;
+            return rhs.getReplies() - lhs.getReplies();
         }
     };
 

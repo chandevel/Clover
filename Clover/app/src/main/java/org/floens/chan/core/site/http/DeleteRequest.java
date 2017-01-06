@@ -20,16 +20,13 @@ package org.floens.chan.core.site.http;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.site.Site;
 
 public class DeleteRequest {
-    public final Site site;
     public final Post post;
     public final SavedReply savedReply;
     public final boolean imageOnly;
 
-    public DeleteRequest(Site site, Post post, SavedReply savedReply, boolean imageOnly) {
-        this.site = site;
+    public DeleteRequest(Post post, SavedReply savedReply, boolean imageOnly) {
         this.post = post;
         this.savedReply = savedReply;
         this.imageOnly = imageOnly;

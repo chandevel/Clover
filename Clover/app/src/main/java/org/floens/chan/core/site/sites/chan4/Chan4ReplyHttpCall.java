@@ -46,7 +46,8 @@ public class Chan4ReplyHttpCall extends HttpCall {
     public final Reply reply;
     public final ReplyResponse replyResponse = new ReplyResponse();
 
-    public Chan4ReplyHttpCall(Reply reply) {
+    public Chan4ReplyHttpCall(Site site, Reply reply) {
+        super(site);
         this.reply = reply;
     }
 
@@ -75,7 +76,7 @@ public class Chan4ReplyHttpCall extends HttpCall {
 
         formBuilder.addFormDataPart("com", reply.comment);
 
-        if (!reply.noVerification) {
+        if (reply.captchaResponse != null) {
             if (reply.captchaChallenge != null) {
                 formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
                 formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
@@ -94,13 +95,8 @@ public class Chan4ReplyHttpCall extends HttpCall {
             formBuilder.addFormDataPart("spoiler", "on");
         }
 
-        Site site = reply.loadable.getSite();
         requestBuilder.url(site.endpoints().reply(reply.loadable));
         requestBuilder.post(formBuilder.build());
-
-        if (reply.noVerification) {
-            requestBuilder.addHeader("Cookie", "pass_id=" + reply.passId);
-        }
     }
 
     @Override

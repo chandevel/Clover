@@ -17,12 +17,16 @@
  */
 package org.floens.chan.core.model;
 
+import android.support.annotation.MainThread;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import okhttp3.HttpUrl;
 
 /**
  * Contains all data needed to represent a single post.<br>
@@ -45,6 +49,11 @@ public class Post {
 
     public final String subject;
 
+    /**
+     * Unix timestamp, in seconds.
+     */
+    public final long time;
+
     public final PostImage image;
 
     public final String tripcode;
@@ -57,12 +66,7 @@ public class Post {
 
     public final String countryName;
 
-    /**
-     * Unix timestamp, in seconds.
-     */
-    public final long time;
-
-    public final String countryUrl;
+    public final HttpUrl countryUrl;
 
     public final boolean isSavedReply;
 
@@ -83,23 +87,27 @@ public class Post {
 
     public final CharSequence nameTripcodeIdCapcodeSpan;
 
-    // These members may only mutate on the main thread.
-    public boolean sticky = false;
-    public boolean closed = false;
-    public boolean archived = false;
-    public int replies = -1;
-    public int images = -1;
-    public int uniqueIps = 1;
-    public String title = "";
-
-    // Atomic, any thread.
+    /**
+     * This post has been deleted (the server isn't sending it anymore).
+     * <p><b>This boolean is modified in worker threads, use {@code .get()} to access it.</b>
+     */
     public final AtomicBoolean deleted = new AtomicBoolean(false);
 
     /**
-     * These ids replied to this post.<br>
-     * <b>synchronize on this when accessing.</b>
+     * These ids replied to this post.
+     * <p><b>Manual synchronization is needed, since this list can be modified from any thread.
+     * Wrap all accesses in a {@code synchronized} block.</b>
      */
     public final List<Integer> repliesFrom = new ArrayList<>();
+
+    // These members may only mutate on the main thread.
+    private boolean sticky = false;
+    private boolean closed = false;
+    private boolean archived = false;
+    private int replies = -1;
+    private int images = -1;
+    private int uniqueIps = 1;
+    private String title = "";
 
     private Post(Builder builder) {
         board = builder.board;
@@ -142,6 +150,76 @@ public class Post {
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
+    @MainThread
+    public boolean isSticky() {
+        return sticky;
+    }
+
+    @MainThread
+    public void setSticky(boolean sticky) {
+        this.sticky = sticky;
+    }
+
+    @MainThread
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @MainThread
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+    @MainThread
+    public boolean isArchived() {
+        return archived;
+    }
+
+    @MainThread
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
+    @MainThread
+    public int getReplies() {
+        return replies;
+    }
+
+    @MainThread
+    public void setReplies(int replies) {
+        this.replies = replies;
+    }
+
+    @MainThread
+    public int getImages() {
+        return images;
+    }
+
+    @MainThread
+    public void setImages(int images) {
+        this.images = images;
+    }
+
+    @MainThread
+    public int getUniqueIps() {
+        return uniqueIps;
+    }
+
+    @MainThread
+    public void setUniqueIps(int uniqueIps) {
+        this.uniqueIps = uniqueIps;
+    }
+
+    @MainThread
+    public String getTitle() {
+        return title;
+    }
+
+    @MainThread
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public static final class Builder {
         public Board board;
         public int id = -1;
@@ -165,7 +243,7 @@ public class Post {
 
         public String countryCode;
         public String countryName;
-        public String countryUrl;
+        public HttpUrl countryUrl;
 
         public String posterId = "";
         public String moderatorCapcode = "";
@@ -275,7 +353,7 @@ public class Post {
             return this;
         }
 
-        public Builder country(String countryCode, String countryName, String countryUrl) {
+        public Builder country(String countryCode, String countryName, HttpUrl countryUrl) {
             this.countryCode = countryCode;
             this.countryName = countryName;
             this.countryUrl = countryUrl;

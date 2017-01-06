@@ -118,7 +118,7 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
             if (destination.exists()) {
                 onDestination();
             } else {
-                FileCache.FileCacheDownloader fileCacheDownloader = fileCache.downloadFile(postImage.imageUrl, this);
+                FileCache.FileCacheDownloader fileCacheDownloader = fileCache.downloadFile(postImage.imageUrl.toString(), this);
                 // If the fileCacheDownloader is null then the destination already existed and onSuccess() has been called.
                 // Wait otherwise for the download to finish to avoid that the next task is immediately executed.
                 if (fileCacheDownloader != null) {

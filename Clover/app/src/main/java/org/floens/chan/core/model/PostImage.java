@@ -19,14 +19,16 @@ package org.floens.chan.core.model;
 
 import org.floens.chan.core.settings.ChanSettings;
 
+import okhttp3.HttpUrl;
+
 public class PostImage {
     public enum Type {
         STATIC, GIF, MOVIE
     }
 
     public final String originalName;
-    public final String thumbnailUrl;
-    public final String imageUrl;
+    public final HttpUrl thumbnailUrl;
+    public final HttpUrl imageUrl;
     public final String filename;
     public final String extension;
     public final int imageWidth;
@@ -62,8 +64,8 @@ public class PostImage {
 
     public static final class Builder {
         private String originalName;
-        private String thumbnailUrl;
-        private String imageUrl;
+        private HttpUrl thumbnailUrl;
+        private HttpUrl imageUrl;
         private String filename;
         private String extension;
         private int imageWidth;
@@ -79,12 +81,12 @@ public class PostImage {
             return this;
         }
 
-        public Builder thumbnailUrl(String thumbnailUrl) {
+        public Builder thumbnailUrl(HttpUrl thumbnailUrl) {
             this.thumbnailUrl = thumbnailUrl;
             return this;
         }
 
-        public Builder imageUrl(String imageUrl) {
+        public Builder imageUrl(HttpUrl imageUrl) {
             this.imageUrl = imageUrl;
             return this;
         }

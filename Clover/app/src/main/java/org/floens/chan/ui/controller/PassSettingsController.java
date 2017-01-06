@@ -29,7 +29,6 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.core.site.http.HttpCall;
@@ -61,6 +60,8 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     private EditText inputPin;
     private TextView authenticated;
 
+    private Site site;
+
     public PassSettingsController(Context context) {
         super(context);
     }
@@ -69,6 +70,9 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     public void onCreate() {
         super.onCreate();
         getGraph().inject(this);
+
+        // TODO(multi-site) some selector of some sorts
+        site = Sites.defaultSite();
 
         navigationItem.setTitle(R.string.settings_screen_pass);
 
@@ -91,8 +95,9 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         bottomDescription.setText(Html.fromHtml(getString(R.string.setting_pass_bottom_description)));
         bottomDescription.setMovementMethod(LinkMovementMethod.getInstance());
 
-        inputToken.setText(ChanSettings.passToken.get());
-        inputPin.setText(ChanSettings.passPin.get());
+        LoginRequest loginDetails = site.getLoginDetails();
+        inputToken.setText(loginDetails.user);
+        inputPin.setText(loginDetails.pass);
 
         // Sanity check
         if (parentController.view.getWindowToken() == null) {
@@ -115,7 +120,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     public void onClick(View v) {
         if (v == button) {
             if (loggedIn()) {
-                ChanSettings.passId.set("");
+                deauth();
                 crossfadeView.toggle(true, true);
                 button.setText(R.string.setting_pass_login);
                 hideError();
@@ -146,7 +151,6 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     private void authSuccess(LoginResponse response) {
         crossfadeView.toggle(false, true);
         button.setText(R.string.setting_pass_logout);
-        ChanSettings.passId.set(response.token);
         authenticated.setText(response.message);
         ((PassSettingControllerListener) previousSiblingController).onPassEnabledChanged(true);
     }
@@ -175,12 +179,14 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         button.setText(R.string.setting_pass_logging_in);
         hideError();
 
-        ChanSettings.passToken.set(inputToken.getText().toString());
-        ChanSettings.passPin.set(inputPin.getText().toString());
+        // TODO(multi-site)
+        String user = inputToken.getText().toString();
+        String pass = inputPin.getText().toString();
+        site.login(new LoginRequest(user, pass), this);
+    }
 
-        // TODO(multi-site) some selector of some sorts
-        Site site = Sites.defaultSite();
-        site.login(new LoginRequest(site, ChanSettings.passToken.get(), ChanSettings.passPin.get()), this);
+    private void deauth() {
+        site.logout();
     }
 
     private void showError(String error) {
@@ -194,7 +200,7 @@ public class PassSettingsController extends Controller implements View.OnClickLi
     }
 
     private boolean loggedIn() {
-        return ChanSettings.passId.get().length() > 0;
+        return site.isLoggedIn();
     }
 
     public interface PassSettingControllerListener {

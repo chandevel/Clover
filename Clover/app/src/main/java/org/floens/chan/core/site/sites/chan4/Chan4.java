@@ -17,6 +17,11 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
+import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
+import android.webkit.CookieManager;
+import android.webkit.WebView;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -26,14 +31,18 @@ import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteEndpoints;
+import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.core.site.http.LoginRequest;
+import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -44,6 +53,9 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.inject.Inject;
+
+import okhttp3.HttpUrl;
+import okhttp3.Request;
 
 import static org.floens.chan.Chan.getGraph;
 
@@ -59,68 +71,171 @@ public class Chan4 implements Site {
     RequestQueue requestQueue;
 
     private final SiteEndpoints endpoints = new SiteEndpoints() {
+        private final HttpUrl a = new HttpUrl.Builder()
+                .scheme("https")
+                .host("a.4cdn.org")
+                .build();
+
+        private final HttpUrl i = new HttpUrl.Builder()
+                .scheme("https")
+                .host("i.4cdn.org")
+                .build();
+
+        private final HttpUrl t = new HttpUrl.Builder()
+                .scheme("https")
+                .host("t.4cdn.org")
+                .build();
+
+        private final HttpUrl s = new HttpUrl.Builder()
+                .scheme("https")
+                .host("s.4cdn.org")
+                .build();
+
+        private final HttpUrl sys = new HttpUrl.Builder()
+                .scheme("https")
+                .host("sys.4chan.org")
+                .build();
+
         @Override
-        public String catalog(Board board) {
-            return "https://a.4cdn.org/" + board.code + "/catalog.json";
+        public HttpUrl catalog(Board board) {
+            return a.newBuilder()
+                    .addPathSegment(board.code)
+                    .addPathSegment("catalog.json")
+                    .build();
         }
 
         @Override
-        public String thread(Board board, Loadable loadable) {
-            return "https://a.4cdn.org/" + board.code + "/thread/" + loadable.no + ".json";
+        public HttpUrl thread(Board board, Loadable loadable) {
+            return a.newBuilder()
+                    .addPathSegment(board.code)
+                    .addPathSegment("thread")
+                    .addPathSegment(loadable.no + ".json")
+                    .build();
         }
 
         @Override
-        public String imageUrl(Post.Builder post, Map<String, String> arg) {
-            return "https://i.4cdn.org/" + post.board.code + "/" + arg.get("tim") + "." + arg.get("ext");
+        public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
+            return i.newBuilder()
+                    .addPathSegment(post.board.code)
+                    .addPathSegment(arg.get("tim") + "." + arg.get("ext"))
+                    .build();
         }
 
         @Override
-        public String thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
+        public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
             if (spoiler) {
+                HttpUrl.Builder image = s.newBuilder()
+                        .addPathSegment("image");
                 if (post.board.customSpoilers >= 0) {
                     int i = random.nextInt(post.board.customSpoilers) + 1;
-                    return "https://s.4cdn.org/image/spoiler-" + post.board.code + i + ".png";
+                    image.addPathSegment("spoiler-" + post.board.code + i + ".png");
                 } else {
-                    return "https://s.4cdn.org/image/spoiler.png";
+                    image.addPathSegment("spoiler.png");
                 }
+                return image.build();
             } else {
-                return "https://t.4cdn.org/" + post.board.code + "/" + arg.get("tim") + "s.jpg";
+                return t.newBuilder()
+                        .addPathSegment(post.board.code)
+                        .addPathSegment(arg.get("tim") + "s.jpg")
+                        .build();
             }
         }
 
         @Override
-        public String flag(Post.Builder post, String countryCode, Map<String, String> arg) {
-            return "https://s.4cdn.org/image/country/" + countryCode.toLowerCase(Locale.ENGLISH) + ".gif";
+        public HttpUrl flag(Post.Builder post, String countryCode, Map<String, String> arg) {
+            return s.newBuilder()
+                    .addPathSegment("image")
+                    .addPathSegment("country")
+                    .addPathSegment(countryCode.toLowerCase(Locale.ENGLISH) + ".gif")
+                    .build();
         }
 
         @Override
-        public String boards() {
-            return "https://a.4cdn.org/boards.json";
+        public HttpUrl boards() {
+            return a.newBuilder()
+                    .addPathSegment("boards.json")
+                    .build();
         }
 
         @Override
-        public String reply(Loadable loadable) {
-            return "https://sys.4chan.org/" + loadable.getBoard().code + "/post";
+        public HttpUrl reply(Loadable loadable) {
+            return sys.newBuilder()
+                    .addPathSegment(loadable.board.code)
+                    .addPathSegment("post")
+                    .build();
         }
 
         @Override
-        public String delete(Post post) {
-            return "https://sys.4chan.org/" + post.board.code + "/imgboard.php";
+        public HttpUrl delete(Post post) {
+            return sys.newBuilder()
+                    .addPathSegment(post.board.code)
+                    .addPathSegment("imgboard.php")
+                    .build();
         }
 
         @Override
-        public String report(Post post) {
-            return "https://sys.4chan.org/" + post.board.code + "/imgboard.php?mode=report&no=" + post.no;
+        public HttpUrl report(Post post) {
+            return sys.newBuilder()
+                    .addPathSegment(post.board.code)
+                    .addPathSegment("imgboard.php")
+                    .addQueryParameter("mode", "report")
+                    .addQueryParameter("no", String.valueOf(post.no))
+                    .build();
         }
 
         @Override
-        public String login() {
-            return "https://sys.4chan.org/auth";
+        public HttpUrl login() {
+            return sys.newBuilder()
+                    .addPathSegment("auth")
+                    .build();
         }
     };
 
+    private SiteRequestModifier siteRequestModifier = new SiteRequestModifier() {
+        @Override
+        public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
+            if (isLoggedIn()) {
+                requestBuilder.addHeader("Cookie", "pass_id=" + passToken.get());
+            }
+        }
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public void modifyWebView(WebView webView) {
+            final HttpUrl sys = new HttpUrl.Builder()
+                    .scheme("https")
+                    .host("sys.4chan.org")
+                    .build();
+
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.removeAllCookie();
+            if (isLoggedIn()) {
+                String[] passCookies = {
+                        "pass_enabled=1;",
+                        "pass_id=" + passToken.get() + ";"
+                };
+                String domain = sys.scheme() + "://" + sys.host() + "/";
+                for (String cookie : passCookies) {
+                    cookieManager.setCookie(domain, cookie);
+                }
+            }
+        }
+    };
+
+    // Legacy settings that were global before
+    private final StringSetting passUser;
+    private final StringSetting passPass;
+    private final StringSetting passToken;
+
     public Chan4() {
         getGraph().inject(this);
+
+        SharedPreferences p = AndroidUtils.getPreferences();
+        passUser = new StringSetting(p, "preference_pass_token", "");
+        passPass = new StringSetting(p, "preference_pass_pin", "");
+        // token was renamed, before it meant the username, now it means the token returned
+        // from the server that the cookie is set to.
+        passToken = new StringSetting(p, "preference_pass_id", "");
     }
 
     /**
@@ -161,6 +276,21 @@ public class Chan4 implements Site {
     }
 
     @Override
+    public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        if (loadable.isCatalogMode()) {
+            return "https://boards.4chan.org/" + loadable.board.code + "/";
+        } else if (loadable.isThreadMode()) {
+            String url = "https://boards.4chan.org/" + loadable.board.code + "/thread/" + loadable.no;
+            if (post != null) {
+                url += "#p" + post.no;
+            }
+            return url;
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    @Override
     public boolean boardFeature(BoardFeature boardFeature, Board board) {
         switch (boardFeature) {
             case POSTING_IMAGE:
@@ -189,6 +319,11 @@ public class Chan4 implements Site {
     @Override
     public SiteEndpoints endpoints() {
         return endpoints;
+    }
+
+    @Override
+    public SiteRequestModifier requestModifier() {
+        return siteRequestModifier;
     }
 
     @Override
@@ -222,7 +357,7 @@ public class Chan4 implements Site {
 
     @Override
     public void post(Reply reply, final PostListener postListener) {
-        httpCallManager.makeHttpCall(new Chan4ReplyHttpCall(reply), new HttpCall.HttpCallback<Chan4ReplyHttpCall>() {
+        httpCallManager.makeHttpCall(new Chan4ReplyHttpCall(this, reply), new HttpCall.HttpCallback<Chan4ReplyHttpCall>() {
             @Override
             public void onHttpSuccess(Chan4ReplyHttpCall httpPost) {
                 postListener.onPostComplete(httpPost, httpPost.replyResponse);
@@ -237,7 +372,7 @@ public class Chan4 implements Site {
 
     @Override
     public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
-        httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(deleteRequest), new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
+        httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(this, deleteRequest), new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
             @Override
             public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
                 deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
@@ -252,10 +387,17 @@ public class Chan4 implements Site {
 
     @Override
     public void login(LoginRequest loginRequest, final LoginListener loginListener) {
-        httpCallManager.makeHttpCall(new Chan4PassHttpCall(loginRequest), new HttpCall.HttpCallback<Chan4PassHttpCall>() {
+        passUser.set(loginRequest.user);
+        passPass.set(loginRequest.pass);
+
+        httpCallManager.makeHttpCall(new Chan4PassHttpCall(this, loginRequest), new HttpCall.HttpCallback<Chan4PassHttpCall>() {
             @Override
             public void onHttpSuccess(Chan4PassHttpCall httpCall) {
-                loginListener.onLoginComplete(httpCall, httpCall.loginResponse);
+                LoginResponse loginResponse = httpCall.loginResponse;
+                if (loginResponse.success) {
+                    passToken.set(loginResponse.token);
+                }
+                loginListener.onLoginComplete(httpCall, loginResponse);
             }
 
             @Override
@@ -263,5 +405,20 @@ public class Chan4 implements Site {
                 loginListener.onLoginError(httpCall);
             }
         });
+    }
+
+    @Override
+    public void logout() {
+        passToken.set("");
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        return !passToken.get().isEmpty();
+    }
+
+    @Override
+    public LoginRequest getLoginDetails() {
+        return new LoginRequest(passUser.get(), passPass.get());
     }
 }

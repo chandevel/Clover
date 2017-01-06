@@ -93,6 +93,10 @@ public class AndroidUtils {
         return PreferenceManager.getDefaultSharedPreferences(Chan.getInstance());
     }
 
+    public static SharedPreferences getPreferences(String name) {
+        return Chan.getInstance().getSharedPreferences(name, Context.MODE_PRIVATE);
+    }
+
     /**
      * Tries to open an app that can open the specified URL.<br>
      * If this app will open the link then show a chooser to the user without this app.<br>

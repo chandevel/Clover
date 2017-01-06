@@ -40,18 +40,6 @@ public class ChanUrls {
         return scheme() + "://boards.4chan.org/" + board + "/catalog";
     }
 
-    public static String getPassUrl() {
-        return "https://sys.4chan.org/auth";
-    }
-
-    public static String[] getReportCookies(String passId) {
-        return new String[]{"pass_enabled=1;", "pass_id=" + passId + ";"};
-    }
-
-    public static String getReportUrl(String board, int no) {
-        return "https://sys.4chan.org/" + board + "/imgboard.php?mode=report&no=" + no;
-    }
-
     private static String scheme() {
         return ChanSettings.networkHttps.get() ? "https" : "http";
     }

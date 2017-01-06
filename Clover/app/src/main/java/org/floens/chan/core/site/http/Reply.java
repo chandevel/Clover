@@ -35,12 +35,8 @@ public class Reply {
      */
     public String captchaResponse;
 
-    // TODO(multi-site) flip boolean
-    public boolean noVerification = false;
-
     public Loadable loadable;
 
-    public String passId;
     public File file;
     public String fileName = "";
     public String name = "";

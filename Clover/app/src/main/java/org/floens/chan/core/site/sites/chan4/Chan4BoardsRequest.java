@@ -43,7 +43,7 @@ public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
     private final Site site;
 
     public Chan4BoardsRequest(Site site, Listener<List<Board>> listener, ErrorListener errorListener) {
-        super(site.endpoints().boards(), listener, errorListener);
+        super(site.endpoints().boards().toString(), listener, errorListener);
         this.site = site;
     }
 

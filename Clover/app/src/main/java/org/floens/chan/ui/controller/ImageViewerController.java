@@ -198,7 +198,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 saveShare(true, postImage);
                 break;
             case OPEN_BROWSER_ID:
-                AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl);
+                AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
                 break;
             case SEARCH_ID:
                 List<FloatingMenuItem> items = new ArrayList<>();
@@ -211,7 +211,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
                         for (ImageSearch imageSearch : ImageSearch.engines) {
                             if (((Integer) item.getId()) == imageSearch.getId()) {
-                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(presenter.getCurrentPostImage().imageUrl));
+                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(presenter.getCurrentPostImage().imageUrl.toString()));
                                 break;
                             }
                         }
@@ -234,7 +234,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private void saveShare(boolean share, PostImage postImage) {
         if (share && ChanSettings.shareUrl.get()) {
-            AndroidUtils.shareLink(postImage.imageUrl);
+            AndroidUtils.shareLink(postImage.imageUrl.toString());
         } else {
             ImageSaveTask task = new ImageSaveTask(postImage);
             task.setShare(share);
@@ -373,7 +373,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        imageLoader.get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+        imageLoader.get(postImage.thumbnailUrl.toString(), new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
@@ -395,7 +395,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return;
         }
 
-        imageLoader.get(postImage.thumbnailUrl, new ImageLoader.ImageListener() {
+        imageLoader.get(postImage.thumbnailUrl.toString(), new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");

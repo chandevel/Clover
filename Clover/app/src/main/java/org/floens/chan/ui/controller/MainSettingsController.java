@@ -28,12 +28,12 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.RefreshUIMessage;
@@ -115,7 +115,8 @@ public class MainSettingsController extends SettingsController implements Toolba
         populatePreferences();
 
         onWatchEnabledChanged(ChanSettings.watchEnabled.get());
-        onPassEnabledChanged(ChanSettings.passLoggedIn());
+        // TODO(multi-site)
+        onPassEnabledChanged(Sites.defaultSite().isLoggedIn());
 
         buildPreferences();
 

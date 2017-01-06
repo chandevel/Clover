@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
+import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
@@ -33,7 +34,8 @@ public class Chan4PassHttpCall extends HttpCall {
     private final LoginRequest loginRequest;
     public final LoginResponse loginResponse = new LoginResponse();
 
-    public Chan4PassHttpCall(LoginRequest loginRequest) {
+    public Chan4PassHttpCall(Site site, LoginRequest loginRequest) {
+        super(site);
         this.loginRequest = loginRequest;
     }
 
@@ -46,7 +48,7 @@ public class Chan4PassHttpCall extends HttpCall {
         formBuilder.add("id", loginRequest.user);
         formBuilder.add("pin", loginRequest.pass);
 
-        requestBuilder.url(loginRequest.site.endpoints().login());
+        requestBuilder.url(site.endpoints().login());
         requestBuilder.post(formBuilder.build());
     }
 

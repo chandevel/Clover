@@ -265,7 +265,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
         }
 
         for (Post post : thread.posts) {
-            post.title = loadable.title;
+            post.setTitle(loadable.title);
         }
 
         lastLoadTime = Time.get();
@@ -296,12 +296,14 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
             thread.op = realOp;
             Post.Builder fakeOp = response.op;
             if (fakeOp != null) {
-                thread.closed = realOp.closed = fakeOp.closed;
-                thread.archived = realOp.archived = fakeOp.archived;
-                realOp.sticky = fakeOp.sticky;
-                realOp.replies = fakeOp.replies;
-                realOp.images = fakeOp.images;
-                realOp.uniqueIps = fakeOp.uniqueIps;
+                realOp.setClosed(fakeOp.closed);
+                thread.closed = realOp.isClosed();
+                realOp.setArchived(fakeOp.archived);
+                thread.archived = realOp.isArchived();
+                realOp.setSticky(fakeOp.sticky);
+                realOp.setReplies(fakeOp.replies);
+                realOp.setImages(fakeOp.images);
+                realOp.setUniqueIps(fakeOp.uniqueIps);
             } else {
                 Logger.e(TAG, "Thread has no op!");
             }

@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
+import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
@@ -36,7 +37,8 @@ public class Chan4DeleteHttpCall extends HttpCall {
     private final DeleteRequest deleteRequest;
     public final DeleteResponse deleteResponse = new DeleteResponse();
 
-    public Chan4DeleteHttpCall(DeleteRequest deleteRequest) {
+    public Chan4DeleteHttpCall(Site site, DeleteRequest deleteRequest) {
+        super(site);
         this.deleteRequest = deleteRequest;
     }
 
@@ -50,7 +52,7 @@ public class Chan4DeleteHttpCall extends HttpCall {
         formBuilder.add("mode", "usrdel");
         formBuilder.add("pwd", deleteRequest.savedReply.password);
 
-        requestBuilder.url(deleteRequest.site.endpoints().delete(deleteRequest.post));
+        requestBuilder.url(site.endpoints().delete(deleteRequest.post));
         requestBuilder.post(formBuilder.build());
     }
 

@@ -23,27 +23,29 @@ import org.floens.chan.core.model.Post;
 
 import java.util.Map;
 
+import okhttp3.HttpUrl;
+
 /**
  * Endpoints for {@link Site}.
  */
 public interface SiteEndpoints {
-    String catalog(Board board);
+    HttpUrl catalog(Board board);
 
-    String thread(Board board, Loadable loadable);
+    HttpUrl thread(Board board, Loadable loadable);
 
-    String imageUrl(Post.Builder post, Map<String, String> arg);
+    HttpUrl imageUrl(Post.Builder post, Map<String, String> arg);
 
-    String thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
+    HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
 
-    String flag(Post.Builder post, String countryCode, Map<String, String> arg);
+    HttpUrl flag(Post.Builder post, String countryCode, Map<String, String> arg);
 
-    String boards();
+    HttpUrl boards();
 
-    String reply(Loadable thread);
+    HttpUrl reply(Loadable thread);
 
-    String delete(Post post);
+    HttpUrl delete(Post post);
 
-    String report(Post post);
+    HttpUrl report(Post post);
 
-    String login();
+    HttpUrl login();
 }

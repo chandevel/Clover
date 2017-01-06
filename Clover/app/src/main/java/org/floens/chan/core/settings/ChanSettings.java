@@ -141,10 +141,6 @@ public class ChanSettings {
     public static final BooleanSetting watchPeek;
     public static final StringSetting watchLed;
 
-    public static final StringSetting passToken;
-    public static final StringSetting passPin;
-    public static final StringSetting passId;
-
     public static final BooleanSetting historyEnabled;
 
     public static final IntegerSetting previousVersion;
@@ -157,22 +153,6 @@ public class ChanSettings {
     public static final CounterSetting historyOpenCounter;
     public static final CounterSetting replyOpenCounter;
     public static final CounterSetting threadOpenCounter;
-
-    public enum TestOptions implements OptionSettingItem {
-        ONE("one"),
-        TWO("two"),
-        THREE("three");
-
-        String name;
-
-        TestOptions(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
 
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
@@ -251,10 +231,6 @@ public class ChanSettings {
         watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
         watchLed = new StringSetting(p, "preference_watch_led", "ffffffff");
 
-        passToken = new StringSetting(p, "preference_pass_token", "");
-        passPin = new StringSetting(p, "preference_pass_pin", "");
-        passId = new StringSetting(p, "preference_pass_id", "");
-
         historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
 
         previousVersion = new IntegerSetting(p, "preference_previous_version", 0);
@@ -293,10 +269,6 @@ public class ChanSettings {
         // preference_pass_enabled default false
         // preference_autoplay false
         // preference_watch_background_timeout "60" the old timeout background setting in minutes
-    }
-
-    public static boolean passLoggedIn() {
-        return passId.get().length() > 0;
     }
 
     public static ThemeColor getThemeAndColor() {

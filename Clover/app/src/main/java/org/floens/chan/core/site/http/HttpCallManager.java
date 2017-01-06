@@ -19,6 +19,7 @@ package org.floens.chan.core.site.http;
 
 
 import org.floens.chan.core.di.UserAgentProvider;
+import org.floens.chan.core.site.Site;
 
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +54,12 @@ public class HttpCallManager {
 
         Request.Builder requestBuilder = new Request.Builder();
 
+        Site site = httpCall.site;
         httpCall.setup(requestBuilder);
+
+        if (site != null) {
+            site.requestModifier().modifyHttpCall(httpCall, requestBuilder);
+        }
 
         requestBuilder.header("User-Agent", userAgentProvider.getUserAgent());
         Request request = requestBuilder.build();

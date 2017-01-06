@@ -67,6 +67,7 @@ public class Board implements SiteReference {
 
     // named value for legacy support
     @DatabaseField(columnName = "value")
+    // TODO(sec) force filter this to ascii & numbers.
     public String code;
 
     @DatabaseField

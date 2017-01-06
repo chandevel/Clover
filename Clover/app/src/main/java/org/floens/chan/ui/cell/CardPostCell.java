@@ -217,7 +217,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         comment.setText(commentText);
         comment.setTextColor(theme.textPrimary);
 
-        replies.setText(getResources().getString(R.string.card_stats, post.replies, post.images));
+        replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImages()));
     }
 
     private void unbindPost(Post post) {

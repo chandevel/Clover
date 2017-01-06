@@ -19,17 +19,13 @@ package org.floens.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.helper.PostHelper;
 
 import okhttp3.HttpUrl;
@@ -42,7 +38,6 @@ public class ReportController extends Controller {
         this.post = post;
     }
 
-    @SuppressWarnings("deprecation")
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate() {
@@ -50,25 +45,16 @@ public class ReportController extends Controller {
         navigationItem.title = context.getString(R.string.report_screen, PostHelper.getTitle(post, null));
 
         Site site = post.board.getSite();
-        String url = site.endpoints().report(post);
-
-        if (site == Sites.CHAN4) {
-            CookieManager cookieManager = CookieManager.getInstance();
-            cookieManager.removeAllCookie();
-            if (ChanSettings.passLoggedIn()) {
-                HttpUrl parsed = HttpUrl.parse(url);
-                String domain = parsed.scheme() + "://" + parsed.host() + "/";
-                for (String cookie : ChanUrls.getReportCookies(ChanSettings.passId.get())) {
-                    cookieManager.setCookie(domain, cookie);
-                }
-            }
-        }
+        HttpUrl url = site.endpoints().report(post);
 
         WebView webView = new WebView(context);
+
+        site.requestModifier().modifyWebView(webView);
+
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
-        webView.loadUrl(url);
+        webView.loadUrl(url.toString());
         view = webView;
     }
 }

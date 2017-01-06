@@ -29,7 +29,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
@@ -124,16 +123,16 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             Board board = op.board;
             if (board != null) {
-                SpannableString replies = new SpannableString(op.replies + "R");
-                if (op.replies >= board.bumpLimit) {
+                SpannableString replies = new SpannableString(op.getReplies() + "R");
+                if (op.getReplies() >= board.bumpLimit) {
                     replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
                 }
-                SpannableString images = new SpannableString(op.images + "I");
-                if (op.images >= board.imageLimit) {
+                SpannableString images = new SpannableString(op.getImages() + "I");
+                if (op.getImages() >= board.imageLimit) {
                     images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
                 }
 
-                text.setText(TextUtils.concat(statusText, replies, " / ", images, " / ", String.valueOf(op.uniqueIps) + "P"));
+                text.setText(TextUtils.concat(statusText, replies, " / ", images, " / ", String.valueOf(op.getUniqueIps()) + "P"));
             }
 
             return update;

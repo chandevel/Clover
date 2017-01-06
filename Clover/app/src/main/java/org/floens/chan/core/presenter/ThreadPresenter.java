@@ -612,7 +612,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.boardId, post.no)
         );
         if (reply != null) {
-            loadable.getSite().delete(new DeleteRequest(loadable.getSite(), post, reply, onlyImageDelete), new Site.DeleteListener() {
+            Site site = loadable.getSite();
+            site.delete(new DeleteRequest(post, reply, onlyImageDelete), new Site.DeleteListener() {
                 @Override
                 public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
                     String message;
@@ -698,7 +699,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             History history = new History();
             history.loadable = loadable;
             PostImage image = chanLoader.getThread().op.image;
-            history.thumbnailUrl = image == null ? "" : image.thumbnailUrl;
+            history.thumbnailUrl = image == null ? "" : image.thumbnailUrl.toString();
             databaseManager.getDatabaseHistoryManager().add(history);
         }
     }

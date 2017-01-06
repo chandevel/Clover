@@ -1,6 +1,9 @@
 package org.floens.chan.core.site;
 
+import android.content.SharedPreferences;
+
 import org.floens.chan.core.site.sites.chan4.Chan4;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,5 +36,9 @@ public class Sites {
 
     public static Site defaultSite() {
         return CHAN4;
+    }
+
+    public static SharedPreferences getPreferences(Site site) {
+        return AndroidUtils.getPreferences(site.id() + "_site_preferences");
     }
 }

@@ -47,6 +47,8 @@ import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static org.floens.chan.Chan.getGraph;
 
 /**
@@ -84,7 +86,7 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     private long startLoad;
 
     public Chan4ReaderRequest(ChanLoaderRequestParams request) {
-        super(getChanUrl(request.loadable), request.listener, request.errorListener);
+        super(getChanUrl(request.loadable).toString(), request.listener, request.errorListener);
         getGraph().inject(this);
 
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
@@ -116,8 +118,8 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
     }
 
-    private static String getChanUrl(Loadable loadable) {
-        String url;
+    private static HttpUrl getChanUrl(Loadable loadable) {
+        HttpUrl url;
 
         if (loadable.site == null) {
             throw new NullPointerException("Loadable.site == null");
@@ -497,7 +499,7 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         }
 
         if (countryCode != null && countryName != null) {
-            String countryUrl = endpoints.flag(builder, countryCode, Collections.<String, String>emptyMap());
+            HttpUrl countryUrl = endpoints.flag(builder, countryCode, Collections.<String, String>emptyMap());
             builder.country(countryCode, countryName, countryUrl);
         }
 

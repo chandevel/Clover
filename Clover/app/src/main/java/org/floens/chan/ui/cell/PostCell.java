@@ -51,7 +51,6 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
@@ -395,10 +394,10 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         title.setText(TextUtils.concat(titleParts.toArray(new CharSequence[titleParts.size()])));
 
         icons.edit();
-        icons.set(PostIcons.STICKY, post.sticky);
-        icons.set(PostIcons.CLOSED, post.closed);
+        icons.set(PostIcons.STICKY, post.isSticky());
+        icons.set(PostIcons.CLOSED, post.isClosed());
         icons.set(PostIcons.DELETED, post.deleted.get());
-        icons.set(PostIcons.ARCHIVED, post.archived);
+        icons.set(PostIcons.ARCHIVED, post.isArchived());
 
         if (!isEmpty(post.country)) {
             icons.set(PostIcons.COUNTRY, true);
@@ -445,14 +444,14 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             repliesFromSize = post.repliesFrom.size();
         }
 
-        if ((!threadMode && post.replies > 0) || (repliesFromSize > 0)) {
+        if ((!threadMode && post.getReplies() > 0) || (repliesFromSize > 0)) {
             replies.setVisibility(View.VISIBLE);
 
-            int replyCount = threadMode ? repliesFromSize : post.replies;
+            int replyCount = threadMode ? repliesFromSize : post.getReplies();
             String text = getResources().getQuantityString(R.plurals.reply, replyCount, replyCount);
 
-            if (!threadMode && post.images > 0) {
-                text += ", " + getResources().getQuantityString(R.plurals.image, post.images, post.images);
+            if (!threadMode && post.getImages() > 0) {
+                text += ", " + getResources().getQuantityString(R.plurals.image, post.getImages(), post.getImages());
             }
 
             replies.setText(text);
@@ -674,7 +673,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             countryTextColor = theme.detailsColor;
             countryTextSize = textSize;
 
-            countryIconRequest = getGraph().getImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
+            countryIconRequest = getGraph().getImageLoader().get(post.countryUrl.toString(), new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {

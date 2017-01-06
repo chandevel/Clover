@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.site.http;
 
+import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
@@ -38,6 +39,8 @@ import okhttp3.Response;
 public abstract class HttpCall implements Callback {
     private static final String TAG = "HttpCall";
 
+    protected Site site;
+
     private boolean successful = false;
     private HttpCallback callback;
     private Exception exception;
@@ -45,6 +48,10 @@ public abstract class HttpCall implements Callback {
     public abstract void setup(Request.Builder requestBuilder);
 
     public abstract void process(Response response, String result) throws IOException;
+
+    public HttpCall(Site site) {
+        this.site = site;
+    }
 
     @Override
     public void onResponse(Call call, Response response) {

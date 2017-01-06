@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.site;
 
+import android.support.annotation.Nullable;
+
 import org.floens.chan.chan.ChanLoaderRequest;
 import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.core.model.Board;
@@ -56,7 +58,7 @@ public interface Site {
         POST_REPORT,
 
         /**
-         * This site supports some sort of login (like 4pass).
+         * This site supports some sort of authentication (like 4pass).
          *
          * @see #login(LoginRequest, LoginListener)
          * @see SiteEndpoints#login()
@@ -113,7 +115,11 @@ public interface Site {
 
     SiteEndpoints endpoints();
 
+    SiteRequestModifier requestModifier();
+
     BoardsType boardsType();
+
+    String desktopUrl(Loadable loadable, @Nullable Post post);
 
     void boards(BoardsListener boardsListener);
 
@@ -141,7 +147,17 @@ public interface Site {
         void onDeleteError(HttpCall httpCall);
     }
 
+    /* TODO(multi-site) this login mechanism is probably not generic enough right now,
+     * especially if we're thinking about what a login really is
+     * We'll expand this later when we have a better idea of what other sites require.
+     */
     void login(LoginRequest loginRequest, LoginListener loginListener);
+
+    void logout();
+
+    boolean isLoggedIn();
+
+    LoginRequest getLoginDetails();
 
     interface LoginListener {
         void onLoginComplete(HttpCall httpCall, LoginResponse loginResponse);

@@ -190,10 +190,10 @@ public class WatchNotifier extends Service {
             List<CharSequence> expandedLines = new ArrayList<>();
             for (Post postForExpandedLine : postsForExpandedLines) {
                 CharSequence prefix;
-                if (postForExpandedLine.title.length() <= SUBJECT_LENGTH) {
-                    prefix = postForExpandedLine.title;
+                if (postForExpandedLine.getTitle().length() <= SUBJECT_LENGTH) {
+                    prefix = postForExpandedLine.getTitle();
                 } else {
-                    prefix = postForExpandedLine.title.subSequence(0, SUBJECT_LENGTH);
+                    prefix = postForExpandedLine.getTitle().subSequence(0, SUBJECT_LENGTH);
                 }
 
                 String comment = postForExpandedLine.image != null ? IMAGE_TEXT : "";

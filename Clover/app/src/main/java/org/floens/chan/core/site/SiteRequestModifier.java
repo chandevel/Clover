@@ -15,15 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.http;
+package org.floens.chan.core.site;
 
 
-public class LoginRequest {
-    public final String user;
-    public final String pass;
+import android.webkit.WebView;
 
-    public LoginRequest(String user, String pass) {
-        this.user = user;
-        this.pass = pass;
-    }
+import org.floens.chan.core.site.http.HttpCall;
+
+import okhttp3.Request;
+
+public interface SiteRequestModifier {
+    void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder);
+
+    void modifyWebView(WebView webView);
 }
