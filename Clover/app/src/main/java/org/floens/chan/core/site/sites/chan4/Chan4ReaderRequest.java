@@ -28,6 +28,7 @@ import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostHttpIcon;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.net.JsonReaderRequest;
 import org.floens.chan.core.site.SiteEndpoints;
@@ -35,7 +36,6 @@ import org.floens.chan.utils.Time;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -372,6 +372,9 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         String countryCode = null;
         String countryName = null;
 
+        // 4chan pass leaf
+        int since4pass = 0;
+
         reader.beginObject();
         while (reader.hasNext()) {
             String key = reader.nextName();
@@ -454,6 +457,9 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                 case "capcode":
                     builder.moderatorCapcode(reader.nextString());
                     break;
+                case "since4pass":
+                    since4pass = reader.nextInt();
+                    break;
                 default:
                     // Unknown/ignored key
                     reader.skipValue();
@@ -499,8 +505,15 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         }
 
         if (countryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.flag(builder, countryCode, Collections.<String, String>emptyMap());
-            builder.country(countryCode, countryName, countryUrl);
+            Map<String, String> arg = new HashMap<>(1);
+            arg.put("country_code", countryCode);
+            HttpUrl countryUrl = endpoints.icon(builder, "country", arg);
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+        }
+
+        if (since4pass != 0) {
+            HttpUrl iconUrl = endpoints.icon(builder, "since4pass", null);
+            builder.addHttpIcon(new PostHttpIcon(iconUrl, String.valueOf(since4pass)));
         }
 
         queue.toParse.add(builder);

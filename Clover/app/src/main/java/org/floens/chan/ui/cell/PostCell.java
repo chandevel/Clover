@@ -53,6 +53,7 @@ import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostHttpIcon;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
@@ -73,6 +74,8 @@ import org.floens.chan.utils.Time;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
 import static org.floens.chan.Chan.getGraph;
@@ -97,7 +100,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
     private boolean commentClickable = false;
     private int detailsSizePx;
-    private int countrySizePx;
+    private int iconSizePx;
     private int paddingPx;
     private boolean threadMode;
     private boolean ignoreNextOnClick;
@@ -155,7 +158,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         title.setTextSize(textSizeSp);
         title.setPadding(paddingPx, paddingPx, dp(52), 0);
 
-        countrySizePx = sp(textSizeSp - 3);
+        iconSizePx = sp(textSizeSp - 3);
         icons.setHeight(sp(textSizeSp));
         icons.setSpacing(dp(4));
         icons.setPadding(paddingPx, dp(4), paddingPx, 0);
@@ -398,12 +401,10 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         icons.set(PostIcons.CLOSED, post.isClosed());
         icons.set(PostIcons.DELETED, post.deleted.get());
         icons.set(PostIcons.ARCHIVED, post.isArchived());
+        icons.set(PostIcons.HTTP_ICONS, post.httpIcons != null);
 
-        if (!isEmpty(post.country)) {
-            icons.set(PostIcons.COUNTRY, true);
-            icons.showCountry(post, theme, countrySizePx);
-        } else {
-            icons.set(PostIcons.COUNTRY, false);
+        if (post.httpIcons != null) {
+            icons.setHttpIcons(post.httpIcons, theme, iconSizePx);
         }
 
         icons.apply();
@@ -469,7 +470,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private void unbindPost(Post post) {
         bound = false;
 
-        icons.cancelCountryRequest();
+        icons.cancelRequests();
 
         setPostLinkableListener(post, false);
     }
@@ -609,7 +610,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         private static final int CLOSED = 0x2;
         private static final int DELETED = 0x4;
         private static final int ARCHIVED = 0x8;
-        private static final int COUNTRY = 0x10;
+        private static final int HTTP_ICONS = 0x10;
 
         private int height;
         private int spacing;
@@ -619,28 +620,23 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private Rect textRect = new Rect();
-        private ImageLoader.ImageContainer countryIconRequest;
-        private Bitmap countryIcon;
-        private String countryName;
-        private int countryTextColor;
-        private int countryTextSize;
+
+        private int httpIconTextColor;
+        private int httpIconTextSize;
+
+        private List<PostIconsHttpIcon> httpIcons;
 
         public PostIcons(Context context) {
-            super(context);
-            init();
+            this(context, null);
         }
 
         public PostIcons(Context context, AttributeSet attrs) {
-            super(context, attrs);
-            init();
+            this(context, attrs, 0);
         }
 
         public PostIcons(Context context, AttributeSet attrs, int defStyleAttr) {
             super(context, attrs, defStyleAttr);
-            init();
-        }
 
-        private void init() {
             textPaint.setTypeface(Typeface.create((String) null, Typeface.ITALIC));
             setVisibility(View.GONE);
         }
@@ -655,10 +651,12 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         public void edit() {
             previousIcons = icons;
+            httpIcons = null;
         }
 
         public void apply() {
             if (previousIcons != icons) {
+                // Require a layout only if the height changed
                 if (previousIcons == 0 || icons == 0) {
                     setVisibility(icons == 0 ? View.GONE : View.VISIBLE);
                     requestLayout();
@@ -668,34 +666,24 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             }
         }
 
-        public void showCountry(final Post post, final Theme theme, int textSize) {
-            countryName = post.countryName;
-            countryTextColor = theme.detailsColor;
-            countryTextSize = textSize;
-
-            countryIconRequest = getGraph().getImageLoader().get(post.countryUrl.toString(), new ImageLoader.ImageListener() {
-                @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                    if (response.getBitmap() != null) {
-                        countryIcon = response.getBitmap();
-
-                        invalidate();
-                    }
-                }
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                }
-            });
+        public void setHttpIcons(List<PostHttpIcon> icons, Theme theme, int size) {
+            httpIconTextColor = theme.detailsColor;
+            httpIconTextSize = size;
+            httpIcons = new ArrayList<>(icons.size());
+            for (int i = 0; i < icons.size(); i++) {
+                PostHttpIcon icon = icons.get(i);
+                PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name, icon.url);
+                httpIcons.add(j);
+                j.request();
+            }
         }
 
-        public void cancelCountryRequest() {
-            if (countryIconRequest != null) {
-                countryIconRequest.cancelRequest();
-                countryIconRequest = null;
-                countryIcon = null;
-                countryName = null;
-                countryTextColor = 0;
+        public void cancelRequests() {
+            if (httpIcons != null) {
+                for (int i = 0; i < httpIcons.size(); i++) {
+                    PostIconsHttpIcon httpIcon = httpIcons.get(i);
+                    httpIcon.cancel();
+                }
             }
         }
 
@@ -742,14 +730,20 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                     offset += drawBitmap(canvas, archivedIcon, offset);
                 }
 
-                if (get(COUNTRY) && countryIcon != null) {
-                    offset += drawBitmap(canvas, countryIcon, offset);
+                if (get(HTTP_ICONS)) {
+                    for (int i = 0; i < httpIcons.size(); i++) {
+                        PostIconsHttpIcon httpIcon = httpIcons.get(i);
+                        if (httpIcon.bitmap != null) {
+                            offset += drawBitmap(canvas, httpIcon.bitmap, offset);
 
-                    textPaint.setColor(countryTextColor);
-                    textPaint.setTextSize(countryTextSize);
-                    textPaint.getTextBounds(countryName, 0, countryName.length(), textRect);
-                    float y = height / 2f - textRect.exactCenterY();
-                    canvas.drawText(countryName, offset, y, textPaint);
+                            textPaint.setColor(httpIconTextColor);
+                            textPaint.setTextSize(httpIconTextSize);
+                            textPaint.getTextBounds(httpIcon.name, 0, httpIcon.name.length(), textRect);
+                            float y = height / 2f - textRect.exactCenterY();
+                            canvas.drawText(httpIcon.name, offset, y, textPaint);
+                            offset += textRect.width() + spacing;
+                        }
+                    }
                 }
 
                 canvas.restore();
@@ -761,6 +755,43 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             drawRect.set(offset, 0f, offset + width, height);
             canvas.drawBitmap(bitmap, null, drawRect, null);
             return width + spacing;
+        }
+    }
+
+    private static class PostIconsHttpIcon implements ImageLoader.ImageListener {
+        private final PostIcons postIcons;
+        private final String name;
+        private final HttpUrl url;
+        private ImageLoader.ImageContainer request;
+        private Bitmap bitmap;
+
+        private PostIconsHttpIcon(PostIcons postIcons, String name, HttpUrl url) {
+            this.postIcons = postIcons;
+            this.name = name;
+            this.url = url;
+        }
+
+        private void request() {
+            request = getGraph().getImageLoader().get(url.toString(), this);
+        }
+
+        private void cancel() {
+            if (request != null) {
+                request.cancelRequest();
+                request = null;
+            }
+        }
+
+        @Override
+        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+            if (response.getBitmap() != null) {
+                bitmap = response.getBitmap();
+                postIcons.invalidate();
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
         }
     }
 }

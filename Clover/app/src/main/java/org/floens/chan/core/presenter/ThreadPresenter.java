@@ -669,9 +669,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             text += "\nTripcode: " + post.tripcode;
         }
 
-        if (!TextUtils.isEmpty(post.countryName)) {
+        /*if (!TextUtils.isEmpty(post.countryName)) {
             text += "\nCountry: " + post.country + ", " + post.countryName;
-        }
+        }*/
 
         if (!TextUtils.isEmpty(post.capcode)) {
             text += "\nCapcode: " + post.capcode;

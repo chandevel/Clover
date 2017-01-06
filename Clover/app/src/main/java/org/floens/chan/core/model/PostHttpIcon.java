@@ -15,37 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site;
+package org.floens.chan.core.model;
 
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Post;
-
-import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-/**
- * Endpoints for {@link Site}.
- */
-public interface SiteEndpoints {
-    HttpUrl catalog(Board board);
+public class PostHttpIcon {
+    public final HttpUrl url;
+    public final String name;
 
-    HttpUrl thread(Board board, Loadable loadable);
-
-    HttpUrl imageUrl(Post.Builder post, Map<String, String> arg);
-
-    HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
-
-    HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg);
-
-    HttpUrl boards();
-
-    HttpUrl reply(Loadable thread);
-
-    HttpUrl delete(Post post);
-
-    HttpUrl report(Post post);
-
-    HttpUrl login();
+    public PostHttpIcon(HttpUrl url, String name) {
+        this.url = url;
+        this.name = name;
+    }
 }

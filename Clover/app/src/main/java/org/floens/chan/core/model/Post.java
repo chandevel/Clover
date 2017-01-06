@@ -62,11 +62,7 @@ public class Post {
 
     public final String capcode;
 
-    public final String country;
-
-    public final String countryName;
-
-    public final HttpUrl countryUrl;
+    public final List<PostHttpIcon> httpIcons;
 
     public final boolean isSavedReply;
 
@@ -130,9 +126,11 @@ public class Post {
         time = builder.unixTimestampSeconds;
         image = builder.image;
 
-        country = builder.countryCode;
-        countryName = builder.countryName;
-        countryUrl = builder.countryUrl;
+        if (builder.httpIcons != null) {
+            httpIcons = Collections.unmodifiableList(builder.httpIcons);
+        } else {
+            httpIcons = null;
+        }
 
         id = builder.posterId;
         capcode = builder.moderatorCapcode;
@@ -245,6 +243,8 @@ public class Post {
         public String countryName;
         public HttpUrl countryUrl;
 
+        public List<PostHttpIcon> httpIcons;
+
         public String posterId = "";
         public String moderatorCapcode = "";
 
@@ -353,10 +353,12 @@ public class Post {
             return this;
         }
 
-        public Builder country(String countryCode, String countryName, HttpUrl countryUrl) {
-            this.countryCode = countryCode;
-            this.countryName = countryName;
-            this.countryUrl = countryUrl;
+        public Builder addHttpIcon(PostHttpIcon httpIcon) {
+            if (httpIcons == null) {
+                httpIcons = new ArrayList<>();
+            }
+            httpIcons.add(httpIcon);
+
             return this;
         }
 

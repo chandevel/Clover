@@ -142,12 +142,20 @@ public class Chan4 implements Site {
         }
 
         @Override
-        public HttpUrl flag(Post.Builder post, String countryCode, Map<String, String> arg) {
-            return s.newBuilder()
-                    .addPathSegment("image")
-                    .addPathSegment("country")
-                    .addPathSegment(countryCode.toLowerCase(Locale.ENGLISH) + ".gif")
-                    .build();
+        public HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg) {
+            HttpUrl.Builder b = s.newBuilder().addPathSegment("image");
+
+            switch (icon) {
+                case "country":
+                    b.addPathSegment("country");
+                    b.addPathSegment(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".gif");
+                    break;
+                case "since4pass":
+                    b.addPathSegment("minileaf.gif");
+                    break;
+            }
+
+            return b.build();
         }
 
         @Override
