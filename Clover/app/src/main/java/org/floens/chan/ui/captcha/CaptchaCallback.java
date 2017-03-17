@@ -15,12 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.ui.layout;
+package org.floens.chan.ui.captcha;
 
-public interface CaptchaLayoutInterface {
-    void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback);
+public interface CaptchaCallback {
+    void captchaLoaded(CaptchaLayoutInterface captchaLayout);
 
-    void reset();
-
-    void hardReset();
+    void captchaEntered(CaptchaLayoutInterface captchaLayout, String challenge, String response);
 }

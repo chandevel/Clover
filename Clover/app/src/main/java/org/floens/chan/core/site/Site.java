@@ -117,6 +117,8 @@ public interface Site {
 
     SiteRequestModifier requestModifier();
 
+    SiteAuthentication authentication();
+
     BoardsType boardsType();
 
     String desktopUrl(Loadable loadable, @Nullable Post post);

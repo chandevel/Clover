@@ -41,6 +41,9 @@ import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
+import org.floens.chan.ui.captcha.CaptchaCallback;
+import org.floens.chan.ui.captcha.CaptchaLayout;
+import org.floens.chan.ui.captcha.CaptchaLayoutInterface;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.ImagePickDelegate;
@@ -67,7 +70,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     private View replyInputLayout;
     private FrameLayout captchaContainer;
     private ImageView captchaHardReset;
-    private CaptchaLayoutInterface captchaLayout;
+    private CaptchaLayoutInterface authenticationLayout;
 
     private boolean openingName;
     private boolean blockSelectionChange = false;
@@ -209,7 +212,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         }/* else if (v == preview) {
             // TODO
         }*/ else if (v == captchaHardReset) {
-            captchaLayout.hardReset();
+            authenticationLayout.hardReset();
         }
     }
 
@@ -228,14 +231,14 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
             case INPUT:
                 setView(replyInputLayout);
                 break;
-            case CAPTCHA:
-                if (captchaLayout == null) {
+            case AUTHENTICATION:
+                if (authenticationLayout == null) {
                     if (newCaptcha) {
-                        captchaLayout = new CaptchaLayout(getContext());
+                        authenticationLayout = new CaptchaLayout(getContext());
                     } else {
-                        captchaLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext()).inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
+                        authenticationLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext()).inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
                     }
-                    captchaContainer.addView((View) captchaLayout, 0);
+                    captchaContainer.addView((View) authenticationLayout, 0);
                 }
 
                 if (newCaptcha) {
@@ -250,13 +253,13 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback) {
-        captchaLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, callback);
-        captchaLayout.reset();
+        authenticationLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, callback);
+        authenticationLayout.reset();
     }
 
     @Override
     public void resetCaptcha() {
-        captchaLayout.reset();
+        authenticationLayout.reset();
     }
 
     @Override

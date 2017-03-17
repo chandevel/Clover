@@ -32,13 +32,14 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.ui.layout.CaptchaCallback;
-import org.floens.chan.ui.layout.CaptchaLayoutInterface;
+import org.floens.chan.ui.captcha.CaptchaCallback;
+import org.floens.chan.ui.captcha.CaptchaLayoutInterface;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -55,7 +56,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImagePickCallback, Site.PostListener {
     public enum Page {
         INPUT,
-        CAPTCHA,
+        AUTHENTICATION,
         LOADING
     }
 
@@ -149,7 +150,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
     public boolean onBack() {
         if (page == Page.LOADING) {
             return true;
-        } else if (page == Page.CAPTCHA) {
+        } else if (page == Page.AUTHENTICATION) {
             switchPage(Page.INPUT, true);
             return true;
         } else if (moreOpen) {
@@ -200,10 +201,10 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
 
         draft.captchaResponse = null;
-        if (loadable.getSite().isLoggedIn()) {
-            makeSubmitCall();
+        if (loadable.getSite().authentication().requireAuthentication(SiteAuthentication.AuthenticationRequestType.POSTING)) {
+            switchPage(Page.AUTHENTICATION, true);
         } else {
-            switchPage(Page.CAPTCHA, true);
+            makeSubmitCall();
         }
     }
 
@@ -346,8 +347,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
                 case INPUT:
                     callback.setPage(Page.INPUT, animate);
                     break;
-                case CAPTCHA:
-                    callback.setPage(Page.CAPTCHA, true);
+                case AUTHENTICATION:
+                    callback.setPage(Page.AUTHENTICATION, true);
 
                     if (!captchaInited) {
                         captchaInited = true;

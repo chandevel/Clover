@@ -34,6 +34,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.http.DeleteRequest;
@@ -230,6 +231,17 @@ public class Chan4 implements Site {
         }
     };
 
+    private SiteAuthentication authentication = new SiteAuthentication() {
+        @Override
+        public boolean requireAuthentication(AuthenticationRequestType type) {
+            if (type == AuthenticationRequestType.POSTING) {
+                return !isLoggedIn();
+            }
+
+            return false;
+        }
+    };
+
     // Legacy settings that were global before
     private final StringSetting passUser;
     private final StringSetting passPass;
@@ -332,6 +344,11 @@ public class Chan4 implements Site {
     @Override
     public SiteRequestModifier requestModifier() {
         return siteRequestModifier;
+    }
+
+    @Override
+    public SiteAuthentication authentication() {
+        return authentication;
     }
 
     @Override
