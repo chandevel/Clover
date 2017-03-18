@@ -100,6 +100,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="undo">Undo</string>
     <string name="save">Save</string>
 
+    <string name="permission_app_settings">App settings</string>
+    <string name="permission_grant">Grant</string>
+
+    <string name="update_later">Later</string>
+    <string name="update_none">Clover is up to date</string>
+    <string name="update_check_failed">Failed to check for updates.</string>
+    <string name="update_install">Install</string>
+    <string name="update_install_downloading">Downloading update</string>
+    <string name="update_install_download_failed">Download failed</string>
+    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
+    <string name="update_retry_title">Retry update</string>
+    <string name="update_retry">Clover was not updated yet. Click retry to retry the install.</string>
+    <string name="update_retry_button">retry</string>
+
+    <string name="update_storage_permission_required_title">Storage permission required</string>
+    <string name="update_storage_permission_required">
+"Permission to access storage is required for installing the update.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
+
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
@@ -354,15 +374,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="filters_screen">Filters</string>
 
-    <string name="save_location_screen">Save location</string>
-    <string name="write_permission_required_title">Storage permission required</string>
-    <string name="write_permission_required">
-"Permission to access storage is required for browsing files.
-
-Re-enable this permission in the app settings if you permanently disabled it."</string>
-    <string name="write_permission_app_settings">App settings</string>
-    <string name="write_permission_grant">Grant</string>
-
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
@@ -426,6 +437,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setting_post_pin">Pin thread on post</string>
 
     <string name="settings_group_about">About</string>
+    <string name="settings_update_check">Check for updates</string>
     <string name="settings_about_license">Released under the GNU GPLv3 license</string>
     <string name="settings_about_license_description">Tap to see license</string>
     <string name="settings_about_licenses">Open Source Licenses</string>
@@ -434,6 +446,12 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="settings_screen_advanced">Advanced settings</string>
     <string name="settings_group_advanced">Advanced settings</string>
+    <string name="save_location_screen">Save location</string>
+    <string name="save_location_storage_permission_required_title">Storage permission required</string>
+    <string name="save_location_storage_permission_required">
+"Permission to access storage is required for browsing files.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
     <string name="setting_save_folder">File save folder</string>
     <string name="setting_save_folder_error_create_folder">Error creating save folder</string>
     <string name="setting_folder_pick_ok">Choose</string>

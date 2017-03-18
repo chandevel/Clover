@@ -1,0 +1,29 @@
+update_api.json describes the update check api that Clover loads periodically.
+
+api_version
+Version of this api, always 1.
+
+check_interval
+the interval of loading the file, overrides the default interval of 5 days if set.
+
+messages
+array of messages
+
+    type:
+    type of the message, only "update" is supported
+
+    code:
+    code of the new version. if this is higher than the code of the calling app then the message will be processed.
+
+    date:
+    ISO8601 date, parsed but not used for now.
+
+    message_html:
+    message shown to the user, parsed with Html.fromHtml()
+
+    apk:
+    set of apks for each flavor. each key is only parsed if it equals to the flavor name that the app is compiled for.
+
+        url:
+        url of the apk file to download and install.
+

@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -159,6 +160,9 @@ public class ChanSettings {
     public static final CounterSetting replyOpenCounter;
     public static final CounterSetting threadOpenCounter;
 
+    public static final LongSetting updateCheckTime;
+    public static final LongSetting updateCheckInterval;
+
     public enum TestOptions implements OptionSettingItem {
         ONE("one"),
         TWO("two"),
@@ -287,6 +291,9 @@ public class ChanSettings {
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
         replyOpenCounter = new CounterSetting(p, "counter_reply_open");
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
+
+        updateCheckTime = new LongSetting(p, "update_check_time", 0L);
+        updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

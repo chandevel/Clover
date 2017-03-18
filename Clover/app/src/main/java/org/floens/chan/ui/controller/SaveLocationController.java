@@ -19,12 +19,7 @@ package org.floens.chan.ui.controller;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import org.floens.chan.R;
@@ -37,9 +32,11 @@ import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.adapter.FilesAdapter;
 import org.floens.chan.ui.helper.RuntimePermissionsHelper;
 import org.floens.chan.ui.layout.FilesLayout;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
+
+import static org.floens.chan.R.string.save_location_storage_permission_required;
+import static org.floens.chan.R.string.save_location_storage_permission_required_title;
 
 public class SaveLocationController extends Controller implements FileWatcher.FileWatcherCallback, FilesAdapter.Callback, FilesLayout.Callback, View.OnClickListener {
     private static final String TAG = "SaveLocationController";
@@ -121,26 +118,17 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
                 if (gotPermission) {
                     initialize();
                 } else {
-                    new AlertDialog.Builder(context)
-                            .setTitle(R.string.write_permission_required_title)
-                            .setMessage(R.string.write_permission_required)
-                            .setCancelable(false)
-                            .setNeutralButton(R.string.write_permission_app_settings, new DialogInterface.OnClickListener() {
+                    runtimePermissionsHelper.showPermissionRequiredDialog(
+                            context,
+                            context.getString(save_location_storage_permission_required_title),
+                            context.getString(save_location_storage_permission_required),
+                            new RuntimePermissionsHelper.PermissionRequiredDialogCallback() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    requestPermission();
-                                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                            Uri.parse("package:" + context.getPackageName()));
-                                    AndroidUtils.openIntent(intent);
-                                }
-                            })
-                            .setPositiveButton(R.string.write_permission_grant, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                                public void retryPermissionRequest() {
                                     requestPermission();
                                 }
-                            })
-                            .show();
+                            }
+                    );
                 }
             }
         });
