@@ -163,22 +163,6 @@ public class ChanSettings {
     public static final LongSetting updateCheckTime;
     public static final LongSetting updateCheckInterval;
 
-    public enum TestOptions implements OptionSettingItem {
-        ONE("one"),
-        TWO("two"),
-        THREE("three");
-
-        String name;
-
-        TestOptions(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
 
