@@ -31,11 +31,7 @@ import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
@@ -111,7 +107,10 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
         try {
             if (destination.exists()) {
                 onDestination();
+                // Manually call postFinished()
+                postFinished(success);
             } else {
+                // Both onSuccess and onFail call postFinished()
                 FileCache.FileCacheDownloader fileCacheDownloader = Chan.getFileCache().downloadFile(postImage.imageUrl, this);
                 // If the fileCacheDownloader is null then the destination already existed and onSuccess() has been called.
                 // Wait otherwise for the download to finish to avoid that the next task is immediately executed.
@@ -169,8 +168,6 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     private boolean copyToDestination(File source) {
         boolean result = false;
 
-        InputStream is = null;
-        OutputStream os = null;
         try {
             File parent = destination.getParentFile();
             if (!parent.mkdirs() && !parent.isDirectory()) {
@@ -181,16 +178,11 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
                 throw new IOException("Destination file is already a directory");
             }
 
-            is = new FileInputStream(source);
-            os = new FileOutputStream(destination);
-            IOUtils.copy(is, os);
+            IOUtils.copyFile(source, destination);
 
             result = true;
         } catch (IOException e) {
             Logger.e(TAG, "Error writing to file", e);
-        } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
         }
 
         return result;
