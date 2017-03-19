@@ -24,8 +24,6 @@ import android.view.View;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.model.FileItem;
-import org.floens.chan.core.model.FileItems;
 import org.floens.chan.core.saver.FileWatcher;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
@@ -48,7 +46,7 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     private boolean gotPermission = false;
 
     private FileWatcher fileWatcher;
-    private FileItems fileItems;
+    private FileWatcher.FileItems fileItems;
 
     public SaveLocationController(Context context) {
         super(context);
@@ -88,7 +86,7 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     }
 
     @Override
-    public void onFiles(FileItems fileItems) {
+    public void onFiles(FileWatcher.FileItems fileItems) {
         this.fileItems = fileItems;
         filesLayout.setFiles(fileItems);
     }
@@ -99,7 +97,7 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     }
 
     @Override
-    public void onFileItemClicked(FileItem fileItem) {
+    public void onFileItemClicked(FileWatcher.FileItem fileItem) {
         if (fileItem.canNavigate()) {
             fileWatcher.navigateTo(fileItem.file);
         }

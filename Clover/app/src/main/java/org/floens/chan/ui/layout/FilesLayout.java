@@ -30,8 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.model.FileItem;
-import org.floens.chan.core.model.FileItems;
+import org.floens.chan.core.saver.FileWatcher;
 import org.floens.chan.ui.adapter.FilesAdapter;
 import org.floens.chan.utils.RecyclerUtils;
 
@@ -51,7 +50,7 @@ public class FilesLayout extends LinearLayout implements FilesAdapter.Callback, 
 
     private Map<String, FileItemHistory> history = new HashMap<>();
     private FileItemHistory currentHistory;
-    private FileItems currentFileItems;
+    private FileWatcher.FileItems currentFileItems;
 
     private Callback callback;
 
@@ -91,7 +90,7 @@ public class FilesLayout extends LinearLayout implements FilesAdapter.Callback, 
         this.callback = callback;
     }
 
-    public void setFiles(FileItems fileItems) {
+    public void setFiles(FileWatcher.FileItems fileItems) {
         // Save the associated list position
         if (currentFileItems != null) {
             int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
@@ -132,7 +131,7 @@ public class FilesLayout extends LinearLayout implements FilesAdapter.Callback, 
     }
 
     @Override
-    public void onFileItemClicked(FileItem fileItem) {
+    public void onFileItemClicked(FileWatcher.FileItem fileItem) {
         currentHistory.clickedItem = fileItem;
         callback.onFileItemClicked(fileItem);
     }
@@ -147,12 +146,12 @@ public class FilesLayout extends LinearLayout implements FilesAdapter.Callback, 
 
     private class FileItemHistory {
         int index, top;
-        FileItem clickedItem;
+        FileWatcher.FileItem clickedItem;
     }
 
     public interface Callback {
         void onBackClicked();
 
-        void onFileItemClicked(FileItem fileItem);
+        void onFileItemClicked(FileWatcher.FileItem fileItem);
     }
 }

@@ -28,8 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.model.FileItem;
-import org.floens.chan.core.model.FileItems;
+import org.floens.chan.core.saver.FileWatcher;
 
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -37,20 +36,20 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final int ITEM_TYPE_FOLDER = 0;
     private static final int ITEM_TYPE_FILE = 1;
 
-    private FileItem highlightedItem;
-    private FileItems fileItems;
+    private FileWatcher.FileItem highlightedItem;
+    private FileWatcher.FileItems fileItems;
     private Callback callback;
 
     public FilesAdapter(Callback callback) {
         this.callback = callback;
     }
 
-    public void setFiles(FileItems fileItems) {
+    public void setFiles(FileWatcher.FileItems fileItems) {
         this.fileItems = fileItems;
         notifyDataSetChanged();
     }
 
-    public void setHighlightedItem(FileItem highlightedItem) {
+    public void setHighlightedItem(FileWatcher.FileItem highlightedItem) {
         this.highlightedItem = highlightedItem;
     }
 
@@ -69,7 +68,7 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             case ITEM_TYPE_FOLDER: {
                 boolean isFile = itemViewType == ITEM_TYPE_FILE;
 
-                FileItem item = getItem(position);
+                FileWatcher.FileItem item = getItem(position);
                 FileViewHolder fileViewHolder = ((FileViewHolder) holder);
                 fileViewHolder.text.setText(item.file.getName());
 
@@ -104,7 +103,7 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        FileItem item = getItem(position);
+        FileWatcher.FileItem item = getItem(position);
         if (item.isFile()) {
             return ITEM_TYPE_FILE;
         } else if (item.isFolder()) {
@@ -114,11 +113,11 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    public FileItem getItem(int position) {
+    public FileWatcher.FileItem getItem(int position) {
         return fileItems.fileItems.get(position);
     }
 
-    private void onItemClicked(FileItem fileItem) {
+    private void onItemClicked(FileWatcher.FileItem fileItem) {
         callback.onFileItemClicked(fileItem);
     }
 
@@ -135,12 +134,12 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         @Override
         public void onClick(View v) {
-            FileItem item = getItem(getAdapterPosition());
+            FileWatcher.FileItem item = getItem(getAdapterPosition());
             onItemClicked(item);
         }
     }
 
     public interface Callback {
-        void onFileItemClicked(FileItem fileItem);
+        void onFileItemClicked(FileWatcher.FileItem fileItem);
     }
 }
