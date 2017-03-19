@@ -19,73 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Defined in gradle flavor -->
     <!--<string name="app_name">Clover</string>-->
 
-    <string name="previous_version_1">
+    <string name="changelog_20300">
         <![CDATA[
             <h3>Clover was updated</h3>
 
-            This is the beta of Clover v2, redesigned with the Google Material Design guidelines in mind.<br>
-            <br>
-            <b>Biggest changes:</b><br>
-            - New design.<br>
-            - New inline reply layout.<br>
-            - Support for thread hiding.<br>
-            - Support for filtering threads, making posts either highlighted, hidden or completely removed.<br>
-            - Support for history.<br>
-            - More themes were added.<br>
-            - Album downloads have been improved.<br>
-            - Catalog mode now uses cards.<br>
-            - More advanced options added.<br>
-            - Minor features and bug fixes.<br>
-            <br>
-            <b>Please provide feedback on GitHub or by writing an email, links are at the bottom of the settings screen.</b>
-        ]]>
-    </string>
-
-    <string name="previous_version_2">
-        <![CDATA[
-            <h3>Clover was updated</h3>
-
-            This is the release of Clover v2, redesigned with the Material design guidelines in mind.<br>
-            <br>
-            <b>Biggest changes are:</b><br>
-            - New design.<br>
-            - New inline reply layout.<br>
-            - Added thread hiding.<br>
-            - Added filtering threads, making posts either highlighted, hidden or removed.<br>
-            - Added history.<br>
-            - Added more themes.<br>
-            - Better album download screen.<br>
-            - Catalog mode now uses cards.<br>
-            - More advanced options added.<br>
-            - Minor features and bug fixes.<br>
-            <br>
-            <b>Please provide feedback on GitHub or by writing an email, links are at the bottom of the settings screen.</b>
-        ]]>
-    </string>
-
-    <string name="previous_version_3">
-        <![CDATA[
-            <h3>Clover was updated</h3>
-
-            Clover was updated to v2.2.0<br>
+            Clover was updated to v2.3.0<br>
             <br>
             <b>New in this version:</b><br>
-            Add sliding of threads back.<br>
-            Rewrote thread watching, it\'s more stable and works correctly with doze now.<br>
-            Optimized parsing with multithreading.<br>
-            Added album view.<br>
-            Added bookmark clearing.<br>
-            <br>
-            Added inline reporting.<br>
-            All boards are added by default now.<br>
-            Thread positions are retained across restarts.<br>
-            Allow setting of multiple types on filters simultaneously.<br>
-            Made single frame gifs zoomable.<br>
-            Add saving of images into their own board folder.<br>
-            More advanced settings.<br>
-            Many bug fixes.<br>
-            <br>
-            Many thanks to the contributors on GitHub!
+            Added update checker, you\'ll be notified of new releases.<br>
+            Force new captcha for thread making.<br>
+            Bug fixes.
         ]]>
     </string>
 

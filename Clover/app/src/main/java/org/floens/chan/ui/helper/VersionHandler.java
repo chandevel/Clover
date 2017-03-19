@@ -27,6 +27,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.widget.Button;
 
+import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
 import org.floens.chan.core.net.UpdateApiRequest;
 import org.floens.chan.core.settings.ChanSettings;
@@ -62,8 +63,11 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
      * 54 = v2.1.2 = 2
      * 55 = v2.1.3 = 2
      * 56 = v2.2.0 = 3
+     * Since v2.3.0, this has been aligned with the versionCode as defined in build.gradle
+     * It is of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch.
+     * 20300 = v2.3.0 = 20300
      */
-    private static final int CURRENT_VERSION = 3;
+    private static final int CURRENT_VERSION = BuildConfig.VERSION_CODE;
 
     /**
      * Context to show dialogs to.
@@ -239,7 +243,7 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
     }
 
     private void showMessage(int version) {
-        int resource = context.getResources().getIdentifier("previous_version_" + version, "string", context.getPackageName());
+        int resource = context.getResources().getIdentifier("changelog_" + version, "string", context.getPackageName());
         if (resource != 0) {
             CharSequence message = Html.fromHtml(context.getString(resource));
 
