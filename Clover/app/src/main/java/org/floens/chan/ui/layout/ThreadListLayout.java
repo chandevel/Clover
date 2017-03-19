@@ -503,11 +503,12 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {
                     PostCellInterface postView = (PostCellInterface) child;
-                    if (postView.getPost().hasImage) {
+                    Post post = postView.getPost();
+                    if (post.isOP && post.hasImage) {
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
                         int top = child.getTop() + params.topMargin;
                         int left = child.getLeft() + params.leftMargin;
-                        c.drawBitmap(hat, left - parent.getPaddingLeft() - dp(40), top - dp(130) - parent.getPaddingTop() + toolbarHeight(), null);
+                        c.drawBitmap(hat, left - parent.getPaddingLeft() - dp(25), top - dp(80) - parent.getPaddingTop() + toolbarHeight(), null);
                     }
                 }
             }
