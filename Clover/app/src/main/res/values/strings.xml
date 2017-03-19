@@ -456,7 +456,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setting_save_folder_error_create_folder">Error creating save folder</string>
     <string name="setting_folder_pick_ok">Choose</string>
     <string name="setting_use_new_captcha">Use the new captcha</string>
-    <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha.</string>
+    <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha for thread replies.</string>
     <string name="setting_save_original_filename">Save original filename</string>
     <string name="setting_save_board_folder">Save images in a board folder</string>
     <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>

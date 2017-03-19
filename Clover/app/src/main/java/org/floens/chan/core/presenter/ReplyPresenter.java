@@ -344,6 +344,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
                     callback.setPage(Page.INPUT, animate);
                     break;
                 case CAPTCHA:
+                    callback.setCaptchaVersion(ChanSettings.postNewCaptcha.get() || loadable.isCatalogMode());
                     callback.setPage(Page.CAPTCHA, true);
 
                     if (!captchaInited) {
@@ -410,6 +411,8 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         void loadDraftIntoViews(Reply draft);
 
         void setPage(Page page, boolean animate);
+
+        void setCaptchaVersion(boolean newCaptcha);
 
         void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback);
 
