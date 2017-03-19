@@ -4,16 +4,13 @@
         {
             "type": "update",
 
-            "code": 56,
-            "date": "2017-03-18T13:23:06.614104",
-            "message_html": "<h2>Clover v2.2.0 is available</h2>A new version of Clover is available.<br><br>This release fixes the problem where boards couldn't be added.<br>- Add sliding of threads back.<br>- Rewrote thread watching, it's more stable and works correctly with doze now.<br>- Optimized parsing with multithreading.<br>- Added album view.<br>- Added bookmark clearing.<br>- Added inline reporting.",
+            "code": 20300,
+            "date": "2017-03-19T23:09:18.273664",
+            "message_html": "<h2>Clover v2.3.0 is available</h2>A new version of Clover is available.<br><br>This release adds the update checker.",
 
             "apk": {
                 "default": {
-                    "url": "https://github.com/Floens/Clover/releases/download/v2.2.0/Clover_v2.2.0.apk"
-                },
-                "fdroid": {
-                    "url": "https://f-droid.org/repo/org.floens.chan_56.apk"
+                    "url": "https://github.com/Floens/Clover/releases/download/v2.3.0/Clover_v2.3.0.apk"
                 }
             }
         }
