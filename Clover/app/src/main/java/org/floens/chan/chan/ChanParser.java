@@ -47,8 +47,12 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
+import org.nibor.autolink.LinkExtractor;
+import org.nibor.autolink.LinkSpan;
+import org.nibor.autolink.LinkType;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -62,6 +66,8 @@ public class ChanParser {
 
     private static ChanParser instance = new ChanParser();
     private final DatabaseManager databaseManager;
+
+    private final LinkExtractor linkExtractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
     public ChanParser() {
         databaseManager = Chan.getDatabaseManager();
@@ -445,38 +451,14 @@ public class ChanParser {
     }
 
     private void detectLinks(Theme theme, Post post, String text, SpannableString spannable) {
-        int startPos = 0;
-        int endPos;
-        while (true) {
-            startPos = text.indexOf("://", startPos);
-            if (startPos < 0) break;
-
-            // go back to the first space
-            while (startPos > 0 && !isWhitespace(text.charAt(startPos - 1))) {
-                startPos--;
-            }
-
-            // find the last non whitespace character
-            endPos = startPos;
-            while (endPos < text.length() - 1 && !isWhitespace(text.charAt(endPos + 1))) {
-                endPos++;
-            }
-
-            // one past
-            endPos++;
-
-            String linkString = text.substring(startPos, endPos);
-
-            PostLinkable pl = new PostLinkable(theme, post, linkString, linkString, PostLinkable.Type.LINK);
-            spannable.setSpan(pl, startPos, endPos, 0);
+        // use autolink-java lib to detect links
+        final Iterable<LinkSpan> links = linkExtractor.extractLinks(text);
+        for(final LinkSpan link : links) {
+            final String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
+            final PostLinkable pl = new PostLinkable(theme, post, linkText, linkText, PostLinkable.Type.LINK);
+            spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), 0);
             post.linkables.add(pl);
-
-            startPos = endPos;
         }
-    }
-
-    private boolean isWhitespace(char c) {
-        return Character.isWhitespace(c) || c == '>'; // consider > as a link separator
     }
 
     // Below code taken from org.jsoup.nodes.Element.text(), but it preserves <br>
