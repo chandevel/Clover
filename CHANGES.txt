@@ -1,7 +1,7 @@
 New in 2.3.0 (2017-03-19)
 - Added update checker to notify of new releases.
 - Force new captcha for thread making.
-- Buf fixes.
+- Bug fixes.
 
 
 New in 2.2.0 (2016-10-03)
