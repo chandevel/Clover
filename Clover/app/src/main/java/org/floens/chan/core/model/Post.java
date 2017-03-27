@@ -165,7 +165,8 @@ public class Post {
             imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
             filename = Parser.unescapeEntities(filename, false);
 
-            if (spoiler) {
+            boolean spoilerImage = spoiler && !ChanSettings.revealImageSpoilers.get();
+            if (spoilerImage) {
                 Board b = Chan.getBoardManager().getBoardByCode(board);
                 if (b != null && b.customSpoilers >= 0) {
                     thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);
@@ -176,15 +177,11 @@ public class Post {
                 thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
             }
 
-            image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoiler, fileSize);
+            image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoilerImage, fileSize);
         }
 
         if (!TextUtils.isEmpty(country)) {
             countryUrl = ChanUrls.getCountryFlagUrl(country);
-        }
-
-        if (ChanSettings.revealImageSpoilers.get()) {
-            spoiler = false;
         }
 
         ChanParser.getInstance().parse(this);
