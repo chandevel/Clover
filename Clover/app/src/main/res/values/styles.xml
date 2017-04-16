@@ -176,7 +176,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_name_color">#ff566e78</item>
         <item name="post_subject_color">#ff567861</item>
-        <item name="post_details_color">#ff333333</item>
+        <item name="post_details_color">#ff444444</item>
         <item name="post_quote_color">#ff7e949e</item>
         <item name="post_highlight_quote_color">#ff81a2be</item>
         <item name="post_inline_quote_color">#ffa4a987</item>
@@ -187,17 +187,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_id_background_light">#00000000</item>
         <item name="post_id_background_dark">#00000000</item>
-        <item name="post_saved_reply_color">#ff111111</item>
-        <item name="post_highlighted_color">#ff111111</item>
-        <item name="post_selected_color">#ff111111</item>
+        <item name="post_saved_reply_color">#ff1a1a1a</item>
+        <item name="post_highlighted_color">#ff1a1a1a</item>
+        <item name="post_selected_color">#ff1a1a1a</item>
 
         <item name="divider_color">#ff222222</item>
         <item name="divider_split_color">#ff222222</item>
 
-        <item name="dropdown_light_color">#ff222222</item>
-        <item name="dropdown_light_pressed_color">#ff333333</item>
-        <item name="dropdown_dark_color">#ff222222</item>
-        <item name="dropdown_dark_pressed_color">#ff333333</item>
+        <item name="dropdown_light_color">#ffffffff</item>
+        <item name="dropdown_light_pressed_color">#ffffffff</item>
+        <item name="dropdown_dark_color">#ffffffff</item>
+        <item name="dropdown_dark_pressed_color">#ffffffff</item>
     </style>
 
     <!-- For FloatingMenu -->
