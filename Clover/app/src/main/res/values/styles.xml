@@ -187,12 +187,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_id_background_light">#00000000</item>
         <item name="post_id_background_dark">#00000000</item>
-        <item name="post_saved_reply_color">#ff1a1a1a</item>
-        <item name="post_highlighted_color">#ff1a1a1a</item>
-        <item name="post_selected_color">#ff1a1a1a</item>
+        <item name="post_saved_reply_color">#ff1d1d1d</item>
+        <item name="post_highlighted_color">#ff1d1d1d</item>
+        <item name="post_selected_color">#ff1d1d1d</item>
 
-        <item name="divider_color">#ff222222</item>
-        <item name="divider_split_color">#ff222222</item>
+        <item name="divider_color">#00222222</item>
+        <item name="divider_split_color">#00222222</item>
 
         <item name="dropdown_light_color">#ffffffff</item>
         <item name="dropdown_light_pressed_color">#ffffffff</item>
