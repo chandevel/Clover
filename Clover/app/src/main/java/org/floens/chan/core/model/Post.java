@@ -105,6 +105,7 @@ public class Post {
 
     public boolean filterRemove = false;
 
+    public int since4pass;
 
     /**
      * This post replies to the these ids. Is an unmodifiable set after finish().

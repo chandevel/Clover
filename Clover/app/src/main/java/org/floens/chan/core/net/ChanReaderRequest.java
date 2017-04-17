@@ -415,6 +415,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                 case "unique_ips":
                     post.uniqueIps = reader.nextInt();
                     break;
+                case "since4pass":
+                    post.since4pass = reader.nextInt();
+                    break;
                 default:
                     // Unknown/ignored key
                     reader.skipValue();

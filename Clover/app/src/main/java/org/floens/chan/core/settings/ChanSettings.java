@@ -119,6 +119,7 @@ public class ChanSettings {
     public static final BooleanSetting networkHttps;
     public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting anonymize;
+    public static final BooleanSetting passIcon;
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting showAnonymousName;
     public static final BooleanSetting revealImageSpoilers;
@@ -204,6 +205,7 @@ public class ChanSettings {
         networkHttps = new BooleanSetting(p, "preference_network_https", true);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
+        passIcon = new BooleanSetting(p, "preference_pass_icon", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
         showAnonymousName = new BooleanSetting(p, "preference_show_anonymous_name", false);
         revealImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
