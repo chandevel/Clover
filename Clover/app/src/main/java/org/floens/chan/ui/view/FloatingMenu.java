@@ -94,9 +94,6 @@ public class FloatingMenu {
 
     public void setItems(List<FloatingMenuItem> items) {
         this.items = items;
-        if (popupWindow != null) {
-            popupWindow.dismiss();
-        }
     }
 
     public void setSelectedItem(FloatingMenuItem item) {
@@ -105,6 +102,9 @@ public class FloatingMenu {
 
     public void setAdapter(ListAdapter adapter) {
         this.adapter = adapter;
+        if (popupWindow != null) {
+            popupWindow.setAdapter(adapter);
+        }
     }
 
     public void setCallback(FloatingMenuCallback callback) {
