@@ -400,6 +400,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                 case "country_name":
                     post.countryName = reader.nextString();
                     break;
+                case "troll_country":
+                    post.trollCountry = reader.nextString();
+                    break;
                 case "id":
                     post.id = reader.nextString();
                     break;

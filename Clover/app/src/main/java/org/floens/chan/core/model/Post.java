@@ -87,6 +87,8 @@ public class Post {
 
     public String countryName = "";
 
+    public String trollCountry = "";
+
     public long time = -1;
 
     public long fileSize;
@@ -180,8 +182,12 @@ public class Post {
             image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoilerImage, fileSize);
         }
 
-        if (!TextUtils.isEmpty(country)) {
-            countryUrl = ChanUrls.getCountryFlagUrl(country);
+        if (!TextUtils.isEmpty(countryName)) {
+            if (!TextUtils.isEmpty(trollCountry)) {
+                countryUrl = ChanUrls.getCountryTrollFlagUrl(trollCountry);
+            } else {
+                countryUrl = ChanUrls.getCountryFlagUrl(country);
+            }
         }
 
         ChanParser.getInstance().parse(this);

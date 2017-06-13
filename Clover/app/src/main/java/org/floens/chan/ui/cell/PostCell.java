@@ -399,7 +399,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         icons.set(PostIcons.DELETED, post.deleted.get());
         icons.set(PostIcons.ARCHIVED, post.archived);
 
-        if (!isEmpty(post.country)) {
+        if (!isEmpty(post.countryUrl)) {
             icons.set(PostIcons.COUNTRY, true);
             icons.showCountry(post, theme, countrySizePx);
         } else {
