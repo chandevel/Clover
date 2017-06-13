@@ -566,7 +566,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     @Override
     public ChanThread getChanThread() {
-        return chanLoader.getThread();
+        return chanLoader == null ? null : chanLoader.getThread();
     }
 
     @Override
