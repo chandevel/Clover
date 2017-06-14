@@ -386,6 +386,10 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="settings_about_licenses">Open Source Licenses</string>
     <string name="settings_about_licenses_description">Legal information about licenses</string>
     <string name="settings_developer">Developer settings</string>
+    <string name="settings_open_logs">View logs</string>
+    <string name="settings_logs_screen">Logs</string>
+    <string name="settings_logs_copy">Copy</string>
+    <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
 
     <string name="settings_screen_advanced">Advanced settings</string>
     <string name="settings_group_advanced">Advanced settings</string>
