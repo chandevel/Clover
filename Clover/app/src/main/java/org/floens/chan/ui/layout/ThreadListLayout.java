@@ -21,6 +21,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -77,6 +79,15 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private int lastPostCount;
     private int recyclerViewTopPadding;
 
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            onRecyclerViewScrolled();
+        }
+    };
+
     public ThreadListLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -102,30 +113,37 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         postAdapter = new PostAdapter(recyclerView, postAdapterCallback, postCellCallback, statusCellCallback);
         recyclerView.setAdapter(postAdapter);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                // onScrolled can be called after cleanup()
-                if (showingThread != null) {
-                    int[] indexTop = getIndexAndTop();
-
-                    showingThread.loadable.setListViewIndex(indexTop[0]);
-                    showingThread.loadable.setListViewTop(indexTop[1]);
-
-                    int last = getCompleteBottomAdapterPosition();
-                    if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
-                        lastPostCount = last;
-                        ThreadListLayout.this.callback.onListScrolledToBottom();
-                    }
-                }
-            }
-        });
+        recyclerView.addOnScrollListener(scrollListener);
 
         attachToolbarScroll(true);
 
         reply.setPadding(0, toolbarHeight(), 0, 0);
         searchStatus.setPadding(searchStatus.getPaddingLeft(), searchStatus.getPaddingTop() + toolbarHeight(),
                 searchStatus.getPaddingRight(), searchStatus.getPaddingBottom());
+    }
+
+    private void onRecyclerViewScrolled() {
+        // onScrolled can be called after cleanup()
+        if (showingThread != null) {
+            int[] indexTop = getIndexAndTop();
+
+            showingThread.loadable.setListViewIndex(indexTop[0]);
+            showingThread.loadable.setListViewTop(indexTop[1]);
+
+            int last = getCompleteBottomAdapterPosition();
+            if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
+                lastPostCount = last;
+
+                // As requested by the RecyclerView, make sure that the adapter isn't changed
+                // while in a layout pass. Postpone to the next frame.
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ThreadListLayout.this.callback.onListScrolledToBottom();
+                    }
+                });
+            }
+        }
     }
 
     @Override
