@@ -21,7 +21,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.net.Uri;
+import android.support.v4.content.FileProvider;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -352,7 +352,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private void setVideoFile(final File file) {
         if (ChanSettings.videoOpenExternal.get()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.fromFile(file), "video/*");
+            intent.setDataAndType(FileProvider.getUriForFile(getContext(), "org.floens.fileprovider", file), "video/*");
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             AndroidUtils.openIntent(intent);
             onModeLoaded(Mode.MOVIE, videoView);
