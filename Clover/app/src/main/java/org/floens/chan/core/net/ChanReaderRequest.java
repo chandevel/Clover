@@ -30,6 +30,7 @@ import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -417,6 +418,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanReaderRequest.ChanR
                     break;
                 case "unique_ips":
                     post.uniqueIps = reader.nextInt();
+                    break;
+                case "md5":
+                    post.MD5 = reader.nextString();
                     break;
                 default:
                     // Unknown/ignored key

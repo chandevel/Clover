@@ -203,8 +203,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     @Override
                     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
                         for (ImageSearch imageSearch : ImageSearch.engines) {
-                            if (((Integer) item.getId()) == imageSearch.getId()) {
+                            if (((Integer) item.getId()) == imageSearch.getId() && imageSearch.getId()!=6) {
                                 AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(presenter.getCurrentPostImage().imageUrl));
+                                break;
+                            } else if (((Integer) item.getId()) == imageSearch.getId() && imageSearch.getId()==6){
+                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(presenter.getCurrentPostImage().MD5));
                                 break;
                             }
                         }

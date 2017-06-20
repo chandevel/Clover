@@ -113,5 +113,18 @@ public abstract class ImageSearch {
                 return "https://www.yandex.com/images/search?rpt=imageview&img_url=" + imageUrl;
             }
         });
+        engines.add(new ImageSearch() {
+            public int getId() {
+                return 6;
+            }
+
+            public String getName() {
+                return "MD5";
+            }
+
+            public String getUrl(String md5) {
+                return "https://www.archived.moe/_/search/image/" + md5;
+            }
+        });
     }
 }

@@ -53,6 +53,8 @@ public class Post {
 
     public String date;
 
+    public String MD5;
+
     public String name = "";
 
     public CharSequence comment = "";
@@ -167,6 +169,7 @@ public class Post {
             imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
             filename = Parser.unescapeEntities(filename, false);
 
+
             boolean spoilerImage = spoiler && !ChanSettings.revealImageSpoilers.get();
             if (spoilerImage) {
                 Board b = Chan.getBoardManager().getBoardByCode(board);
@@ -179,7 +182,7 @@ public class Post {
                 thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
             }
 
-            image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoilerImage, fileSize);
+            image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoilerImage, fileSize, String.valueOf(MD5));
         }
 
         if (!TextUtils.isEmpty(countryName)) {
