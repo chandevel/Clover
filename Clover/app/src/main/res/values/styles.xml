@@ -213,12 +213,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="text_color_reveal_spoiler">#3c3836</item>
 
         <item name="post_name_color">#689d6a</item>
-        <item name="post_subject_color">#458588</item>
+        <item name="post_subject_color">#076678</item>
         <item name="post_details_color">#7c6f64</item>
         <item name="post_quote_color">#cc241d</item>
         <item name="post_highlight_quote_color">#9d0006</item>
         <item name="post_inline_quote_color">#98971a</item>
-        <item name="post_link_color">#458588</item>
+        <item name="post_link_color">#076678</item>
         <item name="post_spoiler_color">#3c3836</item>
         <item name="post_capcode_color">#cc241d</item>
         <item name="post_last_seen_color">#cc241d</item>
@@ -248,12 +248,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="text_color_reveal_spoiler">#ebdbb2</item>
 
         <item name="post_name_color">#427b58</item>
-        <item name="post_subject_color">#076678</item>
+        <item name="post_subject_color">#458588</item>
         <item name="post_details_color">#a89984</item>
         <item name="post_quote_color">#9d0006</item>
         <item name="post_highlight_quote_color">#cc241d</item>
         <item name="post_inline_quote_color">#79740e</item>
-        <item name="post_link_color">#076678</item>
+        <item name="post_link_color">#458588</item>
         <item name="post_spoiler_color">#ebdbb2</item>
         <item name="post_capcode_color">#9d0006</item>
         <item name="post_last_seen_color">#9d0006</item>
