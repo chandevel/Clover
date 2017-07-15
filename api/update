@@ -4,13 +4,13 @@
         {
             "type": "update",
 
-            "code": 20300,
-            "date": "2017-03-19T23:09:18.273664",
-            "message_html": "<h2>Clover v2.3.0 is available</h2>A new version of Clover is available.<br><br>This release adds the update checker.",
+            "code": 20301,
+            "date": "2017-07-15T13:29:01.273664",
+            "message_html": "<h2>Clover v2.3.1 is available</h2>A new version of Clover is available.<br><br><b>New in this version:</b><br>Better link detection.<br>More themes.<br>Fix image loading taking a long time if the cache is full.<br>Fix crashing bug related to the status view.<br>Bug fixes.",
 
             "apk": {
                 "default": {
-                    "url": "https://github.com/Floens/Clover/releases/download/v2.3.0/Clover_v2.3.0.apk"
+                    "url": "https://github.com/Floens/Clover/releases/download/v2.3.1/Clover_v2.3.1.apk"
                 }
             }
         }
