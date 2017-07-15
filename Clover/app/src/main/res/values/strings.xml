@@ -19,15 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Defined in gradle flavor -->
     <!--<string name="app_name">Clover</string>-->
 
-    <string name="changelog_20300">
+    <string name="changelog_20301">
         <![CDATA[
             <h3>Clover was updated</h3>
 
-            Clover was updated to v2.3.0<br>
+            Clover was updated to v2.3.1<br>
             <br>
             <b>New in this version:</b><br>
-            Added update checker, you\'ll be notified of new releases.<br>
-            Force new captcha for thread making.<br>
+            Better link detection.<br>
+            More themes.<br>
+            Fix image loading taking a long time if the cache is full.<br>
+            Fix crashing bug related to the status view.<br>
             Bug fixes.
         ]]>
     </string>
