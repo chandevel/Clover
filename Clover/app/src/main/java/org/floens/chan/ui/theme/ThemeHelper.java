@@ -57,8 +57,7 @@ public class ThemeHelper {
         themes.add(new Theme("Yotsuba B", "yotsuba_b", R.style.Chan_Theme_YotsubaB, PrimaryColor.RED));
         themes.add(new Theme("Photon", "photon", R.style.Chan_Theme_Photon, PrimaryColor.ORANGE));
         themes.add(new DarkTheme("Insomnia", "insomnia", R.style.Chan_Theme_Insomnia, PrimaryColor.DARK));
-        themes.add(new Theme("Gruvbox Light", "gruvbox_light", R.style.Chan_Theme_GruvboxLight, PrimaryColor.BLACK));
-        themes.add(new DarkTheme("Gruvbox Dark", "gruvbox_dark", R.style.Chan_Theme_GruvboxDark, PrimaryColor.BLACK));
+        themes.add(new DarkTheme("Gruvbox", "gruvbox", R.style.Chan_Theme_Gruvbox, PrimaryColor.DARK));
 
         ChanSettings.ThemeColor settingTheme = ChanSettings.getThemeAndColor();
         for (Theme theme : themes) {
