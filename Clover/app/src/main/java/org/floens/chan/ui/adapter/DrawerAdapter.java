@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.Pin;
@@ -56,7 +55,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         SETTINGS, CLEAR, CLEAR_ALL
     }
 
-    private static final int PIN_OFFSET = 4;
+    private static final int PIN_OFFSET = 3;
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_PIN = 1;
@@ -199,8 +198,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case 1:
                 return TYPE_LINK;
             case 2:
-                return TYPE_BOARD_INPUT;
-            case 3:
                 return TYPE_HEADER;
             default:
                 return TYPE_PIN;
