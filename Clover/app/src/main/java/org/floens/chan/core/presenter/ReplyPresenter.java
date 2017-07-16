@@ -104,6 +104,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         bound = true;
         this.loadable = loadable;
 
+        callback.setCaptchaVersion(ChanSettings.postNewCaptcha.get());
+
         this.board = boardManager.getBoardByCode(loadable.boardCode);
 
         draft = replyManager.getReply(loadable);
