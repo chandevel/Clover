@@ -151,6 +151,11 @@ public class Chan4 implements Site {
                     b.addPathSegment("country");
                     b.addPathSegment(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".gif");
                     break;
+                case "troll_country":
+                    b.addPathSegment("country");
+                    b.addPathSegment("troll");
+                    b.addPathSegment(arg.get("troll_country_code").toLowerCase(Locale.ENGLISH) + ".gif");
+                    break;
                 case "since4pass":
                     b.addPathSegment("minileaf.gif");
                     break;

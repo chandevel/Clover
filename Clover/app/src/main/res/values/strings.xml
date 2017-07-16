@@ -19,73 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Defined in gradle flavor -->
     <!--<string name="app_name">Clover</string>-->
 
-    <string name="previous_version_1">
+    <string name="changelog_20301">
         <![CDATA[
             <h3>Clover was updated</h3>
 
-            This is the beta of Clover v2, redesigned with the Google Material Design guidelines in mind.<br>
-            <br>
-            <b>Biggest changes:</b><br>
-            - New design.<br>
-            - New inline reply layout.<br>
-            - Support for thread hiding.<br>
-            - Support for filtering threads, making posts either highlighted, hidden or completely removed.<br>
-            - Support for history.<br>
-            - More themes were added.<br>
-            - Album downloads have been improved.<br>
-            - Catalog mode now uses cards.<br>
-            - More advanced options added.<br>
-            - Minor features and bug fixes.<br>
-            <br>
-            <b>Please provide feedback on GitHub or by writing an email, links are at the bottom of the settings screen.</b>
-        ]]>
-    </string>
-
-    <string name="previous_version_2">
-        <![CDATA[
-            <h3>Clover was updated</h3>
-
-            This is the release of Clover v2, redesigned with the Material design guidelines in mind.<br>
-            <br>
-            <b>Biggest changes are:</b><br>
-            - New design.<br>
-            - New inline reply layout.<br>
-            - Added thread hiding.<br>
-            - Added filtering threads, making posts either highlighted, hidden or removed.<br>
-            - Added history.<br>
-            - Added more themes.<br>
-            - Better album download screen.<br>
-            - Catalog mode now uses cards.<br>
-            - More advanced options added.<br>
-            - Minor features and bug fixes.<br>
-            <br>
-            <b>Please provide feedback on GitHub or by writing an email, links are at the bottom of the settings screen.</b>
-        ]]>
-    </string>
-
-    <string name="previous_version_3">
-        <![CDATA[
-            <h3>Clover was updated</h3>
-
-            Clover was updated to v2.2.0<br>
+            Clover was updated to v2.3.1<br>
             <br>
             <b>New in this version:</b><br>
-            Add sliding of threads back.<br>
-            Rewrote thread watching, it\'s more stable and works correctly with doze now.<br>
-            Optimized parsing with multithreading.<br>
-            Added album view.<br>
-            Added bookmark clearing.<br>
-            <br>
-            Added inline reporting.<br>
-            All boards are added by default now.<br>
-            Thread positions are retained across restarts.<br>
-            Allow setting of multiple types on filters simultaneously.<br>
-            Made single frame gifs zoomable.<br>
-            Add saving of images into their own board folder.<br>
-            More advanced settings.<br>
-            Many bug fixes.<br>
-            <br>
-            Many thanks to the contributors on GitHub!
+            Better link detection.<br>
+            More themes.<br>
+            Fix image loading taking a long time if the cache is full.<br>
+            Fix crashing bug related to the status view.<br>
+            Bug fixes.
         ]]>
     </string>
 
@@ -99,6 +44,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="save">Save</string>
+
+    <string name="permission_app_settings">App settings</string>
+    <string name="permission_grant">Grant</string>
+
+    <string name="update_later">Later</string>
+    <string name="update_none">Clover is up to date</string>
+    <string name="update_check_failed">Failed to check for updates.</string>
+    <string name="update_install">Install</string>
+    <string name="update_install_downloading">Downloading update</string>
+    <string name="update_install_download_failed">Download failed</string>
+    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
+    <string name="update_retry_title">Retry update</string>
+    <string name="update_retry">Clover was not updated yet. Click retry to retry the install.</string>
+    <string name="update_retry_button">retry</string>
+
+    <string name="update_storage_permission_required_title">Storage permission required</string>
+    <string name="update_storage_permission_required">
+"Permission to access storage is required for installing the update.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
 
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
@@ -356,15 +321,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <string name="filters_screen">Filters</string>
 
-    <string name="save_location_screen">Save location</string>
-    <string name="write_permission_required_title">Storage permission required</string>
-    <string name="write_permission_required">
-"Permission to access storage is required for browsing files.
-
-Re-enable this permission in the app settings if you permanently disabled it."</string>
-    <string name="write_permission_app_settings">App settings</string>
-    <string name="write_permission_grant">Grant</string>
-
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
@@ -428,19 +384,30 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setting_post_pin">Pin thread on post</string>
 
     <string name="settings_group_about">About</string>
+    <string name="settings_update_check">Check for updates</string>
     <string name="settings_about_license">Released under the GNU GPLv3 license</string>
     <string name="settings_about_license_description">Tap to see license</string>
     <string name="settings_about_licenses">Open Source Licenses</string>
     <string name="settings_about_licenses_description">Legal information about licenses</string>
     <string name="settings_developer">Developer settings</string>
+    <string name="settings_open_logs">View logs</string>
+    <string name="settings_logs_screen">Logs</string>
+    <string name="settings_logs_copy">Copy</string>
+    <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
 
     <string name="settings_screen_advanced">Advanced settings</string>
     <string name="settings_group_advanced">Advanced settings</string>
+    <string name="save_location_screen">Save location</string>
+    <string name="save_location_storage_permission_required_title">Storage permission required</string>
+    <string name="save_location_storage_permission_required">
+"Permission to access storage is required for browsing files.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
     <string name="setting_save_folder">File save folder</string>
     <string name="setting_save_folder_error_create_folder">Error creating save folder</string>
     <string name="setting_folder_pick_ok">Choose</string>
     <string name="setting_use_new_captcha">Use the new captcha</string>
-    <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha.</string>
+    <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha for thread replies.</string>
     <string name="setting_save_original_filename">Save original filename</string>
     <string name="setting_save_board_folder">Save images in a board folder</string>
     <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>

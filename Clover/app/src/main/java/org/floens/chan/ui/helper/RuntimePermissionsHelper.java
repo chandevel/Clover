@@ -18,10 +18,19 @@
 package org.floens.chan.ui.helper;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+
+import org.floens.chan.R;
+import org.floens.chan.utils.AndroidUtils;
 
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
@@ -69,6 +78,33 @@ public class RuntimePermissionsHelper {
             pendingCallback.callback.onRuntimePermissionResult(granted);
             pendingCallback = null;
         }
+    }
+
+    public void showPermissionRequiredDialog(final Context context, String title, String message, final PermissionRequiredDialogCallback callback) {
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setNeutralButton(R.string.permission_app_settings, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        callback.retryPermissionRequest();
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:" + context.getPackageName()));
+                        AndroidUtils.openIntent(intent);
+                    }
+                })
+                .setPositiveButton(R.string.permission_grant, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        callback.retryPermissionRequest();
+                    }
+                })
+                .show();
+    }
+
+    public interface PermissionRequiredDialogCallback {
+        void retryPermissionRequest();
     }
 
     private class CallbackHolder {

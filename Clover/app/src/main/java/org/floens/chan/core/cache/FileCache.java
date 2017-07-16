@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -58,7 +60,8 @@ public class FileCache {
 
     private final File directory;
     private final long maxSize;
-    private long size;
+    private AtomicLong size = new AtomicLong();
+    private AtomicBoolean trimRunning = new AtomicBoolean(false);
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
@@ -75,16 +78,8 @@ public class FileCache {
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .build();
 
-        makeDir();
-        calculateSize();
-    }
-
-    public void logStats() {
-        Logger.i(TAG, "Cache size = " + size + "/" + maxSize);
-        Logger.i(TAG, "downloaders.size() = " + downloaders.size());
-        for (FileCacheDownloader downloader : downloaders) {
-            Logger.i(TAG, "url = " + downloader.getUrl() + " cancelled = " + downloader.cancelled);
-        }
+        createDirectories();
+        recalculateSize();
     }
 
     public void clearCache() {
@@ -100,7 +95,7 @@ public class FileCache {
                 }
             }
         }
-        calculateSize();
+        recalculateSize();
     }
 
     /**
@@ -151,76 +146,99 @@ public class FileCache {
     }
 
     public File get(String key) {
-        makeDir();
+        createDirectories();
 
         return new File(directory, Integer.toString(key.hashCode()));
     }
 
-    private void put(File file) {
-        size += file.length();
-
-        trim();
-    }
-
-    private boolean delete(File file) {
-        size -= file.length();
-
-        return file.delete();
-    }
-
-    private void makeDir() {
+    private void createDirectories() {
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
                 Logger.e(TAG, "Unable to create file cache dir " + directory.getAbsolutePath());
             } else {
-                calculateSize();
+                recalculateSize();
             }
         }
     }
 
+    private void fileWasAdded(File file) {
+        long adjustedSize = size.addAndGet(file.length());
+
+        if (adjustedSize > maxSize && trimRunning.compareAndSet(false, true)) {
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        trim();
+                    } catch (Exception e) {
+                        Logger.e(TAG, "Error trimming", e);
+                    } finally {
+                        trimRunning.set(false);
+                    }
+                }
+            });
+        }
+    }
+
+    // Called on a background thread
     private void trim() {
+        File[] directoryFiles = directory.listFiles();
+
+        // Don't try to trim empty directories or just one image in it.
+        if (directoryFiles == null || directoryFiles.length <= 1) {
+            return;
+        }
+
+        List<File> files = new ArrayList<>(Arrays.asList(directoryFiles));
+
+        int trimmed = 0;
+        long workingSize = size.get();
         int tries = 0;
-        while (size > maxSize && tries++ < TRIM_TRIES) {
-            File[] files = directory.listFiles();
-            if (files == null || files.length <= 1) {
-                break;
-            }
-            long age = Long.MAX_VALUE;
-            long last;
-            File oldest = null;
+        while (workingSize > maxSize && tries++ < TRIM_TRIES) {
+            // Find the oldest file
+            long oldest = Long.MAX_VALUE;
+            File oldestFile = null;
             for (File file : files) {
-                last = file.lastModified();
-                if (last < age && last != 0L) {
-                    age = last;
-                    oldest = file;
+                long modified = file.lastModified();
+                if (modified != 0L && modified < oldest) {
+                    oldest = modified;
+                    oldestFile = file;
                 }
             }
 
-            if (oldest == null) {
-                Logger.e(TAG, "No files to trim");
-                break;
-            } else {
-                Logger.d(TAG, "Deleting " + oldest.getAbsolutePath());
-                if (!delete(oldest)) {
-                    Logger.e(TAG, "Cannot delete cache file while trimming");
-                    calculateSize();
+            if (oldestFile != null) {
+                Logger.d(TAG, "Delete for trim" + oldestFile.getAbsolutePath());
+                workingSize -= oldestFile.length();
+                trimmed++;
+                files.remove(oldestFile);
+
+                if (!oldestFile.delete()) {
+                    Logger.e(TAG, "Failed to delete cache file for trim");
                     break;
                 }
+            } else {
+                Logger.e(TAG, "No files to trim");
+                break;
             }
+        }
 
-            calculateSize();
+        if (trimmed > 0) {
+            recalculateSize();
         }
     }
 
-    private void calculateSize() {
-        size = 0;
+    // Called on a background thread
+    private void recalculateSize() {
+        long calculatedSize = 0;
 
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
-                size += file.length();
+                calculatedSize += file.length();
             }
         }
+
+        size.set(calculatedSize);
     }
 
     private void removeFromDownloaders(FileCacheDownloader downloader) {
@@ -365,7 +383,7 @@ public class FileCache {
             post(new Runnable() {
                 @Override
                 public void run() {
-                    fileCache.put(output);
+                    fileCache.fileWasAdded(output);
                     removeFromDownloadersList();
                     for (DownloadedCallback callback : callbacks) {
                         callback.onProgress(0, 0, true);

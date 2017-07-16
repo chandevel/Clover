@@ -372,6 +372,15 @@ public class MainSettingsController extends SettingsController implements Toolba
             }
         }));
 
+        if (((StartActivity) context).getVersionHandler().isUpdatingAvailable()) {
+            about.add(new LinkSettingView(this, R.string.settings_update_check, 0, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((StartActivity) context).getVersionHandler().manualUpdateCheck();
+                }
+            }));
+        }
+
         int extraAbouts = context.getResources().getIdentifier("extra_abouts", "array", context.getPackageName());
         if (extraAbouts != 0) {
             String[] abouts = context.getResources().getStringArray(extraAbouts);

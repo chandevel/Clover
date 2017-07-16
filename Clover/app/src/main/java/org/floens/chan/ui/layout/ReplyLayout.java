@@ -39,7 +39,6 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.presenter.ReplyPresenter;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.captcha.CaptchaCallback;
 import org.floens.chan.ui.captcha.CaptchaLayout;
@@ -65,7 +64,7 @@ import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 public class ReplyLayout extends LoadView implements View.OnClickListener, AnimationUtils.LayoutAnimationProgress, ReplyPresenter.ReplyPresenterCallback, TextWatcher, ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener {
     private ReplyPresenter presenter;
     private ReplyLayoutCallback callback;
-    private boolean newCaptcha = ChanSettings.postNewCaptcha.get();
+    private boolean newCaptcha;
 
     private View replyInputLayout;
     private FrameLayout captchaContainer;
@@ -249,6 +248,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
                 break;
         }
+    }
+
+    @Override
+    public void setCaptchaVersion(boolean newCaptcha) {
+        this.newCaptcha = newCaptcha;
     }
 
     @Override

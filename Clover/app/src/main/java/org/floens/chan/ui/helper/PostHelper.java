@@ -86,7 +86,7 @@ public class PostHelper {
         }
     }
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("LL/dd/yy(EEE)kk:mm:ss", Locale.US);
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("LL/dd/yy(EEE)HH:mm:ss", Locale.US);
     private static Date tmpDate = new Date();
 
     public static String getLocalDate(Post post) {

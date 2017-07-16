@@ -1,3 +1,17 @@
+New in 2.3.1 (2017-07-15)
+- Better link detection.
+- More themes.
+- Fix image loading taking a long time if the cache is full.
+- Fix crashing bug related to the status view.
+- Bug fixes.
+
+
+New in 2.3.0 (2017-03-19)
+- Added update checker to notify of new releases.
+- Force new captcha for thread making.
+- Bug fixes.
+
+
 New in 2.2.0 (2016-10-03)
 - Add sliding of threads back.
 - Rewrote thread watching, it's more stable and works correctly with doze now.

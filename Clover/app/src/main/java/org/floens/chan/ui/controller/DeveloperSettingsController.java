@@ -58,6 +58,17 @@ public class DeveloperSettingsController extends Controller {
         LinearLayout wrapper = new LinearLayout(context);
         wrapper.setOrientation(LinearLayout.VERTICAL);
 
+        Button logsButton = new Button(context);
+        logsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigationController.pushController(new LogsController(context));
+            }
+        });
+        logsButton.setText(R.string.settings_open_logs);
+
+        wrapper.addView(logsButton);
+
         Button crashButton = new Button(context);
 
         crashButton.setOnClickListener(new View.OnClickListener() {

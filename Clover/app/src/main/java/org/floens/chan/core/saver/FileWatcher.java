@@ -17,11 +17,9 @@
  */
 package org.floens.chan.core.saver;
 
+import android.os.Environment;
 import android.os.FileObserver;
 import android.util.Log;
-
-import org.floens.chan.core.model.FileItem;
-import org.floens.chan.core.model.FileItems;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,6 +52,11 @@ public class FileWatcher {
 
     public void initialize() {
         initialized = true;
+
+        if (!StorageHelper.canNavigate(startingPath)) {
+            startingPath = Environment.getExternalStorageDirectory();
+        }
+
         navigateTo(startingPath);
     }
 
@@ -125,5 +128,42 @@ public class FileWatcher {
 
     public interface FileWatcherCallback {
         void onFiles(FileItems fileItems);
+    }
+
+    public static class FileItem {
+        public File file;
+
+        public FileItem(File file) {
+            this.file = file;
+        }
+
+        public boolean isFile() {
+            return file.isFile();
+        }
+
+        public boolean isFolder() {
+            return file.isDirectory();
+        }
+
+        public boolean canNavigate() {
+            return StorageHelper.canNavigate(file);
+        }
+
+        public boolean canOpen() {
+            return StorageHelper.canOpen(file);
+        }
+    }
+
+    public static class FileItems {
+        public final File path;
+        public final List<FileItem> fileItems;
+
+        public final boolean canNavigateUp;
+
+        public FileItems(File path, List<FileItem> fileItems, boolean canNavigateUp) {
+            this.path = path;
+            this.fileItems = fileItems;
+            this.canNavigateUp = canNavigateUp;
+        }
     }
 }

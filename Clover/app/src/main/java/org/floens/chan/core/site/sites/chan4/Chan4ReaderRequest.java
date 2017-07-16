@@ -370,6 +370,7 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         // Country flag
         String countryCode = null;
+        String trollCountryCode = null;
         String countryName = null;
 
         // 4chan pass leaf
@@ -421,6 +422,9 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                     break;
                 case "country":
                     countryCode = reader.nextString();
+                    break;
+                case "troll_country":
+                    trollCountryCode = reader.nextString();
                     break;
                 case "country_name":
                     countryName = reader.nextString();
@@ -508,6 +512,13 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
             Map<String, String> arg = new HashMap<>(1);
             arg.put("country_code", countryCode);
             HttpUrl countryUrl = endpoints.icon(builder, "country", arg);
+            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+        }
+
+        if (trollCountryCode != null && countryName != null) {
+            Map<String, String> arg = new HashMap<>(1);
+            arg.put("troll_country_code", trollCountryCode);
+            HttpUrl countryUrl = endpoints.icon(builder, "troll_country", arg);
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
         }
 

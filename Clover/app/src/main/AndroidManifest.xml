@@ -76,8 +76,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         </activity>
 
-        <activity android:name=".test.TestActivity" />
-
         <service
             android:name=".ui.service.WatchNotifier"
             android:exported="false" />

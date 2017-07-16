@@ -53,7 +53,7 @@ import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.ui.helper.PreviousVersionHandler;
+import org.floens.chan.ui.helper.VersionHandler;
 import org.floens.chan.ui.helper.RuntimePermissionsHelper;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
@@ -81,6 +81,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     private ImagePickDelegate imagePickDelegate;
     private RuntimePermissionsHelper runtimePermissionsHelper;
+    private VersionHandler versionHandler;
 
     @Inject
     DatabaseManager databaseManager;
@@ -100,6 +101,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
+        versionHandler = new VersionHandler(this, runtimePermissionsHelper);
 
         contentView = (ViewGroup) findViewById(android.R.id.content);
 
@@ -171,8 +173,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             browseController.loadDefault();
         }
 
-        PreviousVersionHandler previousVersionHandler = new PreviousVersionHandler();
-        previousVersionHandler.run(this);
+        versionHandler.run();
     }
 
     private void setupLayout() {
@@ -339,6 +340,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     public ImagePickDelegate getImagePickDelegate() {
         return imagePickDelegate;
+    }
+
+    public VersionHandler getVersionHandler() {
+        return versionHandler;
     }
 
     public RuntimePermissionsHelper getRuntimePermissionsHelper() {

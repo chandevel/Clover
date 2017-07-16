@@ -415,6 +415,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
         void setPage(Page page, boolean animate);
 
+        void setCaptchaVersion(boolean newCaptcha);
+
         void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback);
 
         void resetCaptcha();
