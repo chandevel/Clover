@@ -275,6 +275,11 @@ public class Chan4 implements Site {
     }
 
     @Override
+    public String name() {
+        return "4chan";
+    }
+
+    @Override
     public boolean feature(Feature feature) {
         switch (feature) {
             case POSTING:
@@ -330,33 +335,6 @@ public class Chan4 implements Site {
     }
 
     @Override
-    public Board board(String name) {
-        List<Board> allBoards = getGraph().getBoardManager().getAllBoards();
-        for (Board board : allBoards) {
-            if (board.code.equals(name)) {
-                return board;
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public SiteEndpoints endpoints() {
-        return endpoints;
-    }
-
-    @Override
-    public SiteRequestModifier requestModifier() {
-        return siteRequestModifier;
-    }
-
-    @Override
-    public SiteAuthentication authentication() {
-        return authentication;
-    }
-
-    @Override
     public void boards(final BoardsListener listener) {
         requestQueue.add(new Chan4BoardsRequest(this, new Response.Listener<List<Board>>() {
             @Override
@@ -378,6 +356,33 @@ public class Chan4 implements Site {
                 listener.onBoardsReceived(new Boards(list));
             }
         }));
+    }
+
+    @Override
+    public Board board(String code) {
+        List<Board> allBoards = getGraph().getBoardManager().getAllBoards();
+        for (Board board : allBoards) {
+            if (board.code.equals(code)) {
+                return board;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public SiteEndpoints endpoints() {
+        return endpoints;
+    }
+
+    @Override
+    public SiteRequestModifier requestModifier() {
+        return siteRequestModifier;
+    }
+
+    @Override
+    public SiteAuthentication authentication() {
+        return authentication;
     }
 
     @Override

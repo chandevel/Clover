@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -45,6 +46,8 @@ import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
@@ -53,8 +56,8 @@ import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.ui.helper.VersionHandler;
 import org.floens.chan.ui.helper.RuntimePermissionsHelper;
+import org.floens.chan.ui.helper.VersionHandler;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.AndroidUtils;
@@ -131,16 +134,16 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             if (chanState == null) {
                 Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
             } else {
-                DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
-                chanState.board = loadableManager.get(chanState.board);
-                chanState.thread = loadableManager.get(chanState.thread);
+                Pair<Loadable, Loadable> boardThreadPair = resolveChanState(chanState);
 
-                loadDefault = false;
-                Board board = boardManager.getBoardByCode(chanState.board.boardCode);
-                browseController.loadBoard(board);
+                if (boardThreadPair != null && boardThreadPair.first != null) {
+                    loadDefault = false;
 
-                if (chanState.thread.mode == Loadable.Mode.THREAD) {
-                    browseController.showThread(chanState.thread, false);
+                    browseController.loadBoard(boardThreadPair.first.board);
+
+                    if (boardThreadPair.second != null) {
+                        browseController.showThread(boardThreadPair.second);
+                    }
                 }
             }
         } else {
@@ -149,8 +152,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 Loadable fromUri = ChanHelper.getLoadableFromStartUri(data);
                 if (fromUri != null) {
                     loadDefault = false;
-                    Board board = boardManager.getBoardByCode(fromUri.boardCode);
-                    browseController.loadBoard(board);
+                    browseController.loadBoard(fromUri.board);
 
                     if (fromUri.isThreadMode()) {
                         browseController.showThread(fromUri, false);
@@ -174,6 +176,26 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         }
 
         versionHandler.run();
+    }
+
+    private Pair<Loadable, Loadable> resolveChanState(ChanState state) {
+        DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
+
+        Site site = Sites.forId(state.board.siteId);
+        Board board = site.board(state.board.boardCode);
+        if (board != null) {
+            state.board.site = site;
+            state.board.board = board;
+            state.thread.site = site;
+            state.thread.board = board;
+
+            Loadable boardLoadable = loadableManager.get(state.board);
+            Loadable threadLoadable = loadableManager.get(state.thread);
+
+            return new Pair<>(boardLoadable, threadLoadable.mode == Loadable.Mode.THREAD ? threadLoadable : null);
+        }
+
+        return null;
     }
 
     private void setupLayout() {

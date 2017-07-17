@@ -19,13 +19,13 @@ package org.floens.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
@@ -71,8 +71,6 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
     private List<FloatingMenuItem> boardItems;
-
-    private ProgressDialog waitingForBoardsDialog;
 
     private FloatingMenuItem viewModeMenuItem;
     private ToolbarMenuItem search;
@@ -123,20 +121,32 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     @Override
     public void onMenuItemClicked(ToolbarMenuItem item) {
+        ThreadPresenter presenter = threadLayout.getPresenter();
+
         switch ((Integer) item.getId()) {
             case SEARCH_ID:
-                ((ToolbarNavigationController) navigationController).showSearch();
+                if (presenter.isBound()) {
+                    ((ToolbarNavigationController) navigationController).showSearch();
+                }
                 break;
             case REFRESH_ID:
-                threadLayout.getPresenter().requestData();
-                refresh.getView().setRotation(0f);
-                refresh.getView().animate().rotation(360f).setDuration(500).setInterpolator(new DecelerateInterpolator(2f));
+                if (presenter.isBound()) {
+                    presenter.requestData();
+                    ImageView refreshView = refresh.getView();
+                    refreshView.setRotation(0f);
+                    refreshView.animate()
+                            .rotation(360f)
+                            .setDuration(500)
+                            .setInterpolator(new DecelerateInterpolator(2f));
+                }
                 break;
         }
     }
 
     @Override
     public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+        final ThreadPresenter presenter = threadLayout.getPresenter();
+
         Integer id = (Integer) item.getId();
         switch (id) {
             case REPLY_ID:
@@ -144,14 +154,15 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 break;
             case SHARE_ID:
             case OPEN_BROWSER_ID:
-                String link = ChanUrls.getCatalogUrlDesktop(threadLayout.getPresenter().getLoadable().boardCode);
+                if (presenter.isBound()) {
+                    String link = ChanUrls.getCatalogUrlDesktop(presenter.getLoadable().boardCode);
 
-                if (id == SHARE_ID) {
-                    AndroidUtils.shareLink(link);
-                } else {
-                    AndroidUtils.openLinkInBrowser((Activity) context, link);
+                    if (id == SHARE_ID) {
+                        AndroidUtils.shareLink(link);
+                    } else {
+                        AndroidUtils.openLinkInBrowser((Activity) context, link);
+                    }
                 }
-
                 break;
             case VIEW_MODE_ID:
                 if (postViewMode == ChanSettings.PostViewMode.LIST) {
@@ -205,7 +216,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                         PostsFilter.Order order = (PostsFilter.Order) item.getId();
                         ChanSettings.boardOrder.set(order.name);
                         BrowseController.this.order = order;
-                        threadLayout.getPresenter().setOrder(order);
+                        presenter.setOrder(order);
                     }
 
                     @Override
@@ -341,32 +352,19 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private void loadBoards() {
         List<Board> boards = boardManager.getSavedBoards();
 
-        if (boards.isEmpty()) {
-            if (waitingForBoardsDialog == null) {
-                String title = getString(R.string.thread_fetching_boards_title);
-                String message = getString(R.string.thread_fetching_boards);
-                waitingForBoardsDialog = ProgressDialog.show(context, title, message, true, false);
-                waitingForBoardsDialog.show();
-            }
-        } else {
-            boolean wasWaiting = waitingForBoardsDialog != null;
-            if (waitingForBoardsDialog != null) {
-                waitingForBoardsDialog.dismiss();
-                waitingForBoardsDialog = null;
-            }
+        boolean wasEmpty = boardItems == null;
 
-            boardItems = new ArrayList<>();
-            for (Board board : boards) {
-                FloatingMenuItem item = new FloatingMenuItemBoard(board);
-                boardItems.add(item);
-            }
+        boardItems = new ArrayList<>();
+        for (Board board : boards) {
+            FloatingMenuItem item = new FloatingMenuItemBoard(board);
+            boardItems.add(item);
+        }
 
-            navigationItem.middleMenu.setItems(boardItems);
-            navigationItem.middleMenu.setAdapter(new BoardsAdapter(context, boardItems));
+        navigationItem.middleMenu.setItems(boardItems);
+        navigationItem.middleMenu.setAdapter(new BoardsAdapter(context, boardItems));
 
-            if (wasWaiting) {
-                loadDefault();
-            }
+        if (wasEmpty) {
+            loadDefault();
         }
     }
 

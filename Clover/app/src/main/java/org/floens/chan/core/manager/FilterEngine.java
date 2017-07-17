@@ -22,9 +22,9 @@ import android.text.TextUtils;
 
 import org.floens.chan.core.database.DatabaseFilterManager;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -64,6 +64,21 @@ public class FilterEngine {
             for (FilterAction type : values()) {
                 enums[type.id] = type;
             }
+        }
+    }
+
+    // This is messy but required now that we can't know the Board immediately.
+    public static class SiteIdBoardCode {
+        public final int siteId;
+        public final String boardCode;
+
+        private SiteIdBoardCode(int site, String board) {
+            siteId = site;
+            boardCode = board;
+        }
+
+        public static SiteIdBoardCode fromSiteIdBoardCode(int siteId, String boardCode) {
+            return new SiteIdBoardCode(siteId, boardCode);
         }
     }
 
@@ -221,15 +236,21 @@ public class FilterEngine {
         return pattern;
     }
 
-    public List<Board> getBoardsForFilter(Filter filter) {
+    public List<SiteIdBoardCode> getBoardsForFilter(Filter filter) {
         if (filter.allBoards) {
-            return boardManager.getSavedBoards();
+            return Collections.emptyList();
         } else if (!TextUtils.isEmpty(filter.boards)) {
-            List<Board> appliedBoards = new ArrayList<>();
+            List<SiteIdBoardCode> appliedBoards = new ArrayList<>();
             for (String value : filter.boards.split(",")) {
-                Board boardByValue = boardManager.getBoardByCode(value);
-                if (boardByValue != null) {
-                    appliedBoards.add(boardByValue);
+                if (value.contains(";")) {
+                    String[] siteAndBoard = value.split(";");
+                    if (siteAndBoard.length == 1) {
+                        appliedBoards.add(SiteIdBoardCode.fromSiteIdBoardCode(Integer.parseInt(siteAndBoard[0]), ""));
+                    } else {
+                        appliedBoards.add(SiteIdBoardCode.fromSiteIdBoardCode(Integer.parseInt(siteAndBoard[0]), siteAndBoard[1]));
+                    }
+                } else {
+                    appliedBoards.add(SiteIdBoardCode.fromSiteIdBoardCode(Sites.defaultSite().id(), value));
                 }
             }
             return appliedBoards;
@@ -238,11 +259,11 @@ public class FilterEngine {
         }
     }
 
-    public void saveBoardsToFilter(List<Board> appliedBoards, Filter filter) {
+    public void saveBoardsToFilter(List<SiteIdBoardCode> appliedBoards, Filter filter) {
         filter.boards = "";
         for (int i = 0; i < appliedBoards.size(); i++) {
-            Board board = appliedBoards.get(i);
-            filter.boards += board.code;
+            SiteIdBoardCode siteAndBoard = appliedBoards.get(i);
+            filter.boards += siteAndBoard.siteId + ";" + siteAndBoard.boardCode;
             if (i < appliedBoards.size() - 1) {
                 filter.boards += ",";
             }

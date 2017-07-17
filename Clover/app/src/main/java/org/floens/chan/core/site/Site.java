@@ -109,6 +109,8 @@ public interface Site {
      */
     int id();
 
+    String name();
+
     boolean feature(Feature feature);
 
     boolean boardFeature(BoardFeature boardFeature, Board board);
@@ -129,7 +131,13 @@ public interface Site {
         void onBoardsReceived(Boards boards);
     }
 
-    Board board(String name);
+    Board board(String code);
+
+    interface BoardListener {
+        void onBoardReceived(Board board);
+
+        void onBoardNonexistent();
+    }
 
     ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request);
 

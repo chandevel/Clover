@@ -145,8 +145,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_open_failed">Failed to open image</string>
     <string name="image_spoiler_filename">Spoiler image</string>
 
-    <string name="thread_fetching_boards_title">Fetching boards</string>
-    <string name="thread_fetching_boards">Please wait for the boards to be fetched, this may take up to a minute.</string>
     <string name="thread_board_select_add">Add more&#8230;</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
     <string name="thread_load_failed_network">Network error</string>

@@ -106,7 +106,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
         callback.setCaptchaVersion(ChanSettings.postNewCaptcha.get());
 
-        this.board = boardManager.getBoardByCode(loadable.boardCode);
+        this.board = loadable.board;
 
         draft = replyManager.getReply(loadable);
 

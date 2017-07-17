@@ -35,6 +35,9 @@ import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Keeps track of {@link Board}s that the user has "saved" to their list.
+ */
 @Singleton
 public class BoardManager {
     private static final String TAG = "BoardManager";
@@ -67,13 +70,6 @@ public class BoardManager {
         boards = databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().getBoards(defaultSite));
 
         if (boards.isEmpty()) {
-            defaultSite.boards(new Site.BoardsListener() {
-                @Override
-                public void onBoardsReceived(Boards boards) {
-                    appendBoards(boards);
-                }
-            });
-        } else {
             update(false);
         }
     }
@@ -118,12 +114,7 @@ public class BoardManager {
     }
 
     // Thread-safe
-    public boolean getBoardExists(String code) {
-        return getBoardByCode(code) != null;
-    }
-
-    // Thread-safe
-    public Board getBoardByCode(String code) {
+    private Board getBoardByCode(String code) {
         synchronized (boardsByCode) {
             return boardsByCode.get(code);
         }

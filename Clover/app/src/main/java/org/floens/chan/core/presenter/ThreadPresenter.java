@@ -141,6 +141,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
     }
 
+    public boolean isBound() {
+        return chanLoader != null;
+    }
+
     public void requestInitialData() {
         if (chanLoader.getThread() == null) {
             requestData();

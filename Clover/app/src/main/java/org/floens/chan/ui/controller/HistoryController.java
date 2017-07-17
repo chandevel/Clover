@@ -31,7 +31,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseHistoryManager;
@@ -47,7 +46,6 @@ import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
-import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,12 +203,8 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
             History history = displayList.get(position);
             holder.thumbnail.setUrl(history.thumbnailUrl, dp(48), dp(48));
 
-            if (history.loadable == null) {
-                Logger.test("null!");
-            }
-
             holder.text.setText(history.loadable.title);
-            Board board = boardManager.getBoardByCode(history.loadable.boardCode);
+            Board board = history.loadable.board;
             holder.subtext.setText(board == null ? null : ("/" + board.code + "/ \u2013 " + board.name));
         }
 
