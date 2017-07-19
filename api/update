@@ -11,6 +11,9 @@
             "apk": {
                 "default": {
                     "url": "https://github.com/Floens/Clover/releases/download/v2.3.1/Clover_v2.3.1.apk"
+                },
+                "fdroid": {
+                    "url": "https://f-droid.org/repo/org.floens.chan_20301.apk"
                 }
             }
         }
