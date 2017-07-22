@@ -44,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="save">Save</string>
+    <string name="next">Next</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -162,6 +163,17 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_empty_select">Please select a thread</string>
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
+
+    <string name="setup_title">Add sites</string>
+    <string name="setup_introduction">"Welcome to Clover. Clover can browse multiple imageboards.\n
+Start by entering a URL of a site."</string>
+    <string name="setup_site_url">Site url</string>
+    <string name="setup_site_url_hint">http://</string>
+
+    <string name="saved_boards_title">Saved boards</string>
+    <string name="saved_boards_introduction">"Change your saved boards. These will appear in a list at the top."</string>
+    <string name="saved_boards_code">Board code</string>
+    <string name="saved_boards_code_hint">lit</string>
 
     <string name="board_edit">Board editor</string>
     <string name="board_edit_header">Add, remove and reorder your boards here.\nThe topmost board will be loaded automatically.</string>

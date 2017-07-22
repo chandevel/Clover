@@ -47,7 +47,7 @@ import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.AnimationUtils;
+import org.floens.chan.ui.animation.AnimationUtils;
 
 import java.util.Calendar;
 import java.util.List;

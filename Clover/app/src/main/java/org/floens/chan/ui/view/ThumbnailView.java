@@ -105,7 +105,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = getGraph().getImageLoader().get(url, this, width, height);
+            container = getGraph().get(ImageLoader.class).get(url, this, width, height);
         }
     }
 

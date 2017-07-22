@@ -50,7 +50,7 @@ import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.AnimationUtils;
+import org.floens.chan.ui.animation.AnimationUtils;
 import org.floens.chan.utils.ImageDecoder;
 
 import java.io.File;

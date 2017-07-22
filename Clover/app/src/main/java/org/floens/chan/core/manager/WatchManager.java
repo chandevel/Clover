@@ -113,6 +113,9 @@ public class WatchManager {
         }
     };
 
+    @Inject
+    ChanLoaderFactory chanLoaderFactory;
+
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
 
@@ -650,9 +653,6 @@ public class WatchManager {
 
     public class PinWatcher implements ChanLoader.ChanLoaderCallback {
         private static final String TAG = "PinWatcher";
-
-        @Inject
-        ChanLoaderFactory chanLoaderFactory;
 
         private final Pin pin;
         private ChanLoader chanLoader;

@@ -15,14 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.utils;
+package org.floens.chan.ui.animation;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -152,5 +155,28 @@ public class AnimationUtils {
 
     public interface LayoutAnimationProgress {
         void onLayoutAnimationProgress(View view, boolean vertical, int from, int to, int value, float progress);
+    }
+
+    public static void animateTextColor(final TextView text, int to) {
+        ValueAnimator animation = ValueAnimator.ofObject(new ArgbEvaluator(), text.getCurrentTextColor(), to);
+        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                text.setTextColor((int) animation.getAnimatedValue());
+            }
+        });
+        animation.start();
+    }
+
+    public static void animateBackgroundColorDrawable(final View view, int newColor) {
+        int currentBackground = ((ColorDrawable) view.getBackground()).getColor();
+        ValueAnimator animation = ValueAnimator.ofObject(new ArgbEvaluator(), currentBackground, newColor);
+        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                view.setBackgroundColor((int) animation.getAnimatedValue());
+            }
+        });
+        animation.start();
     }
 }

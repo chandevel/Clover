@@ -777,7 +777,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
 
         private void request() {
-            request = getGraph().getImageLoader().get(url.toString(), this);
+            request = getGraph().get(ImageLoader.class).get(url.toString(), this);
         }
 
         private void cancel() {

@@ -28,7 +28,7 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.AnimationUtils;
+import org.floens.chan.ui.animation.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.List;

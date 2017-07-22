@@ -15,7 +15,13 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-@Module
+@Module(
+        injects = {
+                RequestQueue.class,
+                FileCache.class
+        },
+        complete = false
+)
 public class NetModule {
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
     private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;

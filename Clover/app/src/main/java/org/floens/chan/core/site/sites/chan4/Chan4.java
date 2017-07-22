@@ -28,6 +28,7 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.chan.ChanLoaderRequest;
 import org.floens.chan.chan.ChanLoaderRequestParams;
+import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
@@ -36,6 +37,7 @@ import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteEndpoints;
+import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
@@ -280,6 +282,11 @@ public class Chan4 implements Site {
     }
 
     @Override
+    public SiteIcon icon() {
+        return SiteIcon.fromAssets("icons/4chan.png");
+    }
+
+    @Override
     public boolean feature(Feature feature) {
         switch (feature) {
             case POSTING:
@@ -360,7 +367,7 @@ public class Chan4 implements Site {
 
     @Override
     public Board board(String code) {
-        List<Board> allBoards = getGraph().getBoardManager().getAllBoards();
+        List<Board> allBoards = getGraph().get(BoardManager.class).getAllBoards();
         for (Board board : allBoards) {
             if (board.code.equals(code)) {
                 return board;

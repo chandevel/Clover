@@ -73,6 +73,7 @@ public class DatabaseManager {
     private final DatabaseSavedReplyManager databaseSavedReplyManager;
     private final DatabaseFilterManager databaseFilterManager;
     private final DatabaseBoardManager databaseBoardManager;
+    private final DatabaseSiteManager databaseSiteManager;
 
     @Inject
     public DatabaseManager(Context context) {
@@ -85,6 +86,7 @@ public class DatabaseManager {
         databaseSavedReplyManager = new DatabaseSavedReplyManager(this, helper);
         databaseFilterManager = new DatabaseFilterManager(this, helper);
         databaseBoardManager = new DatabaseBoardManager(this, helper);
+        databaseSiteManager = new DatabaseSiteManager(this, helper);
         initialize();
         EventBus.getDefault().register(this);
     }
@@ -113,6 +115,10 @@ public class DatabaseManager {
         return databaseBoardManager;
     }
 
+    public DatabaseSiteManager getDatabaseSiteManager() {
+        return databaseSiteManager;
+    }
+
     // Called when the app changes foreground state
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
@@ -122,8 +128,12 @@ public class DatabaseManager {
 
     private void initialize() {
         loadThreadHides();
-        runTaskSync(databaseHistoryManager.load());
+
+        // Loads data into fields.
         runTaskSync(databaseSavedReplyManager.load());
+
+        // Only trims.
+        runTask(databaseHistoryManager.load());
     }
 
     /**

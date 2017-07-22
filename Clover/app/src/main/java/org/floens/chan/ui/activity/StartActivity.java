@@ -51,6 +51,7 @@ import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
+import org.floens.chan.ui.controller.SiteSetupController;
 import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
@@ -127,9 +128,15 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             adapter.setNdefPushMessageCallback(this, this);
         }
 
-        // Startup from background or url
+        setupFromStateOrFreshLaunch(savedInstanceState);
+
+        versionHandler.run();
+    }
+
+    private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
         boolean loadDefault = true;
         if (savedInstanceState != null) {
+            // Restore the activity state from the previously saved state.
             ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
             if (chanState == null) {
                 Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
@@ -148,6 +155,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             }
         } else {
             final Uri data = getIntent().getData();
+            // Start from an url launch.
             if (data != null) {
                 Loadable fromUri = ChanHelper.getLoadableFromStartUri(data);
                 if (fromUri != null) {
@@ -171,11 +179,15 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             }
         }
 
+        // Not from a state or from an url, launch the setup controller if no boards are setup up yet,
+        // otherwise load the default saved board.
         if (loadDefault) {
-            browseController.loadDefault();
+            if (boardManager.getSavedBoards().isEmpty()) {
+                mainNavigationController.pushController(new SiteSetupController(this), false);
+            } else {
+                browseController.loadDefault();
+            }
         }
-
-        versionHandler.run();
     }
 
     private Pair<Loadable, Loadable> resolveChanState(ChanState state) {

@@ -263,8 +263,17 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
+
     public void setArrowMenuProgress(float progress) {
         arrowMenuDrawable.setProgress(progress);
+    }
+
+    public void setShowArrowMenu(boolean show) {
+        arrowMenuView.setVisibility(show ? VISIBLE : GONE);
     }
 
     public ArrowMenuDrawable getArrowMenuDrawable() {
@@ -291,6 +300,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     private void init() {
         setOrientation(HORIZONTAL);
 
+        if (isInEditMode()) return;
+
         FrameLayout leftButtonContainer = new FrameLayout(getContext());
         addView(leftButtonContainer, LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
 
@@ -309,7 +320,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setElevation(dp(4f));
+            if (getElevation() == 0f) {
+                setElevation(dp(4f));
+            }
         }
     }
 

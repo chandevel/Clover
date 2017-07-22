@@ -37,7 +37,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.AnimationUtils;
+import org.floens.chan.ui.animation.AnimationUtils;
 
 import javax.inject.Inject;
 

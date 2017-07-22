@@ -5,14 +5,98 @@ import android.content.Context;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 
+import org.floens.chan.ChanApplication;
+import org.floens.chan.chan.ChanLoader;
+import org.floens.chan.chan.ChanParser;
+import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.manager.ReplyManager;
+import org.floens.chan.core.manager.SiteManager;
+import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
+import org.floens.chan.core.presenter.ImageViewerPresenter;
+import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.presenter.ThreadPresenter;
+import org.floens.chan.core.receiver.WatchUpdateReceiver;
+import org.floens.chan.core.saver.ImageSaveTask;
+import org.floens.chan.core.site.http.HttpCallManager;
+import org.floens.chan.core.site.sites.chan4.Chan4;
+import org.floens.chan.core.site.sites.chan4.Chan4ReaderRequest;
+import org.floens.chan.core.update.UpdateManager;
+import org.floens.chan.ui.activity.BoardActivity;
+import org.floens.chan.ui.adapter.DrawerAdapter;
+import org.floens.chan.ui.adapter.PostsFilter;
+import org.floens.chan.ui.controller.BoardEditController;
+import org.floens.chan.ui.controller.BrowseController;
+import org.floens.chan.ui.controller.DeveloperSettingsController;
+import org.floens.chan.ui.controller.DrawerController;
+import org.floens.chan.ui.controller.FiltersController;
+import org.floens.chan.ui.controller.HistoryController;
+import org.floens.chan.ui.controller.ImageViewerController;
+import org.floens.chan.ui.controller.MainSettingsController;
+import org.floens.chan.ui.controller.PassSettingsController;
+import org.floens.chan.ui.controller.ViewThreadController;
+import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.ui.layout.FilterLayout;
+import org.floens.chan.ui.layout.ThreadLayout;
+import org.floens.chan.ui.service.WatchNotifier;
+import org.floens.chan.ui.view.MultiImageView;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
 
-@Module
+@Module(
+        injects = {
+//                Context.class, // ApplicationContext
+
+                ChanParser.class,
+                BoardManager.class,
+                DatabaseManager.class,
+                ReplyManager.class,
+                ImageLoader.class,
+                FileCache.class,
+                HttpCallManager.class,
+
+                ChanApplication.class,
+                MainSettingsController.class,
+                ReplyPresenter.class,
+                Chan4ReaderRequest.class,
+                ThreadLayout.class,
+                DeveloperSettingsController.class,
+                BoardActivity.class,
+                ThreadPresenter.class,
+                BoardEditController.class,
+                FilterEngine.class,
+                BrowseController.class,
+                FilterLayout.class,
+                HistoryController.class,
+                DrawerController.class,
+                DrawerAdapter.class,
+                WatchNotifier.class,
+                WatchUpdateReceiver.class,
+                ImagePickDelegate.class,
+                PassSettingsController.class,
+                FiltersController.class,
+                PostsFilter.class,
+                ChanLoader.class,
+                ImageViewerController.class,
+                ImageViewerPresenter.class,
+                MultiImageView.class,
+                ImageSaveTask.class,
+                ViewThreadController.class,
+                WatchManager.PinWatcher.class,
+                UpdateManager.class,
+                SiteManager.class,
+
+                Chan4.class,
+        },
+        complete = false,
+        includes = NetModule.class
+)
 public class AppModule {
     private Context applicationContext;
     private UserAgentProvider userAgentProvider;

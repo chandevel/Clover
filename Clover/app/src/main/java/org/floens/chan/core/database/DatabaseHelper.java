@@ -31,6 +31,7 @@ import org.floens.chan.core.model.History;
 import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.SiteModel;
 import org.floens.chan.core.model.ThreadHide;
 import org.floens.chan.utils.Logger;
 
@@ -52,6 +53,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public Dao<ThreadHide, Integer> threadHideDao;
     public Dao<History, Integer> historyDao;
     public Dao<Filter, Integer> filterDao;
+    public Dao<SiteModel, Integer> siteDao;
 
     private final Context context;
 

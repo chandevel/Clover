@@ -111,6 +111,8 @@ public interface Site {
 
     String name();
 
+    SiteIcon icon();
+
     boolean feature(Feature feature);
 
     boolean boardFeature(BoardFeature boardFeature, Board board);

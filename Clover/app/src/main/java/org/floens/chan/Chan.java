@@ -23,11 +23,10 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.StrictMode;
 
-import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.di.AppModule;
-import org.floens.chan.core.di.ChanGraph;
-import org.floens.chan.core.di.DaggerChanGraph;
+import org.floens.chan.core.di.NetModule;
+import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
@@ -36,6 +35,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 
 public class Chan extends Application implements UserAgentProvider {
@@ -47,7 +47,7 @@ public class Chan extends Application implements UserAgentProvider {
     private String userAgent;
     private int activityForegroundCounter = 0;
 
-    protected ChanGraph graph;
+    protected ObjectGraph graph;
 
     @Inject
     DatabaseManager databaseManager;
@@ -60,7 +60,7 @@ public class Chan extends Application implements UserAgentProvider {
         return instance;
     }
 
-    public static ChanGraph getGraph() {
+    public static ObjectGraph getGraph() {
         return instance.graph;
     }
 
@@ -73,9 +73,8 @@ public class Chan extends Application implements UserAgentProvider {
         AndroidUtils.init();
 
         userAgent = createUserAgent();
-        graph = DaggerChanGraph.builder()
-                .appModule(new AppModule(this, this))
-                .build();
+
+        graph = ObjectGraph.create(new AppModule(this, this), new NetModule());
 
         graph.inject(this);
 

@@ -37,6 +37,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.chan.ChanParser;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Loadable;
@@ -249,7 +250,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                             "http://example.com/" +
                             "<br>" +
                             "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.");
-            Post post = getGraph().getChanParser().parse(theme, builder);
+            Post post = getGraph().get(ChanParser.class).parse(theme, builder);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
