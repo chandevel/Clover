@@ -21,7 +21,7 @@ import android.net.ConnectivityManager;
 import android.support.v4.view.ViewPager;
 
 import org.floens.chan.core.cache.FileCache;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;

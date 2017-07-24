@@ -15,23 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.model.json.site;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.google.gson.annotations.SerializedName;
 
-/**
- * Only for storing what sites we know of, for hardcoded sites the sites we have enabled,
- * and for dynamic sites all settings for it.
- */
-@DatabaseTable
-public class SiteModel {
-    @DatabaseField(id = true, unique = true)
-    public int id;
+public class SiteConfig {
+    @SerializedName("external")
+    public boolean external;
 
-    @DatabaseField
-    public String name;
-
-    @DatabaseField
-    public String options;
+    @SerializedName("internal_site_id")
+    public int classId;
 }

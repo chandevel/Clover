@@ -21,7 +21,7 @@ import android.util.Log;
 
 import com.j256.ormlite.stmt.QueryBuilder;
 
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;

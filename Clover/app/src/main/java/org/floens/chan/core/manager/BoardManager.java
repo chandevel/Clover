@@ -18,7 +18,7 @@
 package org.floens.chan.core.manager;
 
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.Sites;

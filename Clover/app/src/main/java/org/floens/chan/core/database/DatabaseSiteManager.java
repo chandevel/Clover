@@ -18,12 +18,59 @@
 package org.floens.chan.core.database;
 
 
+import org.floens.chan.core.model.orm.SiteModel;
+
+import java.util.List;
+import java.util.concurrent.Callable;
+
 public class DatabaseSiteManager {
     private DatabaseManager databaseManager;
-    private DatabaseHelper databaseHelper;
+    private DatabaseHelper helper;
 
-    public DatabaseSiteManager(DatabaseManager databaseManager, DatabaseHelper databaseHelper) {
+    public DatabaseSiteManager(DatabaseManager databaseManager, DatabaseHelper helper) {
         this.databaseManager = databaseManager;
-        this.databaseHelper = databaseHelper;
+        this.helper = helper;
+    }
+
+    public Callable<List<SiteModel>> getAll() {
+        return new Callable<List<SiteModel>>() {
+            @Override
+            public List<SiteModel> call() throws Exception {
+                return helper.siteDao.queryForAll();
+            }
+        };
+    }
+
+    public Callable<SiteModel> add(final SiteModel site) {
+        return new Callable<SiteModel>() {
+            @Override
+            public SiteModel call() throws Exception {
+                helper.siteDao.create(site);
+
+                return site;
+            }
+        };
+    }
+
+    public Callable<SiteModel> update(final SiteModel site) {
+        return new Callable<SiteModel>() {
+            @Override
+            public SiteModel call() throws Exception {
+                helper.siteDao.update(site);
+
+                return site;
+            }
+        };
+    }
+
+    public Callable<SiteModel> updateId(final SiteModel site, final int newId) {
+        return new Callable<SiteModel>() {
+            @Override
+            public SiteModel call() throws Exception {
+                helper.siteDao.updateId(site, newId);
+
+                return site;
+            }
+        };
     }
 }

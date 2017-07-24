@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.model.orm;
 
 import android.os.Parcel;
 import android.text.TextUtils;
@@ -23,6 +23,9 @@ import android.text.TextUtils;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.model.BoardReference;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.SiteReference;
 import org.floens.chan.core.site.Site;
 
 /**
@@ -34,7 +37,7 @@ import org.floens.chan.core.site.Site;
  * <p>Obtain Loadables through {@link org.floens.chan.core.database.DatabaseLoadableManager} to make sure everyone
  * references the same loadable and that the loadable is properly saved in the database.
  */
-@DatabaseTable
+@DatabaseTable(tableName = "loadable")
 public class Loadable implements SiteReference, BoardReference {
     @DatabaseField(generatedId = true)
     public int id;

@@ -13,7 +13,8 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.manager.SiteManager;
+import org.floens.chan.core.presenter.SetupPresenter;
+import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
@@ -91,6 +92,7 @@ import dagger.Provides;
                 WatchManager.PinWatcher.class,
                 UpdateManager.class,
                 SiteManager.class,
+                SetupPresenter.class,
 
                 Chan4.class,
         },

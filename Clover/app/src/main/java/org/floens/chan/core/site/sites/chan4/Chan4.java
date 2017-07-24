@@ -29,13 +29,15 @@ import com.android.volley.VolleyError;
 import org.floens.chan.chan.ChanLoaderRequest;
 import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.core.site.Boards;
+import org.floens.chan.core.site.Resolvable;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
+import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
@@ -62,7 +64,25 @@ import okhttp3.Request;
 
 import static org.floens.chan.Chan.getGraph;
 
-public class Chan4 implements Site {
+public class Chan4 extends SiteBase {
+    public static final Resolvable RESOLVABLE = new Resolvable() {
+        @Override
+        public ResolveResult resolve(String value) {
+            if (value.equals("4chan")) {
+                return ResolveResult.NAME_MATCH;
+            } else if (value.equals("https://4chan.org/")) {
+                return ResolveResult.FULL_MATCH;
+            } else {
+                return ResolveResult.NO;
+            }
+        }
+
+        @Override
+        public Class<? extends Site> getSiteClass() {
+            return Chan4.class;
+        }
+    };
+
     private static final String TAG = "Chan4";
 
     private static final Random random = new Random();
@@ -263,17 +283,6 @@ public class Chan4 implements Site {
         // token was renamed, before it meant the username, now it means the token returned
         // from the server that the cookie is set to.
         passToken = new StringSetting(p, "preference_pass_id", "");
-    }
-
-    /**
-     * <b>Note: very special case, only this site may have 0 as the return value.<br>
-     * This is for backwards compatibility when we didn't support multi-site yet.</b>
-     *
-     * @return {@inheritDoc}
-     */
-    @Override
-    public int id() {
-        return 0;
     }
 
     @Override

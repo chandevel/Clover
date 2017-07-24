@@ -15,15 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.manager;
+package org.floens.chan.core.model.json.site;
 
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-@Singleton
-public class SiteManager {
-    @Inject
-    public SiteManager() {
-    }
+public class SiteUserSettings {
 }

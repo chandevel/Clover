@@ -25,7 +25,7 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 
 import org.floens.chan.R;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.utils.AndroidUtils;
 

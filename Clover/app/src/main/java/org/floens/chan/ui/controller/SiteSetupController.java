@@ -29,6 +29,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.view.animation.PathInterpolatorCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -45,6 +46,8 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.transition.FadeInTransition;
 import org.floens.chan.core.presenter.SetupPresenter;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.ui.animation.AnimationUtils;
 
 import java.util.ArrayList;
@@ -65,7 +68,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
 
     private RecyclerView sitesRecyclerview;
     private SitesAdapter sitesAdapter;
-    private List<SetupPresenter.AddedSite> sites = new ArrayList<>();
+    private List<Site> sites = new ArrayList<>();
 
     public SiteSetupController(Context context) {
         super(context);
@@ -127,7 +130,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
     }
 
     @Override
-    public void runSiteAddedAnimation(final SetupPresenter.AddedSite site) {
+    public void runSiteAddedAnimation(Site site) {
         spinner.setVisibility(View.INVISIBLE);
         urlSubmit.setVisibility(View.VISIBLE);
 
@@ -147,7 +150,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
     }
 
     @Override
-    public void setAddedSites(List<SetupPresenter.AddedSite> sites) {
+    public void setAddedSites(List<Site> sites) {
         this.sites.clear();
         this.sites.addAll(sites);
         sitesAdapter.notifyDataSetChanged();
@@ -172,7 +175,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void runSiteAddedAnimationInternal(SetupPresenter.AddedSite site) {
+    private void runSiteAddedAnimationInternal(Site site) {
         blocked = true;
         sitesAdapter.invisibleSiteOnBind = site;
 
@@ -197,7 +200,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
         view.getLocationInWindow(viewWinLoc);
 
         String urlText = url.getText().toString();
-        int indexOf = urlText.indexOf(site.title);
+        int indexOf = urlText.indexOf(site.name());
         int offsetLeft = 0;
         if (indexOf > 0) {
             Paint paint = new Paint();
@@ -308,7 +311,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
     }
 
     private class SitesAdapter extends RecyclerView.Adapter<SiteCell> {
-        private SetupPresenter.AddedSite invisibleSiteOnBind;
+        private Site invisibleSiteOnBind;
 
         public SitesAdapter() {
             setHasStableIds(true);
@@ -316,7 +319,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
 
         @Override
         public long getItemId(int position) {
-            return sites.get(position).id;
+            return sites.get(position).id();
         }
 
         @Override
@@ -326,7 +329,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
 
         @Override
         public void onBindViewHolder(SiteCell holder, int position) {
-            SetupPresenter.AddedSite site = sites.get(position);
+            Site site = sites.get(position);
             holder.setSite(site);
             if (site == invisibleSiteOnBind) {
                 holder.itemView.setVisibility(View.INVISIBLE);
@@ -342,6 +345,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
     private class SiteCell extends RecyclerView.ViewHolder {
         private ImageView image;
         private TextView text;
+        private SiteIcon siteIcon;
 
         public SiteCell(View itemView) {
             super(itemView);
@@ -349,9 +353,18 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
             text = (TextView) itemView.findViewById(R.id.text);
         }
 
-        private void setSite(SetupPresenter.AddedSite site) {
-            image.setImageDrawable(site.drawable);
-            text.setText(site.title);
+        private void setSite(Site site) {
+            siteIcon = site.icon();
+            siteIcon.get(new SiteIcon.SiteIconResult() {
+                @Override
+                public void onSiteIcon(SiteIcon siteIcon, Drawable icon) {
+                    if (SiteCell.this.siteIcon == siteIcon) {
+                        image.setImageDrawable(icon);
+                    }
+                }
+            });
+
+            text.setText(site.name());
         }
     }
 }

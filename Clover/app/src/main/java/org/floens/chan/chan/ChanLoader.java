@@ -25,7 +25,7 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;

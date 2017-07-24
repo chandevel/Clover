@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.site.http;
 
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 
 import java.io.File;
 

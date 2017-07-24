@@ -15,39 +15,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.model.orm;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable
-public class ThreadHide {
+@DatabaseTable(tableName = "savedreply")
+public class SavedReply {
+    public SavedReply() {
+    }
+
+    public SavedReply(String board, int no, String password) {
+        this.board = board;
+        this.no = no;
+        this.password = password;
+    }
+
     @DatabaseField(generatedId = true)
-    public int id;
+    private int id;
 
     @DatabaseField(columnName = "site")
     public int site;
 
-    @DatabaseField
+    @DatabaseField(index = true, canBeNull = false)
     public String board;
 
-    @DatabaseField
+    @DatabaseField(index = true)
     public int no;
 
-    public ThreadHide() {
-    }
-
-    public ThreadHide(String board, int no) {
-        this.board = board;
-        this.no = no;
-    }
+    @DatabaseField
+    public String password = "";
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ThreadHide that = (ThreadHide) o;
+        SavedReply that = (SavedReply) o;
 
         return no == that.no && board.equals(that.board);
     }

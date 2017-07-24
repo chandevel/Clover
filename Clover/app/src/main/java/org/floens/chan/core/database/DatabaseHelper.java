@@ -25,14 +25,14 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Filter;
-import org.floens.chan.core.model.History;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.model.SiteModel;
-import org.floens.chan.core.model.ThreadHide;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Filter;
+import org.floens.chan.core.model.orm.History;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
+import org.floens.chan.core.model.orm.SavedReply;
+import org.floens.chan.core.model.orm.SiteModel;
+import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
@@ -44,7 +44,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 22;
+    private static final int DATABASE_VERSION = 23;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -70,8 +70,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             threadHideDao = getDao(ThreadHide.class);
             historyDao = getDao(History.class);
             filterDao = getDao(Filter.class);
+            siteDao = getDao(SiteModel.class);
         } catch (SQLException e) {
-            Logger.e(TAG, "Error creating Daos", e);
+            Logger.e(TAG, "Error creating dao's", e);
         }
     }
 
@@ -85,6 +86,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, ThreadHide.class);
             TableUtils.createTable(connectionSource, History.class);
             TableUtils.createTable(connectionSource, Filter.class);
+            TableUtils.createTable(connectionSource, SiteModel.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -214,6 +216,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 boardsDao.executeRawNoArgs("ALTER TABLE threadhide ADD COLUMN site INTEGER default 0;");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 22", e);
+            }
+        }
+
+        if (oldVersion < 23) {
+            try {
+                siteDao.executeRawNoArgs("CREATE TABLE `site` (`configuration` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `userSettings` VARCHAR );");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 23", e);
             }
         }
     }

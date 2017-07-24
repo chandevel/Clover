@@ -18,27 +18,34 @@
 package org.floens.chan.core.presenter;
 
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteManager;
+import org.floens.chan.core.site.Sites;
 
-import org.floens.chan.utils.AndroidUtils;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.floens.chan.utils.AndroidUtils.getAppContext;
-import static org.floens.chan.utils.AndroidUtils.getRes;
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 
 public class SetupPresenter {
+    @Inject
+    SiteManager siteManager;
+
     private Callback callback;
 
-    private List<AddedSite> sites = new ArrayList<>();
+    private List<Site> sites = new ArrayList<>();
+
+    @Inject
+    public SetupPresenter() {
+        getGraph().inject(this);
+    }
 
     public void create(Callback callback) {
         this.callback = callback;
+
+        sites.addAll(Sites.ALL_SITES);
 
         this.callback.setAddedSites(sites);
 
@@ -52,13 +59,17 @@ public class SetupPresenter {
     public void onUrlSubmitClicked(String url) {
         callback.goToUrlSubmittedState();
 
-        AndroidUtils.runOnUiThread(new Runnable() {
+        siteManager.addSite(url, new SiteManager.SiteAddCallback() {
             @Override
-            public void run() {
-                siteAdded(getTestSite());
+            public void onSiteAdded(Site site) {
+                siteAdded(site);
             }
-        }, 500);
-//        callback.showUrlHint("foo bar baz");
+
+            @Override
+            public void onSiteAddFailed(String message) {
+                callback.showUrlHint(message);
+            }
+        });
     }
 
     public void onNextClicked() {
@@ -67,8 +78,10 @@ public class SetupPresenter {
         }
     }
 
-    private void siteAdded(AddedSite site) {
-        sites.add(site);
+    private void siteAdded(Site site) {
+        sites.clear();
+        sites.addAll(Sites.ALL_SITES);
+
         callback.setAddedSites(sites);
         callback.runSiteAddedAnimation(site);
 
@@ -77,44 +90,17 @@ public class SetupPresenter {
 
     private int counter;
 
-    private AddedSite getTestSite() {
-        AddedSite site = new AddedSite();
-        site.id = counter++;
-        site.title = "4chan.org";
-
-        Bitmap bitmap;
-        try {
-            BitmapFactory.Options opts = new BitmapFactory.Options();
-            opts.inScaled = false;
-            bitmap = BitmapFactory.decodeStream(getAppContext().getAssets().open("icons/4chan.png"), null, opts);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        BitmapDrawable drawable = new BitmapDrawable(getRes(), bitmap);
-        drawable = (BitmapDrawable) drawable.mutate();
-        drawable.getPaint().setFilterBitmap(false);
-        site.drawable = drawable;
-        return site;
-    }
-
     public interface Callback {
         void goToUrlSubmittedState();
 
-        void runSiteAddedAnimation(AddedSite site);
+        void runSiteAddedAnimation(Site site);
 
-        void setAddedSites(List<AddedSite> sites);
+        void setAddedSites(List<Site> sites);
 
         void setNextAllowed(boolean nextAllowed, boolean animate);
 
         void showUrlHint(String text);
 
         void moveToSavedBoards();
-    }
-
-    public static class AddedSite {
-        public int id;
-        public String title;
-        public Drawable drawable;
     }
 }

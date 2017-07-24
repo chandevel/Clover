@@ -15,22 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.model.orm;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable
-public class History {
-    @DatabaseField(generatedId = true)
+@DatabaseTable(tableName = "site")
+public class SiteModel {
+    @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public int id;
 
-    @DatabaseField(canBeNull = false, foreign = true)
-    public Loadable loadable;
+    @DatabaseField
+    public String configuration;
 
     @DatabaseField
-    public String thumbnailUrl;
+    public String userSettings;
 
-    @DatabaseField
-    public long date;
+    public SiteModel() {
+    }
 }

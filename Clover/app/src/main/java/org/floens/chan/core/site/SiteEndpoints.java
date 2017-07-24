@@ -17,8 +17,8 @@
  */
 package org.floens.chan.core.site;
 
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 
 import java.util.Map;

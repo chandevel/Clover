@@ -22,7 +22,7 @@ import android.text.TextUtils;
 
 import org.floens.chan.core.database.DatabaseFilterManager;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.utils.Logger;

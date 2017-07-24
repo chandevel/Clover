@@ -15,16 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.model.orm;
 
 import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.model.SiteReference;
 import org.floens.chan.core.site.Site;
 
-@DatabaseTable
+@DatabaseTable(tableName = "board")
 public class Board implements SiteReference {
     public Board() {
     }

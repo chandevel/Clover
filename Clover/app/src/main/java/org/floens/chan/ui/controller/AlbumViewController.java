@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.cell.AlbumViewCell;
 import org.floens.chan.ui.toolbar.ToolbarMenu;

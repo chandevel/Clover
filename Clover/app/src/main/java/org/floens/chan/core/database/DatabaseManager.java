@@ -27,7 +27,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.ThreadHide;
+import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 

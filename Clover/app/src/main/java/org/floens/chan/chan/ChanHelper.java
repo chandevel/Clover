@@ -21,8 +21,8 @@ import android.net.Uri;
 
 import org.floens.chan.core.database.DatabaseLoadableManager;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.Sites;
 

@@ -17,7 +17,7 @@
  */
 package org.floens.chan.ui.helper;
 
-import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.orm.Board;
 import org.jsoup.parser.Parser;
 
 public class BoardHelper {

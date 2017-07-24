@@ -31,7 +31,7 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.activity.StartActivity;

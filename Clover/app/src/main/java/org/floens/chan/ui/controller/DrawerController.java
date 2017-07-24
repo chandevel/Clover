@@ -34,12 +34,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.DrawerAdapter;
 import org.floens.chan.utils.AndroidUtils;

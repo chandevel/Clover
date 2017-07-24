@@ -19,6 +19,8 @@ package org.floens.chan.core.model;
 
 import android.support.annotation.MainThread;
 
+import org.floens.chan.core.model.orm.Board;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;

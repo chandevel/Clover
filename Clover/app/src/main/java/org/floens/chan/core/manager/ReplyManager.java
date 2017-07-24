@@ -19,7 +19,7 @@ package org.floens.chan.core.manager;
 
 import android.content.Context;
 
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.http.Reply;
 
 import java.io.File;

@@ -19,7 +19,7 @@ package org.floens.chan.core.site.http;
 
 
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.orm.SavedReply;
 
 public class DeleteRequest {
     public final Post post;

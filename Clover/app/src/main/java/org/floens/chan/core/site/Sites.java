@@ -1,44 +1,52 @@
 package org.floens.chan.core.site;
 
-import android.content.SharedPreferences;
+import android.util.SparseArray;
 
 import org.floens.chan.core.site.sites.chan4.Chan4;
-import org.floens.chan.utils.AndroidUtils;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Sites {
-    public static final Chan4 CHAN4 = new Chan4();
-
-    public static final List<? extends Site> ALL_SITES = Arrays.asList(
-            CHAN4
-    );
-
-    private static final Site[] BY_ID;
+    public static final SparseArray<Class<? extends Site>> SITE_CLASSES = new SparseArray<>();
 
     static {
-        int highestId = 0;
-        for (Site site : ALL_SITES) {
-            if (site.id() > highestId) {
-                highestId = site.id();
-            }
-        }
-        BY_ID = new Site[highestId + 1];
-        for (Site site : ALL_SITES) {
-            BY_ID[site.id()] = site;
-        }
+        // This id-siteclass mapping is used to look up the correct site class at deserialization.
+        // This differs from the Site.id() id, that id is used for site instance linking, this is just to
+        // find the correct class to use.
+        SITE_CLASSES.put(0, Chan4.class);
     }
+
+    public static final List<Resolvable> RESOLVABLES = new ArrayList<>();
+
+    static {
+        RESOLVABLES.add(Chan4.RESOLVABLE);
+    }
+
+    public static final List<Site> ALL_SITES = new ArrayList<>();
+
+    @Deprecated
+    private static Site defaultSite;
 
     public static Site forId(int id) {
-        return BY_ID[id];
+        // TODO: better datastructure
+        for (Site site : ALL_SITES) {
+            if (site.id() == id) {
+                return site;
+            }
+        }
+
+        return null;
     }
 
+    @Deprecated
     public static Site defaultSite() {
-        return CHAN4;
+        return defaultSite;
     }
 
-    public static SharedPreferences getPreferences(Site site) {
-        return AndroidUtils.getPreferences(site.id() + "_site_preferences");
+    static void initialize(List<Site> sites) {
+        Sites.defaultSite = sites.isEmpty() ? null : sites.get(0);
+        Sites.ALL_SITES.clear();
+        Sites.ALL_SITES.addAll(sites);
     }
 }

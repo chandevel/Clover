@@ -27,7 +27,7 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.orm.SavedReply;
 
 import java.util.Random;
 

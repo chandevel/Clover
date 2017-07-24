@@ -20,7 +20,7 @@ package org.floens.chan.core.site.sites.chan4;
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
-import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.Post;
 
 import java.util.List;

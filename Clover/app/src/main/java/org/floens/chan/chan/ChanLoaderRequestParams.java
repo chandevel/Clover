@@ -20,7 +20,7 @@ package org.floens.chan.chan;
 
 import com.android.volley.Response;
 
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 
 import java.util.List;

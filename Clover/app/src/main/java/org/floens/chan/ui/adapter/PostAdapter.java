@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCellInterface;

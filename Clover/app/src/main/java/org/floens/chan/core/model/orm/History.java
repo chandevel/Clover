@@ -15,21 +15,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.model.orm;
 
-import org.floens.chan.core.model.orm.Loadable;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.List;
+@DatabaseTable(tableName = "history")
+public class History {
+    @DatabaseField(generatedId = true)
+    public int id;
 
-public class ChanThread {
+    @DatabaseField(canBeNull = false, foreign = true)
     public Loadable loadable;
-    public List<Post> posts;
-    public Post op;
-    public boolean closed = false;
-    public boolean archived = false;
 
-    public ChanThread(Loadable loadable, List<Post> posts) {
-        this.loadable = loadable;
-        this.posts = posts;
-    }
+    @DatabaseField
+    public String thumbnailUrl;
+
+    @DatabaseField
+    public long date;
 }

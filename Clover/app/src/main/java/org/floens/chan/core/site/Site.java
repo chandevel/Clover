@@ -21,9 +21,11 @@ import android.support.annotation.Nullable;
 
 import org.floens.chan.chan.ChanLoaderRequest;
 import org.floens.chan.chan.ChanLoaderRequestParams;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.json.site.SiteConfig;
+import org.floens.chan.core.model.json.site.SiteUserSettings;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
@@ -101,9 +103,11 @@ public interface Site {
         INFINITE
     }
 
+    void initialize(int id, SiteConfig config, SiteUserSettings userSettings);
+
     /**
      * Global positive (>0) integer that uniquely identifies this site.<br>
-     * This id will be persisted in the database.
+     * Use the id received from {@link #initialize(int, SiteConfig, SiteUserSettings)}.
      *
      * @return a positive (>0) integer that uniquely identifies this site.
      */

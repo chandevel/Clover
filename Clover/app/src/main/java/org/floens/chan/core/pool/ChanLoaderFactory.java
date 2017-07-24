@@ -20,7 +20,7 @@ package org.floens.chan.core.pool;
 import android.util.LruCache;
 
 import org.floens.chan.chan.ChanLoader;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 
 import java.util.HashMap;
 import java.util.Map;

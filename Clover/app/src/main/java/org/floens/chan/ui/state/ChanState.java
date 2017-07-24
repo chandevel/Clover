@@ -20,7 +20,7 @@ package org.floens.chan.ui.state;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 
 public class ChanState implements Parcelable {
     public Loadable board;

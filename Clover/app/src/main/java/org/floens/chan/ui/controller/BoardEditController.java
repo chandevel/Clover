@@ -40,11 +40,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.ui.drawable.ThumbDrawable;
 import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.toolbar.ToolbarMenu;

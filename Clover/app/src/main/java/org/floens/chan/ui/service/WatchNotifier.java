@@ -30,7 +30,7 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.BoardActivity;

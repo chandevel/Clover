@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.view.ThumbnailView;

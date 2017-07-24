@@ -22,7 +22,7 @@ import android.support.annotation.AnyThread;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
-import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;

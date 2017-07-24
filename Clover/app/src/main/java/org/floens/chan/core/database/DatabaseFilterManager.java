@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.database;
 
-import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.orm.Filter;
 
 import java.util.List;
 import java.util.concurrent.Callable;

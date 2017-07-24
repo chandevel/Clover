@@ -22,7 +22,7 @@ import android.util.JsonReader;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 
-import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.net.JsonReaderRequest;
 import org.floens.chan.core.site.Site;
 

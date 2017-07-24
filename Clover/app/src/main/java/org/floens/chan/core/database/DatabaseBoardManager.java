@@ -1,6 +1,6 @@
 package org.floens.chan.core.database;
 
-import org.floens.chan.core.model.Board;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.utils.Logger;

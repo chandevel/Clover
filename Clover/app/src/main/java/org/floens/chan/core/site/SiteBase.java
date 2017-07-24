@@ -15,21 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model;
+package org.floens.chan.core.site;
 
-import org.floens.chan.core.model.orm.Loadable;
 
-import java.util.List;
+import org.floens.chan.core.model.json.site.SiteConfig;
+import org.floens.chan.core.model.json.site.SiteUserSettings;
 
-public class ChanThread {
-    public Loadable loadable;
-    public List<Post> posts;
-    public Post op;
-    public boolean closed = false;
-    public boolean archived = false;
+public abstract class SiteBase implements Site {
+    protected int id;
+    protected SiteConfig config;
+    protected SiteUserSettings userSettings;
 
-    public ChanThread(Loadable loadable, List<Post> posts) {
-        this.loadable = loadable;
-        this.posts = posts;
+    @Override
+    public void initialize(int id, SiteConfig config, SiteUserSettings userSettings) {
+        this.id = id;
+        this.config = config;
+        this.userSettings = userSettings;
+    }
+
+    @Override
+    public int id() {
+        return id;
     }
 }

@@ -35,7 +35,7 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.FilterType;
-import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.FilterLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;

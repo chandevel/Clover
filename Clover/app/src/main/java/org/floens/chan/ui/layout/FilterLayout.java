@@ -47,7 +47,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.FilterType;
-import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.FiltersController;

@@ -27,6 +27,7 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.di.AppModule;
 import org.floens.chan.core.di.NetModule;
 import org.floens.chan.core.di.UserAgentProvider;
+import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
@@ -48,6 +49,9 @@ public class Chan extends Application implements UserAgentProvider {
     private int activityForegroundCounter = 0;
 
     protected ObjectGraph graph;
+
+    @Inject
+    SiteManager siteManager;
 
     @Inject
     DatabaseManager databaseManager;
@@ -77,6 +81,8 @@ public class Chan extends Application implements UserAgentProvider {
         graph = ObjectGraph.create(new AppModule(this, this), new NetModule());
 
         graph.inject(this);
+
+        siteManager.initialize();
 
         Time.endTiming("Initializing application", startTime);
 
