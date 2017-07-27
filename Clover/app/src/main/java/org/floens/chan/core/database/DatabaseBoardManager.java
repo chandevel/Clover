@@ -20,14 +20,18 @@ public class DatabaseBoardManager {
         this.helper = helper;
     }
 
-    /**
-     * Save the boards listed in the database.<br>
-     * The boards need to either come from a {@link Site} or from {@link #getBoards(Site)}.
-     *
-     * @param boards boards to set or update
-     * @return void
-     */
-    public Callable<Void> setBoards(final List<Board> boards) {
+    public Callable<Board> createOrUpdate(final Board board) {
+        return new Callable<Board>() {
+            @Override
+            public Board call() throws Exception {
+                helper.boardsDao.createOrUpdate(board);
+
+                return board;
+            }
+        };
+    }
+
+    public Callable<Void> createAll(final List<Board> boards) {
         return new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -52,6 +56,28 @@ public class DatabaseBoardManager {
                     for (int i = 0; i < boards.size(); i++) {
                         Board board = boards.get(i);
                         board.site = site;
+                    }
+                } catch (SQLException e) {
+                    Logger.e(TAG, "Error getting boards from db", e);
+                }
+
+                return boards;
+            }
+        };
+    }
+
+    public Callable<List<Board>> getSavedBoards() {
+        return new Callable<List<Board>>() {
+            @Override
+            public List<Board> call() throws Exception {
+                List<Board> boards = null;
+                try {
+                    boards = helper.boardsDao.queryBuilder()
+                            .where().eq("saved", true)
+                            .query();
+                    for (int i = 0; i < boards.size(); i++) {
+                        Board board = boards.get(i);
+                        board.site = Sites.forId(board.siteId);
                     }
                 } catch (SQLException e) {
                     Logger.e(TAG, "Error getting boards from db", e);

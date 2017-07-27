@@ -27,18 +27,6 @@ import org.floens.chan.core.site.Site;
 
 @DatabaseTable(tableName = "board")
 public class Board implements SiteReference {
-    public Board() {
-    }
-
-    public Board(Site site, String name, String code, boolean saved, boolean workSafe) {
-        this.siteId = site.id();
-        this.site = site;
-        this.name = name;
-        this.code = code;
-        this.saved = saved;
-        this.workSafe = workSafe;
-    }
-
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -50,9 +38,6 @@ public class Board implements SiteReference {
      */
     public transient Site site;
 
-    /**
-     * {@code true} if this board appears in the dropdown, {@code false} otherwise.
-     */
     @DatabaseField
     public boolean saved = false;
 
@@ -62,12 +47,10 @@ public class Board implements SiteReference {
     @DatabaseField
     public int order;
 
-    // named key for legacy support
-    @DatabaseField(columnName = "key")
+    @DatabaseField(columnName = "key") // named key for legacy support
     public String name;
 
-    // named value for legacy support
-    @DatabaseField(columnName = "value")
+    @DatabaseField(columnName = "value") // named value for legacy support
     // TODO(sec) force filter this to ascii & numbers.
     public String code;
 
@@ -141,6 +124,29 @@ public class Board implements SiteReference {
 
     @DatabaseField
     public String description;
+
+    @Deprecated // public, at least
+    public Board() {
+    }
+
+    @Deprecated
+    public Board(Site site, String name, String code, boolean saved, boolean workSafe) {
+        this.siteId = site.id();
+        this.site = site;
+        this.name = name;
+        this.code = code;
+        this.saved = saved;
+        this.workSafe = workSafe;
+    }
+
+    public static Board fromSiteNameCode(Site site, String name, String code) {
+        Board board = new Board();
+        board.siteId = site.id();
+        board.site = site;
+        board.name = name;
+        board.code = code;
+        return board;
+    }
 
     public boolean finish() {
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0) {

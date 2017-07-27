@@ -241,7 +241,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
             final Spinner spinner = (Spinner) selectLayout.findViewById(R.id.progress);
 
-            final List<? extends Site> allSites = Sites.ALL_SITES;
+            final List<? extends Site> allSites = Sites.allSites();
 
             final Site[] selectedSite = {allSites.get(0)};
 

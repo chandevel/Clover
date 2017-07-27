@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
@@ -235,7 +236,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
             if (item instanceof FloatingMenuItemBoard) {
                 loadBoard(((FloatingMenuItemBoard) item).board);
             } else {
-                BoardEditController boardEditController = new BoardEditController(context);
+                Controller boardEditController = new BoardSetupController(context);
                 if (doubleNavigationController != null) {
                     doubleNavigationController.pushController(boardEditController);
                 } else {

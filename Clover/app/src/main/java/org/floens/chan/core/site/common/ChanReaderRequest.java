@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.sites.chan4;
+package org.floens.chan.core.site.common;
 
 import android.util.JsonReader;
 
@@ -56,8 +56,8 @@ import static org.floens.chan.Chan.getGraph;
  * This class is highly multithreaded, take good care to not access models that are to be only
  * changed on the main thread.
  */
-public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
-    private static final String TAG = "Chan4ReaderRequest";
+public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
+    private static final String TAG = "ChanReaderRequest";
     private static final boolean LOG_TIMING = false;
 
     private static final int THREAD_COUNT;
@@ -85,7 +85,7 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     private List<Filter> filters;
     private long startLoad;
 
-    public Chan4ReaderRequest(ChanLoaderRequestParams request) {
+    public ChanReaderRequest(ChanLoaderRequestParams request) {
         super(getChanUrl(request.loadable).toString(), request.listener, request.errorListener);
         getGraph().inject(this);
 
@@ -360,7 +360,7 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         builder.board(loadable.board);
 
         // File
-        long fileId = 0;
+        String fileId = null;
         String fileExt = null;
         int fileWidth = 0;
         int fileHeight = 0;
@@ -397,7 +397,7 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                     builder.comment(reader.nextString());
                     break;
                 case "tim":
-                    fileId = reader.nextLong();
+                    fileId = reader.nextString();
                     break;
                 case "time":
                     builder.setUnixTimestampSeconds(reader.nextLong());
@@ -491,9 +491,9 @@ public class Chan4ReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         }
 
         SiteEndpoints endpoints = loadable.getSite().endpoints();
-        if (fileId != 0 && fileName != null && fileExt != null) {
+        if (fileId != null && fileName != null && fileExt != null) {
             Map<String, String> hack = new HashMap<>(2);
-            hack.put("tim", String.valueOf(fileId));
+            hack.put("tim", fileId);
             hack.put("ext", fileExt);
             builder.image(new PostImage.Builder()
                     .originalName(String.valueOf(fileId))

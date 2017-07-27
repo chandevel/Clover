@@ -88,7 +88,7 @@ public interface Site {
      */
     enum BoardsType {
         /**
-         * The site's boards are static, hard-coded in the site.
+         * The site's boards are static, there is no extra info for a board in the api.
          */
         STATIC,
 

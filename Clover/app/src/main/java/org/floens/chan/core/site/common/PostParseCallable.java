@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.sites.chan4;
+package org.floens.chan.core.site.common;
 
 import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 // Called concurrently to parse the post html and the filters on it
+// Belongs to ChanReaderRequest
 class PostParseCallable implements Callable<Post> {
     private static final String TAG = "PostParseCallable";
 

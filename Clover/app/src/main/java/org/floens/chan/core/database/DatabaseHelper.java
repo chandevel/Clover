@@ -44,7 +44,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 22;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -56,6 +56,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public Dao<SiteModel, Integer> siteDao;
 
     private final Context context;
+
+    public boolean isUpgrading = false;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -96,6 +98,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         Logger.i(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
+        isUpgrading = true;
+
         if (oldVersion < 12) {
             try {
                 boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN perPage INTEGER;");
@@ -210,22 +214,39 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 22) {
             try {
-                boardsDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN site INTEGER default 0;");
-                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN site INTEGER default 0;");
-                boardsDao.executeRawNoArgs("ALTER TABLE savedreply ADD COLUMN site INTEGER default 0;");
-                boardsDao.executeRawNoArgs("ALTER TABLE threadhide ADD COLUMN site INTEGER default 0;");
+                siteDao.executeRawNoArgs("CREATE TABLE `site` (`configuration` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `userSettings` VARCHAR );");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 22", e);
+            }
+
+//            final Site[] siteRef = new Site[1];
+//            getGraph().get(SiteManager.class).addSiteFromClass(Chan4.class, new SiteManager.SiteAddCallback() {
+//                @Override
+//                public void onSiteAdded(Site site) {
+//                    siteRef[0] = site;
+//                }
+//
+//                @Override
+//                public void onSiteAddFailed(String message) {
+//                    throw new RuntimeException("Error adding site for db upgrade: " + message);
+//                }
+//            });
+//
+//            // Will always be 1
+//            int siteId = siteRef[0].id();
+            int siteId = 0;
+
+            try {
+                boardsDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN site INTEGER default " + siteId + ";");
+                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN site INTEGER default " + siteId + ";");
+                boardsDao.executeRawNoArgs("ALTER TABLE savedreply ADD COLUMN site INTEGER default " + siteId + ";");
+                boardsDao.executeRawNoArgs("ALTER TABLE threadhide ADD COLUMN site INTEGER default " + siteId + ";");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 22", e);
             }
         }
 
-        if (oldVersion < 23) {
-            try {
-                siteDao.executeRawNoArgs("CREATE TABLE `site` (`configuration` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `userSettings` VARCHAR );");
-            } catch (SQLException e) {
-                Logger.e(TAG, "Error upgrading to version 23", e);
-            }
-        }
+        isUpgrading = false;
     }
 
     public void reset() {

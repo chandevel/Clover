@@ -44,7 +44,6 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
-import org.floens.chan.ui.drawable.ThumbDrawable;
 import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -182,7 +181,8 @@ public class BoardEditController extends Controller implements View.OnClickListe
             boards.get(i).order = i;
         }
 
-        boardManager.flushOrderAndSaved();
+        // TODO(multisite)
+//        boardManager.flushOrderAndSaved();
     }
 
     @Override
@@ -243,7 +243,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
         }
 
         // Normal add
-        List<Board> all = boardManager.getAllBoards();
+        List<Board> all = boardManager.getSavedBoards();
         for (Board board : all) {
             if (board.code.equals(value)) {
                 board.saved = true;
@@ -385,7 +385,7 @@ public class BoardEditController extends Controller implements View.OnClickListe
                 }
             }*/
             List<Board> s = new ArrayList<>();
-            for (Board b : boardManager.getAllBoards()) {
+            for (Board b : boardManager.getSavedBoards()) {
                 if (!haveBoard(b.code)/* && (showUnsafe || b.workSafe)*/) {
                     s.add(b);
                 }
@@ -454,7 +454,6 @@ public class BoardEditController extends Controller implements View.OnClickListe
             thumb = (ImageView) itemView.findViewById(R.id.thumb);
             text = (TextView) itemView.findViewById(R.id.text);
             description = (TextView) itemView.findViewById(R.id.description);
-            thumb.setImageDrawable(new ThumbDrawable());
 
             thumb.setOnTouchListener(new View.OnTouchListener() {
                 public boolean onTouch(View v, MotionEvent event) {

@@ -19,34 +19,49 @@ package org.floens.chan.ui.controller;
 
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.presenter.BoardSetupPresenter;
+import org.floens.chan.core.site.SiteIcon;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.floens.chan.utils.AndroidUtils.getAppContext;
-import static org.floens.chan.utils.AndroidUtils.getRes;
+import javax.inject.Inject;
 
-public class BoardSetupController extends Controller implements View.OnClickListener {
+import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.ui.helper.PostHelper.formatBoardCodeAndName;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+
+public class BoardSetupController extends Controller implements View.OnClickListener, AdapterView.OnItemClickListener, BoardSetupPresenter.Callback {
+    @Inject
+    BoardSetupPresenter presenter;
+
     private AutoCompleteTextView code;
     private RecyclerView savedBoardsRecycler;
 
-    private SavedBoardsAdapter adapter;
+    private SuggestBoardsAdapter suggestAdapter;
+
+    private SavedBoardsAdapter savedAdapter;
+    private ItemTouchHelper itemTouchHelper;
 
     public BoardSetupController(Context context) {
         super(context);
@@ -56,71 +71,146 @@ public class BoardSetupController extends Controller implements View.OnClickList
     public void onCreate() {
         super.onCreate();
 
+        getGraph().inject(this);
+
         view = inflateRes(R.layout.controller_board_setup);
         navigationItem.setTitle(R.string.saved_boards_title);
+        navigationItem.swipeable = false;
 
         code = (AutoCompleteTextView) view.findViewById(R.id.code);
+        code.setOnItemClickListener(this);
         savedBoardsRecycler = (RecyclerView) view.findViewById(R.id.boards_recycler);
         savedBoardsRecycler.setLayoutManager(new LinearLayoutManager(context));
 
-        adapter = new SavedBoardsAdapter();
-        savedBoardsRecycler.setAdapter(adapter);
+        savedAdapter = new SavedBoardsAdapter();
+        savedBoardsRecycler.setAdapter(savedAdapter);
 
-        List<SavedBoard> savedBoards = new ArrayList<>();
-        for (int board = 0; board < 5; board++) {
-            savedBoards.add(new SavedBoard("foo - " + board, board));
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
+
+        suggestAdapter = new SuggestBoardsAdapter();
+
+        code.setAdapter(suggestAdapter);
+        code.setThreshold(1);
+
+        presenter.create(this);
+    }
+
+    private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
+    ) {
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
+
+            presenter.move(from, to);
+
+            return true;
         }
 
-        adapter.setSavedBoards(savedBoards);
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            int position = viewHolder.getAdapterPosition();
 
-        List<String> foo = new ArrayList<String>() {{
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("foo");
-            add("bar");
-            add("baz");
-        }};
+            presenter.remove(position);
+        }
+    };
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, foo);
-        code.setAdapter(adapter);
-        code.setThreshold(1);
+    @Override
+    public void setSavedBoards(List<Board> savedBoards) {
+        savedAdapter.setSavedBoards(savedBoards);
     }
 
     @Override
     public void onClick(View v) {
     }
 
-    private class SavedBoard {
-        private String title;
-        private int id;
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        BoardSetupPresenter.BoardSuggestion suggestion = suggestAdapter.getSuggestion(position);
 
-        public SavedBoard(String title, int id) {
-            this.title = title;
-            this.id = id;
+        presenter.addFromSuggestion(suggestion);
+    }
+
+    private class SuggestBoardsAdapter extends BaseAdapter implements Filterable {
+        private List<BoardSetupPresenter.BoardSuggestion> suggestions = new ArrayList<>();
+
+        @Override
+        public int getCount() {
+            return suggestions.size();
+        }
+
+        @Override
+        public String getItem(int position) {
+            return getSuggestion(position).key;
+        }
+
+        public BoardSetupPresenter.BoardSuggestion getSuggestion(int position) {
+            return suggestions.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = LayoutInflater.from(context).inflate(R.layout.cell_board_suggestion, parent, false);
+
+            final ImageView image = (ImageView) view.findViewById(R.id.image);
+            TextView text = (TextView) view.findViewById(R.id.text);
+
+            BoardSetupPresenter.BoardSuggestion suggestion = getSuggestion(position);
+
+            final SiteIcon icon = suggestion.site.icon();
+            icon.get(new SiteIcon.SiteIconResult() {
+                @Override
+                public void onSiteIcon(SiteIcon siteIcon, Drawable icon) {
+                    // TODO: don't if recycled
+                    image.setImageDrawable(icon);
+                }
+            });
+
+            text.setText(suggestion.site.name() + " \u2013 /" + suggestion.key + "/");
+
+            return view;
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    // Invoked on a worker thread, do not use.
+                    return null;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    suggestions.clear();
+
+                    if (constraint != null) {
+                        suggestions.addAll(presenter.getSuggestionsForQuery(constraint.toString()));
+                    }
+
+                    notifyDataSetChanged();
+                }
+            };
         }
     }
 
     private class SavedBoardsAdapter extends RecyclerView.Adapter<SavedBoardCell> {
-        private List<SavedBoard> savedBoards = new ArrayList<>();
+        private List<Board> savedBoards;
 
         public SavedBoardsAdapter() {
             setHasStableIds(true);
         }
 
-        private void setSavedBoards(List<SavedBoard> savedBoards) {
-            this.savedBoards.clear();
-            this.savedBoards.addAll(savedBoards);
+        private void setSavedBoards(List<Board> savedBoards) {
+            this.savedBoards = savedBoards;
             notifyDataSetChanged();
         }
 
@@ -136,7 +226,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
 
         @Override
         public void onBindViewHolder(SavedBoardCell holder, int position) {
-            SavedBoard savedBoard = savedBoards.get(position);
+            Board savedBoard = savedBoards.get(position);
             holder.setSavedBoard(savedBoard);
         }
 
@@ -149,30 +239,43 @@ public class BoardSetupController extends Controller implements View.OnClickList
     private class SavedBoardCell extends RecyclerView.ViewHolder {
         private ImageView image;
         private TextView text;
+        private SiteIcon siteIcon;
+        private ImageView reorder;
 
         public SavedBoardCell(View itemView) {
             super(itemView);
 
             image = (ImageView) itemView.findViewById(R.id.image);
             text = (TextView) itemView.findViewById(R.id.text);
+            reorder = (ImageView) itemView.findViewById(R.id.reorder);
+
+            Drawable drawable = DrawableCompat.wrap(context.getResources().getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
+            DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
+            reorder.setImageDrawable(drawable);
+
+            reorder.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        itemTouchHelper.startDrag(SavedBoardCell.this);
+                    }
+                    return false;
+                }
+            });
         }
 
-        public void setSavedBoard(SavedBoard savedBoard) {
-            Bitmap bitmap;
-            try {
-                BitmapFactory.Options opts = new BitmapFactory.Options();
-                opts.inScaled = false;
-                bitmap = BitmapFactory.decodeStream(getAppContext().getAssets().open("icons/4chan.png"), null, opts);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        public void setSavedBoard(Board savedBoard) {
+            siteIcon = savedBoard.site.icon();
+            siteIcon.get(new SiteIcon.SiteIconResult() {
+                @Override
+                public void onSiteIcon(SiteIcon siteIcon, Drawable icon) {
+                    if (SavedBoardCell.this.siteIcon == siteIcon) {
+                        image.setImageDrawable(icon);
+                    }
+                }
+            });
 
-            BitmapDrawable drawable = new BitmapDrawable(getRes(), bitmap);
-            drawable = (BitmapDrawable) drawable.mutate();
-            drawable.getPaint().setFilterBitmap(false);
-
-            image.setImageDrawable(drawable);
-            text.setText(savedBoard.title);
+            text.setText(formatBoardCodeAndName(savedBoard));
         }
     }
 }

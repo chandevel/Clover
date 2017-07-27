@@ -46,6 +46,9 @@ public class SiteIcon {
         return siteIcon;
     }
 
+    private SiteIcon() {
+    }
+
     public void get(SiteIconResult result) {
         if (assetPath != null) {
             Bitmap bitmap;

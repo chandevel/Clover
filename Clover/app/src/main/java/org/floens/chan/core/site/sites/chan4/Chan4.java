@@ -41,6 +41,7 @@ import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
+import org.floens.chan.core.site.common.ChanReaderRequest;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.HttpCallManager;
@@ -376,7 +377,7 @@ public class Chan4 extends SiteBase {
 
     @Override
     public Board board(String code) {
-        List<Board> allBoards = getGraph().get(BoardManager.class).getAllBoards();
+        List<Board> allBoards = getGraph().get(BoardManager.class).getSavedBoards();
         for (Board board : allBoards) {
             if (board.code.equals(code)) {
                 return board;
@@ -403,7 +404,7 @@ public class Chan4 extends SiteBase {
 
     @Override
     public ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request) {
-        return new ChanLoaderRequest(new Chan4ReaderRequest(request));
+        return new ChanLoaderRequest(new ChanReaderRequest(request));
     }
 
     @Override

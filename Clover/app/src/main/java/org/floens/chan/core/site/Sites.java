@@ -3,8 +3,10 @@ package org.floens.chan.core.site;
 import android.util.SparseArray;
 
 import org.floens.chan.core.site.sites.chan4.Chan4;
+import org.floens.chan.core.site.sites.chan8.Chan8;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Sites {
@@ -15,15 +17,28 @@ public class Sites {
         // This differs from the Site.id() id, that id is used for site instance linking, this is just to
         // find the correct class to use.
         SITE_CLASSES.put(0, Chan4.class);
+
+        SITE_CLASSES.put(1, Chan8.class);
     }
 
     public static final List<Resolvable> RESOLVABLES = new ArrayList<>();
 
     static {
         RESOLVABLES.add(Chan4.RESOLVABLE);
+        RESOLVABLES.add(Chan8.RESOLVABLE);
     }
 
-    public static final List<Site> ALL_SITES = new ArrayList<>();
+    private static List<Site> ALL_SITES = Collections.unmodifiableList(new ArrayList<Site>());
+
+    /**
+     * Return all sites known in the system.
+     * <p>This list is immutable. Changes to the known sites cause this function to return a new immutable list
+     * with the site changes.
+     * @return list of sites known in the system.
+     */
+    public static List<Site> allSites() {
+        return ALL_SITES;
+    }
 
     @Deprecated
     private static Site defaultSite;
@@ -46,7 +61,6 @@ public class Sites {
 
     static void initialize(List<Site> sites) {
         Sites.defaultSite = sites.isEmpty() ? null : sites.get(0);
-        Sites.ALL_SITES.clear();
-        Sites.ALL_SITES.addAll(sites);
+        Sites.ALL_SITES = Collections.unmodifiableList(new ArrayList<>(sites));
     }
 }

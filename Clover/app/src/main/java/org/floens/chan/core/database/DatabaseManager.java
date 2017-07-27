@@ -281,6 +281,15 @@ public class DatabaseManager {
     }
 
     private <T> Future<T> executeTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
+        if (helper.isUpgrading) {
+            try {
+                taskCallable.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+
         return backgroundExecutor.submit(new Callable<T>() {
             @Override
             public T call() {

@@ -39,11 +39,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textColor="?text_color_primary"
         android:textSize="14sp"/>
 
-    <ImageView
-        android:id="@+id/reorder"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:padding="8dp"
-        android:scaleType="centerInside"/>
-
 </LinearLayout>

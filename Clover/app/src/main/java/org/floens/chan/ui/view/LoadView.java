@@ -100,7 +100,6 @@ public class LoadView extends FrameLayout {
     public View setView(View newView, boolean animate) {
         if (newView == null) {
             FrameLayout progressBar = new FrameLayout(getContext());
-            progressBar.setVisibility(View.GONE);
             progressBar.addView(new ProgressBar(getContext()), new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
             newView = progressBar;
         }

@@ -45,7 +45,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.transition.FadeInTransition;
-import org.floens.chan.core.presenter.SetupPresenter;
+import org.floens.chan.core.presenter.SiteSetupPresenter;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.ui.animation.AnimationUtils;
@@ -53,18 +53,22 @@ import org.floens.chan.ui.animation.AnimationUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
-public class SiteSetupController extends StyledToolbarNavigationController implements View.OnClickListener, SetupPresenter.Callback {
+public class SiteSetupController extends StyledToolbarNavigationController implements View.OnClickListener, SiteSetupPresenter.Callback {
+    @Inject
+    SiteSetupPresenter presenter;
+
     private EditText url;
     private View urlSubmit;
     private View spinner;
     private Button next;
 
     private boolean blocked = false;
-
-    private SetupPresenter presenter;
 
     private RecyclerView sitesRecyclerview;
     private SitesAdapter sitesAdapter;
@@ -78,6 +82,8 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
     public void onCreate() {
         super.onCreate();
 
+        getGraph().inject(this);
+
         view = inflateRes(R.layout.controller_site_setup);
         navigationItem.setTitle(R.string.setup_title);
 
@@ -89,8 +95,6 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
         sitesRecyclerview.setLayoutManager(new LinearLayoutManager(context));
         next = (Button) view.findViewById(R.id.next_button);
         next.setOnClickListener(this);
-
-        presenter = new SetupPresenter();
 
         sitesAdapter = new SitesAdapter();
         sitesRecyclerview.setAdapter(sitesAdapter);
@@ -106,6 +110,7 @@ public class SiteSetupController extends StyledToolbarNavigationController imple
             presenter.onUrlSubmitClicked(url.getText().toString());
         } else if (v == next) {
             presenter.onNextClicked();
+//            navigationController.popController(false);
         }
     }
 

@@ -25,8 +25,9 @@ import android.text.TextUtils;
 import android.text.style.ImageSpan;
 
 import org.floens.chan.R;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.text.SimpleDateFormat;
@@ -84,6 +85,14 @@ public class PostHelper {
         } else {
             return "";
         }
+    }
+
+    public static String formatSiteAndBoardName(Board board) {
+        return board.site.name() + " \u2013 /" + board.name + "/";
+    }
+
+    public static String formatBoardCodeAndName(Board board) {
+        return "/" + board.code + "/ \u2013 " + board.name;
     }
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("LL/dd/yy(EEE)HH:mm:ss", Locale.US);

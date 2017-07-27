@@ -51,9 +51,9 @@ public class SiteManager {
     public void addSite(String url, SiteAddCallback callback) {
         SiteResolver.SiteResolverResult resolve = resolver.resolve(url);
 
-        Site site;
+        Class<? extends Site> siteClass;
         if (resolve.match == SiteResolver.SiteResolverResult.Match.BUILTIN) {
-            site = instantiateSiteClass(resolve.builtinResult);
+            siteClass = resolve.builtinResult;
         } else if (resolve.match == SiteResolver.SiteResolverResult.Match.EXTERNAL) {
             callback.onSiteAddFailed("external todo");
             return;
@@ -62,11 +62,16 @@ public class SiteManager {
             return;
         }
 
+        addSiteFromClass(siteClass, callback);
+    }
+
+    public void addSiteFromClass(Class<? extends Site> siteClass, SiteAddCallback callback) {
+        Site site = instantiateSiteClass(siteClass);
         site = createNewSite(site);
 
-        List<Site> newAllSites = new ArrayList<>(Sites.ALL_SITES);
+        List<Site> newAllSites = new ArrayList<>(Sites.allSites());
         newAllSites.add(site);
-        Sites.initialize(newAllSites);
+        setAvailableSites(newAllSites);
 
         callback.onSiteAdded(site);
     }
@@ -91,7 +96,11 @@ public class SiteManager {
             sites.add(site);
         }
 
-        Sites.initialize(sites);
+        setAvailableSites(sites);
+    }
+
+    private void setAvailableSites(List<Site> newAllSites) {
+        Sites.initialize(newAllSites);
     }
 
     private List<Site> loadSitesFromDatabase() {

@@ -29,7 +29,7 @@ import javax.inject.Inject;
 
 import static org.floens.chan.Chan.getGraph;
 
-public class SetupPresenter {
+public class SiteSetupPresenter {
     @Inject
     SiteManager siteManager;
 
@@ -38,14 +38,14 @@ public class SetupPresenter {
     private List<Site> sites = new ArrayList<>();
 
     @Inject
-    public SetupPresenter() {
+    public SiteSetupPresenter() {
         getGraph().inject(this);
     }
 
     public void create(Callback callback) {
         this.callback = callback;
 
-        sites.addAll(Sites.ALL_SITES);
+        sites.addAll(Sites.allSites());
 
         this.callback.setAddedSites(sites);
 
@@ -80,7 +80,7 @@ public class SetupPresenter {
 
     private void siteAdded(Site site) {
         sites.clear();
-        sites.addAll(Sites.ALL_SITES);
+        sites.addAll(Sites.allSites());
 
         callback.setAddedSites(sites);
         callback.runSiteAddedAnimation(site);

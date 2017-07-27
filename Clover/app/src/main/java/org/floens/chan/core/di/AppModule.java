@@ -13,7 +13,8 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.presenter.SetupPresenter;
+import org.floens.chan.core.presenter.BoardSetupPresenter;
+import org.floens.chan.core.presenter.SiteSetupPresenter;
 import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
@@ -24,12 +25,13 @@ import org.floens.chan.core.receiver.WatchUpdateReceiver;
 import org.floens.chan.core.saver.ImageSaveTask;
 import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.core.site.sites.chan4.Chan4;
-import org.floens.chan.core.site.sites.chan4.Chan4ReaderRequest;
+import org.floens.chan.core.site.common.ChanReaderRequest;
 import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.activity.BoardActivity;
 import org.floens.chan.ui.adapter.DrawerAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.controller.BoardEditController;
+import org.floens.chan.ui.controller.BoardSetupController;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DeveloperSettingsController;
 import org.floens.chan.ui.controller.DrawerController;
@@ -38,6 +40,7 @@ import org.floens.chan.ui.controller.HistoryController;
 import org.floens.chan.ui.controller.ImageViewerController;
 import org.floens.chan.ui.controller.MainSettingsController;
 import org.floens.chan.ui.controller.PassSettingsController;
+import org.floens.chan.ui.controller.SiteSetupController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.FilterLayout;
@@ -65,7 +68,7 @@ import dagger.Provides;
                 ChanApplication.class,
                 MainSettingsController.class,
                 ReplyPresenter.class,
-                Chan4ReaderRequest.class,
+                ChanReaderRequest.class,
                 ThreadLayout.class,
                 DeveloperSettingsController.class,
                 BoardActivity.class,
@@ -92,7 +95,10 @@ import dagger.Provides;
                 WatchManager.PinWatcher.class,
                 UpdateManager.class,
                 SiteManager.class,
-                SetupPresenter.class,
+                SiteSetupPresenter.class,
+                BoardSetupPresenter.class,
+                SiteSetupController.class,
+                BoardSetupController.class,
 
                 Chan4.class,
         },

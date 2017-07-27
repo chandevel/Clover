@@ -22,13 +22,11 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.Sites;
+import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,7 +34,15 @@ import javax.inject.Singleton;
 import de.greenrobot.event.EventBus;
 
 /**
- * Keeps track of {@link Board}s that the user has "saved" to their list.
+ * <p>Keeps track of {@link Board}s in the system.
+ * <p>There are a few types of sites, those who provide a list of all boards known,
+ * sites where users can create boards and have a very long list of known boards,
+ * and those who don't provide a board list at all.
+ * <p>We try to save as much info about boards as possible, this means that we try to save all
+ * boards we encounter.
+ * For sites with a small list of boards which does provide a board list api we save all those boards.
+ * <p>All boards have a {@link Board#saved} flag indicating if it should be visible in the user's
+ * favorite board list, along with a {@link Board#order} in which they appear.
  */
 @Singleton
 public class BoardManager {
@@ -57,24 +63,66 @@ public class BoardManager {
     };
 
     private final DatabaseManager databaseManager;
-    private final Site defaultSite;
 
-    private final List<Board> boards;
     private final List<Board> savedBoards = new ArrayList<>();
-    private final Map<String, Board> boardsByCode = new HashMap<>();
 
     @Inject
     public BoardManager(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
-        defaultSite = Sites.defaultSite();
-        boards = databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().getBoards(defaultSite));
 
-        if (boards.isEmpty()) {
-            update(false);
+        loadBoards();
+
+        fetchLimitedSitesTheirBoards();
+    }
+
+    public List<Board> getSavedBoards() {
+        return savedBoards;
+    }
+
+    public void saveBoard(Board board) {
+        board.saved = true;
+
+        board = databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
+
+        loadBoards();
+    }
+
+    public void unsaveBoard(Board board) {
+        board.saved = false;
+
+        board = databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
+
+        loadBoards();
+    }
+
+    private void loadBoards() {
+        savedBoards.clear();
+        savedBoards.addAll(databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().getSavedBoards()));
+
+        EventBus.getDefault().post(new BoardsChangedMessage());
+    }
+
+    private void fetchLimitedSitesTheirBoards() {
+        List<Site> sites = Sites.allSites();
+        for (final Site site : sites) {
+            if (site.boardsType() == Site.BoardsType.DYNAMIC) {
+                site.boards(new Site.BoardsListener() {
+                    @Override
+                    public void onBoardsReceived(Boards boards) {
+                        handleBoardsFetch(site, boards);
+                    }
+                });
+            }
         }
     }
 
-    private void appendBoards(Boards response) {
+    private void handleBoardsFetch(Site site, Boards boards) {
+        Logger.i(TAG, "Got boards for " + site.name());
+
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager().createAll(boards.boards));
+    }
+
+    /*private void appendBoards(Boards response) {
         List<Board> boardsToAddWs = new ArrayList<>();
         List<Board> boardsToAddNws = new ArrayList<>();
 
@@ -131,9 +179,9 @@ public class BoardManager {
     public void flushOrderAndSaved() {
         saveDatabase();
         update(true);
-    }
+    }*/
 
-    private void update(boolean notify) {
+    /*private void update(boolean notify) {
         savedBoards.clear();
         savedBoards.addAll(filterSaved(boards));
         synchronized (boardsByCode) {
@@ -145,13 +193,13 @@ public class BoardManager {
         if (notify) {
             EventBus.getDefault().post(new BoardsChangedMessage());
         }
-    }
+    }*/
 
-    private void saveDatabase() {
+    /*private void saveDatabase() {
         databaseManager.runTask(databaseManager.getDatabaseBoardManager().setBoards(boards));
-    }
+    }*/
 
-    private List<Board> filterSaved(List<Board> all) {
+    /*private List<Board> filterSaved(List<Board> all) {
         List<Board> saved = new ArrayList<>(all.size());
         for (int i = 0; i < all.size(); i++) {
             Board board = all.get(i);
@@ -161,7 +209,7 @@ public class BoardManager {
         }
         Collections.sort(saved, ORDER_SORT);
         return saved;
-    }
+    }*/
 
     public static class BoardsChangedMessage {
     }
