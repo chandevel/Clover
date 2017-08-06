@@ -25,8 +25,10 @@ import com.android.volley.VolleyError;
 
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.common.ChanReaderRequest;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -235,7 +237,11 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
 
         List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
 
-        request = loadable.getSite().loaderRequest(new ChanLoaderRequestParams(loadable, cached, this, this));
+        ChanReader chanReader = loadable.getSite().chanReader();
+
+        ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(loadable, chanReader, cached, this, this);
+        ChanReaderRequest readerRequest = new ChanReaderRequest(requestParams);
+        request = new ChanLoaderRequest(readerRequest);
 
         volleyRequestQueue.add(request.getVolleyRequest());
 

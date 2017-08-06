@@ -25,15 +25,11 @@ import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.PostHttpIcon;
-import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.net.JsonReaderRequest;
-import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.utils.Time;
-import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,7 +75,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
     private Loadable loadable;
     private List<Post> cached;
-    private Post.Builder op;
+    private ChanReader reader;
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private List<Filter> filters;
@@ -92,6 +88,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
         loadable = request.loadable.copy();
         cached = new ArrayList<>(request.cached);
+        reader = request.chanReader;
 
         filters = new ArrayList<>();
         List<Filter> enabledFilters = filterEngine.getEnabledFilters();
@@ -152,18 +149,12 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         long load = Time.startTiming();
 
-        ProcessingQueue processing = new ProcessingQueue();
-
-        Map<Integer, Post> cachedByNo = new HashMap<>();
-        for (int i = 0; i < cached.size(); i++) {
-            Post cache = cached.get(i);
-            cachedByNo.put(cache.no, cache);
-        }
+        ChanReaderProcessingQueue processing = new ChanReaderProcessingQueue(cached, loadable);
 
         if (loadable.isThreadMode()) {
-            loadThread(reader, processing, cachedByNo);
+            this.reader.loadThread(reader, processing);
         } else if (loadable.isCatalogMode()) {
-            loadCatalog(reader, processing, cachedByNo);
+            this.reader.loadCatalog(reader, processing);
         } else {
             throw new IllegalArgumentException("Unknown mode");
         }
@@ -173,20 +164,23 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         }
 
         List<Post> list = parsePosts(processing);
-        return processPosts(list);
+        return processPosts(processing.getOp(), list);
     }
 
     // Concurrently parses the new posts with an executor
-    private List<Post> parsePosts(ProcessingQueue queue) throws InterruptedException, ExecutionException {
+    private List<Post> parsePosts(ChanReaderProcessingQueue queue) throws InterruptedException, ExecutionException {
         long parsePosts = Time.startTiming();
 
         List<Post> total = new ArrayList<>();
 
-        total.addAll(queue.cached);
+        List<Post> cached = queue.getToReuse();
+        total.addAll(cached);
 
-        List<Callable<Post>> tasks = new ArrayList<>(queue.toParse.size());
-        for (int i = 0; i < queue.toParse.size(); i++) {
-            Post.Builder post = queue.toParse.get(i);
+        List<Post.Builder> toParse = queue.getToParse();
+
+        List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
+        for (int i = 0; i < toParse.size(); i++) {
+            Post.Builder post = toParse.get(i);
             tasks.add(new PostParseCallable(filterEngine, filters, databaseSavedReplyManager, post, chanParser));
         }
 
@@ -208,8 +202,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         return total;
     }
 
-    private ChanLoaderResponse processPosts(List<Post> serverPosts) throws Exception {
-        ChanLoaderResponse response = new ChanLoaderResponse(op, new ArrayList<Post>(serverPosts.size()));
+    private ChanLoaderResponse processPosts(Post.Builder op, List<Post> allPost) throws Exception {
+        ChanLoaderResponse response = new ChanLoaderResponse(op, new ArrayList<Post>(allPost.size()));
 
         List<Post> cachedPosts = new ArrayList<>();
         List<Post> newPosts = new ArrayList<>();
@@ -225,8 +219,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
             }
 
             Map<Integer, Post> serverPostsByNo = new HashMap<>();
-            for (int i = 0; i < serverPosts.size(); i++) {
-                Post post = serverPosts.get(i);
+            for (int i = 0; i < allPost.size(); i++) {
+                Post post = allPost.get(i);
                 serverPostsByNo.put(post.no, post);
             }
 
@@ -243,8 +237,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
             long newCheck = Time.startTiming();
 
             // If there's a post in the list from the server, that's not in the cached list, add it.
-            for (int i = 0; i < serverPosts.size(); i++) {
-                Post serverPost = serverPosts.get(i);
+            for (int i = 0; i < allPost.size(); i++) {
+                Post serverPost = allPost.get(i);
                 if (!cachedPostsByNo.containsKey(serverPost.no)) {
                     newPosts.add(serverPost);
                 }
@@ -253,7 +247,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                 Time.endTiming("New check", newCheck);
             }
         } else {
-            newPosts.addAll(serverPosts);
+            newPosts.addAll(allPost);
         }
 
         List<Post> allPosts = new ArrayList<>(cachedPosts.size() + newPosts.size());
@@ -307,231 +301,5 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         response.posts.addAll(allPosts);
 
         return response;
-    }
-
-    private void loadThread(JsonReader reader, ProcessingQueue queue, Map<Integer, Post> cachedByNo) throws Exception {
-        reader.beginObject();
-        // Page object
-        while (reader.hasNext()) {
-            String key = reader.nextName();
-            if (key.equals("posts")) {
-                reader.beginArray();
-                // Thread array
-                while (reader.hasNext()) {
-                    // Thread object
-                    readPostObject(reader, queue, cachedByNo);
-                }
-                reader.endArray();
-            } else {
-                reader.skipValue();
-            }
-        }
-        reader.endObject();
-    }
-
-    private void loadCatalog(JsonReader reader, ProcessingQueue queue, Map<Integer, Post> cachedByNo) throws Exception {
-        reader.beginArray(); // Array of pages
-
-        while (reader.hasNext()) {
-            reader.beginObject(); // Page object
-
-            while (reader.hasNext()) {
-                if (reader.nextName().equals("threads")) {
-                    reader.beginArray(); // Threads array
-
-                    while (reader.hasNext()) {
-                        readPostObject(reader, queue, cachedByNo);
-                    }
-
-                    reader.endArray();
-                } else {
-                    reader.skipValue();
-                }
-            }
-
-            reader.endObject();
-        }
-
-        reader.endArray();
-    }
-
-    private void readPostObject(JsonReader reader, ProcessingQueue queue, Map<Integer, Post> cachedByNo) throws Exception {
-        Post.Builder builder = new Post.Builder();
-        builder.board(loadable.board);
-
-        // File
-        String fileId = null;
-        String fileExt = null;
-        int fileWidth = 0;
-        int fileHeight = 0;
-        long fileSize = 0;
-        boolean fileSpoiler = false;
-        String fileName = null;
-
-        // Country flag
-        String countryCode = null;
-        String trollCountryCode = null;
-        String countryName = null;
-
-        // 4chan pass leaf
-        int since4pass = 0;
-
-        reader.beginObject();
-        while (reader.hasNext()) {
-            String key = reader.nextName();
-
-            switch (key) {
-                case "no":
-                    builder.id(reader.nextInt());
-                    break;
-                /*case "now":
-                    post.date = reader.nextString();
-                    break;*/
-                case "sub":
-                    builder.subject(reader.nextString());
-                    break;
-                case "name":
-                    builder.name(reader.nextString());
-                    break;
-                case "com":
-                    builder.comment(reader.nextString());
-                    break;
-                case "tim":
-                    fileId = reader.nextString();
-                    break;
-                case "time":
-                    builder.setUnixTimestampSeconds(reader.nextLong());
-                    break;
-                case "ext":
-                    fileExt = reader.nextString().replace(".", "");
-                    break;
-                case "w":
-                    fileWidth = reader.nextInt();
-                    break;
-                case "h":
-                    fileHeight = reader.nextInt();
-                    break;
-                case "fsize":
-                    fileSize = reader.nextLong();
-                    break;
-                case "filename":
-                    fileName = reader.nextString();
-                    break;
-                case "trip":
-                    builder.tripcode(reader.nextString());
-                    break;
-                case "country":
-                    countryCode = reader.nextString();
-                    break;
-                case "troll_country":
-                    trollCountryCode = reader.nextString();
-                    break;
-                case "country_name":
-                    countryName = reader.nextString();
-                    break;
-                case "spoiler":
-                    fileSpoiler = reader.nextInt() == 1;
-                    break;
-                case "resto":
-                    int opId = reader.nextInt();
-                    builder.op(opId == 0);
-                    builder.opId(opId);
-                    break;
-                case "sticky":
-                    builder.sticky(reader.nextInt() == 1);
-                    break;
-                case "closed":
-                    builder.closed(reader.nextInt() == 1);
-                    break;
-                case "archived":
-                    builder.archived(reader.nextInt() == 1);
-                    break;
-                case "replies":
-                    builder.replies(reader.nextInt());
-                    break;
-                case "images":
-                    builder.images(reader.nextInt());
-                    break;
-                case "unique_ips":
-                    builder.uniqueIps(reader.nextInt());
-                    break;
-                case "id":
-                    builder.posterId(reader.nextString());
-                    break;
-                case "capcode":
-                    builder.moderatorCapcode(reader.nextString());
-                    break;
-                case "since4pass":
-                    since4pass = reader.nextInt();
-                    break;
-                default:
-                    // Unknown/ignored key
-                    reader.skipValue();
-                    break;
-            }
-        }
-        reader.endObject();
-
-        if (builder.op) {
-            // Update OP fields later on the main thread
-            op = new Post.Builder();
-            op.closed(builder.closed);
-            op.archived(builder.archived);
-            op.sticky(builder.sticky);
-            op.replies(builder.replies);
-            op.images(builder.images);
-            op.uniqueIps(builder.uniqueIps);
-        }
-
-        Post cached = cachedByNo.get(builder.id);
-        if (cached != null) {
-            // Id is known, use the cached post object.
-            queue.cached.add(cached);
-            return;
-        }
-
-        SiteEndpoints endpoints = loadable.getSite().endpoints();
-        if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> hack = new HashMap<>(2);
-            hack.put("tim", fileId);
-            hack.put("ext", fileExt);
-            builder.image(new PostImage.Builder()
-                    .originalName(String.valueOf(fileId))
-                    .thumbnailUrl(endpoints.thumbnailUrl(builder, fileSpoiler, hack))
-                    .imageUrl(endpoints.imageUrl(builder, hack))
-                    .filename(Parser.unescapeEntities(fileName, false))
-                    .extension(fileExt)
-                    .imageWidth(fileWidth)
-                    .imageHeight(fileHeight)
-                    .spoiler(fileSpoiler)
-                    .size(fileSize)
-                    .build());
-        }
-
-        if (countryCode != null && countryName != null) {
-            Map<String, String> arg = new HashMap<>(1);
-            arg.put("country_code", countryCode);
-            HttpUrl countryUrl = endpoints.icon(builder, "country", arg);
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
-        }
-
-        if (trollCountryCode != null && countryName != null) {
-            Map<String, String> arg = new HashMap<>(1);
-            arg.put("troll_country_code", trollCountryCode);
-            HttpUrl countryUrl = endpoints.icon(builder, "troll_country", arg);
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
-        }
-
-        if (since4pass != 0) {
-            HttpUrl iconUrl = endpoints.icon(builder, "since4pass", null);
-            builder.addHttpIcon(new PostHttpIcon(iconUrl, String.valueOf(since4pass)));
-        }
-
-        queue.toParse.add(builder);
-    }
-
-    private static class ProcessingQueue {
-        public List<Post> cached = new ArrayList<>();
-        public List<Post.Builder> toParse = new ArrayList<>();
     }
 }

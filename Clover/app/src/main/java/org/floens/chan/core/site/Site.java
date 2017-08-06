@@ -19,13 +19,12 @@ package org.floens.chan.core.site;
 
 import android.support.annotation.Nullable;
 
-import org.floens.chan.chan.ChanLoaderRequest;
-import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.json.site.SiteUserSettings;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.common.ChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
@@ -145,7 +144,7 @@ public interface Site {
         void onBoardNonexistent();
     }
 
-    ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request);
+    ChanReader chanReader();
 
     void post(Reply reply, PostListener postListener);
 

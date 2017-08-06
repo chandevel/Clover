@@ -21,8 +21,7 @@ package org.floens.chan.core.site.sites.chan8;
 import android.support.annotation.Nullable;
 import android.webkit.WebView;
 
-import org.floens.chan.chan.ChanLoaderRequest;
-import org.floens.chan.chan.ChanLoaderRequestParams;
+import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
@@ -33,7 +32,8 @@ import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
-import org.floens.chan.core.site.common.ChanReaderRequest;
+import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.LoginRequest;
@@ -44,6 +44,8 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 import okhttp3.Request;
+
+import static org.floens.chan.Chan.getGraph;
 
 public class Chan8 extends SiteBase {
     public static final Resolvable RESOLVABLE = new Resolvable() {
@@ -218,12 +220,12 @@ public class Chan8 extends SiteBase {
 
     @Override
     public Board board(String code) {
-        return null;
+        return getGraph().get(BoardManager.class).getForCode(this, code);
     }
 
     @Override
-    public ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request) {
-        return new ChanLoaderRequest(new ChanReaderRequest(request));
+    public ChanReader chanReader() {
+        return new FutabaChanReader();
     }
 
     @Override

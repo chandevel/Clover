@@ -20,8 +20,9 @@ package org.floens.chan.chan;
 
 import com.android.volley.Response;
 
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.common.ChanReader;
 
 import java.util.List;
 
@@ -33,6 +34,8 @@ public class ChanLoaderRequestParams {
      * Related loadable for the request.
      */
     public final Loadable loadable;
+
+    public final ChanReader chanReader;
 
     /**
      * Cached Post objects from previous loads, or an empty list.
@@ -50,11 +53,13 @@ public class ChanLoaderRequestParams {
     public final Response.ErrorListener errorListener;
 
     public ChanLoaderRequestParams(Loadable loadable,
+                                   ChanReader chanReader,
                                    List<Post> cached,
                                    Response.Listener<ChanLoaderResponse> listener,
                                    Response.ErrorListener errorListener) {
 
         this.loadable = loadable;
+        this.chanReader = chanReader;
         this.cached = cached;
         this.listener = listener;
         this.errorListener = errorListener;

@@ -75,6 +75,19 @@ public class BoardManager {
         fetchLimitedSitesTheirBoards();
     }
 
+    public Board getForCode(Site site, String code) {
+        if (site.boardsType() == Site.BoardsType.DYNAMIC) {
+            for (Board board : getSavedBoards()) {
+                if (board.site == site && board.code.equals(code)) {
+                    return board;
+                }
+            }
+            return null;
+        } else {
+            return Board.fromSiteNameCode(site, code, code);
+        }
+    }
+
     public List<Board> getSavedBoards() {
         return savedBoards;
     }

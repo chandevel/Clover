@@ -26,8 +26,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.floens.chan.chan.ChanLoaderRequest;
-import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
@@ -41,7 +39,8 @@ import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
-import org.floens.chan.core.site.common.ChanReaderRequest;
+import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.HttpCallManager;
@@ -403,8 +402,8 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
-    public ChanLoaderRequest loaderRequest(ChanLoaderRequestParams request) {
-        return new ChanLoaderRequest(new ChanReaderRequest(request));
+    public ChanReader chanReader() {
+        return new FutabaChanReader();
     }
 
     @Override
