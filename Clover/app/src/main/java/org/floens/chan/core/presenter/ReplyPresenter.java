@@ -280,8 +280,11 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
         if (withText) {
             String[] lines = post.comment.toString().split("\n+");
+            final Pattern quotePattern = Pattern.compile("^>>\\d+(\\s\\(OP\\))?$"); // matches for >>123 or >>123 (OP)
             for (String line : lines) {
-                textToInsert += ">" + line + "\n";
+                if(!quotePattern.matcher(line).matches()) { // do not include post no from quoted post
+                    textToInsert += ">" + line + "\n";
+                }
             }
         }
 
