@@ -12,6 +12,7 @@ Clover adds inline replying, thread watching, notifications, themes, pass suppor
 ## Contributing
 Contributing to Clover is appreciated, there's always stuff to do or bugs to fix. I keep the todo list of Clover in the 
 [Clover Trello board](https://trello.com/b/V6gclKvM/clover).  
+We also have a Slack, send an email to [me](https://github.com/Floens) (email listed in bio) for an invite.  
 [Make a new theme](https://github.com/Floens/Clover/wiki/Adding-a-new-theme)  
 
 
