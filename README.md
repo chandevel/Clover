@@ -27,4 +27,4 @@ See the [Clover setup guide](https://github.com/Floens/Clover/wiki/Building-Clov
 
 ## License
 * Clover is [GPLv3](https://github.com/Floens/Clover/blob/master/COPYING.txt)
-* [Licenses of the used libraries](https://github.com/Floens/Clover/master/Clover/app/src/main/assets/html/licenses.html).
+* [Licenses of the used libraries](https://github.com/Floens/Clover/blob/dev/Clover/app/src/main/assets/html/licenses.html).
