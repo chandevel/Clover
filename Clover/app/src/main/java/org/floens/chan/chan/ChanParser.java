@@ -20,6 +20,7 @@ package org.floens.chan.chan;
 
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StrikethroughSpan;
@@ -57,6 +58,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import noEmbed.NoEmbed;
+import noEmbed.NoEmbedBuilder;
+import noEmbed.NoEmbedException;
 
 import static org.floens.chan.utils.AndroidUtils.sp;
 
@@ -221,7 +226,7 @@ public class ChanParser {
     private CharSequence parseNode(Theme theme, Post post, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
-            SpannableString spannable = new SpannableString(text);
+            SpannableStringBuilder spannable = new SpannableStringBuilder(text);
 
             detectLinks(theme, post, text, spannable);
 
@@ -234,17 +239,17 @@ public class ChanParser {
                 case "span": {
                     Element span = (Element) node;
 
-                    SpannableString quote;
+                    SpannableStringBuilder quote;
 
                     Set<String> classes = span.classNames();
                     if (classes.contains("deadlink")) {
-                        quote = new SpannableString(span.text());
+                        quote = new SpannableStringBuilder(span.text());
                         quote.setSpan(new ForegroundColorSpanHashed(theme.quoteColor), 0, quote.length(), 0);
                         quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
                     } else if (classes.contains("fortune")) {
                         // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
                         // manually add these <br>
-                        quote = new SpannableString("\n\n" + span.text());
+                        quote = new SpannableStringBuilder("\n\n" + span.text());
 
                         String style = span.attr("style");
                         if (!TextUtils.isEmpty(style)) {
@@ -272,7 +277,7 @@ public class ChanParser {
                     } else if (classes.contains("abbr")) {
                         return null;
                     } else {
-                        quote = new SpannableString(span.text());
+                        quote = new SpannableStringBuilder(span.text());
                         quote.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, quote.length(), 0);
                         detectLinks(theme, post, span.text(), quote);
                     }
@@ -450,13 +455,23 @@ public class ChanParser {
         }
     }
 
-    private void detectLinks(Theme theme, Post post, String text, SpannableString spannable) {
+    private void detectLinks(Theme theme, Post post, String text, SpannableStringBuilder spannable) {
         // use autolink-java lib to detect links
         final Iterable<LinkSpan> links = linkExtractor.extractLinks(text);
         for(final LinkSpan link : links) {
-            final String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
-            final PostLinkable pl = new PostLinkable(theme, post, linkText, linkText, PostLinkable.Type.LINK);
+            String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
+            final String linkUrl = linkText;
+            if(NoEmbedBuilder.containsNoEmbedUrl(linkUrl)) {
+                try {
+                    final NoEmbed metaData = NoEmbedBuilder.getData(linkText);
+                    linkText = "[" + metaData.getProviderName() + "] " + metaData.getTitle();
+                } catch (NoEmbedException e) {
+                    Logger.d(TAG, "Unable to get meta data for youtube link: ", linkText);
+                }
+            }
+            final PostLinkable pl = new PostLinkable(theme, post, linkText, linkUrl, PostLinkable.Type.LINK);
             spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), 0);
+            spannable.replace(link.getBeginIndex(), link.getEndIndex(), linkText);
             post.linkables.add(pl);
         }
     }
