@@ -1,5 +1,4 @@
 # Clover - 4chan browser for Android  
-[![build status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
 [![slack](https://slack.plebco.de/badge.svg)](https://slack.plebco.de/)
 [![irc](https://img.shields.io/badge/freenode-%23Clover-blue.svg)](https://webchat.freenode.net/?url=irc:///#Clover)
 
