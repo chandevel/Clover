@@ -112,6 +112,10 @@ android {
     sourceSets {
         beta.java.srcDirs = ['src/release/java']
     }
+
+    packagingOptions {
+        pickFirst 'META-INF/LICENSE'
+    }
 }
 
 dependencies {
@@ -131,4 +135,5 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'org.nibor.autolink:autolink:0.6.0'
+    compile 'com.github.andyklimczak:No-Embed-JVM:c72f2490f6'
 }
