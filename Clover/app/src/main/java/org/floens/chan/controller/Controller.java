@@ -215,13 +215,13 @@ public abstract class Controller {
         if (animated) {
             ControllerTransition transition = new FadeOutTransition();
             transition.from = this;
-            transition.perform();
             transition.setCallback(new ControllerTransition.Callback() {
                 @Override
                 public void onControllerTransitionCompleted(ControllerTransition transition) {
                     finishPresenting();
                 }
             });
+            transition.perform();
         } else {
             finishPresenting();
         }
