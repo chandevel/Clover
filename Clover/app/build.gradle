@@ -119,7 +119,7 @@ android {
 }
 
 dependencies {
-    def supportVersion = '25.4.0'
+    def supportVersion = '26.1.0'
 
     implementation "com.android.support:support-v13:${supportVersion}"
     implementation "com.android.support:appcompat-v7:${supportVersion}"
