@@ -1,5 +1,6 @@
 # Clover - 4chan browser for Android  
-[![build status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
+[![slack](https://slack.plebco.de/badge.svg)](https://slack.plebco.de/)
+[![irc](https://img.shields.io/badge/freenode-%23Clover-blue.svg)](https://webchat.freenode.net/?url=irc:///#Clover)
 
 Clover is a fast Android app for browsing [4chan](https://www.4chan.org/).  
 Clover adds inline replying, thread watching, notifications, themes, pass support, filters and a whole lot more. Clover is licensed under the GPL and will always be free.
@@ -26,4 +27,4 @@ See the [Clover setup guide](https://github.com/Floens/Clover/wiki/Building-Clov
 
 ## License
 * Clover is [GPLv3](https://github.com/Floens/Clover/blob/master/COPYING.txt)
-* [Licenses of the used libraries](https://github.com/Floens/Clover/master/Clover/app/src/main/assets/html/licenses.html).
+* [Licenses of the used libraries](https://github.com/Floens/Clover/blob/dev/Clover/app/src/main/assets/html/licenses.html).

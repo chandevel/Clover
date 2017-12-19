@@ -286,8 +286,11 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
         if (withText) {
             String[] lines = post.comment.toString().split("\n+");
+            final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$"); // matches for >>123, >>123 (OP), >>123 (You), >>>/fit/123
             for (String line : lines) {
-                textToInsert += ">" + line + "\n";
+                if(!quotePattern.matcher(line).matches()) { // do not include post no from quoted post
+                    textToInsert += ">" + line + "\n";
+                }
             }
         }
 
