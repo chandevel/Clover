@@ -219,21 +219,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 Logger.e(TAG, "Error upgrading to version 22", e);
             }
 
-//            final Site[] siteRef = new Site[1];
-//            getGraph().get(SiteManager.class).addSiteFromClass(Chan4.class, new SiteManager.SiteAddCallback() {
-//                @Override
-//                public void onSiteAdded(Site site) {
-//                    siteRef[0] = site;
-//                }
-//
-//                @Override
-//                public void onSiteAddFailed(String message) {
-//                    throw new RuntimeException("Error adding site for db upgrade: " + message);
-//                }
-//            });
-//
-//            // Will always be 1
-//            int siteId = siteRef[0].id();
             int siteId = 0;
 
             try {

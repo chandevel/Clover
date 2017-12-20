@@ -95,7 +95,7 @@ public class BoardManager {
     public void saveBoard(Board board) {
         board.saved = true;
 
-        board = databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
+        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
 
         loadBoards();
     }
@@ -103,7 +103,7 @@ public class BoardManager {
     public void unsaveBoard(Board board) {
         board.saved = false;
 
-        board = databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
+        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
 
         loadBoards();
     }

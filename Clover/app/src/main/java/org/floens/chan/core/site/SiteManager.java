@@ -67,7 +67,7 @@ public class SiteManager {
 
     public void addSiteFromClass(Class<? extends Site> siteClass, SiteAddCallback callback) {
         Site site = instantiateSiteClass(siteClass);
-        site = createNewSite(site);
+        createNewSite(site);
 
         List<Site> newAllSites = new ArrayList<>(Sites.allSites());
         newAllSites.add(site);
@@ -120,7 +120,12 @@ public class SiteManager {
         return sites;
     }
 
-    private Site createNewSite(Site site) {
+    /**
+     * Create a new site from the Site instance. This will insert the model for the site
+     * into the database and calls initialize on the site instance.
+     * @param site the site to add.
+     */
+    private void createNewSite(Site site) {
         SiteConfig config = new SiteConfig();
         config.classId = Sites.SITE_CLASSES.indexOfValue(site.getClass());
         config.external = false;
@@ -130,8 +135,6 @@ public class SiteManager {
         SiteModel siteModel = createNewSiteModel(site, config, userSettings);
 
         initializeSite(site, siteModel.id, config, userSettings);
-
-        return site;
     }
 
     private SiteModel createNewSiteModel(Site site, SiteConfig config, SiteUserSettings userSettings) {
@@ -171,6 +174,13 @@ public class SiteManager {
         return instantiateSiteClass(clazz);
     }
 
+    /**
+     * Create the instance of the site class. Catches any reflection exceptions as runtime
+     * exceptions.
+     * @param clazz the class to instantiate
+     * @return the instantiated clas
+     * @throws IllegalArgumentException on reflection exceptions, should never happen.
+     */
     private Site instantiateSiteClass(Class<? extends Site> clazz) {
         Site site;
         //noinspection TryWithIdenticalCatches
@@ -182,6 +192,9 @@ public class SiteManager {
             throw new IllegalArgumentException();
         }
         return site;
+    }
+
+    public static class SiteAlreadyAdded extends IllegalArgumentException {
     }
 
     public interface SiteAddCallback {

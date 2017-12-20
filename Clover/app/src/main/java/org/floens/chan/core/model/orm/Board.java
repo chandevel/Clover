@@ -25,6 +25,9 @@ import com.j256.ormlite.table.DatabaseTable;
 import org.floens.chan.core.model.SiteReference;
 import org.floens.chan.core.site.Site;
 
+/**
+ * A board is something that can be browsed, it is unique by it's site and code.
+ */
 @DatabaseTable(tableName = "board")
 public class Board implements SiteReference {
     @DatabaseField(generatedId = true)
@@ -38,6 +41,9 @@ public class Board implements SiteReference {
      */
     public transient Site site;
 
+    /**
+     * The board appears in the dropdown.
+     */
     @DatabaseField
     public boolean saved = false;
 

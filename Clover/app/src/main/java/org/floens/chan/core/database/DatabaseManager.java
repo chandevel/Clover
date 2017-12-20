@@ -269,7 +269,7 @@ public class DatabaseManager {
     }
 
     public <T> void runTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
-        executeTask(taskCallable, taskResult);
+        Future<T> f = executeTask(taskCallable, taskResult);
     }
 
     public <T> T runTaskSync(final Callable<T> taskCallable) {
@@ -305,6 +305,7 @@ public class DatabaseManager {
                     }
                     return result;
                 } catch (Exception e) {
+                    Logger.e(TAG, "executeTask", e);
                     throw new RuntimeException(e);
                 }
             }

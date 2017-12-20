@@ -113,7 +113,6 @@ public class WatchManager {
         }
     };
 
-    @Inject
     ChanLoaderFactory chanLoaderFactory;
 
     private final AlarmManager alarmManager;
@@ -134,11 +133,13 @@ public class WatchManager {
     private long lastBackgroundUpdateTime;
 
     @Inject
-    public WatchManager(DatabaseManager databaseManager) {
+    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory) {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
 
         this.databaseManager = databaseManager;
+        this.chanLoaderFactory = chanLoaderFactory;
+
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTaskSync(databasePinManager.getPins());
         Collections.sort(pins, SORT_PINS);

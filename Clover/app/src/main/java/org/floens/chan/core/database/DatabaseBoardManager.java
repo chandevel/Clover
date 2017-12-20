@@ -1,5 +1,7 @@
 package org.floens.chan.core.database;
 
+import com.j256.ormlite.stmt.QueryBuilder;
+
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.Sites;
@@ -35,8 +37,19 @@ public class DatabaseBoardManager {
         return new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                for (Board b : boards) {
-                    helper.boardsDao.createOrUpdate(b);
+                // TODO: optimize
+                for (Board board : boards) {
+                    QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
+                    q.where().eq("site", board.getSite().id())
+                            .and().eq("value", board.code);
+                    Board existing = q.queryForFirst();
+                    if (existing != null) {
+                        existing.update(board);
+                        helper.boardsDao.update(existing);
+                        board.update(existing);
+                    } else {
+                        helper.boardsDao.create(board);
+                    }
                 }
 
                 return null;
