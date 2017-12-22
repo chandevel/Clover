@@ -19,17 +19,16 @@ package org.floens.chan.ui.controller;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.Button;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.controller.NavigationController;
+import org.floens.chan.core.presenter.SetupPresenter;
 
-public class PopupController extends Controller implements View.OnClickListener {
-    private FrameLayout topView;
-    private FrameLayout container;
+public class IntroController extends Controller implements View.OnClickListener {
+    private Button start;
 
-    public PopupController(Context context) {
+    public IntroController(Context context) {
         super(context);
     }
 
@@ -37,26 +36,17 @@ public class PopupController extends Controller implements View.OnClickListener 
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_controller_popup);
-        topView = (FrameLayout) view.findViewById(R.id.top_view);
-        topView.setOnClickListener(this);
-        container = (FrameLayout) view.findViewById(R.id.container);
-    }
+        view = inflateRes(R.layout.controller_intro);
 
-    public void setChildController(NavigationController childController) {
-        addChildController(childController);
-        childController.attachToParentView(container);
-        childController.onShow();
+        start = view.findViewById(R.id.start);
+        start.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        dismiss();
-    }
-
-    public void dismiss() {
-        if (presentedByController instanceof DoubleNavigationController) {
-            ((SplitNavigationController) presentedByController).popAll();
+        if (v == start) {
+            SetupPresenter presenter = ((SetupController) navigationController).getPresenter();
+            presenter.startClicked();
         }
     }
 }

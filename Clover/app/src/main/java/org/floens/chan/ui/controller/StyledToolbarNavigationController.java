@@ -38,8 +38,9 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
 
         view = inflateRes(R.layout.controller_navigation_toolbar);
         container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
-        container.setNavigationController(this);
-        container.setSwipeEnabled(ChanSettings.controllerSwipeable.get());
+        NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
+        nav.setNavigationController(this);
+        nav.setSwipeEnabled(ChanSettings.controllerSwipeable.get());
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(ThemeHelper.getInstance().getTheme().primaryColor.color);
         toolbar.setCallback(this);

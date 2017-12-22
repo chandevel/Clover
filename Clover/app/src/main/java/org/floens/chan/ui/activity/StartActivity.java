@@ -20,7 +20,6 @@ package org.floens.chan.ui.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
@@ -35,7 +34,6 @@ import android.view.ViewGroup;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanHelper;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.database.DatabaseLoadableManager;
@@ -51,7 +49,7 @@ import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
-import org.floens.chan.ui.controller.SiteSetupController;
+import org.floens.chan.ui.controller.SetupController;
 import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
@@ -135,7 +133,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
         boolean loadDefault = true;
-        if (savedInstanceState != null) {
+        /*if (savedInstanceState != null) {
             // Restore the activity state from the previously saved state.
             ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
             if (chanState == null) {
@@ -177,17 +175,21 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                             .show();
                 }
             }
-        }
+        }*/
 
         // Not from a state or from an url, launch the setup controller if no boards are setup up yet,
         // otherwise load the default saved board.
         if (loadDefault) {
-            if (boardManager.getSavedBoards().isEmpty()) {
-                mainNavigationController.pushController(new SiteSetupController(this), false);
+            if (true || boardManager.getSavedBoards().isEmpty()) {
+                setupWithNoBoards();
             } else {
                 browseController.loadDefault();
             }
         }
+    }
+
+    private void setupWithNoBoards() {
+        mainNavigationController.presentController(new SetupController(this), false);
     }
 
     private Pair<Loadable, Loadable> resolveChanState(ChanState state) {

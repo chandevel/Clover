@@ -161,7 +161,7 @@ public class ChanSettings {
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
 
-        theme = new StringSetting(p, "preference_theme", "light");
+        theme = new StringSetting(p, "preference_theme", "yotsuba");
 
         layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.values(), LayoutMode.AUTO);
 

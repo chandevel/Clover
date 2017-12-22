@@ -97,17 +97,15 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     private LinearLayout toView;
 
     public Toolbar(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public Toolbar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
-    public Toolbar(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    public Toolbar(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
         init();
     }
 
@@ -185,6 +183,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
     public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item) {
         setNavigationItemInternal(animate, pushing, item);
+    }
+
+    public void setArrowMenuIconShown(boolean show) {
+        arrowMenuView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public boolean isTransitioning() {
@@ -379,7 +381,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             if (animate) {
                 toView.setAlpha(0f);
 
-                ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
+                final ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
                 animator.setDuration(300);
                 animator.setInterpolator(new DecelerateInterpolator(2f));
                 animator.addListener(new AnimatorListenerAdapter() {
@@ -397,7 +399,16 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
                 if (!pushing) {
                     animator.setStartDelay(100);
                 }
-                animator.start();
+
+                // hack to avoid the animation jumping when the current frame has a lot to do,
+                // which is often because setting a new navigationitem is almost always done
+                // when setting a new controller.
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        animator.start();
+                    }
+                });
             } else {
                 arrowMenuDrawable.setProgress(toItem.hasBack || toItem.search ? 1f : 0f);
                 finishTransition(true);
@@ -536,6 +547,25 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         String getSearchHint(NavigationItem item);
 
         void onSearchEntered(NavigationItem item, String entered);
+    }
+
+    public static class SimpleToolbarCallback implements ToolbarCallback {
+        @Override
+        public void onMenuOrBackClicked(boolean isArrow) {
+        }
+
+        @Override
+        public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
+        }
+
+        @Override
+        public String getSearchHint(NavigationItem item) {
+            return null;
+        }
+
+        @Override
+        public void onSearchEntered(NavigationItem item, String entered) {
+        }
     }
 
     public interface ToolbarCollapseCallback {

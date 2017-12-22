@@ -14,7 +14,7 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.presenter.BoardSetupPresenter;
-import org.floens.chan.core.presenter.SiteSetupPresenter;
+import org.floens.chan.core.presenter.SitesSetupPresenter;
 import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
@@ -41,6 +41,7 @@ import org.floens.chan.ui.controller.ImageViewerController;
 import org.floens.chan.ui.controller.MainSettingsController;
 import org.floens.chan.ui.controller.PassSettingsController;
 import org.floens.chan.ui.controller.SiteSetupController;
+import org.floens.chan.ui.controller.SitesSetupController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.FilterLayout;
@@ -95,9 +96,10 @@ import dagger.Provides;
                 WatchManager.PinWatcher.class,
                 UpdateManager.class,
                 SiteManager.class,
-                SiteSetupPresenter.class,
+                SitesSetupPresenter.class,
                 BoardSetupPresenter.class,
                 SiteSetupController.class,
+                SitesSetupController.class,
                 BoardSetupController.class,
 
                 Chan4.class,

@@ -164,13 +164,25 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
 
-    <string name="setup_title">Add sites</string>
-    <string name="setup_introduction">"Welcome to Clover. Clover can browse multiple imageboards.\n
-Start by entering a URL of a site."</string>
-    <string name="setup_site_url">Site url</string>
-    <string name="setup_site_url_hint">http://</string>
+    <string name="intro_title">Clover</string>
+    <string name="intro_content">Browse your favorite imageboards</string>
+    <string name="intro_start">Get started</string>
 
-    <string name="saved_boards_title">Saved boards</string>
+    <string name="setup_sites_title">Your sites</string>
+    <string name="setup_sites_add_title">Add site</string>
+    <string name="setup_sites_url">Site url</string>
+    <string name="setup_sites_url_hint">http://</string>
+    <string name="setup_sites_site_description">%s added</string>
+
+    <string name="setup_site_title">Configure %s</string>
+    <string name="setup_site_group_general">General</string>
+    <string name="setup_site_boards">Setup boards</string>
+    <string name="setup_site_boards_description">%s added</string>
+
+    <string name="setup_board_title">Configure boards of %s</string>
+    <string name="setup_board_add">Add board</string>
+
+    <string name="saved_boards_title">Your boards</string>
     <string name="saved_boards_introduction">"Change your saved boards. These will appear in a list at the top."</string>
     <string name="saved_boards_code">Board code</string>
     <string name="saved_boards_code_hint">lit</string>

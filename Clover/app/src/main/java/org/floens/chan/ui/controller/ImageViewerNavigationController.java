@@ -40,8 +40,9 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
 
         view = inflateRes(R.layout.controller_navigation_image_viewer);
         container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
-        container.setNavigationController(this);
-        container.setSwipeEnabled(false);
+        NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
+        nav.setNavigationController(this);
+        nav.setSwipeEnabled(false);
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         toolbar.setCallback(this);
     }

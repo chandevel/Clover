@@ -167,10 +167,6 @@ public class Board implements SiteReference {
         return site;
     }
 
-    public String getName() {
-        return "/" + code + "/ \u2013 " + name;
-    }
-
     /**
      * Updates the board with data from {@code o}.<br>
      * {@link #id}, {@link #saved}, {@link #order} are skipped because these are user-set.

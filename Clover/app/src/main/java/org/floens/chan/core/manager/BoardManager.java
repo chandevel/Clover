@@ -92,6 +92,16 @@ public class BoardManager {
         return savedBoards;
     }
 
+    public List<Board> getSiteBoards(Site site) {
+        return databaseManager.runTaskSync(
+                databaseManager.getDatabaseBoardManager().getSiteBoards(site));
+    }
+
+    public List<Board> getSiteSavedBoards(Site site) {
+        return databaseManager.runTaskSync(
+                databaseManager.getDatabaseBoardManager().getSiteSavedBoards(site));
+    }
+
     public void saveBoard(Board board) {
         board.saved = true;
 

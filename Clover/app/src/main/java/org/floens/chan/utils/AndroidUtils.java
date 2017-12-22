@@ -259,6 +259,16 @@ public class AndroidUtils {
         inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    public static void requestViewAndKeyboardFocus(View view) {
+        view.setFocusable(false);
+        view.setFocusableInTouchMode(true);
+        if (view.requestFocus()) {
+            InputMethodManager inputManager =
+                    (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
     public static String getReadableFileSize(long bytes, boolean si) {
         long unit = si ? 1000 : 1024;
         if (bytes < unit)

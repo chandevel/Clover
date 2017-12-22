@@ -39,6 +39,7 @@ import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
+import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -329,8 +330,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     public void loadBoard(Board board) {
         Loadable loadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-        loadable.title = board.getName();
-        navigationItem.title = board.getName();
+        loadable.title = BoardHelper.getName(board);
+        navigationItem.title = BoardHelper.getName(board);
 
         ThreadPresenter presenter = threadLayout.getPresenter();
         presenter.unbindLoadable();
@@ -353,7 +354,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private void loadBoards() {
         List<Board> boards = boardManager.getSavedBoards();
 
-        boolean wasEmpty = boardItems == null;
+        boolean wasEmpty = boardItems == null || boardItems.isEmpty();
 
         boardItems = new ArrayList<>();
         for (Board board : boards) {
@@ -373,7 +374,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         public Board board;
 
         public FloatingMenuItemBoard(Board board) {
-            super(board.id, board.getName());
+            super(board.id, BoardHelper.getName(board));
             this.board = board;
         }
     }

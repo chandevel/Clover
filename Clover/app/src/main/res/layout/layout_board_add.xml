@@ -15,30 +15,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<org.floens.chan.ui.layout.BoardAddLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/backcolor">
+    android:minHeight="10000dp"
+    android:minWidth="10000dp"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+    <org.floens.chan.ui.layout.SearchLayout
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/boards_recycler"
+        android:id="@+id/suggestions"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipChildren="false"
+        android:layout_height="wrap_content"
         android:clipToPadding="false"
-        android:paddingBottom="80dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="8dp"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add_white_24dp" />
-
-</android.support.design.widget.CoordinatorLayout>
+</org.floens.chan.ui.layout.BoardAddLayout>

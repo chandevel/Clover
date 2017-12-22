@@ -57,23 +57,34 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<List<Board>> getBoards(final Site site) {
+    public Callable<List<Board>> getSiteBoards(final Site site) {
         return new Callable<List<Board>>() {
             @Override
             public List<Board> call() throws Exception {
-                List<Board> boards = null;
-                try {
-                    boards = helper.boardsDao.queryBuilder()
-                            .where().eq("site", site.id())
-                            .query();
-                    for (int i = 0; i < boards.size(); i++) {
-                        Board board = boards.get(i);
-                        board.site = site;
-                    }
-                } catch (SQLException e) {
-                    Logger.e(TAG, "Error getting boards from db", e);
+                List<Board> boards = helper.boardsDao.queryBuilder()
+                        .where().eq("site", site.id())
+                        .query();
+                for (int i = 0; i < boards.size(); i++) {
+                    Board board = boards.get(i);
+                    board.site = site;
                 }
+                return boards;
+            }
+        };
+    }
 
+    public Callable<List<Board>> getSiteSavedBoards(final Site site) {
+        return new Callable<List<Board>>() {
+            @Override
+            public List<Board> call() throws Exception {
+                List<Board> boards = helper.boardsDao.queryBuilder()
+                        .where().eq("site", site.id())
+                        .and().eq("saved", true)
+                        .query();
+                for (int i = 0; i < boards.size(); i++) {
+                    Board board = boards.get(i);
+                    board.site = site;
+                }
                 return boards;
             }
         };

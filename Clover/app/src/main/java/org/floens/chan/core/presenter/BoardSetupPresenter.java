@@ -21,46 +21,81 @@ package org.floens.chan.core.presenter;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.Sites;
+import org.floens.chan.ui.helper.BoardHelper;
+import org.floens.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
-
 public class BoardSetupPresenter {
+    private BoardManager boardManager;
+
     private Callback callback;
+    private AddCallback addCallback;
 
-    private final List<Site> sites = new ArrayList<>();
-
-    @Inject
-    BoardManager boardManager;
+    private Site site;
 
     private List<Board> savedBoards;
 
+    private Executor executor = Executors.newSingleThreadExecutor();
+    private BackgroundUtils.Cancelable suggestionCall;
+
+    private List<BoardSuggestion> suggestions = new ArrayList<>();
+    private Set<String> selectedSuggestions = new HashSet<>();
+
     @Inject
-    public BoardSetupPresenter() {
-        getGraph().inject(this);
+    public BoardSetupPresenter(BoardManager boardManager) {
+        this.boardManager = boardManager;
     }
 
-    public void create(Callback callback) {
+    public void create(Callback callback, Site site) {
         this.callback = callback;
+        this.site = site;
 
-        sites.addAll(Sites.allSites());
-
-        loadSavedBoards();
+        updateSavedBoards();
         callback.setSavedBoards(savedBoards);
     }
 
-    public void addFromSuggestion(BoardSuggestion suggestion) {
-        Board board = Board.fromSiteNameCode(suggestion.site, suggestion.key, suggestion.key);
+    public void setAddCallback(AddCallback addCallback) {
+        this.addCallback = addCallback;
+        suggestions.clear();
+        selectedSuggestions.clear();
+    }
 
-        boardManager.saveBoard(board);
+    public void addClicked() {
+        callback.showAddDialog();
+    }
 
-        loadSavedBoards();
-        callback.setSavedBoards(savedBoards);
+    public void onSuggestionClicked(BoardSuggestion suggestion) {
+        suggestion.checked = !suggestion.checked;
+        String code = suggestion.board.code;
+        if (suggestion.checked) {
+            selectedSuggestions.add(code);
+        } else {
+            selectedSuggestions.remove(code);
+        }
+        addCallback.updateSuggestions();
+    }
+
+    public List<BoardSuggestion> getSuggestions() {
+        return suggestions;
+    }
+
+    public void onAddDialogPositiveClicked() {
+        for (BoardSuggestion suggestion : suggestions) {
+            if (suggestion.checked) {
+                boardManager.saveBoard(suggestion.board);
+                updateSavedBoards();
+                callback.setSavedBoards(savedBoards);
+            }
+        }
     }
 
     public void move(int from, int to) {
@@ -75,35 +110,98 @@ public class BoardSetupPresenter {
 
         boardManager.unsaveBoard(board);
 
-        loadSavedBoards();
+        updateSavedBoards();
         callback.setSavedBoards(savedBoards);
     }
 
-    public List<BoardSuggestion> getSuggestionsForQuery(String query) {
-        List<BoardSuggestion> suggestions = new ArrayList<>();
-
-        for (Site site : sites) {
-            suggestions.add(new BoardSuggestion(query, site));
-        }
-
-        return suggestions;
+    public void done() {
+        callback.finish();
     }
 
-    private void loadSavedBoards() {
-        savedBoards = new ArrayList<>(boardManager.getSavedBoards());
+    public void searchEntered(final String query) {
+        if (suggestionCall != null) {
+            suggestionCall.cancel();
+        }
+
+        suggestionCall = BackgroundUtils.runWithExecutor(executor, new Callable<List<BoardSuggestion>>() {
+            @Override
+            public List<BoardSuggestion> call() throws Exception {
+                List<BoardSuggestion> suggestions = new ArrayList<>();
+                if (site.boardsType() == Site.BoardsType.DYNAMIC) {
+                    List<Board> siteBoards = boardManager.getSiteBoards(site);
+                    List<Board> toSearch = new ArrayList<>();
+                    for (Board siteBoard : siteBoards) {
+                        if (!siteBoard.saved) {
+                            toSearch.add(siteBoard);
+                        }
+                    }
+                    List<Board> search = BoardHelper.search(toSearch, query);
+
+                    for (Board board : search) {
+                        BoardSuggestion suggestion = new BoardSuggestion(board);
+                        suggestions.add(suggestion);
+                    }
+                } else {
+                    // TODO
+                    suggestions.add(new BoardSuggestion(null));
+                }
+
+                return suggestions;
+            }
+        }, new BackgroundUtils.BackgroundResult<List<BoardSuggestion>>() {
+            @Override
+            public void onResult(List<BoardSuggestion> result) {
+                updateSuggestions(result);
+
+                if (addCallback != null) {
+                    addCallback.updateSuggestions();
+                }
+            }
+        });
+    }
+
+    private void updateSavedBoards() {
+        savedBoards = new ArrayList<>(boardManager.getSiteSavedBoards(site));
+    }
+
+    private void updateSuggestions(List<BoardSuggestion> suggestions) {
+        this.suggestions = suggestions;
+        for (BoardSuggestion suggestion : this.suggestions) {
+            suggestion.checked = selectedSuggestions.contains(suggestion.board.code);
+        }
     }
 
     public interface Callback {
+        void showAddDialog();
+
         void setSavedBoards(List<Board> savedBoards);
+
+        void finish();
+    }
+
+    public interface AddCallback {
+        void updateSuggestions();
     }
 
     public static class BoardSuggestion {
-        public final String key;
-        public final Site site;
+        public final Board board;
 
-        public BoardSuggestion(String key, Site site) {
-            this.key = key;
-            this.site = site;
+        private boolean checked = false;
+
+        public BoardSuggestion(Board board) {
+            this.board = board;
+        }
+
+        public String getName() {
+            return BoardHelper.getName(board);
+        }
+
+        public String getDescription() {
+            return BoardHelper.getDescription(board);
+        }
+
+        public boolean isChecked() {
+            return checked;
         }
     }
 }

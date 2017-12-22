@@ -16,20 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/backcolor">
+    android:animateLayoutChanges="true"
+    android:background="?attr/backcolor"
+    tools:ignore="ContentDescription,RtlHardcoded">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/boards_recycler"
+        android:id="@+id/sites_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:paddingBottom="80dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="8dp"
+        android:padding="16dp"
+        android:paddingBottom="72dp"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical" />
 

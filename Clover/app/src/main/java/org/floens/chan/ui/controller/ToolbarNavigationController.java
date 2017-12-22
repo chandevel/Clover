@@ -29,6 +29,7 @@ import org.floens.chan.ui.toolbar.Toolbar;
 
 public abstract class ToolbarNavigationController extends NavigationController implements Toolbar.ToolbarCallback {
     protected Toolbar toolbar;
+    protected boolean requireSpaceForToolbar = true;
 
     public ToolbarNavigationController(Context context) {
         super(context);
@@ -123,7 +124,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
     }
 
     protected void updateToolbarCollapse(Controller controller, boolean animate) {
-        if (!controller.navigationItem.handlesToolbarInset) {
+        if (requireSpaceForToolbar && !controller.navigationItem.handlesToolbarInset) {
             FrameLayout.LayoutParams toViewParams = (FrameLayout.LayoutParams) controller.view.getLayoutParams();
             toViewParams.topMargin = toolbar.getToolbarHeight();
             controller.view.setLayoutParams(toViewParams);

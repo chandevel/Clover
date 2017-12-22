@@ -168,7 +168,7 @@ public class Theme {
 
         public Drawable makeDrawable(Context context) {
             //noinspection deprecation
-            Drawable d = context.getResources().getDrawable(drawable);
+            Drawable d = context.getResources().getDrawable(drawable).mutate();
             d.setAlpha(intAlpha);
             return d;
         }

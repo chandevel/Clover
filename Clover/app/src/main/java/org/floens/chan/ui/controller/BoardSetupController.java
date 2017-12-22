@@ -18,9 +18,13 @@
 package org.floens.chan.ui.controller;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -28,11 +32,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
-import android.widget.BaseAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,61 +41,31 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.presenter.BoardSetupPresenter;
-import org.floens.chan.core.site.SiteIcon;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.ui.helper.BoardHelper;
+import org.floens.chan.ui.layout.BoardAddLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import static org.floens.chan.Chan.getGraph;
-import static org.floens.chan.ui.helper.PostHelper.formatBoardCodeAndName;
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
-public class BoardSetupController extends Controller implements View.OnClickListener, AdapterView.OnItemClickListener, BoardSetupPresenter.Callback {
+public class BoardSetupController extends Controller implements View.OnClickListener, BoardSetupPresenter.Callback {
+    private static final int DONE_ID = 1;
+
     @Inject
     BoardSetupPresenter presenter;
 
-    private AutoCompleteTextView code;
     private RecyclerView savedBoardsRecycler;
-
-    private SuggestBoardsAdapter suggestAdapter;
+    private FloatingActionButton add;
 
     private SavedBoardsAdapter savedAdapter;
     private ItemTouchHelper itemTouchHelper;
 
-    public BoardSetupController(Context context) {
-        super(context);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        getGraph().inject(this);
-
-        view = inflateRes(R.layout.controller_board_setup);
-        navigationItem.setTitle(R.string.saved_boards_title);
-        navigationItem.swipeable = false;
-
-        code = (AutoCompleteTextView) view.findViewById(R.id.code);
-        code.setOnItemClickListener(this);
-        savedBoardsRecycler = (RecyclerView) view.findViewById(R.id.boards_recycler);
-        savedBoardsRecycler.setLayoutManager(new LinearLayoutManager(context));
-
-        savedAdapter = new SavedBoardsAdapter();
-        savedBoardsRecycler.setAdapter(savedAdapter);
-
-        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
-
-        suggestAdapter = new SuggestBoardsAdapter();
-
-        code.setAdapter(suggestAdapter);
-        code.setThreshold(1);
-
-        presenter.create(this);
-    }
+    private Site site;
 
     private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP | ItemTouchHelper.DOWN,
@@ -118,88 +89,88 @@ public class BoardSetupController extends Controller implements View.OnClickList
         }
     };
 
+    public BoardSetupController(Context context) {
+        super(context);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        getGraph().inject(this);
+
+        // Inflate
+        view = inflateRes(R.layout.controller_board_setup);
+
+        // Navigation
+        navigationItem.title = context.getString(R.string.setup_board_title, site.name());
+
+        // View binding
+        savedBoardsRecycler = view.findViewById(R.id.boards_recycler);
+        add = view.findViewById(R.id.add);
+
+        // Adapters
+        savedAdapter = new SavedBoardsAdapter();
+
+        // View setup
+        savedBoardsRecycler.setLayoutManager(new LinearLayoutManager(context));
+        savedBoardsRecycler.setAdapter(savedAdapter);
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
+        add.setOnClickListener(this);
+        theme().applyFabColor(add);
+
+        // Presenter
+        presenter.create(this, site);
+    }
+
+    public void setSite(Site site) {
+        this.site = site;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == add) {
+            presenter.addClicked();
+        }
+    }
+
+    @Override
+    public void showAddDialog() {
+        @SuppressLint("InflateParams") final BoardAddLayout boardAddLayout =
+                (BoardAddLayout) LayoutInflater.from(context)
+                        .inflate(R.layout.layout_board_add, null);
+
+        boardAddLayout.setPresenter(presenter);
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(boardAddLayout)
+//                .setTitle(R.string.setup_board_add)
+                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        boardAddLayout.onPositiveClicked();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .create();
+
+        boardAddLayout.setDialog(dialog);
+
+        Window window = dialog.getWindow();
+        assert window != null;
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        dialog.show();
+    }
+
     @Override
     public void setSavedBoards(List<Board> savedBoards) {
         savedAdapter.setSavedBoards(savedBoards);
     }
 
     @Override
-    public void onClick(View v) {
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        BoardSetupPresenter.BoardSuggestion suggestion = suggestAdapter.getSuggestion(position);
-
-        presenter.addFromSuggestion(suggestion);
-    }
-
-    private class SuggestBoardsAdapter extends BaseAdapter implements Filterable {
-        private List<BoardSetupPresenter.BoardSuggestion> suggestions = new ArrayList<>();
-
-        @Override
-        public int getCount() {
-            return suggestions.size();
-        }
-
-        @Override
-        public String getItem(int position) {
-            return getSuggestion(position).key;
-        }
-
-        public BoardSetupPresenter.BoardSuggestion getSuggestion(int position) {
-            return suggestions.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = LayoutInflater.from(context).inflate(R.layout.cell_board_suggestion, parent, false);
-
-            final ImageView image = (ImageView) view.findViewById(R.id.image);
-            TextView text = (TextView) view.findViewById(R.id.text);
-
-            BoardSetupPresenter.BoardSuggestion suggestion = getSuggestion(position);
-
-            final SiteIcon icon = suggestion.site.icon();
-            icon.get(new SiteIcon.SiteIconResult() {
-                @Override
-                public void onSiteIcon(SiteIcon siteIcon, Drawable icon) {
-                    // TODO: don't if recycled
-                    image.setImageDrawable(icon);
-                }
-            });
-
-            text.setText(suggestion.site.name() + " \u2013 /" + suggestion.key + "/");
-
-            return view;
-        }
-
-        @Override
-        public Filter getFilter() {
-            return new Filter() {
-                @Override
-                protected FilterResults performFiltering(CharSequence constraint) {
-                    // Invoked on a worker thread, do not use.
-                    return null;
-                }
-
-                @Override
-                protected void publishResults(CharSequence constraint, FilterResults results) {
-                    suggestions.clear();
-
-                    if (constraint != null) {
-                        suggestions.addAll(presenter.getSuggestionsForQuery(constraint.toString()));
-                    }
-
-                    notifyDataSetChanged();
-                }
-            };
-        }
+    public void finish() {
+        navigationController.popController();
     }
 
     private class SavedBoardsAdapter extends RecyclerView.Adapter<SavedBoardCell> {
@@ -221,13 +192,16 @@ public class BoardSetupController extends Controller implements View.OnClickList
 
         @Override
         public SavedBoardCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SavedBoardCell(LayoutInflater.from(context).inflate(R.layout.cell_saved_board, parent, false));
+            return new SavedBoardCell(
+                    LayoutInflater.from(context)
+                            .inflate(R.layout.cell_board, parent, false));
         }
 
         @Override
         public void onBindViewHolder(SavedBoardCell holder, int position) {
             Board savedBoard = savedBoards.get(position);
-            holder.setSavedBoard(savedBoard);
+            holder.text.setText(BoardHelper.getName(savedBoard));
+            holder.description.setText(BoardHelper.getDescription(savedBoard));
         }
 
         @Override
@@ -237,23 +211,23 @@ public class BoardSetupController extends Controller implements View.OnClickList
     }
 
     private class SavedBoardCell extends RecyclerView.ViewHolder {
-        private ImageView image;
         private TextView text;
-        private SiteIcon siteIcon;
+        private TextView description;
         private ImageView reorder;
 
         public SavedBoardCell(View itemView) {
             super(itemView);
 
-            image = (ImageView) itemView.findViewById(R.id.image);
-            text = (TextView) itemView.findViewById(R.id.text);
-            reorder = (ImageView) itemView.findViewById(R.id.reorder);
+            text = itemView.findViewById(R.id.text);
+            description = itemView.findViewById(R.id.description);
+            reorder = itemView.findViewById(R.id.reorder);
 
             Drawable drawable = DrawableCompat.wrap(context.getResources().getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
             DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
             reorder.setImageDrawable(drawable);
 
-            reorder.setOnTouchListener(new View.OnTouchListener() {
+            View.OnTouchListener l = new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
@@ -261,21 +235,8 @@ public class BoardSetupController extends Controller implements View.OnClickList
                     }
                     return false;
                 }
-            });
-        }
-
-        public void setSavedBoard(Board savedBoard) {
-            siteIcon = savedBoard.site.icon();
-            siteIcon.get(new SiteIcon.SiteIconResult() {
-                @Override
-                public void onSiteIcon(SiteIcon siteIcon, Drawable icon) {
-                    if (SavedBoardCell.this.siteIcon == siteIcon) {
-                        image.setImageDrawable(icon);
-                    }
-                }
-            });
-
-            text.setText(formatBoardCodeAndName(savedBoard));
+            };
+            reorder.setOnTouchListener(l);
         }
     }
 }
