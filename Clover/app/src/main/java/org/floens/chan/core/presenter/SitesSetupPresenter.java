@@ -53,7 +53,7 @@ public class SitesSetupPresenter {
     }
 
     public boolean mayExit() {
-        return false;
+        return sites.size() > 0;
     }
 
     public void onShowDialogClicked() {

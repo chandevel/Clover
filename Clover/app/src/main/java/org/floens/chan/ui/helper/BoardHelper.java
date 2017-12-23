@@ -20,7 +20,6 @@ package org.floens.chan.ui.helper;
 import android.util.Pair;
 
 import org.floens.chan.core.model.orm.Board;
-import org.floens.chan.utils.Logger;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
@@ -69,8 +68,6 @@ public class BoardHelper {
         int code = FuzzySearch.ratio(board.code, query);
         int name = FuzzySearch.ratio(board.name, query);
         int description = FuzzySearch.weightedRatio(String.valueOf(getDescription(board)), query);
-
-        Logger.d(TAG, board.code + " = code = " + code + ", name = " + name + ", desc = " + description);
 
         return code * 4 +
                 name * 5 +

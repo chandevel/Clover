@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -51,6 +52,7 @@ import javax.inject.Inject;
 
 import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
+import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class BoardSetupController extends Controller implements View.OnClickListener, BoardSetupPresenter.Callback {
@@ -104,6 +106,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
 
         // Navigation
         navigationItem.title = context.getString(R.string.setup_board_title, site.name());
+        navigationItem.swipeable = false;
 
         // View binding
         savedBoardsRecycler = view.findViewById(R.id.boards_recycler);
@@ -166,6 +169,34 @@ public class BoardSetupController extends Controller implements View.OnClickList
     @Override
     public void setSavedBoards(List<Board> savedBoards) {
         savedAdapter.setSavedBoards(savedBoards);
+    }
+
+    @Override
+    public void showRemovedSnackbar(final Board board) {
+        Snackbar snackbar = Snackbar.make(view,
+                context.getString(R.string.setup_board_removed, BoardHelper.getName(board)),
+                Snackbar.LENGTH_LONG);
+        fixSnackbarText(context, snackbar);
+
+        snackbar.setAction(R.string.undo, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.undoRemoveBoard(board);
+            }
+        });
+        snackbar.show();
+    }
+
+    @Override
+    public void boardsWereAdded(int count) {
+        savedBoardsRecycler.smoothScrollToPosition(savedAdapter.getItemCount());
+
+        String boardText = context.getResources().getQuantityString(R.plurals.board, count, count);
+        String text = context.getString(R.string.setup_board_added, boardText);
+
+        Snackbar snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG);
+        fixSnackbarText(context, snackbar);
+        snackbar.show();
     }
 
     @Override

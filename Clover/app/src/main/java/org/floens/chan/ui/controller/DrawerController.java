@@ -224,8 +224,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     }
 
     @Override
-    public void openBoardEditor() {
-        openController(new BoardEditController(context));
+    public void openSites() {
+        openController(new SitesSetupController(context));
     }
 
     @Override

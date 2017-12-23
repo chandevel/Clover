@@ -22,11 +22,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:background="?attr/selectableItemBackground"
     android:orientation="horizontal">
 
+    <CheckBox
+        android:id="@+id/check"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical" />
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingLeft="8dp">
 
         <TextView
             android:id="@+id/text"
@@ -50,15 +57,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             tools:text="Description is here" />
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/check"
-        android:layout_width="56dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:scaleType="center"
-        tools:ignore="ContentDescription" />
 
 </LinearLayout>

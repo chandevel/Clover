@@ -31,10 +31,10 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.activity.StartActivity;
+import org.floens.chan.ui.animation.AnimationUtils;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
@@ -48,7 +48,6 @@ import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.ui.animation.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +66,6 @@ public class MainSettingsController extends SettingsController implements Toolba
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
 
-    private LinkSettingView boardEditorView;
     private LinkSettingView saveLocation;
     private LinkSettingView watchLink;
     private LinkSettingView passLink;
@@ -154,10 +152,6 @@ public class MainSettingsController extends SettingsController implements Toolba
         }
     }
 
-    public void onEvent(BoardManager.BoardsChangedMessage message) {
-        updateBoardLinkDescription();
-    }
-
     public void onEvent(ChanSettings.SettingChanged setting) {
         if (setting.setting == ChanSettings.saveLocation) {
             setSaveLocationDescription();
@@ -203,14 +197,6 @@ public class MainSettingsController extends SettingsController implements Toolba
     private void populatePreferences() {
         // General group
         SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
-        boardEditorView = new LinkSettingView(this, R.string.settings_board_edit, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new BoardEditController(context));
-            }
-        });
-        general.add(boardEditorView);
-        updateBoardLinkDescription();
 
         watchLink = (LinkSettingView) general.add(new LinkSettingView(this, R.string.settings_watch, 0, new View.OnClickListener() {
             @Override
@@ -444,11 +430,6 @@ public class MainSettingsController extends SettingsController implements Toolba
         }));
 
         groups.add(about);
-    }
-
-    private void updateBoardLinkDescription() {
-        List<Board> savedBoards = boardManager.getSavedBoards();
-        boardEditorView.setDescription(context.getResources().getQuantityString(R.plurals.board, savedBoards.size(), savedBoards.size()));
     }
 
     private void setSaveLocationDescription() {

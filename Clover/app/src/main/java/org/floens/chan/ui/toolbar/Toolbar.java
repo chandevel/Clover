@@ -43,7 +43,6 @@ import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.layout.SearchLayout;
-import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -479,15 +478,15 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             titleView.setTextColor(0xffffffff);
 
             if (item.middleMenu != null) {
-                item.middleMenu.setAnchor(titleView, Gravity.LEFT, dp(5), dp(5));
-
-                Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, getAttrColor(getContext(), R.attr.dropdown_light_color), getAttrColor(getContext(), R.attr.dropdown_light_pressed_color));
+                int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
+                int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
+                Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
                 titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
 
                 titleView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        item.middleMenu.show();
+                        item.middleMenu.show(titleView);
                     }
                 });
             }
@@ -513,10 +512,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             if (item.menu != null) {
                 removeFromParentView(item.menu);
                 menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-            }
-
-            if (item.middleMenu != null) {
-                item.middleMenu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
             }
 
             return menu;

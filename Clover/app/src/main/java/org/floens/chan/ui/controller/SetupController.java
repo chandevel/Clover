@@ -66,7 +66,9 @@ public class SetupController extends ToolbarNavigationController implements Setu
 
     @Override
     public void moveToSiteSetup() {
-        replaceController(new SitesSetupController(context), true);
+        SitesSetupController sitesSetupController = new SitesSetupController(context);
+        sitesSetupController.showDoneCheckmark();
+        replaceController(sitesSetupController, true);
     }
 
     private void replaceController(Controller to, boolean showToolbar) {

@@ -25,14 +25,13 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.BoardSetupPresenter;
 
-import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -75,22 +74,22 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         search.setTextColor(getAttrColor(getContext(), R.attr.text_color_primary));
         search.setHintColor(getAttrColor(getContext(), R.attr.text_color_hint));
         search.setClearButtonImage(R.drawable.ic_clear_black_24dp);
-        search.openKeyboard();
         suggestionsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         suggestionsRecycler.setAdapter(suggestionsAdapter);
 
+        suggestionsRecycler.requestFocus();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        presenter.setAddCallback(this);
+        presenter.bindAddDialog(this);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        presenter.setAddCallback(null);
+        presenter.unbindAddDialog();
     }
 
     @Override
@@ -120,6 +119,15 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
     }
 
     private class SuggestionsAdapter extends RecyclerView.Adapter<SuggestionCell> {
+        public SuggestionsAdapter() {
+            setHasStableIds(true);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return presenter.getSuggestions().get(position).getId();
+        }
+
         @Override
         public int getItemCount() {
             return presenter.getSuggestions().size();
@@ -138,14 +146,13 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
             holder.setSuggestion(boardSuggestion);
             holder.text.setText(boardSuggestion.getName());
             holder.description.setText(boardSuggestion.getDescription());
-            holder.check.setVisibility(boardSuggestion.isChecked() ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
     private class SuggestionCell extends RecyclerView.ViewHolder implements OnClickListener {
         private TextView text;
         private TextView description;
-        private ImageView check;
+        private CheckBox check;
 
         private BoardSetupPresenter.BoardSuggestion suggestion;
 
@@ -155,19 +162,20 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
             check = itemView.findViewById(R.id.check);
-            theme().doneDrawable.apply(check);
 
             itemView.setOnClickListener(this);
         }
 
         public void setSuggestion(BoardSetupPresenter.BoardSuggestion suggestion) {
             this.suggestion = suggestion;
+            check.setChecked(suggestion.isChecked());
         }
 
         @Override
         public void onClick(View v) {
             if (v == itemView) {
                 onSuggestionClicked(suggestion);
+                check.setChecked(suggestion.isChecked());
             }
         }
     }

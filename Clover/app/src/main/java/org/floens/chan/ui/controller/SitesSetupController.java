@@ -79,11 +79,6 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         // Navigation
         navigationItem.setTitle(R.string.setup_sites_title);
-        navigationItem.swipeable = false;
-        navigationItem.menu = new ToolbarMenu(context);
-        doneMenuItem = navigationItem.menu.addItem(
-                new ToolbarMenuItem(context, this, DONE_ID, 0, R.drawable.ic_done_white_24dp));
-        doneMenuItem.getView().setAlpha(0f);
 
         // View binding
         sitesRecyclerview = view.findViewById(R.id.sites_recycler);
@@ -100,6 +95,14 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         // Presenter
         presenter.create(this);
+    }
+
+    public void showDoneCheckmark() {
+        navigationItem.swipeable = false;
+        navigationItem.menu = new ToolbarMenu(context);
+        doneMenuItem = navigationItem.menu.addItem(
+                new ToolbarMenuItem(context, this, DONE_ID, 0, R.drawable.ic_done_white_24dp));
+        doneMenuItem.getView().setAlpha(0f);
     }
 
     @Override
@@ -171,7 +174,9 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
     @Override
     public void setNextAllowed(boolean nextAllowed, boolean animate) {
-        doneMenuItem.getView().animate().alpha(nextAllowed ? 1f : 0f).start();
+        if (doneMenuItem != null) {
+            doneMenuItem.getView().animate().alpha(nextAllowed ? 1f : 0f).start();
+        }
     }
 
     private void onSiteCellSettingsClicked(Site site) {

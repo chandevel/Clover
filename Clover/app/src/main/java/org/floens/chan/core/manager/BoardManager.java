@@ -17,16 +17,21 @@
  */
 package org.floens.chan.core.manager;
 
+import android.util.Pair;
+
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Observable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -63,14 +68,19 @@ public class BoardManager {
     };
 
     private final DatabaseManager databaseManager;
+    private final SiteManager siteManager;
 
     private final List<Board> savedBoards = new ArrayList<>();
 
-    @Inject
-    public BoardManager(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
+    private final List<Pair<Site, List<Board>>> sitesWithBoards = new ArrayList<>();
+    private final SavedBoards savedBoardsObservable = new SavedBoards();
 
-        loadBoards();
+    @Inject
+    public BoardManager(DatabaseManager databaseManager, SiteManager siteManager) {
+        this.databaseManager = databaseManager;
+        this.siteManager = siteManager;
+
+        updateSavedBoards();
 
         fetchLimitedSitesTheirBoards();
     }
@@ -92,37 +102,44 @@ public class BoardManager {
         return savedBoards;
     }
 
+    public SavedBoards getSavedBoardsObservable() {
+        return savedBoardsObservable;
+    }
+
     public List<Board> getSiteBoards(Site site) {
         return databaseManager.runTaskSync(
                 databaseManager.getDatabaseBoardManager().getSiteBoards(site));
     }
 
     public List<Board> getSiteSavedBoards(Site site) {
-        return databaseManager.runTaskSync(
+        List<Board> boards = databaseManager.runTaskSync(
                 databaseManager.getDatabaseBoardManager().getSiteSavedBoards(site));
+        Collections.sort(boards, ORDER_SORT);
+        return boards;
     }
 
     public void saveBoard(Board board) {
-        board.saved = true;
-
-        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
-
-        loadBoards();
+        setSaved(board, true);
     }
 
     public void unsaveBoard(Board board) {
-        board.saved = false;
-
-        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
-
-        loadBoards();
+        setSaved(board, false);
     }
 
-    private void loadBoards() {
-        savedBoards.clear();
-        savedBoards.addAll(databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().getSavedBoards()));
+    public void updateBoardOrder(Board board, int order) {
+        board.order = order;
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager().update(board), new DatabaseManager.TaskResult<Void>() {
+            @Override
+            public void onComplete(Void result) {
+                updateSavedBoards();
+            }
+        });
+    }
 
-        EventBus.getDefault().post(new BoardsChangedMessage());
+    private void setSaved(Board board, boolean saved) {
+        board.saved = saved;
+        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
+        updateSavedBoards();
     }
 
     private void fetchLimitedSitesTheirBoards() {
@@ -143,6 +160,28 @@ public class BoardManager {
         Logger.i(TAG, "Got boards for " + site.name());
 
         databaseManager.runTask(databaseManager.getDatabaseBoardManager().createAll(boards.boards));
+    }
+
+    private void updateSavedBoards() {
+        savedBoards.clear();
+        savedBoards.addAll(databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().getSavedBoards()));
+
+        sitesWithBoards.clear();
+        for (Site site : Sites.allSites()) {
+            List<Board> siteBoards = getSiteSavedBoards(site);
+            sitesWithBoards.add(new Pair<>(site, siteBoards));
+        }
+
+        // TODO: remove, use the observable
+        EventBus.getDefault().post(new BoardsChangedMessage());
+
+        savedBoardsObservable.notifyObservers();
+    }
+
+    public class SavedBoards extends Observable {
+        public List<Pair<Site, List<Board>>> get() {
+            return sitesWithBoards;
+        }
     }
 
     /*private void appendBoards(Boards response) {

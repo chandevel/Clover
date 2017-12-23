@@ -159,11 +159,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 LinkHolder linkHolder = (LinkHolder) holder;
                 switch (position) {
                     case 0:
-                        linkHolder.text.setText(R.string.settings_board_edit);
+                        linkHolder.text.setText(R.string.drawer_sites);
                         theme().listAddDrawable.apply(linkHolder.image);
                         break;
                     case 1:
-                        linkHolder.text.setText(R.string.history_screen);
+                        linkHolder.text.setText(R.string.drawer_history);
                         theme().historyDrawable.apply(linkHolder.image);
                         break;
                 }
@@ -400,7 +400,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public void onClick(View v) {
                     switch (getAdapterPosition()) {
                         case 0:
-                            callback.openBoardEditor();
+                            callback.openSites();
                             break;
                         case 1:
                             callback.openHistory();
@@ -452,7 +452,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         void onPinLongClocked(Pin pin);
 
-        void openBoardEditor();
+        void openSites();
 
         void openHistory();
     }

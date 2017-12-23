@@ -33,6 +33,17 @@ public class DatabaseBoardManager {
         };
     }
 
+    public Callable<Void> update(final Board board) {
+        return new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                helper.boardsDao.update(board);
+
+                return null;
+            }
+        };
+    }
+
     public Callable<Void> createAll(final List<Board> boards) {
         return new Callable<Void>() {
             @Override

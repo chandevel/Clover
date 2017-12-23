@@ -181,22 +181,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="setup_board_title">Configure boards of %s</string>
     <string name="setup_board_add">Add board</string>
-
-    <string name="saved_boards_title">Your boards</string>
-    <string name="saved_boards_introduction">"Change your saved boards. These will appear in a list at the top."</string>
-    <string name="saved_boards_code">Board code</string>
-    <string name="saved_boards_code_hint">lit</string>
-
-    <string name="board_edit">Board editor</string>
-    <string name="board_edit_header">Add, remove and reorder your boards here.\nThe topmost board will be loaded automatically.</string>
-    <string name="board_add">Add board</string>
-    <string name="board_add_hint">Board code e.g. lit</string>
-    <string name="board_add_success">Added board</string>
-    <string name="board_add_duplicate">Board already added</string>
-    <string name="board_add_unknown_title">Unknown board code</string>
-    <string name="board_add_unknown">The board with code %1$s is not known.</string>
-    <string name="board_edit_sort_a_z">Sort A-Z</string>
-    <string name="board_edit_board_removed">Removed board \'%1$s\'</string>
+    <string name="setup_board_removed">Removed \'%s\'</string>
+    <string name="setup_board_added">%s added</string>
 
     <string name="filter_summary_all_boards">all boards</string>
     <string name="filter_enabled">Enabled</string>
@@ -359,9 +345,11 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_save_failed">Saving image failed</string>
     <string name="image_save_directory_error">Cannot make save directory</string>
 
+    <string name="drawer_sites">Sites</string>
+    <string name="drawer_history">History</string>
+
     <string name="settings_screen">Settings</string>
     <string name="settings_group_general">General</string>
-    <string name="settings_board_edit">Boards</string>
     <string name="settings_watch">Thread watcher</string>
     <string name="settings_pass">4chan pass</string>
     <string name="settings_advanced_hint">Try the advanced settings!</string>

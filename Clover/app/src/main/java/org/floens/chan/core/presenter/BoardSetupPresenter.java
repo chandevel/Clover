@@ -63,25 +63,29 @@ public class BoardSetupPresenter {
         callback.setSavedBoards(savedBoards);
     }
 
-    public void setAddCallback(AddCallback addCallback) {
-        this.addCallback = addCallback;
-        suggestions.clear();
-        selectedSuggestions.clear();
-    }
-
     public void addClicked() {
         callback.showAddDialog();
     }
 
+    public void bindAddDialog(AddCallback addCallback) {
+        this.addCallback = addCallback;
+
+        searchEntered(null);
+    }
+
+    public void unbindAddDialog() {
+        this.addCallback = null;
+        suggestions.clear();
+        selectedSuggestions.clear();
+    }
+
     public void onSuggestionClicked(BoardSuggestion suggestion) {
         suggestion.checked = !suggestion.checked;
-        String code = suggestion.board.code;
         if (suggestion.checked) {
-            selectedSuggestions.add(code);
+            selectedSuggestions.add(suggestion.getCode());
         } else {
-            selectedSuggestions.remove(code);
+            selectedSuggestions.remove(suggestion.getCode());
         }
-        addCallback.updateSuggestions();
     }
 
     public List<BoardSuggestion> getSuggestions() {
@@ -89,27 +93,62 @@ public class BoardSetupPresenter {
     }
 
     public void onAddDialogPositiveClicked() {
-        for (BoardSuggestion suggestion : suggestions) {
-            if (suggestion.checked) {
-                boardManager.saveBoard(suggestion.board);
-                updateSavedBoards();
-                callback.setSavedBoards(savedBoards);
+        int count = 0;
+
+        if (site.boardsType() == Site.BoardsType.DYNAMIC) {
+            for (Board board : boardManager.getSiteBoards(site)) {
+                if (selectedSuggestions.contains(board.code)) {
+                    boardManager.saveBoard(board);
+                    boardManager.updateBoardOrder(board, savedBoards.size());
+                    count++;
+                }
+            }
+        } else {
+            for (String suggestion : selectedSuggestions) {
+                // TODO(multisite)
+                Board board = new Board(site, suggestion, suggestion, true, true);
+                boardManager.saveBoard(board);
+                count++;
             }
         }
+
+        updateSavedBoards();
+        callback.setSavedBoards(savedBoards);
+        callback.boardsWereAdded(count);
     }
 
     public void move(int from, int to) {
         Board item = savedBoards.remove(from);
         savedBoards.add(to, item);
 
+        int min = Math.min(from, to);
+        int max = Math.max(from, to);
+
+        for (int i = min; i <= max; i++) {
+            boardManager.updateBoardOrder(savedBoards.get(i), i);
+        }
+
         callback.setSavedBoards(savedBoards);
     }
 
     public void remove(int position) {
         Board board = savedBoards.remove(position);
-
         boardManager.unsaveBoard(board);
 
+        for (int i = position; i < savedBoards.size(); i++) {
+            boardManager.updateBoardOrder(savedBoards.get(i), i);
+        }
+
+        updateSavedBoards();
+        callback.setSavedBoards(savedBoards);
+
+        callback.showRemovedSnackbar(board);
+    }
+
+    public void undoRemoveBoard(Board board) {
+        boardManager.saveBoard(board);
+        // TODO
+        boardManager.updateBoardOrder(board, savedBoards.size());
         updateSavedBoards();
         callback.setSavedBoards(savedBoards);
     }
@@ -118,32 +157,48 @@ public class BoardSetupPresenter {
         callback.finish();
     }
 
-    public void searchEntered(final String query) {
+    public void searchEntered(String userQuery) {
         if (suggestionCall != null) {
             suggestionCall.cancel();
         }
 
+        final String query = userQuery == null ? null :
+                userQuery.replace("/", "").replace("\\", "");
         suggestionCall = BackgroundUtils.runWithExecutor(executor, new Callable<List<BoardSuggestion>>() {
             @Override
             public List<BoardSuggestion> call() throws Exception {
                 List<BoardSuggestion> suggestions = new ArrayList<>();
                 if (site.boardsType() == Site.BoardsType.DYNAMIC) {
                     List<Board> siteBoards = boardManager.getSiteBoards(site);
-                    List<Board> toSearch = new ArrayList<>();
+                    List<Board> allUnsavedBoards = new ArrayList<>();
                     for (Board siteBoard : siteBoards) {
                         if (!siteBoard.saved) {
-                            toSearch.add(siteBoard);
+                            allUnsavedBoards.add(siteBoard);
                         }
                     }
-                    List<Board> search = BoardHelper.search(toSearch, query);
 
-                    for (Board board : search) {
+                    List<Board> toSuggest;
+                    if (query == null || query.equals("")) {
+                        toSuggest = new ArrayList<>(allUnsavedBoards.size());
+                        for (Board b : allUnsavedBoards) {
+                            if (b.workSafe) toSuggest.add(b);
+                        }
+                        for (Board b : allUnsavedBoards) {
+                            if (!b.workSafe) toSuggest.add(b);
+                        }
+                        toSuggest = allUnsavedBoards;
+                    } else {
+                        toSuggest = BoardHelper.search(allUnsavedBoards, query);
+                    }
+
+                    for (Board board : toSuggest) {
                         BoardSuggestion suggestion = new BoardSuggestion(board);
                         suggestions.add(suggestion);
                     }
                 } else {
-                    // TODO
-                    suggestions.add(new BoardSuggestion(null));
+                    if (query != null && !query.equals("")) {
+                        suggestions.add(new BoardSuggestion(query));
+                    }
                 }
 
                 return suggestions;
@@ -167,7 +222,7 @@ public class BoardSetupPresenter {
     private void updateSuggestions(List<BoardSuggestion> suggestions) {
         this.suggestions = suggestions;
         for (BoardSuggestion suggestion : this.suggestions) {
-            suggestion.checked = selectedSuggestions.contains(suggestion.board.code);
+            suggestion.checked = selectedSuggestions.contains(suggestion.getCode());
         }
     }
 
@@ -176,7 +231,11 @@ public class BoardSetupPresenter {
 
         void setSavedBoards(List<Board> savedBoards);
 
+        void showRemovedSnackbar(Board board);
+
         void finish();
+
+        void boardsWereAdded(int count);
     }
 
     public interface AddCallback {
@@ -184,24 +243,47 @@ public class BoardSetupPresenter {
     }
 
     public static class BoardSuggestion {
-        public final Board board;
+        private final Board board;
+        private final String code;
 
         private boolean checked = false;
 
-        public BoardSuggestion(Board board) {
+        BoardSuggestion(Board board) {
             this.board = board;
+            this.code = board.code;
+        }
+
+        BoardSuggestion(String code) {
+            this.board = null;
+            this.code = code;
         }
 
         public String getName() {
-            return BoardHelper.getName(board);
+            if (board != null) {
+                return BoardHelper.getName(board);
+            } else {
+                return "/" + code + "/";
+            }
         }
 
         public String getDescription() {
-            return BoardHelper.getDescription(board);
+            if (board != null) {
+                return BoardHelper.getDescription(board);
+            } else {
+                return "";
+            }
+        }
+
+        public String getCode() {
+            return code;
         }
 
         public boolean isChecked() {
             return checked;
+        }
+
+        public long getId() {
+            return code.hashCode();
         }
     }
 }

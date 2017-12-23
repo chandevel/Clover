@@ -13,24 +13,23 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.presenter.BoardSetupPresenter;
-import org.floens.chan.core.presenter.SitesSetupPresenter;
-import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.net.BitmapLruImageCache;
+import org.floens.chan.core.presenter.BoardSetupPresenter;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.presenter.SitesSetupPresenter;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.receiver.WatchUpdateReceiver;
 import org.floens.chan.core.saver.ImageSaveTask;
+import org.floens.chan.core.site.SiteManager;
+import org.floens.chan.core.site.common.ChanReaderRequest;
 import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.core.site.sites.chan4.Chan4;
-import org.floens.chan.core.site.common.ChanReaderRequest;
 import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.activity.BoardActivity;
 import org.floens.chan.ui.adapter.DrawerAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
-import org.floens.chan.ui.controller.BoardEditController;
 import org.floens.chan.ui.controller.BoardSetupController;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DeveloperSettingsController;
@@ -74,7 +73,6 @@ import dagger.Provides;
                 DeveloperSettingsController.class,
                 BoardActivity.class,
                 ThreadPresenter.class,
-                BoardEditController.class,
                 FilterEngine.class,
                 BrowseController.class,
                 FilterLayout.class,
