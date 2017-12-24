@@ -15,14 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.sites.chan4;
-
-import android.text.TextUtils;
+package org.floens.chan.core.site.common;
 
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.HttpCall;
-import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.core.site.http.ReplyResponse;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
@@ -30,14 +28,13 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.MediaType;
+import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class Chan4ReplyHttpCall extends HttpCall {
-    private static final String TAG = "Chan4ReplyHttpCall";
+public abstract class CommonReplyHttpCall extends HttpCall {
+    private static final String TAG = "CommonReplyHttpCall";
     private static final Random RANDOM = new Random();
     private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
     private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)<\\/span");
@@ -46,56 +43,23 @@ public class Chan4ReplyHttpCall extends HttpCall {
     public final Reply reply;
     public final ReplyResponse replyResponse = new ReplyResponse();
 
-    public Chan4ReplyHttpCall(Site site, Reply reply) {
+    public CommonReplyHttpCall(Site site, Reply reply) {
         super(site);
         this.reply = reply;
     }
 
     @Override
     public void setup(Request.Builder requestBuilder) {
-        boolean thread = reply.loadable.isThreadMode();
-
         replyResponse.password = Long.toHexString(RANDOM.nextLong());
 
         MultipartBody.Builder formBuilder = new MultipartBody.Builder();
         formBuilder.setType(MultipartBody.FORM);
 
-        formBuilder.addFormDataPart("mode", "regist");
-        formBuilder.addFormDataPart("pwd", replyResponse.password);
+        addParameters(formBuilder);
 
-        if (thread) {
-            formBuilder.addFormDataPart("resto", String.valueOf(reply.loadable.no));
-        }
-
-        formBuilder.addFormDataPart("name", reply.name);
-        formBuilder.addFormDataPart("email", reply.options);
-
-        if (!thread && !TextUtils.isEmpty(reply.subject)) {
-            formBuilder.addFormDataPart("sub", reply.subject);
-        }
-
-        formBuilder.addFormDataPart("com", reply.comment);
-
-        if (reply.captchaResponse != null) {
-            if (reply.captchaChallenge != null) {
-                formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
-                formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
-            } else {
-                formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
-            }
-        }
-
-        if (reply.file != null) {
-            formBuilder.addFormDataPart("upfile", reply.fileName, RequestBody.create(
-                    MediaType.parse("application/octet-stream"), reply.file
-            ));
-        }
-
-        if (reply.spoilerImage) {
-            formBuilder.addFormDataPart("spoiler", "on");
-        }
-
-        requestBuilder.url(site.endpoints().reply(reply.loadable));
+        HttpUrl replyUrl = site.endpoints().reply(this.reply.loadable);
+        requestBuilder.url(replyUrl);
+        requestBuilder.addHeader("Referer", replyUrl.toString());
         requestBuilder.post(formBuilder.build());
     }
 
@@ -120,4 +84,6 @@ public class Chan4ReplyHttpCall extends HttpCall {
             }
         }
     }
+
+    public abstract void addParameters(MultipartBody.Builder builder);
 }

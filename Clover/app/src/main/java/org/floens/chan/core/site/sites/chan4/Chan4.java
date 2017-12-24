@@ -40,6 +40,7 @@ import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.common.CommonReplyHttpCall;
 import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
@@ -408,14 +409,14 @@ public class Chan4 extends SiteBase {
 
     @Override
     public void post(Reply reply, final PostListener postListener) {
-        httpCallManager.makeHttpCall(new Chan4ReplyHttpCall(this, reply), new HttpCall.HttpCallback<Chan4ReplyHttpCall>() {
+        httpCallManager.makeHttpCall(new Chan4ReplyCall(this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
             @Override
-            public void onHttpSuccess(Chan4ReplyHttpCall httpPost) {
+            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
                 postListener.onPostComplete(httpPost, httpPost.replyResponse);
             }
 
             @Override
-            public void onHttpFail(Chan4ReplyHttpCall httpPost, Exception e) {
+            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
                 postListener.onPostError(httpPost);
             }
         });

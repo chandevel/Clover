@@ -33,12 +33,15 @@ import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.common.CommonReplyHttpCall;
 import org.floens.chan.core.site.common.FutabaChanParser;
 import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.utils.Logger;
 
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +52,8 @@ import okhttp3.Request;
 import static org.floens.chan.Chan.getGraph;
 
 public class Chan8 extends SiteBase {
+    private static final String TAG = "Chan8";
+
     public static final Resolvable RESOLVABLE = new Resolvable() {
         @Override
         public ResolveResult resolve(String value) {
@@ -76,6 +81,11 @@ public class Chan8 extends SiteBase {
         private final HttpUrl media = new HttpUrl.Builder()
                 .scheme("https")
                 .host("media.8ch.net")
+                .build();
+
+        private final HttpUrl sys = new HttpUrl.Builder()
+                .scheme("https")
+                .host("sys.8ch.net")
                 .build();
 
         @Override
@@ -133,7 +143,9 @@ public class Chan8 extends SiteBase {
 
         @Override
         public HttpUrl reply(Loadable loadable) {
-            return null;
+            return sys.newBuilder()
+                    .addPathSegment("post.php")
+                    .build();
         }
 
         @Override
@@ -182,7 +194,12 @@ public class Chan8 extends SiteBase {
 
     @Override
     public boolean feature(Feature feature) {
-        return false;
+        switch (feature) {
+            case POSTING:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -231,7 +248,22 @@ public class Chan8 extends SiteBase {
     }
 
     @Override
-    public void post(Reply reply, PostListener postListener) {
+    public void post(Reply reply, final PostListener postListener) {
+        // TODO
+        HttpCallManager httpCallManager = getGraph().get(HttpCallManager.class);
+        httpCallManager.makeHttpCall(new Chan8ReplyHttpCall(this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+            @Override
+            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                postListener.onPostComplete(httpPost, httpPost.replyResponse);
+            }
+
+            @Override
+            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                Logger.e(TAG, "post error", e);
+
+                postListener.onPostError(httpPost);
+            }
+        });
     }
 
     @Override

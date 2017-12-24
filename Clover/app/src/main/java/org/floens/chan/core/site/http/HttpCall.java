@@ -28,6 +28,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Http calls are an abstraction over a normal OkHttp call.
@@ -55,19 +56,21 @@ public abstract class HttpCall implements Callback {
 
     @Override
     public void onResponse(Call call, Response response) {
+        ResponseBody body = response.body();
         try {
-            if (response.isSuccessful() && response.body() != null) {
-                String responseString = response.body().string();
+            if (response.isSuccessful() && body != null) {
+                String responseString = body.string();
                 process(response, responseString);
                 successful = true;
             } else {
-                onFailure(call, null);
+                String responseString = body == null ? "no body" : body.string();
+                onFailure(call, new IOException("HTTP " + response.code() + "\n\n" + responseString));
             }
         } catch (Exception e) {
             exception = e;
             Logger.e(TAG, "IOException processing response", e);
         } finally {
-            IOUtils.closeQuietly(response.body());
+            IOUtils.closeQuietly(body);
         }
 
         if (successful) {
