@@ -22,16 +22,24 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.ui.span.AbsoluteSizeSpanHashed;
 import org.floens.chan.ui.span.ForegroundColorSpanHashed;
 import org.floens.chan.ui.theme.Theme;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class DefaultFutabaChanParserHandler implements FutabaChanParserHandler {
     private static final Pattern COLOR_PATTERN = Pattern.compile("color:#([0-9a-fA-F]*)");
@@ -83,14 +91,84 @@ public class DefaultFutabaChanParserHandler implements FutabaChanParserHandler {
         } else {
             quote = new SpannableString(span.text());
             quote.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, quote.length(), 0);
-            parser.detectLinks(theme, post, span.text(), quote);
+            ChanParserHelper.detectLinks(theme, post, span.text(), quote);
         }
 
         return quote;
     }
 
     @Override
-    public Link getLink(FutabaChanParser parser, Theme theme, Post.Builder post, Element anchor) {
+    public CharSequence handleTable(FutabaChanParser parser, Theme theme, Post.Builder post, Element table) {
+        List<CharSequence> parts = new ArrayList<>();
+        Elements tableRows = table.getElementsByTag("tr");
+        for (int i = 0; i < tableRows.size(); i++) {
+            Element tableRow = tableRows.get(i);
+            if (tableRow.text().length() > 0) {
+                Elements tableDatas = tableRow.getElementsByTag("td");
+                for (int j = 0; j < tableDatas.size(); j++) {
+                    Element tableData = tableDatas.get(j);
+
+                    SpannableString tableDataPart = new SpannableString(tableData.text());
+                    if (tableData.getElementsByTag("b").size() > 0) {
+                        tableDataPart.setSpan(new StyleSpan(Typeface.BOLD), 0, tableDataPart.length(), 0);
+                        tableDataPart.setSpan(new UnderlineSpan(), 0, tableDataPart.length(), 0);
+                    }
+
+                    parts.add(tableDataPart);
+
+                    if (j < tableDatas.size() - 1) {
+                        parts.add(": ");
+                    }
+                }
+
+                if (i < tableRows.size() - 1) {
+                    parts.add("\n");
+                }
+            }
+        }
+
+        SpannableString tableTotal = new SpannableString(TextUtils.concat(parts.toArray(new CharSequence[parts.size()])));
+        tableTotal.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, tableTotal.length(), 0);
+        tableTotal.setSpan(new AbsoluteSizeSpanHashed(sp(12f)), 0, tableTotal.length(), 0);
+
+        return tableTotal;
+    }
+
+    @Override
+    public CharSequence handleStrong(FutabaChanParser parser, Theme theme, Post.Builder post, Element strong) {
+        SpannableString red = new SpannableString(strong.text());
+        red.setSpan(new ForegroundColorSpanHashed(theme.quoteColor), 0, red.length(), 0);
+        red.setSpan(new StyleSpan(Typeface.BOLD), 0, red.length(), 0);
+        return red;
+    }
+
+    @Override
+    public CharSequence handlePre(FutabaChanParser parser, Theme theme, Post.Builder post, Element pre) {
+        Set<String> classes = pre.classNames();
+        if (classes.contains("prettyprint")) {
+            String text = ChanParserHelper.getNodeTextPreservingLineBreaks(pre);
+            SpannableString monospace = new SpannableString(text);
+            monospace.setSpan(new TypefaceSpan("monospace"), 0, monospace.length(), 0);
+            monospace.setSpan(new AbsoluteSizeSpanHashed(sp(12f)), 0, monospace.length(), 0);
+            return monospace;
+        } else {
+            return pre.text();
+        }
+    }
+
+    @Override
+    public CharSequence handleStrike(FutabaChanParser parser, Theme theme, Post.Builder post, Element strike) {
+        SpannableString link = new SpannableString(strike.text());
+
+        PostLinkable pl = new PostLinkable(theme, strike.text(), strike.text(), PostLinkable.Type.SPOILER);
+        link.setSpan(pl, 0, link.length(), 0);
+        post.addLinkable(pl);
+
+        return link;
+    }
+
+    @Override
+    public Link handleAnchor(FutabaChanParser parser, Theme theme, Post.Builder post, Element anchor) {
         String href = anchor.attr("href");
         Set<String> classes = anchor.classNames();
 

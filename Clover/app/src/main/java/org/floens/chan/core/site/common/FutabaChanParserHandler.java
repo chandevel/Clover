@@ -26,7 +26,15 @@ public interface FutabaChanParserHandler {
 
     CharSequence handleSpan(FutabaChanParser parser, Theme theme, Post.Builder post, Element span);
 
-    Link getLink(FutabaChanParser parser, Theme theme, Post.Builder post, Element anchor);
+    CharSequence handleTable(FutabaChanParser parser, Theme theme, Post.Builder post, Element table);
+
+    CharSequence handleStrong(FutabaChanParser parser, Theme theme, Post.Builder post, Element strong);
+
+    CharSequence handlePre(FutabaChanParser parser, Theme theme, Post.Builder post, Element pre);
+
+    CharSequence handleStrike(FutabaChanParser parser, Theme theme, Post.Builder post, Element strike);
+
+    Link handleAnchor(FutabaChanParser parser, Theme theme, Post.Builder post, Element anchor);
 
     class Link {
         public PostLinkable.Type type;

@@ -21,6 +21,7 @@ import android.text.SpannableString;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.site.common.ChanParserHelper;
 import org.floens.chan.core.site.common.DefaultFutabaChanParserHandler;
 import org.floens.chan.core.site.common.FutabaChanParser;
 import org.floens.chan.ui.span.ForegroundColorSpanHashed;
@@ -35,7 +36,7 @@ public class Chan8ParserHandler extends DefaultFutabaChanParserHandler {
         if (element.hasClass("quote")) {
             SpannableString quote = new SpannableString(text);
             quote.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, quote.length(), 0);
-            parser.detectLinks(theme, post, quote.toString(), quote);
+            ChanParserHelper.detectLinks(theme, post, quote.toString(), quote);
             return quote;
         } else {
             return text;
@@ -57,21 +58,21 @@ public class Chan8ParserHandler extends DefaultFutabaChanParserHandler {
         } else {
             quote = new SpannableString(span.text());
             quote.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, quote.length(), 0);
-            parser.detectLinks(theme, post, span.text(), quote);
+            ChanParserHelper.detectLinks(theme, post, span.text(), quote);
         }
 
         return quote;
     }
 
     @Override
-    public Link getLink(FutabaChanParser parser, Theme theme, Post.Builder post, Element anchor) {
+    public Link handleAnchor(FutabaChanParser parser, Theme theme, Post.Builder post, Element anchor) {
         String href = anchor.attr("href");
 
         PostLinkable.Type t = null;
         String key = null;
         Object value = null;
         if (href.startsWith("/")) {
-            if (href.contains("/thread/")) {
+            if (!href.startsWith("/" + post.board.code + "/res/")) {
                 // link to another thread
                 PostLinkable.ThreadLink threadLink = null;
 
@@ -79,10 +80,10 @@ public class Chan8ParserHandler extends DefaultFutabaChanParserHandler {
                 if (slashSplit.length == 4) {
                     String board = slashSplit[1];
                     String nums = slashSplit[3];
-                    String[] numsSplitted = nums.split("#p");
+                    String[] numsSplitted = nums.split("#");
                     if (numsSplitted.length == 2) {
                         try {
-                            int tId = Integer.parseInt(numsSplitted[0]);
+                            int tId = Integer.parseInt(numsSplitted[0].replace(".html", ""));
                             int pId = Integer.parseInt(numsSplitted[1]);
                             threadLink = new PostLinkable.ThreadLink(board, tId, pId);
                         } catch (NumberFormatException ignored) {
