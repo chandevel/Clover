@@ -15,19 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.chan;
+package org.floens.chan.core.site.common;
 
 
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
-import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
@@ -54,34 +52,23 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import static org.floens.chan.utils.AndroidUtils.sp;
 
-@Singleton
-public class ChanParser {
-    private static final String TAG = "ChanParser";
-    private static final Pattern COLOR_PATTERN = Pattern.compile("color:#([0-9a-fA-F]*)");
+public class FutabaChanParser implements ChanParser {
+    private static final String TAG = "FutabaChanParser";
     private static final String SAVED_REPLY_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
 
-    @Inject
-    DatabaseManager databaseManager;
-
     private final LinkExtractor linkExtractor = LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
-    @Inject
-    public ChanParser() {
+    private FutabaChanParserHandler handler;
+
+    public FutabaChanParser(FutabaChanParserHandler handler) {
+        this.handler = handler;
     }
 
-    public Post parse(Post.Builder post) {
-        return parse(null, post);
-    }
-
+    @Override
     public Post parse(Theme theme, Post.Builder builder) {
         if (theme == null) {
             theme = ThemeHelper.getInstance().getTheme();
@@ -240,56 +227,30 @@ public class ChanParser {
             return spannable;
         } else {
             switch (node.nodeName()) {
+                case "p": {
+                    List<Node> innerNodes = node.childNodes();
+                    List<CharSequence> texts = new ArrayList<>(innerNodes.size() + 1);
+
+                    for (Node innerNode : innerNodes) {
+                        CharSequence nodeParsed = parseNode(theme, post, innerNode);
+                        if (nodeParsed != null) {
+                            texts.add(nodeParsed);
+                        }
+                    }
+
+                    if (node.nextSibling() != null) {
+                        texts.add("\n");
+                    }
+
+                    CharSequence res = TextUtils.concat(texts.toArray(new CharSequence[texts.size()]));
+
+                    return handler.handleParagraph(this, theme, post, res, (Element) node);
+                }
                 case "br": {
                     return "\n";
                 }
                 case "span": {
-                    Element span = (Element) node;
-
-                    SpannableString quote;
-
-                    Set<String> classes = span.classNames();
-                    if (classes.contains("deadlink")) {
-                        quote = new SpannableString(span.text());
-                        quote.setSpan(new ForegroundColorSpanHashed(theme.quoteColor), 0, quote.length(), 0);
-                        quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
-                    } else if (classes.contains("fortune")) {
-                        // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
-                        // manually add these <br>
-                        quote = new SpannableString("\n\n" + span.text());
-
-                        String style = span.attr("style");
-                        if (!TextUtils.isEmpty(style)) {
-                            style = style.replace(" ", "");
-
-                            // private static final Pattern COLOR_PATTERN = Pattern.compile("color:#([0-9a-fA-F]*)");
-                            Matcher matcher = COLOR_PATTERN.matcher(style);
-
-                            int hexColor = 0xff0000;
-                            if (matcher.find()) {
-                                String group = matcher.group(1);
-                                if (!TextUtils.isEmpty(group)) {
-                                    try {
-                                        hexColor = Integer.parseInt(group, 16);
-                                    } catch (NumberFormatException ignored) {
-                                    }
-                                }
-                            }
-
-                            if (hexColor >= 0 && hexColor <= 0xffffff) {
-                                quote.setSpan(new ForegroundColorSpanHashed(0xff000000 + hexColor), 0, quote.length(), 0);
-                                quote.setSpan(new StyleSpan(Typeface.BOLD), 0, quote.length(), 0);
-                            }
-                        }
-                    } else if (classes.contains("abbr")) {
-                        return null;
-                    } else {
-                        quote = new SpannableString(span.text());
-                        quote.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, quote.length(), 0);
-                        detectLinks(theme, post, span.text(), quote);
-                    }
-
-                    return quote;
+                    return handler.handleSpan(this, theme, post, (Element) node);
                 }
                 case "table": {
                     Element table = (Element) node;
@@ -383,78 +344,33 @@ public class ChanParser {
     }
 
     private CharSequence parseAnchor(Theme theme, Post.Builder post, Element anchor) {
-        String href = anchor.attr("href");
-        Set<String> classes = anchor.classNames();
+        FutabaChanParserHandler.Link handlerLink = handler.getLink(this, theme, post, anchor);
 
-        PostLinkable.Type t = null;
-        String key = null;
-        Object value = null;
-        if (classes.contains("quotelink")) {
-            if (href.contains("/thread/")) {
-                // link to another thread
-                PostLinkable.ThreadLink threadLink = null;
-
-                String[] slashSplit = href.split("/");
-                if (slashSplit.length == 4) {
-                    String board = slashSplit[1];
-                    String nums = slashSplit[3];
-                    String[] numsSplitted = nums.split("#p");
-                    if (numsSplitted.length == 2) {
-                        try {
-                            int tId = Integer.parseInt(numsSplitted[0]);
-                            int pId = Integer.parseInt(numsSplitted[1]);
-                            threadLink = new PostLinkable.ThreadLink(board, tId, pId);
-                        } catch (NumberFormatException ignored) {
-                        }
-                    }
-                }
-
-                if (threadLink != null) {
-                    t = PostLinkable.Type.THREAD;
-                    key = anchor.text() + " \u2192"; // arrow to the right
-                    value = threadLink;
-                }
-            } else {
-                // normal quote
-                int id = -1;
-
-                String[] splitted = href.split("#p");
-                if (splitted.length == 2) {
-                    try {
-                        id = Integer.parseInt(splitted[1]);
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-
-                if (id >= 0) {
-                    t = PostLinkable.Type.QUOTE;
-                    key = anchor.text();
-                    value = id;
-                    post.addReplyTo(id);
-
-                    // Append OP when its a reply to OP
-                    if (id == post.opId) {
-                        key += OP_REPLY_SUFFIX;
-                    }
-
-                    // Append You when it's a reply to an saved reply
-                    if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board.code, id)) {
-                        key += SAVED_REPLY_SUFFIX;
-                    }
-                }
-            }
-        } else {
-            // normal link
-            t = PostLinkable.Type.LINK;
-            key = anchor.text();
-            value = href;
-        }
-
-        if (t != null && key != null && value != null) {
-            SpannableString link = new SpannableString(key);
-            PostLinkable pl = new PostLinkable(theme, key, value, t);
+        if (handlerLink != null) {
+            SpannableString link = new SpannableString(handlerLink.key);
+            PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
             link.setSpan(pl, 0, link.length(), 0);
             post.addLinkable(pl);
+
+            if (handlerLink.type == PostLinkable.Type.THREAD) {
+                handlerLink.key += " \u2192"; // arrow to the right
+            }
+
+            if (handlerLink.type == PostLinkable.Type.QUOTE) {
+                int postNo = (int) handlerLink.value;
+                post.addReplyTo(postNo);
+
+                // Append OP when its a reply to OP
+                if (postNo == post.opId) {
+                    handlerLink.key += OP_REPLY_SUFFIX;
+                }
+
+                // Append You when it's a reply to an saved reply
+                // TODO(multisite)
+                /*if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board.code, id)) {
+                    key += SAVED_REPLY_SUFFIX;
+                }*/
+            }
 
             return link;
         } else {
@@ -462,10 +378,10 @@ public class ChanParser {
         }
     }
 
-    private void detectLinks(Theme theme, Post.Builder post, String text, SpannableString spannable) {
+    public void detectLinks(Theme theme, Post.Builder post, String text, SpannableString spannable) {
         // use autolink-java lib to detect links
         final Iterable<LinkSpan> links = linkExtractor.extractLinks(text);
-        for(final LinkSpan link : links) {
+        for (final LinkSpan link : links) {
             final String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
             final PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.LINK);
             spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), 0);

@@ -168,7 +168,10 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                     bottom.setText(bottomText);
                 }
 
-                AnimationUtils.animateHeight(bottom, bottomText != null, ((View) view.getParent()).getWidth());
+                // This way of animating never works on textviews if they're just added.
+                if (bottom.getHeight() != 0) {
+                    AnimationUtils.animateHeight(bottom, bottomText != null, ((View) view.getParent()).getWidth());
+                }
             } else {
                 bottom.setText(bottomText);
                 bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);

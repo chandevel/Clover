@@ -33,6 +33,7 @@ import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.common.FutabaChanParser;
 import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
@@ -225,7 +226,8 @@ public class Chan8 extends SiteBase {
 
     @Override
     public ChanReader chanReader() {
-        return new FutabaChanReader();
+        FutabaChanParser parser = new FutabaChanParser(new Chan8ParserHandler());
+        return new FutabaChanReader(parser);
     }
 
     @Override

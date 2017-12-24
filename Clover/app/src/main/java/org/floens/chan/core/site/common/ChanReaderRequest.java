@@ -21,7 +21,6 @@ import android.util.JsonReader;
 
 import org.floens.chan.chan.ChanLoaderRequestParams;
 import org.floens.chan.chan.ChanLoaderResponse;
-import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
@@ -69,9 +68,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
     @Inject
     FilterEngine filterEngine;
-
-    @Inject
-    ChanParser chanParser;
 
     private Loadable loadable;
     private List<Post> cached;
@@ -181,7 +177,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
         for (int i = 0; i < toParse.size(); i++) {
             Post.Builder post = toParse.get(i);
-            tasks.add(new PostParseCallable(filterEngine, filters, databaseSavedReplyManager, post, chanParser));
+            tasks.add(new PostParseCallable(filterEngine, filters, databaseSavedReplyManager, post, reader));
         }
 
         if (!tasks.isEmpty()) {

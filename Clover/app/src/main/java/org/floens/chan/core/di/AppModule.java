@@ -7,7 +7,6 @@ import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanLoader;
-import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
@@ -57,7 +56,6 @@ import dagger.Provides;
         injects = {
 //                Context.class, // ApplicationContext
 
-                ChanParser.class,
                 BoardManager.class,
                 DatabaseManager.class,
                 ReplyManager.class,

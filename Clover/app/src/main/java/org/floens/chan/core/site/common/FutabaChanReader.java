@@ -15,6 +15,21 @@ import java.util.Map;
 import okhttp3.HttpUrl;
 
 public class FutabaChanReader implements ChanReader {
+    private final ChanParser chanParser;
+
+    public FutabaChanReader() {
+        this.chanParser = new FutabaChanParser(new DefaultFutabaChanParserHandler());
+    }
+
+    public FutabaChanReader(ChanParser chanParser) {
+        this.chanParser = chanParser;
+    }
+
+    @Override
+    public ChanParser getParser() {
+        return chanParser;
+    }
+
     @Override
     public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
         reader.beginObject();

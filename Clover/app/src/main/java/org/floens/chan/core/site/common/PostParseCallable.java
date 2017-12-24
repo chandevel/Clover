@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.common;
 
-import org.floens.chan.chan.ChanParser;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.model.orm.Filter;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 // Called concurrently to parse the post html and the filters on it
-// Belongs to ChanReaderRequest
+// belong to ChanReaderRequest
 class PostParseCallable implements Callable<Post> {
     private static final String TAG = "PostParseCallable";
 
@@ -35,18 +34,18 @@ class PostParseCallable implements Callable<Post> {
     private List<Filter> filters;
     private DatabaseSavedReplyManager savedReplyManager;
     private Post.Builder post;
-    private ChanParser parser;
+    private ChanReader reader;
 
     public PostParseCallable(FilterEngine filterEngine,
                              List<Filter> filters,
                              DatabaseSavedReplyManager savedReplyManager,
                              Post.Builder post,
-                             ChanParser parser) {
+                             ChanReader reader) {
         this.filterEngine = filterEngine;
         this.filters = filters;
         this.savedReplyManager = savedReplyManager;
         this.post = post;
-        this.parser = parser;
+        this.reader = reader;
     }
 
     @Override
@@ -60,7 +59,7 @@ class PostParseCallable implements Callable<Post> {
 //            Logger.e(TAG, "Incorrect data about post received for post " + post.no);
 //            return null;
 //        }
-        return parser.parse(post);
+        return reader.getParser().parse(null, post);
     }
 
     private void processPostFilter(Post.Builder post) {

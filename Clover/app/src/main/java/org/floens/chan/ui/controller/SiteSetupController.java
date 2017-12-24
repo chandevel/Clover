@@ -58,10 +58,11 @@ public class SiteSetupController extends SettingsController implements SiteSetup
 
         // Preferences
         populatePreferences();
-        buildPreferences();
 
         // Presenter
         presenter.create(this, site);
+
+        buildPreferences();
     }
 
     public void setSite(Site site) {
