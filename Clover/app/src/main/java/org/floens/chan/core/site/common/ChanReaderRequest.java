@@ -91,18 +91,9 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         for (int i = 0; i < enabledFilters.size(); i++) {
             Filter filter = enabledFilters.get(i);
 
-            if (filter.allBoards) {
+            if (filterEngine.matchesBoard(filter, loadable.board)) {
                 // copy the filter because it will get used on other threads
                 filters.add(filter.copy());
-            } else {
-                String[] boardCodes = filter.boardCodes();
-                for (String code : boardCodes) {
-                    if (code.equals(loadable.boardCode)) {
-                        // copy the filter because it will get used on other threads
-                        filters.add(filter.copy());
-                        break;
-                    }
-                }
             }
         }
 

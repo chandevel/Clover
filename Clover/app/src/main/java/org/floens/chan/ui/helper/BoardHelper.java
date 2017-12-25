@@ -73,4 +73,26 @@ public class BoardHelper {
                 name * 5 +
                 Math.max(0, description - 30) * 8;
     }
+
+    public static String boardUniqueId(Board board) {
+        String code = board.code.replace(":", "").replace(",", "");
+        return board.site.id() + ":" + code;
+    }
+
+    public static boolean matchesUniqueId(Board board, String uniqueId) {
+        if (!uniqueId.contains(":")) {
+            return board.site.id() == 0 && board.code.equals(uniqueId);
+        } else {
+            String[] splitted = uniqueId.split(":");
+            if (splitted.length != 2) {
+                return false;
+            }
+
+            try {
+                return Integer.parseInt(splitted[0]) == board.site.id() && splitted[1].equals(board.code);
+            } catch (NumberFormatException ignored) {
+                return false;
+            }
+        }
+    }
 }

@@ -216,7 +216,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
             if (filter.allBoards) {
                 subText += context.getString(R.string.filter_summary_all_boards);
             } else {
-                int size = filterEngine.getBoardsForFilter(filter).size();
+                int size = filterEngine.getFilterBoardCount(filter);
                 subText += context.getResources().getQuantityString(R.plurals.board, size, size);
             }
 

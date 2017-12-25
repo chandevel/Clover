@@ -22,13 +22,13 @@ import android.text.TextUtils;
 
 import org.floens.chan.core.database.DatabaseFilterManager;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.site.Sites;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Filter;
+import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,21 +67,6 @@ public class FilterEngine {
         }
     }
 
-    // This is messy but required now that we can't know the Board immediately.
-    public static class SiteIdBoardCode {
-        public final int siteId;
-        public final String boardCode;
-
-        private SiteIdBoardCode(int site, String board) {
-            siteId = site;
-            boardCode = board;
-        }
-
-        public static SiteIdBoardCode fromSiteIdBoardCode(int siteId, String boardCode) {
-            return new SiteIdBoardCode(siteId, boardCode);
-        }
-    }
-
     private final DatabaseManager databaseManager;
     private final BoardManager boardManager;
 
@@ -116,7 +101,42 @@ public class FilterEngine {
         return enabledFilters;
     }
 
-    // threadsafe
+    @AnyThread
+    public boolean matchesBoard(Filter filter, Board board) {
+        if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
+            return true;
+        } else {
+            for (String uniqueId : filter.boards.split(",")) {
+                if (BoardHelper.matchesUniqueId(board, uniqueId)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public int getFilterBoardCount(Filter filter) {
+        if (filter.allBoards) {
+            return -1;
+        } else {
+            return filter.boards.split(",").length;
+        }
+    }
+
+    public void saveBoardsToFilter(List<Board> appliedBoards, boolean all, Filter filter) {
+        filter.allBoards = all;
+        if (all) {
+            filter.boards = "";
+        } else {
+            List<String> boardsString = new ArrayList<>(appliedBoards.size());
+            for (int i = 0; i < appliedBoards.size(); i++) {
+                boardsString.add(BoardHelper.boardUniqueId(appliedBoards.get(i)));
+            }
+            filter.boards = TextUtils.join(",", boardsString);
+        }
+    }
+
+    @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, FilterType.TRIPCODE.isRegex, post.tripcode, false)) {
             return true;
@@ -234,40 +254,6 @@ public class FilterEngine {
         }
 
         return pattern;
-    }
-
-    public List<SiteIdBoardCode> getBoardsForFilter(Filter filter) {
-        if (filter.allBoards) {
-            return Collections.emptyList();
-        } else if (!TextUtils.isEmpty(filter.boards)) {
-            List<SiteIdBoardCode> appliedBoards = new ArrayList<>();
-            for (String value : filter.boards.split(",")) {
-                if (value.contains(";")) {
-                    String[] siteAndBoard = value.split(";");
-                    if (siteAndBoard.length == 1) {
-                        appliedBoards.add(SiteIdBoardCode.fromSiteIdBoardCode(Integer.parseInt(siteAndBoard[0]), ""));
-                    } else {
-                        appliedBoards.add(SiteIdBoardCode.fromSiteIdBoardCode(Integer.parseInt(siteAndBoard[0]), siteAndBoard[1]));
-                    }
-                } else {
-                    appliedBoards.add(SiteIdBoardCode.fromSiteIdBoardCode(Sites.defaultSite().id(), value));
-                }
-            }
-            return appliedBoards;
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    public void saveBoardsToFilter(List<SiteIdBoardCode> appliedBoards, Filter filter) {
-        filter.boards = "";
-        for (int i = 0; i < appliedBoards.size(); i++) {
-            SiteIdBoardCode siteAndBoard = appliedBoards.get(i);
-            filter.boards += siteAndBoard.siteId + ";" + siteAndBoard.boardCode;
-            if (i < appliedBoards.size() - 1) {
-                filter.boards += ",";
-            }
-        }
     }
 
     private String escapeRegex(String filthy) {

@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -33,29 +34,23 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.FilterType;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Filter;
-import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.FiltersController;
 import org.floens.chan.ui.dialog.ColorPickerView;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
-import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,8 +84,6 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private FilterLayoutCallback callback;
     private Filter filter;
-
-    private List<FilterEngine.SiteIdBoardCode> appliedBoards = new ArrayList<>();
 
     public FilterLayout(Context context) {
         super(context);
@@ -168,8 +161,6 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     public void setFilter(Filter filter) {
         this.filter = filter;
-        appliedBoards.clear();
-        appliedBoards.addAll(filterEngine.getBoardsForFilter(filter));
 
         pattern.setText(filter.pattern);
 
@@ -188,16 +179,15 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
 
-        filterEngine.saveBoardsToFilter(appliedBoards, filter);
-
         return filter;
     }
 
     @Override
     public void onClick(View v) {
         if (v == typeText) {
-            @SuppressWarnings("unchecked")
-            final SelectLayout<FilterType> selectLayout = (SelectLayout<FilterType>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
+            @SuppressWarnings("unchecked") final SelectLayout<FilterType> selectLayout =
+                    (SelectLayout<FilterType>) LayoutInflater.from(getContext())
+                            .inflate(R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
@@ -232,74 +222,43 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                     })
                     .show();
         } else if (v == boardsSelector) {
-            // TODO(multi-site): fix this crap.
-            // we need a new proper recyclerview layout where you can individually select each site and board combination
-            // and if you don't select anything, it becomes a global filter.
+            @SuppressLint("InflateParams") @SuppressWarnings("unchecked") final SelectLayout<Board> selectLayout =
+                    (SelectLayout<Board>) LayoutInflater.from(getContext())
+                            .inflate(R.layout.layout_select, null);
 
-            final LinearLayout selectLayout = (LinearLayout) LayoutInflater.from(getContext())
-                    .inflate(R.layout.layout_site_board_select, null);
+            List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
-            final Spinner spinner = (Spinner) selectLayout.findViewById(R.id.progress);
+            for (Board board : boardManager.getSavedBoards()) {
+                String name = BoardHelper.getName(board);
+                boolean checked = filterEngine.matchesBoard(filter, board);
 
-            final List<? extends Site> allSites = Sites.allSites();
-
-            final Site[] selectedSite = {allSites.get(0)};
-
-            List<String> allSitesNames = new ArrayList<>(allSites.size());
-            for (int i = 0; i < allSites.size(); i++) {
-                Site site = allSites.get(i);
-                allSitesNames.add(site.name());
+                items.add(new SelectLayout.SelectItem<>(
+                        board, board.id, name, "", name, checked
+                ));
             }
 
-            SpinnerAdapter adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, allSitesNames);
-            spinner.setAdapter(adapter);
-
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    Site site = allSites.get(position);
-                    selectedSite[0] = site;
-                    Logger.test(site.name());
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                }
-            });
-
-            final EditText editText = (EditText) selectLayout.findViewById(R.id.boards);
-
-            String text = "";
-            for (int i = 0; i < appliedBoards.size(); i++) {
-                FilterEngine.SiteIdBoardCode siteIdBoardCode = appliedBoards.get(i);
-                text += siteIdBoardCode.boardCode;
-                if (i < appliedBoards.size() - 1) {
-                    text += ",";
-                }
-            }
-
-            editText.setText(text);
+            selectLayout.setItems(items);
 
             new AlertDialog.Builder(getContext())
                     .setView(selectLayout)
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Site site = selectedSite[0];
-
-                            appliedBoards.clear();
-
-                            String[] codes = editText.getText().toString().split(",");
-                            if (codes.length == 0) {
-                                filter.allBoards = true;
-                            } else {
-                                filter.allBoards = false;
-                                for (String code : codes) {
-                                    appliedBoards.add(FilterEngine.SiteIdBoardCode.fromSiteIdBoardCode(
-                                            site.id(), code
-                                    ));
+                            List<SelectLayout.SelectItem<Board>> items = selectLayout.getItems();
+                            boolean all = selectLayout.areAllChecked();
+                            List<Board> boardList = new ArrayList<>(items.size());
+                            if (!all) {
+                                for (SelectLayout.SelectItem<Board> item : items) {
+                                    if (item.checked) {
+                                        boardList.add(item.item);
+                                    }
+                                }
+                                if (boardList.isEmpty()) {
+                                    all = true;
                                 }
                             }
+
+                            filterEngine.saveBoardsToFilter(boardList, all, filter);
 
                             updateBoardsSummary();
                         }
@@ -392,7 +351,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         if (filter.allBoards) {
             text += getString(R.string.filter_all);
         } else {
-            text += String.valueOf(appliedBoards.size());
+            text += filterEngine.getFilterBoardCount(filter);
         }
         text += ")";
         boardsSelector.setText(text);
