@@ -45,7 +45,6 @@ import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
-import org.floens.chan.ui.animation.AnimationUtils;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
@@ -81,7 +80,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private int background;
     private boolean searchOpen;
     private int lastPostCount;
-    private int recyclerViewTopPadding;
 
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -174,8 +172,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             switch (postViewMode) {
                 case LIST:
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-                    recyclerViewTopPadding = 0;
-                    recyclerView.setPadding(0, recyclerViewTopPadding + toolbarHeight(), 0, 0);
+                    setRecyclerViewPadding();
                     recyclerView.setLayoutManager(linearLayoutManager);
                     layoutManager = linearLayoutManager;
 
@@ -187,8 +184,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                     break;
                 case CARD:
                     GridLayoutManager gridLayoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false);
-                    recyclerViewTopPadding = dp(1);
-                    recyclerView.setPadding(dp(1), recyclerViewTopPadding + toolbarHeight(), dp(1), dp(1));
+                    setRecyclerViewPadding();
                     recyclerView.setLayoutManager(gridLayoutManager);
                     layoutManager = gridLayoutManager;
 
@@ -292,11 +288,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             }
 
             reply.onOpen(open);
-            if (open) {
-                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + height, recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
-            } else {
+            setRecyclerViewPadding();
+            if (!open) {
                 AndroidUtils.hideKeyboard(reply);
-                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + toolbarHeight(), recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
             }
             threadListLayoutCallback.replyLayoutOpen(open);
 
@@ -312,19 +306,43 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         postAdapter.showError(error);
     }
 
-    public void openSearch(boolean show) {
-        if (showingThread != null && searchOpen != show) {
-            searchOpen = show;
-            int height = AnimationUtils.animateHeight(searchStatus, show);
+    public void openSearch(boolean open) {
+        if (showingThread != null && searchOpen != open) {
+            searchOpen = open;
 
-            if (show) {
-                searchStatus.setText(R.string.search_empty);
-                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + height, recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
+            searchStatus.measure(
+                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
+            int height = searchStatus.getMeasuredHeight();
+
+            final ViewPropertyAnimator viewPropertyAnimator = searchStatus.animate();
+            viewPropertyAnimator.setListener(null);
+            viewPropertyAnimator.setInterpolator(new DecelerateInterpolator(2f));
+            viewPropertyAnimator.setDuration(600);
+
+            if (open) {
+                searchStatus.setVisibility(View.VISIBLE);
+                searchStatus.setTranslationY(-height);
+                viewPropertyAnimator.translationY(0f);
             } else {
-                recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + toolbarHeight(), recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
+                searchStatus.setTranslationY(0f);
+                viewPropertyAnimator.translationY(-height);
+                viewPropertyAnimator.setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        viewPropertyAnimator.setListener(null);
+                        searchStatus.setVisibility(View.GONE);
+                    }
+                });
             }
 
-            attachToolbarScroll(!(show || replyOpen));
+            setRecyclerViewPadding();
+            if (open) {
+                searchStatus.setText(R.string.search_empty);
+            }
+
+            attachToolbarScroll(!(open || replyOpen));
         }
     }
 
@@ -510,6 +528,36 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 toolbar.setCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
             }
         }
+    }
+
+    private void setRecyclerViewPadding() {
+        int defaultPadding = 0;
+        if (postViewMode == ChanSettings.PostViewMode.CARD) {
+            defaultPadding = dp(1);
+        }
+
+        int left = defaultPadding;
+        int top = defaultPadding;
+        int right = defaultPadding;
+        int bottom = defaultPadding;
+
+        if (replyOpen) {
+            reply.measure(
+                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
+            top += reply.getMeasuredHeight();
+        } else if (searchOpen) {
+            searchStatus.measure(
+                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
+            top += searchStatus.getMeasuredHeight();
+        } else {
+            top += toolbarHeight();
+        }
+
+        recyclerView.setPadding(left, top, right, bottom);
     }
 
     private int toolbarHeight() {

@@ -28,7 +28,6 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.ui.animation.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,11 +100,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     }
 
     protected void setSettingViewVisibility(SettingView settingView, boolean visible, boolean animated) {
-        if (animated) {
-            AnimationUtils.animateHeight(settingView.view, visible, ((View) settingView.view.getParent()).getWidth());
-        } else {
-            settingView.view.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
+        settingView.view.setVisibility(visible ? View.VISIBLE : View.GONE);
 
         if (settingView.divider != null) {
             settingView.divider.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -163,19 +158,8 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
 
         final TextView bottom = ((TextView) view.findViewById(R.id.bottom));
         if (bottom != null) {
-            if (built) {
-                if (bottomText != null) {
-                    bottom.setText(bottomText);
-                }
-
-                // This way of animating never works on textviews if they're just added.
-                if (bottom.getHeight() != 0) {
-                    AnimationUtils.animateHeight(bottom, bottomText != null, ((View) view.getParent()).getWidth());
-                }
-            } else {
-                bottom.setText(bottomText);
-                bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);
-            }
+            bottom.setText(bottomText);
+            bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);
         }
     }
 }

@@ -40,7 +40,6 @@ public class Filter {
     @DatabaseField(canBeNull = false)
     public boolean allBoards = true;
 
-    // TODO(multi-site)
     @DatabaseField(canBeNull = false)
     public String boards;
 

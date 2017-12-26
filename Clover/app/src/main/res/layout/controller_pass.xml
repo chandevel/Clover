@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:orientation="vertical"
         android:paddingBottom="32dp"
         android:paddingLeft="32dp"
@@ -39,7 +40,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingRight="4dp"
             android:paddingTop="8dp"
             android:textColor="#fff44336"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:visibility="gone" />
 
         <org.floens.chan.ui.view.CrossfadeView
             android:id="@+id/crossfade"

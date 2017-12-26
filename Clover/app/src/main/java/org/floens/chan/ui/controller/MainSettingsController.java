@@ -34,7 +34,6 @@ import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.activity.StartActivity;
-import org.floens.chan.ui.animation.AnimationUtils;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
@@ -121,7 +120,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         onPreferenceChange(imageAutoLoadView);
 
         if (!ChanSettings.developer.get()) {
-            developerView.view.getLayoutParams().height = 0;
+            developerView.view.setVisibility(View.GONE);
         }
 
         if (ChanSettings.settingsOpenCounter.increase() == 3) {
@@ -353,7 +352,7 @@ public class MainSettingsController extends SettingsController implements Toolba
 
                     Toast.makeText(context, (developer ? "Enabled" : "Disabled") + " developer options", Toast.LENGTH_LONG).show();
 
-                    AnimationUtils.animateHeight(developerView.view, developer);
+                    developerView.view.setVisibility(developer ? View.VISIBLE : View.GONE);
                 }
             }
         }));

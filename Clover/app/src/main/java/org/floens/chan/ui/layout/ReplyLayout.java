@@ -346,10 +346,15 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     }
 
     @Override
+    public void showCommentCounter(boolean show) {
+        commentCounter.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
     public void setExpanded(boolean expanded) {
         setWrap(!expanded);
 
-        comment.setMaxLines(expanded ? 15 : 6);
+        comment.setMaxLines(expanded ? 500 : 6);
 
         preview.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

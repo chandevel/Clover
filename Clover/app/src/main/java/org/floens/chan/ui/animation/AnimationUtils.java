@@ -17,180 +17,27 @@
  */
 package org.floens.chan.ui.animation;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class AnimationUtils {
     public static int interpolate(int a, int b, float x) {
         return (int) (a + (b - a) * x);
     }
 
-    // a lot of these are deprecated, they animate the height with the layout params themselves,
-    // causing a measure loop for each frame. android just isn't designed for this, and it always
-    // lags. there are better ways to easily animate layouts, such as enabling the layoutAnimations
-    // flag.
-
-    @Deprecated
-    public static void setHeight(View view, boolean expand, boolean animated) {
-        setHeight(view, expand, animated, -1);
-    }
-
-    @Deprecated
-    public static void setHeight(View view, boolean expand, boolean animated, int knownWidth) {
-        if (animated) {
-            animateHeight(view, expand, knownWidth);
-        } else {
-            view.setVisibility(expand ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    private static Map<View, ValueAnimator> layoutAnimations = new HashMap<>();
-
-    @Deprecated
-    public static int animateHeight(final View view, boolean expand) {
-        return animateHeight(view, expand, -1);
-    }
-
-    @Deprecated
-    public static int animateHeight(final View view, final boolean expand, int knownWidth) {
-        return animateHeight(view, expand, knownWidth, 300);
-    }
-
-    @Deprecated
-    public static int animateHeight(final View view, final boolean expand, int knownWidth, int duration) {
-        return animateHeight(view, expand, knownWidth, duration, null);
-    }
-
-    /**
-     * Animate the height of a view by changing the layoutParams.height value.<br>
-     * view.measure is used to figure out the height.
-     * Use knownWidth when the width of the view has not been measured yet.<br>
-     * You can call this even when a height animation is currently running, it will resolve any issues.<br>
-     * <b>This does cause some lag on complex views because requestLayout is called on each frame.</b>
-     */
-    @Deprecated
-    public static int animateHeight(final View view, final boolean expand, int knownWidth, int duration, final LayoutAnimationProgress progressCallback) {
-        final int fromHeight;
-        int toHeight;
-        if (expand) {
-            int width = knownWidth < 0 ? view.getWidth() : knownWidth;
-
-            view.measure(
-                    View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.UNSPECIFIED);
-            fromHeight = view.getHeight();
-            toHeight = view.getMeasuredHeight();
-        } else {
-            fromHeight = view.getHeight();
-            toHeight = 0;
-        }
-
-        animateLayout(true, view, fromHeight, toHeight, duration, true, progressCallback);
-
-        return toHeight;
-    }
-
-    @Deprecated
-    public static void animateLayout(final boolean vertical, final View view, final int from, final int to, int duration, final boolean wrapAfterwards, final LayoutAnimationProgress callback) {
-        ValueAnimator running = layoutAnimations.remove(view);
-        if (running != null) {
-            running.cancel();
-        }
-
-        ValueAnimator valueAnimator = ValueAnimator.ofInt(from, to);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int value = (int) animation.getAnimatedValue();
-                // Looks better
-                if (value == 1) {
-                    value = 0;
-                }
-                if (vertical) {
-                    view.getLayoutParams().height = value;
-                } else {
-                    view.getLayoutParams().width = value;
-                }
-                view.requestLayout();
-
-                if (callback != null) {
-                    callback.onLayoutAnimationProgress(view, vertical, from, to, value, animation.getAnimatedFraction());
-                }
-            }
-        });
-
-        valueAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                view.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (to > 0) {
-                    if (wrapAfterwards) {
-                        if (vertical) {
-                            view.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                        } else {
-                            view.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
-                        }
-                    }
-                } else {
-                    if (vertical) {
-                        view.getLayoutParams().height = 0;
-                    } else {
-                        view.getLayoutParams().width = 0;
-                    }
-                    view.setVisibility(View.GONE);
-                }
-                view.requestLayout();
-
-                layoutAnimations.remove(view);
-            }
-        });
-        valueAnimator.setInterpolator(new DecelerateInterpolator(2f));
-        valueAnimator.setDuration(duration);
-        valueAnimator.start();
-
-        layoutAnimations.put(view, valueAnimator);
-    }
-
-    @Deprecated
-    public interface LayoutAnimationProgress {
-        @Deprecated
-        void onLayoutAnimationProgress(View view, boolean vertical, int from, int to, int value, float progress);
-    }
-
     public static void animateTextColor(final TextView text, int to) {
         ValueAnimator animation = ValueAnimator.ofObject(new ArgbEvaluator(), text.getCurrentTextColor(), to);
-        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                text.setTextColor((int) animation.getAnimatedValue());
-            }
-        });
+        animation.addUpdateListener(a -> text.setTextColor((int) a.getAnimatedValue()));
         animation.start();
     }
 
     public static void animateBackgroundColorDrawable(final View view, int newColor) {
         int currentBackground = ((ColorDrawable) view.getBackground()).getColor();
         ValueAnimator animation = ValueAnimator.ofObject(new ArgbEvaluator(), currentBackground, newColor);
-        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                view.setBackgroundColor((int) animation.getAnimatedValue());
-            }
-        });
+        animation.addUpdateListener(a -> view.setBackgroundColor((int) a.getAnimatedValue()));
         animation.start();
     }
 }

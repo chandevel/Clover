@@ -37,7 +37,6 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.ui.animation.AnimationUtils;
 
 import javax.inject.Inject;
 
@@ -77,16 +76,16 @@ public class PassSettingsController extends Controller implements View.OnClickLi
         navigationItem.setTitle(R.string.settings_screen_pass);
 
         view = inflateRes(R.layout.controller_pass);
-        container = (LinearLayout) view.findViewById(R.id.container);
-        crossfadeView = (CrossfadeView) view.findViewById(R.id.crossfade);
-        errors = (TextView) view.findViewById(R.id.errors);
-        button = (Button) view.findViewById(R.id.button);
-        bottomDescription = (TextView) view.findViewById(R.id.bottom_description);
-        inputToken = (EditText) view.findViewById(R.id.input_token);
-        inputPin = (EditText) view.findViewById(R.id.input_pin);
-        authenticated = (TextView) view.findViewById(R.id.authenticated);
+        container = view.findViewById(R.id.container);
+        crossfadeView = view.findViewById(R.id.crossfade);
+        errors = view.findViewById(R.id.errors);
+        button = view.findViewById(R.id.button);
+        bottomDescription = view.findViewById(R.id.bottom_description);
+        inputToken = view.findViewById(R.id.input_token);
+        inputPin = view.findViewById(R.id.input_pin);
+        authenticated = view.findViewById(R.id.authenticated);
 
-        AnimationUtils.setHeight(errors, false, false);
+        errors.setVisibility(View.GONE);
 
         final boolean loggedIn = loggedIn();
         button.setText(loggedIn ? R.string.setting_pass_logout : R.string.setting_pass_login);
@@ -191,12 +190,12 @@ public class PassSettingsController extends Controller implements View.OnClickLi
 
     private void showError(String error) {
         errors.setText(error);
-        AnimationUtils.setHeight(errors, true, true, container.getWidth());
+        errors.setVisibility(View.VISIBLE);
     }
 
     private void hideError() {
         errors.setText(null);
-        AnimationUtils.setHeight(errors, false, true, container.getHeight());
+        errors.setVisibility(View.GONE);
     }
 
     private boolean loggedIn() {

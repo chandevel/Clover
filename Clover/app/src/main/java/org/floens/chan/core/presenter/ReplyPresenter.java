@@ -111,6 +111,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         callback.loadDraftIntoViews(draft);
         callback.updateCommentCount(0, board.maxCommentChars, false);
         callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+        callback.showCommentCounter(board.maxCommentChars > 0);
 
         if (draft.file != null) {
             showPreview(draft.fileName, draft.file);
@@ -452,6 +453,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         void onPosted();
 
         void setCommentHint(String hint);
+
+        void showCommentCounter(boolean show);
 
         void setExpanded(boolean expanded);
 
