@@ -23,23 +23,21 @@ import org.floens.chan.R;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.ReplyManager;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.HttpCall;
-import org.floens.chan.core.site.http.HttpCallManager;
-import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.core.site.http.Reply;
-import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.CaptchaCallback;
 import org.floens.chan.ui.captcha.CaptchaLayoutInterface;
+import org.floens.chan.ui.helper.ImagePickDelegate;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -48,7 +46,6 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -65,20 +62,9 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
     private ReplyPresenterCallback callback;
 
-    @Inject
-    ReplyManager replyManager;
-
-    @Inject
-    BoardManager boardManager;
-
-    @Inject
-    WatchManager watchManager;
-
-    @Inject
-    HttpCallManager httpCallManager;
-
-    @Inject
-    DatabaseManager databaseManager;
+    private ReplyManager replyManager;
+    private WatchManager watchManager;
+    private DatabaseManager databaseManager;
 
     private boolean bound = false;
     private Loadable loadable;
@@ -92,9 +78,17 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
     private boolean captchaInited;
     private int selectedQuote = -1;
 
-    public ReplyPresenter(ReplyPresenterCallback callback) {
+    @Inject
+    public ReplyPresenter(ReplyManager replyManager,
+                          WatchManager watchManager,
+                          DatabaseManager databaseManager) {
+        this.replyManager = replyManager;
+        this.watchManager = watchManager;
+        this.databaseManager = databaseManager;
+    }
+
+    public void create(ReplyPresenterCallback callback) {
         this.callback = callback;
-        getGraph().inject(this);
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -164,6 +158,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
     public void onMoreClicked() {
         moreOpen = !moreOpen;
+        callback.setExpanded(moreOpen);
         callback.openNameOptions(moreOpen);
         if (!loadable.isThreadMode()) {
             callback.openSubject(moreOpen);
@@ -174,6 +169,10 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
                 callback.openSpoiler(moreOpen, false);
             }
         }
+    }
+
+    public boolean isExpanded() {
+        return moreOpen;
     }
 
     public void onAttachClicked() {
@@ -288,7 +287,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
             String[] lines = post.comment.toString().split("\n+");
             final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$"); // matches for >>123, >>123 (OP), >>123 (You), >>>/fit/123
             for (String line : lines) {
-                if(!quotePattern.matcher(line).matches()) { // do not include post no from quoted post
+                if (!quotePattern.matcher(line).matches()) { // do not include post no from quoted post
                     textToInsert += ">" + line + "\n";
                 }
             }
@@ -329,6 +328,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         previewOpen = false;
         selectedQuote = -1;
         callback.openMessage(false, true, "", false);
+        callback.setExpanded(false);
         callback.openSubject(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
@@ -428,11 +428,11 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
         void openMessage(boolean open, boolean animate, String message, boolean autoHide);
 
-        void openMessageWebview(String rawMessage);
-
         void onPosted();
 
         void setCommentHint(String hint);
+
+        void setExpanded(boolean expanded);
 
         void openNameOptions(boolean open);
 

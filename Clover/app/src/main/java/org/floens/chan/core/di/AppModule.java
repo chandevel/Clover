@@ -43,6 +43,7 @@ import org.floens.chan.ui.controller.SitesSetupController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.layout.FilterLayout;
+import org.floens.chan.ui.layout.ReplyLayout;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.ui.view.MultiImageView;
@@ -97,6 +98,7 @@ import dagger.Provides;
                 SiteSetupController.class,
                 SitesSetupController.class,
                 BoardSetupController.class,
+                ReplyLayout.class,
 
                 Chan4.class,
         },

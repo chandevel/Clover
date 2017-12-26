@@ -68,6 +68,10 @@ public class Chan extends Application implements UserAgentProvider {
         return instance.graph;
     }
 
+    public static <T> T inject(T instance) {
+        return Chan.instance.graph.inject(instance);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

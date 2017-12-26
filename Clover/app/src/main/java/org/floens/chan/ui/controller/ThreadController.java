@@ -69,7 +69,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         navigationItem.handlesToolbarInset = true;
 
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
-        threadLayout.setCallback(this);
+        threadLayout.create(this);
 
         swipeRefreshLayout = new SwipeRefreshLayout(context) {
             @Override
@@ -93,7 +93,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     public void onDestroy() {
         super.onDestroy();
 
-        threadLayout.getPresenter().unbindLoadable();
+        threadLayout.destroy();
 
         EventBus.getDefault().unregister(this);
     }
@@ -259,6 +259,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         } else {
             navigationController.pushController(filtersController);
         }
+        // TODO cleanup
         Filter filter = new Filter();
         filter.type = FilterType.TRIPCODE.flag;
         filter.pattern = tripcode;

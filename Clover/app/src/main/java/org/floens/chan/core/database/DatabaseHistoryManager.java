@@ -42,10 +42,6 @@ public class DatabaseHistoryManager {
         this.databaseLoadableManager = databaseLoadableManager;
     }
 
-    public void add(History history) {
-        databaseManager.runTaskSync(addHistory(history));
-    }
-
     public Callable<Void> load() {
         return new Callable<Void>() {
             @Override

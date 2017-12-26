@@ -19,27 +19,34 @@ package org.floens.chan.chan;
 
 import org.floens.chan.core.settings.ChanSettings;
 
+@Deprecated
 public class ChanUrls {
+    @Deprecated
     public static String getCaptchaSiteKey() {
         return "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
     }
 
+    @Deprecated
     public static String getBoardUrlDesktop(String board) {
         return scheme() + "://boards.4chan.org/" + board + "/";
     }
 
+    @Deprecated
     public static String getThreadUrlDesktop(String board, int no) {
         return scheme() + "://boards.4chan.org/" + board + "/thread/" + no;
     }
 
+    @Deprecated
     public static String getThreadUrlDesktop(String board, int no, int postNo) {
         return scheme() + "://boards.4chan.org/" + board + "/thread/" + no + "#p" + postNo;
     }
 
+    @Deprecated
     public static String getCatalogUrlDesktop(String board) {
         return scheme() + "://boards.4chan.org/" + board + "/catalog";
     }
 
+    @Deprecated
     private static String scheme() {
         return ChanSettings.networkHttps.get() ? "https" : "http";
     }

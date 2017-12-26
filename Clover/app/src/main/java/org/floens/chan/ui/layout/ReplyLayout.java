@@ -17,6 +17,8 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.Editable;
@@ -25,7 +27,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -37,8 +39,8 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.captcha.CaptchaCallback;
 import org.floens.chan.ui.captcha.CaptchaLayout;
@@ -50,29 +52,33 @@ import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.ui.animation.AnimationUtils;
 import org.floens.chan.utils.ImageDecoder;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class ReplyLayout extends LoadView implements View.OnClickListener, AnimationUtils.LayoutAnimationProgress, ReplyPresenter.ReplyPresenterCallback, TextWatcher, ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener {
-    private ReplyPresenter presenter;
+public class ReplyLayout extends LoadView implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher, ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener {
+    @Inject
+    ReplyPresenter presenter;
+
     private ReplyLayoutCallback callback;
     private boolean newCaptcha;
 
-    private View replyInputLayout;
-    private FrameLayout captchaContainer;
-    private ImageView captchaHardReset;
     private CaptchaLayoutInterface authenticationLayout;
-
     private boolean openingName;
+
     private boolean blockSelectionChange = false;
+
+    // Reply views:
+    private View replyInputLayout;
     private TextView message;
     private EditText name;
     private EditText subject;
@@ -81,79 +87,97 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     private LinearLayout nameOptions;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
-    private LinearLayout previewContainer;
     private CheckBox spoiler;
     private ImageView preview;
     private TextView previewMessage;
-    private ImageView more;
-    private DropdownArrowDrawable moreDropdown;
     private ImageView attach;
+    private ImageView more;
     private ImageView submit;
+    private DropdownArrowDrawable moreDropdown;
+
+    // Captcha views:
+    private FrameLayout captchaContainer;
+    private ImageView captchaHardReset;
 
     private Runnable closeMessageRunnable = new Runnable() {
         @Override
         public void run() {
-            AnimationUtils.animateHeight(message, false, getWidth());
+            message.setVisibility(View.GONE);
         }
     };
 
     public ReplyLayout(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public ReplyLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
-    public ReplyLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    public ReplyLayout(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        inject(this);
 
-        setAnimateLayout(true, true);
+        final LayoutInflater inflater = LayoutInflater.from(getContext());
 
-        presenter = new ReplyPresenter(this);
+        // Inflate reply input
+        replyInputLayout = inflater.inflate(R.layout.layout_reply_input, this, false);
+        message = replyInputLayout.findViewById(R.id.message);
+        name = replyInputLayout.findViewById(R.id.name);
+        subject = replyInputLayout.findViewById(R.id.subject);
+        options = replyInputLayout.findViewById(R.id.options);
+        fileName = replyInputLayout.findViewById(R.id.file_name);
+        nameOptions = replyInputLayout.findViewById(R.id.name_options);
+        comment = replyInputLayout.findViewById(R.id.comment);
+        commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
+        spoiler = replyInputLayout.findViewById(R.id.spoiler);
+        preview = replyInputLayout.findViewById(R.id.preview);
+        previewMessage = replyInputLayout.findViewById(R.id.preview_message);
+        attach = replyInputLayout.findViewById(R.id.attach);
+        more = replyInputLayout.findViewById(R.id.more);
+        submit = replyInputLayout.findViewById(R.id.submit);
 
-        replyInputLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_input, this, false);
-        message = (TextView) replyInputLayout.findViewById(R.id.message);
-        name = (EditText) replyInputLayout.findViewById(R.id.name);
-        subject = (EditText) replyInputLayout.findViewById(R.id.subject);
-        options = (EditText) replyInputLayout.findViewById(R.id.options);
-        fileName = (EditText) replyInputLayout.findViewById(R.id.file_name);
-        nameOptions = (LinearLayout) replyInputLayout.findViewById(R.id.name_options);
-        comment = (SelectionListeningEditText) replyInputLayout.findViewById(R.id.comment);
+        // Setup reply layout views
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
-        commentCounter = (TextView) replyInputLayout.findViewById(R.id.comment_counter);
-        previewContainer = (LinearLayout) replyInputLayout.findViewById(R.id.preview_container);
-        spoiler = (CheckBox) replyInputLayout.findViewById(R.id.spoiler);
-        preview = (ImageView) replyInputLayout.findViewById(R.id.preview);
-        previewMessage = (TextView) replyInputLayout.findViewById(R.id.preview_message);
+
         preview.setOnClickListener(this);
-        more = (ImageView) replyInputLayout.findViewById(R.id.more);
-        moreDropdown = new DropdownArrowDrawable(dp(16), dp(16), true, getAttrColor(getContext(), R.attr.dropdown_dark_color), getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color));
+
+        moreDropdown = new DropdownArrowDrawable(dp(16), dp(16), true,
+                getAttrColor(getContext(), R.attr.dropdown_dark_color),
+                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color));
         more.setImageDrawable(moreDropdown);
         setRoundItemBackground(more);
         more.setOnClickListener(this);
-        attach = (ImageView) replyInputLayout.findViewById(R.id.attach);
+
         theme().imageDrawable.apply(attach);
         setRoundItemBackground(attach);
         attach.setOnClickListener(this);
-        submit = (ImageView) replyInputLayout.findViewById(R.id.submit);
+
         theme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
 
-        captchaContainer = (FrameLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_captcha, this, false);
-        captchaHardReset = (ImageView) captchaContainer.findViewById(R.id.reset);
+        // Inflate captcha layout
+        captchaContainer = (FrameLayout) inflater.inflate(R.layout.layout_reply_captcha, this, false);
+        captchaHardReset = captchaContainer.findViewById(R.id.reset);
+
+        // Setup captcha layout views
+        captchaContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
         theme().refreshDrawable.apply(captchaHardReset);
         setRoundItemBackground(captchaHardReset);
         captchaHardReset.setOnClickListener(this);
 
         setView(replyInputLayout);
+
+        // Presenter
+        presenter.create(this);
     }
 
     public void setCallback(ReplyLayoutCallback callback) {
@@ -177,27 +201,15 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         removeCallbacks(closeMessageRunnable);
     }
 
-    @Override
-    public LayoutParams getLayoutParamsForView(View view) {
-        if (view == replyInputLayout || (view == captchaContainer && !newCaptcha)) {
-            return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        } else if (view == captchaContainer && newCaptcha) {
-            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(300));
-        } else {
-            // Loadbar
-            return new LayoutParams(LayoutParams.MATCH_PARENT, dp(100));
-        }
-    }
-
-    @Override
-    public void onLayoutAnimationProgress(View view, boolean vertical, int from, int to, int value, float progress) {
-        if (view == nameOptions) {
-            moreDropdown.setRotation(openingName ? progress : 1f - progress);
-        }
-    }
-
     public boolean onBack() {
         return presenter.onBack();
+    }
+
+    private void setWrap(boolean wrap) {
+        setLayoutParams(new LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                wrap ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT
+        ));
     }
 
     @Override
@@ -215,6 +227,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return true;
@@ -222,20 +235,24 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void setPage(ReplyPresenter.Page page, boolean animate) {
-        setAnimateLayout(animate, true);
         switch (page) {
             case LOADING:
-                setView(null);
+                setWrap(true);
+                View progressBar = setView(null);
+                progressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, dp(100)));
                 break;
             case INPUT:
                 setView(replyInputLayout);
+                setWrap(!presenter.isExpanded());
                 break;
             case AUTHENTICATION:
+                setWrap(false);
                 if (authenticationLayout == null) {
                     if (newCaptcha) {
                         authenticationLayout = new CaptchaLayout(getContext());
                     } else {
-                        authenticationLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext()).inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
+                        authenticationLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext())
+                                .inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
                     }
                     captchaContainer.addView((View) authenticationLayout, 0);
                 }
@@ -294,23 +311,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     public void openMessage(boolean open, boolean animate, String text, boolean autoHide) {
         removeCallbacks(closeMessageRunnable);
         message.setText(text);
-
-        if (animate) {
-            AnimationUtils.animateHeight(message, open, getWidth());
-        } else {
-            message.setVisibility(open ? VISIBLE : GONE);
-            message.getLayoutParams().height = open ? ViewGroup.LayoutParams.WRAP_CONTENT : 0;
-            message.requestLayout();
-        }
+        message.setVisibility(open ? View.VISIBLE : View.GONE);
 
         if (autoHide) {
             postDelayed(closeMessageRunnable, 5000);
         }
-    }
-
-    @Override
-    public void openMessageWebview(String rawMessage) {
-//        callback.
     }
 
     @Override
@@ -326,19 +331,33 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     @Override
+    public void setExpanded(boolean expanded) {
+        setWrap(!expanded);
+
+        comment.setMaxLines(expanded ? 15 : 6);
+
+        ValueAnimator animator = ValueAnimator.ofFloat(expanded ? 0f : 1f, expanded ? 1f : 0f);
+        animator.setInterpolator(new DecelerateInterpolator(2f));
+        animator.setDuration(400);
+        animator.addUpdateListener(animation ->
+                moreDropdown.setRotation((float) animation.getAnimatedValue()));
+        animator.start();
+    }
+
+    @Override
     public void openNameOptions(boolean open) {
         openingName = open;
-        AnimationUtils.animateHeight(nameOptions, open, comment.getWidth(), 300, this);
+        nameOptions.setVisibility(open ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void openSubject(boolean open) {
-        AnimationUtils.animateHeight(subject, open, comment.getWidth());
+        subject.setVisibility(open ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void openFileName(boolean open) {
-        AnimationUtils.animateHeight(fileName, open, comment.getWidth());
+        fileName.setVisibility(open ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -346,6 +365,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         fileName.setText(name);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void updateCommentCount(int count, int maxCount, boolean over) {
         commentCounter.setText(count + "/" + maxCount);
@@ -354,13 +374,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     }
 
     public void focusComment() {
-        comment.requestFocus();
-        comment.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                AndroidUtils.requestKeyboardFocus(comment);
-            }
-        }, 100);
+        comment.post(() -> AndroidUtils.requestViewAndKeyboardFocus(comment));
     }
 
     @Override
@@ -372,9 +386,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
         }
 
         if (show) {
-            ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(100), dp(100), this);
+            ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(300), dp(200), this);
         } else {
-            AnimationUtils.animateLayout(false, previewContainer, previewContainer.getWidth(), 0, 300, false, null);
+            spoiler.setVisibility(View.GONE);
+            preview.setVisibility(View.GONE);
+            previewMessage.setVisibility(View.GONE);
         }
     }
 
@@ -386,7 +402,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void openSpoiler(boolean show, boolean checked) {
-        AnimationUtils.animateHeight(spoiler, show);
+        spoiler.setVisibility(show ? View.VISIBLE : View.GONE);
         spoiler.setChecked(checked);
     }
 
@@ -394,7 +410,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
     public void onImageBitmap(File file, Bitmap bitmap) {
         if (bitmap != null) {
             preview.setImageBitmap(bitmap);
-            AnimationUtils.animateLayout(false, previewContainer, 0, dp(100), 300, false, null);
+            preview.setVisibility(View.VISIBLE);
         } else {
             openPreviewMessage(true, getString(R.string.reply_no_preview));
         }
@@ -402,6 +418,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Anima
 
     @Override
     public void onFilePickLoading() {
+        // TODO
     }
 
     @Override

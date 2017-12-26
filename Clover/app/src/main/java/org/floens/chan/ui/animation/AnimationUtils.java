@@ -35,10 +35,17 @@ public class AnimationUtils {
         return (int) (a + (b - a) * x);
     }
 
+    // a lot of these are deprecated, they animate the height with the layout params themselves,
+    // causing a measure loop for each frame. android just isn't designed for this, and it always
+    // lags. there are better ways to easily animate layouts, such as enabling the layoutAnimations
+    // flag.
+
+    @Deprecated
     public static void setHeight(View view, boolean expand, boolean animated) {
         setHeight(view, expand, animated, -1);
     }
 
+    @Deprecated
     public static void setHeight(View view, boolean expand, boolean animated, int knownWidth) {
         if (animated) {
             animateHeight(view, expand, knownWidth);
@@ -49,14 +56,17 @@ public class AnimationUtils {
 
     private static Map<View, ValueAnimator> layoutAnimations = new HashMap<>();
 
+    @Deprecated
     public static int animateHeight(final View view, boolean expand) {
         return animateHeight(view, expand, -1);
     }
 
+    @Deprecated
     public static int animateHeight(final View view, final boolean expand, int knownWidth) {
         return animateHeight(view, expand, knownWidth, 300);
     }
 
+    @Deprecated
     public static int animateHeight(final View view, final boolean expand, int knownWidth, int duration) {
         return animateHeight(view, expand, knownWidth, duration, null);
     }
@@ -68,6 +78,7 @@ public class AnimationUtils {
      * You can call this even when a height animation is currently running, it will resolve any issues.<br>
      * <b>This does cause some lag on complex views because requestLayout is called on each frame.</b>
      */
+    @Deprecated
     public static int animateHeight(final View view, final boolean expand, int knownWidth, int duration, final LayoutAnimationProgress progressCallback) {
         final int fromHeight;
         int toHeight;
@@ -89,6 +100,7 @@ public class AnimationUtils {
         return toHeight;
     }
 
+    @Deprecated
     public static void animateLayout(final boolean vertical, final View view, final int from, final int to, int duration, final boolean wrapAfterwards, final LayoutAnimationProgress callback) {
         ValueAnimator running = layoutAnimations.remove(view);
         if (running != null) {
@@ -153,7 +165,9 @@ public class AnimationUtils {
         layoutAnimations.put(view, valueAnimator);
     }
 
+    @Deprecated
     public interface LayoutAnimationProgress {
+        @Deprecated
         void onLayoutAnimationProgress(View view, boolean vertical, int from, int to, int value, float progress);
     }
 

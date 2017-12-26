@@ -17,9 +17,11 @@
  */
 package org.floens.chan.core.site;
 
+import android.support.v4.util.ArrayMap;
+
+import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.model.Post;
 
 import java.util.Map;
 
@@ -48,4 +50,18 @@ public interface SiteEndpoints {
     HttpUrl report(Post post);
 
     HttpUrl login();
+
+    static Map<String, String> makeArgument(String key, String value) {
+        Map<String, String> map = new ArrayMap<>(1);
+        map.put(key, value);
+        return map;
+    }
+
+    static Map<String, String> makeArgument(String key1, String value1,
+                                            String key2, String value2) {
+        Map<String, String> map = new ArrayMap<>(2);
+        map.put(key1, value1);
+        map.put(key2, value2);
+        return map;
+    }
 }

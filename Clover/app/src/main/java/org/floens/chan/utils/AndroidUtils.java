@@ -69,6 +69,8 @@ public class AndroidUtils {
 
     private static ConnectivityManager connectivityManager;
 
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+
     public static void init() {
         ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
         ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
@@ -232,11 +234,11 @@ public class AndroidUtils {
      * be run on the ui thread.
      */
     public static void runOnUiThread(Runnable runnable) {
-        new Handler(Looper.getMainLooper()).post(runnable);
+        mainHandler.post(runnable);
     }
 
     public static void runOnUiThread(Runnable runnable, long delay) {
-        new Handler(Looper.getMainLooper()).postDelayed(runnable, delay);
+        mainHandler.postDelayed(runnable, delay);
     }
 
     public static void requestKeyboardFocus(Dialog dialog, final View view) {

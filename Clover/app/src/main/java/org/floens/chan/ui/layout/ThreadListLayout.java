@@ -17,6 +17,8 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,25 +31,27 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
+import org.floens.chan.ui.animation.AnimationUtils;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.ui.animation.AnimationUtils;
 
 import java.util.Calendar;
 import java.util.List;
@@ -96,17 +100,20 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        reply = (ReplyLayout) findViewById(R.id.reply);
+        // View binding
+        reply = findViewById(R.id.reply);
+        searchStatus = findViewById(R.id.search_status);
+        recyclerView = findViewById(R.id.recycler_view);
+
+        // View setup
         reply.setCallback(this);
-
-        searchStatus = (TextView) findViewById(R.id.search_status);
         searchStatus.setTypeface(ROBOTO_MEDIUM);
-
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
     }
 
-    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback, PostCell.PostCellCallback postCellCallback,
-                             ThreadStatusCell.Callback statusCellCallback, ThreadListLayoutPresenterCallback callback,
+    public void setCallbacks(PostAdapter.PostAdapterCallback postAdapterCallback,
+                             PostCell.PostCellCallback postCellCallback,
+                             ThreadStatusCell.Callback statusCellCallback,
+                             ThreadListLayoutPresenterCallback callback,
                              ThreadListLayoutCallback threadListLayoutCallback) {
         this.callback = callback;
         this.threadListLayoutCallback = threadListLayoutCallback;
@@ -136,12 +143,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
                 // As requested by the RecyclerView, make sure that the adapter isn't changed
                 // while in a layout pass. Postpone to the next frame.
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ThreadListLayout.this.callback.onListScrolledToBottom();
-                    }
-                });
+                mainHandler.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
             }
         }
     }
@@ -261,7 +263,34 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     public void openReply(boolean open) {
         if (showingThread != null && replyOpen != open) {
             this.replyOpen = open;
-            int height = AnimationUtils.animateHeight(reply, replyOpen, getWidth(), 500);
+
+            reply.measure(
+                    MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            );
+            int height = reply.getMeasuredHeight();
+
+            final ViewPropertyAnimator viewPropertyAnimator = reply.animate();
+            viewPropertyAnimator.setListener(null);
+            viewPropertyAnimator.setInterpolator(new DecelerateInterpolator(2f));
+            viewPropertyAnimator.setDuration(600);
+
+            if (open) {
+                reply.setVisibility(View.VISIBLE);
+                reply.setTranslationY(-height);
+                viewPropertyAnimator.translationY(0f);
+            } else {
+                reply.setTranslationY(0f);
+                viewPropertyAnimator.translationY(-height);
+                viewPropertyAnimator.setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        viewPropertyAnimator.setListener(null);
+                        reply.setVisibility(View.GONE);
+                    }
+                });
+            }
+
             reply.onOpen(open);
             if (open) {
                 recyclerView.setPadding(recyclerView.getPaddingLeft(), recyclerViewTopPadding + height, recyclerView.getPaddingRight(), recyclerView.getPaddingBottom());
@@ -534,9 +563,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     };
 
     private void party() {
-        Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
-            recyclerView.addItemDecoration(PARTY);
+        if (showingThread.loadable.site.id() == 0) {
+            Calendar calendar = Calendar.getInstance();
+            if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
+                recyclerView.addItemDecoration(PARTY);
+            }
         }
     }
 

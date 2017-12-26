@@ -14,6 +14,8 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
+import static org.floens.chan.core.site.SiteEndpoints.makeArgument;
+
 public class FutabaChanReader implements ChanReader {
     private final ChanParser chanParser;
 
@@ -235,15 +237,14 @@ public class FutabaChanReader implements ChanReader {
 
         if (countryCode != null && countryName != null) {
             Map<String, String> arg = new HashMap<>(1);
-            arg.put("country_code", countryCode);
-            HttpUrl countryUrl = endpoints.icon(builder, "country", arg);
+            HttpUrl countryUrl = endpoints.icon(builder, "country",
+                    makeArgument("country_code", countryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
         }
 
         if (trollCountryCode != null && countryName != null) {
-            Map<String, String> arg = new HashMap<>(1);
-            arg.put("troll_country_code", trollCountryCode);
-            HttpUrl countryUrl = endpoints.icon(builder, "troll_country", arg);
+            HttpUrl countryUrl = endpoints.icon(builder, "troll_country",
+                    makeArgument("troll_country_code", trollCountryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
         }
 

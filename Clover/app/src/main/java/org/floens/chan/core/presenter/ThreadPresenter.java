@@ -25,16 +25,15 @@ import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
-import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.orm.History;
-import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.History;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
@@ -42,7 +41,6 @@ import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
-import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -59,7 +57,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutPresenterCallback {
@@ -79,22 +76,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_OPEN_BROWSER = 13;
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
 
-    @Inject
-    WatchManager watchManager;
-
-    @Inject
-    DatabaseManager databaseManager;
-
-    @Inject
-    ReplyManager replyManager;
-
-    @Inject
-    HttpCallManager httpCallManager;
-
-    @Inject
-    ChanLoaderFactory chanLoaderFactory;
-
     private ThreadPresenterCallback threadPresenterCallback;
+    private WatchManager watchManager;
+    private DatabaseManager databaseManager;
+    private ChanLoaderFactory chanLoaderFactory;
 
     private Loadable loadable;
     private ChanLoader chanLoader;
@@ -103,10 +88,17 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded = false;
 
-    public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
-        this.threadPresenterCallback = threadPresenterCallback;
+    @Inject
+    public ThreadPresenter(WatchManager watchManager,
+                           DatabaseManager databaseManager,
+                           ChanLoaderFactory chanLoaderFactory) {
+        this.watchManager = watchManager;
+        this.databaseManager = databaseManager;
+        this.chanLoaderFactory = chanLoaderFactory;
+    }
 
-        getGraph().inject(this);
+    public void create(ThreadPresenterCallback threadPresenterCallback) {
+        this.threadPresenterCallback = threadPresenterCallback;
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -116,6 +108,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
 
             Pin pin = watchManager.findPinByLoadable(loadable);
+            // TODO this isn't true anymore, because all loadables come from one location.
             if (pin != null) {
                 // Use the loadable from the pin.
                 // This way we can store the list position in the pin loadable,
@@ -704,7 +697,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             history.loadable = loadable;
             PostImage image = chanLoader.getThread().op.image;
             history.thumbnailUrl = image == null ? "" : image.thumbnailUrl.toString();
-            databaseManager.getDatabaseHistoryManager().add(history);
+            databaseManager.runTask(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
     }
 

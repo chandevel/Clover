@@ -167,7 +167,7 @@ public class Loadable implements SiteReference, BoardReference {
     }
 
     /**
-     * Compares the mode, board and no.
+     * Compares the mode, site, board and no.
      */
     @Override
     public boolean equals(Object object) {

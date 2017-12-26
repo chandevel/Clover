@@ -19,16 +19,19 @@ package org.floens.chan.ui.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewPropertyAnimator;
-import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
-import org.floens.chan.ui.animation.AnimationUtils;
+import org.floens.chan.utils.AndroidUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a
@@ -36,10 +39,9 @@ import org.floens.chan.ui.animation.AnimationUtils;
  */
 public class LoadView extends FrameLayout {
     private int fadeDuration = 200;
-    private boolean animateLayout;
-    private boolean animateVertical;
-    private int layoutAnimationDuration = 500;
     private Listener listener;
+
+    private AnimatorSet animatorSet = new AnimatorSet();
 
     public LoadView(Context context) {
         super(context);
@@ -60,15 +62,6 @@ public class LoadView extends FrameLayout {
      */
     public void setFadeDuration(int fadeDuration) {
         this.fadeDuration = fadeDuration;
-    }
-
-    public void setLayoutAnimationDuration(int layoutAnimationDuration) {
-        this.layoutAnimationDuration = layoutAnimationDuration;
-    }
-
-    public void setAnimateLayout(boolean animateLayout, boolean animateVertical) {
-        this.animateLayout = animateLayout;
-        this.animateVertical = animateVertical;
     }
 
     /**
@@ -99,37 +92,47 @@ public class LoadView extends FrameLayout {
      */
     public View setView(View newView, boolean animate) {
         if (newView == null) {
-            FrameLayout progressBar = new FrameLayout(getContext());
-            progressBar.addView(new ProgressBar(getContext()), new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-            newView = progressBar;
+            newView = getViewForNull();
         }
 
         if (animate) {
-            // Fade all attached views out
+            // Fast forward possible pending animations (keeping the views attached.)
+            animatorSet.cancel();
+            animatorSet = new AnimatorSet();
+
+            // Fade all attached views out.
+            // If the animation is cancelled, the views are not removed. If the animation ends,
+            // the views are removed.
+            List<Animator> animators = new ArrayList<>();
             for (int i = 0; i < getChildCount(); i++) {
                 final View child = getChildAt(i);
-                final ViewPropertyAnimator childAnimation = child.animate()
-                        .setInterpolator(new LinearInterpolator())
-                        .setDuration(fadeDuration)
-                        .alpha(0f);
-                childAnimation.setListener(new AnimatorListenerAdapter() {
+
+                // We don't add a listener to remove the view we also animate in.
+                if (child == newView) {
+                    continue;
+                }
+
+                ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(child, View.ALPHA, 0f);
+                objectAnimator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationCancel(Animator animation) {
-                        // Canceled because it is being animated in again.
-                        // Don't let this listener call removeView on the in animation.
-                        childAnimation.setListener(null);
+                        // If cancelled, don't remove the view, but re-run the animation.
+                        animation.removeListener(this);
                     }
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        // Animation ended without interruptions, remove listener for future animations.
-                        childAnimation.setListener(null);
-                        removeView(child);
-                        if (listener != null) {
-                            listener.onLoadViewRemoved(child);
-                        }
+                        removeAndCallListener(child);
                     }
-                }).start();
+                });
+                animators.add(objectAnimator);
+            }
+
+            if (newView.getParent() != this) {
+                if (newView.getParent() != null) {
+                    AndroidUtils.removeFromParentView(newView);
+                }
+                addView(newView);
             }
 
             // Assume no running animations
@@ -138,70 +141,50 @@ public class LoadView extends FrameLayout {
             }
 
             // Fade our new view in
-            newView.animate()
-                    .setInterpolator(new LinearInterpolator())
-                    .setDuration(fadeDuration)
-                    .alpha(1f)
-                    .start();
+            ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(newView, View.ALPHA, 1f);
+            animators.add(objectAnimator);
 
-            // Assume view already attached to this view (fading out)
-            if (newView.getParent() == null) {
-                addView(newView, getLayoutParamsForView(newView));
-            }
-
-            // Animate this view its size to the new view size if the width or height is WRAP_CONTENT
-            if (animateLayout && getChildCount() >= 2) {
-                final int currentSize = animateVertical ? getHeight() : getWidth();
-                int newSize = animateVertical ? newView.getHeight() : newView.getWidth();
-                if (newSize == 0) {
-                    if (animateVertical) {
-                        if (newView.getLayoutParams().height == LayoutParams.WRAP_CONTENT) {
-                            newView.measure(
-                                    View.MeasureSpec.makeMeasureSpec(getWidth(), View.MeasureSpec.EXACTLY),
-                                    View.MeasureSpec.UNSPECIFIED);
-                            newSize = newView.getMeasuredHeight();
-                        } else {
-                            newSize = newView.getLayoutParams().height;
-                        }
-                    } else {
-                        if (newView.getLayoutParams().width == LayoutParams.WRAP_CONTENT) {
-                            newView.measure(
-                                    View.MeasureSpec.UNSPECIFIED,
-                                    View.MeasureSpec.makeMeasureSpec(getHeight(), View.MeasureSpec.EXACTLY));
-                            newSize = newView.getMeasuredWidth();
-                        } else {
-                            newSize = newView.getLayoutParams().width;
-                        }
-                    }
-                }
-
-                if (animateVertical) {
-                    newSize += getPaddingTop() + getPaddingBottom();
-                } else {
-                    newSize += getPaddingLeft() + getPaddingRight();
-                }
-
-                AnimationUtils.animateLayout(animateVertical, this, currentSize, newSize, layoutAnimationDuration, true, null);
-            }
+            animatorSet.setDuration(fadeDuration);
+            animatorSet.playTogether(animators);
+            animatorSet.start();
         } else {
+            // Fast forward possible pending animations (end, so also remove them).
+            animatorSet.end();
+
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                child.animate().cancel();
-                if (listener != null) {
-                    listener.onLoadViewRemoved(child);
-                }
+                removeAndCallListener(child);
             }
-            removeAllViews();
-            newView.animate().cancel();
+
+            animatorSet = new AnimatorSet();
+
             newView.setAlpha(1f);
-            addView(newView, getLayoutParamsForView(newView));
+            addView(newView);
         }
 
         return newView;
     }
 
-    public LayoutParams getLayoutParamsForView(View view) {
-        return new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    protected View getViewForNull() {
+        // TODO: figure out why this is needed for the thread list layout view.
+        FrameLayout progressBarContainer = new FrameLayout(getContext());
+        progressBarContainer.setLayoutParams(
+                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+        View progressBar = new ProgressBar(getContext());
+        progressBar.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+
+        progressBarContainer.addView(progressBar);
+
+        return progressBarContainer;
+    }
+
+    protected void removeAndCallListener(View child) {
+        removeView(child);
+        if (listener != null) {
+            listener.onLoadViewRemoved(child);
+        }
     }
 
     public interface Listener {
