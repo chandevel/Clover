@@ -163,6 +163,10 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         if (!loadable.isThreadMode()) {
             callback.openSubject(moreOpen);
         }
+        callback.openCommentQuoteButton(moreOpen);
+        if (board.spoilers) {
+            callback.openCommentSpoilerButton(moreOpen);
+        }
         if (previewOpen) {
             callback.openFileName(moreOpen);
             if (board.spoilers) {
@@ -273,6 +277,14 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         highlightQuotes();
     }
 
+    public void commentQuoteClicked() {
+        commentInsert(">");
+    }
+
+    public void commentSpoilerClicked() {
+        commentInsert("[spoiler]", "[/spoiler]");
+    }
+
     public void quote(Post post, boolean withText) {
         callback.loadViewsIntoDraft(draft);
 
@@ -293,13 +305,20 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
             }
         }
 
-        draft.comment = new StringBuilder(draft.comment).insert(draft.selection, textToInsert).toString();
-
-        draft.selection += textToInsert.length();
-
-        callback.loadDraftIntoViews(draft);
+        commentInsert(textToInsert);
 
         highlightQuotes();
+    }
+
+    private void commentInsert(String insertBefore) {
+        commentInsert(insertBefore, "");
+    }
+
+    private void commentInsert(String insertBefore, String insertAfter) {
+        draft.comment = new StringBuilder(draft.comment)
+                .insert(draft.selection, insertBefore + insertAfter).toString();
+        draft.selection += insertBefore.length();
+        callback.loadDraftIntoViews(draft);
     }
 
     @Override
@@ -330,6 +349,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         callback.openMessage(false, true, "", false);
         callback.setExpanded(false);
         callback.openSubject(false);
+        callback.openCommentQuoteButton(false);
+        callback.openCommentSpoilerButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
         callback.openSpoiler(false, false);
@@ -437,6 +458,10 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         void openNameOptions(boolean open);
 
         void openSubject(boolean open);
+
+        void openCommentQuoteButton(boolean open);
+
+        void openCommentSpoilerButton(boolean open);
 
         void openFileName(boolean open);
 

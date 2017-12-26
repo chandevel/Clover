@@ -27,7 +27,9 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -85,6 +87,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private EditText options;
     private EditText fileName;
     private LinearLayout nameOptions;
+    private ViewGroup commentButtons;
+    private Button commentQuoteButton;
+    private Button commentSpoilerButton;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
     private CheckBox spoiler;
@@ -133,6 +138,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
+        commentButtons = replyInputLayout.findViewById(R.id.comment_buttons);
+        commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
+        commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
         comment = replyInputLayout.findViewById(R.id.comment);
         commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
@@ -143,6 +151,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         submit = replyInputLayout.findViewById(R.id.submit);
 
         // Setup reply layout views
+        commentQuoteButton.setOnClickListener(this);
+        commentSpoilerButton.setOnClickListener(this);
+
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
 
@@ -224,6 +235,10 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             // TODO
         }*/ else if (v == captchaHardReset) {
             authenticationLayout.hardReset();
+        } else if (v == commentQuoteButton) {
+            presenter.commentQuoteClicked();
+        } else if (v == commentSpoilerButton) {
+            presenter.commentSpoilerClicked();
         }
     }
 
@@ -336,6 +351,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
         comment.setMaxLines(expanded ? 15 : 6);
 
+        preview.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                expanded ? dp(150) : dp(100)
+        ));
+
         ValueAnimator animator = ValueAnimator.ofFloat(expanded ? 0f : 1f, expanded ? 1f : 0f);
         animator.setInterpolator(new DecelerateInterpolator(2f));
         animator.setDuration(400);
@@ -353,6 +373,16 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     @Override
     public void openSubject(boolean open) {
         subject.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentQuoteButton(boolean open) {
+        commentQuoteButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void openCommentSpoilerButton(boolean open) {
+        commentSpoilerButton.setVisibility(open ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -386,7 +416,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         }
 
         if (show) {
-            ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(300), dp(200), this);
+            ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(400), dp(300), this);
         } else {
             spoiler.setVisibility(View.GONE);
             preview.setVisibility(View.GONE);
