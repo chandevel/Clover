@@ -4,10 +4,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.Sites;
-import org.floens.chan.utils.Logger;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -23,122 +20,91 @@ public class DatabaseBoardManager {
     }
 
     public Callable<Board> createOrUpdate(final Board board) {
-        return new Callable<Board>() {
-            @Override
-            public Board call() throws Exception {
-                helper.boardsDao.createOrUpdate(board);
-
-                return board;
+        return () -> {
+            QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
+            q.where().eq("site", board.getSite().id())
+                    .and().eq("value", board.code);
+            Board existing = q.queryForFirst();
+            if (existing != null) {
+                existing.update(board);
+                helper.boardsDao.update(existing);
+                board.update(existing);
+            } else {
+                helper.boardsDao.create(board);
             }
+
+            return board;
         };
     }
 
     public Callable<Void> update(final Board board) {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                helper.boardsDao.update(board);
+        return () -> {
+            helper.boardsDao.update(board);
 
-                return null;
-            }
+            return null;
         };
     }
 
     public Callable<Void> createAll(final List<Board> boards) {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                // TODO: optimize
-                for (Board board : boards) {
-                    QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
-                    q.where().eq("site", board.getSite().id())
-                            .and().eq("value", board.code);
-                    Board existing = q.queryForFirst();
-                    if (existing != null) {
-                        existing.update(board);
-                        helper.boardsDao.update(existing);
-                        board.update(existing);
-                    } else {
-                        helper.boardsDao.create(board);
-                    }
+        return () -> {
+            // TODO: optimize
+            for (Board board : boards) {
+                QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
+                q.where().eq("site", board.getSite().id())
+                        .and().eq("value", board.code);
+                Board existing = q.queryForFirst();
+                if (existing != null) {
+                    existing.update(board);
+                    helper.boardsDao.update(existing);
+                    board.update(existing);
+                } else {
+                    helper.boardsDao.create(board);
                 }
-
-                return null;
             }
+
+            return null;
+        };
+    }
+
+    public Callable<Board> getBoard(final Site site, final String code) {
+        return () -> {
+            Board board = helper.boardsDao.queryBuilder()
+                    .where().eq("site", site.id())
+                    .and().eq("value", code)
+                    .queryForFirst();
+
+            if (board != null) {
+                board.site = site;
+            }
+
+            return board;
         };
     }
 
     public Callable<List<Board>> getSiteBoards(final Site site) {
-        return new Callable<List<Board>>() {
-            @Override
-            public List<Board> call() throws Exception {
-                List<Board> boards = helper.boardsDao.queryBuilder()
-                        .where().eq("site", site.id())
-                        .query();
-                for (int i = 0; i < boards.size(); i++) {
-                    Board board = boards.get(i);
-                    board.site = site;
-                }
-                return boards;
+        return () -> {
+            List<Board> boards = helper.boardsDao.queryBuilder()
+                    .where().eq("site", site.id())
+                    .query();
+            for (int i = 0; i < boards.size(); i++) {
+                Board board = boards.get(i);
+                board.site = site;
             }
+            return boards;
         };
     }
 
     public Callable<List<Board>> getSiteSavedBoards(final Site site) {
-        return new Callable<List<Board>>() {
-            @Override
-            public List<Board> call() throws Exception {
-                List<Board> boards = helper.boardsDao.queryBuilder()
-                        .where().eq("site", site.id())
-                        .and().eq("saved", true)
-                        .query();
-                for (int i = 0; i < boards.size(); i++) {
-                    Board board = boards.get(i);
-                    board.site = site;
-                }
-                return boards;
+        return () -> {
+            List<Board> boards = helper.boardsDao.queryBuilder()
+                    .where().eq("site", site.id())
+                    .and().eq("saved", true)
+                    .query();
+            for (int i = 0; i < boards.size(); i++) {
+                Board board = boards.get(i);
+                board.site = site;
             }
-        };
-    }
-
-    public Callable<List<Board>> getSavedBoards() {
-        return new Callable<List<Board>>() {
-            @Override
-            public List<Board> call() throws Exception {
-                List<Board> boards = null;
-                try {
-                    boards = helper.boardsDao.queryBuilder()
-                            .where().eq("saved", true)
-                            .query();
-                    for (int i = 0; i < boards.size(); i++) {
-                        Board board = boards.get(i);
-                        board.site = Sites.forId(board.siteId);
-                    }
-                } catch (SQLException e) {
-                    Logger.e(TAG, "Error getting boards from db", e);
-                }
-
-                return boards;
-            }
-        };
-    }
-
-    public Callable<List<Board>> getAllBoards() {
-        return new Callable<List<Board>>() {
-            @Override
-            public List<Board> call() throws Exception {
-                List<Board> boards = null;
-                try {
-                    boards = helper.boardsDao.queryForAll();
-                    for (int i = 0; i < boards.size(); i++) {
-                        Board board = boards.get(i);
-                        board.site = Sites.forId(board.siteId);
-                    }
-                } catch (SQLException e) {
-                    Logger.e(TAG, "Error getting boards from db", e);
-                }
-                return boards;
-            }
+            return boards;
         };
     }
 }

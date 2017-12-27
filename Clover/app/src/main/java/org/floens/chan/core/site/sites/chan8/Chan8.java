@@ -21,7 +21,6 @@ package org.floens.chan.core.site.sites.chan8;
 import android.support.annotation.Nullable;
 import android.webkit.WebView;
 
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
@@ -234,11 +233,6 @@ public class Chan8 extends SiteBase {
 
     @Override
     public void boards(BoardsListener boardsListener) {
-    }
-
-    @Override
-    public Board board(String code) {
-        return getGraph().get(BoardManager.class).getForCode(this, code);
     }
 
     @Override

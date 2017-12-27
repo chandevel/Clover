@@ -53,13 +53,18 @@ class PostParseCallable implements Callable<Post> {
         // Process the filters before finish, because parsing the html is dependent on filter matches
         processPostFilter(post);
 
-        post.isSavedReply(savedReplyManager.isSaved(post.board.code, post.id));
+        post.isSavedReply(savedReplyManager.isSaved(post.board, post.id));
 
 //        if (!post.parse(parser)) {
 //            Logger.e(TAG, "Incorrect data about post received for post " + post.no);
 //            return null;
 //        }
-        return reader.getParser().parse(null, post);
+        return reader.getParser().parse(null, post, new ChanParser.Callback() {
+            @Override
+            public boolean isSaved(int postNo) {
+                return savedReplyManager.isSaved(post.board, postNo);
+            }
+        });
     }
 
     private void processPostFilter(Post.Builder post) {

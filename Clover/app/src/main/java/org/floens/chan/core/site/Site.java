@@ -102,7 +102,17 @@ public interface Site {
         INFINITE
     }
 
+    /**
+     * Initialize the site with the given id, config, and userSettings.
+     * <p><b>Note: do not use any managers at this point, because they rely on the sites being initialized.
+     * Instead, use {@link #postInitialize()}</b>
+     * @param id the site id
+     * @param config the site config
+     * @param userSettings the site user settings
+     */
     void initialize(int id, SiteConfig config, SiteUserSettings userSettings);
+
+    void postInitialize();
 
     /**
      * Global positive (>0) integer that uniquely identifies this site.<br>
@@ -136,13 +146,26 @@ public interface Site {
         void onBoardsReceived(Boards boards);
     }
 
+    /**
+     * Return the board for this site with the given {@code code}.
+     * <p>This does not need to create the board if it doesn't exist. This is important for
+     * sites that have a board type different to DYNAMIC. Returning from the database is
+     * enough.</p>
+     *
+     * @param code the board code
+     * @return a board with the board code, or {@code null}.
+     */
     Board board(String code);
 
-    interface BoardListener {
-        void onBoardReceived(Board board);
-
-        void onBoardNonexistent();
-    }
+    /**
+     * Create a new board with the specified {@code code} and {@code name}.
+     * <p>This is only applicable to sites with a board type other than DYNAMIC.</p>
+     *
+     * @param name the name of the board.
+     * @param code the code to create the board with.
+     * @return the created board.
+     */
+    Board createBoard(String name, String code);
 
     ChanReader chanReader();
 

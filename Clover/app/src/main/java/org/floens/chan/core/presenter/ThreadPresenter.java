@@ -450,7 +450,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }
 
         if (loadable.site.feature(Site.Feature.POST_DELETE) &&
-                databaseManager.getDatabaseSavedReplyManager().isSaved(post.boardId, post.no)) {
+                databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
@@ -496,7 +496,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
-                SavedReply savedReply = new SavedReply(post.boardId, post.no, "");
+                SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
+                        post.board.site, post.board, post.no, "");
                 databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
                 break;
             case POST_OPTION_PIN:
@@ -606,7 +607,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         threadPresenterCallback.showDeleting();
 
         SavedReply reply = databaseManager.runTaskSync(
-                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.boardId, post.no)
+                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
         );
         if (reply != null) {
             Site site = loadable.getSite();
@@ -634,7 +635,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseManager.runTaskSync(
-                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.boardId, post.no)
+                databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
         );
         if (reply != null) {
             threadPresenterCallback.confirmPostDelete(post);

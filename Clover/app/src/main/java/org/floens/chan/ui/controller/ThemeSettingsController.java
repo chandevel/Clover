@@ -37,6 +37,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.core.site.common.ChanParser;
 import org.floens.chan.core.site.common.DefaultFutabaChanParserHandler;
 import org.floens.chan.core.site.common.FutabaChanParser;
 import org.floens.chan.controller.Controller;
@@ -103,6 +104,13 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
         @Override
         public void onPostNoClicked(Post post) {
+        }
+    };
+
+    private ChanParser.Callback parserCallback = new ChanParser.Callback() {
+        @Override
+        public boolean isSaved(int postNo) {
+            return false;
         }
     };
 
@@ -251,7 +259,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                             "http://example.com/" +
                             "<br>" +
                             "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.");
-            Post post = new FutabaChanParser(new DefaultFutabaChanParserHandler()).parse(theme, builder);
+            Post post = new FutabaChanParser(new DefaultFutabaChanParserHandler()).parse(theme, builder, parserCallback);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);

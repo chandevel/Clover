@@ -24,7 +24,6 @@ import org.floens.chan.core.saver.ImageSaveTask;
 import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.site.common.ChanReaderRequest;
 import org.floens.chan.core.site.http.HttpCallManager;
-import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.activity.BoardActivity;
 import org.floens.chan.ui.adapter.DrawerAdapter;
@@ -99,8 +98,6 @@ import dagger.Provides;
                 SitesSetupController.class,
                 BoardSetupController.class,
                 ReplyLayout.class,
-
-                Chan4.class,
         },
         complete = false,
         includes = NetModule.class

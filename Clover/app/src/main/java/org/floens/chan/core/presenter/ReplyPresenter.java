@@ -224,7 +224,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
                 }
             }
 
-            SavedReply savedReply = new SavedReply(loadable.boardCode, replyResponse.postNo, replyResponse.password);
+            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
+                    loadable.site, loadable.board, replyResponse.postNo, replyResponse.password);
             databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
             switchPage(Page.INPUT, false);

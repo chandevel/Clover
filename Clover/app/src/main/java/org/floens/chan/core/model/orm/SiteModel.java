@@ -17,11 +17,19 @@
  */
 package org.floens.chan.core.model.orm;
 
+import android.util.Pair;
+
+import com.google.gson.Gson;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.model.json.site.SiteConfig;
+import org.floens.chan.core.model.json.site.SiteUserSettings;
+
 @DatabaseTable(tableName = "site")
 public class SiteModel {
+    private static final Gson gson = new Gson();
+
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public int id;
 
@@ -32,5 +40,17 @@ public class SiteModel {
     public String userSettings;
 
     public SiteModel() {
+    }
+
+    public void storeConfigFields(SiteConfig config, SiteUserSettings userSettings) {
+        this.configuration = gson.toJson(config);
+        this.userSettings = gson.toJson(userSettings);
+    }
+
+    public Pair<SiteConfig, SiteUserSettings> loadConfigFields() {
+        return Pair.create(
+                gson.fromJson(this.configuration, SiteConfig.class),
+                gson.fromJson(this.userSettings, SiteUserSettings.class)
+        );
     }
 }

@@ -21,11 +21,8 @@ import android.util.Pair;
 
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Board;
-import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.site.Sites;
-import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +33,6 @@ import java.util.Observable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.greenrobot.event.EventBus;
-
 /**
  * <p>Keeps track of {@link Board}s in the system.
  * <p>There are a few types of sites, those who provide a list of all boards known,
@@ -45,7 +40,8 @@ import de.greenrobot.event.EventBus;
  * and those who don't provide a board list at all.
  * <p>We try to save as much info about boards as possible, this means that we try to save all
  * boards we encounter.
- * For sites with a small list of boards which does provide a board list api we save all those boards.
+ * For sites with a small list of boards which does provide a board list api we save all those
+ * boards.
  * <p>All boards have a {@link Board#saved} flag indicating if it should be visible in the user's
  * favorite board list, along with a {@link Board#order} in which they appear.
  */
@@ -53,57 +49,36 @@ import de.greenrobot.event.EventBus;
 public class BoardManager {
     private static final String TAG = "BoardManager";
 
-    private static final Comparator<Board> ORDER_SORT = new Comparator<Board>() {
-        @Override
-        public int compare(Board lhs, Board rhs) {
-            return lhs.order - rhs.order;
-        }
-    };
-
-    private static final Comparator<Board> NAME_SORT = new Comparator<Board>() {
-        @Override
-        public int compare(Board lhs, Board rhs) {
-            return lhs.name.compareTo(rhs.name);
-        }
-    };
+    private static final Comparator<Board> ORDER_SORT = (lhs, rhs) -> lhs.order - rhs.order;
 
     private final DatabaseManager databaseManager;
-    private final SiteManager siteManager;
 
-    private final List<Board> savedBoards = new ArrayList<>();
-
-    private final List<Pair<Site, List<Board>>> sitesWithBoards = new ArrayList<>();
+    private final List<Pair<Site, List<Board>>> sitesWithSavedBoards = new ArrayList<>();
     private final SavedBoards savedBoardsObservable = new SavedBoards();
 
     @Inject
-    public BoardManager(DatabaseManager databaseManager, SiteManager siteManager) {
+    public BoardManager(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
-        this.siteManager = siteManager;
 
         updateSavedBoards();
-
-        fetchLimitedSitesTheirBoards();
     }
 
-    public Board getForCode(Site site, String code) {
-        if (site.boardsType() == Site.BoardsType.DYNAMIC) {
-            for (Board board : getSavedBoards()) {
-                if (board.site == site && board.code.equals(code)) {
-                    return board;
-                }
-            }
-            return null;
-        } else {
-            return Board.fromSiteNameCode(site, code, code);
-        }
+    public void createAll(List<Board> boards) {
+        databaseManager.runTaskSync(
+                databaseManager.getDatabaseBoardManager().createAll(boards));
     }
 
-    public List<Board> getSavedBoards() {
-        return savedBoards;
-    }
-
-    public SavedBoards getSavedBoardsObservable() {
-        return savedBoardsObservable;
+    /**
+     * Get the board with the same {@code code} for the given site. The board does not need
+     * to be saved.
+     *
+     * @param site the site
+     * @param code the board code
+     * @return the board code with the same site and board code, or {@code null} if not found.
+     */
+    public Board getBoard(Site site, String code) {
+        return databaseManager.runTaskSync(
+                databaseManager.getDatabaseBoardManager().getBoard(site, code));
     }
 
     public List<Board> getSiteBoards(Site site) {
@@ -118,6 +93,10 @@ public class BoardManager {
         return boards;
     }
 
+    public SavedBoards getSavedBoardsObservable() {
+        return savedBoardsObservable;
+    }
+
     public void saveBoard(Board board) {
         setSaved(board, true);
     }
@@ -128,12 +107,9 @@ public class BoardManager {
 
     public void updateBoardOrder(Board board, int order) {
         board.order = order;
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager().update(board), new DatabaseManager.TaskResult<Void>() {
-            @Override
-            public void onComplete(Void result) {
-                updateSavedBoards();
-            }
-        });
+        // not sync, does not update observable.
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager().update(board),
+                result -> updateSavedBoards());
     }
 
     private void setSaved(Board board, boolean saved) {
@@ -142,137 +118,19 @@ public class BoardManager {
         updateSavedBoards();
     }
 
-    private void fetchLimitedSitesTheirBoards() {
-        List<Site> sites = Sites.allSites();
-        for (final Site site : sites) {
-            if (site.boardsType() == Site.BoardsType.DYNAMIC) {
-                site.boards(new Site.BoardsListener() {
-                    @Override
-                    public void onBoardsReceived(Boards boards) {
-                        handleBoardsFetch(site, boards);
-                    }
-                });
-            }
-        }
-    }
-
-    private void handleBoardsFetch(Site site, Boards boards) {
-        Logger.i(TAG, "Got boards for " + site.name());
-
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager().createAll(boards.boards));
-    }
-
     private void updateSavedBoards() {
-        savedBoards.clear();
-        savedBoards.addAll(databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().getSavedBoards()));
-
-        sitesWithBoards.clear();
+        sitesWithSavedBoards.clear();
         for (Site site : Sites.allSites()) {
             List<Board> siteBoards = getSiteSavedBoards(site);
-            sitesWithBoards.add(new Pair<>(site, siteBoards));
+            sitesWithSavedBoards.add(new Pair<>(site, siteBoards));
         }
-
-        // TODO: remove, use the observable
-        EventBus.getDefault().post(new BoardsChangedMessage());
 
         savedBoardsObservable.notifyObservers();
     }
 
     public class SavedBoards extends Observable {
         public List<Pair<Site, List<Board>>> get() {
-            return sitesWithBoards;
+            return sitesWithSavedBoards;
         }
-    }
-
-    /*private void appendBoards(Boards response) {
-        List<Board> boardsToAddWs = new ArrayList<>();
-        List<Board> boardsToAddNws = new ArrayList<>();
-
-        for (int i = 0; i < response.boards.size(); i++) {
-            Board serverBoard = response.boards.get(i);
-
-            Board existing = getBoardByCode(serverBoard.code);
-            if (existing != null) {
-                existing.update(serverBoard);
-            } else {
-                serverBoard.saved = true;
-                if (serverBoard.workSafe) {
-                    boardsToAddWs.add(serverBoard);
-                } else {
-                    boardsToAddNws.add(serverBoard);
-                }
-            }
-        }
-
-        Collections.sort(boardsToAddWs, NAME_SORT);
-        Collections.sort(boardsToAddNws, NAME_SORT);
-
-        for (int i = 0; i < boardsToAddWs.size(); i++) {
-            Board board = boardsToAddWs.get(i);
-            board.order = boards.size();
-            boards.add(board);
-        }
-
-        for (int i = 0; i < boardsToAddNws.size(); i++) {
-            Board board = boardsToAddNws.get(i);
-            board.order = boards.size();
-            boards.add(board);
-        }
-
-        saveDatabase();
-        update(true);
-    }
-
-    // Thread-safe
-    private Board getBoardByCode(String code) {
-        synchronized (boardsByCode) {
-            return boardsByCode.get(code);
-        }
-    }
-
-    public List<Board> getAllBoards() {
-        return boards;
-    }
-
-    public List<Board> getSavedBoards() {
-        return savedBoards;
-    }
-
-    public void flushOrderAndSaved() {
-        saveDatabase();
-        update(true);
-    }*/
-
-    /*private void update(boolean notify) {
-        savedBoards.clear();
-        savedBoards.addAll(filterSaved(boards));
-        synchronized (boardsByCode) {
-            boardsByCode.clear();
-            for (Board board : boards) {
-                boardsByCode.put(board.code, board);
-            }
-        }
-        if (notify) {
-            EventBus.getDefault().post(new BoardsChangedMessage());
-        }
-    }*/
-
-    /*private void saveDatabase() {
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager().setBoards(boards));
-    }*/
-
-    /*private List<Board> filterSaved(List<Board> all) {
-        List<Board> saved = new ArrayList<>(all.size());
-        for (int i = 0; i < all.size(); i++) {
-            Board board = all.get(i);
-            if (board.saved) {
-                saved.add(board);
-            }
-        }
-        Collections.sort(saved, ORDER_SORT);
-        return saved;
-    }*/
-
-    public static class BoardsChangedMessage {
     }
 }

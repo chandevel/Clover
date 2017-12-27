@@ -20,9 +20,15 @@ package org.floens.chan.core.site;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import okhttp3.HttpUrl;
 
 class SiteResolver {
+    @Inject
+    public SiteResolver() {
+    }
+
     SiteResolverResult resolve(String url) {
         List<Resolvable> resolvables = Sites.RESOLVABLES;
 

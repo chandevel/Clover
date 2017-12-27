@@ -18,13 +18,28 @@
 package org.floens.chan.core.site;
 
 
+import com.android.volley.RequestQueue;
+
+import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.json.site.SiteUserSettings;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.site.http.HttpCallManager;
+
+import java.util.Collections;
+
+import dagger.ObjectGraph;
+
+import static org.floens.chan.Chan.getGraph;
 
 public abstract class SiteBase implements Site {
     protected int id;
     protected SiteConfig config;
     protected SiteUserSettings userSettings;
+
+    protected HttpCallManager httpCallManager;
+    protected RequestQueue requestQueue;
+    protected BoardManager boardManager;
 
     @Override
     public void initialize(int id, SiteConfig config, SiteUserSettings userSettings) {
@@ -34,7 +49,37 @@ public abstract class SiteBase implements Site {
     }
 
     @Override
+    public void postInitialize() {
+        ObjectGraph graph = getGraph();
+
+        httpCallManager = graph.get(HttpCallManager.class);
+        requestQueue = graph.get(RequestQueue.class);
+        boardManager = graph.get(BoardManager.class);
+
+        if (boardsType() == BoardsType.DYNAMIC) {
+            boards(boards -> boardManager.createAll(boards.boards));
+        }
+    }
+
+    @Override
     public int id() {
         return id;
+    }
+
+    @Override
+    public Board board(String code) {
+        return boardManager.getBoard(this, code);
+    }
+
+    @Override
+    public Board createBoard(String name, String code) {
+        Board existing = board(code);
+        if (existing != null) {
+            return existing;
+        }
+
+        Board board = Board.fromSiteNameCode(this, name, code);
+        boardManager.createAll(Collections.singletonList(board));
+        return board;
     }
 }

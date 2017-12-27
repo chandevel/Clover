@@ -46,6 +46,7 @@ public class FutabaChanParser implements ChanParser {
     private static final String TAG = "FutabaChanParser";
     private static final String SAVED_REPLY_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
+    public static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
 
     private FutabaChanParserHandler handler;
 
@@ -54,7 +55,7 @@ public class FutabaChanParser implements ChanParser {
     }
 
     @Override
-    public Post parse(Theme theme, Post.Builder builder) {
+    public Post parse(Theme theme, Post.Builder builder, Callback callback) {
         if (theme == null) {
             theme = ThemeHelper.getInstance().getTheme();
         }
@@ -74,7 +75,7 @@ public class FutabaChanParser implements ChanParser {
         parseSpans(theme, builder);
 
         if (builder.comment != null) {
-            builder.comment = parseComment(theme, builder, builder.comment);
+            builder.comment = parseComment(theme, builder, builder.comment, callback);
         } else {
             builder.comment = "";
         }
@@ -177,7 +178,7 @@ public class FutabaChanParser implements ChanParser {
         builder.spans(subjectSpan, nameTripcodeIdCapcodeSpan);
     }
 
-    private CharSequence parseComment(Theme theme, Post.Builder post, CharSequence commentRaw) {
+    private CharSequence parseComment(Theme theme, Post.Builder post, CharSequence commentRaw, Callback callback) {
         CharSequence total = new SpannableString("");
 
         try {
@@ -189,7 +190,7 @@ public class FutabaChanParser implements ChanParser {
             List<CharSequence> texts = new ArrayList<>(nodes.size());
 
             for (Node node : nodes) {
-                CharSequence nodeParsed = parseNode(theme, post, node);
+                CharSequence nodeParsed = parseNode(theme, post, callback, node);
                 if (nodeParsed != null) {
                     texts.add(nodeParsed);
                 }
@@ -203,7 +204,7 @@ public class FutabaChanParser implements ChanParser {
         return total;
     }
 
-    private CharSequence parseNode(Theme theme, Post.Builder post, Node node) {
+    private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
             SpannableString spannable = new SpannableString(text);
@@ -219,7 +220,7 @@ public class FutabaChanParser implements ChanParser {
                     List<CharSequence> texts = new ArrayList<>(innerNodes.size() + 1);
 
                     for (Node innerNode : innerNodes) {
-                        CharSequence nodeParsed = parseNode(theme, post, innerNode);
+                        CharSequence nodeParsed = parseNode(theme, post, callback, innerNode);
                         if (nodeParsed != null) {
                             texts.add(nodeParsed);
                         }
@@ -246,7 +247,7 @@ public class FutabaChanParser implements ChanParser {
                     return handler.handleStrong(this, theme, post, (Element) node);
                 }
                 case "a": {
-                    CharSequence anchor = parseAnchor(theme, post, (Element) node);
+                    CharSequence anchor = parseAnchor(theme, post, callback, (Element) node);
                     if (anchor != null) {
                         return anchor;
                     } else {
@@ -271,38 +272,41 @@ public class FutabaChanParser implements ChanParser {
         }
     }
 
-    private CharSequence parseAnchor(Theme theme, Post.Builder post, Element anchor) {
-        FutabaChanParserHandler.Link handlerLink = handler.handleAnchor(this, theme, post, anchor);
+    private CharSequence parseAnchor(Theme theme, Post.Builder post, Callback callback,
+                                     Element anchor) {
+        FutabaChanParserHandler.Link handlerLink =
+                handler.handleAnchor(this, theme, post, anchor);
 
         if (handlerLink != null) {
-            SpannableString link = new SpannableString(handlerLink.key);
-            PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
-            link.setSpan(pl, 0, link.length(), 0);
-            post.addLinkable(pl);
-
             if (handlerLink.type == PostLinkable.Type.THREAD) {
-                handlerLink.key += " \u2192"; // arrow to the right
+                handlerLink.key += EXTERN_THREAD_LINK_SUFFIX;
             }
 
             if (handlerLink.type == PostLinkable.Type.QUOTE) {
                 int postNo = (int) handlerLink.value;
                 post.addReplyTo(postNo);
 
-                // Append OP when its a reply to OP
+                // Append (OP) when its a reply to OP
                 if (postNo == post.opId) {
                     handlerLink.key += OP_REPLY_SUFFIX;
                 }
 
-                // Append You when it's a reply to an saved reply
-                // TODO(multisite)
-                /*if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board.code, id)) {
-                    key += SAVED_REPLY_SUFFIX;
-                }*/
+                // Append (You) when it's a reply to an saved reply
+                if (callback.isSaved(postNo)) {
+                    handlerLink.key += SAVED_REPLY_SUFFIX;
+                }
             }
+
+            SpannableString link = new SpannableString(handlerLink.key);
+            PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
+            link.setSpan(pl, 0, link.length(), 0);
+            post.addLinkable(pl);
 
             return link;
         } else {
             return null;
         }
     }
+
+
 }

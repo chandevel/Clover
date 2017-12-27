@@ -20,22 +20,41 @@ package org.floens.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.site.Site;
+
 @DatabaseTable(tableName = "savedreply")
 public class SavedReply {
     public SavedReply() {
     }
 
+    @Deprecated
     public SavedReply(String board, int no, String password) {
         this.board = board;
         this.no = no;
         this.password = password;
     }
 
+    public static SavedReply fromSiteBoardNoPassword(Site site, Board board, int no,
+                                                     String password) {
+        SavedReply savedReply = new SavedReply();
+        savedReply.siteId = site.id();
+        savedReply.site = site;
+        savedReply.board = board.code;
+        savedReply.no = no;
+        savedReply.password = password;
+        return savedReply;
+    }
+
     @DatabaseField(generatedId = true)
     private int id;
 
     @DatabaseField(columnName = "site")
-    public int site;
+    public int siteId;
+
+    /**
+     * The site this board belongs to, loaded with {@link #siteId} in the database manager.
+     */
+    public transient Site site;
 
     @DatabaseField(index = true, canBeNull = false)
     public String board;

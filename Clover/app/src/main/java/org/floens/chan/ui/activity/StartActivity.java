@@ -180,11 +180,12 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         // Not from a state or from an url, launch the setup controller if no boards are setup up yet,
         // otherwise load the default saved board.
         if (loadDefault) {
-            if (boardManager.getSavedBoards().isEmpty()) {
+            /*if (boardManager.getSavedBoards().isEmpty()) {
                 setupWithNoBoards();
             } else {
                 browseController.loadWithDefaultBoard();
-            }
+            }*/
+            browseController.loadWithDefaultBoard();
         }
     }
 

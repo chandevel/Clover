@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -105,9 +104,9 @@ public class BoardSetupPresenter {
             }
         } else {
             for (String suggestion : selectedSuggestions) {
-                // TODO(multisite)
-                Board board = new Board(site, suggestion, suggestion, true, true);
+                Board board = site.createBoard(suggestion, suggestion);
                 boardManager.saveBoard(board);
+                boardManager.updateBoardOrder(board, savedBoards.size());
                 count++;
             }
         }
@@ -164,53 +163,46 @@ public class BoardSetupPresenter {
 
         final String query = userQuery == null ? null :
                 userQuery.replace("/", "").replace("\\", "");
-        suggestionCall = BackgroundUtils.runWithExecutor(executor, new Callable<List<BoardSuggestion>>() {
-            @Override
-            public List<BoardSuggestion> call() throws Exception {
-                List<BoardSuggestion> suggestions = new ArrayList<>();
-                if (site.boardsType() == Site.BoardsType.DYNAMIC) {
-                    List<Board> siteBoards = boardManager.getSiteBoards(site);
-                    List<Board> allUnsavedBoards = new ArrayList<>();
-                    for (Board siteBoard : siteBoards) {
-                        if (!siteBoard.saved) {
-                            allUnsavedBoards.add(siteBoard);
-                        }
+        suggestionCall = BackgroundUtils.runWithExecutor(executor, () -> {
+            List<BoardSuggestion> suggestions = new ArrayList<>();
+            if (site.boardsType() == Site.BoardsType.DYNAMIC) {
+                List<Board> siteBoards = boardManager.getSiteBoards(site);
+                List<Board> allUnsavedBoards = new ArrayList<>();
+                for (Board siteBoard : siteBoards) {
+                    if (!siteBoard.saved) {
+                        allUnsavedBoards.add(siteBoard);
                     }
+                }
 
-                    List<Board> toSuggest;
-                    if (query == null || query.equals("")) {
-                        toSuggest = new ArrayList<>(allUnsavedBoards.size());
-                        for (Board b : allUnsavedBoards) {
-                            if (b.workSafe) toSuggest.add(b);
-                        }
-                        for (Board b : allUnsavedBoards) {
-                            if (!b.workSafe) toSuggest.add(b);
-                        }
-                        toSuggest = allUnsavedBoards;
-                    } else {
-                        toSuggest = BoardHelper.search(allUnsavedBoards, query);
+                List<Board> toSuggest;
+                if (query == null || query.equals("")) {
+                    toSuggest = new ArrayList<>(allUnsavedBoards.size());
+                    for (Board b : allUnsavedBoards) {
+                        if (b.workSafe) toSuggest.add(b);
                     }
-
-                    for (Board board : toSuggest) {
-                        BoardSuggestion suggestion = new BoardSuggestion(board);
-                        suggestions.add(suggestion);
+                    for (Board b : allUnsavedBoards) {
+                        if (!b.workSafe) toSuggest.add(b);
                     }
                 } else {
-                    if (query != null && !query.equals("")) {
-                        suggestions.add(new BoardSuggestion(query));
-                    }
+                    toSuggest = BoardHelper.search(allUnsavedBoards, query);
                 }
 
-                return suggestions;
+                for (Board board : toSuggest) {
+                    BoardSuggestion suggestion = new BoardSuggestion(board);
+                    suggestions.add(suggestion);
+                }
+            } else {
+                if (query != null && !query.equals("")) {
+                    suggestions.add(new BoardSuggestion(query));
+                }
             }
-        }, new BackgroundUtils.BackgroundResult<List<BoardSuggestion>>() {
-            @Override
-            public void onResult(List<BoardSuggestion> result) {
-                updateSuggestions(result);
 
-                if (addCallback != null) {
-                    addCallback.updateSuggestions();
-                }
+            return suggestions;
+        }, result -> {
+            updateSuggestions(result);
+
+            if (addCallback != null) {
+                addCallback.updateSuggestions();
             }
         });
     }

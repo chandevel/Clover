@@ -20,9 +20,6 @@ package org.floens.chan.core.site;
 
 import android.util.Pair;
 
-import com.google.gson.Gson;
-
-import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.json.site.SiteUserSettings;
 import org.floens.chan.core.model.orm.SiteModel;
@@ -36,16 +33,17 @@ import javax.inject.Singleton;
 
 @Singleton
 public class SiteManager {
-    @Inject
-    DatabaseManager databaseManager;
-
+    private SiteRepository siteRepository;
     private SiteResolver resolver;
 
-    private Gson gson = new Gson();
+    private boolean initialized = false;
+    private boolean addSiteForLegacy = false;
 
     @Inject
-    public SiteManager() {
-        resolver = new SiteResolver();
+    public SiteManager(SiteRepository siteRepository,
+                       SiteResolver resolver) {
+        this.siteRepository = siteRepository;
+        this.resolver = resolver;
     }
 
     public void addSite(String url, SiteAddCallback callback) {
@@ -62,125 +60,90 @@ public class SiteManager {
             return;
         }
 
-        addSiteFromClass(siteClass, callback);
-    }
-
-    public void addSiteFromClass(Class<? extends Site> siteClass, SiteAddCallback callback) {
         Site site = instantiateSiteClass(siteClass);
         createNewSite(site);
 
-        List<Site> newAllSites = new ArrayList<>(Sites.allSites());
-        newAllSites.add(site);
-        setAvailableSites(newAllSites);
+        loadSites();
 
         callback.onSiteAdded(site);
     }
 
-    public void initialize() {
-        List<Site> sites = loadSitesFromDatabase();
+    /**
+     * Called from the DatabaseHelper when upgrading to the tables with a site id.
+     */
+    public void addSiteForLegacy() {
+        addSiteForLegacy = true;
+    }
 
-        if (sites.isEmpty()) {
+    public void initialize() {
+        if (initialized) {
+            throw new IllegalStateException("Already initialized");
+        }
+
+        if (addSiteForLegacy) {
             Site site = new Chan4();
 
             SiteConfig config = new SiteConfig();
             config.classId = Sites.SITE_CLASSES.indexOfValue(site.getClass());
             config.external = false;
 
-            SiteUserSettings userSettings = new SiteUserSettings();
-
-            SiteModel siteModel = new SiteModel();
-            storeConfigFields(siteModel, config, userSettings);
-            siteModel = databaseManager.runTaskSync(databaseManager.getDatabaseSiteManager().add(siteModel));
-            databaseManager.runTaskSync(databaseManager.getDatabaseSiteManager().updateId(siteModel, 0));
-
-            sites.add(site);
+            SiteModel model = siteRepository.create(config, new SiteUserSettings());
+            siteRepository.setId(model, 0);
         }
 
-        setAvailableSites(sites);
+        loadSites();
     }
 
-    private void setAvailableSites(List<Site> newAllSites) {
-        Sites.initialize(newAllSites);
-    }
-
-    private List<Site> loadSitesFromDatabase() {
+    private void loadSites() {
         List<Site> sites = new ArrayList<>();
 
-        List<SiteModel> siteModels = databaseManager.runTaskSync(databaseManager.getDatabaseSiteManager().getAll());
-
-        for (SiteModel siteModel : siteModels) {
-            Pair<SiteConfig, SiteUserSettings> configPair = loadConfigFields(siteModel);
-            SiteConfig config = configPair.first;
-            SiteUserSettings userSettings = configPair.second;
-
-            Site site = loadSiteFromModel(siteModel, config, userSettings);
-            sites.add(site);
+        for (SiteModel siteModel : siteRepository.all()) {
+            sites.add(fromModel(siteModel));
         }
 
-        return sites;
+        Sites.initialize(sites);
+
+        for (Site site : sites) {
+            site.postInitialize();
+        }
     }
 
     /**
      * Create a new site from the Site instance. This will insert the model for the site
      * into the database and calls initialize on the site instance.
+     *
      * @param site the site to add.
      */
     private void createNewSite(Site site) {
         SiteConfig config = new SiteConfig();
+        SiteUserSettings settings = new SiteUserSettings();
+
         config.classId = Sites.SITE_CLASSES.indexOfValue(site.getClass());
         config.external = false;
 
-        SiteUserSettings userSettings = new SiteUserSettings();
+        siteRepository.create(config, settings);
 
-        SiteModel siteModel = createNewSiteModel(site, config, userSettings);
-
-        initializeSite(site, siteModel.id, config, userSettings);
+        loadSites();
     }
 
-    private SiteModel createNewSiteModel(Site site, SiteConfig config, SiteUserSettings userSettings) {
-        SiteModel siteModel = new SiteModel();
-        storeConfigFields(siteModel, config, userSettings);
-        siteModel = databaseManager.runTaskSync(databaseManager.getDatabaseSiteManager().add(siteModel));
-        return siteModel;
-    }
+    private Site fromModel(SiteModel siteModel) {
+        Pair<SiteConfig, SiteUserSettings> configFields = siteModel.loadConfigFields();
+        SiteConfig config = configFields.first;
+        SiteUserSettings settings = configFields.second;
 
-    private void storeConfigFields(SiteModel siteModel, SiteConfig config, SiteUserSettings userSettings) {
-        siteModel.configuration = gson.toJson(config);
-        siteModel.userSettings = gson.toJson(userSettings);
-    }
-
-    private Pair<SiteConfig, SiteUserSettings> loadConfigFields(SiteModel siteModel) {
-        SiteConfig config = gson.fromJson(siteModel.configuration, SiteConfig.class);
-        SiteUserSettings userSettings = gson.fromJson(siteModel.userSettings, SiteUserSettings.class);
-        return Pair.create(config, userSettings);
-    }
-
-    private Site loadSiteFromModel(SiteModel model, SiteConfig config, SiteUserSettings userSettings) {
-        Site site = instantiateSiteFromConfig(config);
-        return initializeSite(site, model.id, config, userSettings);
-    }
-
-    private Site initializeSite(Site site, int id, SiteConfig config, SiteUserSettings userSettings) {
-        site.initialize(id, config, userSettings);
+        Site site = instantiateSiteClass(config.classId);
+        site.initialize(siteModel.id, config, settings);
         return site;
     }
 
-    private Site instantiateSiteFromConfig(SiteConfig siteConfig) {
-        int siteClassId = siteConfig.classId;
-        Class<? extends Site> clazz = Sites.SITE_CLASSES.get(siteClassId);
+    private Site instantiateSiteClass(int classId) {
+        Class<? extends Site> clazz = Sites.SITE_CLASSES.get(classId);
         if (clazz == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Unknown class id");
         }
         return instantiateSiteClass(clazz);
     }
 
-    /**
-     * Create the instance of the site class. Catches any reflection exceptions as runtime
-     * exceptions.
-     * @param clazz the class to instantiate
-     * @return the instantiated clas
-     * @throws IllegalArgumentException on reflection exceptions, should never happen.
-     */
     private Site instantiateSiteClass(Class<? extends Site> clazz) {
         Site site;
         //noinspection TryWithIdenticalCatches
@@ -192,9 +155,6 @@ public class SiteManager {
             throw new IllegalArgumentException();
         }
         return site;
-    }
-
-    public static class SiteAlreadyAdded extends IllegalArgumentException {
     }
 
     public interface SiteAddCallback {

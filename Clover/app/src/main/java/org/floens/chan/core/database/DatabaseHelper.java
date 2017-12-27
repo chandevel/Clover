@@ -33,12 +33,15 @@ import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.model.orm.ThreadHide;
+import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.floens.chan.Chan.getGraph;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
@@ -219,7 +222,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 Logger.e(TAG, "Error upgrading to version 22", e);
             }
 
-            int siteId = 0;
+            final int siteId = 0;
 
             try {
                 boardsDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN site INTEGER default " + siteId + ";");
@@ -229,6 +232,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 22", e);
             }
+
+            getGraph().get(SiteManager.class).addSiteForLegacy();
         }
 
         isUpgrading = false;

@@ -74,7 +74,10 @@ public class BrowsePresenter implements Observer {
     }
 
     public void loadWithDefaultBoard() {
-        loadBoard(firstBoard());
+        Board first = firstBoard();
+        if (first != null) {
+            loadBoard(first);
+        }
     }
 
     public void onBoardsFloatingMenuSiteClicked(Site site) {
@@ -96,13 +99,7 @@ public class BrowsePresenter implements Observer {
     }
 
     private boolean hasBoards() {
-        for (Pair<Site, List<Board>> siteListPair : savedBoardsObservable.get()) {
-            if (!siteListPair.second.isEmpty()) {
-                return true;
-            }
-        }
-
-        return false;
+        return firstBoard() != null;
     }
 
     private Board firstBoard() {

@@ -21,5 +21,9 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.ui.theme.Theme;
 
 public interface ChanParser {
-    Post parse(Theme theme, Post.Builder builder);
+    Post parse(Theme theme, Post.Builder builder, Callback callback);
+
+    interface Callback {
+        boolean isSaved(int postNo);
+    }
 }

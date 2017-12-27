@@ -22,11 +22,6 @@ import android.support.annotation.Nullable;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
@@ -44,7 +39,6 @@ import org.floens.chan.core.site.common.CommonReplyHttpCall;
 import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
-import org.floens.chan.core.site.http.HttpCallManager;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
@@ -58,12 +52,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-import javax.inject.Inject;
-
 import okhttp3.HttpUrl;
 import okhttp3.Request;
-
-import static org.floens.chan.Chan.getGraph;
 
 public class Chan4 extends SiteBase {
     public static final Resolvable RESOLVABLE = new Resolvable() {
@@ -87,12 +77,6 @@ public class Chan4 extends SiteBase {
     private static final String TAG = "Chan4";
 
     private static final Random random = new Random();
-
-    @Inject
-    HttpCallManager httpCallManager;
-
-    @Inject
-    RequestQueue requestQueue;
 
     private final SiteEndpoints endpoints = new SiteEndpoints() {
         private final HttpUrl a = new HttpUrl.Builder()
@@ -276,8 +260,6 @@ public class Chan4 extends SiteBase {
     private final StringSetting passToken;
 
     public Chan4() {
-        getGraph().inject(this);
-
         SharedPreferences p = AndroidUtils.getPreferences();
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
@@ -353,38 +335,20 @@ public class Chan4 extends SiteBase {
 
     @Override
     public void boards(final BoardsListener listener) {
-        requestQueue.add(new Chan4BoardsRequest(this, new Response.Listener<List<Board>>() {
-            @Override
-            public void onResponse(List<Board> response) {
-                listener.onBoardsReceived(new Boards(response));
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Logger.e(TAG, "Failed to get boards from server", error);
+        requestQueue.add(new Chan4BoardsRequest(this, response -> {
+            listener.onBoardsReceived(new Boards(response));
+        }, (error) -> {
+            Logger.e(TAG, "Failed to get boards from server", error);
 
-                // API fail, provide some default boards
-                List<Board> list = new ArrayList<>();
-                list.add(new Board(Chan4.this, "Technology", "g", true, true));
-                list.add(new Board(Chan4.this, "Food & Cooking", "ck", true, true));
-                list.add(new Board(Chan4.this, "Do It Yourself", "diy", true, true));
-                list.add(new Board(Chan4.this, "Animals & Nature", "an", true, true));
-                Collections.shuffle(list);
-                listener.onBoardsReceived(new Boards(list));
-            }
+            // API fail, provide some default boards
+            List<Board> list = new ArrayList<>();
+            list.add(new Board(Chan4.this, "Technology", "g", true, true));
+            list.add(new Board(Chan4.this, "Food & Cooking", "ck", true, true));
+            list.add(new Board(Chan4.this, "Do It Yourself", "diy", true, true));
+            list.add(new Board(Chan4.this, "Animals & Nature", "an", true, true));
+            Collections.shuffle(list);
+            listener.onBoardsReceived(new Boards(list));
         }));
-    }
-
-    @Override
-    public Board board(String code) {
-        List<Board> allBoards = getGraph().get(BoardManager.class).getSavedBoards();
-        for (Board board : allBoards) {
-            if (board.code.equals(code)) {
-                return board;
-            }
-        }
-
-        return null;
     }
 
     @Override
