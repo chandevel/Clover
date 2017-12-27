@@ -114,7 +114,7 @@ public class BoardManager {
 
     private void setSaved(Board board, boolean saved) {
         board.saved = saved;
-        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().createOrUpdate(board));
+        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().update(board));
         updateSavedBoards();
     }
 
@@ -125,10 +125,15 @@ public class BoardManager {
             sitesWithSavedBoards.add(new Pair<>(site, siteBoards));
         }
 
-        savedBoardsObservable.notifyObservers();
+        savedBoardsObservable.doNotify();
     }
 
     public class SavedBoards extends Observable {
+        private void doNotify() {
+            setChanged();
+            notifyObservers();
+        }
+
         public List<Pair<Site, List<Board>>> get() {
             return sitesWithSavedBoards;
         }
