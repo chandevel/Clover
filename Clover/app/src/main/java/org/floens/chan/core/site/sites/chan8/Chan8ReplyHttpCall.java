@@ -93,8 +93,8 @@ public class Chan8ReplyHttpCall extends CommonReplyHttpCall {
         } else if (errorMessageMatcher.find()) {
             replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
         } else {
-            // TODO: 8ch redirects us, but the result is a 404.
-            // stop redirecting.
+            // TODO(multisite): 8ch redirects us, but the result is a 404, and we need that
+            // redirect url to figure out what we posted.
             HttpUrl url = response.request().url();
             List<String> segments = url.pathSegments();
 

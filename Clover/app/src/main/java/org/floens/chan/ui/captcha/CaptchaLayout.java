@@ -70,6 +70,8 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         this.siteKey = authentication.siteKey;
         this.baseUrl = authentication.baseUrl;
 
+        requestDisallowInterceptTouchEvent(true);
+
         AndroidUtils.hideKeyboard(this);
 
         WebSettings settings = getSettings();
@@ -119,7 +121,6 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
     }
 
     private void onCaptchaLoaded() {
-        callback.onAuthenticationLoaded(this);
     }
 
     private void onCaptchaEntered(String challenge, String response) {

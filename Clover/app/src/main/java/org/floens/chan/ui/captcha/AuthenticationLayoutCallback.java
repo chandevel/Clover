@@ -18,8 +18,6 @@
 package org.floens.chan.ui.captcha;
 
 public interface AuthenticationLayoutCallback {
-    void onAuthenticationLoaded(AuthenticationLayoutInterface authenticationLayout);
-
     void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout,
                                   String challenge, String response);
 }

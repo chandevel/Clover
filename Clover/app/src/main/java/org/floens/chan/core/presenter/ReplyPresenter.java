@@ -74,7 +74,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     private boolean moreOpen;
     private boolean previewOpen;
     private boolean pickingFile;
-    private boolean authenticationInited;
     private int selectedQuote = -1;
 
     @Inject
@@ -112,10 +111,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         if (draft.file != null) {
             showPreview(draft.fileName, draft.file);
-        }
-
-        if (authenticationInited) {
-            callback.resetAuthentication();
         }
 
         switchPage(Page.INPUT, false);
@@ -204,7 +199,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
 
         draft.captchaResponse = null;
-        if (false) {
+        if (loadable.site.postRequiresAuthentication()) {
             switchPage(Page.AUTHENTICATION, true);
         } else {
             makeSubmitCall();
@@ -256,10 +251,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onPostError(HttpCall httpCall) {
         switchPage(Page.INPUT, true);
         callback.openMessage(true, false, getString(R.string.reply_error), true);
-    }
-
-    @Override
-    public void onAuthenticationLoaded(AuthenticationLayoutInterface authenticationLayout) {
     }
 
     @Override
@@ -377,13 +368,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     callback.setPage(Page.INPUT, animate);
                     break;
                 case AUTHENTICATION:
-                    if (!authenticationInited) {
-                        authenticationInited = true;
+                    Authentication authentication = loadable.site.postAuthenticate();
 
-                        Authentication authentication = loadable.site.postAuthenticate();
-                        callback.initializeAuthentication(loadable.site, authentication, this);
-                    }
-
+                    callback.initializeAuthentication(loadable.site, authentication, this);
                     callback.setPage(Page.AUTHENTICATION, true);
 
                     break;

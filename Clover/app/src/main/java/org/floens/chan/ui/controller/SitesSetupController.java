@@ -21,7 +21,6 @@ package org.floens.chan.ui.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -228,13 +227,17 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         public SiteCell(View itemView) {
             super(itemView);
+
+            // Bind views
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
             settings = itemView.findViewById(R.id.settings);
+
+            // Setup views
+            itemView.setOnClickListener(this);
             setRoundItemBackground(settings);
             theme().settingsDrawable.apply(settings);
-            settings.setOnClickListener(this);
         }
 
         private void setSite(Site site) {
@@ -243,19 +246,16 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         private void setSiteIcon(Site site) {
             siteIcon = site.icon();
-            siteIcon.get(new SiteIcon.SiteIconResult() {
-                @Override
-                public void onSiteIcon(SiteIcon siteIcon, Drawable icon) {
-                    if (SiteCell.this.siteIcon == siteIcon) {
-                        image.setImageDrawable(icon);
-                    }
+            siteIcon.get((siteIcon, icon) -> {
+                if (SiteCell.this.siteIcon == siteIcon) {
+                    image.setImageDrawable(icon);
                 }
             });
         }
 
         @Override
         public void onClick(View v) {
-            if (v == settings) {
+            if (v == itemView) {
                 onSiteCellSettingsClicked(site);
             }
         }

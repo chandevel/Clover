@@ -36,7 +36,6 @@ import org.floens.chan.ui.controller.FiltersController;
 import org.floens.chan.ui.controller.HistoryController;
 import org.floens.chan.ui.controller.ImageViewerController;
 import org.floens.chan.ui.controller.MainSettingsController;
-import org.floens.chan.ui.controller.PassSettingsController;
 import org.floens.chan.ui.controller.SiteSetupController;
 import org.floens.chan.ui.controller.SitesSetupController;
 import org.floens.chan.ui.controller.ViewThreadController;
@@ -80,7 +79,6 @@ import dagger.Provides;
                 WatchNotifier.class,
                 WatchUpdateReceiver.class,
                 ImagePickDelegate.class,
-                PassSettingsController.class,
                 FiltersController.class,
                 PostsFilter.class,
                 ChanLoader.class,

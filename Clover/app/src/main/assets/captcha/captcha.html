@@ -13,6 +13,7 @@
         text-align: center;
         margin: 40px auto 0 auto;
     }
+
     </style>
 </head>
 <body>
@@ -38,9 +39,11 @@ window.globalOnCaptchaLoaded = function() {
 
 window.onerror = function(message, url, line) {
     document.getElementById('captcha-loading').style.display = 'none';
-    document.getElementById('captcha-error').appendChild(document.createTextNode(line + ': ' + message + ' @ ' + url));
+    document.getElementById('captcha-error').appendChild(document.createTextNode(
+        'Captcha error at ' + line + ': ' + message + ' @ ' + url));
 }
 })();
+
 </script>
 
 <script src='https://www.google.com/recaptcha/api.js?onload=globalOnCaptchaLoaded&render=explicit'></script>

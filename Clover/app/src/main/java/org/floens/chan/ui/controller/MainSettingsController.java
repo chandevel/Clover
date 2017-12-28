@@ -32,7 +32,6 @@ import org.floens.chan.R;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.RefreshUIMessage;
@@ -60,14 +59,13 @@ import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener, PassSettingsController.PassSettingControllerListener {
+public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener {
     private static final int ADVANCED_SETTINGS = 1;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
 
     private LinkSettingView saveLocation;
     private LinkSettingView watchLink;
-    private LinkSettingView passLink;
     private int clickCount;
     private SettingView developerView;
     private SettingView fontView;
@@ -112,8 +110,6 @@ public class MainSettingsController extends SettingsController implements Toolba
         populatePreferences();
 
         onWatchEnabledChanged(ChanSettings.watchEnabled.get());
-        // TODO(multi-site)
-        onPassEnabledChanged(Sites.defaultSite().isLoggedIn());
 
         buildPreferences();
 
@@ -186,11 +182,6 @@ public class MainSettingsController extends SettingsController implements Toolba
     @Override
     public void onWatchEnabledChanged(boolean enabled) {
         watchLink.setDescription(enabled ? R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled);
-    }
-
-    @Override
-    public void onPassEnabledChanged(boolean enabled) {
-        passLink.setDescription(enabled ? R.string.setting_pass_summary_enabled : R.string.setting_pass_summary_disabled);
     }
 
     private void populatePreferences() {
@@ -318,13 +309,6 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         // Posting group
         SettingsGroup posting = new SettingsGroup(R.string.settings_group_posting);
-
-        passLink = (LinkSettingView) posting.add(new LinkSettingView(this, R.string.settings_pass, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new PassSettingsController(context));
-            }
-        }));
 
         posting.add(new BooleanSettingView(this, ChanSettings.postPinThread, R.string.setting_post_pin, 0));
         posting.add(new StringSettingView(this, ChanSettings.postDefaultName, R.string.setting_post_default_name, R.string.setting_post_default_name));

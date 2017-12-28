@@ -254,6 +254,51 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     }
 
     @Override
+    public void initializeAuthentication(Site site, Authentication authentication,
+                                         AuthenticationLayoutCallback callback) {
+        if (authenticationLayout == null) {
+            switch (authentication.type) {
+                case CAPTCHA1: {
+                    final LayoutInflater inflater = LayoutInflater.from(getContext());
+                    authenticationLayout = (LegacyCaptchaLayout) inflater.inflate(
+                            R.layout.layout_captcha_legacy, captchaContainer, false);
+                    break;
+                }
+                case CAPTCHA2: {
+                    authenticationLayout = new CaptchaLayout(getContext());
+                    break;
+                }
+                case GENERIC_WEBVIEW: {
+                    GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
+
+                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                            LayoutParams.MATCH_PARENT,
+                            LayoutParams.MATCH_PARENT
+                    );
+//                    params.setMargins(dp(8), dp(8), dp(8), dp(200));
+                    view.setLayoutParams(params);
+
+                    authenticationLayout = view;
+                    break;
+                }
+                case NONE:
+                default: {
+                    throw new IllegalArgumentException();
+                }
+            }
+
+            captchaContainer.addView((View) authenticationLayout, 0);
+        }
+
+        if (!(authenticationLayout instanceof LegacyCaptchaLayout)) {
+            AndroidUtils.hideKeyboard(this);
+        }
+
+        authenticationLayout.initialize(site, callback);
+        authenticationLayout.reset();
+    }
+
+    @Override
     public void setPage(ReplyPresenter.Page page, boolean animate) {
         switch (page) {
             case LOADING:
@@ -274,42 +319,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
                 break;
         }
-    }
 
-    @Override
-    public void initializeAuthentication(Site site, Authentication authentication,
-                                         AuthenticationLayoutCallback callback) {
-        if (authenticationLayout == null) {
-            switch (authentication.type) {
-                case CAPTCHA1: {
-                    final LayoutInflater inflater = LayoutInflater.from(getContext());
-                    authenticationLayout = (LegacyCaptchaLayout) inflater.inflate(
-                            R.layout.layout_captcha_legacy, captchaContainer, false);
-                    break;
-                }
-                case CAPTCHA2: {
-                    authenticationLayout = new CaptchaLayout(getContext());
-                    break;
-                }
-                case GENERIC_WEBVIEW: {
-                    authenticationLayout = new GenericWebViewAuthenticationLayout(getContext());
-                    break;
-                }
-                case NONE:
-                default: {
-                    throw new IllegalArgumentException();
-                }
-            }
-
-            captchaContainer.addView((View) authenticationLayout, 0);
+        if (page != ReplyPresenter.Page.AUTHENTICATION && authenticationLayout != null) {
+            AndroidUtils.removeFromParentView((View) authenticationLayout);
+            authenticationLayout = null;
         }
-
-        if (!(authenticationLayout instanceof LegacyCaptchaLayout)) {
-            AndroidUtils.hideKeyboard(this);
-        }
-
-        authenticationLayout.initialize(site, callback);
-        authenticationLayout.reset();
     }
 
     @Override

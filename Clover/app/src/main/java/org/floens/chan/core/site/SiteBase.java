@@ -82,4 +82,9 @@ public abstract class SiteBase implements Site {
         boardManager.createAll(Collections.singletonList(board));
         return board;
     }
+
+    @Override
+    public boolean postRequiresAuthentication() {
+        return false;
+    }
 }

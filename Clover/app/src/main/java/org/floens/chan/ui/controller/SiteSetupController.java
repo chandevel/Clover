@@ -18,7 +18,6 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SiteSetupPresenter;
@@ -37,6 +36,7 @@ public class SiteSetupController extends SettingsController implements SiteSetup
 
     private Site site;
     private LinkSettingView boardsLink;
+    private LinkSettingView loginLink;
 
     public SiteSetupController(Context context) {
         super(context);
@@ -84,6 +84,34 @@ public class SiteSetupController extends SettingsController implements SiteSetup
         boardsLink.setDescription(descriptionText);
     }
 
+    @Override
+    public void setIsLoggedIn(boolean isLoggedIn) {
+        String text = context.getString(isLoggedIn ?
+                R.string.setup_site_login_description_enabled :
+                R.string.setup_site_login_description_enabled);
+        loginLink.setDescription(text);
+    }
+
+    @Override
+    public void showLogin() {
+        SettingsGroup login = new SettingsGroup(R.string.setup_site_group_login);
+
+        loginLink = new LinkSettingView(
+                this,
+                context.getString(R.string.setup_site_login),
+                "",
+                v -> {
+                    LoginController loginController = new LoginController(context);
+                    loginController.setSite(site);
+                    navigationController.pushController(loginController);
+                }
+        );
+
+        login.add(loginLink);
+
+        groups.add(login);
+    }
+
     private void populatePreferences() {
         SettingsGroup general = new SettingsGroup(R.string.setup_site_group_general);
 
@@ -91,13 +119,10 @@ public class SiteSetupController extends SettingsController implements SiteSetup
                 this,
                 context.getString(R.string.setup_site_boards),
                 "",
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        BoardSetupController boardSetupController = new BoardSetupController(context);
-                        boardSetupController.setSite(site);
-                        navigationController.pushController(boardSetupController);
-                    }
+                v -> {
+                    BoardSetupController boardSetupController = new BoardSetupController(context);
+                    boardSetupController.setSite(site);
+                    navigationController.pushController(boardSetupController);
                 });
         general.add(boardsLink);
 

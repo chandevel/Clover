@@ -173,11 +173,25 @@ public interface Site {
     void post(Reply reply, PostListener postListener);
 
     interface PostListener {
+
         void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse);
 
         void onPostError(HttpCall httpCall);
+
     }
 
+    boolean postRequiresAuthentication();
+
+    /**
+     * If {@link ReplyResponse#requireAuthentication} was {@code true}, or if
+     * {@link #postRequiresAuthentication()} is {@code true}, get the authentication
+     * required to post.
+     * <p>
+     * <p>Some sites know beforehand if you need to authenticate, some sites only report it
+     * after posting. That's why there are two methods.</p>
+     *
+     * @return an {@link Authentication} model that describes the way to authenticate.
+     */
     Authentication postAuthenticate();
 
     void delete(DeleteRequest deleteRequest, DeleteListener deleteListener);

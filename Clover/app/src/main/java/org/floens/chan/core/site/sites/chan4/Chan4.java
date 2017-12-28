@@ -374,6 +374,11 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
+    public boolean postRequiresAuthentication() {
+        return !isLoggedIn();
+    }
+
+    @Override
     public Authentication postAuthenticate() {
         if (isLoggedIn()) {
             return Authentication.fromNone();

@@ -179,6 +179,11 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setup_site_boards">Setup boards</string>
     <string name="setup_site_boards_description">%s added</string>
 
+    <string name="setup_site_group_login">Authentication</string>
+    <string name="setup_site_login">Login</string>
+    <string name="setup_site_login_description_enabled">Logged in</string>
+    <string name="setup_site_login_description_disabled">Off</string>
+
     <string name="setup_board_title">Configure boards of %s</string>
     <string name="setup_board_add">Add board</string>
     <string name="setup_board_removed">Removed \'%s\'</string>
@@ -501,8 +506,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
         <a href=\"https://www.4chan.org/pass\">Click here to learn more.</a>
         ]]>
     "</string>
-    <string name="setting_pass_summary_enabled">Using 4chan pass</string>
-    <string name="setting_pass_summary_disabled">Off</string>
 
     <string name="settings_screen_theme">Themes</string>
 </resources>
