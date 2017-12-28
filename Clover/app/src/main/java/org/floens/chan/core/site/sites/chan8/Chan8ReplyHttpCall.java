@@ -20,14 +20,27 @@ package org.floens.chan.core.site.sites.chan8;
 import android.text.TextUtils;
 
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
+import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.utils.Logger;
+import org.jsoup.Jsoup;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Chan8ReplyHttpCall extends CommonReplyHttpCall {
+    private static final Pattern REQUIRE_AUTHENTICATION = Pattern.compile(".*\"captcha\": ?true.*");
+    private static final Pattern ERROR_MESSAGE =
+            Pattern.compile(".*<h1>Error</h1>.*<h2[^>]*>(.*?)<\\/h2>.*");
+
     public Chan8ReplyHttpCall(Site site, Reply reply) {
         super(site, reply);
     }
@@ -65,6 +78,43 @@ public class Chan8ReplyHttpCall extends CommonReplyHttpCall {
 
         if (reply.spoilerImage) {
             formBuilder.addFormDataPart("spoiler", "on");
+        }
+    }
+
+    @Override
+    public void process(Response response, String result) throws IOException {
+        Logger.test(result);
+
+        Matcher authenticationMatcher = REQUIRE_AUTHENTICATION.matcher(result);
+        Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
+        if (authenticationMatcher.find()) {
+            replyResponse.requireAuthentication = true;
+            replyResponse.errorMessage = result;
+        } else if (errorMessageMatcher.find()) {
+            replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
+        } else {
+            // TODO: 8ch redirects us, but the result is a 404.
+            // stop redirecting.
+            HttpUrl url = response.request().url();
+            List<String> segments = url.pathSegments();
+
+            String board = null;
+            int threadId = 0, postId = 0;
+            try {
+                if (segments.size() == 3) {
+                    board = segments.get(0);
+                    threadId = Integer.parseInt(
+                            segments.get(2).replace(".html", ""));
+                    postId = Integer.parseInt(url.encodedFragment());
+                }
+            } catch (NumberFormatException ignored) {
+            }
+
+            if (board != null && threadId != 0 && postId != 0) {
+                replyResponse.threadNo = threadId;
+                replyResponse.postNo = postId;
+                replyResponse.posted = true;
+            }
         }
     }
 }

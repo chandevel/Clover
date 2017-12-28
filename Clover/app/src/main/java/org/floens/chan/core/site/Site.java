@@ -74,11 +74,13 @@ public interface Site {
         /**
          * This board supports posting with images.
          */
+        // TODO(multisite) use this
         POSTING_IMAGE,
 
         /**
          * This board supports posting with a checkbox to mark the posted image as a spoiler.
          */
+        // TODO(multisite) use this
         POSTING_SPOILER,
     }
 
@@ -106,8 +108,9 @@ public interface Site {
      * Initialize the site with the given id, config, and userSettings.
      * <p><b>Note: do not use any managers at this point, because they rely on the sites being initialized.
      * Instead, use {@link #postInitialize()}</b>
-     * @param id the site id
-     * @param config the site config
+     *
+     * @param id           the site id
+     * @param config       the site config
      * @param userSettings the site user settings
      */
     void initialize(int id, SiteConfig config, SiteUserSettings userSettings);
@@ -133,8 +136,6 @@ public interface Site {
     SiteEndpoints endpoints();
 
     SiteRequestModifier requestModifier();
-
-    SiteAuthentication authentication();
 
     BoardsType boardsType();
 
@@ -176,6 +177,8 @@ public interface Site {
 
         void onPostError(HttpCall httpCall);
     }
+
+    Authentication postAuthenticate();
 
     void delete(DeleteRequest deleteRequest, DeleteListener deleteListener);
 

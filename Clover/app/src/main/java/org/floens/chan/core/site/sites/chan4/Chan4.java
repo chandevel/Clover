@@ -25,11 +25,12 @@ import android.webkit.WebView;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.settings.StringSetting;
+import org.floens.chan.core.site.Authentication;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Resolvable;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
@@ -75,6 +76,8 @@ public class Chan4 extends SiteBase {
     };
 
     private static final String TAG = "Chan4";
+
+    private static final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
 
     private static final Random random = new Random();
 
@@ -243,17 +246,6 @@ public class Chan4 extends SiteBase {
         }
     };
 
-    private SiteAuthentication authentication = new SiteAuthentication() {
-        @Override
-        public boolean requireAuthentication(AuthenticationRequestType type) {
-            if (type == AuthenticationRequestType.POSTING) {
-                return !isLoggedIn();
-            }
-
-            return false;
-        }
-    };
-
     // Legacy settings that were global before
     private final StringSetting passUser;
     private final StringSetting passPass;
@@ -362,11 +354,6 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
-    public SiteAuthentication authentication() {
-        return authentication;
-    }
-
-    @Override
     public ChanReader chanReader() {
         return new FutabaChanReader();
     }
@@ -384,6 +371,19 @@ public class Chan4 extends SiteBase {
                 postListener.onPostError(httpPost);
             }
         });
+    }
+
+    @Override
+    public Authentication postAuthenticate() {
+        if (isLoggedIn()) {
+            return Authentication.fromNone();
+        } else {
+            if (ChanSettings.postNewCaptcha.get()) {
+                return Authentication.fromCaptcha2(CAPTCHA_KEY, "https://boards.4chan.org");
+            } else {
+                return Authentication.fromCaptcha1(CAPTCHA_KEY, "https://boards.4chan.org");
+            }
+        }
     }
 
     @Override

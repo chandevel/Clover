@@ -20,6 +20,7 @@ package org.floens.chan.core.database;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
@@ -40,6 +41,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -62,6 +65,7 @@ public class DatabaseManager {
     private static final long THREAD_HIDE_TRIM_COUNT = 50;
 
     private final ExecutorService backgroundExecutor;
+    private Thread executorThread;
     private final DatabaseHelper helper;
 
     private final List<ThreadHide> threadHides = new ArrayList<>();
@@ -281,35 +285,70 @@ public class DatabaseManager {
     }
 
     private <T> Future<T> executeTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
-        if (helper.isUpgrading) {
-            try {
-                taskCallable.call();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            return null;
+        if (Thread.currentThread() == executorThread) {
+            DatabaseCallable<T> databaseCallable = new DatabaseCallable<>(taskCallable, taskResult);
+            T result = databaseCallable.call();
+
+            return new Future<T>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    return false;
+                }
+
+                @Override
+                public boolean isCancelled() {
+                    return false;
+                }
+
+                @Override
+                public boolean isDone() {
+                    return true;
+                }
+
+                @Override
+                public T get() throws InterruptedException, ExecutionException {
+                    return result;
+                }
+
+                @Override
+                public T get(long timeout, @NonNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                    return result;
+                }
+            };
+        } else {
+            return backgroundExecutor.submit(new DatabaseCallable<>(taskCallable, taskResult));
+        }
+    }
+
+    private class DatabaseCallable<T> implements Callable<T> {
+        private final Callable<T> taskCallable;
+        private final TaskResult<T> taskResult;
+
+        public DatabaseCallable(Callable<T> taskCallable, TaskResult<T> taskResult) {
+            this.taskCallable = taskCallable;
+            this.taskResult = taskResult;
         }
 
-        return backgroundExecutor.submit(new Callable<T>() {
-            @Override
-            public T call() {
-                try {
-                    final T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
-                    if (taskResult != null) {
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                taskResult.onComplete(result);
-                            }
-                        });
-                    }
-                    return result;
-                } catch (Exception e) {
-                    Logger.e(TAG, "executeTask", e);
-                    throw new RuntimeException(e);
+        @Override
+        public T call() {
+            executorThread = Thread.currentThread();
+
+            try {
+                final T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
+                if (taskResult != null) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            taskResult.onComplete(result);
+                        }
+                    });
                 }
+                return result;
+            } catch (Exception e) {
+                Logger.e(TAG, "executeTask", e);
+                throw new RuntimeException(e);
             }
-        });
+        }
     }
 
     public interface TaskResult<T> {

@@ -17,8 +17,12 @@
  */
 package org.floens.chan.ui.captcha;
 
-public interface CaptchaCallback {
-    void captchaLoaded(CaptchaLayoutInterface captchaLayout);
+import org.floens.chan.core.site.Site;
 
-    void captchaEntered(CaptchaLayoutInterface captchaLayout, String challenge, String response);
+public interface AuthenticationLayoutInterface {
+    void initialize(Site site, AuthenticationLayoutCallback callback);
+
+    void reset();
+
+    void hardReset();
 }

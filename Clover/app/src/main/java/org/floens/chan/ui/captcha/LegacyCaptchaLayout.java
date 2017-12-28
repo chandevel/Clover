@@ -34,6 +34,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.view.FixedRatioThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
@@ -41,7 +43,7 @@ import org.floens.chan.utils.IOUtils;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutInterface, View.OnClickListener {
+public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationLayoutInterface, View.OnClickListener {
     private FixedRatioThumbnailView image;
     private EditText input;
     private ImageView submit;
@@ -50,7 +52,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
 
     private String baseUrl;
     private String siteKey;
-    private CaptchaCallback callback;
+    private AuthenticationLayoutCallback callback;
 
     private String challenge;
 
@@ -116,10 +118,13 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
     }
 
     @Override
-    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback) {
-        this.baseUrl = baseUrl;
-        this.siteKey = siteKey;
+    public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
+
+        Authentication authentication = site.postAuthenticate();
+
+        this.siteKey = authentication.siteKey;
+        this.baseUrl = authentication.baseUrl;
     }
 
     @Override
@@ -139,7 +144,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements CaptchaLayoutIn
 
     private void submitCaptcha() {
         AndroidUtils.hideKeyboard(this);
-        callback.captchaEntered(this, challenge, input.getText().toString());
+        callback.onAuthenticationComplete(this, challenge, input.getText().toString());
     }
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {

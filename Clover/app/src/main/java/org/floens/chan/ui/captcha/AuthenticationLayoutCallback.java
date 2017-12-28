@@ -17,10 +17,9 @@
  */
 package org.floens.chan.ui.captcha;
 
-public interface CaptchaLayoutInterface {
-    void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback);
+public interface AuthenticationLayoutCallback {
+    void onAuthenticationLoaded(AuthenticationLayoutInterface authenticationLayout);
 
-    void reset();
-
-    void hardReset();
+    void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout,
+                                  String challenge, String response);
 }

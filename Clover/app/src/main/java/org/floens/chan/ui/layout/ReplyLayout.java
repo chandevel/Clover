@@ -42,15 +42,18 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.activity.StartActivity;
-import org.floens.chan.ui.captcha.CaptchaCallback;
+import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
+import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.captcha.CaptchaLayout;
-import org.floens.chan.ui.captcha.CaptchaLayoutInterface;
+import org.floens.chan.ui.captcha.GenericWebViewAuthenticationLayout;
+import org.floens.chan.ui.captcha.LegacyCaptchaLayout;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
 import org.floens.chan.utils.AndroidUtils;
@@ -74,7 +77,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private ReplyLayoutCallback callback;
     private boolean newCaptcha;
 
-    private CaptchaLayoutInterface authenticationLayout;
+    private AuthenticationLayoutInterface authenticationLayout;
     private boolean openingName;
 
     private boolean blockSelectionChange = false;
@@ -234,7 +237,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         }/* else if (v == preview) {
             // TODO
         }*/ else if (v == captchaHardReset) {
-            authenticationLayout.hardReset();
+            if (authenticationLayout != null) {
+                authenticationLayout.hardReset();
+            }
         } else if (v == commentQuoteButton) {
             presenter.commentQuoteClicked();
         } else if (v == commentSpoilerButton) {
@@ -262,39 +267,53 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
                 break;
             case AUTHENTICATION:
                 setWrap(false);
-                if (authenticationLayout == null) {
-                    if (newCaptcha) {
-                        authenticationLayout = new CaptchaLayout(getContext());
-                    } else {
-                        authenticationLayout = (CaptchaLayoutInterface) LayoutInflater.from(getContext())
-                                .inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
-                    }
-                    captchaContainer.addView((View) authenticationLayout, 0);
-                }
-
-                if (newCaptcha) {
-                    AndroidUtils.hideKeyboard(this);
-                }
 
                 setView(captchaContainer);
+
+                captchaContainer.requestFocus(View.FOCUS_DOWN);
 
                 break;
         }
     }
 
     @Override
-    public void setCaptchaVersion(boolean newCaptcha) {
-        this.newCaptcha = newCaptcha;
-    }
+    public void initializeAuthentication(Site site, Authentication authentication,
+                                         AuthenticationLayoutCallback callback) {
+        if (authenticationLayout == null) {
+            switch (authentication.type) {
+                case CAPTCHA1: {
+                    final LayoutInflater inflater = LayoutInflater.from(getContext());
+                    authenticationLayout = (LegacyCaptchaLayout) inflater.inflate(
+                            R.layout.layout_captcha_legacy, captchaContainer, false);
+                    break;
+                }
+                case CAPTCHA2: {
+                    authenticationLayout = new CaptchaLayout(getContext());
+                    break;
+                }
+                case GENERIC_WEBVIEW: {
+                    authenticationLayout = new GenericWebViewAuthenticationLayout(getContext());
+                    break;
+                }
+                case NONE:
+                default: {
+                    throw new IllegalArgumentException();
+                }
+            }
 
-    @Override
-    public void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback) {
-        authenticationLayout.initCaptcha(baseUrl, siteKey, ThemeHelper.getInstance().getTheme().isLightTheme, callback);
+            captchaContainer.addView((View) authenticationLayout, 0);
+        }
+
+        if (!(authenticationLayout instanceof LegacyCaptchaLayout)) {
+            AndroidUtils.hideKeyboard(this);
+        }
+
+        authenticationLayout.initialize(site, callback);
         authenticationLayout.reset();
     }
 
     @Override
-    public void resetCaptcha() {
+    public void resetAuthentication() {
         authenticationLayout.reset();
     }
 

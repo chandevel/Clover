@@ -20,7 +20,6 @@ package org.floens.chan.core.presenter;
 import android.text.TextUtils;
 
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
@@ -30,13 +29,13 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Authentication;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
-import org.floens.chan.ui.captcha.CaptchaCallback;
-import org.floens.chan.ui.captcha.CaptchaLayoutInterface;
+import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
+import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 
 import java.io.File;
@@ -50,7 +49,7 @@ import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImagePickCallback, Site.PostListener {
+public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, Site.PostListener {
     public enum Page {
         INPUT,
         AUTHENTICATION,
@@ -75,7 +74,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
     private boolean moreOpen;
     private boolean previewOpen;
     private boolean pickingFile;
-    private boolean captchaInited;
+    private boolean authenticationInited;
     private int selectedQuote = -1;
 
     @Inject
@@ -98,8 +97,6 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         bound = true;
         this.loadable = loadable;
 
-        callback.setCaptchaVersion(ChanSettings.postNewCaptcha.get());
-
         this.board = loadable.board;
 
         draft = replyManager.getReply(loadable);
@@ -117,8 +114,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
             showPreview(draft.fileName, draft.file);
         }
 
-        if (captchaInited) {
-            callback.resetCaptcha();
+        if (authenticationInited) {
+            callback.resetAuthentication();
         }
 
         switchPage(Page.INPUT, false);
@@ -207,7 +204,7 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
 
         draft.captchaResponse = null;
-        if (loadable.getSite().authentication().requireAuthentication(SiteAuthentication.AuthenticationRequestType.POSTING)) {
+        if (false) {
             switchPage(Page.AUTHENTICATION, true);
         } else {
             makeSubmitCall();
@@ -226,7 +223,8 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
             SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
                     loadable.site, loadable.board, replyResponse.postNo, replyResponse.password);
-            databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+            databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager()
+                    .saveReply(savedReply));
 
             switchPage(Page.INPUT, false);
             closeAll();
@@ -239,8 +237,11 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
             callback.onPosted();
 
             if (bound && !loadable.isThreadMode()) {
-                callback.showThread(databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, loadable.board, replyResponse.postNo)));
+                callback.showThread(databaseManager.getDatabaseLoadableManager().get(
+                        Loadable.forThread(loadable.site, loadable.board, replyResponse.postNo)));
             }
+        } else if (replyResponse.requireAuthentication) {
+            switchPage(Page.AUTHENTICATION, true);
         } else {
             if (replyResponse.errorMessage == null) {
                 replyResponse.errorMessage = getString(R.string.reply_error);
@@ -258,14 +259,14 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
     }
 
     @Override
-    public void captchaLoaded(CaptchaLayoutInterface captchaLayout) {
+    public void onAuthenticationLoaded(AuthenticationLayoutInterface authenticationLayout) {
     }
 
     @Override
-    public void captchaEntered(CaptchaLayoutInterface captchaLayout, String challenge, String response) {
+    public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout, String challenge, String response) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
-        captchaLayout.reset();
+        authenticationLayout.reset();
         makeSubmitCall();
     }
 
@@ -376,15 +377,15 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
                     callback.setPage(Page.INPUT, animate);
                     break;
                 case AUTHENTICATION:
+                    if (!authenticationInited) {
+                        authenticationInited = true;
+
+                        Authentication authentication = loadable.site.postAuthenticate();
+                        callback.initializeAuthentication(loadable.site, authentication, this);
+                    }
+
                     callback.setPage(Page.AUTHENTICATION, true);
 
-                    if (!captchaInited) {
-                        captchaInited = true;
-                        String baseUrl = loadable.isThreadMode() ?
-                                ChanUrls.getThreadUrlDesktop(loadable.boardCode, loadable.no) :
-                                ChanUrls.getBoardUrlDesktop(loadable.boardCode);
-                        callback.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), this);
-                    }
                     break;
             }
         }
@@ -443,11 +444,10 @@ public class ReplyPresenter implements CaptchaCallback, ImagePickDelegate.ImageP
 
         void setPage(Page page, boolean animate);
 
-        void setCaptchaVersion(boolean newCaptcha);
+        void initializeAuthentication(Site site, Authentication authentication,
+                                      AuthenticationLayoutCallback callback);
 
-        void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback);
-
-        void resetCaptcha();
+        void resetAuthentication();
 
         void openMessage(boolean open, boolean animate, String message, boolean autoHide);
 

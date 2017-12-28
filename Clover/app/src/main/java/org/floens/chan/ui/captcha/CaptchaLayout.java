@@ -31,13 +31,17 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 
-public class CaptchaLayout extends WebView implements CaptchaLayoutInterface {
+import static org.floens.chan.ui.theme.ThemeHelper.theme;
+
+public class CaptchaLayout extends WebView implements AuthenticationLayoutInterface {
     private static final String TAG = "CaptchaLayout";
 
-    private CaptchaCallback callback;
+    private AuthenticationLayoutCallback callback;
     private boolean loaded = false;
     private String baseUrl;
     private String siteKey;
@@ -56,11 +60,15 @@ public class CaptchaLayout extends WebView implements CaptchaLayoutInterface {
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
-    public void initCaptcha(String baseUrl, String siteKey, boolean lightTheme, CaptchaCallback callback) {
+    @Override
+    public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
-        this.baseUrl = baseUrl;
-        this.siteKey = siteKey;
-        this.lightTheme = lightTheme;
+        this.lightTheme = theme().isLightTheme;
+
+        Authentication authentication = site.postAuthenticate();
+
+        this.siteKey = authentication.siteKey;
+        this.baseUrl = authentication.baseUrl;
 
         AndroidUtils.hideKeyboard(this);
 
@@ -111,14 +119,14 @@ public class CaptchaLayout extends WebView implements CaptchaLayoutInterface {
     }
 
     private void onCaptchaLoaded() {
-        callback.captchaLoaded(this);
+        callback.onAuthenticationLoaded(this);
     }
 
     private void onCaptchaEntered(String challenge, String response) {
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            callback.captchaEntered(this, challenge, response);
+            callback.onAuthenticationComplete(this, challenge, response);
         }
     }
 

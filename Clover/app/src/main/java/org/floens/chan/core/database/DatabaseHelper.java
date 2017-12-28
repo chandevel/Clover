@@ -60,8 +60,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private final Context context;
 
-    public boolean isUpgrading = false;
-
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
@@ -101,7 +99,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         Logger.i(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
-        isUpgrading = true;
 
         if (oldVersion < 12) {
             try {
@@ -235,8 +232,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
             getGraph().get(SiteManager.class).addSiteForLegacy();
         }
-
-        isUpgrading = false;
     }
 
     public void reset() {

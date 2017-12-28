@@ -24,9 +24,9 @@ import android.webkit.WebView;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.Authentication;
 import org.floens.chan.core.site.Resolvable;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
@@ -174,13 +174,6 @@ public class Chan8 extends SiteBase {
         }
     };
 
-    private SiteAuthentication authentication = new SiteAuthentication() {
-        @Override
-        public boolean requireAuthentication(AuthenticationRequestType type) {
-            return false;
-        }
-    };
-
     @Override
     public String name() {
         return "8chan";
@@ -217,11 +210,6 @@ public class Chan8 extends SiteBase {
     }
 
     @Override
-    public SiteAuthentication authentication() {
-        return authentication;
-    }
-
-    @Override
     public BoardsType boardsType() {
         return BoardsType.INFINITE;
     }
@@ -245,19 +233,27 @@ public class Chan8 extends SiteBase {
     public void post(Reply reply, final PostListener postListener) {
         // TODO
         HttpCallManager httpCallManager = getGraph().get(HttpCallManager.class);
-        httpCallManager.makeHttpCall(new Chan8ReplyHttpCall(this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-            @Override
-            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                postListener.onPostComplete(httpPost, httpPost.replyResponse);
-            }
+        httpCallManager.makeHttpCall(new Chan8ReplyHttpCall(this, reply),
+                new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+                    @Override
+                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                        postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                    }
 
-            @Override
-            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                Logger.e(TAG, "post error", e);
+                    @Override
+                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                        Logger.e(TAG, "post error", e);
 
-                postListener.onPostError(httpPost);
-            }
-        });
+                        postListener.onPostError(httpPost);
+                    }
+                });
+    }
+
+    @Override
+    public Authentication postAuthenticate() {
+        return Authentication.fromUrl("https://8ch.net/dnsbls_bypass.php",
+                "You failed the CAPTCHA",
+                "You may now go back and make your post");
     }
 
     @Override

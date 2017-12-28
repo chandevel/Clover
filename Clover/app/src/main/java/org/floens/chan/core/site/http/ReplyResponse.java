@@ -39,4 +39,5 @@ public class ReplyResponse {
     public int postNo;
     public String password;
     public boolean probablyBanned;
+    public boolean requireAuthentication;
 }

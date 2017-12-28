@@ -58,13 +58,12 @@ public abstract class HttpCall implements Callback {
     public void onResponse(Call call, Response response) {
         ResponseBody body = response.body();
         try {
-            if (response.isSuccessful() && body != null) {
+            if (body != null) {
                 String responseString = body.string();
                 process(response, responseString);
                 successful = true;
             } else {
-                String responseString = body == null ? "no body" : body.string();
-                onFailure(call, new IOException("HTTP " + response.code() + "\n\n" + responseString));
+                throw new IOException("HTTP " + response.code());
             }
         } catch (Exception e) {
             exception = e;
