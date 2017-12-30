@@ -242,7 +242,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         private void load() {
             sourceList.clear();
-            sourceList.addAll(databaseManager.runTaskSync(databaseManager.getDatabaseFilterManager().getFilters()));
+            sourceList.addAll(databaseManager.runTask(databaseManager.getDatabaseFilterManager().getFilters()));
 
             filter();
         }

@@ -141,7 +141,7 @@ public class WatchManager {
         this.chanLoaderFactory = chanLoaderFactory;
 
         databasePinManager = databaseManager.getDatabasePinManager();
-        pins = databaseManager.runTaskSync(databasePinManager.getPins());
+        pins = databaseManager.runTask(databasePinManager.getPins());
         Collections.sort(pins, SORT_PINS);
 
         handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
@@ -184,7 +184,7 @@ public class WatchManager {
         }
         pins.add(pin);
         applyOrder();
-        databaseManager.runTaskSync(databasePinManager.createPin(pin));
+        databaseManager.runTask(databasePinManager.createPin(pin));
 
         updateState();
 
@@ -198,7 +198,7 @@ public class WatchManager {
 
         destroyPinWatcher(pin);
 
-        databaseManager.runTaskSync(databasePinManager.deletePin(pin));
+        databaseManager.runTask(databasePinManager.deletePin(pin));
         // Update the new orders
         applyOrder();
         updatePinsInDatabase();
@@ -209,7 +209,7 @@ public class WatchManager {
     }
 
     public void updatePin(Pin pin) {
-        databaseManager.runTaskSync(databasePinManager.updatePin(pin));
+        databaseManager.runTask(databasePinManager.updatePin(pin));
 
         updateState();
 
@@ -431,7 +431,7 @@ public class WatchManager {
     }
 
     private void updatePinsInDatabase() {
-        databaseManager.runTask(databasePinManager.updatePins(pins));
+        databaseManager.runTaskAsync(databasePinManager.updatePins(pins));
     }
 
     private Boolean isWatchingSettingEnabled() {

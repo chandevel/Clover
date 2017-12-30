@@ -78,6 +78,14 @@ public class BoardSetupPresenter {
         selectedSuggestions.clear();
     }
 
+    public void onSelectAllClicked() {
+        for (BoardSuggestion suggestion : suggestions) {
+            suggestion.checked = true;
+            selectedSuggestions.add(suggestion.getCode());
+        }
+        addCallback.updateSuggestions();
+    }
+
     public void onSuggestionClicked(BoardSuggestion suggestion) {
         suggestion.checked = !suggestion.checked;
         if (suggestion.checked) {
@@ -134,9 +142,8 @@ public class BoardSetupPresenter {
         Board board = savedBoards.remove(position);
         boardManager.unsaveBoard(board);
 
-        for (int i = position; i < savedBoards.size(); i++) {
-            boardManager.updateBoardOrder(savedBoards.get(i), i);
-        }
+        boardManager.updateBoardOrders(
+                savedBoards.subList(position, savedBoards.size()), position);
 
         updateSavedBoards();
         callback.setSavedBoards(savedBoards);
@@ -150,10 +157,6 @@ public class BoardSetupPresenter {
         boardManager.updateBoardOrder(board, savedBoards.size());
         updateSavedBoards();
         callback.setSavedBoards(savedBoards);
-    }
-
-    public void done() {
-        callback.finish();
     }
 
     public void searchEntered(String userQuery) {
@@ -224,8 +227,6 @@ public class BoardSetupPresenter {
         void setSavedBoards(List<Board> savedBoards);
 
         void showRemovedSnackbar(Board board);
-
-        void finish();
 
         void boardsWereAdded(int count);
     }

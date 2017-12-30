@@ -18,18 +18,18 @@ public class SiteRepository {
     }
 
     public List<SiteModel> all() {
-        return databaseManager.runTaskSync(databaseManager.getDatabaseSiteManager().getAll());
+        return databaseManager.runTask(databaseManager.getDatabaseSiteManager().getAll());
     }
 
     public SiteModel create(SiteConfig config, SiteUserSettings userSettings) {
         SiteModel siteModel = new SiteModel();
         siteModel.storeConfigFields(config, userSettings);
-        databaseManager.runTaskSync(databaseManager.getDatabaseSiteManager().add(siteModel));
+        databaseManager.runTask(databaseManager.getDatabaseSiteManager().add(siteModel));
         return siteModel;
     }
 
     public void setId(SiteModel siteModel, int id) {
-        databaseManager.runTaskSync(databaseManager.getDatabaseSiteManager()
+        databaseManager.runTask(databaseManager.getDatabaseSiteManager()
                 .updateId(siteModel, id));
     }
 }

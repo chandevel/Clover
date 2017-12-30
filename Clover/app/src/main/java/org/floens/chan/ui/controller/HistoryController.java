@@ -133,7 +133,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
                         .setPositiveButton(R.string.history_clear_confirm_button, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                databaseManager.runTask(databaseHistoryManager.clearHistory());
+                                databaseManager.runTaskAsync(databaseHistoryManager.clearHistory());
                                 adapter.load();
                             }
                         })
@@ -146,7 +146,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
                         .setPositiveButton(R.string.saved_reply_clear_confirm_button, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                databaseManager.runTask(databaseSavedReplyManager.clearSavedReplies());
+                                databaseManager.runTaskAsync(databaseSavedReplyManager.clearSavedReplies());
                             }
                         })
                         .show();
@@ -166,7 +166,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     }
 
     private void deleteHistory(History history) {
-        databaseManager.runTaskSync(databaseHistoryManager.removeHistory(history));
+        databaseManager.runTask(databaseHistoryManager.removeHistory(history));
         adapter.load();
     }
 
@@ -226,7 +226,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         private void load() {
             if (!resultPending) {
                 resultPending = true;
-                databaseManager.runTask(databaseHistoryManager.getHistory(), this);
+                databaseManager.runTaskAsync(databaseHistoryManager.getHistory(), this);
             }
         }
 

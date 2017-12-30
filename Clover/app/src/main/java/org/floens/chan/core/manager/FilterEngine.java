@@ -84,15 +84,15 @@ public class FilterEngine {
     }
 
     public void deleteFilter(Filter filter) {
-        databaseManager.runTaskSync(databaseFilterManager.deleteFilter(filter));
+        databaseManager.runTask(databaseFilterManager.deleteFilter(filter));
         update();
     }
 
     public void createOrUpdateFilter(Filter filter) {
         if (filter.id == 0) {
-            databaseManager.runTaskSync(databaseFilterManager.createFilter(filter));
+            databaseManager.runTask(databaseFilterManager.createFilter(filter));
         } else {
-            databaseManager.runTaskSync(databaseFilterManager.updateFilter(filter));
+            databaseManager.runTask(databaseFilterManager.updateFilter(filter));
         }
         update();
     }
@@ -261,7 +261,7 @@ public class FilterEngine {
     }
 
     private void update() {
-        List<Filter> filters = databaseManager.runTaskSync(databaseFilterManager.getFilters());
+        List<Filter> filters = databaseManager.runTask(databaseFilterManager.getFilters());
         List<Filter> enabled = new ArrayList<>();
         for (Filter filter : filters) {
             if (filter.enabled) {

@@ -94,7 +94,7 @@ public class DatabaseLoadableManager {
         // We only cache THREAD loadables in the db
         if (loadable.isThreadMode()) {
             long start = Time.startTiming();
-            Loadable result = databaseManager.runTaskSync(getLoadable(loadable));
+            Loadable result = databaseManager.runTask(getLoadable(loadable));
             Time.endTiming("get loadable from db " + loadable.boardCode, start);
             return result;
         } else {

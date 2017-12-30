@@ -52,8 +52,8 @@ import de.greenrobot.event.EventBus;
 /**
  * The central point for database related access.<br>
  * <b>All database queries are run on a single database thread</b>, therefor all functions return a
- * {@link Callable} that needs to be queued on either {@link #runTask(Callable)},
- * {@link #runTask(Callable, TaskResult)} or {@link #runTaskSync(Callable)}.<br>
+ * {@link Callable} that needs to be queued on either {@link #runTaskAsync(Callable)},
+ * {@link #runTaskAsync(Callable, TaskResult)} or {@link #runTask(Callable)}.<br>
  * You often want the sync flavour for queries that return data, it waits for the task to be finished on the other thread.<br>
  * Use the async versions when you don't care when the query is done.
  */
@@ -126,7 +126,7 @@ public class DatabaseManager {
     // Called when the app changes foreground state
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
-            runTask(databaseLoadableManager.flush());
+            runTaskAsync(databaseLoadableManager.flush());
         }
     }
 
@@ -134,10 +134,10 @@ public class DatabaseManager {
         loadThreadHides();
 
         // Loads data into fields.
-        runTaskSync(databaseSavedReplyManager.load());
+        runTask(databaseSavedReplyManager.load());
 
         // Only trims.
-        runTask(databaseHistoryManager.load());
+        runTaskAsync(databaseHistoryManager.load());
     }
 
     /**
@@ -268,15 +268,15 @@ public class DatabaseManager {
         }
     }
 
-    public <T> void runTask(final Callable<T> taskCallable) {
-        runTask(taskCallable, null);
+    public <T> void runTaskAsync(final Callable<T> taskCallable) {
+        runTaskAsync(taskCallable, null);
     }
 
-    public <T> void runTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
-        Future<T> f = executeTask(taskCallable, taskResult);
+    public <T> void runTaskAsync(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
+        executeTask(taskCallable, taskResult);
     }
 
-    public <T> T runTaskSync(final Callable<T> taskCallable) {
+    public <T> T runTask(final Callable<T> taskCallable) {
         try {
             return executeTask(taskCallable, null).get();
         } catch (InterruptedException | ExecutionException e) {

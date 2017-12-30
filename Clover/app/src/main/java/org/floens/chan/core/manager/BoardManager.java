@@ -64,7 +64,7 @@ public class BoardManager {
     }
 
     public void createAll(List<Board> boards) {
-        databaseManager.runTaskSync(
+        databaseManager.runTask(
                 databaseManager.getDatabaseBoardManager().createAll(boards));
     }
 
@@ -77,17 +77,17 @@ public class BoardManager {
      * @return the board code with the same site and board code, or {@code null} if not found.
      */
     public Board getBoard(Site site, String code) {
-        return databaseManager.runTaskSync(
+        return databaseManager.runTask(
                 databaseManager.getDatabaseBoardManager().getBoard(site, code));
     }
 
     public List<Board> getSiteBoards(Site site) {
-        return databaseManager.runTaskSync(
+        return databaseManager.runTask(
                 databaseManager.getDatabaseBoardManager().getSiteBoards(site));
     }
 
     public List<Board> getSiteSavedBoards(Site site) {
-        List<Board> boards = databaseManager.runTaskSync(
+        List<Board> boards = databaseManager.runTask(
                 databaseManager.getDatabaseBoardManager().getSiteSavedBoards(site));
         Collections.sort(boards, ORDER_SORT);
         return boards;
@@ -107,14 +107,20 @@ public class BoardManager {
 
     public void updateBoardOrder(Board board, int order) {
         board.order = order;
-        // not sync, does not update observable.
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager().update(board),
-                result -> updateSavedBoards());
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager()
+                .updateIncludingUserFields(board));
+        updateSavedBoards();
+    }
+
+    public void updateBoardOrders(List<Board> boards, int fromOrder) {
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager()
+                .updateOrders(boards, fromOrder));
+        updateSavedBoards();
     }
 
     private void setSaved(Board board, boolean saved) {
         board.saved = saved;
-        databaseManager.runTaskSync(databaseManager.getDatabaseBoardManager().update(board));
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager().updateIncludingUserFields(board));
         updateSavedBoards();
     }
 

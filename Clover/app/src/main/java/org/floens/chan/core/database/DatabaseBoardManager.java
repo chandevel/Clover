@@ -37,9 +37,21 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Void> update(final Board board) {
+    public Callable<Void> updateIncludingUserFields(final Board board) {
         return () -> {
             helper.boardsDao.update(board);
+
+            return null;
+        };
+    }
+
+    public Callable<Void> updateOrders(final List<Board> boards, final int fromOrder) {
+        return () -> {
+            for (int i = 0; i < boards.size(); i++) {
+                Board board = boards.get(i);
+                board.order = fromOrder + i;
+                helper.boardsDao.update(board);
+            }
 
             return null;
         };

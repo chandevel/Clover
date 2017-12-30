@@ -498,7 +498,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             case POST_OPTION_SAVE:
                 SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
                         post.board.site, post.board, post.no, "");
-                databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+                databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
                 break;
             case POST_OPTION_PIN:
                 Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
@@ -606,7 +606,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
-        SavedReply reply = databaseManager.runTaskSync(
+        SavedReply reply = databaseManager.runTask(
                 databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
         );
         if (reply != null) {
@@ -634,7 +634,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private void requestDeletePost(Post post) {
-        SavedReply reply = databaseManager.runTaskSync(
+        SavedReply reply = databaseManager.runTask(
                 databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
         );
         if (reply != null) {
@@ -698,7 +698,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             history.loadable = loadable;
             PostImage image = chanLoader.getThread().op.image;
             history.thumbnailUrl = image == null ? "" : image.thumbnailUrl.toString();
-            databaseManager.runTask(databaseManager.getDatabaseHistoryManager().addHistory(history));
+            databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
     }
 

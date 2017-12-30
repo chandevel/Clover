@@ -127,6 +127,11 @@ public class BoardSetupController extends Controller implements View.OnClickList
         presenter.create(this, site);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     public void setSite(Site site) {
         this.site = site;
     }
@@ -197,11 +202,6 @@ public class BoardSetupController extends Controller implements View.OnClickList
         Snackbar snackbar = Snackbar.make(view, text, Snackbar.LENGTH_LONG);
         fixSnackbarText(context, snackbar);
         snackbar.show();
-    }
-
-    @Override
-    public void finish() {
-        navigationController.popController();
     }
 
     private class SavedBoardsAdapter extends RecyclerView.Adapter<SavedBoardCell> {

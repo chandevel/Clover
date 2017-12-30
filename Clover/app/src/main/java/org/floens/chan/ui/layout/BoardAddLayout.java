@@ -25,6 +25,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -35,12 +36,13 @@ import org.floens.chan.core.presenter.BoardSetupPresenter;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback {
+public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
     private BoardSetupPresenter presenter;
 
     private SuggestionsAdapter suggestionsAdapter;
 
     private SearchLayout search;
+    private Button checkAllButton;
     private RecyclerView suggestionsRecycler;
 
     private AlertDialog dialog;
@@ -64,6 +66,7 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         // View binding
         search = findViewById(R.id.search);
         suggestionsRecycler = findViewById(R.id.suggestions);
+        checkAllButton = (Button) findViewById(R.id.select_all);
 
         // Adapters
         suggestionsAdapter = new SuggestionsAdapter();
@@ -74,6 +77,7 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         search.setTextColor(getAttrColor(getContext(), R.attr.text_color_primary));
         search.setHintColor(getAttrColor(getContext(), R.attr.text_color_hint));
         search.setClearButtonImage(R.drawable.ic_clear_black_24dp);
+        checkAllButton.setOnClickListener(this);
         suggestionsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         suggestionsRecycler.setAdapter(suggestionsAdapter);
 
@@ -90,6 +94,13 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         presenter.unbindAddDialog();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == checkAllButton) {
+            presenter.onSelectAllClicked();
+        }
     }
 
     @Override
