@@ -41,8 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.floens.chan.Chan.getGraph;
-
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
@@ -230,7 +228,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 Logger.e(TAG, "Error upgrading to version 22", e);
             }
 
-            getGraph().get(SiteManager.class).addSiteForLegacy();
+            SiteManager.addSiteForLegacy();
         }
     }
 

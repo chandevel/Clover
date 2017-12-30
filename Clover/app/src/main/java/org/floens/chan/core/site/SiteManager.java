@@ -33,11 +33,19 @@ import javax.inject.Singleton;
 
 @Singleton
 public class SiteManager {
+    private static boolean addSiteForLegacy = false;
+
+    /**
+     * Called from the DatabaseHelper when upgrading to the tables with a site id.
+     */
+    public static void addSiteForLegacy() {
+        addSiteForLegacy = true;
+    }
+
     private SiteRepository siteRepository;
     private SiteResolver resolver;
 
     private boolean initialized = false;
-    private boolean addSiteForLegacy = false;
 
     @Inject
     public SiteManager(SiteRepository siteRepository,
@@ -78,19 +86,14 @@ public class SiteManager {
         callback.onSiteAdded(site);
     }
 
-    /**
-     * Called from the DatabaseHelper when upgrading to the tables with a site id.
-     */
-    public void addSiteForLegacy() {
-        addSiteForLegacy = true;
-    }
-
     public void initialize() {
         if (initialized) {
             throw new IllegalStateException("Already initialized");
         }
 
         if (addSiteForLegacy) {
+            addSiteForLegacy = false;
+
             Site site = new Chan4();
 
             SiteConfig config = new SiteConfig();
