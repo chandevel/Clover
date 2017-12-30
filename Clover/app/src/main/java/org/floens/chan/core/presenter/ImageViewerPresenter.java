@@ -26,6 +26,7 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -201,6 +202,43 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 callback.setImageMode(postImage, MultiImageView.Mode.GIF);
             } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(postImage)) {
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
+            }
+        }
+
+        preloadNext();
+    }
+
+    // This won't actually change any modes, but it will preload the image so that it's
+    // available immediately when the user swipes right.
+    private void preloadNext() {
+        if (selectedPosition + 1 < images.size()) {
+            PostImage next = images.get(selectedPosition + 1);
+
+            boolean load = false;
+            if (next.type == PostImage.Type.STATIC || next.type == PostImage.Type.GIF) {
+                load = imageAutoLoad(next);
+            } else if (next.type == PostImage.Type.MOVIE) {
+                load = videoAutoLoad(next);
+            }
+
+            if (load) {
+                final FileCache.DownloadedCallback emptyCallback =
+                        new FileCache.DownloadedCallback() {
+                            @Override
+                            public void onProgress(long downloaded, long total, boolean done) {
+                            }
+
+                            @Override
+                            public void onSuccess(File file) {
+                            }
+
+                            @Override
+                            public void onFail(boolean notFound) {
+                            }
+                        };
+
+                final String fileUrl = next.imageUrl.toString();
+                fileCache.downloadFile(fileUrl, emptyCallback);
             }
         }
     }
