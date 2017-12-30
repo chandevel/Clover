@@ -188,12 +188,8 @@ public class ChanSettings {
         developer = new BooleanSetting(p, "preference_developer", false);
 
         saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover");
-        saveLocation.addCallback(new Setting.SettingCallback<String>() {
-            @Override
-            public void onValueChange(Setting setting, String value) {
-                EventBus.getDefault().post(new SettingChanged<>(saveLocation));
-            }
-        });
+        saveLocation.addCallback((setting, value) ->
+                EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
         networkHttps = new BooleanSetting(p, "preference_network_https", true);
@@ -209,26 +205,18 @@ public class ChanSettings {
         volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
         postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
         postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);
-        postFilename = new BooleanSetting(p, "preference_post_filename", false);
+        postFilename = new BooleanSetting(p, "preference_post_filename", true);
         neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
         controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
         saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
-        watchEnabled.addCallback(new Setting.SettingCallback<Boolean>() {
-            @Override
-            public void onValueChange(Setting setting, Boolean value) {
-                EventBus.getDefault().post(new SettingChanged<>(watchEnabled));
-            }
-        });
+        watchEnabled.addCallback((setting, value) ->
+                EventBus.getDefault().post(new SettingChanged<>(watchEnabled)));
         watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
-        watchBackground.addCallback(new Setting.SettingCallback<Boolean>() {
-            @Override
-            public void onValueChange(Setting setting, Boolean value) {
-                EventBus.getDefault().post(new SettingChanged<>(watchBackground));
-            }
-        });
+        watchBackground.addCallback((setting, value) ->
+                EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
         watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WatchManager.DEFAULT_BACKGROUND_INTERVAL);
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
@@ -240,26 +228,12 @@ public class ChanSettings {
         previousVersion = new IntegerSetting(p, "preference_previous_version", 0);
 
         proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
-        proxyEnabled.addCallback(new Setting.SettingCallback<Boolean>() {
-            @Override
-            public void onValueChange(Setting setting, Boolean value) {
-                loadProxy();
-            }
-        });
         proxyAddress = new StringSetting(p, "preference_proxy_address", "");
-        proxyAddress.addCallback(new Setting.SettingCallback<String>() {
-            @Override
-            public void onValueChange(Setting setting, String value) {
-                loadProxy();
-            }
-        });
         proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
-        proxyPort.addCallback(new Setting.SettingCallback<Integer>() {
-            @Override
-            public void onValueChange(Setting setting, Integer value) {
-                loadProxy();
-            }
-        });
+
+        proxyEnabled.addCallback((setting, value) -> loadProxy());
+        proxyAddress.addCallback((setting, value) -> loadProxy());
+        proxyPort.addCallback((setting, value) -> loadProxy());
         loadProxy();
 
         settingsOpenCounter = new CounterSetting(p, "counter_settings_open");

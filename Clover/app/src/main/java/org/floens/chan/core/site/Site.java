@@ -33,6 +33,8 @@ import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 
+import okhttp3.HttpUrl;
+
 public interface Site {
     enum Feature {
         /**
@@ -128,6 +130,8 @@ public interface Site {
     String name();
 
     SiteIcon icon();
+
+    Loadable respondsTo(HttpUrl url);
 
     boolean feature(Feature feature);
 

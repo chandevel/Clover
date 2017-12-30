@@ -59,13 +59,14 @@ import okhttp3.Request;
 public class Chan4 extends SiteBase {
     public static final Resolvable RESOLVABLE = new Resolvable() {
         @Override
-        public ResolveResult resolve(String value) {
-            if (value.equals("4chan")) {
-                return ResolveResult.NAME_MATCH;
-            } else if (value.equals("https://4chan.org/")) {
-                return ResolveResult.FULL_MATCH;
-            } else {
-                return ResolveResult.NO;
+        public ResolveResult matchesName(String value) {
+            switch (value) {
+                case "4chan":
+                    return ResolveResult.NAME_MATCH;
+                case "https://4chan.org/":
+                    return ResolveResult.FULL_MATCH;
+                default:
+                    return ResolveResult.NO;
             }
         }
 
@@ -268,6 +269,59 @@ public class Chan4 extends SiteBase {
     @Override
     public SiteIcon icon() {
         return SiteIcon.fromAssets("icons/4chan.png");
+    }
+
+    @Override
+    public Loadable respondsTo(HttpUrl url) {
+        boolean responds = url.host().equals("4chan.org") ||
+                url.host().equals("www.4chan.org") ||
+                url.host().equals("boards.4chan.org");
+
+        if (responds) {
+            List<String> parts = url.pathSegments();
+
+            if (!parts.isEmpty()) {
+                String boardCode = parts.get(0);
+                Board board = board(boardCode);
+                if (board != null) {
+                    if (parts.size() < 3) {
+                        // Board mode
+                        return loadableProvider.get(Loadable.forCatalog(board));
+                    } else if (parts.size() >= 3) {
+                        // Thread mode
+                        int no = -1;
+                        try {
+                            no = Integer.parseInt(parts.get(2));
+                        } catch (NumberFormatException ignored) {
+                        }
+
+                        int post = -1;
+                        String fragment = url.fragment();
+                        if (fragment != null) {
+                            int index = fragment.indexOf("p");
+                            if (index >= 0) {
+                                try {
+                                    post = Integer.parseInt(fragment.substring(index + 1));
+                                } catch (NumberFormatException ignored) {
+                                }
+                            }
+                        }
+
+                        if (no >= 0) {
+                            Loadable loadable = loadableProvider.get(
+                                    Loadable.forThread(this, board, no));
+                            if (post >= 0) {
+                                loadable.markedNo = post;
+                            }
+
+                            return loadable;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override

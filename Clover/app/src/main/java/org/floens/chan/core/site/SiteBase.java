@@ -20,6 +20,7 @@ package org.floens.chan.core.site;
 
 import com.android.volley.RequestQueue;
 
+import org.floens.chan.core.database.LoadableProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.json.site.SiteUserSettings;
@@ -40,6 +41,7 @@ public abstract class SiteBase implements Site {
     protected HttpCallManager httpCallManager;
     protected RequestQueue requestQueue;
     protected BoardManager boardManager;
+    protected LoadableProvider loadableProvider;
 
     @Override
     public void initialize(int id, SiteConfig config, SiteUserSettings userSettings) {
@@ -55,6 +57,7 @@ public abstract class SiteBase implements Site {
         httpCallManager = graph.get(HttpCallManager.class);
         requestQueue = graph.get(RequestQueue.class);
         boardManager = graph.get(BoardManager.class);
+        loadableProvider = graph.get(LoadableProvider.class);
 
         if (boardsType() == BoardsType.DYNAMIC) {
             boards(boards -> boardManager.createAll(boards.boards));

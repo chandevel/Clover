@@ -42,6 +42,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.utils.Logger;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -55,13 +56,14 @@ public class Chan8 extends SiteBase {
 
     public static final Resolvable RESOLVABLE = new Resolvable() {
         @Override
-        public ResolveResult resolve(String value) {
-            if (value.equals("8chan")) {
-                return ResolveResult.NAME_MATCH;
-            } else if (value.equals("https://8ch.net/")) {
-                return ResolveResult.FULL_MATCH;
-            } else {
-                return ResolveResult.NO;
+        public ResolveResult matchesName(String value) {
+            switch (value) {
+                case "8chan":
+                    return ResolveResult.NAME_MATCH;
+                case "https://8ch.net/":
+                    return ResolveResult.FULL_MATCH;
+                default:
+                    return ResolveResult.NO;
             }
         }
 
@@ -182,6 +184,54 @@ public class Chan8 extends SiteBase {
     @Override
     public SiteIcon icon() {
         return SiteIcon.fromAssets("icons/8chan.png");
+    }
+
+    @Override
+    public Loadable respondsTo(HttpUrl url) {
+        boolean responds = url.host().equals("8ch.net");
+
+        if (responds) {
+            List<String> parts = url.pathSegments();
+
+            if (!parts.isEmpty()) {
+                String boardCode = parts.get(0);
+                Board board = board(boardCode);
+                if (board != null) {
+                    if (parts.size() < 3) {
+                        // Board mode
+                        return loadableProvider.get(Loadable.forCatalog(board));
+                    } else if (parts.size() >= 3) {
+                        // Thread mode
+                        int no = -1;
+                        try {
+                            no = Integer.parseInt(parts.get(2).replace(".html", ""));
+                        } catch (NumberFormatException ignored) {
+                        }
+
+                        int post = -1;
+                        String fragment = url.fragment();
+                        if (fragment != null) {
+                            try {
+                                post = Integer.parseInt(fragment);
+                            } catch (NumberFormatException ignored) {
+                            }
+                        }
+
+                        if (no >= 0) {
+                            Loadable loadable = loadableProvider.get(
+                                    Loadable.forThread(this, board, no));
+                            if (post >= 0) {
+                                loadable.markedNo = post;
+                            }
+
+                            return loadable;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override

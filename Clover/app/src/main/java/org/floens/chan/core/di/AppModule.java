@@ -9,6 +9,7 @@ import org.floens.chan.ChanApplication;
 import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.database.LoadableProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.ReplyManager;
@@ -61,6 +62,7 @@ import dagger.Provides;
                 ImageLoader.class,
                 FileCache.class,
                 HttpCallManager.class,
+                LoadableProvider.class,
 
                 ChanApplication.class,
                 MainSettingsController.class,

@@ -18,35 +18,33 @@
 package org.floens.chan.core.site;
 
 
+import android.support.annotation.Nullable;
+
+import org.floens.chan.core.database.LoadableProvider;
+import org.floens.chan.core.model.orm.Loadable;
+
 import java.util.List;
 
 import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
-class SiteResolver {
+public class SiteResolver {
+    private LoadableProvider loadableProvider;
+
     @Inject
-    public SiteResolver() {
+    public SiteResolver(LoadableProvider loadableProvider) {
+        this.loadableProvider = loadableProvider;
     }
 
-    SiteResolverResult resolve(String url) {
+    SiteResolverResult resolveSiteForUrl(String url) {
         List<Resolvable> resolvables = Sites.RESOLVABLES;
 
-        HttpUrl httpUrl = HttpUrl.parse(url);
-
-        if (httpUrl == null) {
-            httpUrl = HttpUrl.parse("https://" + url);
-        }
-
-        if (httpUrl != null) {
-            if (httpUrl.host().indexOf('.') < 0) {
-                httpUrl = null;
-            }
-        }
+        HttpUrl httpUrl = sanitizeUrl(url);
 
         if (httpUrl == null) {
             for (Resolvable resolvable : resolvables) {
-                if (resolvable.resolve(url) == Resolvable.ResolveResult.NAME_MATCH) {
+                if (resolvable.matchesName(url) == Resolvable.ResolveResult.NAME_MATCH) {
                     return new SiteResolverResult(SiteResolverResult.Match.BUILTIN, resolvable.getSiteClass(), null);
                 }
             }
@@ -59,12 +57,46 @@ class SiteResolver {
         }
 
         for (Resolvable resolvable : resolvables) {
-            if (resolvable.resolve(httpUrl.toString()) == Resolvable.ResolveResult.FULL_MATCH) {
+            if (resolvable.matchesName(httpUrl.toString()) == Resolvable.ResolveResult.FULL_MATCH) {
                 return new SiteResolverResult(SiteResolverResult.Match.BUILTIN, resolvable.getSiteClass(), null);
             }
         }
 
         return new SiteResolverResult(SiteResolverResult.Match.EXTERNAL, null, httpUrl);
+    }
+
+    public LoadableResult resolveLoadableForUrl(String url) {
+        final HttpUrl httpUrl = sanitizeUrl(url);
+
+        if (httpUrl == null) {
+            return null;
+        }
+
+        for (Site site : Sites.allSites()) {
+            Loadable resolved = site.respondsTo(httpUrl);
+
+            if (resolved != null) {
+                return new LoadableResult(resolved);
+            }
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private HttpUrl sanitizeUrl(String url) {
+        HttpUrl httpUrl = HttpUrl.parse(url);
+
+        if (httpUrl == null) {
+            httpUrl = HttpUrl.parse("https://" + url);
+        }
+
+        if (httpUrl != null) {
+            if (httpUrl.host().indexOf('.') < 0) {
+                httpUrl = null;
+            }
+        }
+        return httpUrl;
     }
 
     static class SiteResolverResult {
@@ -82,6 +114,14 @@ class SiteResolver {
             this.match = match;
             this.builtinResult = builtinResult;
             this.externalResult = externalResult;
+        }
+    }
+
+    public static class LoadableResult {
+        public final Loadable loadable;
+
+        public LoadableResult(Loadable loadable) {
+            this.loadable = loadable;
         }
     }
 }

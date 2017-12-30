@@ -47,7 +47,7 @@ public class SiteManager {
     }
 
     public void addSite(String url, SiteAddCallback callback) {
-        SiteResolver.SiteResolverResult resolve = resolver.resolve(url);
+        SiteResolver.SiteResolverResult resolve = resolver.resolveSiteForUrl(url);
 
         Class<? extends Site> siteClass;
         if (resolve.match == SiteResolver.SiteResolverResult.Match.BUILTIN) {

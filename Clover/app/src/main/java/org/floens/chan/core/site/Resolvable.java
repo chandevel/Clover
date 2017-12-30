@@ -8,7 +8,7 @@ public interface Resolvable {
         FULL_MATCH
     }
 
-    ResolveResult resolve(String value);
+    ResolveResult matchesName(String value);
 
     Class<? extends Site> getSiteClass();
 }

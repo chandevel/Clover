@@ -18,9 +18,11 @@
 package org.floens.chan;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.StrictMode;
 
 import org.floens.chan.core.database.DatabaseManager;
@@ -39,7 +41,7 @@ import javax.inject.Inject;
 import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 
-public class Chan extends Application implements UserAgentProvider {
+public class Chan extends Application implements UserAgentProvider, Application.ActivityLifecycleCallbacks {
     private static final String TAG = "ChanApplication";
 
     @SuppressLint("StaticFieldLeak")
@@ -77,6 +79,8 @@ public class Chan extends Application implements UserAgentProvider {
         super.onCreate();
 
         final long startTime = Time.startTiming();
+
+        registerActivityLifecycleCallbacks(this);
 
         AndroidUtils.init();
 
@@ -118,7 +122,7 @@ public class Chan extends Application implements UserAgentProvider {
         return userAgent;
     }
 
-    public void activityEnteredForeground() {
+    private void activityEnteredForeground() {
         boolean lastForeground = getApplicationInForeground();
 
         activityForegroundCounter++;
@@ -128,7 +132,7 @@ public class Chan extends Application implements UserAgentProvider {
         }
     }
 
-    public void activityEnteredBackground() {
+    private void activityEnteredBackground() {
         boolean lastForeground = getApplicationInForeground();
 
         activityForegroundCounter--;
@@ -163,5 +167,35 @@ public class Chan extends Application implements UserAgentProvider {
         }
         version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
         return getString(R.string.app_name) + "/" + version;
+    }
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+        activityEnteredForeground();
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+        activityEnteredBackground();
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
     }
 }
