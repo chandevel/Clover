@@ -73,6 +73,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -211,7 +213,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
                         for (ImageSearch imageSearch : ImageSearch.engines) {
                             if (((Integer) item.getId()) == imageSearch.getId()) {
-                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(presenter.getCurrentPostImage().imageUrl.toString()));
+                                final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
+                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
                                 break;
                             }
                         }
@@ -540,5 +543,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public interface GoPostCallback {
         ImageViewerCallback goToPost(PostImage postImage);
+    }
+
+    /**
+     * Send thumbnail image of movie posts because none of the image search providers support movies (such as webm) directly
+     * @param postImage the post image
+     * @return url of an image to be searched
+     */
+    private HttpUrl getSearchImageUrl(final PostImage postImage) {
+        return postImage.type == PostImage.Type.MOVIE ? postImage.thumbnailUrl : postImage.imageUrl;
     }
 }
