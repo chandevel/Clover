@@ -319,6 +319,15 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         showPosts();
     }
 
+    public void onNewPostsViewClicked() {
+        Post post = findPostById(loadable.lastViewed);
+        if (post != null) {
+            scrollToPost(post, true);
+        } else {
+            scrollTo(-1, true);
+        }
+    }
+
     public void scrollTo(int displayPosition, boolean smooth) {
         threadPresenterCallback.scrollTo(displayPosition, smooth);
     }
