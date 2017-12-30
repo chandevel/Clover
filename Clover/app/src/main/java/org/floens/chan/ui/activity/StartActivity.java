@@ -45,12 +45,13 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.core.site.SiteResolver;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
-import org.floens.chan.ui.controller.SetupController;
+import org.floens.chan.ui.controller.SitesSetupController;
 import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
@@ -97,6 +98,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     @Inject
     SiteResolver siteResolver;
+
+    @Inject
+    SiteManager siteManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,11 +150,14 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         // Not from a state or from an url, launch the setup controller if no boards are setup up yet,
         // otherwise load the default saved board.
         if (!handled) {
-            /*if (boardManager.getSavedBoards().isEmpty()) {
-                setupWithNoBoards();
-            } else {
-                browseController.loadWithDefaultBoard();
-            }*/
+            restoreFresh();
+        }
+    }
+
+    private void restoreFresh() {
+        if (!siteManager.areSitesSetup()) {
+            mainNavigationController.pushController(new SitesSetupController(this), false);
+        } else {
             browseController.loadWithDefaultBoard();
         }
     }
@@ -207,10 +214,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         }
 
         return handled;
-    }
-
-    private void setupWithNoBoards() {
-        mainNavigationController.presentController(new SetupController(this), false);
     }
 
     private Pair<Loadable, Loadable> resolveChanState(ChanState state) {

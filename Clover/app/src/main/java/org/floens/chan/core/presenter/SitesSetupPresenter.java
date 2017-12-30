@@ -50,7 +50,17 @@ public class SitesSetupPresenter {
 
         this.callback.setAddedSites(sites);
 
-        this.callback.setNextAllowed(!sites.isEmpty(), false);
+        this.callback.setNextAllowed(!sites.isEmpty());
+
+        if (sites.isEmpty()) {
+            callback.presentIntro();
+        }
+    }
+
+    public void onIntroDismissed() {
+        if (sites.isEmpty()) {
+            callback.showHint();
+        }
     }
 
     public void bindAddDialog(AddCallback addCallback) {
@@ -74,6 +84,7 @@ public class SitesSetupPresenter {
             @Override
             public void onSiteAdded(Site site) {
                 siteAdded(site);
+                addCallback.dismissDialog();
             }
 
             @Override
@@ -96,7 +107,7 @@ public class SitesSetupPresenter {
 
         callback.setAddedSites(sites);
 
-        callback.setNextAllowed(!sites.isEmpty(), true);
+        callback.setNextAllowed(!sites.isEmpty());
     }
 
     public void onSiteCellSettingsClicked(Site site) {
@@ -104,16 +115,22 @@ public class SitesSetupPresenter {
     }
 
     public interface Callback {
+        void presentIntro();
+
+        void showHint();
+
         void showAddDialog();
 
         void setAddedSites(List<Site> sites);
 
-        void setNextAllowed(boolean nextAllowed, boolean animate);
+        void setNextAllowed(boolean nextAllowed);
 
         void openSiteConfiguration(Site site);
     }
 
     public interface AddCallback {
         void showAddError(String error);
+
+        void dismissDialog();
     }
 }

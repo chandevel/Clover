@@ -77,7 +77,7 @@ public class MainSettingsController extends SettingsController implements Toolba
 
     private ChanSettings.LayoutMode previousLayoutMode;
 
-    private PopupWindow advancedSettingsHint;
+    private HintPopup advancedSettingsHint;
 
     @Inject
     DatabaseManager databaseManager;

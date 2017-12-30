@@ -1,5 +1,6 @@
 package org.floens.chan.ui.layout;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputLayout;
@@ -12,6 +13,8 @@ import org.floens.chan.core.presenter.SitesSetupPresenter;
 public class SiteAddLayout extends ConstraintLayout implements SitesSetupPresenter.AddCallback {
     private EditText url;
     private TextInputLayout urlContainer;
+
+    private Dialog dialog;
     private SitesSetupPresenter presenter;
 
     public SiteAddLayout(Context context) {
@@ -32,6 +35,10 @@ public class SiteAddLayout extends ConstraintLayout implements SitesSetupPresent
 
         urlContainer = findViewById(R.id.url_container);
         url = findViewById(R.id.url);
+    }
+
+    public void setDialog(Dialog dialog) {
+        this.dialog = dialog;
     }
 
     public void setPresenter(SitesSetupPresenter presenter) {
@@ -57,5 +64,10 @@ public class SiteAddLayout extends ConstraintLayout implements SitesSetupPresent
     @Override
     public void showAddError(String error) {
         urlContainer.setError(error);
+    }
+
+    @Override
+    public void dismissDialog() {
+        dialog.dismiss();
     }
 }

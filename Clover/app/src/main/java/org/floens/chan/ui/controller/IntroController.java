@@ -23,7 +23,6 @@ import android.widget.Button;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.presenter.SetupPresenter;
 
 public class IntroController extends Controller implements View.OnClickListener {
     private Button start;
@@ -45,8 +44,8 @@ public class IntroController extends Controller implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         if (v == start) {
-            SetupPresenter presenter = ((SetupController) navigationController).getPresenter();
-            presenter.startClicked();
+            ((SitesSetupController) presentedByController).onIntroDismissed();
+            stopPresenting();
         }
     }
 }

@@ -36,6 +36,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.presenter.SitesSetupPresenter;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteIcon;
+import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.SiteAddLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
@@ -133,6 +134,22 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     }
 
     @Override
+    public void presentIntro() {
+        presentController(new IntroController(context), false);
+    }
+
+    public void onIntroDismissed() {
+        presenter.onIntroDismissed();
+    }
+
+    @Override
+    public void showHint() {
+        String s = context.getString(R.string.setup_sites_add_hint);
+        HintPopup popup = new HintPopup(context, addButton, s, 0, 0, true);
+        popup.show();
+    }
+
+    @Override
     public void showAddDialog() {
         @SuppressLint("InflateParams") final SiteAddLayout dialogView =
                 (SiteAddLayout) LayoutInflater.from(context)
@@ -145,7 +162,11 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
                 .setTitle(R.string.setup_sites_add_title)
                 .setPositiveButton(R.string.add, null)
                 .setNegativeButton(R.string.cancel, null)
-                .show();
+                .create();
+
+        dialogView.setDialog(dialog);
+
+        dialog.show();
 
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
         positiveButton.setOnClickListener((v) -> {
@@ -168,9 +189,12 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     }
 
     @Override
-    public void setNextAllowed(boolean nextAllowed, boolean animate) {
+    public void setNextAllowed(boolean nextAllowed) {
         if (doneMenuItem != null) {
             doneMenuItem.getView().animate().alpha(nextAllowed ? 1f : 0f).start();
+        }
+        if (!nextAllowed) {
+            navigationItem.swipeable = false;
         }
     }
 

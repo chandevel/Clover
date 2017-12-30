@@ -46,6 +46,10 @@ public class SiteManager {
         this.resolver = resolver;
     }
 
+    public boolean areSitesSetup() {
+        return !Sites.allSites().isEmpty();
+    }
+
     public void addSite(String url, SiteAddCallback callback) {
         Site existing = resolver.findSiteForUrl(url);
         if (existing != null) {

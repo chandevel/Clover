@@ -169,6 +169,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="intro_start">Get started</string>
 
     <string name="setup_sites_title">Your sites</string>
+    <string name="setup_sites_add_hint">Add sites</string>
     <string name="setup_sites_add_title">Add site</string>
     <string name="setup_sites_url">Site url</string>
     <string name="setup_sites_url_hint">http://</string>
