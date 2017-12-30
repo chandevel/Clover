@@ -17,8 +17,10 @@
  */
 package org.floens.chan.utils;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Application;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -48,7 +50,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 
 import java.util.ArrayList;
@@ -67,24 +68,29 @@ public class AndroidUtils {
     public static Typeface ROBOTO_MEDIUM_ITALIC;
     public static Typeface ROBOTO_CONDENSED_REGULAR;
 
+    @SuppressLint("StaticFieldLeak")
+    private static Application application;
     private static ConnectivityManager connectivityManager;
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    public static void init() {
+    public static void init(Application application) {
+        AndroidUtils.application = application;
+
         ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
         ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
         ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
 
-        connectivityManager = (ConnectivityManager) getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        connectivityManager = (ConnectivityManager)
+                application.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     public static Resources getRes() {
-        return Chan.getInstance().getResources();
+        return application.getResources();
     }
 
     public static Context getAppContext() {
-        return Chan.getInstance();
+        return application;
     }
 
     public static String getString(int res) {
@@ -92,11 +98,11 @@ public class AndroidUtils {
     }
 
     public static SharedPreferences getPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(Chan.getInstance());
+        return PreferenceManager.getDefaultSharedPreferences(application);
     }
 
     public static SharedPreferences getPreferences(String name) {
-        return Chan.getInstance().getSharedPreferences(name, Context.MODE_PRIVATE);
+        return application.getSharedPreferences(name, Context.MODE_PRIVATE);
     }
 
     /**

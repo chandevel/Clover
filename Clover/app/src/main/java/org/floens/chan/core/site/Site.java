@@ -131,7 +131,9 @@ public interface Site {
 
     SiteIcon icon();
 
-    Loadable respondsTo(HttpUrl url);
+    boolean respondsTo(HttpUrl url);
+
+    Loadable resolve(HttpUrl url);
 
     boolean feature(Feature feature);
 

@@ -272,12 +272,15 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
-    public Loadable respondsTo(HttpUrl url) {
-        boolean responds = url.host().equals("4chan.org") ||
+    public boolean respondsTo(HttpUrl url) {
+        return url.host().equals("4chan.org") ||
                 url.host().equals("www.4chan.org") ||
                 url.host().equals("boards.4chan.org");
+    }
 
-        if (responds) {
+    @Override
+    public Loadable resolve(HttpUrl url) {
+        if (respondsTo(url)) {
             List<String> parts = url.pathSegments();
 
             if (!parts.isEmpty()) {

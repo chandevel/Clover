@@ -2,14 +2,16 @@ package org.floens.chan.ui.layout;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.TextInputLayout;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SitesSetupPresenter;
 
-public class SiteAddLayout extends ConstraintLayout {
+public class SiteAddLayout extends ConstraintLayout implements SitesSetupPresenter.AddCallback {
     private EditText url;
+    private TextInputLayout urlContainer;
     private SitesSetupPresenter presenter;
 
     public SiteAddLayout(Context context) {
@@ -28,6 +30,7 @@ public class SiteAddLayout extends ConstraintLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
+        urlContainer = findViewById(R.id.url_container);
         url = findViewById(R.id.url);
     }
 
@@ -35,7 +38,24 @@ public class SiteAddLayout extends ConstraintLayout {
         this.presenter = presenter;
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        presenter.bindAddDialog(this);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        presenter.unbindAddDialog();
+    }
+
     public void onPositiveClicked() {
         presenter.onAddClicked(url.getText().toString());
+    }
+
+    @Override
+    public void showAddError(String error) {
+        urlContainer.setError(error);
     }
 }

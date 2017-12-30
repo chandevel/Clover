@@ -28,6 +28,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -139,22 +140,17 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         dialogView.setPresenter(presenter);
 
-        new AlertDialog.Builder(context)
+        final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setView(dialogView)
                 .setTitle(R.string.setup_sites_add_title)
-                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialogView.onPositiveClicked();
-                    }
-                })
+                .setPositiveButton(R.string.add, null)
                 .setNegativeButton(R.string.cancel, null)
                 .show();
-    }
 
-    @Override
-    public void dismiss() {
-        navigationController.stopPresenting();
+        Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        positiveButton.setOnClickListener((v) -> {
+            dialogView.onPositiveClicked();
+        });
     }
 
     @Override

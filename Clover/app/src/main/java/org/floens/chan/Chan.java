@@ -82,7 +82,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
         registerActivityLifecycleCallbacks(this);
 
-        AndroidUtils.init();
+        AndroidUtils.init(this);
 
         userAgent = createUserAgent();
 

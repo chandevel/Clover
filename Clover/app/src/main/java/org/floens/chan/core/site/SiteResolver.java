@@ -37,6 +37,22 @@ public class SiteResolver {
         this.loadableProvider = loadableProvider;
     }
 
+    Site findSiteForUrl(String url) {
+        HttpUrl httpUrl = sanitizeUrl(url);
+
+        if (httpUrl == null) {
+            return null;
+        }
+
+        for (Site site : Sites.allSites()) {
+            if (site.respondsTo(httpUrl)) {
+                return site;
+            }
+        }
+
+        return null;
+    }
+
     SiteResolverResult resolveSiteForUrl(String url) {
         List<Resolvable> resolvables = Sites.RESOLVABLES;
 
@@ -73,7 +89,7 @@ public class SiteResolver {
         }
 
         for (Site site : Sites.allSites()) {
-            Loadable resolved = site.respondsTo(httpUrl);
+            Loadable resolved = site.resolve(httpUrl);
 
             if (resolved != null) {
                 return new LoadableResult(resolved);

@@ -187,10 +187,13 @@ public class Chan8 extends SiteBase {
     }
 
     @Override
-    public Loadable respondsTo(HttpUrl url) {
-        boolean responds = url.host().equals("8ch.net");
+    public boolean respondsTo(HttpUrl url) {
+        return url.host().equals("8ch.net");
+    }
 
-        if (responds) {
+    @Override
+    public Loadable resolve(HttpUrl url) {
+        if (respondsTo(url)) {
             List<String> parts = url.pathSegments();
 
             if (!parts.isEmpty()) {

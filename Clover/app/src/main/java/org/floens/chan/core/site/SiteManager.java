@@ -47,13 +47,19 @@ public class SiteManager {
     }
 
     public void addSite(String url, SiteAddCallback callback) {
+        Site existing = resolver.findSiteForUrl(url);
+        if (existing != null) {
+            callback.onSiteAddFailed("site already added");
+            return;
+        }
+
         SiteResolver.SiteResolverResult resolve = resolver.resolveSiteForUrl(url);
 
         Class<? extends Site> siteClass;
         if (resolve.match == SiteResolver.SiteResolverResult.Match.BUILTIN) {
             siteClass = resolve.builtinResult;
         } else if (resolve.match == SiteResolver.SiteResolverResult.Match.EXTERNAL) {
-            callback.onSiteAddFailed("external todo");
+            callback.onSiteAddFailed("external sites not hardcoded is not implemented yet");
             return;
         } else {
             callback.onSiteAddFailed("not a url");

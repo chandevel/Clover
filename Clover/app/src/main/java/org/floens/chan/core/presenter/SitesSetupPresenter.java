@@ -33,6 +33,7 @@ public class SitesSetupPresenter {
     private BoardManager boardManager;
 
     private Callback callback;
+    private AddCallback addCallback;
 
     private List<Site> sites = new ArrayList<>();
 
@@ -52,6 +53,14 @@ public class SitesSetupPresenter {
         this.callback.setNextAllowed(!sites.isEmpty(), false);
     }
 
+    public void bindAddDialog(AddCallback addCallback) {
+        this.addCallback = addCallback;
+    }
+
+    public void unbindAddDialog() {
+        this.addCallback = null;
+    }
+
     public boolean mayExit() {
         return sites.size() > 0;
     }
@@ -69,13 +78,12 @@ public class SitesSetupPresenter {
 
             @Override
             public void onSiteAddFailed(String message) {
-                // TODO
+                addCallback.showAddError(message);
             }
         });
     }
 
     public void onDoneClicked() {
-        callback.dismiss();
     }
 
     public int getSiteBoardCount(Site site) {
@@ -98,12 +106,14 @@ public class SitesSetupPresenter {
     public interface Callback {
         void showAddDialog();
 
-        void dismiss();
-
         void setAddedSites(List<Site> sites);
 
         void setNextAllowed(boolean nextAllowed, boolean animate);
 
         void openSiteConfiguration(Site site);
+    }
+
+    public interface AddCallback {
+        void showAddError(String error);
     }
 }
