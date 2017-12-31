@@ -98,7 +98,6 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private View divider;
     private View filterMatchColor;
 
-    private boolean commentClickable = false;
     private int detailsSizePx;
     private int iconSizePx;
     private int paddingPx;
@@ -109,6 +108,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private Theme theme;
     private Post post;
     private PostCellCallback callback;
+    private boolean selectable;
     private boolean highlighted;
     private boolean selected;
     private int markedNo;
@@ -143,12 +143,12 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        thumbnailView = (PostImageThumbnailView) findViewById(R.id.thumbnail_view);
-        title = (FastTextView) findViewById(R.id.title);
-        icons = (PostIcons) findViewById(R.id.icons);
-        comment = (TextView) findViewById(R.id.comment);
-        replies = (FastTextView) findViewById(R.id.replies);
-        options = (ImageView) findViewById(R.id.options);
+        thumbnailView = findViewById(R.id.thumbnail_view);
+        title = findViewById(R.id.title);
+        icons = findViewById(R.id.icons);
+        comment = findViewById(R.id.comment);
+        replies = findViewById(R.id.replies);
+        options = findViewById(R.id.options);
         divider = findViewById(R.id.divider);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
@@ -182,55 +182,44 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         divider.setLayoutParams(dividerParams);
 
         thumbnailView.setClickable(true);
-        thumbnailView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callback.onThumbnailClicked(post, thumbnailView);
-            }
-        });
+        thumbnailView.setOnClickListener(v -> callback.onThumbnailClicked(post, thumbnailView));
         thumbnailView.setRounding(dp(2));
 
-        replies.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (threadMode) {
-                    int repliesFromSize;
-                    synchronized (post.repliesFrom) {
-                        repliesFromSize = post.repliesFrom.size();
-                    }
+        replies.setOnClickListener(v -> {
+            if (threadMode) {
+                int repliesFromSize;
+                synchronized (post.repliesFrom) {
+                    repliesFromSize = post.repliesFrom.size();
+                }
 
-                    if (repliesFromSize > 0) {
-                        callback.onShowPostReplies(post);
-                    }
+                if (repliesFromSize > 0) {
+                    callback.onShowPostReplies(post);
                 }
             }
         });
 
-        options.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ThemeHelper.getInstance().getTheme().isLightTheme) {
-                    options.setImageResource(R.drawable.ic_overflow_black);
+        options.setOnClickListener(v -> {
+            if (ThemeHelper.getInstance().getTheme().isLightTheme) {
+                options.setImageResource(R.drawable.ic_overflow_black);
+            }
+
+            List<FloatingMenuItem> items = new ArrayList<>();
+
+            callback.onPopulatePostOptions(post, items);
+
+            FloatingMenu menu = new FloatingMenu(getContext(), v, items);
+            menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+                @Override
+                public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                    callback.onPostOptionClicked(post, item.getId());
                 }
 
-                List<FloatingMenuItem> items = new ArrayList<>();
-
-                callback.onPopulatePostOptions(post, items);
-
-                FloatingMenu menu = new FloatingMenu(getContext(), v, items);
-                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-                    @Override
-                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        callback.onPostOptionClicked(post, item.getId());
-                    }
-
-                    @Override
-                    public void onFloatingMenuDismissed(FloatingMenu menu) {
-                        options.setImageResource(R.drawable.ic_overflow);
-                    }
-                });
-                menu.show();
-            }
+                @Override
+                public void onFloatingMenuDismissed(FloatingMenu menu) {
+                    options.setImageResource(R.drawable.ic_overflow);
+                }
+            });
+            menu.show();
         });
 
         setOnClickListener(selfClicked);
@@ -254,9 +243,21 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode) {
-        if (this.post == post && this.highlighted == highlighted && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider) {
+    public void setPost(Theme theme,
+                        final Post post,
+                        PostCellInterface.PostCellCallback callback,
+                        boolean selectable,
+                        boolean highlighted,
+                        boolean selected,
+                        int markedNo,
+                        boolean showDivider,
+                        ChanSettings.PostViewMode postViewMode) {
+        if (this.post == post &&
+                this.selectable == selectable &&
+                this.highlighted == highlighted &&
+                this.selected == selected &&
+                this.markedNo == markedNo &&
+                this.showDivider == showDivider) {
             return;
         }
 
@@ -272,6 +273,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         this.theme = theme;
         this.post = post;
         this.callback = callback;
+        this.selectable = selectable;
         this.highlighted = highlighted;
         this.selected = selected;
         this.markedNo = markedNo;
@@ -416,24 +418,43 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             commentText = post.comment;
         }
 
-        comment.setText(commentText);
         comment.setVisibility(isEmpty(commentText) && post.image == null ? GONE : VISIBLE);
 
-        if (commentClickable != threadMode) {
-            commentClickable = threadMode;
-            if (commentClickable) {
-                comment.setMovementMethod(commentMovementMethod);
-                comment.setOnClickListener(selfClicked);
+        if (threadMode) {
+            if (selectable) {
+                // Setting the text to selectable creates an editor, sets up a bunch of click
+                // handlers and sets a movementmethod.
+                // Required for the isTextSelectable check.
+                // We override the test and movementmethod settings.
+                comment.setTextIsSelectable(true);
 
-                if (noClickable) {
-                    title.setMovementMethod(titleMovementMethod);
-                }
+                comment.setText(commentText, TextView.BufferType.SPANNABLE);
             } else {
-                comment.setOnClickListener(null);
-                comment.setClickable(false);
-                comment.setMovementMethod(null);
-                title.setMovementMethod(null);
+                comment.setText(commentText);
             }
+
+            // Sets focusable to auto, clickable and longclickable to true.
+            comment.setMovementMethod(commentMovementMethod);
+
+            // And this sets clickable to appropriate values again.
+            comment.setOnClickListener(selfClicked);
+
+            if (noClickable) {
+                title.setMovementMethod(titleMovementMethod);
+            }
+        } else {
+//            comment.setTextIsSelectable(false);
+
+            comment.setText(commentText);
+
+            comment.setOnClickListener(null);
+
+            comment.setClickable(false);
+
+            // Sets focusable to auto, clickable and longclickable to false.
+            comment.setMovementMethod(null);
+
+            title.setMovementMethod(null);
         }
 
         int repliesFromSize;

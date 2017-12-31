@@ -106,7 +106,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Post post = displayList.get(getPostPosition(position));
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
                         post.tripcode.equals(highlightedPostTripcode);
-                postViewHolder.postView.setPost(null, post, postCellCallback, highlight, post.no == selectedPost, -1, true, postViewMode);
+                postViewHolder.postView.setPost(null, post, postCellCallback, true, highlight, post.no == selectedPost, -1, true, postViewMode);
                 break;
             case TYPE_STATUS:
                 ((StatusViewHolder) holder).threadStatusCell.update();
