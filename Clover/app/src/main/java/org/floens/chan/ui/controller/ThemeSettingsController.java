@@ -115,6 +115,10 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         @Override
         public void onPostNoClicked(Post post) {
         }
+
+        @Override
+        public void onPostSelectionQuoted(Post post, CharSequence quoted) {
+        }
     };
 
     private ChanParser.Callback parserCallback = new ChanParser.Callback() {

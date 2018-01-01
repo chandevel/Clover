@@ -280,26 +280,36 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public void quote(Post post, boolean withText) {
+        handleQuote(post, withText ? post.comment.toString() : null);
+    }
+
+    public void quote(Post post, CharSequence text) {
+        handleQuote(null, text.toString());
+    }
+
+    private void handleQuote(Post post, String textQuote) {
         callback.loadViewsIntoDraft(draft);
 
-        String textToInsert = "";
-        if (draft.selection - 1 >= 0 && draft.selection - 1 < draft.comment.length() && draft.comment.charAt(draft.selection - 1) != '\n') {
-            textToInsert += "\n";
+        String extraNewline = "";
+        if (draft.selection - 1 >= 0 && draft.selection - 1 < draft.comment.length() &&
+                draft.comment.charAt(draft.selection - 1) != '\n') {
+            extraNewline = "\n";
         }
 
-        textToInsert += ">>" + post.no + "\n";
+        String postQuote = post != null ? ">>" + post.no + "\n" : "";
 
-        if (withText) {
-            String[] lines = post.comment.toString().split("\n+");
-            final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$"); // matches for >>123, >>123 (OP), >>123 (You), >>>/fit/123
-            for (String line : lines) {
-                if (!quotePattern.matcher(line).matches()) { // do not include post no from quoted post
-                    textToInsert += ">" + line + "\n";
-                }
+        StringBuilder textQuoteResult = new StringBuilder();
+        String[] lines = textQuote.split("\n+");
+        // matches for >>123, >>123 (OP), >>123 (You), >>>/fit/123
+        final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$");
+        for (String line : lines) {
+            // do not include post no from quoted post
+            if (!quotePattern.matcher(line).matches()) {
+                textQuoteResult.append(">").append(line).append("\n");
             }
         }
 
-        commentInsert(textToInsert);
+        commentInsert(extraNewline + postQuote + textQuoteResult.toString());
 
         highlightQuotes();
     }

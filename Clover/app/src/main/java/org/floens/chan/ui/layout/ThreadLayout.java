@@ -72,7 +72,11 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a load bar and the list view.
  */
-public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback, View.OnClickListener, ThreadListLayout.ThreadListLayoutCallback {
+public class ThreadLayout extends CoordinatorLayout implements
+        ThreadPresenter.ThreadPresenterCallback,
+        PostPopupHelper.PostPopupHelperCallback,
+        View.OnClickListener,
+        ThreadListLayout.ThreadListLayoutCallback {
     private enum Visible {
         LOADING,
         THREAD,
@@ -152,8 +156,6 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
         }
 
         presenter.create(this);
-
-        switchVisible(Visible.LOADING);
     }
 
     public void destroy() {
@@ -385,6 +387,12 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     public void quote(Post post, boolean withText) {
         threadListLayout.openReply(true);
         threadListLayout.getReplyPresenter().quote(post, withText);
+    }
+
+    @Override
+    public void quote(Post post, CharSequence text) {
+        threadListLayout.openReply(true);
+        threadListLayout.getReplyPresenter().quote(post, text);
     }
 
     @Override

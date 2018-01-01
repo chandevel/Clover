@@ -41,6 +41,9 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -429,6 +432,39 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                 comment.setTextIsSelectable(true);
 
                 comment.setText(commentText, TextView.BufferType.SPANNABLE);
+
+                comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                    private MenuItem quoteMenuItem;
+
+                    @Override
+                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                        quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote,
+                                0, R.string.post_quote);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                        if (item == quoteMenuItem) {
+                            CharSequence selection = comment.getText().subSequence(
+                                    comment.getSelectionStart(), comment.getSelectionEnd());
+                            callback.onPostSelectionQuoted(post, selection);
+                            mode.finish();
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public void onDestroyActionMode(ActionMode mode) {
+                    }
+                });
             } else {
                 comment.setText(commentText);
             }

@@ -117,6 +117,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             this.loadable = loadable;
 
             chanLoader = chanLoaderFactory.obtain(loadable, this);
+
+            threadPresenterCallback.showLoading();
         }
     }
 
@@ -555,6 +557,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
+    public void onPostSelectionQuoted(Post post, CharSequence quoted) {
+        threadPresenterCallback.quote(post, quoted);
+    }
+
+    @Override
     public void onShowPostReplies(Post post) {
         List<Post> posts = new ArrayList<>();
         synchronized (post.repliesFrom) {
@@ -756,6 +763,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard);
 
         void quote(Post post, boolean withText);
+
+        void quote(Post post, CharSequence text);
 
         void confirmPostDelete(Post post);
 

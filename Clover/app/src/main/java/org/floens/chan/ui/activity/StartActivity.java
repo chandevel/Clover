@@ -156,7 +156,15 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     private void restoreFresh() {
         if (!siteManager.areSitesSetup()) {
-            mainNavigationController.pushController(new SitesSetupController(this), false);
+            SitesSetupController setupController = new SitesSetupController(this);
+
+            if (drawerController.childControllers.get(0) instanceof DoubleNavigationController) {
+                DoubleNavigationController doubleNavigationController =
+                        (DoubleNavigationController) drawerController.childControllers.get(0);
+                doubleNavigationController.pushController(setupController, false);
+            } else {
+                mainNavigationController.pushController(setupController, false);
+            }
         } else {
             browseController.loadWithDefaultBoard();
         }
@@ -451,6 +459,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onDestroy() {
         super.onDestroy();
 
+        // TODO: clear whole stack?
         stackTop().onHide();
         stackTop().onDestroy();
         stack.clear();
