@@ -28,14 +28,13 @@ import android.view.LayoutInflater;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.FilterType;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
@@ -141,11 +140,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         NdefMessage message = null;
 
         if (loadable != null) {
-            if (loadable.isThreadMode()) {
-                url = ChanUrls.getThreadUrlDesktop(loadable.boardCode, loadable.no);
-            } else if (loadable.isCatalogMode()) {
-                url = ChanUrls.getCatalogUrlDesktop(loadable.boardCode);
-            }
+            url = loadable.site.desktopUrl(loadable, null);
         }
 
         if (url != null) {

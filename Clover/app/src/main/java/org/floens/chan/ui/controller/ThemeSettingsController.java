@@ -63,18 +63,28 @@ import org.floens.chan.utils.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.floens.chan.Chan.getGraph;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
-    private PostCell.PostCellCallback DUMMY_POST_CALLBACK = new PostCell.PostCellCallback() {
-        private Loadable loadable = Loadable.forThread(Sites.defaultSite(), new Board(Sites.defaultSite(), "a", "a", false, false), 1234);
+    private Board dummyBoard;
+    {
+        dummyBoard = new Board();
+        dummyBoard.name = "name";
+        dummyBoard.code = "code";
+    }
 
+    private Loadable dummyLoadable;
+    {
+        dummyLoadable = Loadable.emptyLoadable();
+        dummyLoadable.mode = Loadable.Mode.THREAD;
+    }
+
+    private PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
         @Override
         public Loadable getLoadable() {
-            return loadable;
+            return dummyLoadable;
         }
 
         @Override
@@ -247,7 +257,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
 
             Post.Builder builder = new Post.Builder()
-                    .board(new Board(Sites.defaultSite(), "a", "a", false, false))
+                    .board(dummyBoard)
                     .id(123456789)
                     .opId(1)
                     .setUnixTimestampSeconds((Time.get() - (30 * 60 * 1000)) / 1000)
@@ -325,7 +335,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
 
             PostCell postCell = (PostCell) LayoutInflater.from(themeContext).inflate(R.layout.cell_post, null);
-            postCell.setPost(theme, post, DUMMY_POST_CALLBACK, false, false, false, -1, true, ChanSettings.PostViewMode.LIST);
+            postCell.setPost(theme, post, dummyPostCallback, false, false, false, -1, true, ChanSettings.PostViewMode.LIST);
             linearLayout.addView(postCell, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             return linearLayout;

@@ -6,7 +6,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.ChanApplication;
-import org.floens.chan.chan.ChanLoader;
+import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.LoadableProvider;

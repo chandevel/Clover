@@ -46,7 +46,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 
 import org.floens.chan.R;
-import org.floens.chan.chan.ImageSearch;
+import org.floens.chan.core.site.ImageSearch;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;

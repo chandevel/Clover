@@ -25,7 +25,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
@@ -217,7 +216,8 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, Integer id) {
         if (presenter.isBound()) {
-            String link = ChanUrls.getCatalogUrlDesktop(presenter.getLoadable().boardCode);
+            Loadable loadable = presenter.getLoadable();
+            String link = loadable.site.desktopUrl(loadable, null);
 
             if (id == SHARE_ID) {
                 AndroidUtils.shareLink(link);

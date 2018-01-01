@@ -40,9 +40,6 @@ public class Sites {
         return ALL_SITES;
     }
 
-    @Deprecated
-    private static Site defaultSite;
-
     public static Site forId(int id) {
         // TODO: better datastructure
         for (Site site : ALL_SITES) {
@@ -54,13 +51,7 @@ public class Sites {
         return null;
     }
 
-    @Deprecated
-    public static Site defaultSite() {
-        return defaultSite;
-    }
-
     static void initialize(List<Site> sites) {
-        Sites.defaultSite = sites.isEmpty() ? null : sites.get(0);
         Sites.ALL_SITES = Collections.unmodifiableList(new ArrayList<>(sites));
     }
 }

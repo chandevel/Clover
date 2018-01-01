@@ -367,7 +367,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="settings_group_browsing">Browsing</string>
     <string name="setting_theme">Theme</string>
-    <string name="setting_theme_explanation">Swipe to change the theme.\nTap the toolbar to change its color.\n</string>
+    <string name="setting_theme_explanation">Swipe to change the theme.\nTap the toolbar menu to change its color.\n</string>
     <string name="setting_theme_accent">Click here to change the FAB color</string>
     <string name="setting_layout_mode">Layout mode</string>
     <string name="setting_layout_mode_auto">Auto</string>

@@ -19,8 +19,8 @@ package org.floens.chan.core.site.common;
 
 import android.util.JsonReader;
 
-import org.floens.chan.chan.ChanLoaderRequestParams;
-import org.floens.chan.chan.ChanLoaderResponse;
+import org.floens.chan.core.site.loader.ChanLoaderRequestParams;
+import org.floens.chan.core.site.loader.ChanLoaderResponse;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;

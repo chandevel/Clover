@@ -19,7 +19,7 @@ package org.floens.chan.core.pool;
 
 import android.util.LruCache;
 
-import org.floens.chan.chan.ChanLoader;
+import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.core.model.orm.Loadable;
 
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import javax.inject.Singleton;
 
 /**
  * ChanLoaderFactory is a factory for ChanLoaders. ChanLoaders for threads are cached.
- * <p>Each reference to a loader is a {@link org.floens.chan.chan.ChanLoader.ChanLoaderCallback}, these
+ * <p>Each reference to a loader is a {@link ChanLoader.ChanLoaderCallback}, these
  * references can be obtained with {@link #obtain(Loadable, ChanLoader.ChanLoaderCallback)}} and released
  * with {@link #release(ChanLoader, ChanLoader.ChanLoaderCallback)}.
  */

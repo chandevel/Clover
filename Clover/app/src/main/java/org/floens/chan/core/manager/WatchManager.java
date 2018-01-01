@@ -27,7 +27,7 @@ import android.os.Message;
 import android.os.PowerManager;
 
 import org.floens.chan.Chan;
-import org.floens.chan.chan.ChanLoader;
+import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabasePinManager;
 import org.floens.chan.core.exception.ChanLoaderException;

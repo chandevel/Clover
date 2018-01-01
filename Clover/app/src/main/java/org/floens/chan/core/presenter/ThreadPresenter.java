@@ -21,8 +21,7 @@ import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanLoader;
-import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.manager.WatchManager;
@@ -513,20 +512,16 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
                 watchManager.createPin(pinLoadable, post);
                 break;
-            case POST_OPTION_OPEN_BROWSER:
-                AndroidUtils.openLink(
-                        post.isOP ?
-                                ChanUrls.getThreadUrlDesktop(post.boardId, post.no) :
-                                ChanUrls.getThreadUrlDesktop(post.boardId, loadable.no, post.no)
-                );
+            case POST_OPTION_OPEN_BROWSER: {
+                String url = loadable.site.desktopUrl(loadable, post.isOP ? null : post);
+                AndroidUtils.openLink(url);
                 break;
-            case POST_OPTION_SHARE:
-                AndroidUtils.shareLink(
-                        post.isOP ?
-                                ChanUrls.getThreadUrlDesktop(post.boardId, post.no) :
-                                ChanUrls.getThreadUrlDesktop(post.boardId, loadable.no, post.no)
-                );
+            }
+            case POST_OPTION_SHARE: {
+                String url = loadable.site.desktopUrl(loadable, post.isOP ? null : post);
+                AndroidUtils.shareLink(url);
                 break;
+            }
             case POST_OPTION_HIDE:
                 threadPresenterCallback.hideThread(post);
         }

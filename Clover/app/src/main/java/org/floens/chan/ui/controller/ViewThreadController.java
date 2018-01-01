@@ -23,7 +23,6 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
@@ -204,7 +203,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             case SHARE_ID:
             case OPEN_BROWSER_ID:
                 Loadable loadable = threadLayout.getPresenter().getLoadable();
-                String link = ChanUrls.getThreadUrlDesktop(loadable.boardCode, loadable.no);
+                String link = loadable.site.desktopUrl(loadable, null);
 
                 if (id == SHARE_ID) {
                     AndroidUtils.shareLink(link);
