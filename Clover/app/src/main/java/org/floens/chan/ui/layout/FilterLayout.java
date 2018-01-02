@@ -59,7 +59,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -102,7 +102,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        getGraph().inject(this);
+        inject(this);
 
         typeText = (TextView) findViewById(R.id.type);
         boardsSelector = (TextView) findViewById(R.id.boards);

@@ -45,10 +45,10 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
@@ -64,7 +64,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -116,8 +116,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     public ThreadLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
-        getGraph().inject(this);
+        inject(this);
     }
 
     public void create(ThreadLayoutCallback callback) {

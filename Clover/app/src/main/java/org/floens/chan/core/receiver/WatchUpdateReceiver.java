@@ -21,13 +21,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.utils.Logger;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 public class WatchUpdateReceiver extends BroadcastReceiver {
     private static final String TAG = "WatchUpdateReceiver";
@@ -36,7 +34,7 @@ public class WatchUpdateReceiver extends BroadcastReceiver {
     WatchManager watchManager;
 
     public WatchUpdateReceiver() {
-        getGraph().inject(this);
+        inject(this);
     }
 
     @Override

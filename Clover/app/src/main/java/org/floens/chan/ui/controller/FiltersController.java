@@ -50,7 +50,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -106,7 +106,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     @Override
     public void onCreate() {
         super.onCreate();
-        getGraph().inject(this);
+        inject(this);
 
         navigationItem.setTitle(R.string.filters_screen);
         navigationItem.menu = new ToolbarMenu(context);

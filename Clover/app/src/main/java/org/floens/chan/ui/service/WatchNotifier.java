@@ -30,8 +30,8 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.BoardActivity;
 
@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 public class WatchNotifier extends Service {
     private static final String TAG = "WatchNotifier";
@@ -66,7 +66,7 @@ public class WatchNotifier extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        getGraph().inject(this);
+        inject(this);
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 

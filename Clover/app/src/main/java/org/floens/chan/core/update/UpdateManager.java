@@ -43,7 +43,7 @@ import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 /**
  * Calls the update API and downloads and requests installs of APK files.
@@ -66,7 +66,7 @@ public class UpdateManager {
     private UpdateCallback callback;
 
     public UpdateManager(UpdateCallback callback) {
-        getGraph().inject(this);
+        inject(this);
         this.callback = callback;
     }
 

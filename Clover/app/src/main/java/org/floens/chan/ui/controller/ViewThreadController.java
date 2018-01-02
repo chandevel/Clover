@@ -42,7 +42,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -75,7 +75,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onCreate() {
         super.onCreate();
-        getGraph().inject(this);
+        inject(this);
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
 

@@ -28,7 +28,7 @@ import org.floens.chan.ui.settings.SettingsGroup;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 public class SiteSetupController extends SettingsController implements SiteSetupPresenter.Callback {
     @Inject
@@ -45,8 +45,7 @@ public class SiteSetupController extends SettingsController implements SiteSetup
     @Override
     public void onCreate() {
         super.onCreate();
-
-        getGraph().inject(this);
+        inject(this);
 
         // Navigation
         navigationItem.setTitle(R.string.settings_screen);

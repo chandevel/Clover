@@ -20,6 +20,7 @@ package org.floens.chan.core.site;
 
 import com.android.volley.RequestQueue;
 
+import org.codejargon.feather.Feather;
 import org.floens.chan.core.database.LoadableProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
@@ -29,9 +30,7 @@ import org.floens.chan.core.site.http.HttpCallManager;
 
 import java.util.Collections;
 
-import dagger.ObjectGraph;
-
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.injector;
 
 public abstract class SiteBase implements Site {
     protected int id;
@@ -52,12 +51,11 @@ public abstract class SiteBase implements Site {
 
     @Override
     public void postInitialize() {
-        ObjectGraph graph = getGraph();
-
-        httpCallManager = graph.get(HttpCallManager.class);
-        requestQueue = graph.get(RequestQueue.class);
-        boardManager = graph.get(BoardManager.class);
-        loadableProvider = graph.get(LoadableProvider.class);
+        Feather injector = injector();
+        httpCallManager = injector.instance(HttpCallManager.class);
+        requestQueue = injector.instance(RequestQueue.class);
+        boardManager = injector.instance(BoardManager.class);
+        loadableProvider = injector.instance(LoadableProvider.class);
 
         if (boardsType() == BoardsType.DYNAMIC) {
             boards(boards -> boardManager.createAll(boards.boards));

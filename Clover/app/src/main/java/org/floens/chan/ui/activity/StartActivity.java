@@ -69,7 +69,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "StartActivity";
@@ -105,7 +105,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getGraph().inject(this);
+        inject(this);
 
         ThemeHelper.getInstance().setupContext(this);
 

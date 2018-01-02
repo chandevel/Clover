@@ -42,7 +42,7 @@ import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.R;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
@@ -105,7 +105,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = getGraph().get(ImageLoader.class).get(url, this, width, height);
+            container = injector().instance(ImageLoader.class).get(url, this, width, height);
         }
     }
 

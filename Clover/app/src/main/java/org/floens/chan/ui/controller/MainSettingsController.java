@@ -25,7 +25,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import org.floens.chan.R;
@@ -55,7 +54,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -92,8 +91,8 @@ public class MainSettingsController extends SettingsController implements Toolba
     @Override
     public void onCreate() {
         super.onCreate();
+        inject(this);
 
-        getGraph().inject(this);
         EventBus.getDefault().register(this);
 
         navigationItem.setTitle(R.string.settings_screen);

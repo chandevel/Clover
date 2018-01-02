@@ -47,7 +47,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
@@ -72,8 +72,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     @Override
     public void onCreate() {
         super.onCreate();
-
-        getGraph().inject(this);
+        inject(this);
 
         // Inflate
         view = inflateRes(R.layout.controller_sites_setup);

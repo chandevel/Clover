@@ -51,7 +51,7 @@ import javax.inject.Inject;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener {
     public enum Mode {
@@ -98,7 +98,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private void init() {
-        getGraph().inject(this);
+        inject(this);
 
         setOnClickListener(this);
 

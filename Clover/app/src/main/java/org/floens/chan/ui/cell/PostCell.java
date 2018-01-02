@@ -81,7 +81,7 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -834,7 +834,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
 
         private void request() {
-            request = getGraph().get(ImageLoader.class).get(url.toString(), this);
+            request = injector().instance(ImageLoader.class).get(url.toString(), this);
         }
 
         private void cancel() {

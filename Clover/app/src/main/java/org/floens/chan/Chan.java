@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 
+import org.codejargon.feather.Feather;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.di.AppModule;
 import org.floens.chan.core.di.NetModule;
@@ -38,7 +39,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import dagger.ObjectGraph;
 import de.greenrobot.event.EventBus;
 
 public class Chan extends Application implements UserAgentProvider, Application.ActivityLifecycleCallbacks {
@@ -50,13 +50,12 @@ public class Chan extends Application implements UserAgentProvider, Application.
     private String userAgent;
     private int activityForegroundCounter = 0;
 
-    protected ObjectGraph graph;
-
     @Inject
     SiteManager siteManager;
 
     @Inject
     DatabaseManager databaseManager;
+    private Feather feather;
 
     public Chan() {
         instance = this;
@@ -66,12 +65,13 @@ public class Chan extends Application implements UserAgentProvider, Application.
         return instance;
     }
 
-    public static ObjectGraph getGraph() {
-        return instance.graph;
+    public static Feather injector() {
+        return instance.feather;
     }
 
     public static <T> T inject(T instance) {
-        return Chan.instance.graph.inject(instance);
+        Chan.instance.feather.injectFields(instance);
+        return instance;
     }
 
     @Override
@@ -86,9 +86,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
         userAgent = createUserAgent();
 
-        graph = ObjectGraph.create(new AppModule(this, this), new NetModule());
-
-        graph.inject(this);
+        initializeGraph();
 
         siteManager.initialize();
 
@@ -115,6 +113,14 @@ public class Chan extends Application implements UserAgentProvider, Application.
 //                WebView.setWebContentsDebuggingEnabled(true);
             }
         }
+    }
+
+    private void initializeGraph() {
+        feather = Feather.with(
+                new AppModule(this, this),
+                new NetModule()
+        );
+        feather.injectFields(this);
     }
 
     @Override

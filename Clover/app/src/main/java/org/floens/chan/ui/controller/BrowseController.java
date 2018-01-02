@@ -48,7 +48,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, BrowsePresenter.Callback {
@@ -78,7 +78,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     @Override
     public void onCreate() {
         super.onCreate();
-        getGraph().inject(this);
+        inject(this);
 
         // Initialization
         postViewMode = ChanSettings.boardViewMode.get();

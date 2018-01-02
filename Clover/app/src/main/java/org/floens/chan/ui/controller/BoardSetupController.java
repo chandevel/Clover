@@ -50,7 +50,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -99,7 +99,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
     public void onCreate() {
         super.onCreate();
 
-        getGraph().inject(this);
+        inject(this);
 
         // Inflate
         view = inflateRes(R.layout.controller_board_setup);

@@ -19,8 +19,6 @@ package org.floens.chan.core.site.common;
 
 import android.util.JsonReader;
 
-import org.floens.chan.core.site.loader.ChanLoaderRequestParams;
-import org.floens.chan.core.site.loader.ChanLoaderResponse;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
@@ -28,6 +26,8 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.net.JsonReaderRequest;
+import org.floens.chan.core.site.loader.ChanLoaderRequestParams;
+import org.floens.chan.core.site.loader.ChanLoaderResponse;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 /**
  * Process a typical imageboard json response.<br>
@@ -79,7 +79,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
     public ChanReaderRequest(ChanLoaderRequestParams request) {
         super(getChanUrl(request.loadable).toString(), request.listener, request.errorListener);
-        getGraph().inject(this);
+        inject(this);
 
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
         loadable = request.loadable.copy();

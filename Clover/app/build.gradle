@@ -140,13 +140,5 @@ dependencies {
     implementation 'org.nibor.autolink:autolink:0.6.0'
     implementation 'com.google.code.gson:gson:2.8.1'
     implementation 'me.xdrop:fuzzywuzzy:1.1.9'
-
-    // Yes that's dagger 1, "deprecated".
-    // There's little wrong with it, except that it might be slow at runtime.
-    // We don't have a huge graph. The major downside of the newer dagger version
-    // is that it uses annotation processing. Annotation processors block incremental
-    // compiling, so our builds become way slower, and I rather have faster builds.
-    // Move to gradle 2 when incremental compiling supports annotation processors.
-    compile 'com.squareup.dagger:dagger:1.2.5'
-    annotationProcessor 'com.squareup.dagger:dagger-compiler:1.2.5'
+    implementation 'org.codejargon.feather:feather:1.0'
 }

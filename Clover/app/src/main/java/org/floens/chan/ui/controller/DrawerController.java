@@ -49,7 +49,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -73,7 +73,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     @Override
     public void onCreate() {
         super.onCreate();
-        getGraph().inject(this);
+        inject(this);
 
         EventBus.getDefault().register(this);
 

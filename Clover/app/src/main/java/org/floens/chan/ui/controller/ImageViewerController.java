@@ -46,13 +46,13 @@ import com.android.volley.toolbox.ImageLoader;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 
 import org.floens.chan.R;
-import org.floens.chan.core.site.ImageSearch;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
 import org.floens.chan.core.saver.ImageSaveTask;
 import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.ImageSearch;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -75,7 +75,7 @@ import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -111,7 +111,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
-        getGraph().inject(this);
+        inject(this);
 
         this.toolbar = toolbar;
 
@@ -547,6 +547,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     /**
      * Send thumbnail image of movie posts because none of the image search providers support movies (such as webm) directly
+     *
      * @param postImage the post image
      * @return url of an image to be searched
      */

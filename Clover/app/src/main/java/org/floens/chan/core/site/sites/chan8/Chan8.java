@@ -49,7 +49,7 @@ import java.util.Map;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.injector;
 
 public class Chan8 extends SiteBase {
     private static final String TAG = "Chan8";
@@ -285,7 +285,7 @@ public class Chan8 extends SiteBase {
     @Override
     public void post(Reply reply, final PostListener postListener) {
         // TODO
-        HttpCallManager httpCallManager = getGraph().get(HttpCallManager.class);
+        HttpCallManager httpCallManager = injector().instance(HttpCallManager.class);
         httpCallManager.makeHttpCall(new Chan8ReplyHttpCall(this, reply),
                 new HttpCall.HttpCallback<CommonReplyHttpCall>() {
                     @Override

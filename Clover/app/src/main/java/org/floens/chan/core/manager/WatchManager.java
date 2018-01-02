@@ -27,17 +27,17 @@ import android.os.Message;
 import android.os.PowerManager;
 
 import org.floens.chan.Chan;
-import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabasePinManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.Logger;
@@ -57,7 +57,7 @@ import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 /**
@@ -665,7 +665,7 @@ public class WatchManager {
 
         public PinWatcher(Pin pin) {
             this.pin = pin;
-            getGraph().inject(this);
+            inject(this);
 
             Logger.d(TAG, "PinWatcher: created for " + pin);
             chanLoader = chanLoaderFactory.obtain(pin.loadable, this);

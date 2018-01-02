@@ -37,7 +37,7 @@ import java.io.OutputStream;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.runOnUiThread;
 
 public class ImagePickDelegate implements Runnable {
@@ -60,7 +60,7 @@ public class ImagePickDelegate implements Runnable {
 
     public ImagePickDelegate(Activity activity) {
         this.activity = activity;
-        getGraph().inject(this);
+        inject(this);
     }
 
     public boolean pick(ImagePickCallback callback) {

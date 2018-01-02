@@ -34,7 +34,7 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
@@ -56,7 +56,7 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     private boolean success = false;
 
     public ImageSaveTask(PostImage postImage) {
-        getGraph().inject(this);
+        inject(this);
         this.postImage = postImage;
     }
 

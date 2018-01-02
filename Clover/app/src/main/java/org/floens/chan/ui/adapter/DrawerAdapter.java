@@ -42,7 +42,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -78,7 +78,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Pin highlighted;
 
     public DrawerAdapter(Callback callback) {
-        getGraph().inject(this);
+        inject(this);
         this.callback = callback;
         setHasStableIds(true);
     }

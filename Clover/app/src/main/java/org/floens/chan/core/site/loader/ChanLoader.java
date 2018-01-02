@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 /**
  * A ChanLoader is the loader for Loadables.
@@ -78,7 +78,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     public ChanLoader(Loadable loadable) {
         this.loadable = loadable;
 
-        getGraph().inject(this);
+        inject(this);
 
         if (loadable.mode == Loadable.Mode.BOARD) {
             loadable.mode = Loadable.Mode.CATALOG;

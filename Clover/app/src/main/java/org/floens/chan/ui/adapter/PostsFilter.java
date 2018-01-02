@@ -31,7 +31,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 
 public class PostsFilter {
     public static final Comparator<Post> IMAGE_COMPARATOR = new Comparator<Post>() {
@@ -71,7 +71,7 @@ public class PostsFilter {
     public PostsFilter(Order order, String query) {
         this.order = order;
         this.query = query;
-        getGraph().inject(this);
+        inject(this);
     }
 
     /**

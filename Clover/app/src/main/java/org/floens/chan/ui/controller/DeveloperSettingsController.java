@@ -30,7 +30,7 @@ import org.floens.chan.core.database.DatabaseManager;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -48,7 +48,7 @@ public class DeveloperSettingsController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        getGraph().inject(this);
+        inject(this);
 
         navigationItem.setTitle(R.string.settings_developer);
 

@@ -21,8 +21,8 @@ import android.net.ConnectivityManager;
 import android.support.v4.view.ViewPager;
 
 import org.floens.chan.core.cache.FileCache;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
 
@@ -32,7 +32,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.floens.chan.Chan.getGraph;
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.isConnected;
 
 public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
@@ -56,7 +56,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     public ImageViewerPresenter(Callback callback) {
         this.callback = callback;
-        getGraph().inject(this);
+        inject(this);
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
