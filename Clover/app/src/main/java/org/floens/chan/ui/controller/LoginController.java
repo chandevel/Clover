@@ -61,7 +61,7 @@ public class LoginController extends Controller implements View.OnClickListener,
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.setTitle(R.string.settings_screen_pass);
+        navigation.setTitle(R.string.settings_screen_pass);
 
         view = inflateRes(R.layout.controller_pass);
         container = view.findViewById(R.id.container);

@@ -87,19 +87,19 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         databaseHistoryManager = databaseManager.getDatabaseHistoryManager();
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
 
-        navigationItem.setTitle(R.string.history_screen);
+        navigation.setTitle(R.string.history_screen);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(CLEAR_ID, R.string.history_clear));
         items.add(new FloatingMenuItem(SAVED_REPLY_CLEAR_ID, R.string.saved_reply_clear));
-        navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
-        ToolbarMenuItem overflow = navigationItem.createOverflow(context, this, items);
+        navigation.menu = new ToolbarMenu(context);
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
+        ToolbarMenuItem overflow = navigation.createOverflow(context, this, items);
         overflow.getSubMenu().setPopupWidth(dp(4 * 56));
 
         SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
         historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
         historyEnabledSwitch.setOnCheckedChangeListener(this);
-        navigationItem.rightView = historyEnabledSwitch;
+        navigation.rightView = historyEnabledSwitch;
 
         view = inflateRes(R.layout.controller_history);
         crossfade = (CrossfadeView) view.findViewById(R.id.crossfade);

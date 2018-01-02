@@ -58,12 +58,12 @@ public class LogsController extends Controller implements ToolbarMenuItem.Toolba
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.setTitle(org.floens.chan.R.string.settings_logs_screen);
+        navigation.setTitle(org.floens.chan.R.string.settings_logs_screen);
 
-        navigationItem.menu = new ToolbarMenu(context);
+        navigation.menu = new ToolbarMenu(context);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(COPY_ID, R.string.settings_logs_copy));
-        navigationItem.createOverflow(context, this, items);
+        navigation.createOverflow(context, this, items);
 
         ScrollView container = new ScrollView(context);
         container.setBackgroundColor(getAttrColor(context, org.floens.chan.R.attr.backcolor));

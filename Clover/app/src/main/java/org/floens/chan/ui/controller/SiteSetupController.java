@@ -48,8 +48,8 @@ public class SiteSetupController extends SettingsController implements SiteSetup
         inject(this);
 
         // Navigation
-        navigationItem.setTitle(R.string.settings_screen);
-        navigationItem.title = context.getString(R.string.setup_site_title, site.name());
+        navigation.setTitle(R.string.settings_screen);
+        navigation.title = context.getString(R.string.setup_site_title, site.name());
 
         // View binding
         view = inflateRes(R.layout.settings_layout);

@@ -52,7 +52,7 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         boolean enabled = ChanSettings.watchEnabled.get();
 
-        navigationItem.setTitle(R.string.settings_screen_watch);
+        navigation.setTitle(R.string.settings_screen_watch);
 
         view = inflateRes(R.layout.controller_watch);
         content = (LinearLayout) view.findViewById(R.id.scrollview_content);
@@ -63,7 +63,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         SwitchCompat globalSwitch = new SwitchCompat(context);
         globalSwitch.setChecked(enabled);
         globalSwitch.setOnCheckedChangeListener(this);
-        navigationItem.rightView = globalSwitch;
+        navigation.rightView = globalSwitch;
 
         populatePreferences();
 

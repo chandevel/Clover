@@ -41,7 +41,7 @@ public abstract class Controller {
     public Context context;
     public ViewGroup view;
 
-    public NavigationItem navigationItem = new NavigationItem();
+    public NavigationItem navigation = new NavigationItem();
 
     public Controller parentController;
 

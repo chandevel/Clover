@@ -107,14 +107,14 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
 
     private void initNavigation() {
         // Navigation item
-        navigationItem.hasDrawer = true;
+        navigation.hasDrawer = true;
 
         setupMiddleNavigation();
 
         // Toolbar menu
         ToolbarMenu menu = new ToolbarMenu(context);
-        navigationItem.menu = menu;
-        navigationItem.hasBack = false;
+        navigation.menu = menu;
+        navigation.hasBack = false;
 
         search = menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
         refresh = menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
@@ -140,7 +140,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     }
 
     private void setupMiddleNavigation() {
-        navigationItem.middleMenu = new ToolbarMiddleMenu() {
+        navigation.middleMenu = new ToolbarMiddleMenu() {
             @SuppressLint("InflateParams")
             @Override
             public void show(View anchor) {
@@ -294,14 +294,14 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     public void loadBoard(Loadable loadable) {
         String name = BoardHelper.getName(loadable.board);
         loadable.title = name;
-        navigationItem.title = name;
+        navigation.title = name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
         presenter.unbindLoadable();
         presenter.bindLoadable(loadable);
         presenter.requestData();
 
-        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
     @Override

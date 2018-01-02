@@ -79,8 +79,8 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
 
         updateTitle();
 
-        navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, CHECK_ALL, R.drawable.ic_select_all_white_24dp));
+        navigation.menu = new ToolbarMenu(context);
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, CHECK_ALL, R.drawable.ic_select_all_white_24dp));
 
         download = (FloatingActionButton) view.findViewById(R.id.download);
         download.setOnClickListener(this);
@@ -167,8 +167,8 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
     }
 
     private void updateTitle() {
-        navigationItem.title = context.getString(R.string.album_download_screen, getCheckCount(), items.size());
-        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+        navigation.title = context.getString(R.string.album_download_screen, getCheckCount(), items.size());
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
     private void updateAllChecked() {

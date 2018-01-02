@@ -81,11 +81,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 
-        navigationItem.hasDrawer = true;
-        navigationItem.menu = new ToolbarMenu(context);
+        navigation.hasDrawer = true;
+        navigation.menu = new ToolbarMenu(context);
 
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, ALBUM_ID, R.drawable.ic_image_white_24dp));
-        pinItem = navigationItem.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, ALBUM_ID, R.drawable.ic_image_white_24dp));
+        pinItem = navigation.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
         List<FloatingMenuItem> items = new ArrayList<>();
         if (!ChanSettings.enableReplyFab.get()) {
             items.add(new FloatingMenuItem(REPLY_ID, context.getString(R.string.action_reply)));
@@ -96,7 +96,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
         items.add(new FloatingMenuItem(UP_ID, R.string.action_up));
         items.add(new FloatingMenuItem(DOWN_ID, R.string.action_down));
-        overflowItem = navigationItem.createOverflow(context, this, items);
+        overflowItem = navigation.createOverflow(context, this, items);
 
         loadThread(loadable);
     }
@@ -149,8 +149,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         if (!loadable.equals(presenter.getLoadable())) {
             presenter.bindLoadable(loadable);
             this.loadable = presenter.getLoadable();
-            navigationItem.title = loadable.title;
-            ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+            navigation.title = loadable.title;
+            ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
             setPinIconState(presenter.isPinned());
             updateDrawerHighlighting(loadable);
             updateLeftPaneHighlighting(loadable);
@@ -169,8 +169,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onShowPosts() {
         super.onShowPosts();
 
-        navigationItem.title = loadable.title;
-        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+        navigation.title = loadable.title;
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
     @Override

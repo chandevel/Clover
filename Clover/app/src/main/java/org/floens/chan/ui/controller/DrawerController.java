@@ -122,7 +122,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     }
 
     public void onMenuClicked() {
-        if (getMainToolbarNavigationController().getTop().navigationItem.hasDrawer) {
+        if (getMainToolbarNavigationController().getTop().navigation.hasDrawer) {
             drawerLayout.openDrawer(drawer);
         }
     }

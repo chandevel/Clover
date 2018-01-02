@@ -63,10 +63,10 @@ public class AlbumViewController extends Controller implements ImageViewerContro
 
         view = inflateRes(R.layout.controller_album_view);
 
-        navigationItem.menu = new ToolbarMenu(context);
+        navigation.menu = new ToolbarMenu(context);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(SAVE_ALBUM_ID, R.string.action_download_album));
-        navigationItem.createOverflow(context, this, items);
+        navigation.createOverflow(context, this, items);
 
         recyclerView = (GridRecyclerView) view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -83,8 +83,8 @@ public class AlbumViewController extends Controller implements ImageViewerContro
     public void setImages(Loadable loadable, List<PostImage> postImages, int index, String title) {
         this.loadable = loadable;
         this.postImages = postImages;
-        navigationItem.title = title;
-        navigationItem.subtitle = context.getResources().getQuantityString(R.plurals.image, postImages.size(), postImages.size());
+        navigation.title = title;
+        navigation.subtitle = context.getResources().getQuantityString(R.plurals.image, postImages.size(), postImages.size());
         targetIndex = index;
     }
 

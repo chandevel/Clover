@@ -50,7 +50,7 @@ public class DeveloperSettingsController extends Controller {
 
         inject(this);
 
-        navigationItem.setTitle(R.string.settings_developer);
+        navigation.setTitle(R.string.settings_developer);
 
         LinearLayout wrapper = new LinearLayout(context);
         wrapper.setOrientation(LinearLayout.VERTICAL);

@@ -78,7 +78,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         view = inflateRes(R.layout.controller_sites_setup);
 
         // Navigation
-        navigationItem.setTitle(R.string.setup_sites_title);
+        navigation.setTitle(R.string.setup_sites_title);
 
         // View binding
         sitesRecyclerview = view.findViewById(R.id.sites_recycler);
@@ -98,9 +98,9 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     }
 
     public void showDoneCheckmark() {
-        navigationItem.swipeable = false;
-        navigationItem.menu = new ToolbarMenu(context);
-        doneMenuItem = navigationItem.menu.addItem(
+        navigation.swipeable = false;
+        navigation.menu = new ToolbarMenu(context);
+        doneMenuItem = navigation.menu.addItem(
                 new ToolbarMenuItem(context, this, DONE_ID, 0, R.drawable.ic_done_white_24dp));
         doneMenuItem.getView().setAlpha(0f);
     }
@@ -193,7 +193,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             doneMenuItem.getView().animate().alpha(nextAllowed ? 1f : 0f).start();
         }
         if (!nextAllowed) {
-            navigationItem.swipeable = false;
+            navigation.swipeable = false;
         }
     }
 

@@ -55,9 +55,9 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
 
         doubleNavigationController = this;
 
-        navigationItem.swipeable = false;
-        navigationItem.handlesToolbarInset = true;
-        navigationItem.hasDrawer = true;
+        navigation.swipeable = false;
+        navigation.handlesToolbarInset = true;
+        navigation.hasDrawer = true;
 
         view = inflateRes(R.layout.controller_thread_slide);
 
@@ -262,20 +262,20 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
         NavigationItem item = null;
         if (left) {
             if (leftController != null) {
-                item = leftController.navigationItem;
+                item = leftController.navigation;
             }
         } else {
             if (rightController != null) {
-                item = rightController.navigationItem;
+                item = rightController.navigation;
             }
         }
 
         if (item != null) {
-            navigationItem = item;
-            navigationItem.swipeable = false;
-            navigationItem.handlesToolbarInset = true;
-            navigationItem.hasDrawer = true;
-            toolbar.setNavigationItem(false, true, navigationItem);
+            navigation = item;
+            navigation.swipeable = false;
+            navigation.handlesToolbarInset = true;
+            navigation.hasDrawer = true;
+            toolbar.setNavigationItem(false, true, navigation);
         }
     }
 }

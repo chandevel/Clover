@@ -124,19 +124,19 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        navigationItem.subtitle = "0";
-        navigationItem.menu = new ToolbarMenu(context);
+        navigation.subtitle = "0";
+        navigation.menu = new ToolbarMenu(context);
         if (goPostCallback != null) {
-            navigationItem.menu.addItem(new ToolbarMenuItem(context, this, GO_POST_ID, R.drawable.ic_subdirectory_arrow_left_white_24dp));
+            navigation.menu.addItem(new ToolbarMenuItem(context, this, GO_POST_ID, R.drawable.ic_subdirectory_arrow_left_white_24dp));
         }
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
 
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
         items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
         items.add(new FloatingMenuItem(SEARCH_ID, R.string.action_search_image));
         items.add(new FloatingMenuItem(SAVE_ALBUM, R.string.action_download_album));
-        overflowMenuItem = navigationItem.createOverflow(context, this, items);
+        overflowMenuItem = navigation.createOverflow(context, this, items);
 
         view = inflateRes(R.layout.controller_image_viewer);
         previewImage = (TransitionImageView) view.findViewById(R.id.preview_image);
@@ -291,12 +291,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     public void setTitle(PostImage postImage, int index, int count, boolean spoiler) {
         if (spoiler) {
-            navigationItem.title = getString(R.string.image_spoiler_filename);
+            navigation.title = getString(R.string.image_spoiler_filename);
         } else {
-            navigationItem.title = postImage.filename + "." + postImage.extension;
+            navigation.title = postImage.filename + "." + postImage.extension;
         }
-        navigationItem.subtitle = (index + 1) + "/" + count;
-        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+        navigation.subtitle = (index + 1) + "/" + count;
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
     public void scrollToImage(PostImage postImage) {

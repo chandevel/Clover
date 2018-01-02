@@ -48,7 +48,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
         super.transition(from, to, pushing, controllerTransition);
 
         if (to != null) {
-            toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigationItem);
+            toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigation);
             updateToolbarCollapse(to, controllerTransition != null);
         }
     }
@@ -60,7 +60,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
         }
 
         toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
-        toolbar.beginTransition(to.navigationItem);
+        toolbar.beginTransition(to.navigation);
         toolbar.transitionProgress(0f, false);
 
         return true;
@@ -106,7 +106,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
     @Override
     public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
         for (Controller controller : childControllers) {
-            if (controller.navigationItem == item) {
+            if (controller.navigation == item) {
                 ((ToolbarSearchCallback) controller).onSearchVisibilityChanged(visible);
                 break;
             }
@@ -116,7 +116,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
     @Override
     public void onSearchEntered(NavigationItem item, String entered) {
         for (Controller controller : childControllers) {
-            if (controller.navigationItem == item) {
+            if (controller.navigation == item) {
                 ((ToolbarSearchCallback) controller).onSearchEntered(entered);
                 break;
             }
@@ -124,7 +124,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
     }
 
     protected void updateToolbarCollapse(Controller controller, boolean animate) {
-        if (requireSpaceForToolbar && !controller.navigationItem.handlesToolbarInset) {
+        if (requireSpaceForToolbar && !controller.navigation.handlesToolbarInset) {
             FrameLayout.LayoutParams toViewParams = (FrameLayout.LayoutParams) controller.view.getLayoutParams();
             toViewParams.topMargin = toolbar.getToolbarHeight();
             controller.view.setLayoutParams(toViewParams);

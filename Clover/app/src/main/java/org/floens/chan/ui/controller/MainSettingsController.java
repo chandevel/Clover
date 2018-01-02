@@ -95,9 +95,9 @@ public class MainSettingsController extends SettingsController implements Toolba
 
         EventBus.getDefault().register(this);
 
-        navigationItem.setTitle(R.string.settings_screen);
-        navigationItem.menu = new ToolbarMenu(context);
-        overflow = navigationItem.createOverflow(context, this, Collections.singletonList(
+        navigation.setTitle(R.string.settings_screen);
+        navigation.menu = new ToolbarMenu(context);
+        overflow = navigation.createOverflow(context, this, Collections.singletonList(
                 new FloatingMenuItem(ADVANCED_SETTINGS, R.string.settings_screen_advanced)
         ));
 

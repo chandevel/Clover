@@ -64,7 +64,7 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
         if (to != null) {
             DrawerController drawerController = getDrawerController();
             if (drawerController != null) {
-                drawerController.setDrawerEnabled(to.navigationItem.hasDrawer);
+                drawerController.setDrawerEnabled(to.navigation.hasDrawer);
             }
         }
     }
@@ -76,7 +76,7 @@ public class StyledToolbarNavigationController extends ToolbarNavigationControll
         if (finish) {
             DrawerController drawerController = getDrawerController();
             if (drawerController != null) {
-                drawerController.setDrawerEnabled(to.navigationItem.hasDrawer);
+                drawerController.setDrawerEnabled(to.navigation.hasDrawer);
             }
         }
     }

@@ -65,7 +65,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         EventBus.getDefault().register(this);
 
-        navigationItem.handlesToolbarInset = true;
+        navigation.handlesToolbarInset = true;
 
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.create(this);
@@ -80,7 +80,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        if (navigationItem.handlesToolbarInset) {
+        if (navigation.handlesToolbarInset) {
             int toolbarHeight = getToolbar().getToolbarHeight();
             swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
         }
@@ -203,7 +203,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     public void showAlbum(List<PostImage> images, int index) {
         if (threadLayout.getPresenter().getChanThread() != null) {
             AlbumViewController albumViewController = new AlbumViewController(context);
-            albumViewController.setImages(getLoadable(), images, index, navigationItem.title);
+            albumViewController.setImages(getLoadable(), images, index, navigation.title);
 
             if (doubleNavigationController != null) {
                 doubleNavigationController.pushController(albumViewController);

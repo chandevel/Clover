@@ -108,9 +108,9 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         super.onCreate();
         inject(this);
 
-        navigationItem.setTitle(R.string.filters_screen);
-        navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
+        navigation.setTitle(R.string.filters_screen);
+        navigation.menu = new ToolbarMenu(context);
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
 
         view = inflateRes(R.layout.controller_filters);
 

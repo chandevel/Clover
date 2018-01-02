@@ -42,7 +42,7 @@ public class ReportController extends Controller {
     @Override
     public void onCreate() {
         super.onCreate();
-        navigationItem.title = context.getString(R.string.report_screen, PostHelper.getTitle(post, null));
+        navigation.title = context.getString(R.string.report_screen, PostHelper.getTitle(post, null));
 
         Site site = post.board.getSite();
         HttpUrl url = site.endpoints().report(post);

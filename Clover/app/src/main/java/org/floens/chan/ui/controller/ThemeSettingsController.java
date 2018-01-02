@@ -46,7 +46,6 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.theme.Theme;
@@ -147,8 +146,8 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.setTitle(R.string.settings_screen_theme);
-        navigationItem.swipeable = false;
+        navigation.setTitle(R.string.settings_screen_theme);
+        navigation.swipeable = false;
         view = inflateRes(R.layout.controller_theme);
 
         themeHelper = ThemeHelper.getInstance();

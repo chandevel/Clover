@@ -105,8 +105,8 @@ public class BoardSetupController extends Controller implements View.OnClickList
         view = inflateRes(R.layout.controller_board_setup);
 
         // Navigation
-        navigationItem.title = context.getString(R.string.setup_board_title, site.name());
-        navigationItem.swipeable = false;
+        navigation.title = context.getString(R.string.setup_board_title, site.name());
+        navigation.swipeable = false;
 
         // View binding
         savedBoardsRecycler = view.findViewById(R.id.boards_recycler);
