@@ -76,15 +76,15 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        content = (FixedRatioLinearLayout) findViewById(R.id.card_content);
+        content = findViewById(R.id.card_content);
         content.setRatio(9f / 16f);
-        thumbnailView = (PostImageThumbnailView) findViewById(R.id.thumbnail);
+        thumbnailView = findViewById(R.id.thumbnail);
         thumbnailView.setRatio(16f / 9f);
         thumbnailView.setOnClickListener(this);
-        title = (TextView) findViewById(R.id.title);
-        comment = (FastTextView) findViewById(R.id.comment);
-        replies = (TextView) findViewById(R.id.replies);
-        options = (ImageView) findViewById(R.id.options);
+        title = findViewById(R.id.title);
+        comment = findViewById(R.id.comment);
+        replies = findViewById(R.id.replies);
+        options = findViewById(R.id.options);
         setRoundItemBackground(options);
         filterMatchColor = findViewById(R.id.filter_match_color);
 

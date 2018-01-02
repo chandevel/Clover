@@ -307,11 +307,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private PinViewHolder(View itemView) {
             super(itemView);
-            image = (ThumbnailView) itemView.findViewById(R.id.thumb);
+            image = itemView.findViewById(R.id.thumb);
             image.setCircular(true);
-            textView = (TextView) itemView.findViewById(R.id.text);
+            textView = itemView.findViewById(R.id.text);
             textView.setTypeface(ROBOTO_MEDIUM);
-            watchCountText = (TextView) itemView.findViewById(R.id.watch_count);
+            watchCountText = itemView.findViewById(R.id.watch_count);
             watchCountText.setTypeface(ROBOTO_MEDIUM);
 
             setRoundItemBackground(watchCountText);
@@ -357,9 +357,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private HeaderHolder(View itemView) {
             super(itemView);
-            text = (TextView) itemView.findViewById(R.id.text);
+            text = itemView.findViewById(R.id.text);
             text.setTypeface(ROBOTO_MEDIUM);
-            clear = (ImageView) itemView.findViewById(R.id.clear);
+            clear = itemView.findViewById(R.id.clear);
             setRoundItemBackground(clear);
             clear.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -374,7 +374,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     return true;
                 }
             });
-            settings = (ImageView) itemView.findViewById(R.id.settings);
+            settings = itemView.findViewById(R.id.settings);
             setRoundItemBackground(settings);
             settings.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -391,8 +391,8 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private LinkHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-            text = (TextView) itemView.findViewById(R.id.text);
+            image = itemView.findViewById(R.id.image);
+            text = itemView.findViewById(R.id.text);
             text.setTypeface(ROBOTO_MEDIUM);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -416,7 +416,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         private BoardInputHolder(View itemView) {
             super(itemView);
-            input = (EditText) itemView.findViewById(R.id.input);
+            input = itemView.findViewById(R.id.input);
         }
     }
 

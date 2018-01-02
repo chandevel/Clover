@@ -113,7 +113,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
         versionHandler = new VersionHandler(this, runtimePermissionsHelper);
 
-        contentView = (ViewGroup) findViewById(android.R.id.content);
+        contentView = findViewById(android.R.id.content);
 
         // Setup base controllers, and decide if to use the split layout for tablets
         drawerController = new DrawerController(this);

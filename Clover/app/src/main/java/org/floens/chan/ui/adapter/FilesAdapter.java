@@ -127,8 +127,8 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         public FileViewHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
-            text = (TextView) itemView.findViewById(R.id.text);
+            image = itemView.findViewById(R.id.image);
+            text = itemView.findViewById(R.id.text);
             itemView.setOnClickListener(this);
         }
 

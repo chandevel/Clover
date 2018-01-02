@@ -70,7 +70,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        text = (TextView) findViewById(R.id.text);
+        text = findViewById(R.id.text);
         text.setTypeface(ROBOTO_MEDIUM);
 
         setOnClickListener(this);

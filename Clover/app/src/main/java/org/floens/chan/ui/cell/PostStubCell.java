@@ -72,8 +72,8 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        title = (TextView) findViewById(R.id.title);
-        options = (ImageView) findViewById(R.id.options);
+        title = findViewById(R.id.title);
+        options = findViewById(R.id.options);
         setRoundItemBackground(options);
         divider = findViewById(R.id.divider);
 

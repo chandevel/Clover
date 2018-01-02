@@ -61,7 +61,7 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
 
         view = inflateRes(R.layout.controller_thread_slide);
 
-        slidingPaneLayout = (ThreadSlidingPaneLayout) view.findViewById(R.id.sliding_pane_layout);
+        slidingPaneLayout = view.findViewById(R.id.sliding_pane_layout);
         slidingPaneLayout.setThreadSlideController(this);
         slidingPaneLayout.setPanelSlideListener(this);
         slidingPaneLayout.setParallaxDistance(dp(100));

@@ -156,7 +156,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     private void setDescriptionText(View view, String topText, String bottomText) {
         ((TextView) view.findViewById(R.id.top)).setText(topText);
 
-        final TextView bottom = ((TextView) view.findViewById(R.id.bottom));
+        final TextView bottom = view.findViewById(R.id.bottom);
         if (bottom != null) {
             bottom.setText(bottomText);
             bottom.setVisibility(bottomText == null ? View.GONE : View.VISIBLE);

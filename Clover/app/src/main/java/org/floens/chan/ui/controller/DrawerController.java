@@ -78,16 +78,16 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         EventBus.getDefault().register(this);
 
         view = inflateRes(R.layout.controller_navigation_drawer);
-        container = (FrameLayout) view.findViewById(R.id.container);
-        drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
+        container = view.findViewById(R.id.container);
+        drawerLayout = view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
-        drawer = (LinearLayout) view.findViewById(R.id.drawer);
-        recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
+        drawer = view.findViewById(R.id.drawer);
+        recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        settings = (LinearLayout) view.findViewById(R.id.settings);
+        settings = view.findViewById(R.id.settings);
         settings.setOnClickListener(this);
-        theme().settingsDrawable.apply((ImageView) settings.findViewById(R.id.image));
+        theme().settingsDrawable.apply(settings.findViewById(R.id.image));
         ((TextView) settings.findViewById(R.id.text)).setTypeface(ROBOTO_MEDIUM);
 
         drawerAdapter = new DrawerAdapter(this);

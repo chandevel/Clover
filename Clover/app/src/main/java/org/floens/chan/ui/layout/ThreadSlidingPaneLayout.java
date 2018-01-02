@@ -51,8 +51,8 @@ public class ThreadSlidingPaneLayout extends SlidingPaneLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        leftPane = (ViewGroup) findViewById(R.id.left_pane);
-        rightPane = (ViewGroup) findViewById(R.id.right_pane);
+        leftPane = findViewById(R.id.left_pane);
+        rightPane = findViewById(R.id.right_pane);
     }
 
     @Override

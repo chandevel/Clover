@@ -102,8 +102,8 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         navigation.rightView = historyEnabledSwitch;
 
         view = inflateRes(R.layout.controller_history);
-        crossfade = (CrossfadeView) view.findViewById(R.id.crossfade);
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        crossfade = view.findViewById(R.id.crossfade);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
@@ -265,11 +265,11 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         public HistoryCell(View itemView) {
             super(itemView);
 
-            thumbnail = (ThumbnailView) itemView.findViewById(R.id.thumbnail);
+            thumbnail = itemView.findViewById(R.id.thumbnail);
             thumbnail.setCircular(true);
-            text = (TextView) itemView.findViewById(R.id.text);
-            subtext = (TextView) itemView.findViewById(R.id.subtext);
-            delete = (ImageView) itemView.findViewById(R.id.delete);
+            text = itemView.findViewById(R.id.text);
+            subtext = itemView.findViewById(R.id.subtext);
+            delete = itemView.findViewById(R.id.delete);
 
             theme().clearDrawable.apply(delete);
 

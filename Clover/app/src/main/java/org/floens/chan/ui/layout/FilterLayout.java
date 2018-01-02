@@ -104,10 +104,10 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         super.onFinishInflate();
         inject(this);
 
-        typeText = (TextView) findViewById(R.id.type);
-        boardsSelector = (TextView) findViewById(R.id.boards);
-        actionText = (TextView) findViewById(R.id.action);
-        pattern = (TextView) findViewById(R.id.pattern);
+        typeText = findViewById(R.id.type);
+        boardsSelector = findViewById(R.id.boards);
+        actionText = findViewById(R.id.action);
+        pattern = findViewById(R.id.pattern);
         pattern.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -124,7 +124,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             public void afterTextChanged(Editable s) {
             }
         });
-        patternPreview = (TextView) findViewById(R.id.pattern_preview);
+        patternPreview = findViewById(R.id.pattern_preview);
         patternPreview.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -139,12 +139,12 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             public void afterTextChanged(Editable s) {
             }
         });
-        patternPreviewStatus = (TextView) findViewById(R.id.pattern_preview_status);
-        enabled = (CheckBox) findViewById(R.id.enabled);
-        help = (ImageView) findViewById(R.id.help);
+        patternPreviewStatus = findViewById(R.id.pattern_preview_status);
+        enabled = findViewById(R.id.enabled);
+        help = findViewById(R.id.help);
         theme().helpDrawable.apply(help);
         help.setOnClickListener(this);
-        colorContainer = (LinearLayout) findViewById(R.id.color_container);
+        colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
 

@@ -284,13 +284,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     public void updateTitle(NavigationItem navigationItem) {
         LinearLayout view = navigationItem == fromItem ? fromView : (navigationItem == toItem ? toView : null);
         if (view != null) {
-            TextView titleView = (TextView) view.findViewById(R.id.title);
+            TextView titleView = view.findViewById(R.id.title);
             if (titleView != null) {
                 titleView.setText(navigationItem.title);
             }
 
             if (!TextUtils.isEmpty(navigationItem.subtitle)) {
-                TextView subtitleView = (TextView) view.findViewById(R.id.subtitle);
+                TextView subtitleView = view.findViewById(R.id.subtitle);
                 if (subtitleView != null) {
                     subtitleView.setText(navigationItem.subtitle);
                 }
@@ -470,9 +470,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
             menu.setGravity(Gravity.CENTER_VERTICAL);
 
-            FrameLayout titleContainer = (FrameLayout) menu.findViewById(R.id.title_container);
+            FrameLayout titleContainer = menu.findViewById(R.id.title_container);
 
-            final TextView titleView = (TextView) menu.findViewById(R.id.title);
+            final TextView titleView = menu.findViewById(R.id.title);
             titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
             titleView.setText(item.title);
             titleView.setTextColor(0xffffffff);
@@ -491,7 +491,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
                 });
             }
 
-            TextView subtitleView = (TextView) menu.findViewById(R.id.subtitle);
+            TextView subtitleView = menu.findViewById(R.id.subtitle);
             if (!TextUtils.isEmpty(item.subtitle)) {
                 ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
                 titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;

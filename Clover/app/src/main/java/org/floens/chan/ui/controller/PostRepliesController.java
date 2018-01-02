@@ -81,7 +81,7 @@ public class PostRepliesController extends Controller {
             }
         });
 
-        loadView = (LoadView) view.findViewById(R.id.loadview);
+        loadView = view.findViewById(R.id.loadview);
 
         if (Build.VERSION.SDK_INT >= 21) {
             statusBarColorPrevious = getWindow().getStatusBarColor();
@@ -143,7 +143,7 @@ public class PostRepliesController extends Controller {
             dataView = inflateRes(R.layout.layout_post_replies);
         }
 
-        listView = (ListView) dataView.findViewById(R.id.post_list);
+        listView = dataView.findViewById(R.id.post_list);
         listView.setDivider(null);
         listView.setDividerHeight(0);
 
@@ -166,8 +166,8 @@ public class PostRepliesController extends Controller {
         Drawable backDrawable = theme().backDrawable.makeDrawable(context);
         Drawable doneDrawable = theme().doneDrawable.makeDrawable(context);
 
-        TextView repliesBackText = ((TextView) dataView.findViewById(R.id.replies_back_icon));
-        TextView repliesCloseText = ((TextView) dataView.findViewById(R.id.replies_close_icon));
+        TextView repliesBackText = dataView.findViewById(R.id.replies_back_icon);
+        TextView repliesCloseText = dataView.findViewById(R.id.replies_close_icon);
         repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
         repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
         if (theme().isLightTheme) {

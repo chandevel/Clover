@@ -153,11 +153,11 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         themeHelper = ThemeHelper.getInstance();
         themes = themeHelper.getThemes();
 
-        pager = (ViewPager) view.findViewById(R.id.pager);
-        done = (FloatingActionButton) view.findViewById(R.id.add);
+        pager = view.findViewById(R.id.pager);
+        done = view.findViewById(R.id.add);
         done.setOnClickListener(this);
 
-        textView = (TextView) view.findViewById(R.id.text);
+        textView = view.findViewById(R.id.text);
 
         SpannableString changeAccentColor = new SpannableString(getString(R.string.setting_theme_accent));
         changeAccentColor.setSpan(new ClickableSpan() {

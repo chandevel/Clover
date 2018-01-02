@@ -24,12 +24,10 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import org.floens.chan.R;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.helper.HintPopup;
@@ -81,9 +79,6 @@ public class MainSettingsController extends SettingsController implements Toolba
     @Inject
     DatabaseManager databaseManager;
 
-    @Inject
-    BoardManager boardManager;
-
     public MainSettingsController(Context context) {
         super(context);
     }
@@ -102,7 +97,7 @@ public class MainSettingsController extends SettingsController implements Toolba
         ));
 
         view = inflateRes(R.layout.settings_layout);
-        content = (LinearLayout) view.findViewById(R.id.scrollview_content);
+        content = view.findViewById(R.id.scrollview_content);
 
         previousLayoutMode = ChanSettings.layoutMode.get();
 

@@ -55,8 +55,8 @@ public class WatchSettingsController extends SettingsController implements Compo
         navigation.setTitle(R.string.settings_screen_watch);
 
         view = inflateRes(R.layout.controller_watch);
-        content = (LinearLayout) view.findViewById(R.id.scrollview_content);
-        crossfadeView = (CrossfadeView) view.findViewById(R.id.crossfade);
+        content = view.findViewById(R.id.scrollview_content);
+        crossfadeView = view.findViewById(R.id.crossfade);
 
         crossfadeView.toggle(enabled, false);
 

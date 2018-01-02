@@ -68,7 +68,7 @@ public class AlbumViewController extends Controller implements ImageViewerContro
         items.add(new FloatingMenuItem(SAVE_ALBUM_ID, R.string.action_download_album));
         navigation.createOverflow(context, this, items);
 
-        recyclerView = (GridRecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         gridLayoutManager = new GridLayoutManager(context, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -199,7 +199,7 @@ public class AlbumViewController extends Controller implements ImageViewerContro
         public AlbumItemCellHolder(View itemView) {
             super(itemView);
             cell = (AlbumViewCell) itemView;
-            thumbnailView = (PostImageThumbnailView) itemView.findViewById(R.id.thumbnail_view);
+            thumbnailView = itemView.findViewById(R.id.thumbnail_view);
             thumbnailView.setOnClickListener(this);
         }
 

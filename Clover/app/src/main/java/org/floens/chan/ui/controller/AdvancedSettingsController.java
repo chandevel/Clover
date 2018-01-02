@@ -53,7 +53,7 @@ public class AdvancedSettingsController extends SettingsController {
         navigation.setTitle(R.string.settings_screen_advanced);
 
         view = inflateRes(R.layout.settings_layout);
-        content = (LinearLayout) view.findViewById(R.id.scrollview_content);
+        content = view.findViewById(R.id.scrollview_content);
 
         populatePreferences();
 

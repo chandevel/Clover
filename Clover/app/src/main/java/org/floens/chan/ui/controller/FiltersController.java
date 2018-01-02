@@ -114,11 +114,11 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         view = inflateRes(R.layout.controller_filters);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        add = (FloatingActionButton) view.findViewById(R.id.add);
+        add = view.findViewById(R.id.add);
         add.setOnClickListener(this);
         theme().applyFabColor(add);
 
@@ -272,9 +272,9 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         public FilterCell(View itemView) {
             super(itemView);
 
-            text = (TextView) itemView.findViewById(R.id.text);
-            subtext = (TextView) itemView.findViewById(R.id.subtext);
-            delete = (ImageView) itemView.findViewById(R.id.delete);
+            text = itemView.findViewById(R.id.text);
+            subtext = itemView.findViewById(R.id.subtext);
+            delete = itemView.findViewById(R.id.delete);
 
             theme().clearDrawable.apply(delete);
 

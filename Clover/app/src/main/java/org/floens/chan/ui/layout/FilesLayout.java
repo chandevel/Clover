@@ -69,11 +69,11 @@ public class FilesLayout extends LinearLayout implements FilesAdapter.Callback, 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        backLayout = (ViewGroup) findViewById(R.id.back_layout);
-        backImage = (ImageView) backLayout.findViewById(R.id.back_image);
+        backLayout = findViewById(R.id.back_layout);
+        backImage = backLayout.findViewById(R.id.back_image);
         backImage.setImageDrawable(DrawableCompat.wrap(backImage.getDrawable()));
-        backText = (TextView) backLayout.findViewById(R.id.back_text);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler);
+        backText = backLayout.findViewById(R.id.back_text);
+        recyclerView = findViewById(R.id.recycler);
 
         backLayout.setOnClickListener(this);
     }

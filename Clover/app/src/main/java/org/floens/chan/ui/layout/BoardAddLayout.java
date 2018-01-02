@@ -66,7 +66,7 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         // View binding
         search = findViewById(R.id.search);
         suggestionsRecycler = findViewById(R.id.suggestions);
-        checkAllButton = (Button) findViewById(R.id.select_all);
+        checkAllButton = findViewById(R.id.select_all);
 
         // Adapters
         suggestionsAdapter = new SuggestionsAdapter();

@@ -73,10 +73,10 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        image = (FixedRatioThumbnailView) findViewById(R.id.image);
+        image = findViewById(R.id.image);
         image.setRatio(300f / 57f);
         image.setOnClickListener(this);
-        input = (EditText) findViewById(R.id.input);
+        input = findViewById(R.id.input);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -88,7 +88,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
                 return false;
             }
         });
-        submit = (ImageView) findViewById(R.id.submit);
+        submit = findViewById(R.id.submit);
         theme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);

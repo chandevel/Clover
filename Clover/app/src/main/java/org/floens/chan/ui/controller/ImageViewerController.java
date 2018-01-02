@@ -139,10 +139,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowMenuItem = navigation.createOverflow(context, this, items);
 
         view = inflateRes(R.layout.controller_image_viewer);
-        previewImage = (TransitionImageView) view.findViewById(R.id.preview_image);
-        pager = (OptionalSwipeViewPager) view.findViewById(R.id.pager);
+        previewImage = view.findViewById(R.id.preview_image);
+        pager = view.findViewById(R.id.pager);
         pager.addOnPageChangeListener(presenter);
-        loadingBar = (LoadingBar) view.findViewById(R.id.loading_bar);
+        loadingBar = view.findViewById(R.id.loading_bar);
 
         // Sanity check
         if (parentController.view.getWindowToken() == null) {
@@ -317,7 +317,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         } else {
             @SuppressLint("InflateParams")
             View notice = LayoutInflater.from(context).inflate(R.layout.dialog_video_error, null);
-            final CheckBox dontShowAgain = (CheckBox) notice.findViewById(R.id.checkbox);
+            final CheckBox dontShowAgain = notice.findViewById(R.id.checkbox);
 
             new AlertDialog.Builder(context)
                     .setTitle(R.string.video_playback_warning_title)

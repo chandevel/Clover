@@ -43,7 +43,7 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
         NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
         nav.setNavigationController(this);
         nav.setSwipeEnabled(false);
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        toolbar = view.findViewById(R.id.toolbar);
         toolbar.setCallback(this);
     }
 
