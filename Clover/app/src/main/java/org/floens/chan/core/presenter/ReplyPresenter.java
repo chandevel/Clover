@@ -299,13 +299,15 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         String postQuote = post != null ? ">>" + post.no + "\n" : "";
 
         StringBuilder textQuoteResult = new StringBuilder();
-        String[] lines = textQuote.split("\n+");
-        // matches for >>123, >>123 (OP), >>123 (You), >>>/fit/123
-        final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$");
-        for (String line : lines) {
-            // do not include post no from quoted post
-            if (!quotePattern.matcher(line).matches()) {
-                textQuoteResult.append(">").append(line).append("\n");
+        if (textQuote != null) {
+            String[] lines = textQuote.split("\n+");
+            // matches for >>123, >>123 (OP), >>123 (You), >>>/fit/123
+            final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$");
+            for (String line : lines) {
+                // do not include post no from quoted post
+                if (!quotePattern.matcher(line).matches()) {
+                    textQuoteResult.append(">").append(line).append("\n");
+                }
             }
         }
 
