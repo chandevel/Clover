@@ -20,12 +20,9 @@ package org.floens.chan.ui.layout;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.GridLayoutManager;
@@ -53,6 +50,7 @@ import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.FastScroller;
+import org.floens.chan.ui.view.FastScrollerHelper;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -63,7 +61,6 @@ import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getDimen;
-import static org.floens.chan.utils.AndroidUtils.getRes;
 
 /**
  * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
@@ -548,26 +545,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             }
         } else {
             if (fastScroller == null) {
-                Resources resources = getResources();
-                StateListDrawable verticalThumbDrawable = (StateListDrawable) resources
-                        .getDrawable(R.drawable.recyclerview_fastscroll_thumb_selector);
-                Drawable verticalTrackDrawable = getRes()
-                        .getDrawable(R.drawable.recyclerview_fastscroll_track_selector);
-                StateListDrawable horizontalThumbDrawable = (StateListDrawable) resources
-                        .getDrawable(R.drawable.recyclerview_fastscroll_thumb_selector);
-                Drawable horizontalTrackDrawable = resources
-                        .getDrawable(R.drawable.recyclerview_fastscroll_track_selector);
-
-                final int defaultThickness = dp(4);
-                final int targetWidth = dp(8);
-                final int minimumRange = dp(50);
-                final int margin = dp(0);
-                final int thumbMinLength = dp(23);
-
-                fastScroller = new FastScroller(recyclerView,
-                        verticalThumbDrawable, verticalTrackDrawable,
-                        horizontalThumbDrawable, horizontalTrackDrawable,
-                        defaultThickness, minimumRange, margin, thumbMinLength, targetWidth);
+                fastScroller = FastScrollerHelper.create(recyclerView);
             }
         }
 
