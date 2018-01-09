@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="extra_abouts">
+        <item>Spende für die Clover Entwicklung</item>
+        <item>Geben Sie dem Clover-Entwickler eine PayPal- oder Bitcoin-Spende</item>
+        <item>https://floens.github.io/Clover/#donate</item>
+
+        <item>Finde Clover auf GitHub</item>
+        <item>Schau Dir den Quellcode an und nenne uns deine Meinung</item>
+        <item>https://github.com/Floens/Clover</item>
+
+        <item>Schick uns deine Meinung</item>
+        <item>Schreibe dem Entwickler deine Meinung oder auch Fragen</item>
+        <item>florens@airmail.cc__EMAIL__Clover feedback __VERSION__</item>
+    </string-array>
+</resources>
