@@ -115,7 +115,6 @@ public class ChanSettings {
     public static final StringSetting saveLocation;
     public static final BooleanSetting saveOriginalFilename;
     public static final BooleanSetting shareUrl;
-    public static final BooleanSetting networkHttps;
     public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
@@ -150,7 +149,6 @@ public class ChanSettings {
     public static final StringSetting proxyAddress;
     public static final IntegerSetting proxyPort;
 
-    public static final CounterSetting settingsOpenCounter;
     public static final CounterSetting historyOpenCounter;
     public static final CounterSetting replyOpenCounter;
     public static final CounterSetting threadOpenCounter;
@@ -192,7 +190,6 @@ public class ChanSettings {
                 EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
-        networkHttps = new BooleanSetting(p, "preference_network_https", true);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
@@ -236,7 +233,6 @@ public class ChanSettings {
         proxyPort.addCallback((setting, value) -> loadProxy());
         loadProxy();
 
-        settingsOpenCounter = new CounterSetting(p, "counter_settings_open");
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
         replyOpenCounter = new CounterSetting(p, "counter_reply_open");
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
@@ -250,6 +246,8 @@ public class ChanSettings {
         // preference_pass_enabled default false
         // preference_autoplay false
         // preference_watch_background_timeout "60" the old timeout background setting in minutes
+        // preference_network_https true
+        // counter_settings_open
     }
 
     public static ThemeColor getThemeAndColor() {

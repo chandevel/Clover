@@ -41,6 +41,10 @@ public class DatabaseSiteManager {
         };
     }
 
+    public Callable<Long> getCount() {
+        return () -> helper.siteDao.countOf();
+    }
+
     public Callable<SiteModel> add(final SiteModel site) {
         return new Callable<SiteModel>() {
             @Override

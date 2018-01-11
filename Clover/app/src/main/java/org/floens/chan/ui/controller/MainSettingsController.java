@@ -23,61 +23,32 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.floens.chan.R;
-import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.presenter.SettingsPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
-import org.floens.chan.ui.helper.HintPopup;
-import org.floens.chan.ui.helper.RefreshUIMessage;
-import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
-import org.floens.chan.ui.settings.ListSettingView;
 import org.floens.chan.ui.settings.SettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
-import org.floens.chan.ui.settings.StringSettingView;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
-import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
-
 import static org.floens.chan.Chan.inject;
-import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class MainSettingsController extends SettingsController implements ToolbarMenuItem.ToolbarMenuItemCallback, WatchSettingsController.WatchSettingControllerListener {
-    private static final int ADVANCED_SETTINGS = 1;
-    private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
-    private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
+public class MainSettingsController extends SettingsController implements SettingsPresenter.Callback {
+    @Inject
+    private SettingsPresenter presenter;
 
-    private LinkSettingView saveLocation;
     private LinkSettingView watchLink;
     private int clickCount;
     private SettingView developerView;
-    private SettingView fontView;
-    private SettingView layoutModeView;
-    private SettingView fontCondensed;
-    private SettingView textOnly;
-    private SettingView gridColumnsView;
-    private ToolbarMenuItem overflow;
-
-    private ChanSettings.LayoutMode previousLayoutMode;
-
-    private HintPopup advancedSettingsHint;
-
-    @Inject
-    DatabaseManager databaseManager;
+    private LinkSettingView sitesSetting;
+    private LinkSettingView filtersSetting;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -88,263 +59,128 @@ public class MainSettingsController extends SettingsController implements Toolba
         super.onCreate();
         inject(this);
 
-        EventBus.getDefault().register(this);
-
         navigation.setTitle(R.string.settings_screen);
-        navigation.menu = new ToolbarMenu(context);
-        overflow = navigation.createOverflow(context, this, Collections.singletonList(
-                new FloatingMenuItem(ADVANCED_SETTINGS, R.string.settings_screen_advanced)
-        ));
 
-        view = inflateRes(R.layout.settings_layout);
-        content = view.findViewById(R.id.scrollview_content);
-
-        previousLayoutMode = ChanSettings.layoutMode.get();
+        setupLayout();
 
         populatePreferences();
 
-        onWatchEnabledChanged(ChanSettings.watchEnabled.get());
-
         buildPreferences();
-
-        onPreferenceChange(imageAutoLoadView);
 
         if (!ChanSettings.developer.get()) {
             developerView.view.setVisibility(View.GONE);
         }
 
-        if (ChanSettings.settingsOpenCounter.increase() == 3) {
-            ImageView view = overflow.getView();
-            view.startAnimation(android.view.animation.AnimationUtils.loadAnimation(context, R.anim.menu_overflow_shake));
-            advancedSettingsHint = HintPopup.show(context, view, R.string.settings_advanced_hint);
-        }
-    }
-
-    @Override
-    public void onHide() {
-        super.onHide();
-
-        if (advancedSettingsHint != null) {
-            advancedSettingsHint.dismiss();
-            advancedSettingsHint = null;
-        }
+        presenter.create(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        EventBus.getDefault().unregister(this);
-
-        if (previousLayoutMode != ChanSettings.layoutMode.get()) {
-            ((StartActivity) context).restart();
-        }
-    }
-
-    public void onEvent(ChanSettings.SettingChanged setting) {
-        if (setting.setting == ChanSettings.saveLocation) {
-            setSaveLocationDescription();
-        }
+        presenter.destroy();
     }
 
     @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
+    public void onShow() {
+        super.onShow();
+
+        presenter.show();
     }
 
     @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        if (((Integer) item.getId()) == ADVANCED_SETTINGS) {
-            navigationController.pushController(new AdvancedSettingsController(context));
-        }
+    public void setFiltersCount(int count) {
+        String filters = context.getResources().getQuantityString(R.plurals.filter, count, count);
+        filtersSetting.setDescription(filters);
     }
 
     @Override
-    public void onPreferenceChange(SettingView item) {
-        super.onPreferenceChange(item);
-
-        if (item == imageAutoLoadView) {
-            updateVideoLoadModes();
-        } else if (item == fontView || item == fontCondensed) {
-            EventBus.getDefault().post(new RefreshUIMessage("font"));
-        } else if (item == gridColumnsView) {
-            EventBus.getDefault().post(new RefreshUIMessage("gridcolumns"));
-        } else if (item == textOnly) {
-            EventBus.getDefault().post(new RefreshUIMessage("textonly"));
-        }
+    public void setSiteCount(int count) {
+        String sites = context.getResources().getQuantityString(R.plurals.site, count, count);
+        sitesSetting.setDescription(sites);
     }
 
     @Override
-    public void onWatchEnabledChanged(boolean enabled) {
-        watchLink.setDescription(enabled ? R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled);
+    public void setWatchEnabled(boolean enabled) {
+        watchLink.setDescription(enabled ?
+                R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled);
     }
 
     private void populatePreferences() {
         // General group
-        SettingsGroup general = new SettingsGroup(R.string.settings_group_general);
+        {
+            SettingsGroup general = new SettingsGroup(R.string.settings_group_settings);
 
-        watchLink = (LinkSettingView) general.add(new LinkSettingView(this, R.string.settings_watch, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new WatchSettingsController(context));
-            }
-        }));
+            watchLink = (LinkSettingView) general.add(new LinkSettingView(this,
+                    R.string.settings_watch, 0,
+                    v -> navigationController.pushController(
+                            new WatchSettingsController(context))));
 
-        groups.add(general);
+            sitesSetting = (LinkSettingView) general.add(new LinkSettingView(this,
+                    R.string.settings_sites, 0,
+                    v -> navigationController.pushController(
+                            new SitesSetupController(context))));
 
-        SettingsGroup appearance = new SettingsGroup(R.string.settings_group_appearance);
+            general.add(new LinkSettingView(this,
+                    R.string.settings_appearance, R.string.settings_appearance_description,
+                    v -> navigationController.pushController(
+                            new AppearanceSettingsController(context))));
 
-        appearance.add(new LinkSettingView(this, getString(R.string.settings_screen_theme), theme().displayName, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new ThemeSettingsController(context));
-            }
-        }));
+            general.add(new LinkSettingView(this,
+                    R.string.settings_behaviour, R.string.settings_behaviour_description,
+                    v -> navigationController.pushController(
+                            new BehaviourSettingsController(context))));
 
-        List<ListSettingView.Item> layoutModes = new ArrayList<>();
-        for (ChanSettings.LayoutMode mode : ChanSettings.LayoutMode.values()) {
-            int name = 0;
-            switch (mode) {
-                case AUTO:
-                    name = R.string.setting_layout_mode_auto;
-                    break;
-                case PHONE:
-                    name = R.string.setting_layout_mode_phone;
-                    break;
-                case SLIDE:
-                    name = R.string.setting_layout_mode_slide;
-                    break;
-                case SPLIT:
-                    name = R.string.setting_layout_mode_split;
-                    break;
-            }
-            layoutModes.add(new ListSettingView.Item<>(getString(name), mode));
+            general.add(new LinkSettingView(this,
+                    R.string.settings_media, R.string.settings_media_description,
+                    v -> navigationController.pushController(
+                            new MediaSettingsController(context))));
+
+            filtersSetting = (LinkSettingView) general.add(new LinkSettingView(this,
+                    R.string.settings_filters, 0,
+                    v -> navigationController.pushController(new FiltersController(context))));
+
+            groups.add(general);
         }
 
-        layoutModeView = new ListSettingView<>(this, ChanSettings.layoutMode, R.string.setting_layout_mode, layoutModes);
-        appearance.add(layoutModeView);
+        setupAboutGroup();
+    }
 
-        List<ListSettingView.Item> fontSizes = new ArrayList<>();
-        for (int size = 10; size <= 19; size++) {
-            String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " " + getString(R.string.setting_font_size_default) : "");
-            fontSizes.add(new ListSettingView.Item<>(name, String.valueOf(size)));
-        }
-
-        fontView = appearance.add(new ListSettingView<>(this, ChanSettings.fontSize, R.string.setting_font_size, fontSizes.toArray(new ListSettingView.Item[fontSizes.size()])));
-        fontCondensed = appearance.add(new BooleanSettingView(this, ChanSettings.fontCondensed, R.string.setting_font_condensed, R.string.setting_font_condensed_description));
-
-        List<ListSettingView.Item> gridColumns = new ArrayList<>();
-        gridColumns.add(new ListSettingView.Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
-        for (int columns = 2; columns <= 5; columns++) {
-            gridColumns.add(new ListSettingView.Item<>(context.getString(R.string.setting_board_grid_span_count_item, columns), columns));
-        }
-        gridColumnsView = appearance.add(new ListSettingView<>(this, ChanSettings.boardGridSpanCount, R.string.setting_board_grid_span_count, gridColumns));
-
-        groups.add(appearance);
-
-        // Browsing group
-        SettingsGroup browsing = new SettingsGroup(R.string.settings_group_browsing);
-
-        browsing.add(new LinkSettingView(this, R.string.filters_screen, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new FiltersController(context));
-            }
-        }));
-        saveLocation = (LinkSettingView) browsing.add(new LinkSettingView(this, R.string.save_location_screen, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new SaveLocationController(context));
-            }
-        }));
-        setSaveLocationDescription();
-        browsing.add(new BooleanSettingView(this, ChanSettings.saveBoardFolder, R.string.setting_save_board_folder, R.string.setting_save_board_folder_description));
-        browsing.add(new BooleanSettingView(this, ChanSettings.openLinkConfirmation, R.string.setting_open_link_confirmation, 0));
-        browsing.add(new BooleanSettingView(this, ChanSettings.autoRefreshThread, R.string.setting_auto_refresh_thread, 0));
-
-        List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
-        List<ListSettingView.Item> videoAutoLoadTypes = new ArrayList<>();
-        for (ChanSettings.MediaAutoLoadMode mode : ChanSettings.MediaAutoLoadMode.values()) {
-            int name = 0;
-            switch (mode) {
-                case ALL:
-                    name = R.string.setting_image_auto_load_all;
-                    break;
-                case WIFI:
-                    name = R.string.setting_image_auto_load_wifi;
-                    break;
-                case NONE:
-                    name = R.string.setting_image_auto_load_none;
-                    break;
-            }
-
-            imageAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
-            videoAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
-        }
-
-        imageAutoLoadView = new ListSettingView<>(this, ChanSettings.imageAutoLoadNetwork, R.string.setting_image_auto_load, imageAutoLoadTypes);
-        browsing.add(imageAutoLoadView);
-        videoAutoLoadView = new ListSettingView<>(this, ChanSettings.videoAutoLoadNetwork, R.string.setting_video_auto_load, videoAutoLoadTypes);
-        browsing.add(videoAutoLoadView);
-        updateVideoLoadModes();
-
-        browsing.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal, R.string.setting_video_open_external, R.string.setting_video_open_external_description));
-        textOnly = new BooleanSettingView(this, ChanSettings.textOnly, R.string.setting_text_only, R.string.setting_text_only_description);
-        browsing.add(textOnly);
-        browsing.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                databaseManager.clearAllThreadHides();
-                Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG).show();
-                EventBus.getDefault().post(new RefreshUIMessage("clearhides"));
-            }
-        }));
-
-        groups.add(browsing);
-
-        // Posting group
-        SettingsGroup posting = new SettingsGroup(R.string.settings_group_posting);
-
-        posting.add(new BooleanSettingView(this, ChanSettings.postPinThread, R.string.setting_post_pin, 0));
-        posting.add(new StringSettingView(this, ChanSettings.postDefaultName, R.string.setting_post_default_name, R.string.setting_post_default_name));
-
-        groups.add(posting);
-
-        // About group
+    private void setupAboutGroup() {
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
-        String version = "";
-        try {
-            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        final String finalVersion = version;
 
-        String userVersion = version + " " + getString(R.string.app_flavor_name);
-        about.add(new LinkSettingView(this, getString(R.string.app_name), userVersion, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if ((++clickCount) % 5 == 0) {
-                    boolean developer = !ChanSettings.developer.get();
+        final String version = setupVersionSetting(about);
 
-                    ChanSettings.developer.set(developer);
+        setupUpdateSetting(about);
 
-                    Toast.makeText(context, (developer ? "Enabled" : "Disabled") + " developer options", Toast.LENGTH_LONG).show();
+        setupExtraAboutSettings(about, version);
 
-                    developerView.view.setVisibility(developer ? View.VISIBLE : View.GONE);
-                }
-            }
-        }));
+        about.add(new LinkSettingView(this,
+                R.string.settings_about_license, R.string.settings_about_license_description,
+                v -> navigationController.pushController(
+                        new LicensesController(context,
+                                getString(R.string.settings_about_license),
+                                "file:///android_asset/html/license.html"))));
 
-        if (((StartActivity) context).getVersionHandler().isUpdatingAvailable()) {
-            about.add(new LinkSettingView(this, R.string.settings_update_check, 0, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ((StartActivity) context).getVersionHandler().manualUpdateCheck();
-                }
-            }));
-        }
+        about.add(new LinkSettingView(this,
+                R.string.settings_about_licenses, R.string.settings_about_licenses_description,
+                v -> navigationController.pushController(
+                        new LicensesController(context,
+                                getString(R.string.settings_about_licenses),
+                                "file:///android_asset/html/licenses.html"))));
 
-        int extraAbouts = context.getResources().getIdentifier("extra_abouts", "array", context.getPackageName());
+        developerView = about.add(new LinkSettingView(this,
+                R.string.settings_developer, 0,
+                v -> navigationController.pushController(
+                        new DeveloperSettingsController(context))));
+
+        groups.add(about);
+    }
+
+    private void setupExtraAboutSettings(SettingsGroup about, String version) {
+        int extraAbouts = context.getResources()
+                .getIdentifier("extra_abouts", "array", context.getPackageName());
+
         if (extraAbouts != 0) {
             String[] abouts = context.getResources().getStringArray(extraAbouts);
             if (abouts.length % 3 == 0) {
@@ -360,7 +196,7 @@ public class MainSettingsController extends SettingsController implements Toolba
                     }
 
                     final String finalAboutLink = aboutLink;
-                    about.add(new LinkSettingView(this, aboutName, aboutDescription, new View.OnClickListener() {
+                    View.OnClickListener clickListener = new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             if (finalAboutLink != null) {
@@ -370,7 +206,7 @@ public class MainSettingsController extends SettingsController implements Toolba
                                     intent.setData(Uri.parse("mailto:"));
                                     intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email[0]});
                                     String subject = email[1];
-                                    subject = subject.replace("__VERSION__", finalVersion);
+                                    subject = subject.replace("__VERSION__", version);
                                     intent.putExtra(Intent.EXTRA_SUBJECT, subject);
                                     AndroidUtils.openIntent(intent);
                                 } else {
@@ -378,59 +214,48 @@ public class MainSettingsController extends SettingsController implements Toolba
                                 }
                             }
                         }
-                    }));
+                    };
+
+                    about.add(new LinkSettingView(this,
+                            aboutName, aboutDescription,
+                            clickListener));
                 }
             }
         }
-
-        about.add(new LinkSettingView(this, R.string.settings_about_license, R.string.settings_about_license_description, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new LicensesController(context,
-                        getString(R.string.settings_about_license), "file:///android_asset/html/license.html"));
-            }
-        }));
-
-        about.add(new LinkSettingView(this, R.string.settings_about_licenses, R.string.settings_about_licenses_description, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new LicensesController(context,
-                        getString(R.string.settings_about_licenses), "file:///android_asset/html/licenses.html"));
-            }
-        }));
-
-        developerView = about.add(new LinkSettingView(this, R.string.settings_developer, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new DeveloperSettingsController(context));
-            }
-        }));
-
-        groups.add(about);
     }
 
-    private void setSaveLocationDescription() {
-        saveLocation.setDescription(ChanSettings.saveLocation.get());
+    private String setupVersionSetting(SettingsGroup about) {
+        String version = "";
+        try {
+            version = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+
+        String userVersion = version + " " + getString(R.string.app_flavor_name);
+        about.add(new LinkSettingView(this,
+                getString(R.string.app_name), userVersion,
+                v -> {
+                    if ((++clickCount) % 5 == 0) {
+                        boolean developer = !ChanSettings.developer.get();
+
+                        ChanSettings.developer.set(developer);
+
+                        Toast.makeText(context, (developer ? "Enabled" : "Disabled") +
+                                " developer options", Toast.LENGTH_LONG).show();
+
+                        developerView.view.setVisibility(developer ? View.VISIBLE : View.GONE);
+                    }
+                }));
+
+        return version;
     }
 
-    private void updateVideoLoadModes() {
-        ChanSettings.MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
-        ChanSettings.MediaAutoLoadMode[] modes = ChanSettings.MediaAutoLoadMode.values();
-        boolean enabled = false;
-        boolean resetVideoMode = false;
-        for (int i = 0; i < modes.length; i++) {
-            if (modes[i].getName().equals(currentImageLoadMode.getName())) {
-                enabled = true;
-                if (resetVideoMode) {
-                    ChanSettings.videoAutoLoadNetwork.set(modes[i]);
-                    videoAutoLoadView.updateSelection();
-                    onPreferenceChange(videoAutoLoadView);
-                }
-            }
-            videoAutoLoadView.items.get(i).enabled = enabled;
-            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().getName().equals(modes[i].getName())) {
-                resetVideoMode = true;
-            }
+    private void setupUpdateSetting(SettingsGroup about) {
+        if (((StartActivity) context).getVersionHandler().isUpdatingAvailable()) {
+            about.add(new LinkSettingView(this,
+                    R.string.settings_update_check, 0,
+                    v -> ((StartActivity) context).getVersionHandler().manualUpdateCheck()));
         }
     }
 }

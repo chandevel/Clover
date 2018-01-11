@@ -71,4 +71,8 @@ public class DatabaseFilterManager {
             }
         };
     }
+
+    public Callable<Long> getCount() {
+        return () -> helper.filterDao.countOf();
+    }
 }

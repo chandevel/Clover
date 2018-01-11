@@ -87,7 +87,7 @@ public class SiteSetupController extends SettingsController implements SiteSetup
     public void setIsLoggedIn(boolean isLoggedIn) {
         String text = context.getString(isLoggedIn ?
                 R.string.setup_site_login_description_enabled :
-                R.string.setup_site_login_description_enabled);
+                R.string.setup_site_login_description_disabled);
         loginLink.setDescription(text);
     }
 

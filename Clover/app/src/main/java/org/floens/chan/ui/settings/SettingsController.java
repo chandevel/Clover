@@ -27,10 +27,14 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.ui.activity.StartActivity;
+import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -38,7 +42,13 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     protected LinearLayout content;
     protected List<SettingsGroup> groups = new ArrayList<>();
 
-    private boolean built = false;
+    protected List<SettingView> requiresUiRefresh = new ArrayList<>();
+
+    // Very user unfriendly.
+    @Deprecated
+    protected List<SettingView> requiresRestart = new ArrayList<>();
+
+    private boolean needRestart = false;
 
     public SettingsController(Context context) {
         super(context);
@@ -49,6 +59,15 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
         super.onShow();
 
         AndroidUtils.waitForLayout(view, this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (needRestart) {
+            ((StartActivity) context).restart();
+        }
     }
 
     @Override
@@ -69,6 +88,12 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 || (item instanceof IntegerSettingView)
                 || (item instanceof LinkSettingView)) {
             setDescriptionText(item.view, item.getTopDescription(), item.getBottomDescription());
+        }
+
+        if (requiresUiRefresh.contains(item)) {
+            EventBus.getDefault().post(new RefreshUIMessage("unknown"));
+        } else if (requiresRestart.contains(item)) {
+            needRestart = true;
         }
     }
 
@@ -105,6 +130,11 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
         if (settingView.divider != null) {
             settingView.divider.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
+    }
+
+    protected void setupLayout() {
+        view = inflateRes(R.layout.settings_layout);
+        content = view.findViewById(R.id.scrollview_content);
     }
 
     protected void buildPreferences() {
@@ -149,8 +179,6 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
                 }
             }
         }
-
-        built = true;
     }
 
     private void setDescriptionText(View view, String topText, String bottomText) {

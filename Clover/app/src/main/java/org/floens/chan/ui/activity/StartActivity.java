@@ -433,7 +433,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         if (!stackTop().onBack()) {
             if (ChanSettings.confirmExit.get()) {
                 new AlertDialog.Builder(this)
-                        .setTitle(R.string.setting_confirm_exit_title)
+                        .setTitle(R.string.action_confirm_exit_title)
                         .setNegativeButton(R.string.cancel, null)
                         .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
                             @Override
