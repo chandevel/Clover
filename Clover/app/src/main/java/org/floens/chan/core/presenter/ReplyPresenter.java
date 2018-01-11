@@ -129,10 +129,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onOpen(boolean open) {
         if (open) {
             callback.focusComment();
-
-            if (ChanSettings.replyOpenCounter.increase() == 2) {
-                callback.showMoreHint();
-            }
         }
     }
 
@@ -489,8 +485,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         ImagePickDelegate getImagePickDelegate();
 
         ChanThread getThread();
-
-        void showMoreHint();
 
         void focusComment();
     }

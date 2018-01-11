@@ -150,7 +150,6 @@ public class ChanSettings {
     public static final IntegerSetting proxyPort;
 
     public static final CounterSetting historyOpenCounter;
-    public static final CounterSetting replyOpenCounter;
     public static final CounterSetting threadOpenCounter;
 
     public static final LongSetting updateCheckTime;
@@ -234,7 +233,6 @@ public class ChanSettings {
         loadProxy();
 
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
-        replyOpenCounter = new CounterSetting(p, "counter_reply_open");
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
 
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
@@ -248,6 +246,7 @@ public class ChanSettings {
         // preference_watch_background_timeout "60" the old timeout background setting in minutes
         // preference_network_https true
         // counter_settings_open
+        // counter_reply_open
     }
 
     public static ThemeColor getThemeAndColor() {

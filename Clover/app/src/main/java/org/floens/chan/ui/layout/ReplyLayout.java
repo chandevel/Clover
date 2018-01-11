@@ -52,7 +52,6 @@ import org.floens.chan.ui.captcha.CaptchaLayout;
 import org.floens.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import org.floens.chan.ui.captcha.LegacyCaptchaLayout;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
-import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
@@ -532,11 +531,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     @Override
     public ChanThread getThread() {
         return callback.getThread();
-    }
-
-    @Override
-    public void showMoreHint() {
-        HintPopup.show(getContext(), more, getString(R.string.reply_more_hint), dp(9), dp(4));
     }
 
     public interface ReplyLayoutCallback {

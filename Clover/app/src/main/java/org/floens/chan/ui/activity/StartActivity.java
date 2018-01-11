@@ -38,7 +38,6 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.database.DatabaseLoadableManager;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
@@ -89,9 +88,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     @Inject
     DatabaseManager databaseManager;
-
-    @Inject
-    BoardManager boardManager;
 
     @Inject
     WatchManager watchManager;
