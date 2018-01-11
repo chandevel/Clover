@@ -122,6 +122,12 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
             }
             Toolbar toolbar = ((ToolbarNavigationController) navigationController).toolbar;
             toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
+
+            if (slidingPaneLayout.getWidth() == 0) {
+                // It won't tell us it switched when it's not laid out yet.
+                leftOpen = leftController;
+                slideStateChanged(leftController);
+            }
         }
     }
 
