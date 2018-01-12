@@ -195,6 +195,12 @@ public class ThreadLayout extends CoordinatorLayout implements
         presenter.requestData();
     }
 
+    public void gainedFocus() {
+        if (visible == Visible.THREAD) {
+            threadListLayout.gainedFocus();
+        }
+    }
+
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         threadListLayout.setPostViewMode(postViewMode);
     }

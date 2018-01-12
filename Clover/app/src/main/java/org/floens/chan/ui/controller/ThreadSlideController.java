@@ -260,6 +260,22 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
 
     private void slideStateChanged(boolean leftOpen) {
         setParentNavigationItem(leftOpen);
+
+        notifySlideChanged(leftOpen ? leftController : rightController);
+    }
+
+    private void notifySlideChanged(Controller controller) {
+        if (controller == null) {
+            return;
+        }
+
+        if (controller instanceof SlideChangeListener) {
+            ((SlideChangeListener) controller).onSlideChanged();
+        }
+
+        for (Controller childController : controller.childControllers) {
+            notifySlideChanged(childController);
+        }
     }
 
     private void setParentNavigationItem(boolean left) {
@@ -283,5 +299,9 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
             navigation.hasDrawer = true;
             toolbar.setNavigationItem(false, true, navigation);
         }
+    }
+
+    public interface SlideChangeListener {
+        void onSlideChanged();
     }
 }

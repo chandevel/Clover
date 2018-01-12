@@ -67,13 +67,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                View positionZero = recyclerView.getLayoutManager().findViewByPosition(0);
-                boolean allowHide = positionZero == null || positionZero.getTop() < 0;
-                if (allowHide || lastScrollDeltaOffset <= 0) {
-                    setCollapse(lastScrollDeltaOffset <= 0 ? TOOLBAR_COLLAPSE_SHOW : TOOLBAR_COLLAPSE_HIDE, true);
-                } else {
-                    setCollapse(TOOLBAR_COLLAPSE_SHOW, true);
-                }
+                processRecyclerViewScroll(recyclerView);
             }
         }
     };
@@ -134,6 +128,14 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         setCollapse(offset, animated);
     }
 
+    public void collapseShow(boolean animated) {
+        setCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, animated);
+    }
+
+    public void collapseHide(boolean animated) {
+        setCollapse(Toolbar.TOOLBAR_COLLAPSE_HIDE, animated);
+    }
+
     public void setCollapse(int offset, boolean animated) {
         scrollOffset += offset;
         scrollOffset = Math.max(0, Math.min(getHeight(), scrollOffset));
@@ -161,6 +163,20 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
     public void detachRecyclerViewScrollStateListener(RecyclerView recyclerView) {
         recyclerView.removeOnScrollListener(recyclerViewOnScrollListener);
+    }
+
+    public void checkToolbarCollapseState(RecyclerView recyclerView) {
+        processRecyclerViewScroll(recyclerView);
+    }
+
+    private void processRecyclerViewScroll(RecyclerView recyclerView) {
+        View positionZero = recyclerView.getLayoutManager().findViewByPosition(0);
+        boolean allowHide = positionZero == null || positionZero.getTop() < 0;
+        if (allowHide || lastScrollDeltaOffset <= 0) {
+            setCollapse(lastScrollDeltaOffset <= 0 ? TOOLBAR_COLLAPSE_SHOW : TOOLBAR_COLLAPSE_HIDE, true);
+        } else {
+            setCollapse(TOOLBAR_COLLAPSE_SHOW, true);
+        }
     }
 
 //    public void updateNavigation() {

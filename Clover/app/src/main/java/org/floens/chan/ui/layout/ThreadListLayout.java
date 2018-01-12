@@ -263,6 +263,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         return false;
     }
 
+    public void gainedFocus() {
+        showToolbarIfNeeded();
+    }
+
     public void openReply(boolean open) {
         if (showingThread != null && replyOpen != open) {
             this.replyOpen = open;
@@ -532,7 +536,25 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 toolbar.attachRecyclerViewScrollStateListener(recyclerView);
             } else {
                 toolbar.detachRecyclerViewScrollStateListener(recyclerView);
-                toolbar.setCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
+                toolbar.collapseShow(true);
+            }
+        }
+    }
+
+    private void showToolbarIfNeeded() {
+        if (threadListLayoutCallback.shouldToolbarCollapse()) {
+            // Of coming back to focus from a dual controller, like the threadlistcontroller,
+            // check if we should show the toolbar again (after the other controller made it hide).
+            // It should show if the search or reply is open, or if the thread was scrolled at the
+            // top showing an empty space.
+
+            Toolbar toolbar = threadListLayoutCallback.getToolbar();
+            if (searchOpen || replyOpen) {
+                // force toolbar to show
+                toolbar.collapseShow(true);
+            } else {
+                // check if it should show if it was scrolled at the top
+                toolbar.checkToolbarCollapseState(recyclerView);
             }
         }
     }

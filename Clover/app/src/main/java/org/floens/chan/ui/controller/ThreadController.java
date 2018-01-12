@@ -49,7 +49,13 @@ import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback, SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
+public abstract class ThreadController extends Controller implements
+        ThreadLayout.ThreadLayoutCallback,
+        ImageViewerController.ImageViewerCallback,
+        SwipeRefreshLayout.OnRefreshListener,
+        ToolbarNavigationController.ToolbarSearchCallback,
+        NfcAdapter.CreateNdefMessageCallback,
+        ThreadSlideController.SlideChangeListener {
     private static final String TAG = "ThreadController";
 
     protected ThreadLayout threadLayout;
@@ -259,5 +265,10 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         filter.type = FilterType.TRIPCODE.flag;
         filter.pattern = tripcode;
         filtersController.showFilterDialog(filter);
+    }
+
+    @Override
+    public void onSlideChanged() {
+        threadLayout.gainedFocus();
     }
 }
