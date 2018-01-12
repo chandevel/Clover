@@ -54,6 +54,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private boolean viewPagerVisible = false;
     private boolean changeViewsOnInTransitionEnd = false;
 
+    private boolean muted = true;
+
     public ImageViewerPresenter(Callback callback) {
         this.callback = callback;
         inject(this);
@@ -104,6 +106,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(postImage);
         callback.showProgress(false);
+    }
+
+    public void onVolumeClicked() {
+        muted = !muted;
+        callback.showVolumeMenuItem(true, muted);
+        callback.setVolume(getCurrentPostImage(), muted);
     }
 
     public List<PostImage> getAllPostImages() {
@@ -188,6 +196,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         callback.showProgress(progress.get(selectedPosition) >= 0f);
         callback.onLoadProgress(progress.get(selectedPosition));
+
+        // If it has audio, we'll know after it is loaded.
+        callback.showVolumeMenuItem(false, true);
     }
 
     // Called from either a page swipe caused a lowres image to the center or an
@@ -307,6 +318,17 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.onVideoError(multiImageView);
     }
 
+    @Override
+    public void onVideoLoaded(MultiImageView multiImageView, boolean hasAudio) {
+        PostImage currentPostImage = getCurrentPostImage();
+        if (multiImageView.getPostImage() == currentPostImage) {
+            if (hasAudio) {
+                callback.showVolumeMenuItem(true, muted);
+                callback.setVolume(currentPostImage, muted);
+            }
+        }
+    }
+
     private boolean imageAutoLoad(PostImage postImage) {
         // Auto load the image when it is cached
         return fileCache.exists(postImage.imageUrl.toString()) || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
@@ -361,6 +383,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         void setImageMode(PostImage postImage, MultiImageView.Mode mode);
 
+        void setVolume(PostImage postImage, boolean muted);
+
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
@@ -372,5 +396,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void onLoadProgress(float progress);
 
         void onVideoError(MultiImageView multiImageView);
+
+        void showVolumeMenuItem(boolean show, boolean muted);
     }
 }

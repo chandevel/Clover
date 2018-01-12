@@ -20,8 +20,10 @@ package org.floens.chan.ui.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -81,23 +83,19 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private VideoView videoView;
     private boolean videoError = false;
+    private MediaPlayer mediaPlayer;
 
     public MultiImageView(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public MultiImageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
-    public MultiImageView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
+    public MultiImageView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
 
-    private void init() {
         inject(this);
 
         setOnClickListener(this);
@@ -163,6 +161,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             }
         }
         return bigImage;
+    }
+
+    public void setVolume(boolean muted) {
+        if (mediaPlayer != null) {
+            final float volume = muted ? 0f : 1f;
+            mediaPlayer.setVolume(volume, volume);
+        }
     }
 
     @Override
@@ -374,23 +379,24 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             videoView.setZOrderOnTop(true);
             videoView.setMediaController(new MediaController(getContext()));
 
-            addView(videoView, 0, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                videoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
+            }
 
-            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.setLooping(true);
-                    onModeLoaded(Mode.MOVIE, videoView);
-                }
+            addView(videoView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
+
+            videoView.setOnPreparedListener(mp -> {
+                mediaPlayer = mp;
+                mp.setLooping(true);
+                mp.setVolume(0f, 0f);
+                onModeLoaded(Mode.MOVIE, videoView);
+                callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(mp));
             });
 
-            videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    onVideoError();
+            videoView.setOnErrorListener((mp, what, extra) -> {
+                onVideoError();
 
-                    return true;
-                }
+                return true;
             });
 
             videoView.setVideoPath(file.getAbsolutePath());
@@ -404,11 +410,31 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
     }
 
+    private boolean hasMediaPlayerAudioTracks(MediaPlayer mediaPlayer) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            for (MediaPlayer.TrackInfo trackInfo : mediaPlayer.getTrackInfo()) {
+                if (trackInfo.getTrackType() == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            // It'll just show the icon without doing anything. Remove when 4.0 is dropped.
+            return true;
+        }
+    }
+
     private void onVideoError() {
         if (!videoError) {
             videoError = true;
             callback.onVideoError(this);
         }
+    }
+
+    private void cleanupVideo(VideoView videoView) {
+        videoView.stopPlayback();
+        mediaPlayer = null;
     }
 
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
@@ -482,8 +508,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (child != playView) {
                     if (child != view) {
                         if (child instanceof VideoView) {
-                            VideoView item = (VideoView) child;
-                            item.stopPlayback();
+                            cleanupVideo((VideoView) child);
                         }
 
                         removeViewAt(i);
@@ -510,6 +535,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         void onProgress(MultiImageView multiImageView, long current, long total);
 
         void onVideoError(MultiImageView multiImageView);
+
+        void onVideoLoaded(MultiImageView multiImageView, boolean hasAudio);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
     }

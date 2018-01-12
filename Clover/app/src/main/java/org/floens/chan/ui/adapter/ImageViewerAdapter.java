@@ -91,6 +91,12 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
         }
     }
 
+    public void setVolume(PostImage postImage, boolean muted) {
+        // It must be loaded, or the user is not able to click the menu item.
+        MultiImageView view = find(postImage);
+        view.setVolume(muted);
+    }
+
     public MultiImageView.Mode getMode(PostImage postImage) {
         MultiImageView view = find(postImage);
         if (view == null) {

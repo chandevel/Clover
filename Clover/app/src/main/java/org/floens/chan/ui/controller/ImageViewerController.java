@@ -39,6 +39,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -85,6 +86,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
     private static final int GO_POST_ID = 1;
+    private static final int VOLUME_ID = 3;
     private static final int SAVE_ID = 2;
     private static final int OPEN_BROWSER_ID = 103;
     private static final int SHARE_ID = 104;
@@ -108,6 +110,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private LoadingBar loadingBar;
 
     private ToolbarMenuItem overflowMenuItem;
+    private ToolbarMenuItem volumeMenuItem;
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
@@ -129,6 +132,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         if (goPostCallback != null) {
             navigation.menu.addItem(new ToolbarMenuItem(context, this, GO_POST_ID, R.drawable.ic_subdirectory_arrow_left_white_24dp));
         }
+
+        volumeMenuItem = navigation.menu.addItem(new ToolbarMenuItem(context,
+                this, VOLUME_ID, R.drawable.ic_volume_off_white_24dp));
         navigation.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
 
         List<FloatingMenuItem> items = new ArrayList<>();
@@ -144,17 +150,16 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         pager.addOnPageChangeListener(presenter);
         loadingBar = view.findViewById(R.id.loading_bar);
 
+        showVolumeMenuItem(false, true);
+
         // Sanity check
         if (parentController.view.getWindowToken() == null) {
             throw new IllegalArgumentException("parentController.view not attached");
         }
 
-        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public boolean onMeasured(View view) {
-                presenter.onViewMeasured();
-                return true;
-            }
+        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+            presenter.onViewMeasured();
+            return true;
         });
     }
 
@@ -188,6 +193,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                 break;
             case SAVE_ID:
                 saveShare(false, presenter.getCurrentPostImage());
+                break;
+            case VOLUME_ID:
+                presenter.onVolumeClicked();
                 break;
         }
     }
@@ -285,6 +293,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         ((ImageViewerAdapter) pager.getAdapter()).setMode(postImage, mode);
     }
 
+    @Override
+    public void setVolume(PostImage postImage, boolean muted) {
+        ((ImageViewerAdapter) pager.getAdapter()).setVolume(postImage, muted);
+    }
+
     public MultiImageView.Mode getImageMode(PostImage postImage) {
         return ((ImageViewerAdapter) pager.getAdapter()).getMode(postImage);
     }
@@ -333,6 +346,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     .setCancelable(false)
                     .show();
         }
+    }
+
+    @Override
+    public void showVolumeMenuItem(boolean show, boolean muted) {
+        ImageView view = volumeMenuItem.getView();
+        view.setVisibility(show ? View.VISIBLE : View.GONE);
+        view.setImageResource(muted ?
+                R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
     }
 
     public void startPreviewInTransition(PostImage postImage) {
