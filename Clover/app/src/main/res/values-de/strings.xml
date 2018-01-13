@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+    <!-- Defined in gradle flavor -->
+    <!---->
+
+    <string name="changelog_20301">&lt;h3&gt;Clover wurde aktualisiert&lt;/h3&gt;           Clover wurde aktualisiert auf v2.3.1&lt;br&gt;            &lt;br&gt;             &lt;br&gt;Neu in dieser Version:&lt;/b&gt;&lt;br&gt;            Bessere Link-Erkennung.&lt;br&gt;Mehr Themen.&lt;br&gt;            Das Laden der Bilder nimmt viel Zeit in Anspruch, wenn der Cache voll ist.&lt;br&gt;            Absturzfehler in Verbindung mit der Statusansicht behoben.&lt;br&gt;                  Fehlerbehebungen.</string>
+
+    <string name="cancel">Abbruch</string>
+    <string name="add">Hinzufügen</string>
+    <string name="close">Schliessen</string>
+    <string name="back">Zurück</string>
+    <string name="up">Rauf</string>
+    <string name="ok">In Ordnung</string>
+    <string name="exit">Beenden</string>
+    <string name="delete">Löschen</string>
+    <string name="undo">Rückgängig machen</string>
+    <string name="save">Speichern</string>
+
+    <string name="permission_app_settings">App Einstellungen</string>
+    <string name="permission_grant">Gewähre</string>
+
+    <string name="update_later">Später</string>
+    <string name="update_none">Clover ist auf dem aktuellsten Stand</string>
+    <string name="update_check_failed">Fehler beim Suchen nach Updates</string>
+    <string name="update_install">Installiere</string>
+    <string name="update_install_downloading">Lade Aktualisierung herunter</string>
+    <string name="update_install_download_failed">Herunterladen fehlgeschlagen</string>
+    <string name="update_install_download_move_failed">Die heruntergeladene Datei konnte nicht in das Download-Verzeichnis verschoben werden.</string>
+    <string name="update_retry_title">Aktualisierung Wiederholen</string>
+    <string name="update_retry">Clover wurde noch nicht aktualisiert. Klicke auf Wiederholen, um die Installation zu wiederholen.</string>
+    <string name="update_retry_button">wiederholen</string>
+
+    <string name="update_storage_permission_required_title">Speicher-Berechtigung erforderlich</string>
+    <string name="update_storage_permission_required">"Die Berechtigung zum Zugriff auf den Speicher ist für die Installation des Updates erforderlich. Aktiviere diese Berechtigung in den App-Einstellungen erneut, wenn Du sie dauerhaft deaktiviert hast."</string>
+
+    <plurals name="minutes">
+        <item quantity="one">%d Minute</item>
+        <item quantity="other">%d Minuten</item>
+    </plurals>
+
+    <plurals name="posts">
+        <item quantity="one">Post</item>
+        <item quantity="other">Posts</item>
+    </plurals>
+
+    <plurals name="reply">
+        <item quantity="one">%d antworten</item>
+        <item quantity="other">%d Antworten</item>
+    </plurals>
+
+    <plurals name="image">
+        <item quantity="one">%d Bild</item>
+        <item quantity="other">%d Bilder</item>
+    </plurals>
+
+    <plurals name="board">
+        <item quantity="one">%d Tafel</item>
+        <item quantity="other">%d Tafeln</item>
+    </plurals>
+
+    <plurals name="type">
+        <item quantity="one">%d typ</item>
+        <item quantity="other">%d typen</item>
+    </plurals>
+
+    <plurals name="bookmark">
+        <item quantity="one">%d Lesezeichen</item>
+        <item quantity="other">%d Lesezeichen</item>
+    </plurals>
+
+    <string name="card_stats">%1$dR %2$dI</string>
+
+    <string name="action_view_album">Album ansehen</string>
+    <string name="action_reload">Erneut Laden</string>
+    <string name="action_pin">Pin</string>
+    <string name="action_go_post">Gehe zum Post</string>
+    <string name="action_open_browser">Öffne im Browser</string>
+    <string name="action_share">Teilen</string>
+    <string name="action_download_album">Lade Album herunter</string>
+    <string name="action_search">Suche</string>
+    <string name="action_search_image">Bilder-Suche</string>
+    <string name="action_switch_catalog">Katalog-Modus</string>
+    <string name="action_switch_board">Tafel-Modus</string>
+    <string name="action_up">Spitze</string>
+    <string name="action_down">Unterseite</string>
+    <string name="action_order">Auftrag</string>
+    <string name="action_rename_pin">Benenne Pin um</string>
+    <string name="action_rename">Umbennen</string>
+    <string name="action_reply">Antwort</string>
+
+    <string name="open_link_not_matched">Clover kann diesen Link nicht öffnen, öffne in Deinem Browser.</string>
+
+    <string name="order_bump">Stossauftrag</string>
+    <string name="order_reply">Antwort zählen</string>
+    <string name="order_image">Bildanzahl</string>
+    <string name="order_newest">Neueste</string>
+    <string name="order_oldest">Älteste</string>
+
+    <string name="search_hint">Suche</string>
+    <string name="search_results">Gefunden %1$d %2$s for \"%3$s"</string>
+    <string name="search_empty">Suche nach Themen, Kommentaren, Namen und Dateinamen</string>
+
+    <string name="open_link_confirmation">Öffne Link?</string>
+    <string name="open_thread_confirmation">Öffne diesen Thread?</string>
+    <string name="open_link_failed">Keine Anwendungen zum Öffnen des Links gefunden</string>
+
+    <string name="thumbnail_load_failed_network">Fehler</string>
+    <string name="thumbnail_load_failed_server">404</string>
+    <string name="image_preview_failed">Anzeige des Bild fehlgeschlagen</string>
+    <string name="image_preview_failed_oom">Anzeige des Bild fehlgeschlagen, kein Speicherplatz vorhanden</string>
+    <string name="image_failed_big_image">Tiefenzoom Laden gescheitert</string>
+    <string name="image_not_found">Bild nicht gefunden</string>
+    <string name="image_open_failed">Öffnen des Bildes fehlgeschlagen</string>
+    <string name="image_spoiler_filename">Spoile Bild</string>
+
+    <string name="thread_board_select_add">Füge mehr hinzu</string>
+    <string name="thread_load_failed_ssl">HTTPS Fehler</string>
+    <string name="thread_load_failed_network">Netzwerkfehler</string>
+    <string name="thread_load_failed_parsing">API Fehler analysieren</string>
+    <string name="thread_load_failed_server">Serverfehler</string>
+    <string name="thread_load_failed_not_found">404 nicht gefunden</string>
+    <string name="thread_refresh_bar_inactive">Tippen um zu aktualisieren</string>
+    <string name="thread_refresh_now">Lade</string>
+    <string name="thread_refresh_countdown">Lade in %1$d</string>
+    <string name="thread_load_failed_retry">Wiederholen</string>
+    <string name="thread_archived">Archiviert</string>
+    <string name="thread_closed">Geschlossen</string>
+    <string name="thread_new_posts">%1$d neu %2$s</string>
+    <string name="thread_new_posts_goto">Anschauen</string>
+    <string name="thread_empty_select">Bitte wähle einen Thread</string>
+    <string name="thread_up_down_hint">Blättere nach oben / unten</string>
+    <string name="thread_pin_hint">Markiere diesen Thread</string>
+
+    <string name="board_edit">Tafel Bearbeiter</string>
+    <string name="board_edit_header">Hier können Sie Ihre Boards hinzufügen, entfernen und neu anordnen. Die oberste Tafel wird automatisch geladen.</string>
+    <string name="board_add">Füge Tafel hinzu</string>
+    <string name="board_add_hint">Tafel Code z.B. lit</string>
+    <string name="board_add_success">Hinzugefügte Tafel</string>
+    <string name="board_add_duplicate">Tafel wurde schon hinzugefügt</string>
+    <string name="board_add_unknown_title">Unbekannter Tafel Code</string>
+    <string name="board_add_unknown">Die Tafel mit dem Code %1$s ist nicht bekannt.</string>
+    <string name="board_edit_sort_a_z">Sortiere A-Z</string>
+    <string name="board_edit_board_removed">Entfernte Tafel \'%1$s\'</string>
+
+    <string name="filter_summary_all_boards">alle Tafeln</string>
+    <string name="filter_enabled">Aktiviert</string>
+    <string name="filter_filter">Filter</string>
+    <string name="filter_action">Aktion</string>
+    <string name="filter_pattern">Muster</string>
+    <string name="filter_match_test">Test Muster</string>
+    <string name="filter_pattern_hint_regex">Muster</string>
+    <string name="filter_boards">Tafeln</string>
+    <string name="filter_types">Typen</string>
+    <string name="filter_type_string_matching">String stimmt überein</string>
+    <string name="filter_type_regex_matching">Regex stimmt überein</string>
+    <string name="filter_all">alles</string>
+    <string name="filter_hide">Verstecke Post</string>
+    <string name="filter_color">Markiere Post</string>
+    <string name="filter_remove">Entferne Post</string>
+    <string name="filter_invalid_pattern">Ungültiges Muster</string>
+    <string name="filter_preview">Teste Deinen Filter</string>
+    <string name="filter_no_matches">Stimmt nicht überein</string>
+    <string name="filter_matches">Übereinstimmungen</string>
+    <string name="filter_color_pick">Farbe wählen</string>
+    <string name="filter_help_title">Filter Hilfe</string>
+    <string name="filter_help">Filter wirken auf ein bestimmtes Muster und einen Ort, um das Muster zu durchsuchen. &lt;br&gt;            Wenn das Muster übereinstimmt, kann der Beitrag versteckt oder hervorgehoben werden. &lt;br&gt;             &lt;h4&gt; Für Tripcodes, Namen und IDs: &lt;/ h4&gt;               &lt;p&gt;              Es entspricht genau dem angegebenen Muster. &lt;br&gt; &lt;tt&gt;! Ep8pui8Vw2 &lt;/ tt&gt; stimmt mit dem Tripcode überein &lt;i&gt;! Ep8pui8Vw2 &lt;/ i&gt; aber nicht &lt;i&gt; Ep8pu &lt;/ i&gt;.            &lt;/ p&gt;       &lt;h4&gt; Für Kommentare, Themen und Dateinamen: &lt;/ h4&gt; &lt;p&gt; Diese Filter sind musterbasiert und haben drei Modi: 1. Das Muster &lt;tt&gt;foo bar&lt;/ tt &gt; passt Text an, der eines der Wörter enthält. Es entspricht &lt;i&gt; foo &lt;/ i&gt; oder &lt;i&gt; bar &lt;/ i&gt;, aber nicht &lt;i&gt; foobar &lt;/ i&gt;. Das Platzieren eines * erlaubt das Ausfüllen eines beliebigen Charakters: &lt;tt&gt; f *o &lt;/ tt&gt; entspricht beiden &lt;i&gt;foo&lt;/ i&gt;, &lt;i&gt;foooo&lt;/ i&gt;, aber nicht &lt;i&gt;foobar&lt;/ i &gt; &lt;/ tt&gt; &lt;/&gt; &lt;i&gt;foo&lt;/ i&gt; nicht. &lt;br&gt; &lt;br&gt; 2. Zitieren Sie Ihr Muster mit  &lt;tt&gt;\"&lt;/tt&gt; wie &lt;tt&gt;\"foo bar\"&lt;/tt&gt; welches dem Text genau entspricht.             &lt;i&gt;foo  bar&lt;/i&gt; stimmt überein, aber &lt;i&gt;foo&lt;/i&gt; tut es nicht.&lt;br&gt;&lt;br&gt;                  3. Reguläre Ausdrücke. &lt;tt&gt; / ^&gt;implizierend/ &lt;/ tt&gt; zum Beispiel.               &lt;/ p&gt;</string>
+
+    <string name="filter_tripcode">Tripcode</string>
+    <string name="filter_name">Name</string>
+    <string name="filter_comment">Kommentar</string>
+    <string name="filter_id">ID</string>
+    <string name="filter_subject">Thema</string>
+    <string name="filter_filename">Dateiname</string>
+
+    <string name="board_select_all">Alles auswählen</string>
+    <string name="board_select_none">Nichts Ausgewählt</string>
+
+    <string name="history_clear">Lösche Verlauf</string>
+    <string name="history_clear_confirm">Verlauf löschen?</string>
+    <string name="history_clear_confirm_button">Löschen</string>
+    <string name="history_toggle_hint">Aktiviere oder Deaktiviere den Verlauf</string>
+    <string name="history_empty_info">Kein Verlauf</string>
+
+    <string name="saved_reply_clear">Lösche Post Verlauf</string>
+    <string name="saved_reply_clear_confirm">Post Verlauf Löschen?</string>
+    <string name="saved_reply_clear_confirm_button">Löschen</string>
+
+    <string name="drawer_board">Tafel</string>
+    <string name="drawer_catalog">Katalog</string>
+    <string name="drawer_pinned">Gemerkte Threads</string>
+    <string name="drawer_pin_removed">Entfernt \'%1$s\'</string>
+    <string name="drawer_pins_cleared">%1$s gelöscht</string>
+    <string name="drawer_pins_non_cleared">Keine Lesezeichen gelöscht</string>
+    <string name="drawer_pins_non_cleared_try_all">Keine Lesezeichen gelöscht. Halten, um alle zu entfernen.</string>
+
+    <string name="post_highlight_id">Markierung ID</string>
+    <string name="post_highlight_tripcode">Markierter Tripcode</string>
+    <string name="post_filter_tripcode">Filter Tripcode</string>
+    <string name="post_text_copied">Text wurde in die Zwischenablage kopiert</string>
+    <string name="post_quote">Zitat</string>
+    <string name="post_quote_text">Zitat Text</string>
+    <string name="post_info">Information</string>
+    <string name="post_info_title">Post Information</string>
+    <string name="post_show_links">Zeige Links</string>
+    <string name="post_share">Teilen</string>
+    <string name="post_copy_text">Kopiere Text</string>
+    <string name="post_report">Bericht</string>
+    <string name="post_hide">Verbergen</string>
+    <string name="post_hidden">Versteckter Thread</string>
+    <string name="post_delete">Löschen</string>
+
+    <string name="reply_name">Name</string>
+    <string name="reply_options">Optionen</string>
+    <string name="reply_subject">Betreff</string>
+    <string name="reply_comment_thread">Kommentiere Antwort</string>
+    <string name="reply_comment_board">Kommentiere neuen Thread</string>
+    <string name="reply_file_name">Dateiname</string>
+    <string name="reply_file_too_big">Warnung: Dateigrösse zu gross (%1$s / %2$s)</string>
+    <string name="reply_webm_too_big">Warnung: WebM Grösse zu gross (%1$s / %2$s)</string>
+    <string name="reply_file_open_failed">Öffnen der Datei fehlgeschlagen</string>
+    <string name="reply_spoiler_image">Spoiler Bild</string>
+    <string name="reply_no_preview">Keine Vorschau</string>
+    <string name="reply_submit">Einreichen</string>
+    <string name="reply_error">Fehler beim Posten</string>
+    <string name="reply_success">Post erfolgreich</string>
+    <string name="reply_captcha_text">Gebe den Text ein</string>
+    <string name="reply_more_hint">Mehr Optionen hier!</string>
+
+    <string name="delete_confirm">Lösche Deinen Beitrag?</string>
+    <string name="delete_wait">Lösche Post...</string>
+    <string name="delete_success">Post gelöscht</string>
+    <string name="delete_image_only">Lösche nur das Bild</string>
+    <string name="delete_error">Fehler beim Löschen des Posts</string>
+
+    <string name="video_playback_warning_title">WebM Video Fehler</string>
+    <string name="video_playback_warning">Das WebM-Video konnte nicht wiedergegeben werden. \n
+     Dies könnte ein Problem mit der Hardware Ihres Telefons sein. \n
+     \n
+     Sie können einen externen Media-Player mit einem Software-Decoder installieren und in den Einstellungen \"Videos extern öffnen\" aktivieren, sodass das Video extern in einer Software-Dekodierungs-App geöffnet wird.</string>
+    <string name="video_playback_ignore">Nicht mehr Anzeigen</string>
+
+    <string name="watch_pause_pins">Beobachten Beenden</string>
+    <string name="watch_idle">Keine Neuen Beiträge</string>
+
+    <plurals name="watch_title">
+        <item quantity="one">Beobachte ein Thread</item>
+        <item quantity="other">Beobachte %d Threads</item>
+    </plurals>
+
+    <plurals name="watch_new">
+        <item quantity="one">%d neuer Beitrag</item>
+        <item quantity="other">%d neue Beiträge</item>
+    </plurals>
+
+    <plurals name="watch_new_quotes">
+        <item quantity="one">%d neuer Beitrag, der Dich zitiert</item>
+        <item quantity="other">%d neue Beiträge, die Dich zitieren</item>
+    </plurals>
+
+    <plurals name="watch_new_quoting">
+        <item quantity="one">%1$d neuer Beitrag, %2$d der dich zitiert</item>
+        <item quantity="other">%1$d neue Beiträge, %2$d die Dich zitieren</item>
+    </plurals>
+
+    <string name="history_screen">Verlauf</string>
+
+    <string name="filters_screen">Filter</string>
+
+    <string name="album_download_screen">Wähle Bilder (%1$d / %2$d)</string>
+    <string name="album_download_none_checked">Bitte wähle Bilder zum herunterladen</string>
+    <string name="album_download_confirm">%1$s wird in diesen Ordner heruntergeladen %2$s</string>
+
+    <string name="album_view_screen">Album</string>
+
+    <string name="report_screen">Bericht %1$s</string>
+
+    <string name="image_save_notification_downloading">Lade Bilder herunter</string>
+    <string name="image_save_notification_cancel">Drücke zum Verlassen</string>
+    <string name="image_save_saved">Bild gespeichert</string>
+    <string name="image_save_as">Gespeichert als %1$s</string>
+    <string name="image_save_succeeded">Bild gespeichert nach</string>
+    <string name="image_save_failed">Speichern des Bildes fehlgeschlagen</string>
+    <string name="image_save_directory_error">Speicherverzeichnis kann nicht erstellt werden</string>
+
+    <string name="settings_screen">Einstellungen</string>
+    <string name="settings_group_general">Allgemein</string>
+    <string name="settings_board_edit">Tafeln</string>
+    <string name="settings_watch">Thread Beobachter</string>
+    <string name="settings_pass">4chan pass</string>
+    <string name="settings_advanced_hint">Probiere die erweiterten Einstellungen aus!</string>
+
+    <string name="settings_group_appearance">Aussehen</string>
+
+    <string name="settings_group_browsing">Durchsuchen</string>
+    <string name="setting_theme">Thema</string>
+    <string name="setting_theme_explanation">Wischen Sie, um das Design zu ändern. Tippen Sie auf die Symbolleiste, um die Farbe zu ändern.</string>
+    <string name="setting_theme_accent">Klicke hier, um die FAB-Farbe zu ändern</string>
+    <string name="setting_layout_mode">Gestaltungs-Modus</string>
+    <string name="setting_layout_mode_auto">Automatisch</string>
+    <string name="setting_layout_mode_phone">Telefon Aufmachung</string>
+    <string name="setting_layout_mode_slide">DIA-Modus</string>
+    <string name="setting_layout_mode_split">Spalten-Modus</string>
+    <string name="setting_font_size">Schriftartgrösse</string>
+    <string name="setting_font_size_default">(Standard)</string>
+    <string name="setting_font_condensed">Verwenden eine komprimierte Schriftart</string>
+    <string name="setting_font_condensed_description">Verwenden für die Posts eine komprimierte Schriftart</string>
+    <string name="setting_board_grid_span_count">Katalogmodus-Spalten</string>
+    <string name="setting_board_grid_span_count_default">Automatisch</string>
+    <string name="setting_board_grid_span_count_item">%1$d Spalten</string>
+    <string name="setting_open_link_confirmation">Erst fragen, bevor Links geöffnet werden</string>
+    <string name="setting_auto_refresh_thread">Automatische Aktualisierung von Threads</string>
+    <string name="setting_image_auto_load">Lade Bilder Automatisch</string>
+
+    <string name="setting_image_auto_load_all">Immer</string>
+    <string name="setting_image_auto_load_wifi">Nur WLAN</string>
+    <string name="setting_image_auto_load_none">Nie</string>
+
+    <string name="setting_video_auto_load">Videos automatisch laden</string>
+    <string name="setting_video_auto_load_description">Hängt ab vom automatischen Laden der Bilder</string>
+    <string name="setting_video_open_external">Öffne Externe Videos</string>
+    <string name="setting_video_open_external_description">Öffne Videos mit einem externen Medien Abspielgerät</string>
+    <string name="setting_text_only">Nur Textmodus</string>
+    <string name="setting_text_only_description">Ausblenden von Bildern in der Tafel- und Thread-Ansicht</string>
+    <string name="setting_clear_thread_hides">Lösche alle Thread Ausblendungen</string>
+    <string name="setting_cleared_thread_hides">Alle Thread Ausblendungen gelöscht</string>
+
+    <string name="settings_group_posting">Posting</string>
+    <string name="setting_post_default_name">Standard Post Name</string>
+    <string name="setting_post_pin">Pinne Thread bei Post</string>
+
+    <string name="settings_group_about">Über</string>
+    <string name="settings_update_check">Überprüfe auf Aktualisierungen</string>
+    <string name="settings_about_license">Veröffentlicht unter der GNU GPLv3 license</string>
+    <string name="settings_about_license_description">Tippe hier, um die Lizenz anzuzeigen</string>
+    <string name="settings_about_licenses">Open Source Lizenzen</string>
+    <string name="settings_about_licenses_description">Rechtliche Informationen zu Lizenzen</string>
+    <string name="settings_developer">Entwickler Einstellungen</string>
+    <string name="settings_open_logs">Zeige Protokolle</string>
+    <string name="settings_logs_screen">Protokolle</string>
+    <string name="settings_logs_copy">Kopiere</string>
+    <string name="settings_logs_copied_to_clipboard">In die Zwischenablage kopiert</string>
+
+    <string name="settings_screen_advanced">Erweiterte Einstellungen</string>
+    <string name="settings_group_advanced">Erweiterte Einstellungen</string>
+    <string name="save_location_screen">Speicherort</string>
+    <string name="save_location_storage_permission_required_title">Speicher Berechtigung  erforderlich</string>
+    <string name="save_location_storage_permission_required">"Die Berechtigung zum Zugriff auf den Speicher ist für das Durchsuchen von Dateien erforderlich. Aktiviere  diese Berechtigung in den App-Einstellungen erneut, wenn Du sie dauerhaft deaktiviert hast."</string>
+    <string name="setting_save_folder">Dateispeicherordner</string>
+    <string name="setting_save_folder_error_create_folder">Fehler beim Erstellen eines Sicherungsordner</string>
+    <string name="setting_folder_pick_ok">Wähle</string>
+    <string name="setting_use_new_captcha">Benutze ein neues Captcha</string>
+    <string name="setting_use_new_captcha_description">Aktivieren Sie das neuere Recaptcha für Thread-Antworten.</string>
+    <string name="setting_save_original_filename">Speichere ursprünglichen Dateinamen</string>
+    <string name="setting_save_board_folder">Speichere Bilder in einem Tafel Ordner</string>
+    <string name="setting_save_board_folder_description">Erstellen Sie einen Ordner für jede Tafel, in dem Bilder gespeichert werden sollen</string>
+    <string name="setting_share_url">Teile URL vom Bild</string>
+    <string name="setting_share_url_description">Teile die URL vom Bild anstatt nur das Bild</string>
+    <string name="setting_network_https">Nutze HTTPS</string>
+    <string name="setting_network_https_description">Nutze HTTPS für alle Netzwerkanfragen</string>
+    <string name="setting_enable_reply_fab">Aktivieren Sie die Antwort-FAB</string>
+    <string name="setting_enable_reply_fab_description">Das Deaktivieren ersetzt es durch eine Menüoption</string>
+    <string name="setting_anonymize">Mache alle Anonym</string>
+    <string name="setting_anonymize_ids">Verberge IDs</string>
+    <string name="setting_show_anonymous_name">Zeige Anonyme Benutzernamen</string>
+    <string name="settings_reveal_image_spoilers">Bildspoiler aufdecken</string>
+    <string name="settings_reveal_text_spoilers">Textspoiler aufdecken</string>
+    <string name="settings_reveal_text_spoilers_description">Lässt den Spoiler-Text angeklickt erscheinen</string>
+    <string name="setting_buttons_bottom">AntwortTasten unten</string>
+    <string name="setting_confirm_exit">Bestätige vor dem Beenden</string>
+    <string name="setting_confirm_exit_title">Bestätige Beenden</string>
+    <string name="setting_tap_no_rely">Tippe auf die Post-Nummer, um zu antworten</string>
+    <string name="setting_volume_key_scrolling">Lautstärketasten blättern Inhalt</string>
+    <string name="setting_post_full_date">Zeige das vollständige Datum bei Posts</string>
+    <string name="setting_post_file_info">Zeige Datei Information bei Posts</string>
+    <string name="setting_post_filename">Zeige Dateiname bei Posts</string>
+    <string name="setting_never_hide_toolbar">Verstecke Niemals die Symbolleiste</string>
+    <string name="setting_controller_swipeable">Erlaube Bildschirmen zu Wischen</string>
+
+    <string name="settings_group_proxy">HTTP Proxy</string>
+    <string name="setting_proxy_enabled">Aktiviere Proxy</string>
+    <string name="setting_proxy_address">Proxy Server Adresse</string>
+    <string name="setting_proxy_port">Proxy Server Port</string>
+
+    <string name="settings_screen_watch">Beobachter Einstellungen</string>
+    <string name="settings_group_watch">Beobachter Einstellungen</string>
+    <string name="setting_watch_info">Um die Pins für neue Beiträge zu beobachten, schalten Sie den Threadwatcher ein.</string>
+    <string name="setting_watch_summary_enabled">Zusehen gepinnter Threads</string>
+    <string name="setting_watch_summary_disabled">Aus</string>
+    <string name="setting_watch_enable_background">Aktiviere den Hintergrund</string>
+    <string name="setting_watch_enable_background_description">Beobachten Sie die Pins, wenn Clover im Hintergrund ist</string>
+    <string name="setting_watch_background_timeout">Hintergrundaktualisierungsintervall</string>
+    <string name="setting_watch_background_timeout_description">Die Zeit zwischen den Aktualisierungen im Hintergrund</string>
+    <string name="setting_watch_notify_mode">Benachrichtigen über</string>
+    <string-array name="setting_watch_notify_modes">
+        <item>Alle Posts</item>
+        <item>Nur Beiträge, die dich zitieren</item>
+    </string-array>
+    <string name="setting_watch_sound">Benachrichtigungston</string>
+    <string-array name="setting_watch_sounds">
+        <item>Alle Posts</item>
+        <item>Nur Beiträge, die dich zitieren</item>
+    </string-array>
+    <string name="setting_watch_peek">Heads-up-Benachrichtigung bei Erwähnungen</string>
+    <string name="setting_watch_peek_description">Zeige eine Heads-up-Benachrichtigung bei Erwähnungen</string>
+    <string name="setting_watch_led">Benachrichtigungslicht</string>
+    <string-array name="setting_watch_leds">
+        <item>Keine</item>
+        <item>Weiss</item>
+        <item>E</item>
+        <item>Gelb</item>
+        <item>Grün</item>
+        <item>Cyan</item>
+        <item>Blau</item>
+        <item>Lila</item>
+    </string-array>
+
+    <string name="settings_screen_pass">4chan pass</string>
+    <string name="setting_pass_token">Token</string>
+    <string name="setting_pass_pin">PIN</string>
+    <string name="setting_pass_authenticated">Gerät Authorisiert!</string>
+    <string name="setting_pass_login">Senden</string>
+    <string name="setting_pass_logout">Abmeldung</string>
+    <string name="setting_pass_logging_in">Lade...</string>
+    <string name="setting_pass_error">Verbindungsfehler</string>
+    <string name="setting_pass_bottom_description">"                  Login-Daten für 4chan Pass vergessen? &lt;br&gt; &lt;a href=\"https://www.4chan.org/pass?reset\"&gt;Gehe hierhin, um Deine PIN zurückzusetzen.&lt;a&gt;&lt;br&gt;             &lt;br&gt;           Hast du noch keinen 4chan Pass? &lt;br&gt; &lt;a href=\"https://www.4chan.org/pass\"&gt; Klick hier, um mehr zu erfahren.&lt;/a&gt;              "</string>
+    <string name="setting_pass_summary_enabled">Benutze 4chan pass</string>
+    <string name="setting_pass_summary_disabled">Ausgeschaltet</string>
+
+    <string name="settings_screen_theme">Themen</string>
+</resources>
