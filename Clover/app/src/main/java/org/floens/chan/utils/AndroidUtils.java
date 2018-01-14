@@ -75,14 +75,16 @@ public class AndroidUtils {
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public static void init(Application application) {
-        AndroidUtils.application = application;
+        if (AndroidUtils.application == null) {
+            AndroidUtils.application = application;
 
-        ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
-        ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
-        ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
+            ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
+            ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
+            ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
 
-        connectivityManager = (ConnectivityManager)
-                application.getSystemService(Context.CONNECTIVITY_SERVICE);
+            connectivityManager = (ConnectivityManager)
+                    application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
     }
 
     public static Resources getRes() {
@@ -98,6 +100,10 @@ public class AndroidUtils {
     }
 
     public static SharedPreferences getPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    public static SharedPreferences getPreferences(Application application) {
         return PreferenceManager.getDefaultSharedPreferences(application);
     }
 

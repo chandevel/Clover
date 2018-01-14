@@ -78,6 +78,7 @@ android {
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", ""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
+            buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"https://acra.floens.org/clover/report\""
         }
 
         dev {
@@ -86,6 +87,7 @@ android {
             resValue "string", "app_name", "Clover dev"
             resValue "string", "app_flavor_name", ""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"\""
+            buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"\""
         }
 
         fdroid {
@@ -94,6 +96,7 @@ android {
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", "F-Droid"
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
+            buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"https://acra.floens.org/clover/report\""
         }
     }
 
@@ -103,7 +106,7 @@ android {
                 signingConfig signingConfigs.release
             }
             minifyEnabled true
-            proguardFiles 'proguard.cfg'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
         }
 
         debug {
@@ -141,4 +144,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.1'
     implementation 'me.xdrop:fuzzywuzzy:1.1.9'
     implementation 'org.codejargon.feather:feather:1.0'
+
+    releaseImplementation 'ch.acra:acra-http:5.0.1'
 }

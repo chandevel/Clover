@@ -17,5 +17,16 @@
  */
 package org.floens.chan;
 
+/**
+ * The ChanApplication belonging to the debug configuration.
+ *
+ * It does not have acra enabled, unlike the release version, and immediately calls initialize.
+ */
 public class ChanApplication extends Chan {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        initialize();
+    }
 }

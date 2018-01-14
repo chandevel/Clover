@@ -20,6 +20,7 @@ package org.floens.chan;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
+@SuppressLint("Registered") // extended by ChanApplication, which is registered in the manifest.
 public class Chan extends Application implements UserAgentProvider, Application.ActivityLifecycleCallbacks {
     private static final String TAG = "ChanApplication";
 
@@ -55,6 +57,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
     @Inject
     DatabaseManager databaseManager;
+
     private Feather feather;
 
     public Chan() {
@@ -75,14 +78,16 @@ public class Chan extends Application implements UserAgentProvider, Application.
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
 
+        AndroidUtils.init(this);
+    }
+
+    public void initialize() {
         final long startTime = Time.startTiming();
 
         registerActivityLifecycleCallbacks(this);
-
-        AndroidUtils.init(this);
 
         userAgent = createUserAgent();
 

@@ -29,6 +29,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.presenter.SettingsPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
+import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.SettingView;
 import org.floens.chan.ui.settings.SettingsController;
@@ -49,6 +50,7 @@ public class MainSettingsController extends SettingsController implements Settin
     private SettingView developerView;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
+    private SettingView crashReportSetting;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -106,6 +108,15 @@ public class MainSettingsController extends SettingsController implements Settin
                 R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled);
     }
 
+    @Override
+    public void onPreferenceChange(SettingView item) {
+        super.onPreferenceChange(item);
+        if (item == crashReportSetting) {
+            Toast.makeText(context, R.string.settings_crash_reporting_toggle_notice,
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
     private void populatePreferences() {
         // General group
         {
@@ -152,6 +163,11 @@ public class MainSettingsController extends SettingsController implements Settin
         final String version = setupVersionSetting(about);
 
         setupUpdateSetting(about);
+
+        crashReportSetting = about.add(new BooleanSettingView(this,
+                ChanSettings.crashReporting,
+                R.string.settings_crash_reporting,
+                R.string.settings_crash_reporting_description));
 
         setupExtraAboutSettings(about, version);
 

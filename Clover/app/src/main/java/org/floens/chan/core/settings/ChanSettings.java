@@ -155,6 +155,8 @@ public class ChanSettings {
     public static final LongSetting updateCheckTime;
     public static final LongSetting updateCheckInterval;
 
+    public static final BooleanSetting crashReporting;
+
     static {
         SharedPreferences p = AndroidUtils.getPreferences();
 
@@ -237,6 +239,8 @@ public class ChanSettings {
 
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
+
+        crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"
