@@ -164,10 +164,7 @@ public class MainSettingsController extends SettingsController implements Settin
 
         setupUpdateSetting(about);
 
-        crashReportSetting = about.add(new BooleanSettingView(this,
-                ChanSettings.crashReporting,
-                R.string.settings_crash_reporting,
-                R.string.settings_crash_reporting_description));
+        setupCrashReportingSetting(about);
 
         setupExtraAboutSettings(about, version);
 
@@ -272,6 +269,15 @@ public class MainSettingsController extends SettingsController implements Settin
             about.add(new LinkSettingView(this,
                     R.string.settings_update_check, 0,
                     v -> ((StartActivity) context).getVersionHandler().manualUpdateCheck()));
+        }
+    }
+
+    private void setupCrashReportingSetting(SettingsGroup about) {
+        if (ChanSettings.isCrashReportingAvailable()) {
+            crashReportSetting = about.add(new BooleanSettingView(this,
+                    ChanSettings.crashReporting,
+                    R.string.settings_crash_reporting,
+                    R.string.settings_crash_reporting_description));
         }
     }
 }

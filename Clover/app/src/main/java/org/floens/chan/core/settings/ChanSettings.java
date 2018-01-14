@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.update.UpdateManager;
@@ -251,6 +252,14 @@ public class ChanSettings {
         // preference_network_https true
         // counter_settings_open
         // counter_reply_open
+    }
+
+    public static boolean isCrashReportingAvailable() {
+        return !BuildConfig.CRASH_REPORT_ENDPOINT.isEmpty();
+    }
+
+    public static boolean isCrashReportingEnabled() {
+        return isCrashReportingAvailable() && crashReporting.get();
     }
 
     public static ThemeColor getThemeAndColor() {

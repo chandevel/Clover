@@ -116,6 +116,6 @@ public class ChanApplication extends Chan {
     }
 
     private boolean enableAcra() {
-        return !BuildConfig.CRASH_REPORT_ENDPOINT.isEmpty() && ChanSettings.crashReporting.get();
+        return ChanSettings.isCrashReportingEnabled();
     }
 }
