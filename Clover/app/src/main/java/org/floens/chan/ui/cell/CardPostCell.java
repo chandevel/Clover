@@ -79,7 +79,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         content = findViewById(R.id.card_content);
         content.setRatio(9f / 16f);
         thumbnailView = findViewById(R.id.thumbnail);
-        thumbnailView.setRatio(16f / 9f);
+        thumbnailView.setRatio(16f / 13f);
         thumbnailView.setOnClickListener(this);
         title = findViewById(R.id.title);
         comment = findViewById(R.id.comment);
