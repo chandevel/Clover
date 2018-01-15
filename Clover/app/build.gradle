@@ -9,7 +9,7 @@ def getCommitHash = { ->
         commandLine 'git', 'rev-parse', '--short', 'HEAD'
         standardOutput = stdout
     }
-    return "-" + stdout.toString().trim()
+    return stdout.toString().trim()
 }
 
 android {
@@ -47,6 +47,8 @@ android {
     keyPass=pass
     */
 
+    def hash = getCommitHash();
+
     File f = file('keys.properties')
     boolean doSign = f.exists();
 
@@ -77,6 +79,7 @@ android {
             applicationId "org.floens.chan"
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", ""
+            buildConfigField "String", "BUILD_HASH", "\"$hash\""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
             buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"https://acra.floens.org/clover/report\""
         }
@@ -86,8 +89,9 @@ android {
             applicationId "org.floens.chan.dev"
             resValue "string", "app_name", "Clover dev"
             resValue "string", "app_flavor_name", ""
-            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"\""
-            buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"\""
+            buildConfigField "String", "BUILD_HASH", "\"$hash\""
+            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/clover/api/update_dev\""
+            buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"https://acra.floens.org/clover/report\""
         }
 
         fdroid {
@@ -95,6 +99,7 @@ android {
             applicationId "org.floens.chan"
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", "F-Droid"
+            buildConfigField "String", "BUILD_HASH", "\"$hash\""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
             buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"https://acra.floens.org/clover/report\""
         }
@@ -110,7 +115,7 @@ android {
         }
 
         debug {
-            versionNameSuffix getCommitHash()
+            versionNameSuffix "-" + hash
 //            minifyEnabled true
 //            proguardFiles 'proguard.cfg'
         }

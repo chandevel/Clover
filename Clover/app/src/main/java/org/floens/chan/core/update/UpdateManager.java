@@ -25,8 +25,6 @@ import android.os.StrictMode;
 import android.text.TextUtils;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 
 import org.floens.chan.BuildConfig;
 import org.floens.chan.core.cache.FileCache;
@@ -88,28 +86,23 @@ public class UpdateManager {
         }
 
         Logger.d(TAG, "Calling update API");
-        volleyRequestQueue.add(new UpdateApiRequest(new Response.Listener<UpdateApiRequest.UpdateApiResponse>() {
-            @Override
-            public void onResponse(UpdateApiRequest.UpdateApiResponse response) {
-                if (!processUpdateApiResponse(response) && manual) {
-                    callback.onManualCheckNone();
-                }
+        volleyRequestQueue.add(new UpdateApiRequest(response -> {
+            if (!processUpdateApiResponse(response) && manual) {
+                callback.onManualCheckNone();
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Logger.e(TAG, "Failed to process API call for updating", error);
+        }, error -> {
+            Logger.e(TAG, "Failed to process API call for updating", error);
 
-                if (manual) {
-                    callback.onManualCheckFailed();
-                }
+            if (manual) {
+                callback.onManualCheckFailed();
             }
         }));
     }
 
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
         if (response.newerApiVersion) {
-            Logger.e(TAG, "API endpoint reports a higher API version than we support, aborting update check.");
+            Logger.e(TAG, "API endpoint reports a higher API version than we support, " +
+                    "aborting update check.");
 
             // ignore
             return false;
@@ -129,25 +122,40 @@ public class UpdateManager {
     }
 
     private boolean processUpdateMessage(UpdateApiRequest.UpdateApiMessage message) {
-        if (message.code <= BuildConfig.VERSION_CODE) {
-            Logger.d(TAG, "No newer version available (" + BuildConfig.VERSION_CODE + " >= " + message.code + ").");
-            // Our code is newer than the message
-            return false;
-        }
+        if (isMessageRelevantForThisVersion(message)) {
+            if (message.type.equals(UpdateApiRequest.TYPE_UPDATE)) {
+                if (message.apkUrl == null) {
+                    Logger.i(TAG, "Update available but none for this build flavor.");
+                    // Not for this flavor, discard.
+                    return false;
+                }
 
-        if (message.type.equals(UpdateApiRequest.TYPE_UPDATE)) {
-            if (message.apkUrl == null) {
-                Logger.i(TAG, "Update available but none for this build flavor.");
-                // Not for this flavor, discard.
-                return false;
+                Logger.i(TAG, "Update available (" + message.code + ") with url \"" +
+                        message.apkUrl + "\".");
+                callback.showUpdateAvailableDialog(message);
+                return true;
             }
-
-            Logger.i(TAG, "Update available (" + message.code + ") with url \"" + message.apkUrl + "\".");
-            callback.showUpdateAvailableDialog(message);
-            return true;
         }
 
         return false;
+    }
+
+    private boolean isMessageRelevantForThisVersion(UpdateApiRequest.UpdateApiMessage message) {
+        if (message.code != 0) {
+            if (message.code <= BuildConfig.VERSION_CODE) {
+                Logger.d(TAG, "No newer version available (" +
+                        BuildConfig.VERSION_CODE + " >= " + message.code + ").");
+                // Our code is newer than the message
+                return false;
+            } else {
+                return true;
+            }
+        } else if (message.hash != null) {
+            return !message.hash.equals(BuildConfig.BUILD_HASH);
+        } else {
+            Logger.w(TAG, "No code or hash found");
+            return false;
+        }
     }
 
     /**
@@ -180,7 +188,9 @@ public class UpdateManager {
     }
 
     private void copyToPublicDirectory(File cacheFile) {
-        File out = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), DOWNLOAD_FILE);
+        File out = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS),
+                DOWNLOAD_FILE);
         try {
             IOUtils.copyFile(cacheFile, out);
         } catch (IOException e) {
@@ -198,7 +208,8 @@ public class UpdateManager {
         // Then launch the APK install intent.
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setDataAndType(Uri.fromFile(install.installFile), "application/vnd.android.package-archive");
+        intent.setDataAndType(Uri.fromFile(install.installFile),
+                "application/vnd.android.package-archive");
 
         // The installer wants a content scheme from android N and up,
         // but I don't feel like implementing a content provider just for this feature.
