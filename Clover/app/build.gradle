@@ -92,6 +92,8 @@ android {
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/api/update_dev\""
             buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"https://acra.floens.org/clover/report\""
+
+            versionNameSuffix "-" + hash
         }
 
         fdroid {
@@ -115,7 +117,6 @@ android {
         }
 
         debug {
-            versionNameSuffix "-" + hash
 //            minifyEnabled true
 //            proguardFiles 'proguard.cfg'
         }
