@@ -328,21 +328,22 @@ table th, table td {
         text-align: center;
         padding: 20px 0 0 0;
     }
-}
 
-@media (max-width: 500px) {
     .header .navbar li {
         margin: 0 5px;
     }
+}
 
+@media (max-width: 500px) {
     .devices .phone {
         width: 240px;
         height: 400px;
     }
-}
 
-@media (max-width: 400px) {
     .header .navbar li {
         font-size: 13px;
     }
+}
+
+@media (max-width: 400px) {
 }

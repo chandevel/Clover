@@ -91,7 +91,7 @@ function getReleases() {
     }
 }
 
-var pages = ['index', 'fdroid', 'releases', 'donate']
+var pages = ['index', 'releases', 'fdroid', 'dev', 'donate']
 
 function switchPage(page) {
     if (page[0] == '#') {
