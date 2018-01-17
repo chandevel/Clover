@@ -121,10 +121,6 @@ android {
 //            proguardFiles 'proguard.cfg'
         }
     }
-
-    sourceSets {
-        beta.java.srcDirs = ['src/release/java']
-    }
 }
 
 dependencies {
