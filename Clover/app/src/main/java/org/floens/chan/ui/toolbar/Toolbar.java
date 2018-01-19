@@ -66,7 +66,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (recyclerView.getLayoutManager() != null &&
+                    newState == RecyclerView.SCROLL_STATE_IDLE) {
                 processRecyclerViewScroll(recyclerView);
             }
         }
