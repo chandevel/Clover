@@ -173,7 +173,7 @@ public class Board implements SiteReference {
      *
      * @param o other board to update from.
      */
-    public void update(Board o) {
+    public void updateExcudingUserFields(Board o) {
         siteId = o.siteId;
         site = o.site;
         name = o.name;

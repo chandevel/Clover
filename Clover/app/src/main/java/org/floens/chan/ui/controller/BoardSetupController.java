@@ -20,7 +20,6 @@ package org.floens.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -130,6 +129,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
     @Override
     public void onDestroy() {
         super.onDestroy();
+        presenter.destroy();
     }
 
     public void setSite(Site site) {
@@ -154,12 +154,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setView(boardAddLayout)
 //                .setTitle(R.string.setup_board_add)
-                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        boardAddLayout.onPositiveClicked();
-                    }
-                })
+                .setPositiveButton(R.string.add, (dialog1, which) -> boardAddLayout.onPositiveClicked())
                 .setNegativeButton(R.string.cancel, null)
                 .create();
 
@@ -183,12 +178,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
                 Snackbar.LENGTH_LONG);
         fixSnackbarText(context, snackbar);
 
-        snackbar.setAction(R.string.undo, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.undoRemoveBoard(board);
-            }
-        });
+        snackbar.setAction(R.string.undo, v -> presenter.undoRemoveBoard(board));
         snackbar.show();
     }
 
@@ -232,7 +222,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         public void onBindViewHolder(SavedBoardCell holder, int position) {
             Board savedBoard = savedBoards.get(position);
             holder.text.setText(BoardHelper.getName(savedBoard));
-            holder.description.setText(BoardHelper.getDescription(savedBoard));
+            holder.description.setText(savedBoard.order + " - " + BoardHelper.getDescription(savedBoard));
         }
 
         @Override

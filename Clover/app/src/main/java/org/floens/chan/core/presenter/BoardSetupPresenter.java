@@ -25,9 +25,10 @@ import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -47,7 +48,7 @@ public class BoardSetupPresenter {
     private BackgroundUtils.Cancelable suggestionCall;
 
     private List<BoardSuggestion> suggestions = new ArrayList<>();
-    private Set<String> selectedSuggestions = new HashSet<>();
+    private List<String> selectedSuggestions = new LinkedList<>();
 
     @Inject
     public BoardSetupPresenter(BoardManager boardManager) {
@@ -58,8 +59,12 @@ public class BoardSetupPresenter {
         this.callback = callback;
         this.site = site;
 
-        updateSavedBoards();
+        savedBoards = boardManager.getSiteSavedBoards(site);
         callback.setSavedBoards(savedBoards);
+    }
+
+    public void destroy() {
+        boardManager.updateBoardOrders(savedBoards);
     }
 
     public void addClicked() {
@@ -103,10 +108,16 @@ public class BoardSetupPresenter {
         int count = 0;
 
         if (site.boardsType() == Site.BoardsType.DYNAMIC) {
-            for (Board board : boardManager.getSiteBoards(site)) {
-                if (selectedSuggestions.contains(board.code)) {
+            List<Board> siteBoards = boardManager.getSiteBoards(site);
+            Map<String, Board> siteBoardsByCode = new HashMap<>();
+            for (Board siteBoard : siteBoards) {
+                siteBoardsByCode.put(siteBoard.code, siteBoard);
+            }
+            for (String selectedSuggestion : selectedSuggestions) {
+                Board board = siteBoardsByCode.get(selectedSuggestion);
+                if (board != null) {
                     boardManager.saveBoard(board);
-                    boardManager.updateBoardOrder(board, savedBoards.size());
+                    savedBoards.add(board);
                     count++;
                 }
             }
@@ -114,12 +125,12 @@ public class BoardSetupPresenter {
             for (String suggestion : selectedSuggestions) {
                 Board board = site.createBoard(suggestion, suggestion);
                 boardManager.saveBoard(board);
-                boardManager.updateBoardOrder(board, savedBoards.size());
+                savedBoards.add(board);
                 count++;
             }
         }
 
-        updateSavedBoards();
+        setOrder();
         callback.setSavedBoards(savedBoards);
         callback.boardsWereAdded(count);
     }
@@ -127,13 +138,7 @@ public class BoardSetupPresenter {
     public void move(int from, int to) {
         Board item = savedBoards.remove(from);
         savedBoards.add(to, item);
-
-        int min = Math.min(from, to);
-        int max = Math.max(from, to);
-
-        for (int i = min; i <= max; i++) {
-            boardManager.updateBoardOrder(savedBoards.get(i), i);
-        }
+        setOrder();
 
         callback.setSavedBoards(savedBoards);
     }
@@ -142,10 +147,7 @@ public class BoardSetupPresenter {
         Board board = savedBoards.remove(position);
         boardManager.unsaveBoard(board);
 
-        boardManager.updateBoardOrders(
-                savedBoards.subList(position, savedBoards.size()), position);
-
-        updateSavedBoards();
+        setOrder();
         callback.setSavedBoards(savedBoards);
 
         callback.showRemovedSnackbar(board);
@@ -153,9 +155,8 @@ public class BoardSetupPresenter {
 
     public void undoRemoveBoard(Board board) {
         boardManager.saveBoard(board);
-        // TODO
-        boardManager.updateBoardOrder(board, savedBoards.size());
-        updateSavedBoards();
+        savedBoards.add(board.order, board);
+        setOrder();
         callback.setSavedBoards(savedBoards);
     }
 
@@ -210,14 +211,17 @@ public class BoardSetupPresenter {
         });
     }
 
-    private void updateSavedBoards() {
-        savedBoards = new ArrayList<>(boardManager.getSiteSavedBoards(site));
-    }
-
     private void updateSuggestions(List<BoardSuggestion> suggestions) {
         this.suggestions = suggestions;
         for (BoardSuggestion suggestion : this.suggestions) {
             suggestion.checked = selectedSuggestions.contains(suggestion.getCode());
+        }
+    }
+
+    private void setOrder() {
+        for (int i = 0; i < savedBoards.size(); i++) {
+            Board b = savedBoards.get(i);
+            b.order = i;
         }
     }
 

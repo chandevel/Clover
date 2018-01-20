@@ -135,8 +135,6 @@ public class SiteManager {
         config.external = false;
 
         siteRepository.create(config, settings);
-
-        loadSites();
     }
 
     private Site fromModel(SiteModel siteModel) {

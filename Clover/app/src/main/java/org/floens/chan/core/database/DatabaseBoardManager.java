@@ -1,6 +1,9 @@
 package org.floens.chan.core.database;
 
+import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
+import com.j256.ormlite.stmt.UpdateBuilder;
 
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
@@ -26,9 +29,9 @@ public class DatabaseBoardManager {
                     .and().eq("value", board.code);
             Board existing = q.queryForFirst();
             if (existing != null) {
-                existing.update(board);
+                existing.updateExcudingUserFields(board);
                 helper.boardsDao.update(existing);
-                board.update(existing);
+                board.updateExcudingUserFields(existing);
             } else {
                 helper.boardsDao.create(board);
             }
@@ -45,12 +48,22 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Void> updateOrders(final List<Board> boards, final int fromOrder) {
+    public Callable<Void> updateOrders(final List<Board> boards) {
         return () -> {
+            SelectArg id = new SelectArg();
+            SelectArg order = new SelectArg();
+
+            UpdateBuilder<Board, Integer> updateBuilder = helper.boardsDao.updateBuilder();
+            updateBuilder.where().eq("id", id);
+            updateBuilder.updateColumnValue("order", order);
+            PreparedUpdate<Board> statement = updateBuilder.prepare();
+
             for (int i = 0; i < boards.size(); i++) {
                 Board board = boards.get(i);
-                board.order = fromOrder + i;
-                helper.boardsDao.update(board);
+
+                id.setValue(board.id);
+                order.setValue(i);
+                helper.boardsDao.update(statement);
             }
 
             return null;
@@ -66,9 +79,9 @@ public class DatabaseBoardManager {
                         .and().eq("value", board.code);
                 Board existing = q.queryForFirst();
                 if (existing != null) {
-                    existing.update(board);
+                    existing.updateExcudingUserFields(board);
                     helper.boardsDao.update(existing);
-                    board.update(existing);
+                    board.updateExcudingUserFields(existing);
                 } else {
                     helper.boardsDao.create(board);
                 }

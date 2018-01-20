@@ -60,7 +60,7 @@ public class BoardManager {
     public BoardManager(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
 
-        updateSavedBoards();
+        updateSavedBoardsAndNotify();
     }
 
     public void createAll(List<Board> boards) {
@@ -105,26 +105,19 @@ public class BoardManager {
         setSaved(board, false);
     }
 
-    public void updateBoardOrder(Board board, int order) {
-        board.order = order;
+    public void updateBoardOrders(List<Board> boards) {
         databaseManager.runTask(databaseManager.getDatabaseBoardManager()
-                .updateIncludingUserFields(board));
-        updateSavedBoards();
-    }
-
-    public void updateBoardOrders(List<Board> boards, int fromOrder) {
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager()
-                .updateOrders(boards, fromOrder));
-        updateSavedBoards();
+                .updateOrders(boards));
+        updateSavedBoardsAndNotify();
     }
 
     private void setSaved(Board board, boolean saved) {
         board.saved = saved;
         databaseManager.runTask(databaseManager.getDatabaseBoardManager().updateIncludingUserFields(board));
-        updateSavedBoards();
+        updateSavedBoardsAndNotify();
     }
 
-    private void updateSavedBoards() {
+    private void updateSavedBoardsAndNotify() {
         sitesWithSavedBoards.clear();
         for (Site site : Sites.allSites()) {
             List<Board> siteBoards = getSiteSavedBoards(site);
