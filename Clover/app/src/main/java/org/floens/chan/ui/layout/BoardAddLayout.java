@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -160,12 +161,14 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         }
     }
 
-    private class SuggestionCell extends RecyclerView.ViewHolder implements OnClickListener {
+    private class SuggestionCell extends RecyclerView.ViewHolder implements OnClickListener, CompoundButton.OnCheckedChangeListener {
         private TextView text;
         private TextView description;
         private CheckBox check;
 
         private BoardSetupPresenter.BoardSuggestion suggestion;
+
+        private boolean ignoreCheckChange = false;
 
         public SuggestionCell(View itemView) {
             super(itemView);
@@ -173,21 +176,37 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
             check = itemView.findViewById(R.id.check);
+            check.setOnCheckedChangeListener(this);
 
             itemView.setOnClickListener(this);
         }
 
         public void setSuggestion(BoardSetupPresenter.BoardSuggestion suggestion) {
             this.suggestion = suggestion;
+            ignoreCheckChange = true;
             check.setChecked(suggestion.isChecked());
+            ignoreCheckChange = false;
         }
 
         @Override
         public void onClick(View v) {
             if (v == itemView) {
-                onSuggestionClicked(suggestion);
-                check.setChecked(suggestion.isChecked());
+                toggle();
             }
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (!ignoreCheckChange && buttonView == check) {
+                toggle();
+            }
+        }
+
+        private void toggle() {
+            onSuggestionClicked(suggestion);
+            ignoreCheckChange = true;
+            check.setChecked(suggestion.isChecked());
+            ignoreCheckChange = false;
         }
     }
 }
