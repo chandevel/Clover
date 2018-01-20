@@ -104,7 +104,7 @@ public class Post {
     private boolean archived = false;
     private int replies = -1;
     private int images = -1;
-    private int uniqueIps = 1;
+    private int uniqueIps = -1;
     private String title = "";
 
     private Post(Builder builder) {
@@ -226,9 +226,9 @@ public class Post {
         public int opId = -1;
 
         public boolean op;
-        public int replies;
-        public int images;
-        public int uniqueIps;
+        public int replies = -1;
+        public int images = -1;
+        public int uniqueIps = -1;
         public boolean sticky;
         public boolean closed;
         public boolean archived;
