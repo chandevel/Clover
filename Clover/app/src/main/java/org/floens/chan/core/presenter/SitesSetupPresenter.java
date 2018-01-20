@@ -57,6 +57,10 @@ public class SitesSetupPresenter {
         }
     }
 
+    public void show() {
+        callback.setAddedSites(sites);
+    }
+
     public void onIntroDismissed() {
         if (sites.isEmpty()) {
             callback.showHint();

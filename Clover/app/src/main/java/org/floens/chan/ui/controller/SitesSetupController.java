@@ -97,6 +97,13 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         presenter.create(this);
     }
 
+    @Override
+    public void onShow() {
+        super.onShow();
+
+        presenter.show();
+    }
+
     public void showDoneCheckmark() {
         navigation.swipeable = false;
         navigation.menu = new ToolbarMenu(context);
