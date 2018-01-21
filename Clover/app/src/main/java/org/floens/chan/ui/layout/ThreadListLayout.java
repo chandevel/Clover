@@ -43,6 +43,7 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCell;
@@ -655,7 +656,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     };
 
     private void party() {
-        if (showingThread.loadable.site.id() == 0) {
+        if (showingThread.loadable.site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance();
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
                 recyclerView.addItemDecoration(PARTY);
