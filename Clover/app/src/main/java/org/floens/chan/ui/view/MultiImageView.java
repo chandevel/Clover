@@ -24,6 +24,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.StrictMode;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -370,7 +371,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "video/*");
 
-            AndroidUtils.openIntent(intent);
+            {
+                StrictMode.VmPolicy vmPolicy = StrictMode.getVmPolicy();
+                StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
+
+                AndroidUtils.openIntent(intent);
+
+                StrictMode.setVmPolicy(vmPolicy);
+            }
+
             onModeLoaded(Mode.MOVIE, videoView);
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
