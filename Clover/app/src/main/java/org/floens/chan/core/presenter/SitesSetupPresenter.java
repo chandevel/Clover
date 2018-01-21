@@ -88,12 +88,16 @@ public class SitesSetupPresenter {
             @Override
             public void onSiteAdded(Site site) {
                 siteAdded(site);
-                addCallback.dismissDialog();
+                if (addCallback != null) {
+                    addCallback.dismissDialog();
+                }
             }
 
             @Override
             public void onSiteAddFailed(String message) {
-                addCallback.showAddError(message);
+                if (addCallback != null) {
+                    addCallback.showAddError(message);
+                }
             }
         });
     }
