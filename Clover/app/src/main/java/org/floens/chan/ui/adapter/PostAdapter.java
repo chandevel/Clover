@@ -278,7 +278,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private boolean showStatusView() {
-        return postAdapterCallback.getLoadable().isThreadMode();
+        Loadable loadable = postAdapterCallback.getLoadable();
+        // the loadable can be null while this adapter is used between cleanup and the removal
+        // of the recyclerview from the view hierarchy, although it's rare.
+        return loadable != null && loadable.isThreadMode();
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {
