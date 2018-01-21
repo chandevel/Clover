@@ -21,7 +21,7 @@ package org.floens.chan.core.site;
 import android.util.Pair;
 
 import org.floens.chan.core.model.json.site.SiteConfig;
-import org.floens.chan.core.model.json.site.SiteUserSettings;
+import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.site.sites.chan4.Chan4;
 
@@ -86,10 +86,17 @@ public class SiteManager {
         callback.onSiteAdded(site);
     }
 
+    public void updateUserSettings(Site site, JsonSettings jsonSettings) {
+        SiteModel siteModel = siteRepository.byId(site.id());
+        if (siteModel == null) throw new NullPointerException("siteModel == null");
+        siteRepository.updateSiteUserSettingsAsync(siteModel, jsonSettings);
+    }
+
     public void initialize() {
         if (initialized) {
             throw new IllegalStateException("Already initialized");
         }
+        initialized = true;
 
         if (addSiteForLegacy) {
             addSiteForLegacy = false;
@@ -100,7 +107,7 @@ public class SiteManager {
             config.classId = Sites.SITE_CLASSES.indexOfValue(site.getClass());
             config.external = false;
 
-            SiteModel model = siteRepository.create(config, new SiteUserSettings());
+            SiteModel model = siteRepository.create(config, new JsonSettings());
             siteRepository.setId(model, 0);
         }
 
@@ -129,7 +136,7 @@ public class SiteManager {
      */
     private void createNewSite(Site site) {
         SiteConfig config = new SiteConfig();
-        SiteUserSettings settings = new SiteUserSettings();
+        JsonSettings settings = new JsonSettings();
 
         config.classId = Sites.SITE_CLASSES.indexOfValue(site.getClass());
         config.external = false;
@@ -138,9 +145,9 @@ public class SiteManager {
     }
 
     private Site fromModel(SiteModel siteModel) {
-        Pair<SiteConfig, SiteUserSettings> configFields = siteModel.loadConfigFields();
+        Pair<SiteConfig, JsonSettings> configFields = siteModel.loadConfigFields();
         SiteConfig config = configFields.first;
-        SiteUserSettings settings = configFields.second;
+        JsonSettings settings = configFields.second;
 
         Site site = instantiateSiteClass(config.classId);
         site.initialize(siteModel.id, config, settings);

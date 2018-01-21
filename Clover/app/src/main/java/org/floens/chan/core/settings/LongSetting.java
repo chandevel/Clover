@@ -17,14 +17,12 @@
  */
 package org.floens.chan.core.settings;
 
-import android.content.SharedPreferences;
-
 public class LongSetting extends Setting<Long> {
     private boolean hasCached = false;
     private Long cached;
 
-    public LongSetting(SharedPreferences sharedPreferences, String key, Long def) {
-        super(sharedPreferences, key, def);
+    public LongSetting(SettingProvider settingProvider, String key, Long def) {
+        super(settingProvider, key, def);
     }
 
     @Override
@@ -32,7 +30,7 @@ public class LongSetting extends Setting<Long> {
         if (hasCached) {
             return cached;
         } else {
-            cached = sharedPreferences.getLong(key, def);
+            cached = settingProvider.getLong(key, def);
             hasCached = true;
             return cached;
         }
@@ -41,7 +39,7 @@ public class LongSetting extends Setting<Long> {
     @Override
     public void set(Long value) {
         if (!value.equals(get())) {
-            sharedPreferences.edit().putLong(key, value).apply();
+            settingProvider.putLong(key, value);
             cached = value;
             onValueChanged();
         }

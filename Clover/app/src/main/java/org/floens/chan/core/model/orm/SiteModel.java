@@ -20,15 +20,35 @@ package org.floens.chan.core.model.orm;
 import android.util.Pair;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.settings.json.BooleanJsonSetting;
+import org.floens.chan.core.settings.json.LongJsonSetting;
+import org.floens.chan.core.settings.json.RuntimeTypeAdapterFactory;
+import org.floens.chan.core.settings.json.IntegerJsonSetting;
 import org.floens.chan.core.model.json.site.SiteConfig;
-import org.floens.chan.core.model.json.site.SiteUserSettings;
+import org.floens.chan.core.settings.json.JsonSetting;
+import org.floens.chan.core.settings.json.JsonSettings;
+import org.floens.chan.core.settings.json.StringJsonSetting;
 
 @DatabaseTable(tableName = "site")
 public class SiteModel {
-    private static final Gson gson = new Gson();
+    private static final Gson gson;
+
+    static {
+        RuntimeTypeAdapterFactory<JsonSetting> userSettingAdapter =
+                RuntimeTypeAdapterFactory.of(JsonSetting.class, "type")
+                        .registerSubtype(StringJsonSetting.class, "string")
+                        .registerSubtype(IntegerJsonSetting.class, "integer")
+                        .registerSubtype(LongJsonSetting.class, "long")
+                        .registerSubtype(BooleanJsonSetting.class, "boolean");
+
+        gson = new GsonBuilder()
+                .registerTypeAdapterFactory(userSettingAdapter)
+                .create();
+    }
 
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public int id;
@@ -42,15 +62,18 @@ public class SiteModel {
     public SiteModel() {
     }
 
-    public void storeConfigFields(SiteConfig config, SiteUserSettings userSettings) {
+    public void storeConfig(SiteConfig config) {
         this.configuration = gson.toJson(config);
+    }
+
+    public void storeUserSettings(JsonSettings userSettings) {
         this.userSettings = gson.toJson(userSettings);
     }
 
-    public Pair<SiteConfig, SiteUserSettings> loadConfigFields() {
+    public Pair<SiteConfig, JsonSettings> loadConfigFields() {
         return Pair.create(
                 gson.fromJson(this.configuration, SiteConfig.class),
-                gson.fromJson(this.userSettings, SiteUserSettings.class)
+                gson.fromJson(this.userSettings, JsonSettings.class)
         );
     }
 }

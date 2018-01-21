@@ -15,8 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.model.json.site;
+package org.floens.chan.core.settings.json;
 
+import com.google.gson.annotations.SerializedName;
 
-public class SiteUserSettings {
+public class IntegerJsonSetting extends JsonSetting {
+    @SerializedName("value")
+    public int value;
 }

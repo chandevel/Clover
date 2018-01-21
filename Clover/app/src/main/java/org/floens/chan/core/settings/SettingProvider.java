@@ -17,31 +17,20 @@
  */
 package org.floens.chan.core.settings;
 
-public class IntegerSetting extends Setting<Integer> {
-    private boolean hasCached = false;
-    private Integer cached;
+public interface SettingProvider {
+    int getInt(String key, int def);
 
-    public IntegerSetting(SettingProvider settingProvider, String key, Integer def) {
-        super(settingProvider, key, def);
-    }
+    void putInt(String key, int value);
 
-    @Override
-    public Integer get() {
-        if (hasCached) {
-            return cached;
-        } else {
-            cached = settingProvider.getInt(key, def);
-            hasCached = true;
-            return cached;
-        }
-    }
+    long getLong(String key, long def);
 
-    @Override
-    public void set(Integer value) {
-        if (!value.equals(get())) {
-            settingProvider.putInt(key, value);
-            cached = value;
-            onValueChanged();
-        }
-    }
+    void putLong(String key, long value);
+
+    boolean getBoolean(String key, boolean def);
+
+    void putBoolean(String key, boolean value);
+
+    String getString(String key, String def);
+
+    void putString(String key, String value);
 }

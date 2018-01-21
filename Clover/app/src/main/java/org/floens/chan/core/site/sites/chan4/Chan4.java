@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
-import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
@@ -26,6 +25,8 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.settings.SettingProvider;
+import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
 import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.core.site.Authentication;
 import org.floens.chan.core.site.Boards;
@@ -253,7 +254,8 @@ public class Chan4 extends SiteBase {
     private final StringSetting passToken;
 
     public Chan4() {
-        SharedPreferences p = AndroidUtils.getPreferences();
+        // we used these before multisite, and lets keep using them.
+        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
         // token was renamed, before it meant the username, now it means the token returned

@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.settings;
 
-import android.content.SharedPreferences;
 import android.os.Environment;
 import android.text.TextUtils;
 
@@ -159,7 +158,7 @@ public class ChanSettings {
     public static final BooleanSetting crashReporting;
 
     static {
-        SharedPreferences p = AndroidUtils.getPreferences();
+        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
         theme = new StringSetting(p, "preference_theme", "yotsuba");
 

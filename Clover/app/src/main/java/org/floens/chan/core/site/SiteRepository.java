@@ -2,7 +2,7 @@ package org.floens.chan.core.site;
 
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
-import org.floens.chan.core.model.json.site.SiteUserSettings;
+import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.model.orm.SiteModel;
 
 import java.util.List;
@@ -21,9 +21,15 @@ public class SiteRepository {
         return databaseManager.runTask(databaseManager.getDatabaseSiteManager().getAll());
     }
 
-    public SiteModel create(SiteConfig config, SiteUserSettings userSettings) {
+    public SiteModel byId(int id) {
+        return databaseManager.runTask(databaseManager.getDatabaseSiteManager()
+                .byId(id));
+    }
+
+    public SiteModel create(SiteConfig config, JsonSettings userSettings) {
         SiteModel siteModel = new SiteModel();
-        siteModel.storeConfigFields(config, userSettings);
+        siteModel.storeConfig(config);
+        siteModel.storeUserSettings(userSettings);
         databaseManager.runTask(databaseManager.getDatabaseSiteManager().add(siteModel));
         return siteModel;
     }
@@ -31,5 +37,11 @@ public class SiteRepository {
     public void setId(SiteModel siteModel, int id) {
         databaseManager.runTask(databaseManager.getDatabaseSiteManager()
                 .updateId(siteModel, id));
+    }
+
+    public void updateSiteUserSettingsAsync(SiteModel siteModel, JsonSettings jsonSettings) {
+        siteModel.storeUserSettings(jsonSettings);
+        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager()
+                .update(siteModel));
     }
 }

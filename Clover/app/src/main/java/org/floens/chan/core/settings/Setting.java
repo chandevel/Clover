@@ -17,19 +17,17 @@
  */
 package org.floens.chan.core.settings;
 
-import android.content.SharedPreferences;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Setting<T> {
-    protected final SharedPreferences sharedPreferences;
+    protected final SettingProvider settingProvider;
     protected final String key;
     protected final T def;
     private List<SettingCallback<T>> callbacks = new ArrayList<>();
 
-    public Setting(SharedPreferences sharedPreferences, String key, T def) {
-        this.sharedPreferences = sharedPreferences;
+    public Setting(SettingProvider settingProvider, String key, T def) {
+        this.settingProvider = settingProvider;
         this.key = key;
         this.def = def;
     }

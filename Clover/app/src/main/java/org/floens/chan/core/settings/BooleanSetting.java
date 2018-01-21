@@ -17,14 +17,12 @@
  */
 package org.floens.chan.core.settings;
 
-import android.content.SharedPreferences;
-
 public class BooleanSetting extends Setting<Boolean> {
     private boolean hasCached = false;
     private boolean cached;
 
-    public BooleanSetting(SharedPreferences sharedPreferences, String key, Boolean def) {
-        super(sharedPreferences, key, def);
+    public BooleanSetting(SettingProvider settingProvider, String key, Boolean def) {
+        super(settingProvider, key, def);
     }
 
     @Override
@@ -32,7 +30,7 @@ public class BooleanSetting extends Setting<Boolean> {
         if (hasCached) {
             return cached;
         } else {
-            cached = sharedPreferences.getBoolean(key, def);
+            cached = settingProvider.getBoolean(key, def);
             hasCached = true;
             return cached;
         }
@@ -41,7 +39,7 @@ public class BooleanSetting extends Setting<Boolean> {
     @Override
     public void set(Boolean value) {
         if (!value.equals(get())) {
-            sharedPreferences.edit().putBoolean(key, value).apply();
+            settingProvider.putBoolean(key, value);
             cached = value;
             onValueChanged();
         }

@@ -24,8 +24,10 @@ import org.codejargon.feather.Feather;
 import org.floens.chan.core.database.LoadableProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
-import org.floens.chan.core.model.json.site.SiteUserSettings;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.settings.SettingProvider;
+import org.floens.chan.core.settings.json.JsonSettings;
+import org.floens.chan.core.settings.json.JsonSettingsProvider;
 import org.floens.chan.core.site.http.HttpCallManager;
 
 import java.util.Collections;
@@ -35,15 +37,17 @@ import static org.floens.chan.Chan.injector;
 public abstract class SiteBase implements Site {
     protected int id;
     protected SiteConfig config;
-    protected SiteUserSettings userSettings;
 
     protected HttpCallManager httpCallManager;
     protected RequestQueue requestQueue;
     protected BoardManager boardManager;
     protected LoadableProvider loadableProvider;
 
+    private JsonSettings userSettings;
+    protected SettingProvider settingsProvider;
+
     @Override
-    public void initialize(int id, SiteConfig config, SiteUserSettings userSettings) {
+    public void initialize(int id, SiteConfig config, JsonSettings userSettings) {
         this.id = id;
         this.config = config;
         this.userSettings = userSettings;
@@ -56,6 +60,11 @@ public abstract class SiteBase implements Site {
         requestQueue = injector.instance(RequestQueue.class);
         boardManager = injector.instance(BoardManager.class);
         loadableProvider = injector.instance(LoadableProvider.class);
+        SiteManager siteManager = injector.instance(SiteManager.class);
+
+        settingsProvider = new JsonSettingsProvider(userSettings, () -> {
+            siteManager.updateUserSettings(this, userSettings);
+        });
 
         if (boardsType() == BoardsType.DYNAMIC) {
             boards(boards -> boardManager.createAll(boards.boards));

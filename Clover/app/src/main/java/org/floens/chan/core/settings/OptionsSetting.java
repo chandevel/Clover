@@ -17,15 +17,13 @@
  */
 package org.floens.chan.core.settings;
 
-import android.content.SharedPreferences;
-
 public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
     private boolean hasCached = false;
     private T cached;
     private T[] items;
 
-    public OptionsSetting(SharedPreferences sharedPreferences, String key, T[] items, T def) {
-        super(sharedPreferences, key, def);
+    public OptionsSetting(SettingProvider settingProvider, String key, T[] items, T def) {
+        super(settingProvider, key, def);
         this.items = items;
     }
 
@@ -34,7 +32,7 @@ public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
         if (hasCached) {
             return cached;
         } else {
-            String itemName = sharedPreferences.getString(key, def.getName());
+            String itemName = settingProvider.getString(key, def.getName());
             T selectedItem = null;
             for (T item : items) {
                 if (item.getName().equals(itemName)) {
@@ -54,7 +52,7 @@ public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
     @Override
     public void set(T value) {
         if (!value.equals(get())) {
-            sharedPreferences.edit().putString(key, value.getName()).apply();
+            settingProvider.putString(key, value.getName());
             cached = value;
             onValueChanged();
         }

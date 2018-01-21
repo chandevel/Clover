@@ -15,33 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.settings;
+package org.floens.chan.core.settings.json;
 
-public class IntegerSetting extends Setting<Integer> {
-    private boolean hasCached = false;
-    private Integer cached;
+import com.google.gson.annotations.SerializedName;
 
-    public IntegerSetting(SettingProvider settingProvider, String key, Integer def) {
-        super(settingProvider, key, def);
-    }
-
-    @Override
-    public Integer get() {
-        if (hasCached) {
-            return cached;
-        } else {
-            cached = settingProvider.getInt(key, def);
-            hasCached = true;
-            return cached;
-        }
-    }
-
-    @Override
-    public void set(Integer value) {
-        if (!value.equals(get())) {
-            settingProvider.putInt(key, value);
-            cached = value;
-            onValueChanged();
-        }
-    }
+public class BooleanJsonSetting extends JsonSetting {
+    @SerializedName("value")
+    public boolean value;
 }

@@ -32,13 +32,12 @@ public class DatabaseSiteManager {
         this.helper = helper;
     }
 
+    public Callable<SiteModel> byId(int id) {
+        return () -> helper.siteDao.queryForId(id);
+    }
+
     public Callable<List<SiteModel>> getAll() {
-        return new Callable<List<SiteModel>>() {
-            @Override
-            public List<SiteModel> call() throws Exception {
-                return helper.siteDao.queryForAll();
-            }
-        };
+        return () -> helper.siteDao.queryForAll();
     }
 
     public Callable<Long> getCount() {
@@ -46,35 +45,23 @@ public class DatabaseSiteManager {
     }
 
     public Callable<SiteModel> add(final SiteModel site) {
-        return new Callable<SiteModel>() {
-            @Override
-            public SiteModel call() throws Exception {
-                helper.siteDao.create(site);
-
-                return site;
-            }
+        return () -> {
+            helper.siteDao.create(site);
+            return site;
         };
     }
 
     public Callable<SiteModel> update(final SiteModel site) {
-        return new Callable<SiteModel>() {
-            @Override
-            public SiteModel call() throws Exception {
-                helper.siteDao.update(site);
-
-                return site;
-            }
+        return () -> {
+            helper.siteDao.update(site);
+            return site;
         };
     }
 
     public Callable<SiteModel> updateId(final SiteModel site, final int newId) {
-        return new Callable<SiteModel>() {
-            @Override
-            public SiteModel call() throws Exception {
-                helper.siteDao.updateId(site, newId);
-
-                return site;
-            }
+        return () -> {
+            helper.siteDao.updateId(site, newId);
+            return site;
         };
     }
 }

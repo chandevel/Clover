@@ -21,7 +21,7 @@ import android.support.annotation.Nullable;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.json.site.SiteConfig;
-import org.floens.chan.core.model.json.site.SiteUserSettings;
+import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.common.ChanReader;
@@ -115,13 +115,13 @@ public interface Site {
      * @param config       the site config
      * @param userSettings the site user settings
      */
-    void initialize(int id, SiteConfig config, SiteUserSettings userSettings);
+    void initialize(int id, SiteConfig config, JsonSettings userSettings);
 
     void postInitialize();
 
     /**
      * Global positive (>0) integer that uniquely identifies this site.<br>
-     * Use the id received from {@link #initialize(int, SiteConfig, SiteUserSettings)}.
+     * Use the id received from {@link #initialize(int, SiteConfig, JsonSettings)}.
      *
      * @return a positive (>0) integer that uniquely identifies this site.
      */
