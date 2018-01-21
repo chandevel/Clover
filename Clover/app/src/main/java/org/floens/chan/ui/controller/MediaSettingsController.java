@@ -165,7 +165,7 @@ public class MediaSettingsController extends SettingsController {
         boolean enabled = false;
         boolean resetVideoMode = false;
         for (int i = 0; i < modes.length; i++) {
-            if (modes[i].getName().equals(currentImageLoadMode.getName())) {
+            if (modes[i].getKey().equals(currentImageLoadMode.getKey())) {
                 enabled = true;
                 if (resetVideoMode) {
                     ChanSettings.videoAutoLoadNetwork.set(modes[i]);
@@ -174,8 +174,8 @@ public class MediaSettingsController extends SettingsController {
                 }
             }
             videoAutoLoadView.items.get(i).enabled = enabled;
-            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().getName()
-                    .equals(modes[i].getName())) {
+            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().getKey()
+                    .equals(modes[i].getKey())) {
                 resetVideoMode = true;
             }
         }

@@ -33,29 +33,41 @@ import android.webkit.WebViewClient;
 import org.floens.chan.core.site.Authentication;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 
-import static org.floens.chan.ui.theme.ThemeHelper.theme;
+import java.io.IOException;
 
-public class CaptchaLayout extends WebView implements AuthenticationLayoutInterface {
-    private static final String TAG = "CaptchaLayout";
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
+/**
+ * It directly loads the captcha2 fallback url into a webview, and on each requests it executes
+ * some javascript that will tell the callback if the token is there.
+ */
+public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutInterface {
+    private static final String TAG = "CaptchaNojsLayout";
 
     private AuthenticationLayoutCallback callback;
-    private boolean loaded = false;
     private String baseUrl;
     private String siteKey;
-    private boolean lightTheme;
 
-    public CaptchaLayout(Context context) {
+    private OkHttpClient okHttpClient = new OkHttpClient();
+
+    private String webviewUserAgent;
+
+    public CaptchaNojsLayout(Context context) {
         super(context);
     }
 
-    public CaptchaLayout(Context context, AttributeSet attrs) {
+    public CaptchaNojsLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CaptchaLayout(Context context, AttributeSet attrs, int defStyle) {
+    public CaptchaNojsLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -63,7 +75,6 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
-        this.lightTheme = theme().isLightTheme;
 
         Authentication authentication = site.postAuthenticate();
 
@@ -72,10 +83,9 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         requestDisallowInterceptTouchEvent(true);
 
-        AndroidUtils.hideKeyboard(this);
-
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
+        webviewUserAgent = settings.getUserAgentString();
 
         setWebChromeClient(new WebChromeClient() {
             @Override
@@ -88,8 +98,23 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         setWebViewClient(new WebViewClient() {
             @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+
+                // Fails if there is no token yet, which is ok.
+                final String setResponseJavascript = "CaptchaCallback.onCaptchaEntered(" +
+                        "document.querySelector('.fbc-verification-token textarea').value);";
+                view.loadUrl("javascript:" + setResponseJavascript);
+            }
+
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (Uri.parse(url).getHost().equals(Uri.parse(CaptchaLayout.this.baseUrl).getHost())) {
+                String host = Uri.parse(url).getHost();
+                if (host == null) {
+                    return false;
+                }
+
+                if (host.equals(Uri.parse(CaptchaNojsLayout.this.baseUrl).getHost())) {
                     return false;
                 } else {
                     AndroidUtils.openLink(url);
@@ -103,50 +128,54 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
     }
 
     public void reset() {
-        if (loaded) {
-            loadUrl("javascript:grecaptcha.reset()");
-        } else {
-            hardReset();
-        }
+        hardReset();
     }
 
     @Override
     public void hardReset() {
-        loaded = true;
-
-        String html = IOUtils.assetAsString(getContext(), "captcha/captcha2.html");
-        html = html.replace("__site_key__", siteKey);
-        html = html.replace("__theme__", lightTheme ? "light" : "dark");
-
-        loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
+        loadRecaptchaAndSetWebViewData();
     }
 
-    private void onCaptchaLoaded() {
+    private void loadRecaptchaAndSetWebViewData() {
+        final String recaptchaUrl = "https://www.google.com/recaptcha/api/fallback?k=" + siteKey;
+
+        Request request = new Request.Builder()
+                .url(recaptchaUrl)
+                .header("User-Agent", webviewUserAgent)
+                .header("Referer", baseUrl)
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                if (body == null) throw new IOException();
+                String responseHtml = body.string();
+
+                post(() -> {
+                    loadDataWithBaseURL(recaptchaUrl,
+                            responseHtml, "text/html", "UTF-8", null);
+                });
+            }
+        });
     }
 
-    private void onCaptchaEntered(String challenge, String response) {
+    private void onCaptchaEntered(String response) {
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            callback.onAuthenticationComplete(this, challenge, response);
+            callback.onAuthenticationComplete(this, null, response);
         }
     }
 
     public static class CaptchaInterface {
-        private final CaptchaLayout layout;
+        private final CaptchaNojsLayout layout;
 
-        public CaptchaInterface(CaptchaLayout layout) {
+        public CaptchaInterface(CaptchaNojsLayout layout) {
             this.layout = layout;
-        }
-
-        @JavascriptInterface
-        public void onCaptchaLoaded() {
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.onCaptchaLoaded();
-                }
-            });
         }
 
         @JavascriptInterface
@@ -154,17 +183,7 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
             AndroidUtils.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    layout.onCaptchaEntered(null, response);
-                }
-            });
-        }
-
-        @JavascriptInterface
-        public void onCaptchaEnteredv1(final String challenge, final String response) {
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.onCaptchaEntered(challenge, response);
+                    layout.onCaptchaEntered(response);
                 }
             });
         }

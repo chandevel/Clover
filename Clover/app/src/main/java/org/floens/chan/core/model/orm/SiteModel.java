@@ -24,14 +24,15 @@ import com.google.gson.GsonBuilder;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.floens.chan.core.settings.json.BooleanJsonSetting;
-import org.floens.chan.core.settings.json.LongJsonSetting;
-import org.floens.chan.core.settings.json.RuntimeTypeAdapterFactory;
-import org.floens.chan.core.settings.json.IntegerJsonSetting;
 import org.floens.chan.core.model.json.site.SiteConfig;
+import org.floens.chan.core.settings.json.BooleanJsonSetting;
+import org.floens.chan.core.settings.json.IntegerJsonSetting;
 import org.floens.chan.core.settings.json.JsonSetting;
 import org.floens.chan.core.settings.json.JsonSettings;
+import org.floens.chan.core.settings.json.LongJsonSetting;
+import org.floens.chan.core.settings.json.RuntimeTypeAdapterFactory;
 import org.floens.chan.core.settings.json.StringJsonSetting;
+import org.floens.chan.utils.Logger;
 
 @DatabaseTable(tableName = "site")
 public class SiteModel {
@@ -68,6 +69,7 @@ public class SiteModel {
 
     public void storeUserSettings(JsonSettings userSettings) {
         this.userSettings = gson.toJson(userSettings);
+        Logger.test("userSettings = " + this.userSettings);
     }
 
     public Pair<SiteConfig, JsonSettings> loadConfigFields() {

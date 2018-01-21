@@ -49,7 +49,7 @@ public class ChanSettings {
         }
 
         @Override
-        public String getName() {
+        public String getKey() {
             return name;
         }
     }
@@ -65,7 +65,7 @@ public class ChanSettings {
         }
 
         @Override
-        public String getName() {
+        public String getKey() {
             return name;
         }
     }
@@ -83,7 +83,7 @@ public class ChanSettings {
         }
 
         @Override
-        public String getName() {
+        public String getKey() {
             return name;
         }
     }
@@ -162,7 +162,7 @@ public class ChanSettings {
 
         theme = new StringSetting(p, "preference_theme", "yotsuba");
 
-        layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.values(), LayoutMode.AUTO);
+        layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
 
         boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
 
@@ -171,12 +171,12 @@ public class ChanSettings {
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
 //        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
-        imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
-        videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
+        imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
+        videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         textOnly = new BooleanSetting(p, "preference_text_only", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
-        boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.values(), PostViewMode.LIST);
+        boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
         boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
         boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name);
 

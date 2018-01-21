@@ -18,5 +18,5 @@
 package org.floens.chan.core.settings;
 
 public interface OptionSettingItem {
-    String getName();
+    String getKey();
 }

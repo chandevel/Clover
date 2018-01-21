@@ -17,14 +17,23 @@
  */
 package org.floens.chan.core.settings;
 
-public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
+public class OptionsSetting<T extends Enum & OptionSettingItem> extends Setting<T> {
     private boolean hasCached = false;
+
+    private Class<T> clazz;
+
     private T cached;
     private T[] items;
 
-    public OptionsSetting(SettingProvider settingProvider, String key, T[] items, T def) {
+    public OptionsSetting(SettingProvider settingProvider, String key, Class<T> clazz, T def) {
         super(settingProvider, key, def);
-        this.items = items;
+
+        this.clazz = clazz;
+        this.items = clazz.getEnumConstants();
+    }
+
+    public T[] getItems() {
+        return items;
     }
 
     @Override
@@ -32,10 +41,10 @@ public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
         if (hasCached) {
             return cached;
         } else {
-            String itemName = settingProvider.getString(key, def.getName());
+            String itemName = settingProvider.getString(key, def.getKey());
             T selectedItem = null;
             for (T item : items) {
-                if (item.getName().equals(itemName)) {
+                if (item.getKey().equals(itemName)) {
                     selectedItem = item;
                 }
             }
@@ -52,7 +61,7 @@ public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
     @Override
     public void set(T value) {
         if (!value.equals(get())) {
-            settingProvider.putString(key, value.getName());
+            settingProvider.putString(key, value.getKey());
             cached = value;
             onValueChanged();
         }

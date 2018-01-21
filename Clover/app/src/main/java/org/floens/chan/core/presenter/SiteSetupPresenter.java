@@ -1,7 +1,10 @@
 package org.floens.chan.core.presenter;
 
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.site.Site;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -24,6 +27,11 @@ public class SiteSetupPresenter {
 
         if (hasLogin) {
             callback.showLogin();
+        }
+
+        List<Setting<?>> settings = site.settings();
+        if (!settings.isEmpty()) {
+            callback.showSettings(settings);
         }
     }
 
@@ -48,5 +56,7 @@ public class SiteSetupPresenter {
         void showLogin();
 
         void setIsLoggedIn(boolean isLoggedIn);
+
+        void showSettings(List<Setting<?>> settings);
     }
 }

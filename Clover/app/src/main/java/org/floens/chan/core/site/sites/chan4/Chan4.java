@@ -24,7 +24,9 @@ import android.webkit.WebView;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.settings.OptionSettingItem;
+import org.floens.chan.core.settings.OptionsSetting;
+import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
 import org.floens.chan.core.settings.StringSetting;
@@ -48,6 +50,7 @@ import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -253,6 +256,24 @@ public class Chan4 extends SiteBase {
     private final StringSetting passPass;
     private final StringSetting passToken;
 
+    public enum CaptchaType implements OptionSettingItem {
+        V2JS("v2js"),
+        V2NOJS("v2nojs");
+
+        String name;
+
+        CaptchaType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getKey() {
+            return name;
+        }
+    }
+
+    private OptionsSetting<CaptchaType> captchaType;
+
     public Chan4() {
         // we used these before multisite, and lets keep using them.
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -261,6 +282,21 @@ public class Chan4 extends SiteBase {
         // token was renamed, before it meant the username, now it means the token returned
         // from the server that the cookie is set to.
         passToken = new StringSetting(p, "preference_pass_id", "");
+    }
+
+    @Override
+    public void initializeSettings() {
+        super.initializeSettings();
+
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type",
+                CaptchaType.class, CaptchaType.V2NOJS);
+    }
+
+    @Override
+    public List<Setting<?>> settings() {
+        return Arrays.asList(
+                captchaType
+        );
     }
 
     @Override
@@ -442,10 +478,13 @@ public class Chan4 extends SiteBase {
         if (isLoggedIn()) {
             return Authentication.fromNone();
         } else {
-            if (ChanSettings.postNewCaptcha.get()) {
-                return Authentication.fromCaptcha2(CAPTCHA_KEY, "https://boards.4chan.org");
-            } else {
-                return Authentication.fromCaptcha1(CAPTCHA_KEY, "https://boards.4chan.org");
+            switch (captchaType.get()) {
+                case V2JS:
+                    return Authentication.fromCaptcha2(CAPTCHA_KEY, "https://boards.4chan.org");
+                case V2NOJS:
+                    return Authentication.fromCaptcha2nojs(CAPTCHA_KEY, "https://boards.4chan.org");
+                default:
+                    throw new IllegalArgumentException();
             }
         }
     }

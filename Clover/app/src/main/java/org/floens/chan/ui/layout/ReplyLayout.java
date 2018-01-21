@@ -49,6 +49,7 @@ import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.captcha.CaptchaLayout;
+import org.floens.chan.ui.captcha.CaptchaNojsLayout;
 import org.floens.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import org.floens.chan.ui.captcha.LegacyCaptchaLayout;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
@@ -267,6 +268,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
                     authenticationLayout = new CaptchaLayout(getContext());
                     break;
                 }
+                case CAPTCHA2_NOJS:
+                    authenticationLayout = new CaptchaNojsLayout(getContext());
+                    break;
                 case GENERIC_WEBVIEW: {
                     GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
 

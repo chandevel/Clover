@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.webkit.WebView;
 
 import org.codejargon.feather.Feather;
 import org.floens.chan.core.database.DatabaseManager;
@@ -115,7 +116,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
             //noinspection PointlessBooleanExpression
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//                WebView.setWebContentsDebuggingEnabled(true);
+                WebView.setWebContentsDebuggingEnabled(true);
             }
         }
     }

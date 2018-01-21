@@ -22,6 +22,7 @@ public class Authentication {
         NONE,
         CAPTCHA1,
         CAPTCHA2,
+        CAPTCHA2_NOJS,
         GENERIC_WEBVIEW
     }
 
@@ -38,6 +39,13 @@ public class Authentication {
 
     public static Authentication fromCaptcha2(String siteKey, String baseUrl) {
         Authentication a = new Authentication(Type.CAPTCHA2);
+        a.siteKey = siteKey;
+        a.baseUrl = baseUrl;
+        return a;
+    }
+
+    public static Authentication fromCaptcha2nojs(String siteKey, String baseUrl) {
+        Authentication a = new Authentication(Type.CAPTCHA2_NOJS);
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;

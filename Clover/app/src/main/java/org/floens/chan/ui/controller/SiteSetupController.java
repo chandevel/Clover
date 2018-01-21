@@ -21,10 +21,16 @@ import android.content.Context;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SiteSetupPresenter;
+import org.floens.chan.core.settings.OptionsSetting;
+import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.settings.LinkSettingView;
+import org.floens.chan.ui.settings.ListSettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -89,6 +95,30 @@ public class SiteSetupController extends SettingsController implements SiteSetup
                 R.string.setup_site_login_description_enabled :
                 R.string.setup_site_login_description_disabled);
         loginLink.setDescription(text);
+    }
+
+    @Override
+    public void showSettings(List<Setting<?>> settings) {
+        SettingsGroup group = new SettingsGroup("Additional settings");
+
+        for (Setting<?> setting : settings) {
+            if (setting instanceof OptionsSetting) {
+                OptionsSetting optionsSetting = (OptionsSetting) setting;
+
+                List<ListSettingView.Item<Enum>> items = new ArrayList<>();
+                for (Enum anEnum : optionsSetting.getItems()) {
+                    items.add(new ListSettingView.Item<>(anEnum.name(), anEnum));
+                }
+
+                String name = optionsSetting.getItems()[0].getDeclaringClass().getSimpleName();
+                ListSettingView<?> v = new ListSettingView(this,
+                        optionsSetting, name, items);
+
+                group.add(v);
+            }
+        }
+
+        groups.add(group);
     }
 
     @Override
