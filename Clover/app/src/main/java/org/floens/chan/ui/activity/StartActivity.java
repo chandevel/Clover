@@ -212,7 +212,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 browseController.setBoard(boardThreadPair.first.board);
 
                 if (boardThreadPair.second != null) {
-                    browseController.showThread(boardThreadPair.second);
+                    browseController.showThread(boardThreadPair.second, false);
                 }
             }
         }
