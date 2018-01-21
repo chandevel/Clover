@@ -176,11 +176,7 @@ public class Loadable implements SiteReference, BoardReference {
 
         Loadable other = (Loadable) object;
 
-        if ((site.id() == other.site.id() && (site != other.site))) {
-            throw new IllegalStateException(); // TODO(multi-site) remove
-        }
-
-        if (site != other.site) {
+        if (site.id() != other.site.id()) {
             return false;
         }
 
