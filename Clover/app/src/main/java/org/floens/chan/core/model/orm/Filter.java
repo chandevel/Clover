@@ -41,7 +41,7 @@ public class Filter {
     public boolean allBoards = true;
 
     @DatabaseField(canBeNull = false)
-    public String boards;
+    public String boards = "";
 
     @DatabaseField(canBeNull = false)
     public int action;
