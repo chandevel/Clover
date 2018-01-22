@@ -197,7 +197,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     }
 
     private boolean restoreFromSavedState(Bundle savedInstanceState) {
-        boolean handled = true;
+        boolean handled = false;
 
         // Restore the activity state from the previously saved state.
         ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
@@ -206,7 +206,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         } else {
             Pair<Loadable, Loadable> boardThreadPair = resolveChanState(chanState);
 
-            if (boardThreadPair != null && boardThreadPair.first != null) {
+            if (boardThreadPair.first != null) {
                 handled = true;
 
                 browseController.setBoard(boardThreadPair.first.board);
@@ -221,30 +221,33 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     }
 
     private Pair<Loadable, Loadable> resolveChanState(ChanState state) {
-        DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
+        Loadable boardLoadable = resolveLoadable(state.board, false);
+        Loadable threadLoadable = resolveLoadable(state.thread, true);
 
-        Site site = Sites.forId(state.board.siteId);
+        return new Pair<>(boardLoadable, threadLoadable);
+    }
+
+    private Loadable resolveLoadable(Loadable stateLoadable, boolean forThread) {
+        Site site = Sites.forId(stateLoadable.siteId);
         if (site != null) {
-            Board board = site.board(state.board.boardCode);
+            Board board = site.board(stateLoadable.boardCode);
             if (board != null) {
-                state.board.site = site;
-                state.board.board = board;
-                state.thread.site = site;
-                state.thread.board = board;
+                stateLoadable.site = site;
+                stateLoadable.board = board;
 
-                // When restarting the parcelable isn't actually deserialized, but the same object
-                // instance is reused. This means that the loadables we gave to the state are
-                // the same instance, and also have the id set etc. We don't need to query
-                // these from the loadablemanager.
-                Loadable threadLoadable;
-                if (state.thread.id == 0) {
-                    threadLoadable = loadableManager.get(state.thread);
-                } else {
-                    threadLoadable = state.thread;
+                if (forThread) {
+                    // When restarting the parcelable isn't actually deserialized, but the same
+                    // object instance is reused. This means that the loadables we gave to the
+                    // state are the same instance, and also have the id set etc. We don't need to
+                    // query these from the loadablemanager.
+                    DatabaseLoadableManager loadableManager =
+                            databaseManager.getDatabaseLoadableManager();
+                    if (stateLoadable.id == 0) {
+                        stateLoadable = loadableManager.get(stateLoadable);
+                    }
                 }
 
-                return new Pair<>(state.board,
-                        threadLoadable.mode == Loadable.Mode.THREAD ? threadLoadable : null);
+                return stateLoadable;
             }
         }
 
