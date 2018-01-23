@@ -179,12 +179,21 @@ public class WatchManager {
             }
         }
 
+        // Default order is 0.
         if (pin.order < 0) {
-            pin.order = pins.size();
+            pin.order = 0;
+        }
+        // Move all down one.
+        for (Pin p : pins) {
+            p.order++;
         }
         pins.add(pin);
-        applyOrder();
+        sortListAndApplyOrders();
+
         databaseManager.runTask(databasePinManager.createPin(pin));
+
+        // apply orders.
+        updatePinsInDatabase();
 
         updateState();
 
@@ -200,7 +209,7 @@ public class WatchManager {
 
         databaseManager.runTask(databasePinManager.deletePin(pin));
         // Update the new orders
-        applyOrder();
+        sortListAndApplyOrders();
         updatePinsInDatabase();
 
         updateState();
@@ -405,7 +414,7 @@ public class WatchManager {
         }
     }
 
-    private void applyOrder() {
+    private void sortListAndApplyOrders() {
         Collections.sort(pins, SORT_PINS);
         for (int i = 0; i < pins.size(); i++) {
             Pin pin = pins.get(i);
