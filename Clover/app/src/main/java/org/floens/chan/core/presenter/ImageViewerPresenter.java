@@ -28,7 +28,9 @@ import org.floens.chan.ui.view.MultiImageView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -49,6 +51,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private List<Float> progress;
     private int selectedPosition;
     private Loadable loadable;
+
+    private Set<FileCache.FileCacheDownloader> preloadingImages = new HashSet<>();
 
     // Disables swiping until the view pager is visible
     private boolean viewPagerVisible = false;
@@ -106,6 +110,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(postImage);
         callback.showProgress(false);
+
+        cancelPreloadingImages();
     }
 
     public void onVolumeClicked() {
@@ -233,7 +239,14 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             }
 
             if (load) {
-                final FileCache.DownloadedCallback emptyCallback =
+                final String fileUrl = next.imageUrl.toString();
+
+                // If downloading, remove from preloadingImages if it finished.
+                // Array to allow access from within the callback (the callback should really
+                // pass the filecachedownloader itself).
+                final FileCache.FileCacheDownloader[] preloadDownload =
+                        new FileCache.FileCacheDownloader[1];
+                preloadDownload[0] = fileCache.downloadFile(fileUrl,
                         new FileCache.DownloadedCallback() {
                             @Override
                             public void onProgress(long downloaded, long total, boolean done) {
@@ -241,17 +254,31 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
                             @Override
                             public void onSuccess(File file) {
+                                if (preloadDownload[0] != null) {
+                                    preloadingImages.remove(preloadDownload[0]);
+                                }
                             }
 
                             @Override
                             public void onFail(boolean notFound) {
+                                if (preloadDownload[0] != null) {
+                                    preloadingImages.remove(preloadDownload[0]);
+                                }
                             }
-                        };
+                        });
 
-                final String fileUrl = next.imageUrl.toString();
-                fileCache.downloadFile(fileUrl, emptyCallback);
+                if (preloadDownload[0] != null) {
+                    preloadingImages.add(preloadDownload[0]);
+                }
             }
         }
+    }
+
+    private void cancelPreloadingImages() {
+        for (FileCache.FileCacheDownloader preloadingImage : preloadingImages) {
+            preloadingImage.cancel();
+        }
+        preloadingImages.clear();
     }
 
     @Override
