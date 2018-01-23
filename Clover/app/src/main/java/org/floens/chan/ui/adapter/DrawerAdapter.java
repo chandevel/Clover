@@ -52,7 +52,7 @@ import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public enum HeaderAction {
-        SETTINGS, CLEAR, CLEAR_ALL
+        CLEAR, CLEAR_ALL
     }
 
     private static final int PIN_OFFSET = 3;
@@ -146,7 +146,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 HeaderHolder headerHolder = (HeaderHolder) holder;
                 headerHolder.text.setText(R.string.drawer_pinned);
                 theme().clearDrawable.apply(headerHolder.clear);
-                theme().settingsDrawable.apply(headerHolder.settings);
 
                 break;
             case TYPE_PIN:
@@ -331,7 +330,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public boolean onLongClick(View v) {
                     int pos = getAdapterPosition() - PIN_OFFSET;
                     if (pos >= 0 && pos < pins.size()) {
-                        callback.onPinLongClocked(pins.get(pos));
+                        callback.onPinLongClicked(pins.get(pos));
                     }
 
                     return true;
@@ -353,7 +352,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public class HeaderHolder extends RecyclerView.ViewHolder {
         private TextView text;
         private ImageView clear;
-        private ImageView settings;
 
         private HeaderHolder(View itemView) {
             super(itemView);
@@ -372,14 +370,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public boolean onLongClick(View v) {
                     callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR_ALL);
                     return true;
-                }
-            });
-            settings = itemView.findViewById(R.id.settings);
-            setRoundItemBackground(settings);
-            settings.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    callback.onHeaderClicked(HeaderHolder.this, HeaderAction.SETTINGS);
                 }
             });
         }
@@ -450,7 +440,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         void onPinRemoved(Pin pin);
 
-        void onPinLongClocked(Pin pin);
+        void onPinLongClicked(Pin pin);
 
         void openSites();
 

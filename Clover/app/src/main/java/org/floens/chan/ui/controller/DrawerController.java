@@ -30,7 +30,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -151,9 +150,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Override
     public void onHeaderClicked(DrawerAdapter.HeaderHolder holder, DrawerAdapter.HeaderAction headerAction) {
-        if (headerAction == DrawerAdapter.HeaderAction.SETTINGS) {
-            openController(new WatchSettingsController(context));
-        } else if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
+        if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
             boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
             final List<Pin> pins = watchManager.clearPins(all);
             if (!pins.isEmpty()) {
@@ -193,7 +190,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     }
 
     @Override
-    public void onPinLongClocked(final Pin pin) {
+    public void onPinLongClicked(final Pin pin) {
         LinearLayout wrap = new LinearLayout(context);
         wrap.setPadding(dp(16), dp(16), dp(16), 0);
         final EditText text = new EditText(context);
