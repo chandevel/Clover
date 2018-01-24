@@ -52,7 +52,7 @@ public class PostImageThumbnailView extends ThumbnailView {
             this.postImage = postImage;
 
             if (postImage != null) {
-                setUrl(postImage.thumbnailUrl.toString(), width, height);
+                setUrl(postImage.getThumbnailUrl().toString(), width, height);
             } else {
                 setUrl(null, width, height);
             }

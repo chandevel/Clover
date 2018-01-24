@@ -219,13 +219,13 @@ public class FutabaChanReader implements ChanReader {
 
         SiteEndpoints endpoints = queue.getLoadable().getSite().endpoints();
         if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> hack = new HashMap<>(2);
-            hack.put("tim", fileId);
-            hack.put("ext", fileExt);
+            Map<String, String> args = makeArgument("tim", fileId,
+                    "ext", fileExt);
             builder.image(new PostImage.Builder()
                     .originalName(String.valueOf(fileId))
-                    .thumbnailUrl(endpoints.thumbnailUrl(builder, fileSpoiler, hack))
-                    .imageUrl(endpoints.imageUrl(builder, hack))
+                    .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
+                    .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
+                    .imageUrl(endpoints.imageUrl(builder, args))
                     .filename(Parser.unescapeEntities(fileName, false))
                     .extension(fileExt)
                     .imageWidth(fileWidth)

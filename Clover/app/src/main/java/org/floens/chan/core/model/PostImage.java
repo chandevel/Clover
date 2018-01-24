@@ -28,6 +28,7 @@ public class PostImage {
 
     public final String originalName;
     public final HttpUrl thumbnailUrl;
+    public final HttpUrl spoilerThumbnailUrl;
     public final HttpUrl imageUrl;
     public final String filename;
     public final String extension;
@@ -41,6 +42,7 @@ public class PostImage {
     private PostImage(Builder builder) {
         this.originalName = builder.originalName;
         this.thumbnailUrl = builder.thumbnailUrl;
+        this.spoilerThumbnailUrl = builder.spoilerThumbnailUrl;
         this.imageUrl = builder.imageUrl;
         this.filename = builder.filename;
         this.extension = builder.extension;
@@ -62,9 +64,18 @@ public class PostImage {
         }
     }
 
+    public HttpUrl getThumbnailUrl() {
+        if (!spoiler) {
+            return thumbnailUrl;
+        } else {
+            return spoilerThumbnailUrl;
+        }
+    }
+
     public static final class Builder {
         private String originalName;
         private HttpUrl thumbnailUrl;
+        private HttpUrl spoilerThumbnailUrl;
         private HttpUrl imageUrl;
         private String filename;
         private String extension;
@@ -83,6 +94,11 @@ public class PostImage {
 
         public Builder thumbnailUrl(HttpUrl thumbnailUrl) {
             this.thumbnailUrl = thumbnailUrl;
+            return this;
+        }
+
+        public Builder spoilerThumbnailUrl(HttpUrl spoilerThumbnailUrl) {
+            this.spoilerThumbnailUrl = spoilerThumbnailUrl;
             return this;
         }
 

@@ -110,7 +110,8 @@ public class MediaSettingsController extends SettingsController {
 
             media.add(new BooleanSettingView(this,
                     ChanSettings.revealImageSpoilers,
-                    R.string.settings_reveal_image_spoilers, 0));
+                    R.string.settings_reveal_image_spoilers,
+                    R.string.settings_reveal_image_spoilers_description));
 
             groups.add(media);
         }

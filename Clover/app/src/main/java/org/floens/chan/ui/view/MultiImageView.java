@@ -128,7 +128,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 public boolean onMeasured(View view) {
                     switch (newMode) {
                         case LOWRES:
-                            setThumbnail(postImage.thumbnailUrl.toString());
+                            setThumbnail(postImage.getThumbnailUrl().toString());
                             break;
                         case BIGIMAGE:
                             setBigImage(postImage.imageUrl.toString());

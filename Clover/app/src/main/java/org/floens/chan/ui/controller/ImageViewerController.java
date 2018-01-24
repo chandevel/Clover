@@ -397,7 +397,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             }
         });
 
-        imageLoader.get(postImage.thumbnailUrl.toString(), new ImageLoader.ImageListener() {
+        imageLoader.get(postImage.getThumbnailUrl().toString(), new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview in transition in ImageViewerController, cannot show correct transition bitmap");
@@ -419,7 +419,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return;
         }
 
-        imageLoader.get(postImage.thumbnailUrl.toString(), new ImageLoader.ImageListener() {
+        imageLoader.get(postImage.getThumbnailUrl().toString(), new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "onErrorResponse for preview out transition in ImageViewerController, cannot show correct transition bitmap");

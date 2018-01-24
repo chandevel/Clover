@@ -708,7 +708,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             History history = new History();
             history.loadable = loadable;
             PostImage image = chanLoader.getThread().op.image;
-            history.thumbnailUrl = image == null ? "" : image.thumbnailUrl.toString();
+            history.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
             databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
     }
