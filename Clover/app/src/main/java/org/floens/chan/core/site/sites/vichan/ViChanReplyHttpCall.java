@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.sites.chan8;
+package org.floens.chan.core.site.sites.vichan;
 
 import android.text.TextUtils;
 
@@ -36,12 +36,12 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class Chan8ReplyHttpCall extends CommonReplyHttpCall {
+public class ViChanReplyHttpCall extends CommonReplyHttpCall {
     private static final Pattern REQUIRE_AUTHENTICATION = Pattern.compile(".*\"captcha\": ?true.*");
     private static final Pattern ERROR_MESSAGE =
             Pattern.compile(".*<h1>Error</h1>.*<h2[^>]*>(.*?)<\\/h2>.*");
 
-    public Chan8ReplyHttpCall(Site site, Reply reply) {
+    public ViChanReplyHttpCall(Site site, Reply reply) {
         super(site, reply);
     }
 

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.sites.chan8;
+package org.floens.chan.core.site.sites.vichan;
 
 import android.text.SpannableString;
 
@@ -30,7 +30,7 @@ import org.jsoup.nodes.Element;
 
 import java.util.Set;
 
-public class Chan8ParserHandler extends DefaultFutabaChanParserHandler {
+public class ViChanParserHandler extends DefaultFutabaChanParserHandler {
     @Override
     public CharSequence handleParagraph(FutabaChanParser parser, Theme theme, Post.Builder post, CharSequence text, Element element) {
         if (element.hasClass("quote")) {

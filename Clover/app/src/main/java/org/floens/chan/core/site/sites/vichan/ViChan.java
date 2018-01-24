@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.sites.chan8;
+package org.floens.chan.core.site.sites.vichan;
 
 
 import android.support.annotation.Nullable;
@@ -51,25 +51,23 @@ import okhttp3.Request;
 
 import static org.floens.chan.Chan.injector;
 
-public class Chan8 extends SiteBase {
-    private static final String TAG = "Chan8";
+public class ViChan extends SiteBase {
+    private static final String TAG = "ViChan";
 
     public static final Resolvable RESOLVABLE = new Resolvable() {
         @Override
-        public ResolveResult matchesName(String value) {
-            switch (value) {
-                case "8chan":
-                    return ResolveResult.NAME_MATCH;
-                case "https://8ch.net/":
-                    return ResolveResult.FULL_MATCH;
-                default:
-                    return ResolveResult.NO;
-            }
+        public Class<? extends Site> getSiteClass() {
+            return ViChan.class;
         }
 
         @Override
-        public Class<? extends Site> getSiteClass() {
-            return Chan8.class;
+        public boolean matchesName(String value) {
+            return value.equals("8chan") || value.equals("8ch");
+        }
+
+        @Override
+        public boolean respondsTo(HttpUrl url) {
+            return url.host().equals("8ch.net");
         }
     };
 
@@ -187,48 +185,46 @@ public class Chan8 extends SiteBase {
     }
 
     @Override
-    public boolean respondsTo(HttpUrl url) {
-        return url.host().equals("8ch.net");
+    public Resolvable resolvable() {
+        return RESOLVABLE;
     }
 
     @Override
-    public Loadable resolve(HttpUrl url) {
-        if (respondsTo(url)) {
-            List<String> parts = url.pathSegments();
+    public Loadable resolveLoadable(HttpUrl url) {
+        List<String> parts = url.pathSegments();
 
-            if (!parts.isEmpty()) {
-                String boardCode = parts.get(0);
-                Board board = board(boardCode);
-                if (board != null) {
-                    if (parts.size() < 3) {
-                        // Board mode
-                        return loadableProvider.get(Loadable.forCatalog(board));
-                    } else if (parts.size() >= 3) {
-                        // Thread mode
-                        int no = -1;
+        if (!parts.isEmpty()) {
+            String boardCode = parts.get(0);
+            Board board = board(boardCode);
+            if (board != null) {
+                if (parts.size() < 3) {
+                    // Board mode
+                    return loadableProvider.get(Loadable.forCatalog(board));
+                } else if (parts.size() >= 3) {
+                    // Thread mode
+                    int no = -1;
+                    try {
+                        no = Integer.parseInt(parts.get(2).replace(".html", ""));
+                    } catch (NumberFormatException ignored) {
+                    }
+
+                    int post = -1;
+                    String fragment = url.fragment();
+                    if (fragment != null) {
                         try {
-                            no = Integer.parseInt(parts.get(2).replace(".html", ""));
+                            post = Integer.parseInt(fragment);
                         } catch (NumberFormatException ignored) {
                         }
+                    }
 
-                        int post = -1;
-                        String fragment = url.fragment();
-                        if (fragment != null) {
-                            try {
-                                post = Integer.parseInt(fragment);
-                            } catch (NumberFormatException ignored) {
-                            }
+                    if (no >= 0) {
+                        Loadable loadable = loadableProvider.get(
+                                Loadable.forThread(this, board, no));
+                        if (post >= 0) {
+                            loadable.markedNo = post;
                         }
 
-                        if (no >= 0) {
-                            Loadable loadable = loadableProvider.get(
-                                    Loadable.forThread(this, board, no));
-                            if (post >= 0) {
-                                loadable.markedNo = post;
-                            }
-
-                            return loadable;
-                        }
+                        return loadable;
                     }
                 }
             }
@@ -278,7 +274,7 @@ public class Chan8 extends SiteBase {
 
     @Override
     public ChanReader chanReader() {
-        FutabaChanParser parser = new FutabaChanParser(new Chan8ParserHandler());
+        FutabaChanParser parser = new FutabaChanParser(new ViChanParserHandler());
         return new FutabaChanReader(parser);
     }
 
@@ -286,7 +282,7 @@ public class Chan8 extends SiteBase {
     public void post(Reply reply, final PostListener postListener) {
         // TODO
         HttpCallManager httpCallManager = injector().instance(HttpCallManager.class);
-        httpCallManager.makeHttpCall(new Chan8ReplyHttpCall(this, reply),
+        httpCallManager.makeHttpCall(new ViChanReplyHttpCall(this, reply),
                 new HttpCall.HttpCallback<CommonReplyHttpCall>() {
                     @Override
                     public void onHttpSuccess(CommonReplyHttpCall httpPost) {

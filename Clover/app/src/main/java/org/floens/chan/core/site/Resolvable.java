@@ -1,14 +1,12 @@
 package org.floens.chan.core.site;
 
 
-public interface Resolvable {
-    enum ResolveResult {
-        NO,
-        NAME_MATCH,
-        FULL_MATCH
-    }
+import okhttp3.HttpUrl;
 
-    ResolveResult matchesName(String value);
+public interface Resolvable {
+    boolean matchesName(String value);
+
+    boolean respondsTo(HttpUrl url);
 
     Class<? extends Site> getSiteClass();
 }

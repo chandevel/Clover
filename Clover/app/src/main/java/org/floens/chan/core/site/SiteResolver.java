@@ -41,11 +41,24 @@ public class SiteResolver {
         HttpUrl httpUrl = sanitizeUrl(url);
 
         if (httpUrl == null) {
+            for (Site site : Sites.allSites()) {
+                Resolvable resolvable = site.resolvable();
+
+                if (resolvable.matchesName(url)) {
+                    return site;
+                }
+            }
+
             return null;
         }
 
+        if (!httpUrl.scheme().equals("https")) {
+            httpUrl = httpUrl.newBuilder().scheme("https").build();
+        }
+
         for (Site site : Sites.allSites()) {
-            if (site.respondsTo(httpUrl)) {
+            Resolvable resolvable = site.resolvable();
+            if (resolvable.respondsTo(httpUrl)) {
                 return site;
             }
         }
@@ -60,12 +73,14 @@ public class SiteResolver {
 
         if (httpUrl == null) {
             for (Resolvable resolvable : resolvables) {
-                if (resolvable.matchesName(url) == Resolvable.ResolveResult.NAME_MATCH) {
-                    return new SiteResolverResult(SiteResolverResult.Match.BUILTIN, resolvable.getSiteClass(), null);
+                if (resolvable.matchesName(url)) {
+                    return new SiteResolverResult(SiteResolverResult.Match.BUILTIN,
+                            resolvable.getSiteClass(), null);
                 }
             }
 
-            return new SiteResolverResult(SiteResolverResult.Match.NONE, null, null);
+            return new SiteResolverResult(SiteResolverResult.Match.NONE,
+                    null, null);
         }
 
         if (!httpUrl.scheme().equals("https")) {
@@ -73,8 +88,9 @@ public class SiteResolver {
         }
 
         for (Resolvable resolvable : resolvables) {
-            if (resolvable.matchesName(httpUrl.toString()) == Resolvable.ResolveResult.FULL_MATCH) {
-                return new SiteResolverResult(SiteResolverResult.Match.BUILTIN, resolvable.getSiteClass(), null);
+            if (resolvable.respondsTo(httpUrl)) {
+                return new SiteResolverResult(SiteResolverResult.Match.BUILTIN,
+                        resolvable.getSiteClass(), null);
             }
         }
 
@@ -89,10 +105,12 @@ public class SiteResolver {
         }
 
         for (Site site : Sites.allSites()) {
-            Loadable resolved = site.resolve(httpUrl);
+            if (site.resolvable().respondsTo(httpUrl)) {
+                Loadable resolved = site.resolveLoadable(httpUrl);
 
-            if (resolved != null) {
-                return new LoadableResult(resolved);
+                if (resolved != null) {
+                    return new LoadableResult(resolved);
+                }
             }
         }
 

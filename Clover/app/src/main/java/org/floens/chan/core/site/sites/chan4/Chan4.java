@@ -63,20 +63,20 @@ import okhttp3.Request;
 public class Chan4 extends SiteBase {
     public static final Resolvable RESOLVABLE = new Resolvable() {
         @Override
-        public ResolveResult matchesName(String value) {
-            switch (value) {
-                case "4chan":
-                    return ResolveResult.NAME_MATCH;
-                case "https://4chan.org/":
-                    return ResolveResult.FULL_MATCH;
-                default:
-                    return ResolveResult.NO;
-            }
+        public Class<? extends Site> getSiteClass() {
+            return Chan4.class;
         }
 
         @Override
-        public Class<? extends Site> getSiteClass() {
-            return Chan4.class;
+        public boolean matchesName(String value) {
+            return value.equals("4chan");
+        }
+
+        @Override
+        public boolean respondsTo(HttpUrl url) {
+            return url.host().equals("4chan.org") ||
+                    url.host().equals("www.4chan.org") ||
+                    url.host().equals("boards.4chan.org");
         }
     };
 
@@ -310,53 +310,49 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
-    public boolean respondsTo(HttpUrl url) {
-        return url.host().equals("4chan.org") ||
-                url.host().equals("www.4chan.org") ||
-                url.host().equals("boards.4chan.org");
+    public Resolvable resolvable() {
+        return RESOLVABLE;
     }
 
     @Override
-    public Loadable resolve(HttpUrl url) {
-        if (respondsTo(url)) {
-            List<String> parts = url.pathSegments();
+    public Loadable resolveLoadable(HttpUrl url) {
+        List<String> parts = url.pathSegments();
 
-            if (!parts.isEmpty()) {
-                String boardCode = parts.get(0);
-                Board board = board(boardCode);
-                if (board != null) {
-                    if (parts.size() < 3) {
-                        // Board mode
-                        return loadableProvider.get(Loadable.forCatalog(board));
-                    } else if (parts.size() >= 3) {
-                        // Thread mode
-                        int no = -1;
-                        try {
-                            no = Integer.parseInt(parts.get(2));
-                        } catch (NumberFormatException ignored) {
-                        }
+        if (!parts.isEmpty()) {
+            String boardCode = parts.get(0);
+            Board board = board(boardCode);
+            if (board != null) {
+                if (parts.size() < 3) {
+                    // Board mode
+                    return loadableProvider.get(Loadable.forCatalog(board));
+                } else if (parts.size() >= 3) {
+                    // Thread mode
+                    int no = -1;
+                    try {
+                        no = Integer.parseInt(parts.get(2));
+                    } catch (NumberFormatException ignored) {
+                    }
 
-                        int post = -1;
-                        String fragment = url.fragment();
-                        if (fragment != null) {
-                            int index = fragment.indexOf("p");
-                            if (index >= 0) {
-                                try {
-                                    post = Integer.parseInt(fragment.substring(index + 1));
-                                } catch (NumberFormatException ignored) {
-                                }
+                    int post = -1;
+                    String fragment = url.fragment();
+                    if (fragment != null) {
+                        int index = fragment.indexOf("p");
+                        if (index >= 0) {
+                            try {
+                                post = Integer.parseInt(fragment.substring(index + 1));
+                            } catch (NumberFormatException ignored) {
                             }
                         }
+                    }
 
-                        if (no >= 0) {
-                            Loadable loadable = loadableProvider.get(
-                                    Loadable.forThread(this, board, no));
-                            if (post >= 0) {
-                                loadable.markedNo = post;
-                            }
-
-                            return loadable;
+                    if (no >= 0) {
+                        Loadable loadable = loadableProvider.get(
+                                Loadable.forThread(this, board, no));
+                        if (post >= 0) {
+                            loadable.markedNo = post;
                         }
+
+                        return loadable;
                     }
                 }
             }
