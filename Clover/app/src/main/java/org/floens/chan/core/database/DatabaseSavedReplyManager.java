@@ -141,7 +141,7 @@ public class DatabaseSavedReplyManager {
             QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
             List<SavedReply> query = builder.where()
                     .eq("site", board.site.id())
-                    .and().eq("board", board)
+                    .and().eq("board", board.code)
                     .and().eq("no", no).query();
             return query.isEmpty() ? null : query.get(0);
         };

@@ -70,9 +70,9 @@ public class SavedReply {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SavedReply that = (SavedReply) o;
+        SavedReply other = (SavedReply) o;
 
-        return no == that.no && board.equals(that.board);
+        return no == other.no && board.equals(other.board) && siteId == other.siteId;
     }
 
     @Override
