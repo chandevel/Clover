@@ -58,6 +58,7 @@ public class ThemeHelper {
         themes.add(new Theme("Photon", "photon", R.style.Chan_Theme_Photon, PrimaryColor.ORANGE));
         themes.add(new DarkTheme("Insomnia", "insomnia", R.style.Chan_Theme_Insomnia, PrimaryColor.DARK));
         themes.add(new DarkTheme("Gruvbox", "gruvbox", R.style.Chan_Theme_Gruvbox, PrimaryColor.DARK));
+        themes.add(new DarkTheme("Neon", "neon", R.style.Chan_Theme_Neon, PrimaryColor.DARK));
 
         ChanSettings.ThemeColor settingTheme = ChanSettings.getThemeAndColor();
         for (Theme theme : themes) {
