@@ -37,6 +37,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class ViChanReplyHttpCall extends CommonReplyHttpCall {
+    private static final String TAG = "ViChanReplyHttpCall";
+
     private static final Pattern REQUIRE_AUTHENTICATION = Pattern.compile(".*\"captcha\": ?true.*");
     private static final Pattern ERROR_MESSAGE =
             Pattern.compile(".*<h1>Error</h1>.*<h2[^>]*>(.*?)<\\/h2>.*");
@@ -83,8 +85,6 @@ public class ViChanReplyHttpCall extends CommonReplyHttpCall {
 
     @Override
     public void process(Response response, String result) throws IOException {
-        Logger.test(result);
-
         Matcher authenticationMatcher = REQUIRE_AUTHENTICATION.matcher(result);
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (authenticationMatcher.find()) {
@@ -93,6 +93,9 @@ public class ViChanReplyHttpCall extends CommonReplyHttpCall {
         } else if (errorMessageMatcher.find()) {
             replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
         } else {
+            Logger.d(TAG, "url: " + response.request().url().toString());
+            Logger.d(TAG, "body: " + response);
+
             // TODO(multisite): 8ch redirects us, but the result is a 404, and we need that
             // redirect url to figure out what we posted.
             HttpUrl url = response.request().url();
@@ -110,10 +113,16 @@ public class ViChanReplyHttpCall extends CommonReplyHttpCall {
             } catch (NumberFormatException ignored) {
             }
 
-            if (board != null && threadId != 0 && postId != 0) {
+            if (postId == 0) {
+                postId = threadId;
+            }
+
+            if (board != null && threadId != 0) {
                 replyResponse.threadNo = threadId;
                 replyResponse.postNo = postId;
                 replyResponse.posted = true;
+            } else {
+                replyResponse.errorMessage = "Error posting: could not find posted thread.";
             }
         }
     }

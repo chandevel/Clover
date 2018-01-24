@@ -20,6 +20,7 @@ package org.floens.chan.ui.helper;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
@@ -66,7 +67,7 @@ public class PostHelper {
         }
     }
 
-    public static String getTitle(Post post, Loadable loadable) {
+    public static String getTitle(@Nullable Post post, @Nullable Loadable loadable) {
         if (post != null) {
             if (!TextUtils.isEmpty(post.subject)) {
                 return post.subject;

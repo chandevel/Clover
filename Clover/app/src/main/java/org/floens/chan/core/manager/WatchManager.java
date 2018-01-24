@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.annotation.Nullable;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
@@ -161,12 +162,18 @@ public class WatchManager {
         updateState();
     }
 
-    public boolean createPin(Loadable loadable, Post opPost) {
+    public boolean createPin(Loadable loadable) {
+        return createPin(loadable, null);
+    }
+
+    public boolean createPin(Loadable loadable, @Nullable Post opPost) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
-        PostImage image = opPost.image;
-        pin.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
+        if (opPost != null) {
+            PostImage image = opPost.image;
+            pin.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
+        }
         return createPin(pin);
     }
 

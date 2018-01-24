@@ -205,10 +205,18 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
-            if (ChanSettings.postPinThread.get() && loadable.isThreadMode()) {
-                ChanThread thread = callback.getThread();
-                if (thread != null) {
-                    watchManager.createPin(loadable, thread.op);
+            if (ChanSettings.postPinThread.get()) {
+                if (loadable.isThreadMode()) {
+                    ChanThread thread = callback.getThread();
+                    if (thread != null) {
+                        watchManager.createPin(loadable, thread.op);
+                    }
+                } else {
+                    Loadable postedLoadable = databaseManager.getDatabaseLoadableManager()
+                            .get(Loadable.forThread(loadable.site, loadable.board,
+                                    replyResponse.postNo));
+
+                    watchManager.createPin(postedLoadable);
                 }
             }
 
