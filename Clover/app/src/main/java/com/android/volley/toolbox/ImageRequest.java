@@ -16,16 +16,16 @@
 
 package com.android.volley.toolbox;
 
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
-
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 
 /**
  * A canned request for getting an image at a given URL and calling
@@ -159,13 +159,19 @@ public class ImageRequest extends Request<Bitmap> {
             // TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
             // decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
             decodeOptions.inSampleSize =
-                findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
+                    findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
             Bitmap tempBitmap =
-                BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+                    BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
 
-            // If necessary, scale down to the maximal acceptable size.
-            if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
+            // Disallow dos by checking the size of the tempBitmap, otherwise the bitmap
+            // constructor will throw an IllegalArgumentException.
+            if (tempBitmap != null &&
+                    (tempBitmap.getWidth() == 0 || tempBitmap.getHeight() == 0)) {
+                bitmap = null;
+                tempBitmap.recycle();
+            } else if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
                     tempBitmap.getHeight() > desiredHeight)) {
+                // If necessary, scale down to the maximal acceptable size.
                 bitmap = Bitmap.createScaledBitmap(tempBitmap,
                         desiredWidth, desiredHeight, true);
                 tempBitmap.recycle();
