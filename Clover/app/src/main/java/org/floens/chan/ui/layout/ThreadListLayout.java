@@ -232,6 +232,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             party();
         }
 
+        showToolbarIfNeeded();
         setFastScroll(true);
 
         postAdapter.setThread(thread, filter);
