@@ -67,7 +67,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private boolean foregroundCalculate = false;
     private Drawable foreground;
 
-    private boolean error = false;
+    protected boolean error = false;
     private String errorText;
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect tmpTextRect = new Rect();
@@ -172,6 +172,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         onImageSet(false);
+        invalidate();
     }
 
     @Override
