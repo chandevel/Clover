@@ -231,7 +231,7 @@ public class Post {
      */
     @MainThread
     public PostImage image() {
-        return null;
+        return images.isEmpty() ? null : images.get(0);
     }
 
     public static final class Builder {
