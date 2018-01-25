@@ -146,7 +146,20 @@ public class LoadView extends FrameLayout {
 
             animatorSet.setDuration(fadeDuration);
             animatorSet.playTogether(animators);
-            animatorSet.start();
+
+            final AnimatorSet currentAnimatorSet = animatorSet;
+
+            // Postponing the animation to the next frame delays the animation until the heavy
+            // view setup is done. If you start the animation immediately, it will jump because
+            // the first frame is nowhere near 16ms. We rather have a bit of a delay instead of
+            // a broken jumping animation.
+            post(() -> {
+                // The AnimatorSet is replaced with a new one, if it was changed between the
+                // previous frame and now.
+                if (animatorSet == currentAnimatorSet) {
+                    animatorSet.start();
+                }
+            });
         } else {
             // Fast forward possible pending animations (end, so also remove them).
             animatorSet.end();

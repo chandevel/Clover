@@ -138,7 +138,10 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Override
     public void onPinClicked(Pin pin) {
-        drawerLayout.closeDrawer(Gravity.LEFT);
+        // Post it to avoid animation jumping because the first frame is heavy.
+        // TODO: probably twice because of some force redraw, fix that.
+        drawerLayout.post(() -> drawerLayout.post(() -> drawerLayout.closeDrawer(drawer)));
+
         ThreadController threadController = getTopThreadController();
         threadController.openPin(pin);
     }
