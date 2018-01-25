@@ -31,11 +31,9 @@ public class StorageHelper {
         String absolutePath = file.getAbsolutePath();
         switch (absolutePath) {
             case "/storage":
-                return true;
             case "/storage/emulated":
-                return true;
+            case "/storage/emulated/0":
             case "/storage/emulated/0/0":
-                return true;
             case "/storage/emulated/legacy":
                 return true;
         }
