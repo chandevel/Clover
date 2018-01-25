@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.layout.FixedRatioLinearLayout;
 import org.floens.chan.ui.text.FastTextView;
@@ -121,7 +122,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     @Override
     public void onClick(View v) {
         if (v == thumbnailView) {
-            callback.onThumbnailClicked(post, thumbnailView);
+            callback.onThumbnailClicked(post, post.image(), thumbnailView);
         } else if (v == this) {
             callback.onPostClicked(post);
         }
@@ -172,7 +173,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         return post;
     }
 
-    public ThumbnailView getThumbnailView() {
+    public ThumbnailView getThumbnailView(PostImage postImage) {
         return thumbnailView;
     }
 
@@ -185,9 +186,9 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private void bindPost(Theme theme, Post post) {
         bound = true;
 
-        if (post.image != null && !ChanSettings.textOnly.get()) {
+        if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setPostImage(post.image, thumbnailView.getWidth(), thumbnailView.getHeight());
+            thumbnailView.setPostImage(post.image(), thumbnailView.getWidth(), thumbnailView.getHeight());
         } else {
             thumbnailView.setVisibility(View.GONE);
             thumbnailView.setPostImage(null, 0, 0);
@@ -218,7 +219,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         comment.setText(commentText);
         comment.setTextColor(theme.textPrimary);
 
-        replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImages()));
+        replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
     }
 
     private void unbindPost(Post post) {

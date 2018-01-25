@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import org.floens.chan.core.database.DatabaseFilterManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.ui.helper.BoardHelper;
@@ -158,9 +159,14 @@ public class FilterEngine {
             return true;
         }
 
-        String filename = post.image != null ? post.image.filename : null;
-        if (filename != null && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename, false)) {
-            return true;
+        if (post.images != null) {
+            StringBuilder filename = new StringBuilder();
+            for (PostImage image : post.images) {
+                filename.append(image.filename).append(" ");
+            }
+            if ((filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename.toString(), false)) {
+                return true;
+            }
         }
 
         return false;

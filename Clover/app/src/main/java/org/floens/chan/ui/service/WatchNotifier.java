@@ -196,7 +196,7 @@ public class WatchNotifier extends Service {
                     prefix = postForExpandedLine.getTitle().subSequence(0, SUBJECT_LENGTH);
                 }
 
-                String comment = postForExpandedLine.image != null ? IMAGE_TEXT : "";
+                String comment = postForExpandedLine.image() != null ? IMAGE_TEXT : "";
                 if (postForExpandedLine.comment.length() > 0) {
                     comment += postForExpandedLine.comment;
                 }

@@ -37,6 +37,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.site.common.ChanParser;
 import org.floens.chan.core.site.common.DefaultFutabaChanParserHandler;
 import org.floens.chan.core.site.common.FutabaChanParser;
@@ -91,7 +92,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public void onThumbnailClicked(Post post, ThumbnailView thumbnail) {
+        public void onThumbnailClicked(Post post, PostImage postImage, ThumbnailView thumbnail) {
         }
 
         @Override

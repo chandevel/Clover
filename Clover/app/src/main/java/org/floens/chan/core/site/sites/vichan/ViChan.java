@@ -35,10 +35,8 @@ import org.floens.chan.core.site.common.ChanReader;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
 import org.floens.chan.core.site.common.FutabaChanParser;
 import org.floens.chan.core.site.common.FutabaChanReader;
-import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.HttpCallManager;
-import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.utils.Logger;
 
@@ -303,27 +301,5 @@ public class ViChan extends SiteBase {
         return Authentication.fromUrl("https://8ch.net/dnsbls_bypass.php",
                 "You failed the CAPTCHA",
                 "You may now go back and make your post");
-    }
-
-    @Override
-    public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
-    }
-
-    @Override
-    public void login(LoginRequest loginRequest, LoginListener loginListener) {
-    }
-
-    @Override
-    public void logout() {
-    }
-
-    @Override
-    public boolean isLoggedIn() {
-        return false;
-    }
-
-    @Override
-    public LoginRequest getLoginDetails() {
-        return null;
     }
 }

@@ -21,6 +21,7 @@ import android.text.TextUtils;
 
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +38,7 @@ public class PostsFilter {
     public static final Comparator<Post> IMAGE_COMPARATOR = new Comparator<Post>() {
         @Override
         public int compare(Post lhs, Post rhs) {
-            return rhs.getImages() - lhs.getImages();
+            return rhs.getImagesCount() - lhs.getImagesCount();
         }
     };
 
@@ -116,8 +117,13 @@ public class PostsFilter {
                     add = true;
                 } else if (item.name.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
                     add = true;
-                } else if (item.image != null && item.image.filename != null && item.image.filename.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
-                    add = true;
+                } else if (!item.images.isEmpty()) {
+                    for (PostImage image : item.images) {
+                        if (image.filename != null && image.filename.toLowerCase(Locale.ENGLISH)
+                                .contains(lowerQuery)) {
+                            add = true;
+                        }
+                    }
                 }
                 if (!add) {
                     i.remove();

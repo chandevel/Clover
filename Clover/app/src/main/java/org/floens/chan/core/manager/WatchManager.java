@@ -171,7 +171,7 @@ public class WatchManager {
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
         if (opPost != null) {
-            PostImage image = opPost.image;
+            PostImage image = opPost.image();
             pin.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
         }
         return createPin(pin);
@@ -762,8 +762,8 @@ public class WatchManager {
         public void onChanLoaderData(ChanThread thread) {
             pin.isError = false;
 
-            if (pin.thumbnailUrl == null && thread.op != null && thread.op.image != null) {
-                pin.thumbnailUrl = thread.op.image.getThumbnailUrl().toString();
+            if (pin.thumbnailUrl == null && thread.op != null && thread.op.image() != null) {
+                pin.thumbnailUrl = thread.op.image().getThumbnailUrl().toString();
             }
 
             // Populate posts list

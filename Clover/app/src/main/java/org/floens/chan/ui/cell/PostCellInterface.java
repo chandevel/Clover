@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.cell;
 
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
@@ -40,14 +41,14 @@ public interface PostCellInterface {
 
     Post getPost();
 
-    ThumbnailView getThumbnailView();
+    ThumbnailView getThumbnailView(PostImage postImage);
 
     interface PostCellCallback {
         Loadable getLoadable();
 
         void onPostClicked(Post post);
 
-        void onThumbnailClicked(Post post, ThumbnailView thumbnail);
+        void onThumbnailClicked(Post post, PostImage image, ThumbnailView thumbnail);
 
         void onShowPostReplies(Post post);
 

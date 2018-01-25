@@ -56,7 +56,7 @@ public class Post {
      */
     public final long time;
 
-    public final PostImage image;
+    public final List<PostImage> images;
 
     public final String tripcode;
 
@@ -103,7 +103,7 @@ public class Post {
     private boolean closed = false;
     private boolean archived = false;
     private int replies = -1;
-    private int images = -1;
+    private int imagesCount = -1;
     private int uniqueIps = -1;
     private String title = "";
 
@@ -114,7 +114,7 @@ public class Post {
 
         isOP = builder.op;
         replies = builder.replies;
-        images = builder.images;
+        imagesCount = builder.imagesCount;
         uniqueIps = builder.uniqueIps;
         sticky = builder.sticky;
         closed = builder.closed;
@@ -126,7 +126,11 @@ public class Post {
         tripcode = builder.tripcode;
 
         time = builder.unixTimestampSeconds;
-        image = builder.image;
+        if (builder.images == null) {
+            images = Collections.emptyList();
+        } else {
+            images = Collections.unmodifiableList(builder.images);
+        }
 
         if (builder.httpIcons != null) {
             httpIcons = Collections.unmodifiableList(builder.httpIcons);
@@ -191,13 +195,13 @@ public class Post {
     }
 
     @MainThread
-    public int getImages() {
-        return images;
+    public int getImagesCount() {
+        return imagesCount;
     }
 
     @MainThread
-    public void setImages(int images) {
-        this.images = images;
+    public void setImagesCount(int imagesCount) {
+        this.imagesCount = imagesCount;
     }
 
     @MainThread
@@ -220,6 +224,16 @@ public class Post {
         this.title = title;
     }
 
+    /**
+     * Return the first image, or {@code null} if post has no images.
+     *
+     * @return the first image, or {@code null}
+     */
+    @MainThread
+    public PostImage image() {
+        return null;
+    }
+
     public static final class Builder {
         public Board board;
         public int id = -1;
@@ -227,7 +241,7 @@ public class Post {
 
         public boolean op;
         public int replies = -1;
-        public int images = -1;
+        public int imagesCount = -1;
         public int uniqueIps = -1;
         public boolean sticky;
         public boolean closed;
@@ -239,7 +253,7 @@ public class Post {
         public String tripcode = "";
 
         public long unixTimestampSeconds = -1;
-        public PostImage image;
+        public List<PostImage> images;
 
         public String countryCode;
         public String countryName;
@@ -291,7 +305,7 @@ public class Post {
         }
 
         public Builder images(int images) {
-            this.images = images;
+            this.imagesCount = images;
             return this;
         }
 
@@ -340,8 +354,13 @@ public class Post {
             return this;
         }
 
-        public Builder image(PostImage image) {
-            this.image = image;
+        public Builder images(List<PostImage> images) {
+            if (this.images == null) {
+                this.images = new ArrayList<>(images.size());
+            }
+
+            this.images.addAll(images);
+
             return this;
         }
 

@@ -92,7 +92,9 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
-    private PostImageThumbnailView thumbnailView;
+    private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
+
+    private RelativeLayout relativeLayoutContainer;
     private FastTextView title;
     private PostIcons icons;
     private TextView comment;
@@ -146,7 +148,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        thumbnailView = findViewById(R.id.thumbnail_view);
+        relativeLayoutContainer = findViewById(R.id.relative_layout_container);
         title = findViewById(R.id.title);
         icons = findViewById(R.id.icons);
         comment = findViewById(R.id.comment);
@@ -183,10 +185,6 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         dividerParams.leftMargin = paddingPx;
         dividerParams.rightMargin = paddingPx;
         divider.setLayoutParams(dividerParams);
-
-        thumbnailView.setClickable(true);
-        thumbnailView.setOnClickListener(v -> callback.onThumbnailClicked(post, thumbnailView));
-        thumbnailView.setRounding(dp(2));
 
         replies.setOnClickListener(v -> {
             if (threadMode) {
@@ -289,8 +287,14 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         return post;
     }
 
-    public ThumbnailView getThumbnailView() {
-        return thumbnailView;
+    public ThumbnailView getThumbnailView(PostImage postImage) {
+        for (int i = 0; i < post.images.size(); i++) {
+            if (post.images.get(i).equalUrl(postImage)) {
+                return thumbnailViews.get(i);
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -331,13 +335,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             filterMatchColor.setVisibility(View.GONE);
         }
 
-        if (post.image != null && !ChanSettings.textOnly.get()) {
-            thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setPostImage(post.image, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
-        } else {
-            thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setPostImage(null, 0, 0);
-        }
+        buildThumbnails();
 
         List<CharSequence> titleParts = new ArrayList<>(5);
 
@@ -376,26 +374,28 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         titleParts.add(date);
 
-        if (post.image != null) {
-            PostImage image = post.image;
+        if (!post.images.isEmpty()) {
+            for (int i = 0; i < post.images.size(); i++) {
+                PostImage image = post.images.get(i);
 
-            boolean postFileName = ChanSettings.postFilename.get();
-            if (postFileName) {
-                String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
-                SpannableString fileInfo = new SpannableString("\n" + filename);
-                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
-                titleParts.add(fileInfo);
-            }
+                boolean postFileName = ChanSettings.postFilename.get();
+                if (postFileName) {
+                    String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
+                    SpannableString fileInfo = new SpannableString("\n" + filename);
+                    fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                    fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                    fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
+                    titleParts.add(fileInfo);
+                }
 
-            if (ChanSettings.postFileInfo.get()) {
-                SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
-                        AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                        image.imageWidth + "x" + image.imageHeight);
-                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
-                titleParts.add(fileInfo);
+                if (ChanSettings.postFileInfo.get()) {
+                    SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
+                            AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                            image.imageWidth + "x" + image.imageHeight);
+                    fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                    fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                    titleParts.add(fileInfo);
+                }
             }
         }
 
@@ -421,7 +421,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             commentText = post.comment;
         }
 
-        comment.setVisibility(isEmpty(commentText) && post.image == null ? GONE : VISIBLE);
+        comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
 
         if (threadMode) {
             if (selectable) {
@@ -504,8 +504,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             int replyCount = threadMode ? repliesFromSize : post.getReplies();
             String text = getResources().getQuantityString(R.plurals.reply, replyCount, replyCount);
 
-            if (!threadMode && post.getImages() > 0) {
-                text += ", " + getResources().getQuantityString(R.plurals.image, post.getImages(), post.getImages());
+            if (!threadMode && post.getImagesCount() > 0) {
+                text += ", " + getResources().getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount());
             }
 
             replies.setText(text);
@@ -518,6 +518,49 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
+    }
+
+    private void buildThumbnails() {
+        for (PostImageThumbnailView thumbnailView : thumbnailViews) {
+            relativeLayoutContainer.removeView(thumbnailView);
+        }
+        thumbnailViews.clear();
+
+        // Places the thumbnails below each other.
+        // The placement is done using the RelativeLayout BELOW rule, with generated view ids.
+        if (!post.images.isEmpty() && !ChanSettings.textOnly.get()) {
+            int lastId = 0;
+            int generatedId = 1;
+            boolean first = true;
+            for (PostImage image : post.images) {
+                PostImageThumbnailView v = new PostImageThumbnailView(getContext());
+
+                // Set the correct id.
+                // The first thumbnail uses thumbnail_view so that the layout can offset to that.
+                final int idToSet = first ? R.id.thumbnail_view : generatedId++;
+                v.setId(idToSet);
+                final int size = getResources()
+                        .getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
+
+                RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
+                p.alignWithParent = true;
+
+                if (!first) {
+                    p.addRule(RelativeLayout.BELOW, lastId);
+                }
+
+                v.setPostImage(image, size, size);
+                v.setClickable(true);
+                v.setOnClickListener(v2 -> callback.onThumbnailClicked(post, image, v));
+                v.setRounding(dp(2));
+
+                relativeLayoutContainer.addView(v, p);
+                thumbnailViews.add(v);
+
+                lastId = idToSet;
+                first = false;
+            }
+        }
     }
 
     private void unbindPost(Post post) {

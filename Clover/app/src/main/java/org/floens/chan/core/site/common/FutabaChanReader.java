@@ -9,7 +9,10 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.jsoup.parser.Parser;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
@@ -85,6 +88,8 @@ public class FutabaChanReader implements ChanReader {
         Post.Builder builder = new Post.Builder();
         builder.board(queue.getLoadable().board);
 
+        SiteEndpoints endpoints = queue.getLoadable().getSite().endpoints();
+
         // File
         String fileId = null;
         String fileExt = null;
@@ -93,6 +98,8 @@ public class FutabaChanReader implements ChanReader {
         long fileSize = 0;
         boolean fileSpoiler = false;
         String fileName = null;
+
+        List<PostImage> files = new ArrayList<>();
 
         // Country flag
         String countryCode = null;
@@ -190,6 +197,18 @@ public class FutabaChanReader implements ChanReader {
                 case "since4pass":
                     since4pass = reader.nextInt();
                     break;
+                case "extra_files":
+                    reader.beginArray();
+
+                    while (reader.hasNext()) {
+                        PostImage postImage = readPostImage(reader, builder, endpoints);
+                        if (postImage != null) {
+                            files.add(postImage);
+                        }
+                    }
+
+                    reader.endArray();
+                    break;
                 default:
                     // Unknown/ignored key
                     reader.skipValue();
@@ -198,30 +217,11 @@ public class FutabaChanReader implements ChanReader {
         }
         reader.endObject();
 
-        if (builder.op) {
-            // Update OP fields later on the main thread
-            Post.Builder op = new Post.Builder();
-            op.closed(builder.closed);
-            op.archived(builder.archived);
-            op.sticky(builder.sticky);
-            op.replies(builder.replies);
-            op.images(builder.images);
-            op.uniqueIps(builder.uniqueIps);
-            queue.setOp(op);
-        }
-
-        Post cached = queue.getCachedPost(builder.id);
-        if (cached != null) {
-            // Id is known, use the cached post object.
-            queue.addForReuse(cached);
-            return;
-        }
-
-        SiteEndpoints endpoints = queue.getLoadable().getSite().endpoints();
+        // The file from between the other values.
         if (fileId != null && fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileId,
                     "ext", fileExt);
-            builder.image(new PostImage.Builder()
+            PostImage image = new PostImage.Builder()
                     .originalName(String.valueOf(fileId))
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
@@ -232,7 +232,30 @@ public class FutabaChanReader implements ChanReader {
                     .imageHeight(fileHeight)
                     .spoiler(fileSpoiler)
                     .size(fileSize)
-                    .build());
+                    .build();
+            // Insert it at the beginning.
+            files.add(0, image);
+        }
+
+        builder.images(files);
+
+        if (builder.op) {
+            // Update OP fields later on the main thread
+            Post.Builder op = new Post.Builder();
+            op.closed(builder.closed);
+            op.archived(builder.archived);
+            op.sticky(builder.sticky);
+            op.replies(builder.replies);
+            op.images(builder.imagesCount);
+            op.uniqueIps(builder.uniqueIps);
+            queue.setOp(op);
+        }
+
+        Post cached = queue.getCachedPost(builder.id);
+        if (cached != null) {
+            // Id is known, use the cached post object.
+            queue.addForReuse(cached);
+            return;
         }
 
         if (countryCode != null && countryName != null) {
@@ -254,5 +277,68 @@ public class FutabaChanReader implements ChanReader {
         }
 
         queue.addForParse(builder);
+    }
+
+    private PostImage readPostImage(JsonReader reader, Post.Builder builder,
+                                    SiteEndpoints endpoints) throws IOException {
+        reader.beginObject();
+
+        String fileId = null;
+        long fileSize = 0;
+
+        String fileExt = null;
+        int fileWidth = 0;
+        int fileHeight = 0;
+        boolean fileSpoiler = false;
+        String fileName = null;
+
+        while (reader.hasNext()) {
+            switch (reader.nextName()) {
+                case "tim":
+                    fileId = reader.nextString();
+                    break;
+                case "fsize":
+                    fileSize = reader.nextLong();
+                    break;
+                case "w":
+                    fileWidth = reader.nextInt();
+                    break;
+                case "h":
+                    fileHeight = reader.nextInt();
+                    break;
+                case "spoiler":
+                    fileSpoiler = reader.nextInt() == 1;
+                    break;
+                case "ext":
+                    fileExt = reader.nextString().replace(".", "");
+                    break;
+                case "filename":
+                    fileName = reader.nextString();
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
+            }
+        }
+
+        reader.endObject();
+
+        if (fileId != null && fileName != null && fileExt != null) {
+            Map<String, String> args = makeArgument("tim", fileId,
+                    "ext", fileExt);
+            return new PostImage.Builder()
+                    .originalName(String.valueOf(fileId))
+                    .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
+                    .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
+                    .imageUrl(endpoints.imageUrl(builder, args))
+                    .filename(Parser.unescapeEntities(fileName, false))
+                    .extension(fileExt)
+                    .imageWidth(fileWidth)
+                    .imageHeight(fileHeight)
+                    .spoiler(fileSpoiler)
+                    .size(fileSize)
+                    .build();
+        }
+        return null;
     }
 }

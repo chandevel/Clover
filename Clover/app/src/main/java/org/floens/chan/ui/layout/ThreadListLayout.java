@@ -417,19 +417,22 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     public ThumbnailView getThumbnail(PostImage postImage) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
 
-        ThumbnailView thumbnail = null;
         for (int i = 0; i < layoutManager.getChildCount(); i++) {
             View view = layoutManager.getChildAt(i);
             if (view instanceof PostCellInterface) {
                 PostCellInterface postView = (PostCellInterface) view;
                 Post post = postView.getPost();
-                if (post.image != null && post.image.imageUrl.equals(postImage.imageUrl)) {
-                    thumbnail = postView.getThumbnailView();
-                    break;
+
+                if (!post.images.isEmpty()) {
+                    for (PostImage image : post.images) {
+                        if (image.equalUrl(postImage)) {
+                            return postView.getThumbnailView(postImage);
+                        }
+                    }
                 }
             }
         }
-        return thumbnail;
+        return null;
     }
 
     public void scrollTo(int displayPosition, boolean smooth) {
@@ -644,7 +647,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 if (child instanceof PostCellInterface) {
                     PostCellInterface postView = (PostCellInterface) child;
                     Post post = postView.getPost();
-                    if (post.isOP && post.image != null) {
+                    if (post.isOP && !post.images.isEmpty()) {
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
                         int top = child.getTop() + params.topMargin;
                         int left = child.getLeft() + params.leftMargin;

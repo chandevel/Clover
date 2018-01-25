@@ -31,15 +31,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:visibility="gone" />
 
     <RelativeLayout
+        android:id="@+id/relative_layout_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:ignore="UnknownIdInLayout">
 
-        <org.floens.chan.ui.view.PostImageThumbnailView
+        <!--<org.floens.chan.ui.view.PostImageThumbnailView
             android:id="@+id/thumbnail_view"
             android:layout_width="@dimen/cell_post_thumbnail_size"
             android:layout_height="@dimen/cell_post_thumbnail_size"
             android:layout_alignWithParentIfMissing="true"
-            android:gravity="top" />
+            android:gravity="top" />-->
 
         <org.floens.chan.ui.text.FastTextView
             android:id="@+id/title"
@@ -48,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_alignWithParentIfMissing="true"
-            android:layout_toRightOf="@id/thumbnail_view"
+            android:layout_toRightOf="@+id/thumbnail_view"
             android:paddingRight="25dp" />
 
         <view
@@ -59,7 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentRight="true"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/title"
-            android:layout_toRightOf="@id/thumbnail_view" />
+            android:layout_toRightOf="@+id/thumbnail_view" />
 
         <TextView
             android:id="@+id/comment"
@@ -68,7 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentRight="true"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/icons"
-            android:layout_toRightOf="@id/thumbnail_view"
+            android:layout_toRightOf="@+id/thumbnail_view"
             android:textColor="?attr/text_color_primary" />
 
         <org.floens.chan.ui.text.FastTextView
@@ -77,7 +79,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/comment"
-            android:layout_toRightOf="@id/thumbnail_view"
+            android:layout_toRightOf="@+id/thumbnail_view"
             app:singleLine="true"
             app:textColor="?attr/text_color_secondary" />
 

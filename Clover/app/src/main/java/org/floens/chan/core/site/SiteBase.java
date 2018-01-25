@@ -29,7 +29,10 @@ import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.settings.json.JsonSettingsProvider;
+import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCallManager;
+import org.floens.chan.core.site.http.LoginRequest;
+import org.floens.chan.core.site.http.Reply;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,5 +112,36 @@ public abstract class SiteBase implements Site {
     @Override
     public boolean postRequiresAuthentication() {
         return false;
+    }
+
+    @Override
+    public void post(Reply reply, PostListener postListener) {
+    }
+
+    @Override
+    public Authentication postAuthenticate() {
+        return Authentication.fromNone();
+    }
+
+    @Override
+    public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
+    }
+
+    @Override
+    public void login(LoginRequest loginRequest, LoginListener loginListener) {
+    }
+
+    @Override
+    public void logout() {
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        return false;
+    }
+
+    @Override
+    public LoginRequest getLoginDetails() {
+        return null;
     }
 }

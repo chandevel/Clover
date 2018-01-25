@@ -64,6 +64,10 @@ public class PostImage {
         }
     }
 
+    public boolean equalUrl(PostImage other) {
+        return imageUrl.equals(other.imageUrl);
+    }
+
     public HttpUrl getThumbnailUrl() {
         if (!spoiler) {
             return thumbnailUrl;

@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
@@ -167,7 +168,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         return post;
     }
 
-    public ThumbnailView getThumbnailView() {
+    public ThumbnailView getThumbnailView(PostImage postImage) {
         return null;
     }
 

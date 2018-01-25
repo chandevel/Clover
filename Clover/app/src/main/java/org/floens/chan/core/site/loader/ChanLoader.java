@@ -308,7 +308,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
                 thread.archived = realOp.isArchived();
                 realOp.setSticky(fakeOp.sticky);
                 realOp.setReplies(fakeOp.replies);
-                realOp.setImages(fakeOp.images);
+                realOp.setImagesCount(fakeOp.imagesCount);
                 realOp.setUniqueIps(fakeOp.uniqueIps);
             } else {
                 Logger.e(TAG, "Thread has no op!");

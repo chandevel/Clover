@@ -235,8 +235,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         int index = 0;
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (item.image != null) {
-                images.add(item.image);
+            if (!item.images.isEmpty()) {
+                images.addAll(item.images);
             }
             if (i == displayPosition) {
                 index = images.size();
@@ -337,11 +337,17 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (!searchOpen) {
             int position = -1;
             List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+
+            out:
             for (int i = 0; i < posts.size(); i++) {
                 Post post = posts.get(i);
-                if (post.image == postImage) {
-                    position = i;
-                    break;
+                if (!post.images.isEmpty()) {
+                    for (int j = 0; j < post.images.size(); j++) {
+                        if (post.images.get(j) == postImage) {
+                            position = i;
+                            break out;
+                        }
+                    }
                 }
             }
             if (position >= 0) {
@@ -377,10 +383,15 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (int i = 0; i < posts.size(); i++) {
             Post post = posts.get(i);
-            if (post.image == postImage) {
-                scrollToPost(post, false);
-                highlightPost(post);
-                break;
+
+            if (!post.images.isEmpty()) {
+                for (int j = 0; j < post.images.size(); j++) {
+                    if (post.images.get(j) == postImage) {
+                        scrollToPost(post, false);
+                        highlightPost(post);
+                        return;
+                    }
+                }
             }
         }
     }
@@ -408,16 +419,20 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public void onThumbnailClicked(Post post, ThumbnailView thumbnail) {
+    public void onThumbnailClicked(Post post, PostImage postImage, ThumbnailView thumbnail) {
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (item.image != null) {
-                images.add(item.image);
-                if (item.no == post.no) {
-                    index = images.size() - 1;
+
+            if (!item.images.isEmpty()) {
+                for (int j = 0; j < item.images.size(); j++) {
+                    PostImage image = item.images.get(j);
+                    images.add(image);
+                    if (image == postImage) {
+                        index = images.size() - 1;
+                    }
                 }
             }
         }
@@ -654,28 +669,32 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private void showPostInfo(Post post) {
-        String text = "";
+        StringBuilder text = new StringBuilder();
 
-        if (post.image != null) {
-            text += "Filename: " + post.image.filename + "." + post.image.extension + " \nDimensions: " + post.image.imageWidth + "x"
-                    + post.image.imageHeight + "\nSize: " + AndroidUtils.getReadableFileSize(post.image.size, false);
+        for (PostImage image : post.images) {
+            text.append("Filename: ")
+                    .append(image.filename).append(".").append(image.extension)
+                    .append(" \nDimensions: ")
+                    .append(image.imageWidth).append("x").append(image.imageHeight)
+                    .append("\nSize: ")
+                    .append(AndroidUtils.getReadableFileSize(image.size, false));
 
-            if (post.image.spoiler) {
-                text += "\nSpoilered";
+            if (image.spoiler) {
+                text.append("\nSpoilered");
             }
 
-            text += "\n";
+            text.append("\n");
         }
 
         // TODO(multi-site) get this from the timestamp
 //        text += "Date: " + post.date;
 
         if (!TextUtils.isEmpty(post.id)) {
-            text += "\nId: " + post.id;
+            text.append("\nId: ").append(post.id);
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
-            text += "\nTripcode: " + post.tripcode;
+            text.append("\nTripcode: ").append(post.tripcode);
         }
 
         /*if (!TextUtils.isEmpty(post.countryName)) {
@@ -683,10 +702,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         }*/
 
         if (!TextUtils.isEmpty(post.capcode)) {
-            text += "\nCapcode: " + post.capcode;
+            text.append("\nCapcode: ").append(post.capcode);
         }
 
-        threadPresenterCallback.showPostInfo(text);
+        threadPresenterCallback.showPostInfo(text.toString());
     }
 
     private Post findPostById(int id) {
@@ -707,7 +726,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             historyAdded = true;
             History history = new History();
             history.loadable = loadable;
-            PostImage image = chanLoader.getThread().op.image;
+            PostImage image = chanLoader.getThread().op.image();
             history.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
             databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
