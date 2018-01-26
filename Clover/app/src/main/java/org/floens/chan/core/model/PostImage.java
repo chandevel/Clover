@@ -56,6 +56,7 @@ public class PostImage {
                 type = Type.GIF;
                 break;
             case "webm":
+            case "mp4":
                 type = Type.MOVIE;
                 break;
             default:

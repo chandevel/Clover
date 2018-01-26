@@ -112,10 +112,23 @@ public class ViChan extends SiteBase {
 
         @Override
         public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
+            String ext;
+            switch (arg.get("ext")) {
+                case "jpeg":
+                case "jpg":
+                case "png":
+                case "gif":
+                    ext = arg.get("ext");
+                    break;
+                default:
+                    ext = "jpg";
+                    break;
+            }
+
             return root.newBuilder()
                     .addPathSegment("file_store")
                     .addPathSegment("thumb")
-                    .addPathSegment(arg.get("tim") + "." + arg.get("ext"))
+                    .addPathSegment(arg.get("tim") + "." + ext)
                     .build();
         }
 
