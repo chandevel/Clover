@@ -67,7 +67,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
         this.images = images;
-        selectedPosition = position;
+        selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
         this.loadable = loadable;
 
         progress = new ArrayList<>(images.size());
