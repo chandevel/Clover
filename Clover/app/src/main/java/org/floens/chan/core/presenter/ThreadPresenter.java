@@ -709,9 +709,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private Post findPostById(int id) {
-        for (Post post : chanLoader.getThread().posts) {
-            if (post.no == id) {
-                return post;
+        ChanThread thread = chanLoader.getThread();
+        if (thread != null) {
+            for (Post post : thread.posts) {
+                if (post.no == id) {
+                    return post;
+                }
             }
         }
         return null;
