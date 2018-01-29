@@ -86,6 +86,10 @@ public class ImagePickDelegate implements Runnable {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (callback == null) {
+            return;
+        }
+
         boolean ok = false;
         boolean cancelled = false;
         if (requestCode == IMAGE_PICK_RESULT) {
