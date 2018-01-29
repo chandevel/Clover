@@ -69,6 +69,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
     private Board dummyBoard;
+
     {
         dummyBoard = new Board();
         dummyBoard.name = "name";
@@ -76,6 +77,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
     }
 
     private Loadable dummyLoadable;
+
     {
         dummyLoadable = Loadable.emptyLoadable();
         dummyLoadable.mode = Loadable.Mode.THREAD;
@@ -339,7 +341,16 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
 
             PostCell postCell = (PostCell) LayoutInflater.from(themeContext).inflate(R.layout.cell_post, null);
-            postCell.setPost(theme, post, dummyPostCallback, false, false, false, -1, true, ChanSettings.PostViewMode.LIST);
+            postCell.setPost(theme,
+                    post,
+                    dummyPostCallback,
+                    false,
+                    false,
+                    false,
+                    -1,
+                    true,
+                    ChanSettings.PostViewMode.LIST,
+                    false);
             linearLayout.addView(postCell, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             return linearLayout;

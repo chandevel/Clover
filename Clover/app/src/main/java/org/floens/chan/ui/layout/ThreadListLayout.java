@@ -158,13 +158,18 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         int cardWidth = getResources().getDimensionPixelSize(R.dimen.grid_card_width);
         int gridCountSetting = ChanSettings.boardGridSpanCount.get();
+        boolean compactMode;
         if (gridCountSetting > 0) {
             spanCount = gridCountSetting;
+            compactMode = (getMeasuredWidth() / spanCount) < dp(120);
         } else {
             spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
+            compactMode = false;
         }
 
         if (postViewMode == ChanSettings.PostViewMode.CARD) {
+            postAdapter.setCompact(compactMode);
+
             ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
         }
     }

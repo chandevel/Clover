@@ -43,6 +43,7 @@ import org.floens.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class CardPostCell extends CardView implements PostCellInterface, View.OnClickListener {
@@ -52,6 +53,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private Theme theme;
     private Post post;
     private PostCellInterface.PostCellCallback callback;
+    private boolean compact = false;
 
     private FixedRatioLinearLayout content;
     private PostImageThumbnailView thumbnailView;
@@ -78,7 +80,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         super.onFinishInflate();
 
         content = findViewById(R.id.card_content);
-        content.setRatio(9f / 16f);
+        content.setRatio(9f / 18f);
         thumbnailView = findViewById(R.id.thumbnail);
         thumbnailView.setRatio(16f / 13f);
         thumbnailView.setOnClickListener(this);
@@ -89,33 +91,27 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         setRoundItemBackground(options);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
-        int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
-        title.setTextSize(textSizeSp);
-        comment.setTextSize(textSizeSp);
-        replies.setTextSize(textSizeSp);
-
         setOnClickListener(this);
 
-        options.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<FloatingMenuItem> items = new ArrayList<>();
+        setCompact(compact);
 
-                callback.onPopulatePostOptions(post, items);
+        options.setOnClickListener(v -> {
+            List<FloatingMenuItem> items = new ArrayList<>();
 
-                FloatingMenu menu = new FloatingMenu(getContext(), v, items);
-                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-                    @Override
-                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        callback.onPostOptionClicked(post, item.getId());
-                    }
+            callback.onPopulatePostOptions(post, items);
 
-                    @Override
-                    public void onFloatingMenuDismissed(FloatingMenu menu) {
-                    }
-                });
-                menu.show();
-            }
+            FloatingMenu menu = new FloatingMenu(getContext(), v, items);
+            menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+                @Override
+                public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                    callback.onPostOptionClicked(post, item.getId());
+                }
+
+                @Override
+                public void onFloatingMenuDismissed(FloatingMenu menu) {
+                }
+            });
+            menu.show();
         });
     }
 
@@ -148,7 +144,8 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
     public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
                         boolean selectable, boolean highlighted, boolean selected, int markedNo,
-                        boolean showDivider, ChanSettings.PostViewMode postViewMode) {
+                        boolean showDivider, ChanSettings.PostViewMode postViewMode,
+                        boolean compact) {
         if (this.post == post) {
             return;
         }
@@ -167,6 +164,11 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         this.callback = callback;
 
         bindPost(theme, post);
+
+        if (this.compact != compact) {
+            this.compact = compact;
+            setCompact(compact);
+        }
     }
 
     public Post getPost() {
@@ -224,5 +226,23 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
 
     private void unbindPost(Post post) {
         bound = false;
+    }
+
+    private void setCompact(boolean compact) {
+        int textReduction = compact ? -2 : 0;
+        int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get()) + textReduction;
+        title.setTextSize(textSizeSp);
+        comment.setTextSize(textSizeSp);
+        replies.setTextSize(textSizeSp);
+
+        int p = compact ? dp(3) : dp(8);
+
+        // Same as the layout.
+        title.setPadding(p, p, p, 0);
+        comment.setPadding(p, p, p, 0);
+        replies.setPadding(p, p / 2, p, p);
+
+        int optionsPadding = compact ? 0 : dp(5);
+        options.setPadding(0, optionsPadding, optionsPadding, 0);
     }
 }

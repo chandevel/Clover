@@ -24,8 +24,8 @@ import android.view.ViewGroup;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
@@ -56,6 +56,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean bound;
 
     private ChanSettings.PostViewMode postViewMode;
+    private boolean compact = false;
 
     public PostAdapter(RecyclerView recyclerView, PostAdapterCallback postAdapterCallback, PostCellInterface.PostCellCallback postCellCallback, ThreadStatusCell.Callback statusCellCallback) {
         this.recyclerView = recyclerView;
@@ -106,7 +107,17 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Post post = displayList.get(getPostPosition(position));
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
                         post.tripcode.equals(highlightedPostTripcode);
-                postViewHolder.postView.setPost(null, post, postCellCallback, true, highlight, post.no == selectedPost, -1, true, postViewMode);
+                postViewHolder.postView.setPost(null,
+                        post,
+                        postCellCallback,
+                        true,
+                        highlight,
+                        post.no == selectedPost,
+                        -1,
+                        true,
+                        postViewMode,
+                        compact);
+
                 break;
             case TYPE_STATUS:
                 ((StatusViewHolder) holder).threadStatusCell.update();
@@ -160,7 +171,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             synchronized (post.repliesFrom) {
                 repliesFromSize = post.repliesFrom.size();
             }
-            return ((long) repliesFromSize << 32L) + (long) post.no;
+            return ((long) repliesFromSize << 32L) + (long) post.no + (compact ? 1L : 0L);
         }
     }
 
@@ -259,6 +270,13 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         this.postViewMode = postViewMode;
+    }
+
+    public void setCompact(boolean compact) {
+        if (this.compact != compact) {
+            this.compact = compact;
+            notifyDataSetChanged();
+        }
     }
 
     public int getPostPosition(int position) {

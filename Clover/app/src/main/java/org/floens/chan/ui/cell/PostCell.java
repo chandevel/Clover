@@ -252,7 +252,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                         boolean selected,
                         int markedNo,
                         boolean showDivider,
-                        ChanSettings.PostViewMode postViewMode) {
+                        ChanSettings.PostViewMode postViewMode,
+                        boolean compact) {
         if (this.post == post &&
                 this.selectable == selectable &&
                 this.highlighted == highlighted &&

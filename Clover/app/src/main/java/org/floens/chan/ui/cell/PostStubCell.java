@@ -141,7 +141,8 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
 
     public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
                         boolean selectable, boolean highlighted, boolean selected, int markedNo,
-                        boolean showDivider, ChanSettings.PostViewMode postViewMode) {
+                        boolean showDivider, ChanSettings.PostViewMode postViewMode,
+                        boolean compact) {
         if (this.post == post) {
             return;
         }

@@ -37,7 +37,8 @@ public interface PostCellInterface {
                  boolean selected,
                  int markedNo,
                  boolean showDivider,
-                 ChanSettings.PostViewMode postViewMode);
+                 ChanSettings.PostViewMode postViewMode,
+                 boolean compact);
 
     Post getPost();
 
