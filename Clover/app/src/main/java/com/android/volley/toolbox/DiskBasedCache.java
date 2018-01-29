@@ -322,6 +322,10 @@ public class DiskBasedCache implements Cache {
      * Reads the contents of an InputStream into a byte[].
      * */
     private static byte[] streamToBytes(InputStream in, int length) throws IOException {
+        if (length < 0) {
+            throw new IOException("length < 0");
+        }
+
         byte[] bytes = new byte[length];
         int count;
         int pos = 0;
