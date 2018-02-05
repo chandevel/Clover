@@ -70,17 +70,17 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        searchLayout = (SearchLayout) findViewById(R.id.search_layout);
+        searchLayout = findViewById(R.id.search_layout);
         searchLayout.setCallback(this);
         searchLayout.setHint(getString(R.string.search_hint));
         searchLayout.setTextColor(getAttrColor(getContext(), R.attr.text_color_primary));
         searchLayout.setHintColor(getAttrColor(getContext(), R.attr.text_color_hint));
         searchLayout.setClearButtonImage(R.drawable.ic_clear_black_24dp);
 
-        checkAllButton = (Button) findViewById(R.id.select_all);
+        checkAllButton = findViewById(R.id.select_all);
         checkAllButton.setOnClickListener(this);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
@@ -213,9 +213,9 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
 
         public BoardSelectViewHolder(View itemView) {
             super(itemView);
-            checkBox = (CheckBox) itemView.findViewById(R.id.checkbox);
-            text = (TextView) itemView.findViewById(R.id.text);
-            description = (TextView) itemView.findViewById(R.id.description);
+            checkBox = itemView.findViewById(R.id.checkbox);
+            text = itemView.findViewById(R.id.text);
+            description = itemView.findViewById(R.id.description);
 
             checkBox.setOnCheckedChangeListener(this);
 

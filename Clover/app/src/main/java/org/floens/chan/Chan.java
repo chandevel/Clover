@@ -17,116 +17,83 @@
  */
 package org.floens.chan;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.StrictMode;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.Volley;
-
-import org.floens.chan.core.cache.FileCache;
+import org.codejargon.feather.Feather;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.http.ReplyManager;
-import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.net.BitmapLruImageCache;
-import org.floens.chan.core.net.ProxiedHurlStack;
+import org.floens.chan.core.di.AppModule;
+import org.floens.chan.core.di.NetModule;
+import org.floens.chan.core.di.UserAgentProvider;
+import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
-import java.io.File;
 import java.util.Locale;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-public class Chan extends Application {
+@SuppressLint("Registered") // extended by ChanApplication, which is registered in the manifest.
+public class Chan extends Application implements UserAgentProvider, Application.ActivityLifecycleCallbacks {
     private static final String TAG = "ChanApplication";
 
-    private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
-    private static final String FILE_CACHE_NAME = "filecache";
-    private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
-
-    public static Context con;
-
+    @SuppressLint("StaticFieldLeak")
     private static Chan instance;
-    private static RequestQueue volleyRequestQueue;
-    private static ImageLoader imageLoader;
-    private static BoardManager boardManager;
-    private static WatchManager watchManager;
-    private static ReplyManager replyManager;
-    private static DatabaseManager databaseManager;
-    private static FileCache fileCache;
 
     private String userAgent;
     private int activityForegroundCounter = 0;
 
+    @Inject
+    SiteManager siteManager;
+
+    @Inject
+    DatabaseManager databaseManager;
+
+    private Feather feather;
+
     public Chan() {
         instance = this;
-        con = this;
     }
 
     public static Chan getInstance() {
         return instance;
     }
 
-    public static RequestQueue getVolleyRequestQueue() {
-        return volleyRequestQueue;
+    public static Feather injector() {
+        return instance.feather;
     }
 
-    public static ImageLoader getVolleyImageLoader() {
-        return imageLoader;
-    }
-
-    public static BoardManager getBoardManager() {
-        return boardManager;
-    }
-
-    public static WatchManager getWatchManager() {
-        return watchManager;
-    }
-
-    public static ReplyManager getReplyManager() {
-        return replyManager;
-    }
-
-    public static DatabaseManager getDatabaseManager() {
-        return databaseManager;
-    }
-
-    public static FileCache getFileCache() {
-        return fileCache;
+    public static <T> T inject(T instance) {
+        Chan.instance.feather.injectFields(instance);
+        return instance;
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
 
+        AndroidUtils.init(this);
+    }
+
+    public void initialize() {
         final long startTime = Time.startTiming();
 
-        AndroidUtils.init();
+        registerActivityLifecycleCallbacks(this);
 
         userAgent = createUserAgent();
 
-        File cacheDir = getExternalCacheDir() != null ? getExternalCacheDir() : getCacheDir();
+        initializeGraph();
 
-        replyManager = new ReplyManager(this, userAgent);
-
-        volleyRequestQueue = Volley.newRequestQueue(this, userAgent, new ProxiedHurlStack(userAgent), new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
-
-        final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int lruImageCacheSize = runtimeMemory / 8;
-
-        imageLoader = new ImageLoader(volleyRequestQueue, new BitmapLruImageCache(lruImageCacheSize));
-
-        fileCache = new FileCache(new File(cacheDir, FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, getUserAgent());
-
-        databaseManager = new DatabaseManager(this);
-        boardManager = new BoardManager(databaseManager);
-        watchManager = new WatchManager(databaseManager);
+        siteManager.initialize();
 
         Time.endTiming("Initializing application", startTime);
 
@@ -153,11 +120,20 @@ public class Chan extends Application {
         }
     }
 
+    private void initializeGraph() {
+        feather = Feather.with(
+                new AppModule(this, this),
+                new NetModule()
+        );
+        feather.injectFields(this);
+    }
+
+    @Override
     public String getUserAgent() {
         return userAgent;
     }
 
-    public void activityEnteredForeground() {
+    private void activityEnteredForeground() {
         boolean lastForeground = getApplicationInForeground();
 
         activityForegroundCounter++;
@@ -167,7 +143,7 @@ public class Chan extends Application {
         }
     }
 
-    public void activityEnteredBackground() {
+    private void activityEnteredBackground() {
         boolean lastForeground = getApplicationInForeground();
 
         activityForegroundCounter--;
@@ -202,5 +178,35 @@ public class Chan extends Application {
         }
         version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
         return getString(R.string.app_name) + "/" + version;
+    }
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+        activityEnteredForeground();
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+        activityEnteredBackground();
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
     }
 }

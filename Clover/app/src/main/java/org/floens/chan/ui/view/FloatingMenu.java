@@ -50,9 +50,12 @@ public class FloatingMenu {
     private int anchorOffsetY;
     private int popupWidth = POPUP_WIDTH_AUTO;
     private int popupHeight = -1;
+    private boolean manageItems = true;
     private List<FloatingMenuItem> items;
     private FloatingMenuItem selectedItem;
+    private int selectedPosition;
     private ListAdapter adapter;
+    private AdapterView.OnItemClickListener itemClickListener;
     private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener;
 
     private ListPopupWindow popupWindow;
@@ -93,11 +96,18 @@ public class FloatingMenu {
     }
 
     public void setItems(List<FloatingMenuItem> items) {
+        if (!manageItems) throw new IllegalArgumentException();
         this.items = items;
     }
 
     public void setSelectedItem(FloatingMenuItem item) {
+        if (!manageItems) throw new IllegalArgumentException();
         this.selectedItem = item;
+    }
+
+    public void setSelectedPosition(int selectedPosition) {
+        if (manageItems) throw new IllegalArgumentException();
+        this.selectedPosition = selectedPosition;
     }
 
     public void setAdapter(ListAdapter adapter) {
@@ -109,6 +119,17 @@ public class FloatingMenu {
 
     public void setCallback(FloatingMenuCallback callback) {
         this.callback = callback;
+    }
+
+    public void setManageItems(boolean manageItems) {
+        this.manageItems = manageItems;
+    }
+
+    public void setOnItemClickListener(AdapterView.OnItemClickListener listener) {
+        this.itemClickListener = listener;
+        if (popupWindow != null) {
+            popupWindow.setOnItemClickListener(listener);
+        }
     }
 
     public void show() {
@@ -130,11 +151,15 @@ public class FloatingMenu {
             popupWindow.setHeight(popupHeight);
         }
 
-        int selectedPosition = 0;
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i) == selectedItem) {
-                selectedPosition = i;
+        int selection = 0;
+        if (manageItems) {
+            for (int i = 0; i < items.size(); i++) {
+                if (items.get(i) == selectedItem) {
+                    selection = i;
+                }
             }
+        } else {
+            selection = this.selectedPosition;
         }
 
         if (adapter != null) {
@@ -143,20 +168,24 @@ public class FloatingMenu {
             popupWindow.setAdapter(new FloatingMenuArrayAdapter(context, R.layout.toolbar_menu_item, items));
         }
 
-        popupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= 0 && position < items.size()) {
-                    FloatingMenuItem item = items.get(position);
-                    if (item.isEnabled()) {
-                        callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
-                        popupWindow.dismiss();
+        if (manageItems) {
+            popupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (position >= 0 && position < items.size()) {
+                        FloatingMenuItem item = items.get(position);
+                        if (item.isEnabled()) {
+                            callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
+                            popupWindow.dismiss();
+                        }
+                    } else {
+                        callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
                     }
-                } else {
-                    callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
                 }
-            }
-        });
+            });
+        } else {
+            popupWindow.setOnItemClickListener(itemClickListener);
+        }
 
         globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -186,7 +215,7 @@ public class FloatingMenu {
         });
 
         popupWindow.show();
-        popupWindow.setSelection(selectedPosition);
+        popupWindow.setSelection(selection);
     }
 
     public boolean isShowing() {
@@ -204,6 +233,16 @@ public class FloatingMenu {
         void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item);
 
         void onFloatingMenuDismissed(FloatingMenu menu);
+    }
+
+    public static class FloatingMenuCallbackAdapter implements FloatingMenuCallback {
+        @Override
+        public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+        }
+
+        @Override
+        public void onFloatingMenuDismissed(FloatingMenu menu) {
+        }
     }
 
     private static class FloatingMenuArrayAdapter extends ArrayAdapter<FloatingMenuItem> {

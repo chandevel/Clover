@@ -121,18 +121,21 @@ public class SearchLayout extends LinearLayout {
         searchView.setText(text);
     }
 
+    public String getText() {
+        return searchView.getText().toString();
+    }
+
     public void setHint(String hint) {
         searchView.setHint(hint);
     }
 
     public void openKeyboard() {
-        searchView.postDelayed(new Runnable() {
+        searchView.post(new Runnable() {
             @Override
             public void run() {
-                searchView.requestFocus();
-                AndroidUtils.requestKeyboardFocus(searchView);
+                AndroidUtils.requestViewAndKeyboardFocus(searchView);
             }
-        }, 100);
+        });
     }
 
     public interface SearchLayoutCallback {

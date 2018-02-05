@@ -20,15 +20,15 @@ package org.floens.chan.core.database;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.Chan;
-import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.ThreadHide;
+import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
@@ -41,11 +41,23 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
-import static com.j256.ormlite.misc.TransactionManager.callInTransaction;
-
+/**
+ * The central point for database related access.<br>
+ * <b>All database queries are run on a single database thread</b>, therefor all functions return a
+ * {@link Callable} that needs to be queued on either {@link #runTaskAsync(Callable)},
+ * {@link #runTaskAsync(Callable, TaskResult)} or {@link #runTask(Callable)}.<br>
+ * You often want the sync flavour for queries that return data, it waits for the task to be finished on the other thread.<br>
+ * Use the async versions when you don't care when the query is done.
+ */
+@Singleton
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
@@ -53,6 +65,7 @@ public class DatabaseManager {
     private static final long THREAD_HIDE_TRIM_COUNT = 50;
 
     private final ExecutorService backgroundExecutor;
+    private Thread executorThread;
     private final DatabaseHelper helper;
 
     private final List<ThreadHide> threadHides = new ArrayList<>();
@@ -63,7 +76,10 @@ public class DatabaseManager {
     private final DatabaseHistoryManager databaseHistoryManager;
     private final DatabaseSavedReplyManager databaseSavedReplyManager;
     private final DatabaseFilterManager databaseFilterManager;
+    private final DatabaseBoardManager databaseBoardManager;
+    private final DatabaseSiteManager databaseSiteManager;
 
+    @Inject
     public DatabaseManager(Context context) {
         backgroundExecutor = Executors.newSingleThreadExecutor();
 
@@ -73,6 +89,8 @@ public class DatabaseManager {
         databaseHistoryManager = new DatabaseHistoryManager(this, helper, databaseLoadableManager);
         databaseSavedReplyManager = new DatabaseSavedReplyManager(this, helper);
         databaseFilterManager = new DatabaseFilterManager(this, helper);
+        databaseBoardManager = new DatabaseBoardManager(this, helper);
+        databaseSiteManager = new DatabaseSiteManager(this, helper);
         initialize();
         EventBus.getDefault().register(this);
     }
@@ -97,17 +115,29 @@ public class DatabaseManager {
         return databaseFilterManager;
     }
 
+    public DatabaseBoardManager getDatabaseBoardManager() {
+        return databaseBoardManager;
+    }
+
+    public DatabaseSiteManager getDatabaseSiteManager() {
+        return databaseSiteManager;
+    }
+
     // Called when the app changes foreground state
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
-            runTask(databaseLoadableManager.flush());
+            runTaskAsync(databaseLoadableManager.flush());
         }
     }
 
     private void initialize() {
         loadThreadHides();
-        runTaskSync(databaseHistoryManager.load());
-        runTaskSync(databaseSavedReplyManager.load());
+
+        // Loads data into fields.
+        runTask(databaseSavedReplyManager.load());
+
+        // Only trims.
+        runTaskAsync(databaseHistoryManager.load());
     }
 
     /**
@@ -119,44 +149,6 @@ public class DatabaseManager {
     }
 
     /**
-     * Create or updates these boards in the boards table.
-     *
-     * @param boards List of boards to create or update
-     */
-    public void setBoards(final List<Board> boards) {
-        try {
-            callInTransaction(helper.getConnectionSource(), new Callable<Void>() {
-                @Override
-                public Void call() throws SQLException {
-                    for (Board b : boards) {
-                        helper.boardsDao.createOrUpdate(b);
-                    }
-
-                    return null;
-                }
-            });
-        } catch (Exception e) {
-            Logger.e(TAG, "Error setting boards in db", e);
-        }
-    }
-
-    /**
-     * Get all boards from the boards table.
-     *
-     * @return all boards from the boards table
-     */
-    public List<Board> getBoards() {
-        List<Board> boards = null;
-        try {
-            boards = helper.boardsDao.queryForAll();
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error getting boards from db", e);
-        }
-
-        return boards;
-    }
-
-    /**
      * Check if the post is added in the threadhide table.
      *
      * @param post Post to check the board and no on
@@ -165,7 +157,7 @@ public class DatabaseManager {
     public boolean isThreadHidden(Post post) {
         if (threadHidesIds.contains(post.no)) {
             for (ThreadHide hide : threadHides) {
-                if (hide.no == post.no && hide.board.equals(post.board)) {
+                if (hide.no == post.no && hide.board.equals(post.boardId)) {
                     return true;
                 }
             }
@@ -276,15 +268,15 @@ public class DatabaseManager {
         }
     }
 
-    public <T> void runTask(final Callable<T> taskCallable) {
-        runTask(taskCallable, null);
+    public <T> void runTaskAsync(final Callable<T> taskCallable) {
+        runTaskAsync(taskCallable, null);
     }
 
-    public <T> void runTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
+    public <T> void runTaskAsync(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
         executeTask(taskCallable, taskResult);
     }
 
-    public <T> T runTaskSync(final Callable<T> taskCallable) {
+    public <T> T runTask(final Callable<T> taskCallable) {
         try {
             return executeTask(taskCallable, null).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -293,25 +285,70 @@ public class DatabaseManager {
     }
 
     private <T> Future<T> executeTask(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
-        return backgroundExecutor.submit(new Callable<T>() {
-            @Override
-            public T call() {
-                try {
-                    final T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
-                    if (taskResult != null) {
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                taskResult.onComplete(result);
-                            }
-                        });
-                    }
-                    return result;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+        if (Thread.currentThread() == executorThread) {
+            DatabaseCallable<T> databaseCallable = new DatabaseCallable<>(taskCallable, taskResult);
+            T result = databaseCallable.call();
+
+            return new Future<T>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    return false;
                 }
+
+                @Override
+                public boolean isCancelled() {
+                    return false;
+                }
+
+                @Override
+                public boolean isDone() {
+                    return true;
+                }
+
+                @Override
+                public T get() throws InterruptedException, ExecutionException {
+                    return result;
+                }
+
+                @Override
+                public T get(long timeout, @NonNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                    return result;
+                }
+            };
+        } else {
+            return backgroundExecutor.submit(new DatabaseCallable<>(taskCallable, taskResult));
+        }
+    }
+
+    private class DatabaseCallable<T> implements Callable<T> {
+        private final Callable<T> taskCallable;
+        private final TaskResult<T> taskResult;
+
+        public DatabaseCallable(Callable<T> taskCallable, TaskResult<T> taskResult) {
+            this.taskCallable = taskCallable;
+            this.taskResult = taskResult;
+        }
+
+        @Override
+        public T call() {
+            executorThread = Thread.currentThread();
+
+            try {
+                final T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
+                if (taskResult != null) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            taskResult.onComplete(result);
+                        }
+                    });
+                }
+                return result;
+            } catch (Exception e) {
+                Logger.e(TAG, "executeTask", e);
+                throw new RuntimeException(e);
             }
-        });
+        }
     }
 
     public interface TaskResult<T> {

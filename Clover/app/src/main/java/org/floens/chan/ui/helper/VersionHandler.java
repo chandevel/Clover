@@ -92,13 +92,11 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
     public void run() {
         int previous = ChanSettings.previousVersion.get();
         if (previous < CURRENT_VERSION) {
-            if (previous < 1) {
-                cleanupOutdatedIonFolder(context);
+            handleUpdate(previous);
+
+            if (previous != 0) {
+                showMessage(CURRENT_VERSION);
             }
-
-            // Add more previous version checks here
-
-            showMessage(CURRENT_VERSION);
 
             ChanSettings.previousVersion.set(CURRENT_VERSION);
 
@@ -109,6 +107,14 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
         if (updateManager.isUpdatingAvailable()) {
             updateManager.runUpdateApi(false);
         }
+    }
+
+    private void handleUpdate(int previous) {
+        if (previous < 1) {
+            cleanupOutdatedIonFolder(context);
+        }
+
+        // Add more previous version checks here
     }
 
     public boolean isUpdatingAvailable() {

@@ -30,16 +30,18 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class NavigationItem {
     public String title = "";
     public String subtitle = "";
-    public ToolbarMenu menu;
+
     public boolean hasBack = true;
-    public FloatingMenu middleMenu;
-    public View rightView;
     public boolean hasDrawer = false;
     public boolean handlesToolbarInset = false;
     public boolean swipeable = true;
 
     boolean search = false;
     String searchText;
+
+    public ToolbarMenu menu;
+    public ToolbarMiddleMenu middleMenu;
+    public View rightView;
 
     public ToolbarMenuItem createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
         ToolbarMenuItem overflow = menu.createOverflow(callback);

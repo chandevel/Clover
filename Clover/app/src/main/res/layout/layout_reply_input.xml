@@ -15,48 +15,54 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:baselineAligned="false"
     android:minHeight="124dp"
-    android:orientation="vertical"
-    tools:ignore="Suspicious0dp,ContentDescription">
-
-    <TextView
-        android:id="@+id/message"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:padding="8dp"
-        android:textColor="#fff44336"
-        android:visibility="gone" />
+    android:orientation="horizontal"
+    tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:baselineAligned="false"
-        android:orientation="horizontal">
+        android:minHeight="124dp"
+        android:orientation="horizontal"
+        tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:animateLayoutChanges="true"
             android:orientation="vertical"
             android:paddingBottom="8dp"
             android:paddingLeft="8dp"
             android:paddingTop="8dp">
 
+            <TextView
+                android:id="@+id/message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:textColor="#fff44336"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/name_options"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
                 <EditText
                     android:id="@+id/name"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:hint="@string/reply_name"
                     android:inputType="textCapSentences|textAutoCorrect"
@@ -66,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <EditText
                     android:id="@+id/options"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="@string/reply_options"
                     android:singleLine="true"
@@ -77,18 +83,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <EditText
                 android:id="@+id/subject"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:hint="@string/reply_subject"
                 android:inputType="textCapSentences|textAutoCorrect"
-                android:singleLine="true"
-                android:textSize="16sp"
-                android:visibility="gone" />
-
-            <EditText
-                android:id="@+id/file_name"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:hint="@string/reply_file_name"
                 android:singleLine="true"
                 android:textSize="16sp"
                 android:visibility="gone" />
@@ -101,6 +98,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:id="@+id/comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="top"
                     android:imeActionLabel="@string/reply_submit"
                     android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
                     android:maxLines="6"
@@ -120,45 +118,77 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             </RelativeLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/comment_buttons"
+                style="?android:attr/buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                tools:ignore="SpUsage">
 
-        <LinearLayout
-            android:id="@+id/preview_container"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
-            android:paddingLeft="8dp"
-            android:paddingTop="8dp"
-            android:visibility="gone">
+                <Button
+                    android:id="@+id/comment_quote"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_quote"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/comment_spoiler"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="0dp"
+                    android:padding="0dp"
+                    android:text="@string/reply_comment_button_spoiler"
+                    android:textAllCaps="false"
+                    android:textSize="15dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
 
             <CheckBox
                 android:id="@+id/spoiler"
-                android:layout_width="100dp"
-                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/reply_spoiler_image"
                 android:textSize="14sp"
                 android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/preview"
-                android:layout_width="100dp"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:scaleType="centerInside" />
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/preview_message"
-                android:layout_width="100dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/reply_file_name"
+                android:singleLine="true"
+                android:textSize="16sp"
+                android:visibility="gone" />
 
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/buttons"
             android:layout_width="52dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="8dp">
 
@@ -167,11 +197,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:padding="10dp" />
-
-            <Space
-                android:layout_width="36dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
 
             <ImageView
                 android:id="@+id/attach"
@@ -189,4 +214,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

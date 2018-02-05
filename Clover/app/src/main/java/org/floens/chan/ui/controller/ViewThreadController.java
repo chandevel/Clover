@@ -22,14 +22,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.HintPopup;
@@ -42,6 +40,9 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -55,6 +56,9 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private static final int UP_ID = 106;
     private static final int DOWN_ID = 107;
     private static final int OPEN_BROWSER_ID = 108;
+
+    @Inject
+    WatchManager watchManager;
 
     private ToolbarMenuItem pinItem;
     private ToolbarMenuItem overflowItem;
@@ -71,16 +75,17 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void onCreate() {
         super.onCreate();
+        inject(this);
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
 
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 
-        navigationItem.hasDrawer = true;
-        navigationItem.menu = new ToolbarMenu(context);
+        navigation.hasDrawer = true;
+        navigation.menu = new ToolbarMenu(context);
 
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, ALBUM_ID, R.drawable.ic_image_white_24dp));
-        pinItem = navigationItem.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, ALBUM_ID, R.drawable.ic_image_white_24dp));
+        pinItem = navigation.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
         List<FloatingMenuItem> items = new ArrayList<>();
         if (!ChanSettings.enableReplyFab.get()) {
             items.add(new FloatingMenuItem(REPLY_ID, context.getString(R.string.action_reply)));
@@ -91,7 +96,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
         items.add(new FloatingMenuItem(UP_ID, R.string.action_up));
         items.add(new FloatingMenuItem(DOWN_ID, R.string.action_down));
-        overflowItem = navigationItem.createOverflow(context, this, items);
+        overflowItem = navigation.createOverflow(context, this, items);
 
         loadThread(loadable);
     }
@@ -135,7 +140,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                     }
                 })
                 .setTitle(R.string.open_thread_confirmation)
-                .setMessage("/" + threadLoadable.board + "/" + threadLoadable.no)
+                .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no)
                 .show();
     }
 
@@ -144,8 +149,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         if (!loadable.equals(presenter.getLoadable())) {
             presenter.bindLoadable(loadable);
             this.loadable = presenter.getLoadable();
-            navigationItem.title = loadable.title;
-            ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+            navigation.title = loadable.title;
+            ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
             setPinIconState(presenter.isPinned());
             updateDrawerHighlighting(loadable);
             updateLeftPaneHighlighting(loadable);
@@ -164,8 +169,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void onShowPosts() {
         super.onShowPosts();
 
-        navigationItem.title = loadable.title;
-        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+        navigation.title = loadable.title;
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
     @Override
@@ -198,7 +203,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             case SHARE_ID:
             case OPEN_BROWSER_ID:
                 Loadable loadable = threadLayout.getPresenter().getLoadable();
-                String link = ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no);
+                String link = loadable.site.desktopUrl(loadable, null);
 
                 if (id == SHARE_ID) {
                     AndroidUtils.shareLink(link);
@@ -216,8 +221,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
-        WatchManager wm = Chan.getWatchManager();
-        Pin pin = loadable == null ? null : wm.findPinByLoadable(loadable);
+        Pin pin = loadable == null ? null : watchManager.findPinByLoadable(loadable);
 
         if (navigationController.parentController instanceof DrawerController) {
             ((DrawerController) navigationController.parentController).setPinHighlighted(pin);
@@ -251,8 +255,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     private void setPinIconState() {
-        WatchManager wm = Chan.getWatchManager();
-        setPinIconState(wm.findPinByLoadable(loadable) != null);
+        setPinIconState(watchManager.findPinByLoadable(loadable) != null);
     }
 
     private void setPinIconState(boolean pinned) {

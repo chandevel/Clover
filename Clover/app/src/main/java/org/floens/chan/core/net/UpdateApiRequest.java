@@ -42,7 +42,8 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
 
     private String forFlavor;
 
-    public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener, Response.ErrorListener errorListener) {
+    public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener,
+                            Response.ErrorListener errorListener) {
         super(BuildConfig.UPDATE_API_ENDPOINT, listener, errorListener);
         forFlavor = BuildConfig.FLAVOR;
     }
@@ -103,8 +104,12 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                 case "code":
                     message.code = reader.nextInt();
                     break;
+                case "hash":
+                    message.hash = reader.nextString();
+                    break;
                 case "date":
-                    DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                    DateFormat format = new SimpleDateFormat(
+                            "yyyy-MM-dd'T'HH:mm:ss", Locale.US);
                     try {
                         message.date = format.parse(reader.nextString());
                     } catch (ParseException ignore) {
@@ -155,6 +160,7 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
     public static class UpdateApiMessage {
         public String type;
         public int code;
+        public String hash;
         public Date date;
         public String messageHtml;
         public HttpUrl apkUrl;

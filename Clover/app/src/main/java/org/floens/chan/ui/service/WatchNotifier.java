@@ -30,8 +30,8 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.BoardActivity;
 
@@ -40,6 +40,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 
 public class WatchNotifier extends Service {
     private static final String TAG = "WatchNotifier";
@@ -50,7 +54,9 @@ public class WatchNotifier extends Service {
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
     private NotificationManager nm;
-    private WatchManager wm;
+
+    @Inject
+    WatchManager watchManager;
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -60,9 +66,9 @@ public class WatchNotifier extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        inject(this);
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        wm = Chan.getWatchManager();
 
         startForeground(NOTIFICATION_ID, createNotification());
     }
@@ -89,7 +95,7 @@ public class WatchNotifier extends Service {
     }
 
     public void pausePins() {
-        wm.pauseAll();
+        watchManager.pauseAll();
     }
 
     private Notification createNotification() {
@@ -105,8 +111,8 @@ public class WatchNotifier extends Service {
         boolean sound = false;
         boolean peek = false;
 
-        for (Pin pin : wm.getWatchingPins()) {
-            WatchManager.PinWatcher watcher = wm.getPinWatcher(pin);
+        for (Pin pin : watchManager.getWatchingPins()) {
+            WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
             if (watcher == null || pin.isError) {
                 continue;
             }
@@ -184,13 +190,13 @@ public class WatchNotifier extends Service {
             List<CharSequence> expandedLines = new ArrayList<>();
             for (Post postForExpandedLine : postsForExpandedLines) {
                 CharSequence prefix;
-                if (postForExpandedLine.title.length() <= SUBJECT_LENGTH) {
-                    prefix = postForExpandedLine.title;
+                if (postForExpandedLine.getTitle().length() <= SUBJECT_LENGTH) {
+                    prefix = postForExpandedLine.getTitle();
                 } else {
-                    prefix = postForExpandedLine.title.subSequence(0, SUBJECT_LENGTH);
+                    prefix = postForExpandedLine.getTitle().subSequence(0, SUBJECT_LENGTH);
                 }
 
-                String comment = postForExpandedLine.hasImage ? IMAGE_TEXT : "";
+                String comment = postForExpandedLine.image() != null ? IMAGE_TEXT : "";
                 if (postForExpandedLine.comment.length() > 0) {
                     comment += postForExpandedLine.comment;
                 }

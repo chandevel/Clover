@@ -37,9 +37,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanParser;
+import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.site.common.ChanParser;
+import org.floens.chan.core.site.common.DefaultFutabaChanParserHandler;
+import org.floens.chan.core.site.common.FutabaChanParser;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
@@ -64,12 +68,23 @@ import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
-    private PostCell.PostCellCallback DUMMY_POST_CALLBACK = new PostCell.PostCellCallback() {
-        private Loadable loadable = Loadable.forThread("g", 1234);
+    private Board dummyBoard;
+    {
+        dummyBoard = new Board();
+        dummyBoard.name = "name";
+        dummyBoard.code = "code";
+    }
 
+    private Loadable dummyLoadable;
+    {
+        dummyLoadable = Loadable.emptyLoadable();
+        dummyLoadable.mode = Loadable.Mode.THREAD;
+    }
+
+    private PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
         @Override
         public Loadable getLoadable() {
-            return loadable;
+            return dummyLoadable;
         }
 
         @Override
@@ -77,7 +92,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public void onThumbnailClicked(Post post, ThumbnailView thumbnail) {
+        public void onThumbnailClicked(Post post, PostImage postImage, ThumbnailView thumbnail) {
         }
 
         @Override
@@ -94,11 +109,22 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public void onPostLinkableClicked(PostLinkable linkable) {
+        public void onPostLinkableClicked(Post post, PostLinkable linkable) {
         }
 
         @Override
         public void onPostNoClicked(Post post) {
+        }
+
+        @Override
+        public void onPostSelectionQuoted(Post post, CharSequence quoted) {
+        }
+    };
+
+    private ChanParser.Callback parserCallback = new ChanParser.Callback() {
+        @Override
+        public boolean isSaved(int postNo) {
+            return false;
         }
     };
 
@@ -121,18 +147,18 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.setTitle(R.string.settings_screen_theme);
-        navigationItem.swipeable = false;
+        navigation.setTitle(R.string.settings_screen_theme);
+        navigation.swipeable = false;
         view = inflateRes(R.layout.controller_theme);
 
         themeHelper = ThemeHelper.getInstance();
         themes = themeHelper.getThemes();
 
-        pager = (ViewPager) view.findViewById(R.id.pager);
-        done = (FloatingActionButton) view.findViewById(R.id.add);
+        pager = view.findViewById(R.id.pager);
+        done = view.findViewById(R.id.add);
         done.setOnClickListener(this);
 
-        textView = (TextView) view.findViewById(R.id.text);
+        textView = view.findViewById(R.id.text);
 
         SpannableString changeAccentColor = new SpannableString(getString(R.string.setting_theme_accent));
         changeAccentColor.setSpan(new ClickableSpan() {
@@ -234,22 +260,20 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
 
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
 
-            Post post = new Post();
-            post.no = 123456789;
-            post.time = (Time.get() - (30 * 60 * 1000)) / 1000;
-            // No synchronization needed, this is a dummy
-            post.repliesFrom.add(1);
-            post.repliesFrom.add(2);
-            post.repliesFrom.add(3);
-            post.subject = "Lorem ipsum";
-            post.rawComment = "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +
-                    "<br>" +
-                    "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
-                    "http://example.com/" +
-                    "<br>" +
-                    "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.";
-            ChanParser.getInstance().parse(theme, post);
+            Post.Builder builder = new Post.Builder()
+                    .board(dummyBoard)
+                    .id(123456789)
+                    .opId(1)
+                    .setUnixTimestampSeconds((Time.get() - (30 * 60 * 1000)) / 1000)
+                    .subject("Lorem ipsum")
+                    .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +
+                            "<br>" +
+                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
+                            "http://example.com/" +
+                            "<br>" +
+                            "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.");
+            Post post = new FutabaChanParser(new DefaultFutabaChanParserHandler()).parse(theme, builder, parserCallback);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -315,7 +339,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     themeContext.getResources().getDimensionPixelSize(R.dimen.toolbar_height)));
 
             PostCell postCell = (PostCell) LayoutInflater.from(themeContext).inflate(R.layout.cell_post, null);
-            postCell.setPost(theme, post, DUMMY_POST_CALLBACK, false, false, -1, true, ChanSettings.PostViewMode.LIST);
+            postCell.setPost(theme, post, dummyPostCallback, false, false, false, -1, true, ChanSettings.PostViewMode.LIST);
             linearLayout.addView(postCell, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             return linearLayout;

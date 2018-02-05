@@ -40,9 +40,9 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 
+import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.getString;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
@@ -67,7 +67,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private boolean foregroundCalculate = false;
     private Drawable foreground;
 
-    private boolean error = false;
+    protected boolean error = false;
     private String errorText;
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect tmpTextRect = new Rect();
@@ -105,7 +105,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         if (!TextUtils.isEmpty(url)) {
-            container = Chan.getVolleyImageLoader().get(url, this, width, height);
+            container = injector().instance(ImageLoader.class).get(url, this, width, height);
         }
     }
 
@@ -172,6 +172,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
 
         onImageSet(false);
+        invalidate();
     }
 
     @Override

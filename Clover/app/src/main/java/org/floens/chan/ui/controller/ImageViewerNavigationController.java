@@ -21,7 +21,7 @@ import android.content.Context;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.toolbar.Toolbar;
 
@@ -40,9 +40,10 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
 
         view = inflateRes(R.layout.controller_navigation_image_viewer);
         container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
-        container.setNavigationController(this);
-        container.setSwipeEnabled(false);
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
+        nav.setNavigationController(this);
+        nav.setSwipeEnabled(false);
+        toolbar = view.findViewById(R.id.toolbar);
         toolbar.setCallback(this);
     }
 

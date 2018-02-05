@@ -24,21 +24,21 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.SavedReply;
 
-import java.util.Random;
+import javax.inject.Inject;
 
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class DeveloperSettingsController extends Controller {
     private TextView summaryText;
 
-    private DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
 
     public DeveloperSettingsController(Context context) {
         super(context);
@@ -48,9 +48,9 @@ public class DeveloperSettingsController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        databaseManager = Chan.getDatabaseManager();
+        inject(this);
 
-        navigationItem.setTitle(R.string.settings_developer);
+        navigation.setTitle(R.string.settings_developer);
 
         LinearLayout wrapper = new LinearLayout(context);
         wrapper.setOrientation(LinearLayout.VERTICAL);
@@ -88,30 +88,12 @@ public class DeveloperSettingsController extends Controller {
         resetDbButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Chan.getDatabaseManager().reset();
+                databaseManager.reset();
                 System.exit(0);
             }
         });
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);
-
-        Button savedReplyDummyAdd = new Button(context);
-        savedReplyDummyAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                Random r = new Random();
-                int j = 0;
-                for (int i = 0; i < 100; i++) {
-                    j += r.nextInt(10000);
-
-                    SavedReply saved = new SavedReply("g", j, "");
-                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(saved));
-                }
-                setDbSummary();
-            }
-        });
-        savedReplyDummyAdd.setText("Add test rows to savedReply");
-        wrapper.addView(savedReplyDummyAdd);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
@@ -122,7 +104,7 @@ public class DeveloperSettingsController extends Controller {
     private void setDbSummary() {
         String dbSummary = "";
         dbSummary += "Database summary:\n";
-        dbSummary += Chan.getDatabaseManager().getSummary();
+        dbSummary += databaseManager.getSummary();
         summaryText.setText(dbSummary);
     }
 }

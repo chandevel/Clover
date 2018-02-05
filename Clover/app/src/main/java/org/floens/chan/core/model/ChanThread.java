@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.model;
 
+import org.floens.chan.core.model.orm.Loadable;
+
 import java.util.List;
 
 public class ChanThread {

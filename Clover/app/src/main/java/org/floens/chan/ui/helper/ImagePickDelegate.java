@@ -24,8 +24,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
-import org.floens.chan.Chan;
-import org.floens.chan.core.http.ReplyManager;
+import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 
@@ -36,6 +35,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.runOnUiThread;
 
 public class ImagePickDelegate implements Runnable {
@@ -45,7 +47,9 @@ public class ImagePickDelegate implements Runnable {
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
 
-    private ReplyManager replyManager;
+    @Inject
+    ReplyManager replyManager;
+
     private Activity activity;
 
     private ImagePickCallback callback;
@@ -56,8 +60,7 @@ public class ImagePickDelegate implements Runnable {
 
     public ImagePickDelegate(Activity activity) {
         this.activity = activity;
-
-        replyManager = Chan.getReplyManager();
+        inject(this);
     }
 
     public boolean pick(ImagePickCallback callback) {
@@ -83,6 +86,10 @@ public class ImagePickDelegate implements Runnable {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (callback == null) {
+            return;
+        }
+
         boolean ok = false;
         boolean cancelled = false;
         if (requestCode == IMAGE_PICK_RESULT) {
@@ -143,7 +150,13 @@ public class ImagePickDelegate implements Runnable {
         } catch (IOException | SecurityException e) {
             Logger.e(TAG, "Error copying file from the file descriptor", e);
         } finally {
-            IOUtils.closeQuietly(fileDescriptor);
+            // FileDescriptor isn't closeable on API 15
+            if (fileDescriptor != null) {
+                try {
+                    fileDescriptor.close();
+                } catch (IOException ignored) {
+                }
+            }
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
         }

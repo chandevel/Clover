@@ -41,6 +41,9 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -51,9 +54,9 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostHttpIcon;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
@@ -75,7 +78,10 @@ import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.HttpUrl;
+
 import static android.text.TextUtils.isEmpty;
+import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -86,7 +92,9 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
-    private PostImageThumbnailView thumbnailView;
+    private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
+
+    private RelativeLayout relativeLayoutContainer;
     private FastTextView title;
     private PostIcons icons;
     private TextView comment;
@@ -95,9 +103,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private View divider;
     private View filterMatchColor;
 
-    private boolean commentClickable = false;
     private int detailsSizePx;
-    private int countrySizePx;
+    private int iconSizePx;
     private int paddingPx;
     private boolean threadMode;
     private boolean ignoreNextOnClick;
@@ -106,6 +113,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private Theme theme;
     private Post post;
     private PostCellCallback callback;
+    private boolean selectable;
     private boolean highlighted;
     private boolean selected;
     private int markedNo;
@@ -140,12 +148,12 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        thumbnailView = (PostImageThumbnailView) findViewById(R.id.thumbnail_view);
-        title = (FastTextView) findViewById(R.id.title);
-        icons = (PostIcons) findViewById(R.id.icons);
-        comment = (TextView) findViewById(R.id.comment);
-        replies = (FastTextView) findViewById(R.id.replies);
-        options = (ImageView) findViewById(R.id.options);
+        relativeLayoutContainer = findViewById(R.id.relative_layout_container);
+        title = findViewById(R.id.title);
+        icons = findViewById(R.id.icons);
+        comment = findViewById(R.id.comment);
+        replies = findViewById(R.id.replies);
+        options = findViewById(R.id.options);
         divider = findViewById(R.id.divider);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
@@ -155,7 +163,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         title.setTextSize(textSizeSp);
         title.setPadding(paddingPx, paddingPx, dp(52), 0);
 
-        countrySizePx = sp(textSizeSp - 3);
+        iconSizePx = sp(textSizeSp - 3);
         icons.setHeight(sp(textSizeSp));
         icons.setSpacing(dp(4));
         icons.setPadding(paddingPx, dp(4), paddingPx, 0);
@@ -178,56 +186,41 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         dividerParams.rightMargin = paddingPx;
         divider.setLayoutParams(dividerParams);
 
-        thumbnailView.setClickable(true);
-        thumbnailView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callback.onThumbnailClicked(post, thumbnailView);
-            }
-        });
-        thumbnailView.setRounding(dp(2));
+        replies.setOnClickListener(v -> {
+            if (threadMode) {
+                int repliesFromSize;
+                synchronized (post.repliesFrom) {
+                    repliesFromSize = post.repliesFrom.size();
+                }
 
-        replies.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (threadMode) {
-                    int repliesFromSize;
-                    synchronized (post.repliesFrom) {
-                        repliesFromSize = post.repliesFrom.size();
-                    }
-
-                    if (repliesFromSize > 0) {
-                        callback.onShowPostReplies(post);
-                    }
+                if (repliesFromSize > 0) {
+                    callback.onShowPostReplies(post);
                 }
             }
         });
 
-        options.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ThemeHelper.getInstance().getTheme().isLightTheme) {
-                    options.setImageResource(R.drawable.ic_overflow_black);
+        options.setOnClickListener(v -> {
+            if (ThemeHelper.getInstance().getTheme().isLightTheme) {
+                options.setImageResource(R.drawable.ic_overflow_black);
+            }
+
+            List<FloatingMenuItem> items = new ArrayList<>();
+
+            callback.onPopulatePostOptions(post, items);
+
+            FloatingMenu menu = new FloatingMenu(getContext(), v, items);
+            menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+                @Override
+                public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                    callback.onPostOptionClicked(post, item.getId());
                 }
 
-                List<FloatingMenuItem> items = new ArrayList<>();
-
-                callback.onPopulatePostOptions(post, items);
-
-                FloatingMenu menu = new FloatingMenu(getContext(), v, items);
-                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-                    @Override
-                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        callback.onPostOptionClicked(post, item.getId());
-                    }
-
-                    @Override
-                    public void onFloatingMenuDismissed(FloatingMenu menu) {
-                        options.setImageResource(R.drawable.ic_overflow);
-                    }
-                });
-                menu.show();
-            }
+                @Override
+                public void onFloatingMenuDismissed(FloatingMenu menu) {
+                    options.setImageResource(R.drawable.ic_overflow);
+                }
+            });
+            menu.show();
         });
 
         setOnClickListener(selfClicked);
@@ -251,9 +244,21 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode) {
-        if (this.post == post && this.highlighted == highlighted && this.selected == selected && this.markedNo == markedNo && this.showDivider == showDivider) {
+    public void setPost(Theme theme,
+                        final Post post,
+                        PostCellInterface.PostCellCallback callback,
+                        boolean selectable,
+                        boolean highlighted,
+                        boolean selected,
+                        int markedNo,
+                        boolean showDivider,
+                        ChanSettings.PostViewMode postViewMode) {
+        if (this.post == post &&
+                this.selectable == selectable &&
+                this.highlighted == highlighted &&
+                this.selected == selected &&
+                this.markedNo == markedNo &&
+                this.showDivider == showDivider) {
             return;
         }
 
@@ -269,6 +274,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         this.theme = theme;
         this.post = post;
         this.callback = callback;
+        this.selectable = selectable;
         this.highlighted = highlighted;
         this.selected = selected;
         this.markedNo = markedNo;
@@ -281,8 +287,14 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         return post;
     }
 
-    public ThumbnailView getThumbnailView() {
-        return thumbnailView;
+    public ThumbnailView getThumbnailView(PostImage postImage) {
+        for (int i = 0; i < post.images.size(); i++) {
+            if (post.images.get(i).equalUrl(postImage)) {
+                return thumbnailViews.get(i);
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -323,13 +335,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             filterMatchColor.setVisibility(View.GONE);
         }
 
-        if (post.hasImage && !ChanSettings.textOnly.get()) {
-            thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setPostImage(post.image, thumbnailView.getLayoutParams().width, thumbnailView.getLayoutParams().height);
-        } else {
-            thumbnailView.setVisibility(View.GONE);
-            thumbnailView.setPostImage(null, 0, 0);
-        }
+        buildThumbnails();
 
         List<CharSequence> titleParts = new ArrayList<>(5);
 
@@ -368,42 +374,42 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         titleParts.add(date);
 
-        if (post.hasImage) {
-            PostImage image = post.image;
+        if (!post.images.isEmpty()) {
+            for (int i = 0; i < post.images.size(); i++) {
+                PostImage image = post.images.get(i);
 
-            boolean postFileName = ChanSettings.postFilename.get();
-            if (postFileName) {
-                String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
-                SpannableString fileInfo = new SpannableString("\n" + filename);
-                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
-                titleParts.add(fileInfo);
-            }
+                boolean postFileName = ChanSettings.postFilename.get();
+                if (postFileName) {
+                    String filename = image.spoiler ? getString(R.string.image_spoiler_filename) : image.filename + "." + image.extension;
+                    SpannableString fileInfo = new SpannableString("\n" + filename);
+                    fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                    fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                    fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
+                    titleParts.add(fileInfo);
+                }
 
-            if (ChanSettings.postFileInfo.get()) {
-                SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
-                        AndroidUtils.getReadableFileSize(image.size, false) + " " +
-                        image.imageWidth + "x" + image.imageHeight);
-                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
-                titleParts.add(fileInfo);
+                if (ChanSettings.postFileInfo.get()) {
+                    SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
+                            AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                            image.imageWidth + "x" + image.imageHeight);
+                    fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                    fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                    titleParts.add(fileInfo);
+                }
             }
         }
 
         title.setText(TextUtils.concat(titleParts.toArray(new CharSequence[titleParts.size()])));
 
         icons.edit();
-        icons.set(PostIcons.STICKY, post.sticky);
-        icons.set(PostIcons.CLOSED, post.closed);
+        icons.set(PostIcons.STICKY, post.isSticky());
+        icons.set(PostIcons.CLOSED, post.isClosed());
         icons.set(PostIcons.DELETED, post.deleted.get());
-        icons.set(PostIcons.ARCHIVED, post.archived);
+        icons.set(PostIcons.ARCHIVED, post.isArchived());
+        icons.set(PostIcons.HTTP_ICONS, post.httpIcons != null);
 
-        if (!isEmpty(post.countryUrl)) {
-            icons.set(PostIcons.COUNTRY, true);
-            icons.showCountry(post, theme, countrySizePx);
-        } else {
-            icons.set(PostIcons.COUNTRY, false);
+        if (post.httpIcons != null) {
+            icons.setHttpIcons(post.httpIcons, theme, iconSizePx);
         }
 
         icons.apply();
@@ -415,24 +421,76 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             commentText = post.comment;
         }
 
-        comment.setText(commentText);
-        comment.setVisibility(isEmpty(commentText) && !post.hasImage ? GONE : VISIBLE);
+        comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
 
-        if (commentClickable != threadMode) {
-            commentClickable = threadMode;
-            if (commentClickable) {
-                comment.setMovementMethod(commentMovementMethod);
-                comment.setOnClickListener(selfClicked);
+        if (threadMode) {
+            if (selectable) {
+                // Setting the text to selectable creates an editor, sets up a bunch of click
+                // handlers and sets a movementmethod.
+                // Required for the isTextSelectable check.
+                // We override the test and movementmethod settings.
+                comment.setTextIsSelectable(true);
 
-                if (noClickable) {
-                    title.setMovementMethod(titleMovementMethod);
-                }
+                comment.setText(commentText, TextView.BufferType.SPANNABLE);
+
+                comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                    private MenuItem quoteMenuItem;
+
+                    @Override
+                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                        quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote,
+                                0, R.string.post_quote);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                        if (item == quoteMenuItem) {
+                            CharSequence selection = comment.getText().subSequence(
+                                    comment.getSelectionStart(), comment.getSelectionEnd());
+                            callback.onPostSelectionQuoted(post, selection);
+                            mode.finish();
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public void onDestroyActionMode(ActionMode mode) {
+                    }
+                });
             } else {
-                comment.setOnClickListener(null);
-                comment.setClickable(false);
-                comment.setMovementMethod(null);
-                title.setMovementMethod(null);
+                comment.setText(commentText);
             }
+
+            // Sets focusable to auto, clickable and longclickable to true.
+            comment.setMovementMethod(commentMovementMethod);
+
+            // And this sets clickable to appropriate values again.
+            comment.setOnClickListener(selfClicked);
+
+            if (noClickable) {
+                title.setMovementMethod(titleMovementMethod);
+            }
+        } else {
+//            comment.setTextIsSelectable(false);
+
+            comment.setText(commentText);
+
+            comment.setOnClickListener(null);
+
+            comment.setClickable(false);
+
+            // Sets focusable to auto, clickable and longclickable to false.
+            comment.setMovementMethod(null);
+
+            title.setMovementMethod(null);
         }
 
         int repliesFromSize;
@@ -440,14 +498,14 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             repliesFromSize = post.repliesFrom.size();
         }
 
-        if ((!threadMode && post.replies > 0) || (repliesFromSize > 0)) {
+        if ((!threadMode && post.getReplies() > 0) || (repliesFromSize > 0)) {
             replies.setVisibility(View.VISIBLE);
 
-            int replyCount = threadMode ? repliesFromSize : post.replies;
+            int replyCount = threadMode ? repliesFromSize : post.getReplies();
             String text = getResources().getQuantityString(R.plurals.reply, replyCount, replyCount);
 
-            if (!threadMode && post.images > 0) {
-                text += ", " + getResources().getQuantityString(R.plurals.image, post.images, post.images);
+            if (!threadMode && post.getImagesCount() > 0) {
+                text += ", " + getResources().getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount());
             }
 
             replies.setText(text);
@@ -462,10 +520,53 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         divider.setVisibility(showDivider ? VISIBLE : GONE);
     }
 
+    private void buildThumbnails() {
+        for (PostImageThumbnailView thumbnailView : thumbnailViews) {
+            relativeLayoutContainer.removeView(thumbnailView);
+        }
+        thumbnailViews.clear();
+
+        // Places the thumbnails below each other.
+        // The placement is done using the RelativeLayout BELOW rule, with generated view ids.
+        if (!post.images.isEmpty() && !ChanSettings.textOnly.get()) {
+            int lastId = 0;
+            int generatedId = 1;
+            boolean first = true;
+            for (PostImage image : post.images) {
+                PostImageThumbnailView v = new PostImageThumbnailView(getContext());
+
+                // Set the correct id.
+                // The first thumbnail uses thumbnail_view so that the layout can offset to that.
+                final int idToSet = first ? R.id.thumbnail_view : generatedId++;
+                v.setId(idToSet);
+                final int size = getResources()
+                        .getDimensionPixelSize(R.dimen.cell_post_thumbnail_size);
+
+                RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
+                p.alignWithParent = true;
+
+                if (!first) {
+                    p.addRule(RelativeLayout.BELOW, lastId);
+                }
+
+                v.setPostImage(image, size, size);
+                v.setClickable(true);
+                v.setOnClickListener(v2 -> callback.onThumbnailClicked(post, image, v));
+                v.setRounding(dp(2));
+
+                relativeLayoutContainer.addView(v, p);
+                thumbnailViews.add(v);
+
+                lastId = idToSet;
+                first = false;
+            }
+        }
+    }
+
     private void unbindPost(Post post) {
         bound = false;
 
-        icons.cancelCountryRequest();
+        icons.cancelRequests();
 
         setPostLinkableListener(post, false);
     }
@@ -529,7 +630,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                         ignoreNextOnClick = true;
                         clickableSpan.onClick(widget);
                         if (clickableSpan instanceof PostLinkable) {
-                            callback.onPostLinkableClicked((PostLinkable) clickableSpan);
+                            callback.onPostLinkableClicked(post, (PostLinkable) clickableSpan);
                         }
                         buffer.removeSpan(BACKGROUND_SPAN);
                     } else if (action == MotionEvent.ACTION_DOWN && clickableSpan instanceof PostLinkable) {
@@ -614,7 +715,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         private static final int CLOSED = 0x2;
         private static final int DELETED = 0x4;
         private static final int ARCHIVED = 0x8;
-        private static final int COUNTRY = 0x10;
+        private static final int HTTP_ICONS = 0x10;
 
         private int height;
         private int spacing;
@@ -624,28 +725,23 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private Rect textRect = new Rect();
-        private ImageLoader.ImageContainer countryIconRequest;
-        private Bitmap countryIcon;
-        private String countryName;
-        private int countryTextColor;
-        private int countryTextSize;
+
+        private int httpIconTextColor;
+        private int httpIconTextSize;
+
+        private List<PostIconsHttpIcon> httpIcons;
 
         public PostIcons(Context context) {
-            super(context);
-            init();
+            this(context, null);
         }
 
         public PostIcons(Context context, AttributeSet attrs) {
-            super(context, attrs);
-            init();
+            this(context, attrs, 0);
         }
 
         public PostIcons(Context context, AttributeSet attrs, int defStyleAttr) {
             super(context, attrs, defStyleAttr);
-            init();
-        }
 
-        private void init() {
             textPaint.setTypeface(Typeface.create((String) null, Typeface.ITALIC));
             setVisibility(View.GONE);
         }
@@ -660,10 +756,12 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
         public void edit() {
             previousIcons = icons;
+            httpIcons = null;
         }
 
         public void apply() {
             if (previousIcons != icons) {
+                // Require a layout only if the height changed
                 if (previousIcons == 0 || icons == 0) {
                     setVisibility(icons == 0 ? View.GONE : View.VISIBLE);
                     requestLayout();
@@ -673,34 +771,24 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             }
         }
 
-        public void showCountry(final Post post, final Theme theme, int textSize) {
-            countryName = post.countryName;
-            countryTextColor = theme.detailsColor;
-            countryTextSize = textSize;
-
-            countryIconRequest = Chan.getVolleyImageLoader().get(post.countryUrl, new ImageLoader.ImageListener() {
-                @Override
-                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                    if (response.getBitmap() != null) {
-                        countryIcon = response.getBitmap();
-
-                        invalidate();
-                    }
-                }
-
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                }
-            });
+        public void setHttpIcons(List<PostHttpIcon> icons, Theme theme, int size) {
+            httpIconTextColor = theme.detailsColor;
+            httpIconTextSize = size;
+            httpIcons = new ArrayList<>(icons.size());
+            for (int i = 0; i < icons.size(); i++) {
+                PostHttpIcon icon = icons.get(i);
+                PostIconsHttpIcon j = new PostIconsHttpIcon(this, icon.name, icon.url);
+                httpIcons.add(j);
+                j.request();
+            }
         }
 
-        public void cancelCountryRequest() {
-            if (countryIconRequest != null) {
-                countryIconRequest.cancelRequest();
-                countryIconRequest = null;
-                countryIcon = null;
-                countryName = null;
-                countryTextColor = 0;
+        public void cancelRequests() {
+            if (httpIcons != null) {
+                for (int i = 0; i < httpIcons.size(); i++) {
+                    PostIconsHttpIcon httpIcon = httpIcons.get(i);
+                    httpIcon.cancel();
+                }
             }
         }
 
@@ -747,14 +835,20 @@ public class PostCell extends LinearLayout implements PostCellInterface {
                     offset += drawBitmap(canvas, archivedIcon, offset);
                 }
 
-                if (get(COUNTRY) && countryIcon != null) {
-                    offset += drawBitmap(canvas, countryIcon, offset);
+                if (get(HTTP_ICONS)) {
+                    for (int i = 0; i < httpIcons.size(); i++) {
+                        PostIconsHttpIcon httpIcon = httpIcons.get(i);
+                        if (httpIcon.bitmap != null) {
+                            offset += drawBitmap(canvas, httpIcon.bitmap, offset);
 
-                    textPaint.setColor(countryTextColor);
-                    textPaint.setTextSize(countryTextSize);
-                    textPaint.getTextBounds(countryName, 0, countryName.length(), textRect);
-                    float y = height / 2f - textRect.exactCenterY();
-                    canvas.drawText(countryName, offset, y, textPaint);
+                            textPaint.setColor(httpIconTextColor);
+                            textPaint.setTextSize(httpIconTextSize);
+                            textPaint.getTextBounds(httpIcon.name, 0, httpIcon.name.length(), textRect);
+                            float y = height / 2f - textRect.exactCenterY();
+                            canvas.drawText(httpIcon.name, offset, y, textPaint);
+                            offset += textRect.width() + spacing;
+                        }
+                    }
                 }
 
                 canvas.restore();
@@ -766,6 +860,43 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             drawRect.set(offset, 0f, offset + width, height);
             canvas.drawBitmap(bitmap, null, drawRect, null);
             return width + spacing;
+        }
+    }
+
+    private static class PostIconsHttpIcon implements ImageLoader.ImageListener {
+        private final PostIcons postIcons;
+        private final String name;
+        private final HttpUrl url;
+        private ImageLoader.ImageContainer request;
+        private Bitmap bitmap;
+
+        private PostIconsHttpIcon(PostIcons postIcons, String name, HttpUrl url) {
+            this.postIcons = postIcons;
+            this.name = name;
+            this.url = url;
+        }
+
+        private void request() {
+            request = injector().instance(ImageLoader.class).get(url.toString(), this);
+        }
+
+        private void cancel() {
+            if (request != null) {
+                request.cancelRequest();
+                request = null;
+            }
+        }
+
+        @Override
+        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+            if (response.getBitmap() != null) {
+                bitmap = response.getBitmap();
+                postIcons.invalidate();
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
         }
     }
 }

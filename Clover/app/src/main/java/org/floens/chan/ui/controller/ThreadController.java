@@ -28,14 +28,13 @@ import android.view.LayoutInflater;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.manager.FilterType;
-import org.floens.chan.core.model.Filter;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Filter;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.ThreadLayout;
@@ -50,7 +49,13 @@ import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public abstract class ThreadController extends Controller implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback, SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback {
+public abstract class ThreadController extends Controller implements
+        ThreadLayout.ThreadLayoutCallback,
+        ImageViewerController.ImageViewerCallback,
+        SwipeRefreshLayout.OnRefreshListener,
+        ToolbarNavigationController.ToolbarSearchCallback,
+        NfcAdapter.CreateNdefMessageCallback,
+        ThreadSlideController.SlideChangeListener {
     private static final String TAG = "ThreadController";
 
     protected ThreadLayout threadLayout;
@@ -66,10 +71,10 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         EventBus.getDefault().register(this);
 
-        navigationItem.handlesToolbarInset = true;
+        navigation.handlesToolbarInset = true;
 
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
-        threadLayout.setCallback(this);
+        threadLayout.create(this);
 
         swipeRefreshLayout = new SwipeRefreshLayout(context) {
             @Override
@@ -81,7 +86,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        if (navigationItem.handlesToolbarInset) {
+        if (navigation.handlesToolbarInset) {
             int toolbarHeight = getToolbar().getToolbarHeight();
             swipeRefreshLayout.setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
         }
@@ -93,7 +98,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     public void onDestroy() {
         super.onDestroy();
 
-        threadLayout.getPresenter().unbindLoadable();
+        threadLayout.destroy();
 
         EventBus.getDefault().unregister(this);
     }
@@ -141,11 +146,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         NdefMessage message = null;
 
         if (loadable != null) {
-            if (loadable.isThreadMode()) {
-                url = ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no);
-            } else if (loadable.isCatalogMode()) {
-                url = ChanUrls.getCatalogUrlDesktop(loadable.board);
-            }
+            url = loadable.site.desktopUrl(loadable, null);
         }
 
         if (url != null) {
@@ -208,7 +209,7 @@ public abstract class ThreadController extends Controller implements ThreadLayou
     public void showAlbum(List<PostImage> images, int index) {
         if (threadLayout.getPresenter().getChanThread() != null) {
             AlbumViewController albumViewController = new AlbumViewController(context);
-            albumViewController.setImages(getLoadable(), images, index, navigationItem.title);
+            albumViewController.setImages(getLoadable(), images, index, navigation.title);
 
             if (doubleNavigationController != null) {
                 doubleNavigationController.pushController(albumViewController);
@@ -259,9 +260,15 @@ public abstract class ThreadController extends Controller implements ThreadLayou
         } else {
             navigationController.pushController(filtersController);
         }
+        // TODO cleanup
         Filter filter = new Filter();
         filter.type = FilterType.TRIPCODE.flag;
         filter.pattern = tripcode;
         filtersController.showFilterDialog(filter);
+    }
+
+    @Override
+    public void onSlideChanged() {
+        threadLayout.gainedFocus();
     }
 }

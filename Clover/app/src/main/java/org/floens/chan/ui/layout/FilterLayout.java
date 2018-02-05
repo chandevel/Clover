@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -30,6 +31,7 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,13 +40,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.FilterType;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Filter;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.controller.FiltersController;
 import org.floens.chan.ui.dialog.ColorPickerView;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
@@ -55,6 +57,9 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
@@ -73,12 +78,14 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private LinearLayout colorContainer;
     private View colorPreview;
 
-    private BoardManager boardManager;
+    @Inject
+    BoardManager boardManager;
+
+    @Inject
+    FilterEngine filterEngine;
 
     private FilterLayoutCallback callback;
     private Filter filter;
-
-    private List<Board> appliedBoards = new ArrayList<>();
 
     public FilterLayout(Context context) {
         super(context);
@@ -95,13 +102,12 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        inject(this);
 
-        boardManager = Chan.getBoardManager();
-
-        typeText = (TextView) findViewById(R.id.type);
-        boardsSelector = (TextView) findViewById(R.id.boards);
-        actionText = (TextView) findViewById(R.id.action);
-        pattern = (TextView) findViewById(R.id.pattern);
+        typeText = findViewById(R.id.type);
+        boardsSelector = findViewById(R.id.boards);
+        actionText = findViewById(R.id.action);
+        pattern = findViewById(R.id.pattern);
         pattern.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -118,7 +124,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             public void afterTextChanged(Editable s) {
             }
         });
-        patternPreview = (TextView) findViewById(R.id.pattern_preview);
+        patternPreview = findViewById(R.id.pattern_preview);
         patternPreview.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -133,12 +139,12 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             public void afterTextChanged(Editable s) {
             }
         });
-        patternPreviewStatus = (TextView) findViewById(R.id.pattern_preview_status);
-        enabled = (CheckBox) findViewById(R.id.enabled);
-        help = (ImageView) findViewById(R.id.help);
+        patternPreviewStatus = findViewById(R.id.pattern_preview_status);
+        enabled = findViewById(R.id.enabled);
+        help = findViewById(R.id.help);
         theme().helpDrawable.apply(help);
         help.setOnClickListener(this);
-        colorContainer = (LinearLayout) findViewById(R.id.color_container);
+        colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
 
@@ -157,8 +163,6 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     public void setFilter(Filter filter) {
         this.filter = filter;
-        appliedBoards.clear();
-        appliedBoards.addAll(FilterEngine.getInstance().getBoardsForFilter(filter));
 
         pattern.setText(filter.pattern);
 
@@ -177,16 +181,15 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
 
-        FilterEngine.getInstance().saveBoardsToFilter(appliedBoards, filter);
-
         return filter;
     }
 
     @Override
     public void onClick(View v) {
         if (v == typeText) {
-            @SuppressWarnings("unchecked")
-            final SelectLayout<FilterType> selectLayout = (SelectLayout<FilterType>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
+            @SuppressWarnings("unchecked") final SelectLayout<FilterType> selectLayout =
+                    (SelectLayout<FilterType>) LayoutInflater.from(getContext())
+                            .inflate(R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
@@ -221,28 +224,23 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                     })
                     .show();
         } else if (v == boardsSelector) {
-            @SuppressWarnings("unchecked")
-            final SelectLayout<Board> selectLayout = (SelectLayout<Board>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
+            @SuppressLint("InflateParams") @SuppressWarnings("unchecked") final SelectLayout<Board> selectLayout =
+                    (SelectLayout<Board>) LayoutInflater.from(getContext())
+                            .inflate(R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
-            List<Board> savedList = boardManager.getSavedBoards();
-            for (int i = 0; i < savedList.size(); i++) {
-                Board saved = savedList.get(i);
-                String name = BoardHelper.getName(saved);
-                String description = BoardHelper.getDescription(saved);
-                String search = name + " " + saved.code;
 
-                boolean checked = false;
-                for (int j = 0; j < appliedBoards.size(); j++) {
-                    Board appliedBoard = appliedBoards.get(j);
-                    if (appliedBoard.code.equals(saved.code)) {
-                        checked = true;
-                        break;
-                    }
-                }
+            List<Board> allSavedBoards = new ArrayList<>();
+            for (Pair<Site, List<Board>> sites : boardManager.getSavedBoardsObservable().get()) {
+                allSavedBoards.addAll(sites.second);
+            }
+
+            for (Board board : allSavedBoards) {
+                String name = BoardHelper.getName(board);
+                boolean checked = filterEngine.matchesBoard(filter, board);
 
                 items.add(new SelectLayout.SelectItem<>(
-                        saved, saved.id, name, description, search, checked
+                        board, board.id, name, "", name, checked
                 ));
             }
 
@@ -253,17 +251,22 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            appliedBoards.clear();
-
                             List<SelectLayout.SelectItem<Board>> items = selectLayout.getItems();
-                            for (int i = 0; i < items.size(); i++) {
-                                SelectLayout.SelectItem<Board> selectItem = items.get(i);
-                                if (selectItem.checked) {
-                                    appliedBoards.add(selectItem.item);
+                            boolean all = selectLayout.areAllChecked();
+                            List<Board> boardList = new ArrayList<>(items.size());
+                            if (!all) {
+                                for (SelectLayout.SelectItem<Board> item : items) {
+                                    if (item.checked) {
+                                        boardList.add(item.item);
+                                    }
+                                }
+                                if (boardList.isEmpty()) {
+                                    all = true;
                                 }
                             }
 
-                            filter.allBoards = selectLayout.areAllChecked();
+                            filterEngine.saveBoardsToFilter(boardList, all, filter);
+
                             updateBoardsSummary();
                         }
                     })
@@ -338,7 +341,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     }
 
     private void updateFilterValidity() {
-        boolean valid = !TextUtils.isEmpty(filter.pattern) && FilterEngine.getInstance().compile(filter.pattern) != null;
+        boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern) != null;
 
         if (valid != patternContainerErrorShowing) {
             patternContainerErrorShowing = valid;
@@ -355,7 +358,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         if (filter.allBoards) {
             text += getString(R.string.filter_all);
         } else {
-            text += String.valueOf(appliedBoards.size());
+            text += filterEngine.getFilterBoardCount(filter);
         }
         text += ")";
         boardsSelector.setText(text);
@@ -383,7 +386,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = text.length() > 0 && FilterEngine.getInstance().matches(filter, true, text, true);
+        boolean matches = text.length() > 0 && filterEngine.matches(filter, true, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
 

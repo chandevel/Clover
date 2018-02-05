@@ -43,7 +43,6 @@ import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.layout.SearchLayout;
-import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -67,14 +66,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                View positionZero = recyclerView.getLayoutManager().findViewByPosition(0);
-                boolean allowHide = positionZero == null || positionZero.getTop() < 0;
-                if (allowHide || lastScrollDeltaOffset <= 0) {
-                    setCollapse(lastScrollDeltaOffset <= 0 ? TOOLBAR_COLLAPSE_SHOW : TOOLBAR_COLLAPSE_HIDE, true);
-                } else {
-                    setCollapse(TOOLBAR_COLLAPSE_SHOW, true);
-                }
+            if (recyclerView.getLayoutManager() != null &&
+                    newState == RecyclerView.SCROLL_STATE_IDLE) {
+                processRecyclerViewScroll(recyclerView);
             }
         }
     };
@@ -97,17 +91,15 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     private LinearLayout toView;
 
     public Toolbar(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public Toolbar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
-    public Toolbar(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    public Toolbar(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
         init();
     }
 
@@ -135,6 +127,14 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     public void processScrollCollapse(int offset, boolean animated) {
         lastScrollDeltaOffset = offset;
         setCollapse(offset, animated);
+    }
+
+    public void collapseShow(boolean animated) {
+        setCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, animated);
+    }
+
+    public void collapseHide(boolean animated) {
+        setCollapse(Toolbar.TOOLBAR_COLLAPSE_HIDE, animated);
     }
 
     public void setCollapse(int offset, boolean animated) {
@@ -166,6 +166,20 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         recyclerView.removeOnScrollListener(recyclerViewOnScrollListener);
     }
 
+    public void checkToolbarCollapseState(RecyclerView recyclerView) {
+        processRecyclerViewScroll(recyclerView);
+    }
+
+    private void processRecyclerViewScroll(RecyclerView recyclerView) {
+        View positionZero = recyclerView.getLayoutManager().findViewByPosition(0);
+        boolean allowHide = positionZero == null || positionZero.getTop() < 0;
+        if (allowHide || lastScrollDeltaOffset <= 0) {
+            setCollapse(lastScrollDeltaOffset <= 0 ? TOOLBAR_COLLAPSE_SHOW : TOOLBAR_COLLAPSE_HIDE, true);
+        } else {
+            setCollapse(TOOLBAR_COLLAPSE_SHOW, true);
+        }
+    }
+
 //    public void updateNavigation() {
 //        closeSearchInternal();
 //        setNavigationItem(false, false, toItem);
@@ -185,6 +199,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
     public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item) {
         setNavigationItemInternal(animate, pushing, item);
+    }
+
+    public void setArrowMenuIconShown(boolean show) {
+        arrowMenuView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public boolean isTransitioning() {
@@ -263,8 +281,17 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
+
     public void setArrowMenuProgress(float progress) {
         arrowMenuDrawable.setProgress(progress);
+    }
+
+    public void setShowArrowMenu(boolean show) {
+        arrowMenuView.setVisibility(show ? VISIBLE : GONE);
     }
 
     public ArrowMenuDrawable getArrowMenuDrawable() {
@@ -274,13 +301,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     public void updateTitle(NavigationItem navigationItem) {
         LinearLayout view = navigationItem == fromItem ? fromView : (navigationItem == toItem ? toView : null);
         if (view != null) {
-            TextView titleView = (TextView) view.findViewById(R.id.title);
+            TextView titleView = view.findViewById(R.id.title);
             if (titleView != null) {
                 titleView.setText(navigationItem.title);
             }
 
             if (!TextUtils.isEmpty(navigationItem.subtitle)) {
-                TextView subtitleView = (TextView) view.findViewById(R.id.subtitle);
+                TextView subtitleView = view.findViewById(R.id.subtitle);
                 if (subtitleView != null) {
                     subtitleView.setText(navigationItem.subtitle);
                 }
@@ -290,6 +317,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
     private void init() {
         setOrientation(HORIZONTAL);
+
+        if (isInEditMode()) return;
 
         FrameLayout leftButtonContainer = new FrameLayout(getContext());
         addView(leftButtonContainer, LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
@@ -309,7 +338,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setElevation(dp(4f));
+            if (getElevation() == 0f) {
+                setElevation(dp(4f));
+            }
         }
     }
 
@@ -366,7 +397,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             if (animate) {
                 toView.setAlpha(0f);
 
-                ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
+                final ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
                 animator.setDuration(300);
                 animator.setInterpolator(new DecelerateInterpolator(2f));
                 animator.addListener(new AnimatorListenerAdapter() {
@@ -384,7 +415,16 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
                 if (!pushing) {
                     animator.setStartDelay(100);
                 }
-                animator.start();
+
+                // hack to avoid the animation jumping when the current frame has a lot to do,
+                // which is often because setting a new navigationitem is almost always done
+                // when setting a new controller.
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        animator.start();
+                    }
+                });
             } else {
                 arrowMenuDrawable.setProgress(toItem.hasBack || toItem.search ? 1f : 0f);
                 finishTransition(true);
@@ -447,28 +487,28 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
             menu.setGravity(Gravity.CENTER_VERTICAL);
 
-            FrameLayout titleContainer = (FrameLayout) menu.findViewById(R.id.title_container);
+            FrameLayout titleContainer = menu.findViewById(R.id.title_container);
 
-            final TextView titleView = (TextView) menu.findViewById(R.id.title);
+            final TextView titleView = menu.findViewById(R.id.title);
             titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
             titleView.setText(item.title);
             titleView.setTextColor(0xffffffff);
 
             if (item.middleMenu != null) {
-                item.middleMenu.setAnchor(titleView, Gravity.LEFT, dp(5), dp(5));
-
-                Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, getAttrColor(getContext(), R.attr.dropdown_light_color), getAttrColor(getContext(), R.attr.dropdown_light_pressed_color));
+                int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
+                int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
+                Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
                 titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
 
                 titleView.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        item.middleMenu.show();
+                        item.middleMenu.show(titleView);
                     }
                 });
             }
 
-            TextView subtitleView = (TextView) menu.findViewById(R.id.subtitle);
+            TextView subtitleView = menu.findViewById(R.id.subtitle);
             if (!TextUtils.isEmpty(item.subtitle)) {
                 ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
                 titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -489,10 +529,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             if (item.menu != null) {
                 removeFromParentView(item.menu);
                 menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-            }
-
-            if (item.middleMenu != null) {
-                item.middleMenu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
             }
 
             return menu;
@@ -523,6 +559,25 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         String getSearchHint(NavigationItem item);
 
         void onSearchEntered(NavigationItem item, String entered);
+    }
+
+    public static class SimpleToolbarCallback implements ToolbarCallback {
+        @Override
+        public void onMenuOrBackClicked(boolean isArrow) {
+        }
+
+        @Override
+        public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
+        }
+
+        @Override
+        public String getSearchHint(NavigationItem item) {
+            return null;
+        }
+
+        @Override
+        public void onSearchEntered(NavigationItem item, String entered) {
+        }
     }
 
     public interface ToolbarCollapseCallback {

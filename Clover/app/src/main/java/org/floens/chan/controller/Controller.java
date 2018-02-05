@@ -41,7 +41,7 @@ public abstract class Controller {
     public Context context;
     public ViewGroup view;
 
-    public NavigationItem navigationItem = new NavigationItem();
+    public NavigationItem navigation = new NavigationItem();
 
     public Controller parentController;
 
@@ -56,7 +56,7 @@ public abstract class Controller {
     /**
      * Controller that this controller is presented by.
      */
-    public Controller presentingByController;
+    public Controller presentedByController;
 
     /**
      * Controller that this controller is presenting.
@@ -192,7 +192,7 @@ public abstract class Controller {
     public void presentController(Controller controller, boolean animated) {
         ViewGroup contentView = ((StartActivity) context).getContentView();
         presentingThisController = controller;
-        controller.presentingByController = this;
+        controller.presentedByController = this;
 
         controller.onCreate();
         controller.attachToView(contentView, true);
@@ -215,19 +215,19 @@ public abstract class Controller {
         if (animated) {
             ControllerTransition transition = new FadeOutTransition();
             transition.from = this;
-            transition.perform();
             transition.setCallback(new ControllerTransition.Callback() {
                 @Override
                 public void onControllerTransitionCompleted(ControllerTransition transition) {
                     finishPresenting();
                 }
             });
+            transition.perform();
         } else {
             finishPresenting();
         }
 
         ((StartActivity) context).removeController(this);
-        presentingByController.presentingThisController = null;
+        presentedByController.presentingThisController = null;
     }
 
     private void finishPresenting() {

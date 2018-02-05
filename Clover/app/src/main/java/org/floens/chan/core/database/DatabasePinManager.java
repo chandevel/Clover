@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.database;
 
-import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.orm.Pin;
 
 import java.util.List;
 import java.util.concurrent.Callable;

@@ -31,15 +31,14 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseHistoryManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.History;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.History;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -47,12 +46,14 @@ import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
-import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -61,10 +62,14 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     private static final int CLEAR_ID = 101;
     private static final int SAVED_REPLY_CLEAR_ID = 102;
 
-    private DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    BoardManager boardManager;
+
     private DatabaseHistoryManager databaseHistoryManager;
     private DatabaseSavedReplyManager databaseSavedReplyManager;
-    private BoardManager boardManager;
 
     private CrossfadeView crossfade;
     private RecyclerView recyclerView;
@@ -77,44 +82,38 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     @Override
     public void onCreate() {
         super.onCreate();
+        inject(this);
 
-        databaseManager = Chan.getDatabaseManager();
         databaseHistoryManager = databaseManager.getDatabaseHistoryManager();
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
-        boardManager = Chan.getBoardManager();
 
-        navigationItem.setTitle(R.string.history_screen);
+        navigation.setTitle(R.string.history_screen);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(CLEAR_ID, R.string.history_clear));
         items.add(new FloatingMenuItem(SAVED_REPLY_CLEAR_ID, R.string.saved_reply_clear));
-        navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
-        ToolbarMenuItem overflow = navigationItem.createOverflow(context, this, items);
+        navigation.menu = new ToolbarMenu(context);
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
+        ToolbarMenuItem overflow = navigation.createOverflow(context, this, items);
         overflow.getSubMenu().setPopupWidth(dp(4 * 56));
 
         SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
         historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
         historyEnabledSwitch.setOnCheckedChangeListener(this);
-        navigationItem.rightView = historyEnabledSwitch;
+        navigation.rightView = historyEnabledSwitch;
 
         view = inflateRes(R.layout.controller_history);
-        crossfade = (CrossfadeView) view.findViewById(R.id.crossfade);
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        crossfade = view.findViewById(R.id.crossfade);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);
+        adapter.load();
 
         if (ChanSettings.historyOpenCounter.increase() == 1) {
             HintPopup.show(context, historyEnabledSwitch, R.string.history_toggle_hint);
         }
-    }
-
-    @Override
-    public void onShow() {
-        super.onShow();
-        adapter.load();
     }
 
     @Override
@@ -134,7 +133,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
                         .setPositiveButton(R.string.history_clear_confirm_button, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                databaseManager.runTask(databaseHistoryManager.clearHistory());
+                                databaseManager.runTaskAsync(databaseHistoryManager.clearHistory());
                                 adapter.load();
                             }
                         })
@@ -147,7 +146,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
                         .setPositiveButton(R.string.saved_reply_clear_confirm_button, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                databaseManager.runTask(databaseSavedReplyManager.clearSavedReplies());
+                                databaseManager.runTaskAsync(databaseSavedReplyManager.clearSavedReplies());
                             }
                         })
                         .show();
@@ -167,7 +166,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
     }
 
     private void deleteHistory(History history) {
-        databaseManager.runTaskSync(databaseHistoryManager.removeHistory(history));
+        databaseManager.runTask(databaseHistoryManager.removeHistory(history));
         adapter.load();
     }
 
@@ -204,12 +203,8 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
             History history = displayList.get(position);
             holder.thumbnail.setUrl(history.thumbnailUrl, dp(48), dp(48));
 
-            if (history.loadable == null) {
-                Logger.test("null!");
-            }
-
             holder.text.setText(history.loadable.title);
-            Board board = boardManager.getBoardByCode(history.loadable.board);
+            Board board = history.loadable.board;
             holder.subtext.setText(board == null ? null : ("/" + board.code + "/ \u2013 " + board.name));
         }
 
@@ -231,7 +226,7 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         private void load() {
             if (!resultPending) {
                 resultPending = true;
-                databaseManager.runTask(databaseHistoryManager.getHistory(), this);
+                databaseManager.runTaskAsync(databaseHistoryManager.getHistory(), this);
             }
         }
 
@@ -270,11 +265,11 @@ public class HistoryController extends Controller implements CompoundButton.OnCh
         public HistoryCell(View itemView) {
             super(itemView);
 
-            thumbnail = (ThumbnailView) itemView.findViewById(R.id.thumbnail);
+            thumbnail = itemView.findViewById(R.id.thumbnail);
             thumbnail.setCircular(true);
-            text = (TextView) itemView.findViewById(R.id.text);
-            subtext = (TextView) itemView.findViewById(R.id.subtext);
-            delete = (ImageView) itemView.findViewById(R.id.delete);
+            text = itemView.findViewById(R.id.text);
+            subtext = itemView.findViewById(R.id.subtext);
+            delete = itemView.findViewById(R.id.delete);
 
             theme().clearDrawable.apply(delete);
 

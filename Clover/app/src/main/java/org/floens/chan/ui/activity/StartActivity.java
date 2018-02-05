@@ -28,31 +28,36 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanHelper;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.database.DatabaseLoadableManager;
-import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteManager;
+import org.floens.chan.core.site.SiteResolver;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
+import org.floens.chan.ui.controller.SitesSetupController;
 import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.ui.helper.VersionHandler;
 import org.floens.chan.ui.helper.RuntimePermissionsHelper;
+import org.floens.chan.ui.helper.VersionHandler;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.AndroidUtils;
@@ -60,6 +65,10 @@ import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 
 public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "StartActivity";
@@ -69,7 +78,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private ViewGroup contentView;
     private List<Controller> stack = new ArrayList<>();
 
-    private final BoardManager boardManager;
     private DrawerController drawerController;
     private NavigationController mainNavigationController;
     private BrowseController browseController;
@@ -78,13 +86,22 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private RuntimePermissionsHelper runtimePermissionsHelper;
     private VersionHandler versionHandler;
 
-    public StartActivity() {
-        boardManager = Chan.getBoardManager();
-    }
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    WatchManager watchManager;
+
+    @Inject
+    SiteResolver siteResolver;
+
+    @Inject
+    SiteManager siteManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        inject(this);
 
         ThemeHelper.getInstance().setupContext(this);
 
@@ -92,7 +109,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
         versionHandler = new VersionHandler(this, runtimePermissionsHelper);
 
-        contentView = (ViewGroup) findViewById(android.R.id.content);
+        contentView = findViewById(android.R.id.content);
 
         // Setup base controllers, and decide if to use the split layout for tablets
         drawerController = new DrawerController(this);
@@ -113,56 +130,128 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             adapter.setNdefPushMessageCallback(this, this);
         }
 
-        // Startup from background or url
-        boolean loadDefault = true;
-        if (savedInstanceState != null) {
-            ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
-            if (chanState == null) {
-                Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
-            } else {
-                DatabaseLoadableManager loadableManager = Chan.getDatabaseManager().getDatabaseLoadableManager();
-                chanState.board = loadableManager.get(chanState.board);
-                chanState.thread = loadableManager.get(chanState.thread);
-
-                loadDefault = false;
-                Board board = boardManager.getBoardByCode(chanState.board.board);
-                browseController.loadBoard(board);
-
-                if (chanState.thread.mode == Loadable.Mode.THREAD) {
-                    browseController.showThread(chanState.thread, false);
-                }
-            }
-        } else {
-            final Uri data = getIntent().getData();
-            if (data != null) {
-                Loadable fromUri = ChanHelper.getLoadableFromStartUri(data);
-                if (fromUri != null) {
-                    loadDefault = false;
-                    Board board = boardManager.getBoardByCode(fromUri.board);
-                    browseController.loadBoard(board);
-
-                    if (fromUri.isThreadMode()) {
-                        browseController.showThread(fromUri, false);
-                    }
-                } else {
-                    new AlertDialog.Builder(this)
-                            .setMessage(R.string.open_link_not_matched)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    AndroidUtils.openLink(data.toString());
-                                }
-                            })
-                            .show();
-                }
-            }
-        }
-
-        if (loadDefault) {
-            browseController.loadBoard(boardManager.getSavedBoards().get(0));
-        }
+        setupFromStateOrFreshLaunch(savedInstanceState);
 
         versionHandler.run();
+    }
+
+    private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
+        boolean handled;
+        if (savedInstanceState != null) {
+            handled = restoreFromSavedState(savedInstanceState);
+        } else {
+            handled = restoreFromUrl();
+        }
+
+        // Not from a state or from an url, launch the setup controller if no boards are setup up yet,
+        // otherwise load the default saved board.
+        if (!handled) {
+            restoreFresh();
+        }
+    }
+
+    private void restoreFresh() {
+        if (!siteManager.areSitesSetup()) {
+            SitesSetupController setupController = new SitesSetupController(this);
+
+            if (drawerController.childControllers.get(0) instanceof DoubleNavigationController) {
+                DoubleNavigationController doubleNavigationController =
+                        (DoubleNavigationController) drawerController.childControllers.get(0);
+                doubleNavigationController.pushController(setupController, false);
+            } else {
+                mainNavigationController.pushController(setupController, false);
+            }
+        } else {
+            browseController.loadWithDefaultBoard();
+        }
+    }
+
+    private boolean restoreFromUrl() {
+        boolean handled = false;
+
+        final Uri data = getIntent().getData();
+        // Start from an url launch.
+        if (data != null) {
+            final SiteResolver.LoadableResult loadableResult =
+                    siteResolver.resolveLoadableForUrl(data.toString());
+
+            if (loadableResult != null) {
+                handled = true;
+
+                Loadable loadable = loadableResult.loadable;
+                browseController.setBoard(loadable.board);
+
+                if (loadable.isThreadMode()) {
+                    browseController.showThread(loadable, false);
+                }
+            } else {
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.open_link_not_matched)
+                        .setPositiveButton(R.string.ok, (dialog, which) ->
+                                AndroidUtils.openLink(data.toString()))
+                        .show();
+            }
+        }
+
+        return handled;
+    }
+
+    private boolean restoreFromSavedState(Bundle savedInstanceState) {
+        boolean handled = false;
+
+        // Restore the activity state from the previously saved state.
+        ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
+        if (chanState == null) {
+            Logger.w(TAG, "savedInstanceState was not null, but no ChanState was found!");
+        } else {
+            Pair<Loadable, Loadable> boardThreadPair = resolveChanState(chanState);
+
+            if (boardThreadPair.first != null) {
+                handled = true;
+
+                browseController.setBoard(boardThreadPair.first.board);
+
+                if (boardThreadPair.second != null) {
+                    browseController.showThread(boardThreadPair.second, false);
+                }
+            }
+        }
+
+        return handled;
+    }
+
+    private Pair<Loadable, Loadable> resolveChanState(ChanState state) {
+        Loadable boardLoadable = resolveLoadable(state.board, false);
+        Loadable threadLoadable = resolveLoadable(state.thread, true);
+
+        return new Pair<>(boardLoadable, threadLoadable);
+    }
+
+    private Loadable resolveLoadable(Loadable stateLoadable, boolean forThread) {
+        Site site = Sites.forId(stateLoadable.siteId);
+        if (site != null) {
+            Board board = site.board(stateLoadable.boardCode);
+            if (board != null) {
+                stateLoadable.site = site;
+                stateLoadable.board = board;
+
+                if (forThread) {
+                    // When restarting the parcelable isn't actually deserialized, but the same
+                    // object instance is reused. This means that the loadables we gave to the
+                    // state are the same instance, and also have the id set etc. We don't need to
+                    // query these from the loadablemanager.
+                    DatabaseLoadableManager loadableManager =
+                            databaseManager.getDatabaseLoadableManager();
+                    if (stateLoadable.id == 0) {
+                        stateLoadable = loadableManager.get(stateLoadable);
+                    }
+                }
+
+                return stateLoadable;
+            }
+        }
+
+        return null;
     }
 
     private void setupLayout() {
@@ -221,7 +310,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 if (pinId == -1) {
                     drawerController.onMenuClicked();
                 } else {
-                    Pin pin = Chan.getWatchManager().findPinById(pinId);
+                    Pin pin = watchManager.findPinById(pinId);
                     if (pin != null) {
                         browseController.showThread(pin.loadable, false);
                     }
@@ -352,7 +441,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         if (!stackTop().onBack()) {
             if (ChanSettings.confirmExit.get()) {
                 new AlertDialog.Builder(this)
-                        .setTitle(R.string.setting_confirm_exit_title)
+                        .setTitle(R.string.action_confirm_exit_title)
                         .setNegativeButton(R.string.cancel, null)
                         .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
                             @Override
@@ -378,23 +467,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onDestroy() {
         super.onDestroy();
 
+        // TODO: clear whole stack?
         stackTop().onHide();
         stackTop().onDestroy();
         stack.clear();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        Chan.getInstance().activityEnteredForeground();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        Chan.getInstance().activityEnteredBackground();
     }
 
     @Override

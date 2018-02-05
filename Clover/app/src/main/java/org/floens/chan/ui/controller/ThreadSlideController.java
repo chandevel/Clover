@@ -55,13 +55,13 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
 
         doubleNavigationController = this;
 
-        navigationItem.swipeable = false;
-        navigationItem.handlesToolbarInset = true;
-        navigationItem.hasDrawer = true;
+        navigation.swipeable = false;
+        navigation.handlesToolbarInset = true;
+        navigation.hasDrawer = true;
 
         view = inflateRes(R.layout.controller_thread_slide);
 
-        slidingPaneLayout = (ThreadSlidingPaneLayout) view.findViewById(R.id.sliding_pane_layout);
+        slidingPaneLayout = view.findViewById(R.id.sliding_pane_layout);
         slidingPaneLayout.setThreadSlideController(this);
         slidingPaneLayout.setPanelSlideListener(this);
         slidingPaneLayout.setParallaxDistance(dp(100));
@@ -122,6 +122,12 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
             }
             Toolbar toolbar = ((ToolbarNavigationController) navigationController).toolbar;
             toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
+
+            if (slidingPaneLayout.getWidth() == 0) {
+                // It won't tell us it switched when it's not laid out yet.
+                leftOpen = leftController;
+                slideStateChanged(leftController);
+            }
         }
     }
 
@@ -254,6 +260,22 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
 
     private void slideStateChanged(boolean leftOpen) {
         setParentNavigationItem(leftOpen);
+
+        notifySlideChanged(leftOpen ? leftController : rightController);
+    }
+
+    private void notifySlideChanged(Controller controller) {
+        if (controller == null) {
+            return;
+        }
+
+        if (controller instanceof SlideChangeListener) {
+            ((SlideChangeListener) controller).onSlideChanged();
+        }
+
+        for (Controller childController : controller.childControllers) {
+            notifySlideChanged(childController);
+        }
     }
 
     private void setParentNavigationItem(boolean left) {
@@ -262,20 +284,24 @@ public class ThreadSlideController extends Controller implements DoubleNavigatio
         NavigationItem item = null;
         if (left) {
             if (leftController != null) {
-                item = leftController.navigationItem;
+                item = leftController.navigation;
             }
         } else {
             if (rightController != null) {
-                item = rightController.navigationItem;
+                item = rightController.navigation;
             }
         }
 
         if (item != null) {
-            navigationItem = item;
-            navigationItem.swipeable = false;
-            navigationItem.handlesToolbarInset = true;
-            navigationItem.hasDrawer = true;
-            toolbar.setNavigationItem(false, true, navigationItem);
+            navigation = item;
+            navigation.swipeable = false;
+            navigation.handlesToolbarInset = true;
+            navigation.hasDrawer = true;
+            toolbar.setNavigationItem(false, true, navigation);
         }
+    }
+
+    public interface SlideChangeListener {
+        void onSlideChanged();
     }
 }

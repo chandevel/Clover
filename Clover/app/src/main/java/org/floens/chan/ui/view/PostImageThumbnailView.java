@@ -52,7 +52,7 @@ public class PostImageThumbnailView extends ThumbnailView {
             this.postImage = postImage;
 
             if (postImage != null) {
-                setUrl(postImage.thumbnailUrl, width, height);
+                setUrl(postImage.getThumbnailUrl().toString(), width, height);
             } else {
                 setUrl(null, width, height);
             }
@@ -67,7 +67,7 @@ public class PostImageThumbnailView extends ThumbnailView {
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        if (postImage != null && postImage.type == PostImage.Type.MOVIE) {
+        if (postImage != null && postImage.type == PostImage.Type.MOVIE && !error) {
             int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() / 2.0);
             int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() / 2.0);
 

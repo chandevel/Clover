@@ -30,38 +30,40 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.Pin;
+import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.adapter.PinAdapter;
+import org.floens.chan.ui.adapter.DrawerAdapter;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
-public class DrawerController extends Controller implements PinAdapter.Callback, View.OnClickListener {
-    private WatchManager watchManager;
-
+public class DrawerController extends Controller implements DrawerAdapter.Callback, View.OnClickListener {
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
     protected RecyclerView recyclerView;
     protected LinearLayout settings;
-    protected PinAdapter pinAdapter;
+    protected DrawerAdapter drawerAdapter;
+
+    @Inject
+    WatchManager watchManager;
 
     public DrawerController(Context context) {
         super(context);
@@ -70,30 +72,29 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     @Override
     public void onCreate() {
         super.onCreate();
-
-        watchManager = Chan.getWatchManager();
+        inject(this);
 
         EventBus.getDefault().register(this);
 
         view = inflateRes(R.layout.controller_navigation_drawer);
-        container = (FrameLayout) view.findViewById(R.id.container);
-        drawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
+        container = view.findViewById(R.id.container);
+        drawerLayout = view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
-        drawer = (LinearLayout) view.findViewById(R.id.drawer);
-        recyclerView = (RecyclerView) view.findViewById(R.id.drawer_recycler_view);
+        drawer = view.findViewById(R.id.drawer);
+        recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        settings = (LinearLayout) view.findViewById(R.id.settings);
+        settings = view.findViewById(R.id.settings);
         settings.setOnClickListener(this);
-        theme().settingsDrawable.apply((ImageView) settings.findViewById(R.id.image));
+        theme().settingsDrawable.apply(settings.findViewById(R.id.image));
         ((TextView) settings.findViewById(R.id.text)).setTypeface(ROBOTO_MEDIUM);
 
-        pinAdapter = new PinAdapter(this);
-        recyclerView.setAdapter(pinAdapter);
+        drawerAdapter = new DrawerAdapter(this);
+        recyclerView.setAdapter(drawerAdapter);
 
-        pinAdapter.onPinsChanged(watchManager.getAllPins());
+        drawerAdapter.onPinsChanged(watchManager.getAllPins());
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(pinAdapter.getItemTouchHelperCallback());
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(drawerAdapter.getItemTouchHelperCallback());
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
@@ -120,7 +121,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     public void onMenuClicked() {
-        if (getMainToolbarNavigationController().getTop().navigationItem.hasDrawer) {
+        if (getMainToolbarNavigationController().getTop().navigation.hasDrawer) {
             drawerLayout.openDrawer(drawer);
         }
     }
@@ -137,7 +138,10 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
 
     @Override
     public void onPinClicked(Pin pin) {
-        drawerLayout.closeDrawer(Gravity.LEFT);
+        // Post it to avoid animation jumping because the first frame is heavy.
+        // TODO: probably twice because of some force redraw, fix that.
+        drawerLayout.post(() -> drawerLayout.post(() -> drawerLayout.closeDrawer(drawer)));
+
         ThreadController threadController = getTopThreadController();
         threadController.openPin(pin);
     }
@@ -148,11 +152,9 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     @Override
-    public void onHeaderClicked(PinAdapter.HeaderHolder holder, PinAdapter.HeaderAction headerAction) {
-        if (headerAction == PinAdapter.HeaderAction.SETTINGS) {
-            openController(new WatchSettingsController(context));
-        } else if (headerAction == PinAdapter.HeaderAction.CLEAR || headerAction == PinAdapter.HeaderAction.CLEAR_ALL) {
-            boolean all = headerAction == PinAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
+    public void onHeaderClicked(DrawerAdapter.HeaderHolder holder, DrawerAdapter.HeaderAction headerAction) {
+        if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
+            boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
             final List<Pin> pins = watchManager.clearPins(all);
             if (!pins.isEmpty()) {
                 String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
@@ -191,7 +193,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     @Override
-    public void onPinLongClocked(final Pin pin) {
+    public void onPinLongClicked(final Pin pin) {
         LinearLayout wrap = new LinearLayout(context);
         wrap.setPadding(dp(16), dp(16), dp(16), 0);
         final EditText text = new EditText(context);
@@ -207,7 +209,7 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
 
                         if (!TextUtils.isEmpty(value)) {
                             pin.loadable.title = value;
-                            Chan.getWatchManager().updatePin(pin);
+                            watchManager.updatePin(pin);
                         }
                     }
                 })
@@ -222,8 +224,8 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     @Override
-    public void openBoardEditor() {
-        openController(new BoardEditController(context));
+    public void openSites() {
+        openController(new SitesSetupController(context));
     }
 
     @Override
@@ -232,23 +234,23 @@ public class DrawerController extends Controller implements PinAdapter.Callback,
     }
 
     public void setPinHighlighted(Pin pin) {
-        pinAdapter.setPinHighlighted(pin);
-        pinAdapter.updateHighlighted(recyclerView);
+        drawerAdapter.setPinHighlighted(pin);
+        drawerAdapter.updateHighlighted(recyclerView);
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
-        pinAdapter.onPinAdded(message.pin);
+        drawerAdapter.onPinAdded(message.pin);
         drawerLayout.openDrawer(drawer);
         updateBadge();
     }
 
     public void onEvent(WatchManager.PinRemovedMessage message) {
-        pinAdapter.onPinRemoved(message.pin);
+        drawerAdapter.onPinRemoved(message.pin);
         updateBadge();
     }
 
     public void onEvent(WatchManager.PinChangedMessage message) {
-        pinAdapter.onPinChanged(recyclerView, message.pin);
+        drawerAdapter.onPinChanged(recyclerView, message.pin);
         updateBadge();
     }
 

@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -106,7 +106,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Post post = displayList.get(getPostPosition(position));
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
                         post.tripcode.equals(highlightedPostTripcode);
-                postViewHolder.postView.setPost(null, post, postCellCallback, highlight, post.no == selectedPost, -1, true, postViewMode);
+                postViewHolder.postView.setPost(null, post, postCellCallback, true, highlight, post.no == selectedPost, -1, true, postViewMode);
                 break;
             case TYPE_STATUS:
                 ((StatusViewHolder) holder).threadStatusCell.update();
@@ -278,7 +278,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private boolean showStatusView() {
-        return postAdapterCallback.getLoadable().isThreadMode();
+        Loadable loadable = postAdapterCallback.getLoadable();
+        // the loadable can be null while this adapter is used between cleanup and the removal
+        // of the recyclerview from the view hierarchy, although it's rare.
+        return loadable != null && loadable.isThreadMode();
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {

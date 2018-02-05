@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.layout.FixedRatioLinearLayout;
 import org.floens.chan.ui.text.FastTextView;
@@ -76,15 +77,15 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        content = (FixedRatioLinearLayout) findViewById(R.id.card_content);
+        content = findViewById(R.id.card_content);
         content.setRatio(9f / 16f);
-        thumbnailView = (PostImageThumbnailView) findViewById(R.id.thumbnail);
-        thumbnailView.setRatio(16f / 9f);
+        thumbnailView = findViewById(R.id.thumbnail);
+        thumbnailView.setRatio(16f / 13f);
         thumbnailView.setOnClickListener(this);
-        title = (TextView) findViewById(R.id.title);
-        comment = (FastTextView) findViewById(R.id.comment);
-        replies = (TextView) findViewById(R.id.replies);
-        options = (ImageView) findViewById(R.id.options);
+        title = findViewById(R.id.title);
+        comment = findViewById(R.id.comment);
+        replies = findViewById(R.id.replies);
+        options = findViewById(R.id.options);
         setRoundItemBackground(options);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
@@ -121,7 +122,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     @Override
     public void onClick(View v) {
         if (v == thumbnailView) {
-            callback.onThumbnailClicked(post, thumbnailView);
+            callback.onThumbnailClicked(post, post.image(), thumbnailView);
         } else if (v == this) {
             callback.onPostClicked(post);
         }
@@ -146,7 +147,8 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     }
 
     public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode) {
+                        boolean selectable, boolean highlighted, boolean selected, int markedNo,
+                        boolean showDivider, ChanSettings.PostViewMode postViewMode) {
         if (this.post == post) {
             return;
         }
@@ -171,7 +173,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         return post;
     }
 
-    public ThumbnailView getThumbnailView() {
+    public ThumbnailView getThumbnailView(PostImage postImage) {
         return thumbnailView;
     }
 
@@ -184,9 +186,9 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private void bindPost(Theme theme, Post post) {
         bound = true;
 
-        if (post.hasImage && !ChanSettings.textOnly.get()) {
+        if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbnailView.setVisibility(View.VISIBLE);
-            thumbnailView.setPostImage(post.image, thumbnailView.getWidth(), thumbnailView.getHeight());
+            thumbnailView.setPostImage(post.image(), thumbnailView.getWidth(), thumbnailView.getHeight());
         } else {
             thumbnailView.setVisibility(View.GONE);
             thumbnailView.setPostImage(null, 0, 0);
@@ -217,7 +219,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         comment.setText(commentText);
         comment.setTextColor(theme.textPrimary);
 
-        replies.setText(getResources().getString(R.string.card_stats, post.replies, post.images));
+        replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
     }
 
     private void unbindPost(Post post) {

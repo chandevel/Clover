@@ -17,18 +17,19 @@
  */
 package org.floens.chan.core.manager;
 
+import android.support.annotation.AnyThread;
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseFilterManager;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Filter;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Filter;
+import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,14 +37,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class FilterEngine {
     private static final String TAG = "FilterEngine";
-
-    private static final FilterEngine instance = new FilterEngine();
-
-    public static FilterEngine getInstance() {
-        return instance;
-    }
 
     public enum FilterAction {
         HIDE(0),
@@ -69,30 +68,32 @@ public class FilterEngine {
         }
     }
 
-    private final Map<String, Pattern> patternCache = new HashMap<>();
-
     private final DatabaseManager databaseManager;
+    private final BoardManager boardManager;
+
     private final DatabaseFilterManager databaseFilterManager;
 
-    private List<Filter> filters;
+    private final Map<String, Pattern> patternCache = new HashMap<>();
     private final List<Filter> enabledFilters = new ArrayList<>();
 
-    private FilterEngine() {
-        databaseManager = Chan.getDatabaseManager();
+    @Inject
+    public FilterEngine(DatabaseManager databaseManager, BoardManager boardManager) {
+        this.databaseManager = databaseManager;
+        this.boardManager = boardManager;
         databaseFilterManager = databaseManager.getDatabaseFilterManager();
         update();
     }
 
     public void deleteFilter(Filter filter) {
-        databaseManager.runTaskSync(databaseFilterManager.deleteFilter(filter));
+        databaseManager.runTask(databaseFilterManager.deleteFilter(filter));
         update();
     }
 
     public void createOrUpdateFilter(Filter filter) {
         if (filter.id == 0) {
-            databaseManager.runTaskSync(databaseFilterManager.createFilter(filter));
+            databaseManager.runTask(databaseFilterManager.createFilter(filter));
         } else {
-            databaseManager.runTaskSync(databaseFilterManager.updateFilter(filter));
+            databaseManager.runTask(databaseFilterManager.updateFilter(filter));
         }
         update();
     }
@@ -101,8 +102,43 @@ public class FilterEngine {
         return enabledFilters;
     }
 
-    // threadsafe
-    public boolean matches(Filter filter, Post post) {
+    @AnyThread
+    public boolean matchesBoard(Filter filter, Board board) {
+        if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
+            return true;
+        } else {
+            for (String uniqueId : filter.boards.split(",")) {
+                if (BoardHelper.matchesUniqueId(board, uniqueId)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public int getFilterBoardCount(Filter filter) {
+        if (filter.allBoards) {
+            return -1;
+        } else {
+            return filter.boards.split(",").length;
+        }
+    }
+
+    public void saveBoardsToFilter(List<Board> appliedBoards, boolean all, Filter filter) {
+        filter.allBoards = all;
+        if (all) {
+            filter.boards = "";
+        } else {
+            List<String> boardsString = new ArrayList<>(appliedBoards.size());
+            for (int i = 0; i < appliedBoards.size(); i++) {
+                boardsString.add(BoardHelper.boardUniqueId(appliedBoards.get(i)));
+            }
+            filter.boards = TextUtils.join(",", boardsString);
+        }
+    }
+
+    @AnyThread
+    public boolean matches(Filter filter, Post.Builder post) {
         if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, FilterType.TRIPCODE.isRegex, post.tripcode, false)) {
             return true;
         }
@@ -111,11 +147,11 @@ public class FilterEngine {
             return true;
         }
 
-        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.rawComment, false)) {
+        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.comment.toString(), false)) {
             return true;
         }
 
-        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.id, false)) {
+        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.posterId, false)) {
             return true;
         }
 
@@ -123,14 +159,20 @@ public class FilterEngine {
             return true;
         }
 
-        if ((filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, post.filename, false)) {
-            return true;
+        if (post.images != null) {
+            StringBuilder filename = new StringBuilder();
+            for (PostImage image : post.images) {
+                filename.append(image.filename).append(" ");
+            }
+            if ((filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename.toString(), false)) {
+                return true;
+            }
         }
 
         return false;
     }
 
-    // threadsafe
+    @AnyThread
     public boolean matches(Filter filter, boolean matchRegex, String text, boolean forceCompile) {
         if (TextUtils.isEmpty(text)) {
             return false;
@@ -175,7 +217,7 @@ public class FilterEngine {
     private static final Pattern filterFilthyPattern = Pattern.compile("(\\.|\\^|\\$|\\*|\\+|\\?|\\(|\\)|\\[|\\]|\\{|\\}|\\\\|\\||\\-)");
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*"); // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
 
-    // threadsafe
+    @AnyThread
     public Pattern compile(String rawPattern) {
         if (TextUtils.isEmpty(rawPattern)) {
             return null;
@@ -220,40 +262,12 @@ public class FilterEngine {
         return pattern;
     }
 
-    public List<Board> getBoardsForFilter(Filter filter) {
-        if (filter.allBoards) {
-            return Chan.getBoardManager().getSavedBoards();
-        } else if (!TextUtils.isEmpty(filter.boards)) {
-            List<Board> appliedBoards = new ArrayList<>();
-            for (String value : filter.boards.split(",")) {
-                Board boardByValue = Chan.getBoardManager().getBoardByCode(value);
-                if (boardByValue != null) {
-                    appliedBoards.add(boardByValue);
-                }
-            }
-            return appliedBoards;
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    public void saveBoardsToFilter(List<Board> appliedBoards, Filter filter) {
-        filter.boards = "";
-        for (int i = 0; i < appliedBoards.size(); i++) {
-            Board board = appliedBoards.get(i);
-            filter.boards += board.code;
-            if (i < appliedBoards.size() - 1) {
-                filter.boards += ",";
-            }
-        }
-    }
-
     private String escapeRegex(String filthy) {
         return filterFilthyPattern.matcher(filthy).replaceAll("\\\\$1"); // Escape regex special characters with a \
     }
 
     private void update() {
-        filters = databaseManager.runTaskSync(databaseFilterManager.getFilters());
+        List<Filter> filters = databaseManager.runTask(databaseFilterManager.getFilters());
         List<Filter> enabled = new ArrayList<>();
         for (Filter filter : filters) {
             if (filter.enabled) {

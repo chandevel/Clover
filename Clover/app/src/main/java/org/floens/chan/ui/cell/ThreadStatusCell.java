@@ -17,10 +17,10 @@
  */
 package org.floens.chan.ui.cell;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Handler;
-import android.os.Message;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
@@ -29,11 +29,10 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Board;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 
@@ -47,18 +46,15 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
     private TextView text;
     private String error;
-    private Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            if (msg.what == MESSAGE_INVALIDATE) {
-                if (running && update()) {
-                    schedule();
-                }
-
-                return true;
-            } else {
-                return false;
+    private Handler handler = new Handler(msg -> {
+        if (msg.what == MESSAGE_INVALIDATE) {
+            if (running && update()) {
+                schedule();
             }
+
+            return true;
+        } else {
+            return false;
         }
     });
 
@@ -71,7 +67,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        text = (TextView) findViewById(R.id.text);
+        text = findViewById(R.id.text);
         text.setTypeface(ROBOTO_MEDIUM);
 
         setOnClickListener(this);
@@ -88,14 +84,18 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
         }
     }
 
+    @SuppressLint("SetTextI18n")
     public boolean update() {
         if (error != null) {
-            text.setText(error + "\n" + getContext().getString(R.string.thread_refresh_bar_inactive));
+            text.setText(error + "\n" + getContext()
+                    .getString(R.string.thread_refresh_bar_inactive));
             return false;
         } else {
             ChanThread chanThread = callback.getChanThread();
             if (chanThread == null) {
-                return false; // Recyclerview not clearing immediately or view didn't receive onDetachedFromWindow
+                // Recyclerview not clearing immediately or view didn't receive
+                // onDetachedFromWindow.
+                return false;
             }
 
             boolean update = false;
@@ -103,38 +103,54 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
             String statusText = "";
 
             if (chanThread.archived) {
-                statusText += getContext().getString(R.string.thread_archived) + "\n";
+                statusText += getContext().getString(R.string.thread_archived);
             } else if (chanThread.closed) {
-                statusText += getContext().getString(R.string.thread_closed) + "\n";
+                statusText += getContext().getString(R.string.thread_closed);
             }
 
             if (!chanThread.archived && !chanThread.closed) {
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
-                    statusText += getContext().getString(R.string.thread_refresh_bar_inactive) + "\n";
+                    statusText += getContext().getString(R.string.thread_refresh_bar_inactive);
                 } else if (time <= 0) {
-                    statusText += getContext().getString(R.string.thread_refresh_now) + "\n";
+                    statusText += getContext().getString(R.string.thread_refresh_now);
                 } else {
-                    statusText += getContext().getString(R.string.thread_refresh_countdown, time) + "\n";
+                    statusText += getContext().getString(R.string.thread_refresh_countdown, time);
                 }
                 update = true;
             }
 
+            CharSequence finalText = statusText;
+
             Post op = chanThread.op;
-
-            Board board = Chan.getBoardManager().getBoardByCode(chanThread.loadable.board);
+            Board board = op.board;
             if (board != null) {
-                SpannableString replies = new SpannableString(op.replies + "R");
-                if (op.replies >= board.bumpLimit) {
-                    replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
-                }
-                SpannableString images = new SpannableString(op.images + "I");
-                if (op.images >= board.imageLimit) {
-                    images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
-                }
+                boolean hasReplies = op.getReplies() >= 0;
+                boolean hasImages = op.getImagesCount() >= 0;
+                if (hasReplies && hasImages) {
+                    boolean hasBumpLimit = board.bumpLimit > 0;
+                    boolean hasImageLimit = board.imageLimit > 0;
 
-                text.setText(TextUtils.concat(statusText, replies, " / ", images, " / ", String.valueOf(op.uniqueIps) + "P"));
+                    SpannableString replies = new SpannableString(op.getReplies() + "R");
+                    if (hasBumpLimit && op.getReplies() >= board.bumpLimit) {
+                        replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
+                    }
+
+                    SpannableString images = new SpannableString(op.getImagesCount() + "I");
+                    if (hasImageLimit && op.getImagesCount() >= board.imageLimit) {
+                        images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
+                    }
+
+                    finalText = TextUtils.concat(statusText, "\n", replies, " / ", images);
+
+                    if (op.getUniqueIps() >= 0) {
+                        String ips = op.getUniqueIps() + "P";
+                        finalText = TextUtils.concat(finalText, " / " + ips);
+                    }
+                }
             }
+
+            text.setText(finalText);
 
             return update;
         }

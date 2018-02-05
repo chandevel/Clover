@@ -20,7 +20,6 @@ package org.floens.chan.ui.controller;
 import android.content.Context;
 import android.support.v7.widget.SwitchCompat;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
@@ -52,18 +51,18 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         boolean enabled = ChanSettings.watchEnabled.get();
 
-        navigationItem.setTitle(R.string.settings_screen_watch);
+        navigation.setTitle(R.string.settings_screen_watch);
 
         view = inflateRes(R.layout.controller_watch);
-        content = (LinearLayout) view.findViewById(R.id.scrollview_content);
-        crossfadeView = (CrossfadeView) view.findViewById(R.id.crossfade);
+        content = view.findViewById(R.id.scrollview_content);
+        crossfadeView = view.findViewById(R.id.crossfade);
 
         crossfadeView.toggle(enabled, false);
 
         SwitchCompat globalSwitch = new SwitchCompat(context);
         globalSwitch.setChecked(enabled);
         globalSwitch.setOnCheckedChangeListener(this);
-        navigationItem.rightView = globalSwitch;
+        navigation.rightView = globalSwitch;
 
         populatePreferences();
 
@@ -81,9 +80,6 @@ public class WatchSettingsController extends SettingsController implements Compo
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         ChanSettings.watchEnabled.set(isChecked);
-        if (previousSiblingController instanceof WatchSettingControllerListener) {
-            ((WatchSettingControllerListener) previousSiblingController).onWatchEnabledChanged(isChecked);
-        }
         crossfadeView.toggle(isChecked, true);
     }
 
@@ -141,9 +137,5 @@ public class WatchSettingsController extends SettingsController implements Compo
                 new String[]{"-1", "ffffffff", "ffff0000", "ffffff00", "ff00ff00", "ff00ffff", "ff0000ff", "ffff00ff"}));
 
         groups.add(settings);
-    }
-
-    public interface WatchSettingControllerListener {
-        void onWatchEnabledChanged(boolean enabled);
     }
 }

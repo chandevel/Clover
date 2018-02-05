@@ -20,13 +20,14 @@ package org.floens.chan.ui.helper;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 
 import org.floens.chan.R;
-import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.text.SimpleDateFormat;
@@ -66,20 +67,20 @@ public class PostHelper {
         }
     }
 
-    public static String getTitle(Post post, Loadable loadable) {
+    public static String getTitle(@Nullable Post post, @Nullable Loadable loadable) {
         if (post != null) {
             if (!TextUtils.isEmpty(post.subject)) {
                 return post.subject;
             } else if (!TextUtils.isEmpty(post.comment)) {
-                return "/" + post.board + "/ \u2013 " + post.comment.subSequence(0, Math.min(post.comment.length(), 200)).toString();
+                return "/" + post.boardId + "/ \u2013 " + post.comment.subSequence(0, Math.min(post.comment.length(), 200)).toString();
             } else {
-                return "/" + post.board + "/" + post.no;
+                return "/" + post.boardId + "/" + post.no;
             }
         } else if (loadable != null) {
             if (loadable.mode == Loadable.Mode.CATALOG) {
-                return "/" + loadable.board + "/";
+                return "/" + loadable.boardCode + "/";
             } else {
-                return "/" + loadable.board + "/" + loadable.no;
+                return "/" + loadable.boardCode + "/" + loadable.no;
             }
         } else {
             return "";

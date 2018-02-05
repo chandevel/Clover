@@ -17,186 +17,406 @@
  */
 package org.floens.chan.core.model;
 
-import android.text.SpannableString;
-import android.text.TextUtils;
+import android.support.annotation.MainThread;
 
-import org.floens.chan.Chan;
-import org.floens.chan.chan.ChanParser;
-import org.floens.chan.chan.ChanUrls;
-import org.floens.chan.core.settings.ChanSettings;
-import org.jsoup.parser.Parser;
+import org.floens.chan.core.model.orm.Board;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import okhttp3.HttpUrl;
 
 /**
  * Contains all data needed to represent a single post.<br>
- * Call {@link #finish()} to parse the comment etc. The post data is invalid if finish returns false.<br>
- * This class has members that are threadsafe and some that are not, see the source for more info.
+ * All {@code final} fields are thread-safe.
  */
 public class Post {
-    private static final Random random = new Random();
+    public final String boardId;
 
-    // *** These next members don't get changed after finish() is called. Effectively final. ***
-    public String board;
+    public final Board board;
 
-    public int no = -1;
+    public final int no;
 
-    public int resto = -1;
+    public final boolean isOP;
 
-    public boolean isOP = false;
+//    public final String date;
 
-    public String date;
+    public final String name;
 
-    public String MD5;
+    public final CharSequence comment;
 
-    public String name = "";
-
-    public CharSequence comment = "";
-
-    public String subject = "";
-
-    public long tim = -1;
-
-    public String ext;
-
-    public String filename;
-
-    public int imageWidth;
-
-    public int imageHeight;
-
-    public boolean hasImage = false;
-
-    public PostImage image;
-
-    public String thumbnailUrl;
-
-    public String imageUrl;
-
-    public String tripcode = "";
-
-    public String id = "";
-
-    public String capcode = "";
-
-    public String country = "";
-
-    public String countryName = "";
-
-    public String trollCountry = "";
-
-    public long time = -1;
-
-    public long fileSize;
-
-    public String rawComment;
-
-    public String countryUrl;
-
-    public boolean spoiler = false;
-
-    public boolean isSavedReply = false;
-
-    public int filterHighlightedColor = 0;
-
-    public boolean filterStub = false;
-
-    public boolean filterRemove = false;
-
+    public final String subject;
 
     /**
-     * This post replies to the these ids. Is an unmodifiable set after finish().
+     * Unix timestamp, in seconds.
      */
-    public Set<Integer> repliesTo = new TreeSet<>();
+    public final long time;
 
-    public final ArrayList<PostLinkable> linkables = new ArrayList<>();
+    public final List<PostImage> images;
 
-    public SpannableString subjectSpan;
+    public final String tripcode;
 
-    public SpannableString nameSpan;
+    public final String id;
 
-    public SpannableString tripcodeSpan;
+    public final String capcode;
 
-    public SpannableString idSpan;
+    public final List<PostHttpIcon> httpIcons;
 
-    public SpannableString capcodeSpan;
+    public final boolean isSavedReply;
 
-    public CharSequence nameTripcodeIdCapcodeSpan;
+    public final int filterHighlightedColor;
 
-    // *** These next members may only change on the main thread after finish(). ***
-    public boolean sticky = false;
-    public boolean closed = false;
-    public boolean archived = false;
-    public int replies = -1;
-    public int images = -1;
-    public int uniqueIps = 1;
-    public String title = "";
+    public final boolean filterStub;
 
-    // *** Threadsafe members, may be read and modified on any thread. ***
-    public AtomicBoolean deleted = new AtomicBoolean(false);
+    public final boolean filterRemove;
 
-    // *** Manual synchronization needed. ***
     /**
-     * These ids replied to this post.<br>
-     * <b>synchronize on this when accessing.</b>
+     * This post replies to the these ids.
+     */
+    public final Set<Integer> repliesTo;
+
+    public final List<PostLinkable> linkables;
+
+    public final CharSequence subjectSpan;
+
+    public final CharSequence nameTripcodeIdCapcodeSpan;
+
+    /**
+     * This post has been deleted (the server isn't sending it anymore).
+     * <p><b>This boolean is modified in worker threads, use {@code .get()} to access it.</b>
+     */
+    public final AtomicBoolean deleted = new AtomicBoolean(false);
+
+    /**
+     * These ids replied to this post.
+     * <p><b>Manual synchronization is needed, since this list can be modified from any thread.
+     * Wrap all accesses in a {@code synchronized} block.</b>
      */
     public final List<Integer> repliesFrom = new ArrayList<>();
 
+    // These members may only mutate on the main thread.
+    private boolean sticky = false;
+    private boolean closed = false;
+    private boolean archived = false;
+    private int replies = -1;
+    private int imagesCount = -1;
+    private int uniqueIps = -1;
+    private String title = "";
+
+    private Post(Builder builder) {
+        board = builder.board;
+        boardId = builder.board.code;
+        no = builder.id;
+
+        isOP = builder.op;
+        replies = builder.replies;
+        imagesCount = builder.imagesCount;
+        uniqueIps = builder.uniqueIps;
+        sticky = builder.sticky;
+        closed = builder.closed;
+        archived = builder.archived;
+
+        subject = builder.subject;
+        name = builder.name;
+        comment = builder.comment;
+        tripcode = builder.tripcode;
+
+        time = builder.unixTimestampSeconds;
+        if (builder.images == null) {
+            images = Collections.emptyList();
+        } else {
+            images = Collections.unmodifiableList(builder.images);
+        }
+
+        if (builder.httpIcons != null) {
+            httpIcons = Collections.unmodifiableList(builder.httpIcons);
+        } else {
+            httpIcons = null;
+        }
+
+        id = builder.posterId;
+        capcode = builder.moderatorCapcode;
+
+        filterHighlightedColor = builder.filterHighlightedColor;
+        filterStub = builder.filterStub;
+        filterRemove = builder.filterRemove;
+
+        isSavedReply = builder.isSavedReply;
+
+        subjectSpan = builder.subjectSpan;
+        nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
+
+        linkables = Collections.unmodifiableList(builder.linkables);
+        repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
+    }
+
+    @MainThread
+    public boolean isSticky() {
+        return sticky;
+    }
+
+    @MainThread
+    public void setSticky(boolean sticky) {
+        this.sticky = sticky;
+    }
+
+    @MainThread
+    public boolean isClosed() {
+        return closed;
+    }
+
+    @MainThread
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+    @MainThread
+    public boolean isArchived() {
+        return archived;
+    }
+
+    @MainThread
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
+    @MainThread
+    public int getReplies() {
+        return replies;
+    }
+
+    @MainThread
+    public void setReplies(int replies) {
+        this.replies = replies;
+    }
+
+    @MainThread
+    public int getImagesCount() {
+        return imagesCount;
+    }
+
+    @MainThread
+    public void setImagesCount(int imagesCount) {
+        this.imagesCount = imagesCount;
+    }
+
+    @MainThread
+    public int getUniqueIps() {
+        return uniqueIps;
+    }
+
+    @MainThread
+    public void setUniqueIps(int uniqueIps) {
+        this.uniqueIps = uniqueIps;
+    }
+
+    @MainThread
+    public String getTitle() {
+        return title;
+    }
+
+    @MainThread
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     /**
-     * Finish up the data: parse the comment, check if the data is valid etc.
+     * Return the first image, or {@code null} if post has no images.
      *
-     * @return false if this data is invalid
+     * @return the first image, or {@code null}
      */
-    public boolean finish() {
-        if (board == null || no < 0 || resto < 0 || date == null || time < 0) {
-            return false;
+    @MainThread
+    public PostImage image() {
+        return images.isEmpty() ? null : images.get(0);
+    }
+
+    public static final class Builder {
+        public Board board;
+        public int id = -1;
+        public int opId = -1;
+
+        public boolean op;
+        public int replies = -1;
+        public int imagesCount = -1;
+        public int uniqueIps = -1;
+        public boolean sticky;
+        public boolean closed;
+        public boolean archived;
+
+        public String subject = "";
+        public String name = "";
+        public CharSequence comment = "";
+        public String tripcode = "";
+
+        public long unixTimestampSeconds = -1;
+        public List<PostImage> images;
+
+        public String countryCode;
+        public String countryName;
+        public HttpUrl countryUrl;
+
+        public List<PostHttpIcon> httpIcons;
+
+        public String posterId = "";
+        public String moderatorCapcode = "";
+
+        public int filterHighlightedColor;
+        public boolean filterStub;
+        public boolean filterRemove;
+
+        public boolean isSavedReply;
+
+        public CharSequence subjectSpan;
+        public CharSequence nameTripcodeIdCapcodeSpan;
+
+        private List<PostLinkable> linkables = new ArrayList<>();
+        private Set<Integer> repliesToIds = new HashSet<>();
+
+        public Builder() {
         }
 
-        isOP = resto == 0;
-
-        if (isOP && (replies < 0 || images < 0)) {
-            return false;
+        public Builder board(Board board) {
+            this.board = board;
+            return this;
         }
 
-        if (filename != null && ext != null && imageWidth > 0 && imageHeight > 0 && tim >= 0) {
-            hasImage = true;
-            imageUrl = ChanUrls.getImageUrl(board, Long.toString(tim), ext);
-            filename = Parser.unescapeEntities(filename, false);
+        public Builder id(int id) {
+            this.id = id;
+            return this;
+        }
 
+        public Builder opId(int opId) {
+            this.opId = opId;
+            return this;
+        }
 
-            boolean spoilerImage = spoiler && !ChanSettings.revealImageSpoilers.get();
-            if (spoilerImage) {
-                Board b = Chan.getBoardManager().getBoardByCode(board);
-                if (b != null && b.customSpoilers >= 0) {
-                    thumbnailUrl = ChanUrls.getCustomSpoilerUrl(board, random.nextInt(b.customSpoilers) + 1);
-                } else {
-                    thumbnailUrl = ChanUrls.getSpoilerUrl();
-                }
-            } else {
-                thumbnailUrl = ChanUrls.getThumbnailUrl(board, Long.toString(tim));
+        public Builder op(boolean op) {
+            this.op = op;
+            return this;
+        }
+
+        public Builder replies(int replies) {
+            this.replies = replies;
+            return this;
+        }
+
+        public Builder images(int images) {
+            this.imagesCount = images;
+            return this;
+        }
+
+        public Builder uniqueIps(int uniqueIps) {
+            this.uniqueIps = uniqueIps;
+            return this;
+        }
+
+        public Builder sticky(boolean sticky) {
+            this.sticky = sticky;
+            return this;
+        }
+
+        public Builder archived(boolean archived) {
+            this.archived = archived;
+            return this;
+        }
+
+        public Builder closed(boolean closed) {
+            this.closed = closed;
+            return this;
+        }
+
+        public Builder subject(String subject) {
+            this.subject = subject;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder comment(String comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public Builder tripcode(String tripcode) {
+            this.tripcode = tripcode;
+            return this;
+        }
+
+        public Builder setUnixTimestampSeconds(long unixTimestampSeconds) {
+            this.unixTimestampSeconds = unixTimestampSeconds;
+            return this;
+        }
+
+        public Builder images(List<PostImage> images) {
+            if (this.images == null) {
+                this.images = new ArrayList<>(images.size());
             }
 
-            image = new PostImage(String.valueOf(tim), thumbnailUrl, imageUrl, filename, ext, imageWidth, imageHeight, spoilerImage, fileSize, String.valueOf(MD5));
+            this.images.addAll(images);
+
+            return this;
         }
 
-        if (!TextUtils.isEmpty(countryName)) {
-            if (!TextUtils.isEmpty(trollCountry)) {
-                countryUrl = ChanUrls.getCountryTrollFlagUrl(trollCountry);
-            } else {
-                countryUrl = ChanUrls.getCountryFlagUrl(country);
+        public Builder posterId(String posterId) {
+            this.posterId = posterId;
+            return this;
+        }
+
+        public Builder moderatorCapcode(String moderatorCapcode) {
+            this.moderatorCapcode = moderatorCapcode;
+            return this;
+        }
+
+        public Builder addHttpIcon(PostHttpIcon httpIcon) {
+            if (httpIcons == null) {
+                httpIcons = new ArrayList<>();
             }
+            httpIcons.add(httpIcon);
+
+            return this;
         }
 
-        ChanParser.getInstance().parse(this);
+        public Builder filter(int highlightedColor, boolean stub, boolean remove) {
+            filterHighlightedColor = highlightedColor;
+            filterStub = stub;
+            filterRemove = remove;
+            return this;
+        }
 
-        repliesTo = Collections.unmodifiableSet(repliesTo);
+        public Builder isSavedReply(boolean isSavedReply) {
+            this.isSavedReply = isSavedReply;
+            return this;
+        }
 
-        return true;
+        public Builder spans(CharSequence subjectSpan, CharSequence nameTripcodeIdCapcodeSpan) {
+            this.subjectSpan = subjectSpan;
+            this.nameTripcodeIdCapcodeSpan = nameTripcodeIdCapcodeSpan;
+            return this;
+        }
+
+        public Builder addLinkable(PostLinkable linkable) {
+            linkables.add(linkable);
+            return this;
+        }
+
+        public Builder addReplyTo(int postId) {
+            repliesToIds.add(postId);
+            return this;
+        }
+
+        public Post build() {
+            if (board == null || id < 0 || opId < 0 || unixTimestampSeconds < 0 || comment == null) {
+                throw new IllegalArgumentException("Post data not complete");
+            }
+
+            return new Post(this);
+        }
     }
 }

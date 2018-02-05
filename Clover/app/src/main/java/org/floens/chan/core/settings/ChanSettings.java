@@ -17,11 +17,10 @@
  */
 package org.floens.chan.core.settings;
 
-import android.content.SharedPreferences;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
+import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.update.UpdateManager;
@@ -50,7 +49,7 @@ public class ChanSettings {
         }
 
         @Override
-        public String getName() {
+        public String getKey() {
             return name;
         }
     }
@@ -66,7 +65,7 @@ public class ChanSettings {
         }
 
         @Override
-        public String getName() {
+        public String getKey() {
             return name;
         }
     }
@@ -84,7 +83,7 @@ public class ChanSettings {
         }
 
         @Override
-        public String getName() {
+        public String getKey() {
             return name;
         }
     }
@@ -116,7 +115,6 @@ public class ChanSettings {
     public static final StringSetting saveLocation;
     public static final BooleanSetting saveOriginalFilename;
     public static final BooleanSetting shareUrl;
-    public static final BooleanSetting networkHttps;
     public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting anonymize;
     public static final BooleanSetting anonymizeIds;
@@ -143,10 +141,6 @@ public class ChanSettings {
     public static final BooleanSetting watchPeek;
     public static final StringSetting watchLed;
 
-    public static final StringSetting passToken;
-    public static final StringSetting passPin;
-    public static final StringSetting passId;
-
     public static final BooleanSetting historyEnabled;
 
     public static final IntegerSetting previousVersion;
@@ -155,20 +149,20 @@ public class ChanSettings {
     public static final StringSetting proxyAddress;
     public static final IntegerSetting proxyPort;
 
-    public static final CounterSetting settingsOpenCounter;
     public static final CounterSetting historyOpenCounter;
-    public static final CounterSetting replyOpenCounter;
     public static final CounterSetting threadOpenCounter;
 
     public static final LongSetting updateCheckTime;
     public static final LongSetting updateCheckInterval;
 
+    public static final BooleanSetting crashReporting;
+
     static {
-        SharedPreferences p = AndroidUtils.getPreferences();
+        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
-        theme = new StringSetting(p, "preference_theme", "light");
+        theme = new StringSetting(p, "preference_theme", "yotsuba");
 
-        layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.values(), LayoutMode.AUTO);
+        layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
 
         boolean tablet = AndroidUtils.getRes().getBoolean(R.bool.is_tablet);
 
@@ -177,12 +171,12 @@ public class ChanSettings {
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
 //        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
-        imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
-        videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.values(), MediaAutoLoadMode.WIFI);
+        imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
+        videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
         textOnly = new BooleanSetting(p, "preference_text_only", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
-        boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.values(), PostViewMode.LIST);
+        boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
         boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
         boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name);
 
@@ -193,15 +187,10 @@ public class ChanSettings {
         developer = new BooleanSetting(p, "preference_developer", false);
 
         saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover");
-        saveLocation.addCallback(new Setting.SettingCallback<String>() {
-            @Override
-            public void onValueChange(Setting setting, String value) {
-                EventBus.getDefault().post(new SettingChanged<>(saveLocation));
-            }
-        });
+        saveLocation.addCallback((setting, value) ->
+                EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
-        networkHttps = new BooleanSetting(p, "preference_network_https", true);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
         anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
@@ -214,70 +203,44 @@ public class ChanSettings {
         volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
         postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
         postFileInfo = new BooleanSetting(p, "preference_post_file_info", true);
-        postFilename = new BooleanSetting(p, "preference_post_filename", false);
+        postFilename = new BooleanSetting(p, "preference_post_filename", true);
         neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
         controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
         saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
-        watchEnabled.addCallback(new Setting.SettingCallback<Boolean>() {
-            @Override
-            public void onValueChange(Setting setting, Boolean value) {
-                Chan.getWatchManager().onWatchEnabledChanged(value);
-            }
-        });
+        watchEnabled.addCallback((setting, value) ->
+                EventBus.getDefault().post(new SettingChanged<>(watchEnabled)));
         watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
-        watchBackground.addCallback(new Setting.SettingCallback<Boolean>() {
-            @Override
-            public void onValueChange(Setting setting, Boolean value) {
-                Chan.getWatchManager().onBackgroundWatchingChanged(value);
-            }
-        });
+        watchBackground.addCallback((setting, value) ->
+                EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
         watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WatchManager.DEFAULT_BACKGROUND_INTERVAL);
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
         watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
         watchLed = new StringSetting(p, "preference_watch_led", "ffffffff");
 
-        passToken = new StringSetting(p, "preference_pass_token", "");
-        passPin = new StringSetting(p, "preference_pass_pin", "");
-        passId = new StringSetting(p, "preference_pass_id", "");
-
         historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
 
         previousVersion = new IntegerSetting(p, "preference_previous_version", 0);
 
         proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
-        proxyEnabled.addCallback(new Setting.SettingCallback<Boolean>() {
-            @Override
-            public void onValueChange(Setting setting, Boolean value) {
-                loadProxy();
-            }
-        });
         proxyAddress = new StringSetting(p, "preference_proxy_address", "");
-        proxyAddress.addCallback(new Setting.SettingCallback<String>() {
-            @Override
-            public void onValueChange(Setting setting, String value) {
-                loadProxy();
-            }
-        });
         proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
-        proxyPort.addCallback(new Setting.SettingCallback<Integer>() {
-            @Override
-            public void onValueChange(Setting setting, Integer value) {
-                loadProxy();
-            }
-        });
+
+        proxyEnabled.addCallback((setting, value) -> loadProxy());
+        proxyAddress.addCallback((setting, value) -> loadProxy());
+        proxyPort.addCallback((setting, value) -> loadProxy());
         loadProxy();
 
-        settingsOpenCounter = new CounterSetting(p, "counter_settings_open");
         historyOpenCounter = new CounterSetting(p, "counter_history_open");
-        replyOpenCounter = new CounterSetting(p, "counter_reply_open");
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
 
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
+
+        crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"
@@ -285,10 +248,17 @@ public class ChanSettings {
         // preference_pass_enabled default false
         // preference_autoplay false
         // preference_watch_background_timeout "60" the old timeout background setting in minutes
+        // preference_network_https true
+        // counter_settings_open
+        // counter_reply_open
     }
 
-    public static boolean passLoggedIn() {
-        return passId.get().length() > 0;
+    public static boolean isCrashReportingAvailable() {
+        return !BuildConfig.CRASH_REPORT_ENDPOINT.isEmpty();
+    }
+
+    public static boolean isCrashReportingEnabled() {
+        return isCrashReportingAvailable() && crashReporting.get();
     }
 
     public static ThemeColor getThemeAndColor() {

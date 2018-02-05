@@ -34,21 +34,16 @@ public class ToolbarMenu extends LinearLayout {
     private List<ToolbarMenuItem> items = new ArrayList<>();
 
     public ToolbarMenu(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public ToolbarMenu(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
-    public ToolbarMenu(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
+    public ToolbarMenu(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
 
-    private void init() {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
     }

@@ -30,7 +30,7 @@ import org.floens.chan.utils.AndroidUtils;
 
 /**
  * A Theme<br>
- * Used for setting the toolbar color, and passed around {@link org.floens.chan.chan.ChanParser} to give the spans the correct color.<br>
+ * Used for setting the toolbar color, and passed around {@link org.floens.chan.core.site.common.ChanParser} to give the spans the correct color.<br>
  * Technically should the parser not do UI, but it is important that the spans do not get created on an UI thread for performance.
  */
 public class Theme {
@@ -168,7 +168,7 @@ public class Theme {
 
         public Drawable makeDrawable(Context context) {
             //noinspection deprecation
-            Drawable d = context.getResources().getDrawable(drawable);
+            Drawable d = context.getResources().getDrawable(drawable).mutate();
             d.setAlpha(intAlpha);
             return d;
         }

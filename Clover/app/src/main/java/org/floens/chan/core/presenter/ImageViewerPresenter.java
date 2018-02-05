@@ -20,21 +20,30 @@ package org.floens.chan.core.presenter;
 import android.net.ConnectivityManager;
 import android.support.v4.view.ViewPager;
 
-import org.floens.chan.Chan;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.isConnected;
 
 public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
     private static final String TAG = "ImageViewerPresenter";
 
     private final Callback callback;
+
+    @Inject
+    FileCache fileCache;
 
     private boolean entering = true;
     private boolean exiting = false;
@@ -43,17 +52,22 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private int selectedPosition;
     private Loadable loadable;
 
+    private Set<FileCache.FileCacheDownloader> preloadingImages = new HashSet<>();
+
     // Disables swiping until the view pager is visible
     private boolean viewPagerVisible = false;
     private boolean changeViewsOnInTransitionEnd = false;
 
+    private boolean muted = true;
+
     public ImageViewerPresenter(Callback callback) {
         this.callback = callback;
+        inject(this);
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
         this.images = images;
-        selectedPosition = position;
+        selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
         this.loadable = loadable;
 
         progress = new ArrayList<>(images.size());
@@ -96,6 +110,14 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.setPreviewVisibility(true);
         callback.startPreviewOutTransition(postImage);
         callback.showProgress(false);
+
+        cancelPreloadingImages();
+    }
+
+    public void onVolumeClicked() {
+        muted = !muted;
+        callback.showVolumeMenuItem(true, muted);
+        callback.setVolume(getCurrentPostImage(), muted);
     }
 
     public List<PostImage> getAllPostImages() {
@@ -180,6 +202,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         callback.showProgress(progress.get(selectedPosition) >= 0f);
         callback.onLoadProgress(progress.get(selectedPosition));
+
+        // If it has audio, we'll know after it is loaded.
+        callback.showVolumeMenuItem(false, true);
     }
 
     // Called from either a page swipe caused a lowres image to the center or an
@@ -196,6 +221,64 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE);
             }
         }
+
+        preloadNext();
+    }
+
+    // This won't actually change any modes, but it will preload the image so that it's
+    // available immediately when the user swipes right.
+    private void preloadNext() {
+        if (selectedPosition + 1 < images.size()) {
+            PostImage next = images.get(selectedPosition + 1);
+
+            boolean load = false;
+            if (next.type == PostImage.Type.STATIC || next.type == PostImage.Type.GIF) {
+                load = imageAutoLoad(next);
+            } else if (next.type == PostImage.Type.MOVIE) {
+                load = videoAutoLoad(next);
+            }
+
+            if (load) {
+                final String fileUrl = next.imageUrl.toString();
+
+                // If downloading, remove from preloadingImages if it finished.
+                // Array to allow access from within the callback (the callback should really
+                // pass the filecachedownloader itself).
+                final FileCache.FileCacheDownloader[] preloadDownload =
+                        new FileCache.FileCacheDownloader[1];
+                preloadDownload[0] = fileCache.downloadFile(fileUrl,
+                        new FileCache.DownloadedCallback() {
+                            @Override
+                            public void onProgress(long downloaded, long total, boolean done) {
+                            }
+
+                            @Override
+                            public void onSuccess(File file) {
+                                if (preloadDownload[0] != null) {
+                                    preloadingImages.remove(preloadDownload[0]);
+                                }
+                            }
+
+                            @Override
+                            public void onFail(boolean notFound) {
+                                if (preloadDownload[0] != null) {
+                                    preloadingImages.remove(preloadDownload[0]);
+                                }
+                            }
+                        });
+
+                if (preloadDownload[0] != null) {
+                    preloadingImages.add(preloadDownload[0]);
+                }
+            }
+        }
+    }
+
+    private void cancelPreloadingImages() {
+        for (FileCache.FileCacheDownloader preloadingImage : preloadingImages) {
+            preloadingImage.cancel();
+        }
+        preloadingImages.clear();
     }
 
     @Override
@@ -262,9 +345,20 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         callback.onVideoError(multiImageView);
     }
 
+    @Override
+    public void onVideoLoaded(MultiImageView multiImageView, boolean hasAudio) {
+        PostImage currentPostImage = getCurrentPostImage();
+        if (multiImageView.getPostImage() == currentPostImage) {
+            if (hasAudio) {
+                callback.showVolumeMenuItem(true, muted);
+                callback.setVolume(currentPostImage, muted);
+            }
+        }
+    }
+
     private boolean imageAutoLoad(PostImage postImage) {
         // Auto load the image when it is cached
-        return Chan.getFileCache().exists(postImage.imageUrl) || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
+        return fileCache.exists(postImage.imageUrl.toString()) || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
     }
 
     private boolean videoAutoLoad(PostImage postImage) {
@@ -316,6 +410,8 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         void setImageMode(PostImage postImage, MultiImageView.Mode mode);
 
+        void setVolume(PostImage postImage, boolean muted);
+
         void setTitle(PostImage postImage, int index, int count, boolean spoiler);
 
         void scrollToImage(PostImage postImage);
@@ -327,5 +423,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         void onLoadProgress(float progress);
 
         void onVideoError(MultiImageView multiImageView);
+
+        void showVolumeMenuItem(boolean show, boolean muted);
     }
 }

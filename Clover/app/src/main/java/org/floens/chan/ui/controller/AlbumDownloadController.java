@@ -33,7 +33,7 @@ import android.widget.ImageView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.saver.ImageSaveTask;
 import org.floens.chan.core.saver.ImageSaver;
@@ -79,13 +79,13 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
 
         updateTitle();
 
-        navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, CHECK_ALL, R.drawable.ic_select_all_white_24dp));
+        navigation.menu = new ToolbarMenu(context);
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, CHECK_ALL, R.drawable.ic_select_all_white_24dp));
 
-        download = (FloatingActionButton) view.findViewById(R.id.download);
+        download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
         theme().applyFabColor(download);
-        recyclerView = (GridRecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         gridLayoutManager = new GridLayoutManager(context, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -167,8 +167,8 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
     }
 
     private void updateTitle() {
-        navigationItem.title = context.getString(R.string.album_download_screen, getCheckCount(), items.size());
-        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigationItem);
+        navigation.title = context.getString(R.string.album_download_screen, getCheckCount(), items.size());
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
     }
 
     private void updateAllChecked() {
@@ -233,8 +233,8 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
         public AlbumDownloadCell(View itemView) {
             super(itemView);
             itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
-            checkbox = (ImageView) itemView.findViewById(R.id.checkbox);
-            thumbnailView = (PostImageThumbnailView) itemView.findViewById(R.id.thumbnail_view);
+            checkbox = itemView.findViewById(R.id.checkbox);
+            thumbnailView = itemView.findViewById(R.id.thumbnail_view);
             itemView.setOnClickListener(this);
         }
 

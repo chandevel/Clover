@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.helper;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -28,51 +29,79 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import org.floens.chan.R;
+import org.floens.chan.utils.AndroidUtils;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class HintPopup {
-    public static PopupWindow show(Context context, View anchor, int text) {
+    public static HintPopup show(Context context, View anchor, int text) {
         return show(context, anchor, getString(text));
     }
 
-    public static PopupWindow show(final Context context, final View anchor, final String text) {
+    public static HintPopup show(final Context context, final View anchor, final String text) {
         return show(context, anchor, text, 0, 0);
     }
 
-    public static PopupWindow show(final Context context, final View anchor, final String text, final int offsetX, final int offsetY) {
-        final LinearLayout popupView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.popup_hint, null);
+    public static HintPopup show(final Context context, final View anchor, final String text, final int offsetX, final int offsetY) {
+        HintPopup hintPopup = new HintPopup(context, anchor, text, offsetX, offsetY, false);
+        hintPopup.show();
+        return hintPopup;
+    }
 
-        TextView textView = (TextView) popupView.findViewById(R.id.text);
+    private TextView textView;
+    private PopupWindow popupWindow;
+    private LinearLayout popupView;
+    private final View anchor;
+    private String text;
+    private final int offsetX;
+    private final int offsetY;
+    private final boolean top;
+    private boolean dismissed;
+
+    public HintPopup(Context context, final View anchor, final String text, final int offsetX, final int offsetY, final boolean top) {
+        this.anchor = anchor;
+        this.text = text;
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.top = top;
+
+        createView(context);
+    }
+
+    @SuppressLint("InflateParams")
+    private void createView(Context context) {
+        popupView = (LinearLayout) LayoutInflater.from(context)
+                .inflate(top ? R.layout.popup_hint_top : R.layout.popup_hint, null);
+
+        textView = popupView.findViewById(R.id.text);
         textView.setText(text);
 
-        final PopupWindow popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        popupView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupWindow.dismiss();
-            }
+        popupView.setOnClickListener(v -> {
+//                popupWindow.dismiss();
         });
+    }
 
-        popupView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+    public void show() {
+        AndroidUtils.runOnUiThread(() -> {
+            if (!dismissed) {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-                popupWindow.showAsDropDown(anchor, -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX, -dp(25) + offsetY);
+                // TODO: cleanup
+                int xoff = -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX - dp(2);
+                int yoff = -dp(25) + offsetY + (top ? -anchor.getHeight() - dp(30) : 0);
+                popupWindow.showAsDropDown(anchor, xoff, yoff);
             }
-        }, 100);
+        }, 400);
 
-        popupView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                popupWindow.dismiss();
-            }
-        }, 5000);
+        // popupView.postDelayed(popupWindow::dismiss, 5000);
+    }
 
-        return popupWindow;
+    public void dismiss() {
+        popupWindow.dismiss();
+        dismissed = true;
     }
 }

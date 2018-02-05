@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
@@ -72,8 +73,8 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        title = (TextView) findViewById(R.id.title);
-        options = (ImageView) findViewById(R.id.options);
+        title = findViewById(R.id.title);
+        options = findViewById(R.id.options);
         setRoundItemBackground(options);
         divider = findViewById(R.id.divider);
 
@@ -139,7 +140,8 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     }
 
     public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
-                        boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode) {
+                        boolean selectable, boolean highlighted, boolean selected, int markedNo,
+                        boolean showDivider, ChanSettings.PostViewMode postViewMode) {
         if (this.post == post) {
             return;
         }
@@ -166,7 +168,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         return post;
     }
 
-    public ThumbnailView getThumbnailView() {
+    public ThumbnailView getThumbnailView(PostImage postImage) {
         return null;
     }
 

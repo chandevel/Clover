@@ -200,6 +200,76 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="dropdown_dark_pressed_color">#ffffffff</item>
     </style>
 
+    <style name="Chan.Theme.Gruvbox" parent="Chan.Theme.Dark">
+        <item name="colorAccent">#ebdbb2</item>
+
+        <item name="backcolor">#282828</item>
+        <item name="backcolor_secondary">#3c3836</item>
+
+        <item name="android:textColor">#ebdbb2</item>
+        <item name="text_color_primary">#ebdbb2</item>
+        <item name="text_color_secondary">#d5c4a1</item>
+        <item name="text_color_hint">#bdae93</item>
+        <item name="text_color_reveal_spoiler">#282828</item>
+
+        <item name="post_name_color">#427b58</item>
+        <item name="post_subject_color">#458588</item>
+        <item name="post_details_color">#a89984</item>
+        <item name="post_quote_color">#9d0006</item>
+        <item name="post_highlight_quote_color">#cc241d</item>
+        <item name="post_inline_quote_color">#79740e</item>
+        <item name="post_link_color">#458588</item>
+        <item name="post_spoiler_color">#ebdbb2</item>
+        <item name="post_capcode_color">#9d0006</item>
+        <item name="post_last_seen_color">#9d0006</item>
+
+        <item name="post_id_background_light">#ebdbb2</item>
+        <item name="post_saved_reply_color">#3c3836</item>
+        <item name="post_highlighted_color">#3c3836</item>
+        <item name="post_selected_color">#3c3836</item>
+
+        <item name="divider_color">#3c3836</item>
+        <item name="divider_split_color">#3c3836</item>
+
+        <item name="dropdown_dark_color">#ffffff</item>
+        <item name="dropdown_dark_pressed_color">#ffffff</item>
+    </style>
+
+    <style name="Chan.Theme.Neon" parent="Chan.Theme.Dark">
+        <item name="colorAccent">#999999</item>
+
+        <item name="backcolor">#222222</item>
+        <item name="backcolor_secondary">#555555</item>
+
+        <item name="android:textColor">#888888</item>
+        <item name="text_color_primary">#cccccc</item>
+        <item name="text_color_secondary">#dddddd</item>
+        <item name="text_color_hint">#808080</item>
+        <item name="text_color_reveal_spoiler">#282828</item>
+
+        <item name="post_name_color">#ff669900</item>
+        <item name="post_subject_color">#33b5e5</item>
+        <item name="post_details_color">#888888</item>
+        <item name="post_quote_color">#33b5e5</item>
+        <item name="post_highlight_quote_color">#ff0099cc</item>
+        <item name="post_inline_quote_color">#ff99cc00</item>
+        <item name="post_link_color">#ff0099cc</item>
+        <item name="post_spoiler_color">#bbbbbb</item>
+        <item name="post_capcode_color">#ff00ddff</item>
+        <item name="post_last_seen_color">#ff00ddff</item>
+
+        <item name="post_id_background_light">#6633b5e5</item>
+        <item name="post_saved_reply_color">#333333</item>
+        <item name="post_highlighted_color">#282828</item>
+        <item name="post_selected_color">#282828</item>
+
+        <item name="divider_color">#999999</item>
+        <item name="divider_split_color">#999999</item>
+
+        <item name="dropdown_dark_color">#6633b5e5</item>
+        <item name="dropdown_dark_pressed_color">#6633b5e5</item>
+    </style>
+
     <!-- For FloatingMenu -->
     <style name="ToolbarDropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
         <item name="android:background">#ffffffff</item>

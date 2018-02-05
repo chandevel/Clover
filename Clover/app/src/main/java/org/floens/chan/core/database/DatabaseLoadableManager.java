@@ -21,7 +21,8 @@ import android.util.Log;
 
 import com.j256.ormlite.stmt.QueryBuilder;
 
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
@@ -93,8 +94,8 @@ public class DatabaseLoadableManager {
         // We only cache THREAD loadables in the db
         if (loadable.isThreadMode()) {
             long start = Time.startTiming();
-            Loadable result = databaseManager.runTaskSync(getLoadable(loadable));
-            Time.endTiming("get loadable from db " + loadable.board, start);
+            Loadable result = databaseManager.runTask(getLoadable(loadable));
+            Time.endTiming("get loadable from db " + loadable.boardCode, start);
             return result;
         } else {
             return loadable;
@@ -123,6 +124,8 @@ public class DatabaseLoadableManager {
 
         // Add it to the cache, refresh contents
         helper.loadableDao.refresh(loadable);
+        loadable.site = Sites.forId(loadable.siteId);
+        loadable.board = loadable.site.board(loadable.boardCode);
         cachedLoadables.put(loadable, loadable);
         return loadable;
     }
@@ -142,8 +145,9 @@ public class DatabaseLoadableManager {
                 } else {
                     QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
                     List<Loadable> results = builder.where()
+                            .eq("site", loadable.siteId).and()
                             .eq("mode", loadable.mode)
-                            .and().eq("board", loadable.board)
+                            .and().eq("board", loadable.boardCode)
                             .and().eq("no", loadable.no)
                             .query();
 
@@ -161,6 +165,8 @@ public class DatabaseLoadableManager {
                         result = loadable;
                     } else {
                         Log.d(TAG, "Loadable found in db");
+                        result.site = Sites.forId(result.siteId);
+                        result.board = result.site.board(result.boardCode);
                     }
 
                     cachedLoadables.put(result, result);

@@ -17,16 +17,23 @@
  */
 package org.floens.chan.core.settings;
 
-import android.content.SharedPreferences;
-
-public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
+public class OptionsSetting<T extends Enum & OptionSettingItem> extends Setting<T> {
     private boolean hasCached = false;
+
+    private Class<T> clazz;
+
     private T cached;
     private T[] items;
 
-    public OptionsSetting(SharedPreferences sharedPreferences, String key, T[] items, T def) {
-        super(sharedPreferences, key, def);
-        this.items = items;
+    public OptionsSetting(SettingProvider settingProvider, String key, Class<T> clazz, T def) {
+        super(settingProvider, key, def);
+
+        this.clazz = clazz;
+        this.items = clazz.getEnumConstants();
+    }
+
+    public T[] getItems() {
+        return items;
     }
 
     @Override
@@ -34,10 +41,10 @@ public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
         if (hasCached) {
             return cached;
         } else {
-            String itemName = sharedPreferences.getString(key, def.getName());
+            String itemName = settingProvider.getString(key, def.getKey());
             T selectedItem = null;
             for (T item : items) {
-                if (item.getName().equals(itemName)) {
+                if (item.getKey().equals(itemName)) {
                     selectedItem = item;
                 }
             }
@@ -54,7 +61,7 @@ public class OptionsSetting<T extends OptionSettingItem> extends Setting<T> {
     @Override
     public void set(T value) {
         if (!value.equals(get())) {
-            sharedPreferences.edit().putString(key, value.getName()).apply();
+            settingProvider.putString(key, value.getKey());
             cached = value;
             onValueChanged();
         }

@@ -36,7 +36,7 @@ public class LicensesController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.title = title;
+        navigation.title = title;
 
         WebView webView = new WebView(context);
         webView.loadUrl(url);

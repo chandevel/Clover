@@ -19,38 +19,40 @@ package org.floens.chan.core.presenter;
 
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanUrls;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.http.ReplyHttpCall;
-import org.floens.chan.core.http.ReplyManager;
-import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WatchManager;
-import org.floens.chan.core.model.Board;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.Reply;
-import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.core.site.http.ReplyResponse;
+import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
+import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.ui.layout.CaptchaCallback;
-import org.floens.chan.ui.layout.CaptchaLayoutInterface;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>, CaptchaCallback, ImagePickDelegate.ImagePickCallback {
+public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, Site.PostListener {
     public enum Page {
         INPUT,
-        CAPTCHA,
+        AUTHENTICATION,
         LOADING
     }
 
@@ -60,7 +62,6 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     private ReplyPresenterCallback callback;
 
     private ReplyManager replyManager;
-    private BoardManager boardManager;
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
 
@@ -73,15 +74,19 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     private boolean moreOpen;
     private boolean previewOpen;
     private boolean pickingFile;
-    private boolean captchaInited;
     private int selectedQuote = -1;
 
-    public ReplyPresenter(ReplyPresenterCallback callback) {
+    @Inject
+    public ReplyPresenter(ReplyManager replyManager,
+                          WatchManager watchManager,
+                          DatabaseManager databaseManager) {
+        this.replyManager = replyManager;
+        this.watchManager = watchManager;
+        this.databaseManager = databaseManager;
+    }
+
+    public void create(ReplyPresenterCallback callback) {
         this.callback = callback;
-        replyManager = Chan.getReplyManager();
-        boardManager = Chan.getBoardManager();
-        watchManager = Chan.getWatchManager();
-        databaseManager = Chan.getDatabaseManager();
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -91,7 +96,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         bound = true;
         this.loadable = loadable;
 
-        this.board = boardManager.getBoardByCode(loadable.board);
+        this.board = loadable.board;
 
         draft = replyManager.getReply(loadable);
 
@@ -102,13 +107,10 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         callback.loadDraftIntoViews(draft);
         callback.updateCommentCount(0, board.maxCommentChars, false);
         callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+        callback.showCommentCounter(board.maxCommentChars > 0);
 
         if (draft.file != null) {
             showPreview(draft.fileName, draft.file);
-        }
-
-        if (captchaInited) {
-            callback.resetCaptcha();
         }
 
         switchPage(Page.INPUT, false);
@@ -127,17 +129,13 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     public void onOpen(boolean open) {
         if (open) {
             callback.focusComment();
-
-            if (ChanSettings.replyOpenCounter.increase() == 2) {
-                callback.showMoreHint();
-            }
         }
     }
 
     public boolean onBack() {
         if (page == Page.LOADING) {
             return true;
-        } else if (page == Page.CAPTCHA) {
+        } else if (page == Page.AUTHENTICATION) {
             switchPage(Page.INPUT, true);
             return true;
         } else if (moreOpen) {
@@ -149,9 +147,14 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
     public void onMoreClicked() {
         moreOpen = !moreOpen;
+        callback.setExpanded(moreOpen);
         callback.openNameOptions(moreOpen);
         if (!loadable.isThreadMode()) {
             callback.openSubject(moreOpen);
+        }
+        callback.openCommentQuoteButton(moreOpen);
+        if (board.spoilers) {
+            callback.openCommentSpoilerButton(moreOpen);
         }
         if (previewOpen) {
             callback.openFileName(moreOpen);
@@ -159,6 +162,10 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
                 callback.openSpoiler(moreOpen, false);
             }
         }
+    }
+
+    public boolean isExpanded() {
+        return moreOpen;
     }
 
     public void onAttachClicked() {
@@ -183,39 +190,40 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
     public void onSubmitClicked() {
         callback.loadViewsIntoDraft(draft);
-        draft.board = loadable.board;
-        draft.resto = loadable.isThreadMode() ? loadable.no : -1;
-
-        if (ChanSettings.passLoggedIn()) {
-            draft.usePass = true;
-            draft.passId = ChanSettings.passId.get();
-        } else {
-            draft.usePass = false;
-            draft.passId = null;
-        }
+        draft.loadable = loadable;
 
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
 
         draft.captchaResponse = null;
-        if (draft.usePass) {
-            makeSubmitCall();
+        if (loadable.site.postRequiresAuthentication()) {
+            switchPage(Page.AUTHENTICATION, true);
         } else {
-            switchPage(Page.CAPTCHA, true);
+            makeSubmitCall();
         }
     }
 
     @Override
-    public void onHttpSuccess(ReplyHttpCall replyCall) {
-        if (replyCall.posted) {
-            if (ChanSettings.postPinThread.get() && loadable.isThreadMode()) {
-                ChanThread thread = callback.getThread();
-                if (thread != null) {
-                    watchManager.createPin(loadable, thread.op);
+    public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
+        if (replyResponse.posted) {
+            if (ChanSettings.postPinThread.get()) {
+                if (loadable.isThreadMode()) {
+                    ChanThread thread = callback.getThread();
+                    if (thread != null) {
+                        watchManager.createPin(loadable, thread.op);
+                    }
+                } else {
+                    Loadable postedLoadable = databaseManager.getDatabaseLoadableManager()
+                            .get(Loadable.forThread(loadable.site, loadable.board,
+                                    replyResponse.postNo));
+
+                    watchManager.createPin(postedLoadable);
                 }
             }
 
-            SavedReply savedReply = new SavedReply(loadable.board, replyCall.postNo, replyCall.password);
-            databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+            SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
+                    loadable.site, loadable.board, replyResponse.postNo, replyResponse.password);
+            databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
+                    .saveReply(savedReply));
 
             switchPage(Page.INPUT, false);
             closeAll();
@@ -228,33 +236,32 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
             callback.onPosted();
 
             if (bound && !loadable.isThreadMode()) {
-                callback.showThread(databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.board, replyCall.postNo)));
+                callback.showThread(databaseManager.getDatabaseLoadableManager().get(
+                        Loadable.forThread(loadable.site, loadable.board, replyResponse.postNo)));
             }
+        } else if (replyResponse.requireAuthentication) {
+            switchPage(Page.AUTHENTICATION, true);
         } else {
-            if (replyCall.errorMessage == null) {
-                replyCall.errorMessage = getString(R.string.reply_error);
+            if (replyResponse.errorMessage == null) {
+                replyResponse.errorMessage = getString(R.string.reply_error);
             }
 
             switchPage(Page.INPUT, true);
-            callback.openMessage(true, false, replyCall.errorMessage, true);
+            callback.openMessage(true, false, replyResponse.errorMessage, true);
         }
     }
 
     @Override
-    public void onHttpFail(ReplyHttpCall httpPost) {
+    public void onPostError(HttpCall httpCall) {
         switchPage(Page.INPUT, true);
         callback.openMessage(true, false, getString(R.string.reply_error), true);
     }
 
     @Override
-    public void captchaLoaded(CaptchaLayoutInterface captchaLayout) {
-    }
-
-    @Override
-    public void captchaEntered(CaptchaLayoutInterface captchaLayout, String challenge, String response) {
+    public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout, String challenge, String response) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
-        captchaLayout.reset();
+        authenticationLayout.reset();
         makeSubmitCall();
     }
 
@@ -268,30 +275,60 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         highlightQuotes();
     }
 
+    public void commentQuoteClicked() {
+        commentInsert(">");
+    }
+
+    public void commentSpoilerClicked() {
+        commentInsert("[spoiler]", "[/spoiler]");
+    }
+
     public void quote(Post post, boolean withText) {
+        handleQuote(post, withText ? post.comment.toString() : null);
+    }
+
+    public void quote(Post post, CharSequence text) {
+        handleQuote(null, text.toString());
+    }
+
+    private void handleQuote(Post post, String textQuote) {
         callback.loadViewsIntoDraft(draft);
 
-        String textToInsert = "";
-        if (draft.selection - 1 >= 0 && draft.selection - 1 < draft.comment.length() && draft.comment.charAt(draft.selection - 1) != '\n') {
-            textToInsert += "\n";
+        String extraNewline = "";
+        if (draft.selection - 1 >= 0 && draft.selection - 1 < draft.comment.length() &&
+                draft.comment.charAt(draft.selection - 1) != '\n') {
+            extraNewline = "\n";
         }
 
-        textToInsert += ">>" + post.no + "\n";
+        String postQuote = post != null ? ">>" + post.no + "\n" : "";
 
-        if (withText) {
-            String[] lines = post.comment.toString().split("\n+");
+        StringBuilder textQuoteResult = new StringBuilder();
+        if (textQuote != null) {
+            String[] lines = textQuote.split("\n+");
+            // matches for >>123, >>123 (OP), >>123 (You), >>>/fit/123
+            final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$");
             for (String line : lines) {
-                textToInsert += ">" + line + "\n";
+                // do not include post no from quoted post
+                if (!quotePattern.matcher(line).matches()) {
+                    textQuoteResult.append(">").append(line).append("\n");
+                }
             }
         }
 
-        draft.comment = new StringBuilder(draft.comment).insert(draft.selection, textToInsert).toString();
-
-        draft.selection += textToInsert.length();
-
-        callback.loadDraftIntoViews(draft);
+        commentInsert(extraNewline + postQuote + textQuoteResult.toString());
 
         highlightQuotes();
+    }
+
+    private void commentInsert(String insertBefore) {
+        commentInsert(insertBefore, "");
+    }
+
+    private void commentInsert(String insertBefore, String insertAfter) {
+        draft.comment = new StringBuilder(draft.comment)
+                .insert(draft.selection, insertBefore + insertAfter).toString();
+        draft.selection += insertBefore.length();
+        callback.loadDraftIntoViews(draft);
     }
 
     @Override
@@ -320,7 +357,10 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         previewOpen = false;
         selectedQuote = -1;
         callback.openMessage(false, true, "", false);
+        callback.setExpanded(false);
         callback.openSubject(false);
+        callback.openCommentQuoteButton(false);
+        callback.openCommentSpoilerButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
         callback.openSpoiler(false, false);
@@ -329,7 +369,7 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
     }
 
     private void makeSubmitCall() {
-        replyManager.makeHttpCall(new ReplyHttpCall(draft), this);
+        loadable.getSite().post(draft, this);
         switchPage(Page.LOADING, true);
     }
 
@@ -343,17 +383,12 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
                 case INPUT:
                     callback.setPage(Page.INPUT, animate);
                     break;
-                case CAPTCHA:
-                    callback.setCaptchaVersion(ChanSettings.postNewCaptcha.get() || loadable.isCatalogMode());
-                    callback.setPage(Page.CAPTCHA, true);
+                case AUTHENTICATION:
+                    Authentication authentication = loadable.site.postAuthenticate();
 
-                    if (!captchaInited) {
-                        captchaInited = true;
-                        String baseUrl = loadable.isThreadMode() ?
-                                ChanUrls.getThreadUrlDesktop(loadable.board, loadable.no) :
-                                ChanUrls.getBoardUrlDesktop(loadable.board);
-                        callback.initCaptcha(baseUrl, ChanUrls.getCaptchaSiteKey(), this);
-                    }
+                    callback.initializeAuthentication(loadable.site, authentication, this);
+                    callback.setPage(Page.AUTHENTICATION, true);
+
                     break;
             }
         }
@@ -412,11 +447,10 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
         void setPage(Page page, boolean animate);
 
-        void setCaptchaVersion(boolean newCaptcha);
+        void initializeAuthentication(Site site, Authentication authentication,
+                                      AuthenticationLayoutCallback callback);
 
-        void initCaptcha(String baseUrl, String siteKey, CaptchaCallback callback);
-
-        void resetCaptcha();
+        void resetAuthentication();
 
         void openMessage(boolean open, boolean animate, String message, boolean autoHide);
 
@@ -424,9 +458,17 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
 
         void setCommentHint(String hint);
 
+        void showCommentCounter(boolean show);
+
+        void setExpanded(boolean expanded);
+
         void openNameOptions(boolean open);
 
         void openSubject(boolean open);
+
+        void openCommentQuoteButton(boolean open);
+
+        void openCommentSpoilerButton(boolean open);
 
         void openFileName(boolean open);
 
@@ -451,8 +493,6 @@ public class ReplyPresenter implements ReplyManager.HttpCallback<ReplyHttpCall>,
         ImagePickDelegate getImagePickDelegate();
 
         ChanThread getThread();
-
-        void showMoreHint();
 
         void focusComment();
     }

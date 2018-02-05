@@ -81,7 +81,7 @@ public class PostRepliesController extends Controller {
             }
         });
 
-        loadView = (LoadView) view.findViewById(R.id.loadview);
+        loadView = view.findViewById(R.id.loadview);
 
         if (Build.VERSION.SDK_INT >= 21) {
             statusBarColorPrevious = getWindow().getStatusBarColor();
@@ -111,9 +111,13 @@ public class PostRepliesController extends Controller {
                 if (view instanceof PostCellInterface) {
                     PostCellInterface postView = (PostCellInterface) view;
                     Post post = postView.getPost();
-                    if (post.hasImage && post.imageUrl.equals(postImage.imageUrl)) {
-                        thumbnail = postView.getThumbnailView();
-                        break;
+
+                    if (!post.images.isEmpty()) {
+                        for (int j = 0; j < post.images.size(); j++) {
+                            if (post.images.get(j).equalUrl(postImage)) {
+                                thumbnail = postView.getThumbnailView(postImage);
+                            }
+                        }
                     }
                 }
             }
@@ -143,7 +147,7 @@ public class PostRepliesController extends Controller {
             dataView = inflateRes(R.layout.layout_post_replies);
         }
 
-        listView = (ListView) dataView.findViewById(R.id.post_list);
+        listView = dataView.findViewById(R.id.post_list);
         listView.setDivider(null);
         listView.setDividerHeight(0);
 
@@ -166,8 +170,8 @@ public class PostRepliesController extends Controller {
         Drawable backDrawable = theme().backDrawable.makeDrawable(context);
         Drawable doneDrawable = theme().doneDrawable.makeDrawable(context);
 
-        TextView repliesBackText = ((TextView) dataView.findViewById(R.id.replies_back_icon));
-        TextView repliesCloseText = ((TextView) dataView.findViewById(R.id.replies_close_icon));
+        TextView repliesBackText = dataView.findViewById(R.id.replies_back_icon);
+        TextView repliesCloseText = dataView.findViewById(R.id.replies_close_icon);
         repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
         repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
         if (theme().isLightTheme) {
@@ -191,7 +195,7 @@ public class PostRepliesController extends Controller {
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
-                postCell.setPost(null, p, presenter, false, false, data.forPost.no, showDivider, ChanSettings.PostViewMode.LIST);
+                postCell.setPost(null, p, presenter, false, false, false, data.forPost.no, showDivider, ChanSettings.PostViewMode.LIST);
 
                 return (View) postCell;
             }

@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.cell.AlbumViewCell;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -63,12 +63,12 @@ public class AlbumViewController extends Controller implements ImageViewerContro
 
         view = inflateRes(R.layout.controller_album_view);
 
-        navigationItem.menu = new ToolbarMenu(context);
+        navigation.menu = new ToolbarMenu(context);
         List<FloatingMenuItem> items = new ArrayList<>();
         items.add(new FloatingMenuItem(SAVE_ALBUM_ID, R.string.action_download_album));
-        navigationItem.createOverflow(context, this, items);
+        navigation.createOverflow(context, this, items);
 
-        recyclerView = (GridRecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         gridLayoutManager = new GridLayoutManager(context, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -83,8 +83,8 @@ public class AlbumViewController extends Controller implements ImageViewerContro
     public void setImages(Loadable loadable, List<PostImage> postImages, int index, String title) {
         this.loadable = loadable;
         this.postImages = postImages;
-        navigationItem.title = title;
-        navigationItem.subtitle = context.getResources().getQuantityString(R.plurals.image, postImages.size(), postImages.size());
+        navigation.title = title;
+        navigation.subtitle = context.getResources().getQuantityString(R.plurals.image, postImages.size(), postImages.size());
         targetIndex = index;
     }
 
@@ -199,7 +199,7 @@ public class AlbumViewController extends Controller implements ImageViewerContro
         public AlbumItemCellHolder(View itemView) {
             super(itemView);
             cell = (AlbumViewCell) itemView;
-            thumbnailView = (PostImageThumbnailView) itemView.findViewById(R.id.thumbnail_view);
+            thumbnailView = itemView.findViewById(R.id.thumbnail_view);
             thumbnailView.setOnClickListener(this);
         }
 

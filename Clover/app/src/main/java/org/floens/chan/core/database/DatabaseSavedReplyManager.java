@@ -17,10 +17,14 @@
  */
 package org.floens.chan.core.database;
 
+import android.support.annotation.AnyThread;
+
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
-import org.floens.chan.core.model.SavedReply;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.SavedReply;
+import org.floens.chan.core.site.Sites;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -29,14 +33,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+/**
+ * Saved replies are posts-password combinations used to track what posts are posted by the app,
+ * and used to delete posts.
+ */
 public class DatabaseSavedReplyManager {
     private static final String TAG = "DatabaseSavedReplyManager";
 
     private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
 
-    private DatabaseManager databaseManager;
-    private DatabaseHelper helper;
+    private final DatabaseManager databaseManager;
+    private final DatabaseHelper helper;
 
     private final Map<Integer, List<SavedReply>> savedRepliesByNo = new HashMap<>();
 
@@ -45,14 +53,23 @@ public class DatabaseSavedReplyManager {
         this.helper = helper;
     }
 
-    // optimized and threadsafe
-    public boolean isSaved(String board, int no) {
+    /**
+     * Check if the given board-no combination is in the database.<br>
+     * This is unlike other methods in that it immediately returns the result instead of
+     * a Callable. This method is thread-safe and optimized.
+     *
+     * @param board  board of the post
+     * @param postNo post number
+     * @return {@code true} if the post is in the saved reply database, {@code false} otherwise.
+     */
+    @AnyThread
+    public boolean isSaved(Board board, int postNo) {
         synchronized (savedRepliesByNo) {
-            if (savedRepliesByNo.containsKey(no)) {
-                List<SavedReply> items = savedRepliesByNo.get(no);
+            if (savedRepliesByNo.containsKey(postNo)) {
+                List<SavedReply> items = savedRepliesByNo.get(postNo);
                 for (int i = 0; i < items.size(); i++) {
                     SavedReply item = items.get(i);
-                    if (item.board.equals(board)) {
+                    if (item.board.equals(board.code) && item.siteId == board.site.id()) {
                         return true;
                     }
                 }
@@ -64,74 +81,69 @@ public class DatabaseSavedReplyManager {
     }
 
     public Callable<Void> load() {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                databaseManager.trimTable(helper.savedDao, "savedreply", SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
+        return () -> {
+            databaseManager.trimTable(helper.savedDao, "savedreply",
+                    SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
 
-                final List<SavedReply> all = helper.savedDao.queryForAll();
+            final List<SavedReply> all = helper.savedDao.queryForAll();
 
-                synchronized (savedRepliesByNo) {
-                    savedRepliesByNo.clear();
-                    for (int i = 0; i < all.size(); i++) {
-                        SavedReply savedReply = all.get(i);
-                        if (savedRepliesByNo.containsKey(savedReply.no)) {
-                            savedRepliesByNo.get(savedReply.no).add(savedReply);
-                        } else {
-                            List<SavedReply> items = new ArrayList<>();
-                            items.add(savedReply);
-                            savedRepliesByNo.put(savedReply.no, items);
-                        }
+            synchronized (savedRepliesByNo) {
+                savedRepliesByNo.clear();
+                for (int i = 0; i < all.size(); i++) {
+                    SavedReply savedReply = all.get(i);
+
+                    savedReply.site = Sites.forId(savedReply.siteId);
+
+                    List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
+                    if (list == null) {
+                        list = new ArrayList<>(1);
+                        savedRepliesByNo.put(savedReply.no, list);
                     }
+
+                    list.add(savedReply);
                 }
-                return null;
             }
+            return null;
         };
     }
 
     public Callable<Void> clearSavedReplies() {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                long start = Time.startTiming();
-                TableUtils.clearTable(helper.getConnectionSource(), SavedReply.class);
-                synchronized (savedRepliesByNo) {
-                    savedRepliesByNo.clear();
-                }
-                Time.endTiming("Clear saved replies", start);
-
-                return null;
+        return () -> {
+            long start = Time.startTiming();
+            TableUtils.clearTable(helper.getConnectionSource(), SavedReply.class);
+            synchronized (savedRepliesByNo) {
+                savedRepliesByNo.clear();
             }
+            Time.endTiming("Clear saved replies", start);
+
+            return null;
         };
     }
 
     public Callable<SavedReply> saveReply(final SavedReply savedReply) {
-        return new Callable<SavedReply>() {
-            @Override
-            public SavedReply call() throws Exception {
-                helper.savedDao.create(savedReply);
-                synchronized (savedRepliesByNo) {
-                    if (savedRepliesByNo.containsKey(savedReply.no)) {
-                        savedRepliesByNo.get(savedReply.no).add(savedReply);
-                    } else {
-                        List<SavedReply> items = new ArrayList<>();
-                        items.add(savedReply);
-                        savedRepliesByNo.put(savedReply.no, items);
-                    }
+        return () -> {
+            helper.savedDao.create(savedReply);
+            synchronized (savedRepliesByNo) {
+                List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
+                if (list == null) {
+                    list = new ArrayList<>(1);
+                    savedRepliesByNo.put(savedReply.no, list);
                 }
-                return savedReply;
+
+                list.add(savedReply);
             }
+            return savedReply;
         };
     }
 
-    public Callable<SavedReply> findSavedReply(final String board, final int no) {
-        return new Callable<SavedReply>() {
-            @Override
-            public SavedReply call() throws Exception {
-                QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
-                List<SavedReply> query = builder.where().eq("board", board).and().eq("no", no).query();
-                return query.isEmpty() ? null : query.get(0);
-            }
+    public Callable<SavedReply> findSavedReply(final Board board, final int no) {
+        return () -> {
+            QueryBuilder<SavedReply, Integer> builder = helper.savedDao.queryBuilder();
+            List<SavedReply> query = builder.where()
+                    .eq("site", board.site.id())
+                    .and().eq("board", board.code)
+                    .and().eq("no", no).query();
+            return query.isEmpty() ? null : query.get(0);
         };
     }
 }

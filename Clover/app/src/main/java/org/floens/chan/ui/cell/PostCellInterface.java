@@ -17,7 +17,8 @@
  */
 package org.floens.chan.ui.cell;
 
-import org.floens.chan.core.model.Loadable;
+import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
@@ -28,18 +29,26 @@ import org.floens.chan.ui.view.ThumbnailView;
 import java.util.List;
 
 public interface PostCellInterface {
-    void setPost(Theme theme, Post post, PostCellCallback callback, boolean highlighted, boolean selected, int markedNo, boolean showDivider, ChanSettings.PostViewMode postViewMode);
+    void setPost(Theme theme,
+                 Post post,
+                 PostCellCallback callback,
+                 boolean selectable,
+                 boolean highlighted,
+                 boolean selected,
+                 int markedNo,
+                 boolean showDivider,
+                 ChanSettings.PostViewMode postViewMode);
 
     Post getPost();
 
-    ThumbnailView getThumbnailView();
+    ThumbnailView getThumbnailView(PostImage postImage);
 
     interface PostCellCallback {
         Loadable getLoadable();
 
         void onPostClicked(Post post);
 
-        void onThumbnailClicked(Post post, ThumbnailView thumbnail);
+        void onThumbnailClicked(Post post, PostImage image, ThumbnailView thumbnail);
 
         void onShowPostReplies(Post post);
 
@@ -47,8 +56,10 @@ public interface PostCellInterface {
 
         void onPostOptionClicked(Post post, Object id);
 
-        void onPostLinkableClicked(PostLinkable linkable);
+        void onPostLinkableClicked(Post post, PostLinkable linkable);
 
         void onPostNoClicked(Post post);
+
+        void onPostSelectionQuoted(Post post, CharSequence quoted);
     }
 }

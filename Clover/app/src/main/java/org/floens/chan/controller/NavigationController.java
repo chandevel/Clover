@@ -19,13 +19,13 @@ package org.floens.chan.controller;
 
 import android.content.Context;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
 
 import org.floens.chan.controller.transition.PopControllerTransition;
 import org.floens.chan.controller.transition.PushControllerTransition;
-import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
 
 public abstract class NavigationController extends Controller {
-    protected NavigationControllerContainerLayout container;
+    protected ViewGroup container;
 
     protected ControllerTransition controllerTransition;
     protected boolean blockingInput = false;
@@ -50,9 +50,6 @@ public abstract class NavigationController extends Controller {
         if (from == null && controllerTransition != null) {
             throw new IllegalArgumentException("Cannot animate push when from is null");
         }
-
-        to.navigationController = this;
-        to.previousSiblingController = from;
 
         transition(from, to, true, controllerTransition);
 
@@ -118,6 +115,11 @@ public abstract class NavigationController extends Controller {
 
         if (!pushing && childControllers.size() == 0) {
             throw new IllegalArgumentException("Cannot pop with no controllers left");
+        }
+
+        if (to != null) {
+            to.navigationController = this;
+            to.previousSiblingController = from;
         }
 
         if (pushing && to != null) {

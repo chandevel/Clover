@@ -38,9 +38,9 @@ public class PopupController extends Controller implements View.OnClickListener 
         super.onCreate();
 
         view = inflateRes(R.layout.layout_controller_popup);
-        topView = (FrameLayout) view.findViewById(R.id.top_view);
+        topView = view.findViewById(R.id.top_view);
         topView.setOnClickListener(this);
-        container = (FrameLayout) view.findViewById(R.id.container);
+        container = view.findViewById(R.id.container);
     }
 
     public void setChildController(NavigationController childController) {
@@ -55,8 +55,8 @@ public class PopupController extends Controller implements View.OnClickListener 
     }
 
     public void dismiss() {
-        if (presentingByController instanceof DoubleNavigationController) {
-            ((SplitNavigationController) presentingByController).popAll();
+        if (presentedByController instanceof DoubleNavigationController) {
+            ((SplitNavigationController) presentedByController).popAll();
         }
     }
 }

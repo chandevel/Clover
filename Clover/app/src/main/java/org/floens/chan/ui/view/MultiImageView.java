@@ -20,8 +20,11 @@ package org.floens.chan.ui.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
+import android.os.StrictMode;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -36,7 +39,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.model.PostImage;
@@ -47,8 +49,12 @@ import org.floens.chan.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
+
+import static org.floens.chan.Chan.inject;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener {
     public enum Mode {
@@ -56,6 +62,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private static final String TAG = "MultiImageView";
+
+    @Inject
+    FileCache fileCache;
+
+    @Inject
+    ImageLoader imageLoader;
 
     private ImageView playView;
 
@@ -72,23 +84,21 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private VideoView videoView;
     private boolean videoError = false;
+    private MediaPlayer mediaPlayer;
 
     public MultiImageView(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public MultiImageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
-    public MultiImageView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
+    public MultiImageView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
 
-    private void init() {
+        inject(this);
+
         setOnClickListener(this);
 
         playView = new ImageView(getContext());
@@ -118,16 +128,16 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 public boolean onMeasured(View view) {
                     switch (newMode) {
                         case LOWRES:
-                            setThumbnail(postImage.thumbnailUrl);
+                            setThumbnail(postImage.getThumbnailUrl().toString());
                             break;
                         case BIGIMAGE:
-                            setBigImage(postImage.imageUrl);
+                            setBigImage(postImage.imageUrl.toString());
                             break;
                         case GIF:
-                            setGif(postImage.imageUrl);
+                            setGif(postImage.imageUrl.toString());
                             break;
                         case MOVIE:
-                            setVideo(postImage.imageUrl);
+                            setVideo(postImage.imageUrl.toString());
                             break;
                     }
                     return true;
@@ -154,6 +164,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return bigImage;
     }
 
+    public void setVolume(boolean muted) {
+        if (mediaPlayer != null) {
+            final float volume = muted ? 0f : 1f;
+            mediaPlayer.setVolume(volume, volume);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         callback.onTap(this);
@@ -176,7 +193,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         // Also use volley for the thumbnails
-        thumbnailRequest = Chan.getVolleyImageLoader().get(thumbnailUrl, new ImageLoader.ImageListener() {
+        thumbnailRequest = imageLoader.get(thumbnailUrl, new ImageLoader.ImageListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 thumbnailRequest = null;
@@ -214,7 +231,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        bigImageRequest = Chan.getFileCache().downloadFile(imageUrl, new FileCache.DownloadedCallback() {
+        bigImageRequest = fileCache.downloadFile(imageUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
@@ -256,7 +273,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        gifRequest = Chan.getFileCache().downloadFile(gifUrl, new FileCache.DownloadedCallback() {
+        gifRequest = fileCache.downloadFile(gifUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
@@ -320,7 +337,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        videoRequest = Chan.getFileCache().downloadFile(videoUrl, new FileCache.DownloadedCallback() {
+        videoRequest = fileCache.downloadFile(videoUrl, new FileCache.DownloadedCallback() {
             @Override
             public void onProgress(long downloaded, long total, boolean done) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
@@ -354,7 +371,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.fromFile(file), "video/*");
 
-            AndroidUtils.openIntent(intent);
+            {
+                StrictMode.VmPolicy vmPolicy = StrictMode.getVmPolicy();
+                StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
+
+                AndroidUtils.openIntent(intent);
+
+                StrictMode.setVmPolicy(vmPolicy);
+            }
+
             onModeLoaded(Mode.MOVIE, videoView);
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
@@ -363,23 +388,24 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             videoView.setZOrderOnTop(true);
             videoView.setMediaController(new MediaController(getContext()));
 
-            addView(videoView, 0, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                videoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
+            }
 
-            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.setLooping(true);
-                    onModeLoaded(Mode.MOVIE, videoView);
-                }
+            addView(videoView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
+
+            videoView.setOnPreparedListener(mp -> {
+                mediaPlayer = mp;
+                mp.setLooping(true);
+                mp.setVolume(0f, 0f);
+                onModeLoaded(Mode.MOVIE, videoView);
+                callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(mp));
             });
 
-            videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    onVideoError();
+            videoView.setOnErrorListener((mp, what, extra) -> {
+                onVideoError();
 
-                    return true;
-                }
+                return true;
             });
 
             videoView.setVideoPath(file.getAbsolutePath());
@@ -393,11 +419,37 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
     }
 
+    private boolean hasMediaPlayerAudioTracks(MediaPlayer mediaPlayer) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                for (MediaPlayer.TrackInfo trackInfo : mediaPlayer.getTrackInfo()) {
+                    if (trackInfo.getTrackType() == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+                        return true;
+                    }
+                }
+
+                return false;
+            } else {
+                // It'll just show the icon without doing anything. Remove when 4.0 is dropped.
+                return true;
+            }
+        } catch (IllegalStateException e) {
+            // getTrackInfo() raises an IllegalStateException on some devices.
+            // Return a default value.
+            return true;
+        }
+    }
+
     private void onVideoError() {
         if (!videoError) {
             videoError = true;
             callback.onVideoError(this);
         }
+    }
+
+    private void cleanupVideo(VideoView videoView) {
+        videoView.stopPlayback();
+        mediaPlayer = null;
     }
 
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
@@ -471,8 +523,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (child != playView) {
                     if (child != view) {
                         if (child instanceof VideoView) {
-                            VideoView item = (VideoView) child;
-                            item.stopPlayback();
+                            cleanupVideo((VideoView) child);
                         }
 
                         removeViewAt(i);
@@ -499,6 +550,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         void onProgress(MultiImageView multiImageView, long current, long total);
 
         void onVideoError(MultiImageView multiImageView);
+
+        void onVideoLoaded(MultiImageView multiImageView, boolean hasAudio);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
     }

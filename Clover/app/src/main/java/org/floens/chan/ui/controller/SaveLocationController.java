@@ -56,12 +56,12 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     public void onCreate() {
         super.onCreate();
 
-        navigationItem.setTitle(R.string.save_location_screen);
+        navigation.setTitle(R.string.save_location_screen);
 
         view = inflateRes(R.layout.controller_save_location);
-        filesLayout = (FilesLayout) view.findViewById(R.id.files_layout);
+        filesLayout = view.findViewById(R.id.files_layout);
         filesLayout.setCallback(this);
-        setButton = (FloatingActionButton) view.findViewById(R.id.set_button);
+        setButton = view.findViewById(R.id.set_button);
         setButton.setOnClickListener(this);
 
         File saveLocation = new File(ChanSettings.saveLocation.get());

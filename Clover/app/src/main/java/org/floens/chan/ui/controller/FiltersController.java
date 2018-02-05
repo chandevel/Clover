@@ -30,13 +30,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.FilterType;
-import org.floens.chan.core.model.Filter;
+import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.FilterLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
@@ -47,8 +46,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -57,8 +59,12 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     private static final int SEARCH_ID = 1;
     private static final int CLEAR_ID = 101;
 
-    private FilterEngine filterEngine;
-    private DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    FilterEngine filterEngine;
+
     private RecyclerView recyclerView;
     private FloatingActionButton add;
     private FilterAdapter adapter;
@@ -100,21 +106,19 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
     @Override
     public void onCreate() {
         super.onCreate();
+        inject(this);
 
-        filterEngine = FilterEngine.getInstance();
-        databaseManager = Chan.getDatabaseManager();
-
-        navigationItem.setTitle(R.string.filters_screen);
-        navigationItem.menu = new ToolbarMenu(context);
-        navigationItem.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
+        navigation.setTitle(R.string.filters_screen);
+        navigation.menu = new ToolbarMenu(context);
+        navigation.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
 
         view = inflateRes(R.layout.controller_filters);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
-        add = (FloatingActionButton) view.findViewById(R.id.add);
+        add = view.findViewById(R.id.add);
         add.setOnClickListener(this);
         theme().applyFabColor(add);
 
@@ -212,7 +216,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
             if (filter.allBoards) {
                 subText += context.getString(R.string.filter_summary_all_boards);
             } else {
-                int size = filterEngine.getBoardsForFilter(filter).size();
+                int size = filterEngine.getFilterBoardCount(filter);
                 subText += context.getResources().getQuantityString(R.plurals.board, size, size);
             }
 
@@ -238,7 +242,7 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
 
         private void load() {
             sourceList.clear();
-            sourceList.addAll(databaseManager.runTaskSync(databaseManager.getDatabaseFilterManager().getFilters()));
+            sourceList.addAll(databaseManager.runTask(databaseManager.getDatabaseFilterManager().getFilters()));
 
             filter();
         }
@@ -268,9 +272,9 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         public FilterCell(View itemView) {
             super(itemView);
 
-            text = (TextView) itemView.findViewById(R.id.text);
-            subtext = (TextView) itemView.findViewById(R.id.subtext);
-            delete = (ImageView) itemView.findViewById(R.id.delete);
+            text = itemView.findViewById(R.id.text);
+            subtext = itemView.findViewById(R.id.subtext);
+            delete = itemView.findViewById(R.id.delete);
 
             theme().clearDrawable.apply(delete);
 

@@ -19,9 +19,9 @@ package org.floens.chan.ui.adapter;
 
 import android.text.TextUtils;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,18 +30,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
+
 public class PostsFilter {
     public static final Comparator<Post> IMAGE_COMPARATOR = new Comparator<Post>() {
         @Override
         public int compare(Post lhs, Post rhs) {
-            return rhs.images - lhs.images;
+            return rhs.getImagesCount() - lhs.getImagesCount();
         }
     };
 
     public static final Comparator<Post> REPLY_COMPARATOR = new Comparator<Post>() {
         @Override
         public int compare(Post lhs, Post rhs) {
-            return rhs.replies - lhs.replies;
+            return rhs.getReplies() - lhs.getReplies();
         }
     };
 
@@ -59,7 +63,8 @@ public class PostsFilter {
         }
     };
 
-    private final DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
 
     private Order order;
     private String query;
@@ -67,7 +72,7 @@ public class PostsFilter {
     public PostsFilter(Order order, String query) {
         this.order = order;
         this.query = query;
-        databaseManager = Chan.getDatabaseManager();
+        inject(this);
     }
 
     /**
@@ -112,8 +117,13 @@ public class PostsFilter {
                     add = true;
                 } else if (item.name.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
                     add = true;
-                } else if (item.filename != null && item.filename.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
-                    add = true;
+                } else if (!item.images.isEmpty()) {
+                    for (PostImage image : item.images) {
+                        if (image.filename != null && image.filename.toLowerCase(Locale.ENGLISH)
+                                .contains(lowerQuery)) {
+                            add = true;
+                        }
+                    }
                 }
                 if (!add) {
                     i.remove();

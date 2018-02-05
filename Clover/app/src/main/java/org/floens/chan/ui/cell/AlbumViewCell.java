@@ -52,8 +52,8 @@ public class AlbumViewCell extends FrameLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        thumbnailView = (PostImageThumbnailView) findViewById(R.id.thumbnail_view);
-        text = (TextView) findViewById(R.id.text);
+        thumbnailView = findViewById(R.id.thumbnail_view);
+        text = findViewById(R.id.text);
     }
 
     public void setPostImage(PostImage postImage) {

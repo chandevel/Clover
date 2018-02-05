@@ -17,46 +17,137 @@
  */
 package org.floens.chan.core.model;
 
+import org.floens.chan.core.settings.ChanSettings;
+
+import okhttp3.HttpUrl;
+
 public class PostImage {
     public enum Type {
         STATIC, GIF, MOVIE
     }
 
-    public String originalName;
-    public String thumbnailUrl;
-    public String imageUrl;
-    public String filename;
-    public String extension;
-    public int imageWidth;
-    public int imageHeight;
-    public boolean spoiler;
-    public long size;
-    public String MD5;
+    public final String originalName;
+    public final HttpUrl thumbnailUrl;
+    public final HttpUrl spoilerThumbnailUrl;
+    public final HttpUrl imageUrl;
+    public final String filename;
+    public final String extension;
+    public final int imageWidth;
+    public final int imageHeight;
+    public final boolean spoiler;
+    public final long size;
 
-    public Type type;
+    public final Type type;
 
-    public PostImage(String originalName, String thumbnailUrl, String imageUrl, String filename, String extension, int imageWidth, int imageHeight, boolean spoiler, long size, String md5) {
-        this.originalName = originalName;
-        this.thumbnailUrl = thumbnailUrl;
-        this.imageUrl = imageUrl;
-        this.filename = filename;
-        this.extension = extension;
-        this.imageWidth = imageWidth;
-        this.imageHeight = imageHeight;
-        this.spoiler = spoiler;
-        this.size = size;
-        this.MD5 = md5;
+    private PostImage(Builder builder) {
+        this.originalName = builder.originalName;
+        this.thumbnailUrl = builder.thumbnailUrl;
+        this.spoilerThumbnailUrl = builder.spoilerThumbnailUrl;
+        this.imageUrl = builder.imageUrl;
+        this.filename = builder.filename;
+        this.extension = builder.extension;
+        this.imageWidth = builder.imageWidth;
+        this.imageHeight = builder.imageHeight;
+        this.spoiler = builder.spoiler;
+        this.size = builder.size;
 
         switch (extension) {
             case "gif":
                 type = Type.GIF;
                 break;
             case "webm":
+            case "mp4":
                 type = Type.MOVIE;
                 break;
             default:
                 type = Type.STATIC;
                 break;
+        }
+    }
+
+    public boolean equalUrl(PostImage other) {
+        return imageUrl.equals(other.imageUrl);
+    }
+
+    public HttpUrl getThumbnailUrl() {
+        if (!spoiler) {
+            return thumbnailUrl;
+        } else {
+            return spoilerThumbnailUrl;
+        }
+    }
+
+    public static final class Builder {
+        private String originalName;
+        private HttpUrl thumbnailUrl;
+        private HttpUrl spoilerThumbnailUrl;
+        private HttpUrl imageUrl;
+        private String filename;
+        private String extension;
+        private int imageWidth;
+        private int imageHeight;
+        private boolean spoiler;
+        private long size;
+
+        public Builder() {
+        }
+
+        public Builder originalName(String originalName) {
+            this.originalName = originalName;
+            return this;
+        }
+
+        public Builder thumbnailUrl(HttpUrl thumbnailUrl) {
+            this.thumbnailUrl = thumbnailUrl;
+            return this;
+        }
+
+        public Builder spoilerThumbnailUrl(HttpUrl spoilerThumbnailUrl) {
+            this.spoilerThumbnailUrl = spoilerThumbnailUrl;
+            return this;
+        }
+
+        public Builder imageUrl(HttpUrl imageUrl) {
+            this.imageUrl = imageUrl;
+            return this;
+        }
+
+        public Builder filename(String filename) {
+            this.filename = filename;
+            return this;
+        }
+
+        public Builder extension(String extension) {
+            this.extension = extension;
+            return this;
+        }
+
+        public Builder imageWidth(int imageWidth) {
+            this.imageWidth = imageWidth;
+            return this;
+        }
+
+        public Builder imageHeight(int imageHeight) {
+            this.imageHeight = imageHeight;
+            return this;
+        }
+
+        public Builder spoiler(boolean spoiler) {
+            this.spoiler = spoiler;
+            return this;
+        }
+
+        public Builder size(long size) {
+            this.size = size;
+            return this;
+        }
+
+        public PostImage build() {
+            if (ChanSettings.revealImageSpoilers.get()) {
+                spoiler = false;
+            }
+
+            return new PostImage(this);
         }
     }
 }

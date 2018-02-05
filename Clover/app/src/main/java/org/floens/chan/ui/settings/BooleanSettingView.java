@@ -46,7 +46,7 @@ public class BooleanSettingView extends SettingView implements View.OnClickListe
 
         view.setOnClickListener(this);
 
-        switcher = (SwitchCompat) view.findViewById(R.id.switcher);
+        switcher = view.findViewById(R.id.switcher);
         switcher.setOnCheckedChangeListener(this);
 
         switcher.setChecked(setting.get());

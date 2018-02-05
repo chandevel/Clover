@@ -20,7 +20,7 @@ package org.floens.chan.core.database;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
-import org.floens.chan.core.model.History;
+import org.floens.chan.core.model.orm.History;
 import org.floens.chan.utils.Time;
 
 import java.util.List;
@@ -40,10 +40,6 @@ public class DatabaseHistoryManager {
         this.databaseManager = databaseManager;
         this.helper = helper;
         this.databaseLoadableManager = databaseLoadableManager;
-    }
-
-    public void add(History history) {
-        databaseManager.runTaskSync(addHistory(history));
     }
 
     public Callable<Void> load() {

@@ -40,17 +40,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.Loadable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
-import org.floens.chan.core.model.ThreadHide;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -63,25 +62,34 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 /**
- * Wrapper around ThreadListLayout, so that it cleanly manages between loadbar and listview.
+ * Wrapper around ThreadListLayout, so that it cleanly manages between a load bar and the list view.
  */
-public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback, View.OnClickListener, ThreadListLayout.ThreadListLayoutCallback {
+public class ThreadLayout extends CoordinatorLayout implements
+        ThreadPresenter.ThreadPresenterCallback,
+        PostPopupHelper.PostPopupHelperCallback,
+        View.OnClickListener,
+        ThreadListLayout.ThreadListLayoutCallback {
     private enum Visible {
         LOADING,
         THREAD,
         ERROR;
     }
 
-    private DatabaseManager databaseManager;
+    @Inject
+    DatabaseManager databaseManager;
+
+    @Inject
+    ThreadPresenter presenter;
 
     private ThreadLayoutCallback callback;
-
-    private ThreadPresenter presenter;
 
     private LoadView loadView;
     private HidingFloatingActionButton replyButton;
@@ -99,40 +107,44 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     private Snackbar newPostsNotification;
 
     public ThreadLayout(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public ThreadLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
-    public ThreadLayout(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
+    public ThreadLayout(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        inject(this);
     }
 
-    public void setCallback(ThreadLayoutCallback callback) {
+    public void create(ThreadLayoutCallback callback) {
         this.callback = callback;
 
-        presenter = new ThreadPresenter(this);
+        // View binding
+        loadView = findViewById(R.id.loadview);
+        replyButton = findViewById(R.id.reply_button);
 
-        loadView = (LoadView) findViewById(R.id.loadview);
-        replyButton = (HidingFloatingActionButton) findViewById(R.id.reply_button);
+        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
 
-        threadListLayout = (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
+        // Inflate ThreadListLayout
+        threadListLayout = (ThreadListLayout) layoutInflater
+                .inflate(R.layout.layout_thread_list, this, false);
+
+        // Inflate error layout
+        errorLayout = (LinearLayout) layoutInflater
+                .inflate(R.layout.layout_thread_error, this, false);
+        errorText = errorLayout.findViewById(R.id.text);
+        errorRetryButton = errorLayout.findViewById(R.id.button);
+
+        // View setup
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
-
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
-
-        errorLayout = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_error, this, false);
-        errorText = (TextView) errorLayout.findViewById(R.id.text);
         errorText.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
-
-        errorRetryButton = (Button) errorLayout.findViewById(R.id.button);
         errorRetryButton.setOnClickListener(this);
 
+        // Setup
         replyButtonEnabled = ChanSettings.enableReplyFab.get();
         if (!replyButtonEnabled) {
             AndroidUtils.removeFromParentView(replyButton);
@@ -142,7 +154,11 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
             theme().applyFabColor(replyButton);
         }
 
-        switchVisible(Visible.LOADING);
+        presenter.create(this);
+    }
+
+    public void destroy() {
+        presenter.unbindLoadable();
     }
 
     @Override
@@ -177,6 +193,12 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     public void refreshFromSwipe() {
         refreshedFromSwipe = true;
         presenter.requestData();
+    }
+
+    public void gainedFocus() {
+        if (visible == Visible.THREAD) {
+            threadListLayout.gainedFocus();
+        }
     }
 
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
@@ -237,7 +259,8 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                 .show();
     }
 
-    public void showPostLinkables(final List<PostLinkable> linkables) {
+    public void showPostLinkables(final Post post) {
+        final List<PostLinkable> linkables = post.linkables;
         String[] keys = new String[linkables.size()];
         for (int i = 0; i < linkables.size(); i++) {
             keys[i] = linkables.get(i).key;
@@ -247,7 +270,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                 .setItems(keys, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        presenter.onPostLinkableClicked(linkables.get(which));
+                        presenter.onPostLinkableClicked(post, linkables.get(which));
                     }
                 })
                 .show();
@@ -372,9 +395,15 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
     }
 
     @Override
+    public void quote(Post post, CharSequence text) {
+        threadListLayout.openReply(true);
+        threadListLayout.getReplyPresenter().quote(post, text);
+    }
+
+    @Override
     public void confirmPostDelete(final Post post) {
-        @SuppressLint("InflateParams")
-        final View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_post_delete, null);
+        @SuppressLint("InflateParams") final View view = LayoutInflater.from(getContext())
+                .inflate(R.layout.dialog_post_delete, null);
         new AlertDialog.Builder(getContext())
                 .setTitle(R.string.delete_confirm)
                 .setView(view)
@@ -382,7 +411,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                 .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        CheckBox checkBox = (CheckBox) view.findViewById(R.id.image_only);
+                        CheckBox checkBox = view.findViewById(R.id.image_only);
                         presenter.deletePostConfirmed(post, checkBox.isChecked());
                     }
                 })
@@ -411,7 +440,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
 
     @Override
     public void hideThread(Post post) {
-        final ThreadHide threadHide = new ThreadHide(post.board, post.no);
+        final ThreadHide threadHide = new ThreadHide(post.boardId, post.no);
         databaseManager.addThreadHide(threadHide);
         presenter.refreshUI();
 
@@ -438,7 +467,7 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                     @Override
                     public void onClick(View v) {
                         newPostsNotification = null;
-                        presenter.scrollTo(-1, true);
+                        presenter.onNewPostsViewClicked();
                     }
                 }).show();
                 fixSnackbarText(getContext(), newPostsNotification);
@@ -525,10 +554,6 @@ public class ThreadLayout extends CoordinatorLayout implements ThreadPresenter.T
                     break;
             }
         }
-    }
-
-    private void init() {
-        databaseManager = Chan.getDatabaseManager();
     }
 
     @Override

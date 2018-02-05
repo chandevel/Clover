@@ -21,24 +21,25 @@ import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.chan.ChanLoader;
-import org.floens.chan.chan.ChanUrls;
+import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
-import org.floens.chan.core.http.DeleteHttpCall;
-import org.floens.chan.core.http.ReplyManager;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.History;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
-import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.pool.LoaderPool;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.History;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
+import org.floens.chan.core.model.orm.SavedReply;
+import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.http.DeleteRequest;
+import org.floens.chan.core.site.http.DeleteResponse;
+import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -50,7 +51,10 @@ import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -71,12 +75,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private static final int POST_OPTION_OPEN_BROWSER = 13;
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
 
+    private ThreadPresenterCallback threadPresenterCallback;
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
-    private ReplyManager replyManager;
-    private BoardManager boardManager;
-
-    private ThreadPresenterCallback threadPresenterCallback;
+    private ChanLoaderFactory chanLoaderFactory;
 
     private Loadable loadable;
     private ChanLoader chanLoader;
@@ -85,13 +87,17 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded = false;
 
-    public ThreadPresenter(ThreadPresenterCallback threadPresenterCallback) {
-        this.threadPresenterCallback = threadPresenterCallback;
+    @Inject
+    public ThreadPresenter(WatchManager watchManager,
+                           DatabaseManager databaseManager,
+                           ChanLoaderFactory chanLoaderFactory) {
+        this.watchManager = watchManager;
+        this.databaseManager = databaseManager;
+        this.chanLoaderFactory = chanLoaderFactory;
+    }
 
-        watchManager = Chan.getWatchManager();
-        databaseManager = Chan.getDatabaseManager();
-        replyManager = Chan.getReplyManager();
-        boardManager = Chan.getBoardManager();
+    public void create(ThreadPresenterCallback threadPresenterCallback) {
+        this.threadPresenterCallback = threadPresenterCallback;
     }
 
     public void bindLoadable(Loadable loadable) {
@@ -101,6 +107,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
 
             Pin pin = watchManager.findPinByLoadable(loadable);
+            // TODO this isn't true anymore, because all loadables come from one location.
             if (pin != null) {
                 // Use the loadable from the pin.
                 // This way we can store the list position in the pin loadable,
@@ -109,14 +116,16 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
             this.loadable = loadable;
 
-            chanLoader = LoaderPool.getInstance().obtain(loadable, this);
+            chanLoader = chanLoaderFactory.obtain(loadable, this);
+
+            threadPresenterCallback.showLoading();
         }
     }
 
     public void unbindLoadable() {
         if (chanLoader != null) {
             chanLoader.clearTimer();
-            LoaderPool.getInstance().release(chanLoader, this);
+            chanLoaderFactory.release(chanLoader, this);
             chanLoader = null;
             loadable = null;
             historyAdded = false;
@@ -124,6 +133,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             threadPresenterCallback.showNewPostsNotification(false, -1);
             threadPresenterCallback.showLoading();
         }
+    }
+
+    public boolean isBound() {
+        return chanLoader != null;
     }
 
     public void requestInitialData() {
@@ -222,8 +235,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         int index = 0;
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (item.hasImage) {
-                images.add(item.image);
+            if (!item.images.isEmpty()) {
+                images.addAll(item.images);
             }
             if (i == displayPosition) {
                 index = images.size();
@@ -307,6 +320,15 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         showPosts();
     }
 
+    public void onNewPostsViewClicked() {
+        Post post = findPostById(loadable.lastViewed);
+        if (post != null) {
+            scrollToPost(post, true);
+        } else {
+            scrollTo(-1, true);
+        }
+    }
+
     public void scrollTo(int displayPosition, boolean smooth) {
         threadPresenterCallback.scrollTo(displayPosition, smooth);
     }
@@ -315,11 +337,17 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         if (!searchOpen) {
             int position = -1;
             List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+
+            out:
             for (int i = 0; i < posts.size(); i++) {
                 Post post = posts.get(i);
-                if (post.hasImage && post.image == postImage) {
-                    position = i;
-                    break;
+                if (!post.images.isEmpty()) {
+                    for (int j = 0; j < post.images.size(); j++) {
+                        if (post.images.get(j) == postImage) {
+                            position = i;
+                            break out;
+                        }
+                    }
                 }
             }
             if (position >= 0) {
@@ -355,10 +383,15 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (int i = 0; i < posts.size(); i++) {
             Post post = posts.get(i);
-            if (post.image == postImage) {
-                scrollToPost(post, false);
-                highlightPost(post);
-                break;
+
+            if (!post.images.isEmpty()) {
+                for (int j = 0; j < post.images.size(); j++) {
+                    if (post.images.get(j) == postImage) {
+                        scrollToPost(post, false);
+                        highlightPost(post);
+                        return;
+                    }
+                }
             }
         }
     }
@@ -369,7 +402,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     @Override
     public void onPostClicked(Post post) {
         if (loadable.isCatalogMode()) {
-            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(post.board, post.no));
+            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
             threadLoadable.title = PostHelper.getTitle(post, loadable);
             threadPresenterCallback.showThread(threadLoadable);
         } else {
@@ -386,16 +419,20 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     @Override
-    public void onThumbnailClicked(Post post, ThumbnailView thumbnail) {
+    public void onThumbnailClicked(Post post, PostImage postImage, ThumbnailView thumbnail) {
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            if (item.hasImage) {
-                images.add(item.image);
-                if (item.no == post.no) {
-                    index = images.size() - 1;
+
+            if (!item.images.isEmpty()) {
+                for (int j = 0; j < item.images.size(); j++) {
+                    PostImage image = item.images.get(j);
+                    images.add(image);
+                    if (image.equalUrl(postImage)) {
+                        index = images.size() - 1;
+                    }
                 }
             }
         }
@@ -417,7 +454,10 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         menu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         menu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
         menu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
-        menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
+
+        if (loadable.getSite().feature(Site.Feature.POST_REPORT)) {
+            menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
+        }
 
         if (!loadable.isThreadMode()) {
             menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
@@ -434,7 +474,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             }
         }
 
-        if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
+        if (loadable.site.feature(Site.Feature.POST_DELETE) &&
+                databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
@@ -458,7 +499,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 break;
             case POST_OPTION_LINKS:
                 if (post.linkables.size() > 0) {
-                    threadPresenterCallback.showPostLinkables(post.linkables);
+                    threadPresenterCallback.showPostLinkables(post);
                 }
                 break;
             case POST_OPTION_COPY_TEXT:
@@ -480,47 +521,44 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
-                SavedReply savedReply = new SavedReply(post.board, post.no, "");
-                databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+                SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
+                        post.board.site, post.board, post.no, "");
+                databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
                 break;
             case POST_OPTION_PIN:
-                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(post.board, post.no));
+                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
                 watchManager.createPin(pinLoadable, post);
                 break;
-            case POST_OPTION_OPEN_BROWSER:
-                AndroidUtils.openLink(
-                        post.isOP ?
-                                ChanUrls.getThreadUrlDesktop(post.board, post.no) :
-                                ChanUrls.getThreadUrlDesktop(post.board, loadable.no, post.no)
-                );
+            case POST_OPTION_OPEN_BROWSER: {
+                String url = loadable.site.desktopUrl(loadable, post.isOP ? null : post);
+                AndroidUtils.openLink(url);
                 break;
-            case POST_OPTION_SHARE:
-                AndroidUtils.shareLink(
-                        post.isOP ?
-                                ChanUrls.getThreadUrlDesktop(post.board, post.no) :
-                                ChanUrls.getThreadUrlDesktop(post.board, loadable.no, post.no)
-                );
+            }
+            case POST_OPTION_SHARE: {
+                String url = loadable.site.desktopUrl(loadable, post.isOP ? null : post);
+                AndroidUtils.shareLink(url);
                 break;
+            }
             case POST_OPTION_HIDE:
                 threadPresenterCallback.hideThread(post);
         }
     }
 
     @Override
-    public void onPostLinkableClicked(PostLinkable linkable) {
+    public void onPostLinkableClicked(Post post, PostLinkable linkable) {
         if (linkable.type == PostLinkable.Type.QUOTE) {
-            Post post = findPostById((Integer) linkable.value);
-
-            List<Post> list = new ArrayList<>(1);
-            list.add(post);
-            threadPresenterCallback.showPostsPopup(linkable.post, list);
+            Post linked = findPostById((int) linkable.value);
+            if (linked != null) {
+                threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
+            }
         } else if (linkable.type == PostLinkable.Type.LINK) {
             threadPresenterCallback.openLink((String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
 
-            if (boardManager.getBoardExists(link.board)) {
-                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(link.board, link.threadId));
+            Board board = loadable.site.board(link.board);
+            if (board != null) {
+                Loadable thread = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(board.site, board, link.threadId));
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);
@@ -531,6 +569,11 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     @Override
     public void onPostNoClicked(Post post) {
         threadPresenterCallback.quote(post, false);
+    }
+
+    @Override
+    public void onPostSelectionQuoted(Post post, CharSequence quoted) {
+        threadPresenterCallback.quote(post, quoted);
     }
 
     @Override
@@ -589,18 +632,19 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
-        SavedReply reply = databaseManager.runTaskSync(
+        SavedReply reply = databaseManager.runTask(
                 databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
         );
         if (reply != null) {
-            replyManager.makeHttpCall(new DeleteHttpCall(reply, onlyImageDelete), new ReplyManager.HttpCallback<DeleteHttpCall>() {
+            Site site = loadable.getSite();
+            site.delete(new DeleteRequest(post, reply, onlyImageDelete), new Site.DeleteListener() {
                 @Override
-                public void onHttpSuccess(DeleteHttpCall httpPost) {
+                public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
                     String message;
-                    if (httpPost.deleted) {
+                    if (deleteResponse.deleted) {
                         message = getString(R.string.delete_success);
-                    } else if (!TextUtils.isEmpty(httpPost.errorMessage)) {
-                        message = httpPost.errorMessage;
+                    } else if (!TextUtils.isEmpty(deleteResponse.errorMessage)) {
+                        message = deleteResponse.errorMessage;
                     } else {
                         message = getString(R.string.delete_error);
                     }
@@ -608,7 +652,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 }
 
                 @Override
-                public void onHttpFail(DeleteHttpCall httpPost) {
+                public void onDeleteError(HttpCall httpCall) {
                     threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
                 }
             });
@@ -616,7 +660,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private void requestDeletePost(Post post) {
-        SavedReply reply = databaseManager.runTaskSync(
+        SavedReply reply = databaseManager.runTask(
                 databaseManager.getDatabaseSavedReplyManager().findSavedReply(post.board, post.no)
         );
         if (reply != null) {
@@ -625,44 +669,52 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     private void showPostInfo(Post post) {
-        String text = "";
+        StringBuilder text = new StringBuilder();
 
-        if (post.hasImage) {
-            text += "Filename: " + post.filename + "." + post.ext + " \nDimensions: " + post.imageWidth + "x"
-                    + post.imageHeight + "\nSize: " + AndroidUtils.getReadableFileSize(post.fileSize, false);
+        for (PostImage image : post.images) {
+            text.append("Filename: ")
+                    .append(image.filename).append(".").append(image.extension)
+                    .append(" \nDimensions: ")
+                    .append(image.imageWidth).append("x").append(image.imageHeight)
+                    .append("\nSize: ")
+                    .append(AndroidUtils.getReadableFileSize(image.size, false));
 
-            if (post.spoiler) {
-                text += "\nSpoilered";
+            if (image.spoiler) {
+                text.append("\nSpoilered");
             }
 
-            text += "\n\n";
+            text.append("\n");
         }
 
-        text += "Date: " + post.date;
+        // TODO(multi-site) get this from the timestamp
+//        text += "Date: " + post.date;
 
         if (!TextUtils.isEmpty(post.id)) {
-            text += "\nId: " + post.id;
+            text.append("\nId: ").append(post.id);
         }
 
         if (!TextUtils.isEmpty(post.tripcode)) {
-            text += "\nTripcode: " + post.tripcode;
+            text.append("\nTripcode: ").append(post.tripcode);
         }
 
-        if (!TextUtils.isEmpty(post.countryName)) {
+        /*if (!TextUtils.isEmpty(post.countryName)) {
             text += "\nCountry: " + post.country + ", " + post.countryName;
-        }
+        }*/
 
         if (!TextUtils.isEmpty(post.capcode)) {
-            text += "\nCapcode: " + post.capcode;
+            text.append("\nCapcode: ").append(post.capcode);
         }
 
-        threadPresenterCallback.showPostInfo(text);
+        threadPresenterCallback.showPostInfo(text.toString());
     }
 
     private Post findPostById(int id) {
-        for (Post post : chanLoader.getThread().posts) {
-            if (post.no == id) {
-                return post;
+        ChanThread thread = chanLoader.getThread();
+        if (thread != null) {
+            for (Post post : thread.posts) {
+                if (post.no == id) {
+                    return post;
+                }
             }
         }
         return null;
@@ -677,8 +729,9 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
             historyAdded = true;
             History history = new History();
             history.loadable = loadable;
-            history.thumbnailUrl = chanLoader.getThread().op.thumbnailUrl;
-            databaseManager.getDatabaseHistoryManager().add(history);
+            PostImage image = chanLoader.getThread().op.image();
+            history.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
+            databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
     }
 
@@ -693,7 +746,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
 
         void showPostInfo(String info);
 
-        void showPostLinkables(List<PostLinkable> linkables);
+        void showPostLinkables(Post post);
 
         void clipboardPost(Post post);
 
@@ -732,6 +785,8 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard);
 
         void quote(Post post, boolean withText);
+
+        void quote(Post post, CharSequence text);
 
         void confirmPostDelete(Post post);
 

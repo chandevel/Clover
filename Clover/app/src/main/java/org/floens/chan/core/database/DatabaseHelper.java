@@ -25,13 +25,15 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import org.floens.chan.core.model.Board;
-import org.floens.chan.core.model.Filter;
-import org.floens.chan.core.model.History;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
-import org.floens.chan.core.model.SavedReply;
-import org.floens.chan.core.model.ThreadHide;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Filter;
+import org.floens.chan.core.model.orm.History;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
+import org.floens.chan.core.model.orm.SavedReply;
+import org.floens.chan.core.model.orm.SiteModel;
+import org.floens.chan.core.model.orm.ThreadHide;
+import org.floens.chan.core.site.SiteManager;
 import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
@@ -43,7 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 21;
+    private static final int DATABASE_VERSION = 22;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -52,6 +54,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public Dao<ThreadHide, Integer> threadHideDao;
     public Dao<History, Integer> historyDao;
     public Dao<Filter, Integer> filterDao;
+    public Dao<SiteModel, Integer> siteDao;
 
     private final Context context;
 
@@ -68,8 +71,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             threadHideDao = getDao(ThreadHide.class);
             historyDao = getDao(History.class);
             filterDao = getDao(Filter.class);
+            siteDao = getDao(SiteModel.class);
         } catch (SQLException e) {
-            Logger.e(TAG, "Error creating Daos", e);
+            Logger.e(TAG, "Error creating dao's", e);
         }
     }
 
@@ -83,6 +87,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, ThreadHide.class);
             TableUtils.createTable(connectionSource, History.class);
             TableUtils.createTable(connectionSource, Filter.class);
+            TableUtils.createTable(connectionSource, SiteModel.class);
         } catch (SQLException e) {
             Logger.e(TAG, "Error creating db", e);
             throw new RuntimeException(e);
@@ -92,6 +97,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         Logger.i(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
+
         if (oldVersion < 12) {
             try {
                 boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN perPage INTEGER;");
@@ -202,6 +208,27 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 21", e);
             }
+        }
+
+        if (oldVersion < 22) {
+            try {
+                siteDao.executeRawNoArgs("CREATE TABLE `site` (`configuration` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `userSettings` VARCHAR );");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 22", e);
+            }
+
+            final int siteId = 0;
+
+            try {
+                boardsDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN site INTEGER default " + siteId + ";");
+                boardsDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN site INTEGER default " + siteId + ";");
+                boardsDao.executeRawNoArgs("ALTER TABLE savedreply ADD COLUMN site INTEGER default " + siteId + ";");
+                boardsDao.executeRawNoArgs("ALTER TABLE threadhide ADD COLUMN site INTEGER default " + siteId + ";");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 22", e);
+            }
+
+            SiteManager.addSiteForLegacy();
         }
     }
 

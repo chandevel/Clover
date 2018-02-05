@@ -25,18 +25,20 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.annotation.Nullable;
 
 import org.floens.chan.Chan;
-import org.floens.chan.chan.ChanLoader;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabasePinManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
-import org.floens.chan.core.model.Loadable;
-import org.floens.chan.core.model.Pin;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.pool.LoaderPool;
+import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.orm.Pin;
+import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.Logger;
@@ -51,8 +53,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.greenrobot.event.EventBus;
 
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 /**
@@ -70,6 +76,7 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
  * <p/>
  * <p>All pin adding and removing must go through this class to properly update the watchers.
  */
+@Singleton
 public class WatchManager {
     private static final String TAG = "WatchManager";
 
@@ -107,6 +114,8 @@ public class WatchManager {
         }
     };
 
+    ChanLoaderFactory chanLoaderFactory;
+
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
 
@@ -124,13 +133,16 @@ public class WatchManager {
     private PowerManager.WakeLock wakeLock;
     private long lastBackgroundUpdateTime;
 
-    public WatchManager(DatabaseManager databaseManager) {
+    @Inject
+    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory) {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
 
         this.databaseManager = databaseManager;
+        this.chanLoaderFactory = chanLoaderFactory;
+
         databasePinManager = databaseManager.getDatabasePinManager();
-        pins = databaseManager.runTaskSync(databasePinManager.getPins());
+        pins = databaseManager.runTask(databasePinManager.getPins());
         Collections.sort(pins, SORT_PINS);
 
         handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
@@ -150,11 +162,18 @@ public class WatchManager {
         updateState();
     }
 
-    public boolean createPin(Loadable loadable, Post opPost) {
+    public boolean createPin(Loadable loadable) {
+        return createPin(loadable, null);
+    }
+
+    public boolean createPin(Loadable loadable, @Nullable Post opPost) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.loadable.title = PostHelper.getTitle(opPost, loadable);
-        pin.thumbnailUrl = opPost.thumbnailUrl;
+        if (opPost != null) {
+            PostImage image = opPost.image();
+            pin.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
+        }
         return createPin(pin);
     }
 
@@ -167,12 +186,21 @@ public class WatchManager {
             }
         }
 
+        // Default order is 0.
         if (pin.order < 0) {
-            pin.order = pins.size();
+            pin.order = 0;
+        }
+        // Move all down one.
+        for (Pin p : pins) {
+            p.order++;
         }
         pins.add(pin);
-        applyOrder();
-        databaseManager.runTaskSync(databasePinManager.createPin(pin));
+        sortListAndApplyOrders();
+
+        databaseManager.runTask(databasePinManager.createPin(pin));
+
+        // apply orders.
+        updatePinsInDatabase();
 
         updateState();
 
@@ -186,9 +214,9 @@ public class WatchManager {
 
         destroyPinWatcher(pin);
 
-        databaseManager.runTaskSync(databasePinManager.deletePin(pin));
+        databaseManager.runTask(databasePinManager.deletePin(pin));
         // Update the new orders
-        applyOrder();
+        sortListAndApplyOrders();
         updatePinsInDatabase();
 
         updateState();
@@ -197,7 +225,7 @@ public class WatchManager {
     }
 
     public void updatePin(Pin pin) {
-        databaseManager.runTaskSync(databasePinManager.updatePin(pin));
+        databaseManager.runTask(databasePinManager.updatePin(pin));
 
         updateState();
 
@@ -286,6 +314,14 @@ public class WatchManager {
         }
     }
 
+    public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
+        if (settingChanged.setting == ChanSettings.watchBackground) {
+            onBackgroundWatchingChanged(ChanSettings.watchBackground.get());
+        } else if (settingChanged.setting == ChanSettings.watchEnabled) {
+            onWatchEnabledChanged(ChanSettings.watchEnabled.get());
+        }
+    }
+
     // Called when the broadcast scheduled by the alarmmanager was received
     public void onBroadcastReceived() {
         if (currentInterval != IntervalType.BACKGROUND) {
@@ -361,8 +397,12 @@ public class WatchManager {
         }
     }
 
+    public PinWatcher getPinWatcher(Pin pin) {
+        return pinWatchers.get(pin);
+    }
+
     // Called when the user changes the watch enabled preference
-    public void onWatchEnabledChanged(boolean watchEnabled) {
+    private void onWatchEnabledChanged(boolean watchEnabled) {
         updateState(watchEnabled, isBackgroundWatchingSettingEnabled());
         List<Pin> pins = getAllPins();
         for (int i = 0; i < pins.size(); i++) {
@@ -372,7 +412,7 @@ public class WatchManager {
     }
 
     // Called when the user changes the watch background enabled preference
-    public void onBackgroundWatchingChanged(boolean backgroundEnabled) {
+    private void onBackgroundWatchingChanged(boolean backgroundEnabled) {
         updateState(isTimerEnabled(), backgroundEnabled);
         List<Pin> pins = getAllPins();
         for (int i = 0; i < pins.size(); i++) {
@@ -381,11 +421,7 @@ public class WatchManager {
         }
     }
 
-    public PinWatcher getPinWatcher(Pin pin) {
-        return pinWatchers.get(pin);
-    }
-
-    private void applyOrder() {
+    private void sortListAndApplyOrders() {
         Collections.sort(pins, SORT_PINS);
         for (int i = 0; i < pins.size(); i++) {
             Pin pin = pins.get(i);
@@ -411,7 +447,7 @@ public class WatchManager {
     }
 
     private void updatePinsInDatabase() {
-        databaseManager.runTask(databasePinManager.updatePins(pins));
+        databaseManager.runTaskAsync(databasePinManager.updatePins(pins));
     }
 
     private Boolean isWatchingSettingEnabled() {
@@ -645,9 +681,10 @@ public class WatchManager {
 
         public PinWatcher(Pin pin) {
             this.pin = pin;
+            inject(this);
 
             Logger.d(TAG, "PinWatcher: created for " + pin);
-            chanLoader = LoaderPool.getInstance().obtain(pin.loadable, this);
+            chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
         }
 
         public List<Post> getUnviewedPosts() {
@@ -683,7 +720,7 @@ public class WatchManager {
         private void destroy() {
             if (chanLoader != null) {
                 Logger.d(TAG, "PinWatcher: destroyed for " + pin);
-                LoaderPool.getInstance().release(chanLoader, this);
+                chanLoaderFactory.release(chanLoader, this);
                 chanLoader = null;
             }
         }
@@ -725,8 +762,8 @@ public class WatchManager {
         public void onChanLoaderData(ChanThread thread) {
             pin.isError = false;
 
-            if (pin.thumbnailUrl == null && thread.op != null && thread.op.hasImage) {
-                pin.thumbnailUrl = thread.op.thumbnailUrl;
+            if (pin.thumbnailUrl == null && thread.op != null && thread.op.image() != null) {
+                pin.thumbnailUrl = thread.op.image().getThumbnailUrl().toString();
             }
 
             // Populate posts list

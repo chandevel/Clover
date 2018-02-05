@@ -22,7 +22,6 @@ import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
-import org.floens.chan.Chan;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.utils.AndroidUtils;
@@ -33,11 +32,17 @@ import org.floens.chan.utils.Logger;
 import java.io.File;
 import java.io.IOException;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     private static final String TAG = "ImageSaveTask";
+
+    @Inject
+    FileCache fileCache;
 
     private PostImage postImage;
     private ImageSaveTaskCallback callback;
@@ -50,16 +55,17 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
 
     private boolean success = false;
 
+    public ImageSaveTask(PostImage postImage) {
+        inject(this);
+        this.postImage = postImage;
+    }
+
     public void setSubFolder(String boardName) {
         this.subFolder = boardName;
     }
 
     public String getSubFolder() {
         return subFolder;
-    }
-
-    public ImageSaveTask(PostImage postImage) {
-        this.postImage = postImage;
     }
 
     public void setCallback(ImageSaveTaskCallback callback) {
@@ -110,8 +116,8 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                // Both onSuccess and onFail call postFinished()
-                FileCache.FileCacheDownloader fileCacheDownloader = Chan.getFileCache().downloadFile(postImage.imageUrl, this);
+                FileCache.FileCacheDownloader fileCacheDownloader = fileCache.downloadFile(postImage.imageUrl.toString(), this);
+
                 // If the fileCacheDownloader is null then the destination already existed and onSuccess() has been called.
                 // Wait otherwise for the download to finish to avoid that the next task is immediately executed.
                 if (fileCacheDownloader != null) {
