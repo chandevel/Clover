@@ -33,7 +33,7 @@ import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.model.orm.ThreadHide;
-import org.floens.chan.core.site.SiteManager;
+import org.floens.chan.core.site.SiteService;
 import org.floens.chan.utils.Logger;
 
 import java.sql.SQLException;
@@ -228,7 +228,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 Logger.e(TAG, "Error upgrading to version 22", e);
             }
 
-            SiteManager.addSiteForLegacy();
+            SiteService.addSiteForLegacy();
         }
     }
 

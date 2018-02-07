@@ -30,7 +30,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -76,7 +76,7 @@ public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutIn
     public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
 
-        Authentication authentication = site.postAuthenticate();
+        SiteAuthentication authentication = site.actions().postAuthenticate();
 
         this.siteKey = authentication.siteKey;
         this.baseUrl = authentication.baseUrl;

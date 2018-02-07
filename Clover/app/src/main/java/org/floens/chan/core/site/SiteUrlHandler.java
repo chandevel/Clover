@@ -15,35 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.http;
+package org.floens.chan.core.site;
 
+
+import android.support.annotation.Nullable;
+
+import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Loadable;
 
-import java.io.File;
+import okhttp3.HttpUrl;
 
-/**
- * The data needed to send a reply.
- */
-public class Reply {
-    /**
-     * Optional. {@code null} when ReCaptcha v2 was used or a 4pass
-     */
-    public String captchaChallenge;
+public interface SiteUrlHandler {
+    Class<? extends Site> getSiteClass();
 
-    /**
-     * Optional. {@code null} when a 4pass was used.
-     */
-    public String captchaResponse;
+    boolean matchesName(String value);
 
-    public Loadable loadable;
+    boolean respondsTo(HttpUrl url);
 
-    public File file;
-    public String fileName = "";
-    public String name = "";
-    public String options = "";
-    public String subject = "";
-    public String comment = "";
-    public int selection;
-    public boolean spoilerImage = false;
-    public String password = "";
+    String desktopUrl(Loadable loadable, @Nullable Post post);
+
+    Loadable resolveLoadable(Site site, HttpUrl url);
 }

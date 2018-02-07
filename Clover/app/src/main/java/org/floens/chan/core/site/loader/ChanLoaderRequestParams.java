@@ -22,12 +22,12 @@ import com.android.volley.Response;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.parser.ChanReader;
 
 import java.util.List;
 
 /**
- * A request from ChanLoader to load something.
+ * A request from ChanThreadLoader to load something.
  */
 public class ChanLoaderRequestParams {
     /**

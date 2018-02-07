@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.site;
 
-public class Authentication {
+public class SiteAuthentication {
     public enum Type {
         NONE,
         CAPTCHA1,
@@ -26,33 +26,33 @@ public class Authentication {
         GENERIC_WEBVIEW
     }
 
-    public static Authentication fromNone() {
-        return new Authentication(Type.NONE);
+    public static SiteAuthentication fromNone() {
+        return new SiteAuthentication(Type.NONE);
     }
 
-    public static Authentication fromCaptcha1(String siteKey, String baseUrl) {
-        Authentication a = new Authentication(Type.CAPTCHA1);
+    public static SiteAuthentication fromCaptcha1(String siteKey, String baseUrl) {
+        SiteAuthentication a = new SiteAuthentication(Type.CAPTCHA1);
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;
     }
 
-    public static Authentication fromCaptcha2(String siteKey, String baseUrl) {
-        Authentication a = new Authentication(Type.CAPTCHA2);
+    public static SiteAuthentication fromCaptcha2(String siteKey, String baseUrl) {
+        SiteAuthentication a = new SiteAuthentication(Type.CAPTCHA2);
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;
     }
 
-    public static Authentication fromCaptcha2nojs(String siteKey, String baseUrl) {
-        Authentication a = new Authentication(Type.CAPTCHA2_NOJS);
+    public static SiteAuthentication fromCaptcha2nojs(String siteKey, String baseUrl) {
+        SiteAuthentication a = new SiteAuthentication(Type.CAPTCHA2_NOJS);
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;
     }
 
-    public static Authentication fromUrl(String url, String retryText, String successText) {
-        Authentication a = new Authentication(Type.GENERIC_WEBVIEW);
+    public static SiteAuthentication fromUrl(String url, String retryText, String successText) {
+        SiteAuthentication a = new SiteAuthentication(Type.GENERIC_WEBVIEW);
         a.url = url;
         a.retryText = retryText;
         a.successText = successText;
@@ -70,7 +70,7 @@ public class Authentication {
     public String retryText;
     public String successText;
 
-    private Authentication(Type type) {
+    private SiteAuthentication(Type type) {
         this.type = type;
     }
 }

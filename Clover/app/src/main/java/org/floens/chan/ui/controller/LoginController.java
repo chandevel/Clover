@@ -29,6 +29,7 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
@@ -37,7 +38,7 @@ import org.floens.chan.utils.AndroidUtils;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class LoginController extends Controller implements View.OnClickListener, Site.LoginListener {
+public class LoginController extends Controller implements View.OnClickListener, SiteActions.LoginListener {
     private LinearLayout container;
     private CrossfadeView crossfadeView;
     private TextView errors;
@@ -82,7 +83,7 @@ public class LoginController extends Controller implements View.OnClickListener,
         bottomDescription.setText(Html.fromHtml(getString(R.string.setting_pass_bottom_description)));
         bottomDescription.setMovementMethod(LinkMovementMethod.getInstance());
 
-        LoginRequest loginDetails = site.getLoginDetails();
+        LoginRequest loginDetails = site.actions().getLoginDetails();
         inputToken.setText(loginDetails.user);
         inputPin.setText(loginDetails.pass);
 
@@ -166,11 +167,11 @@ public class LoginController extends Controller implements View.OnClickListener,
 
         String user = inputToken.getText().toString();
         String pass = inputPin.getText().toString();
-        site.login(new LoginRequest(user, pass), this);
+        site.actions().login(new LoginRequest(user, pass), this);
     }
 
     private void deauth() {
-        site.logout();
+        site.actions().logout();
     }
 
     private void showError(String error) {
@@ -184,6 +185,6 @@ public class LoginController extends Controller implements View.OnClickListener,
     }
 
     private boolean loggedIn() {
-        return site.isLoggedIn();
+        return site.actions().isLoggedIn();
     }
 }

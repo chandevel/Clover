@@ -18,13 +18,16 @@
 package org.floens.chan.core.site.common;
 
 
+import android.support.annotation.AnyThread;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.parser.CommentParser;
+import org.floens.chan.core.site.parser.CommentParserHelper;
+import org.floens.chan.core.site.parser.PostParser;
 import org.floens.chan.ui.span.AbsoluteSizeSpanHashed;
 import org.floens.chan.ui.span.ForegroundColorSpanHashed;
 import org.floens.chan.ui.theme.Theme;
@@ -42,16 +45,14 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.sp;
 
-public class FutabaChanParser implements ChanParser {
-    private static final String TAG = "FutabaChanParser";
-    private static final String SAVED_REPLY_SUFFIX = " (You)";
-    private static final String OP_REPLY_SUFFIX = " (OP)";
-    public static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
+@AnyThread
+public class DefaultPostParser implements PostParser {
+    private static final String TAG = "DefaultPostParser";
 
-    private FutabaChanParserHandler handler;
+    private CommentParser commentParser;
 
-    public FutabaChanParser(FutabaChanParserHandler handler) {
-        this.handler = handler;
+    public DefaultPostParser(CommentParser commentParser) {
+        this.commentParser = commentParser;
     }
 
     @Override
@@ -60,16 +61,12 @@ public class FutabaChanParser implements ChanParser {
             theme = ThemeHelper.getInstance().getTheme();
         }
 
-        try {
-            if (!TextUtils.isEmpty(builder.name)) {
-                builder.name = Parser.unescapeEntities(builder.name, false);
-            }
+        if (!TextUtils.isEmpty(builder.name)) {
+            builder.name = Parser.unescapeEntities(builder.name, false);
+        }
 
-            if (!TextUtils.isEmpty(builder.subject)) {
-                builder.subject = Parser.unescapeEntities(builder.subject, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!TextUtils.isEmpty(builder.subject)) {
+            builder.subject = Parser.unescapeEntities(builder.subject, false);
         }
 
         parseSpans(theme, builder);
@@ -209,104 +206,44 @@ public class FutabaChanParser implements ChanParser {
             String text = ((TextNode) node).text();
             SpannableString spannable = new SpannableString(text);
 
-            ChanParserHelper.detectLinks(theme, post, text, spannable);
+            CommentParserHelper.detectLinks(theme, post, text, spannable);
 
             return spannable;
-        } else {
-            switch (node.nodeName()) {
-                case "p": {
-                    // Recursively call parseNode with the nodes of the paragraph.
-                    List<Node> innerNodes = node.childNodes();
-                    List<CharSequence> texts = new ArrayList<>(innerNodes.size() + 1);
+        } else if (node instanceof Element) {
+            String nodeName = node.nodeName();
 
-                    for (Node innerNode : innerNodes) {
-                        CharSequence nodeParsed = parseNode(theme, post, callback, innerNode);
-                        if (nodeParsed != null) {
-                            texts.add(nodeParsed);
-                        }
-                    }
+            // Recursively call parseNode with the nodes of the paragraph.
+            List<Node> innerNodes = node.childNodes();
+            List<CharSequence> texts = new ArrayList<>(innerNodes.size() + 1);
 
-                    if (node.nextSibling() != null) {
-                        texts.add("\n");
-                    }
-
-                    CharSequence res = TextUtils.concat(texts.toArray(new CharSequence[texts.size()]));
-
-                    return handler.handleParagraph(this, theme, post, res, (Element) node);
-                }
-                case "br": {
-                    return "\n";
-                }
-                case "span": {
-                    return handler.handleSpan(this, theme, post, (Element) node);
-                }
-                case "table": {
-                    return handler.handleTable(this, theme, post, (Element) node);
-                }
-                case "strong": {
-                    return handler.handleStrong(this, theme, post, (Element) node);
-                }
-                case "a": {
-                    CharSequence anchor = parseAnchor(theme, post, callback, (Element) node);
-                    if (anchor != null) {
-                        return anchor;
-                    } else {
-                        return ((Element) node).text();
-                    }
-                }
-                case "s": {
-                    return handler.handleStrike(this, theme, post, (Element) node);
-                }
-                case "pre": {
-                    return handler.handlePre(this, theme, post, (Element) node);
-                }
-                default: {
-                    // Unknown tag, add the inner part
-                    if (node instanceof Element) {
-                        return ((Element) node).text();
-                    } else {
-                        return null;
-                    }
+            for (Node innerNode : innerNodes) {
+                CharSequence nodeParsed = parseNode(theme, post, callback, innerNode);
+                if (nodeParsed != null) {
+                    texts.add(nodeParsed);
                 }
             }
+
+//            if (node.nextSibling() != null) {
+//                texts.add("\n");
+//            }
+
+            CharSequence allInnerText = TextUtils.concat(
+                    texts.toArray(new CharSequence[texts.size()]));
+
+            CharSequence result = commentParser.handleTag(
+                    callback,
+                    theme,
+                    post,
+                    nodeName,
+                    allInnerText,
+                    (Element) node);
+            if (result != null) {
+                return result;
+            } else {
+                return allInnerText;
+            }
+        } else {
+            return ""; // ?
         }
     }
-
-    private CharSequence parseAnchor(Theme theme, Post.Builder post, Callback callback,
-                                     Element anchor) {
-        FutabaChanParserHandler.Link handlerLink =
-                handler.handleAnchor(this, theme, post, anchor);
-
-        if (handlerLink != null) {
-            if (handlerLink.type == PostLinkable.Type.THREAD) {
-                handlerLink.key += EXTERN_THREAD_LINK_SUFFIX;
-            }
-
-            if (handlerLink.type == PostLinkable.Type.QUOTE) {
-                int postNo = (int) handlerLink.value;
-                post.addReplyTo(postNo);
-
-                // Append (OP) when its a reply to OP
-                if (postNo == post.opId) {
-                    handlerLink.key += OP_REPLY_SUFFIX;
-                }
-
-                // Append (You) when it's a reply to an saved reply
-                if (callback.isSaved(postNo)) {
-                    handlerLink.key += SAVED_REPLY_SUFFIX;
-                }
-            }
-
-            SpannableString link = new SpannableString(handlerLink.key);
-            PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
-            link.setSpan(pl, 0, link.length(), 0);
-            post.addLinkable(pl);
-
-            return link;
-        } else {
-            return null;
-        }
-    }
-
-
 }

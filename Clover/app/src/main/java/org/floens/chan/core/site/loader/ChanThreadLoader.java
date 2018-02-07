@@ -27,8 +27,8 @@ import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.site.common.ChanReader;
-import org.floens.chan.core.site.common.ChanReaderRequest;
+import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.core.site.parser.ChanReaderRequest;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -46,14 +46,14 @@ import javax.inject.Inject;
 import static org.floens.chan.Chan.inject;
 
 /**
- * A ChanLoader is the loader for Loadables.
+ * A ChanThreadLoader is the loader for Loadables.
  * <p>Obtain ChanLoaders with {@link org.floens.chan.core.pool.ChanLoaderFactory}.
  * <p>ChanLoaders can load boards and threads, and return {@link ChanThread} objects on success, through
  * {@link ChanLoaderCallback}.
  * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
  */
-public class ChanLoader implements Response.ErrorListener, Response.Listener<ChanLoaderResponse> {
-    private static final String TAG = "ChanLoader";
+public class ChanThreadLoader implements Response.ErrorListener, Response.Listener<ChanLoaderResponse> {
+    private static final String TAG = "ChanThreadLoader";
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
@@ -75,7 +75,7 @@ public class ChanLoader implements Response.ErrorListener, Response.Listener<Cha
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link org.floens.chan.core.pool.ChanLoaderFactory}</b>
      */
-    public ChanLoader(Loadable loadable) {
+    public ChanThreadLoader(Loadable loadable) {
         this.loadable = loadable;
 
         inject(this);

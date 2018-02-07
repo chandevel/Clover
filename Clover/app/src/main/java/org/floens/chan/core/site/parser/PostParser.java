@@ -15,35 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.http;
+package org.floens.chan.core.site.parser;
 
-import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.ui.theme.Theme;
 
-import java.io.File;
+public interface PostParser {
+    Post parse(Theme theme, Post.Builder builder, Callback callback);
 
-/**
- * The data needed to send a reply.
- */
-public class Reply {
-    /**
-     * Optional. {@code null} when ReCaptcha v2 was used or a 4pass
-     */
-    public String captchaChallenge;
+    interface Callback {
+        boolean isSaved(int postNo);
 
-    /**
-     * Optional. {@code null} when a 4pass was used.
-     */
-    public String captchaResponse;
-
-    public Loadable loadable;
-
-    public File file;
-    public String fileName = "";
-    public String name = "";
-    public String options = "";
-    public String subject = "";
-    public String comment = "";
-    public int selection;
-    public boolean spoilerImage = false;
-    public String password = "";
+        /**
+         * Is the post id from this thread.
+         *
+         * @param postNo the post id
+         * @return {@code true} if referring to a post in the thread, {@code false} otherwise.
+         */
+        boolean isInternal(int postNo);
+    }
 }

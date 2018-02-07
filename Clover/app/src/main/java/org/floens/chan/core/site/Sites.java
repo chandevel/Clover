@@ -2,8 +2,8 @@ package org.floens.chan.core.site;
 
 import android.util.SparseArray;
 
-import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.core.site.sites.vichan.ViChan;
+import org.floens.chan.core.site.sites.chan4.Chan4;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,11 +21,11 @@ public class Sites {
         SITE_CLASSES.put(1, ViChan.class);
     }
 
-    public static final List<Resolvable> RESOLVABLES = new ArrayList<>();
+    public static final List<SiteUrlHandler> URL_HANDLERS = new ArrayList<>();
 
     static {
-        RESOLVABLES.add(Chan4.RESOLVABLE);
-        RESOLVABLES.add(ViChan.RESOLVABLE);
+        URL_HANDLERS.add(Chan4.SITE_URL_HANDLER);
+        URL_HANDLERS.add(ViChan.RESOLVABLE);
     }
 
     private static List<Site> ALL_SITES = Collections.unmodifiableList(new ArrayList<Site>());

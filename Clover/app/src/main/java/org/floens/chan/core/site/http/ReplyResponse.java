@@ -17,10 +17,12 @@
  */
 package org.floens.chan.core.site.http;
 
-import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteActions;
 
 /**
- * Generic response for {@link Site#post(Reply, Site.PostListener)} that the reply layout uses.
+ * Generic response for
+ * {@link org.floens.chan.core.site.SiteActions#post(Reply, SiteActions.PostListener)} that the
+ * reply layout uses.
  */
 public class ReplyResponse {
     /**

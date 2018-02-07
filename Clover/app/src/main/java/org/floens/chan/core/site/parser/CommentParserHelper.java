@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.common;
+package org.floens.chan.core.site.parser;
 
+import android.support.annotation.AnyThread;
 import android.text.SpannableString;
 
 import org.floens.chan.core.model.Post;
@@ -34,7 +35,8 @@ import org.nibor.autolink.LinkType;
 
 import java.util.EnumSet;
 
-public class ChanParserHelper {
+@AnyThread
+public class CommentParserHelper {
     private static final LinkExtractor LINK_EXTRACTOR = LinkExtractor.builder()
             .linkTypes(EnumSet.of(LinkType.URL))
             .build();

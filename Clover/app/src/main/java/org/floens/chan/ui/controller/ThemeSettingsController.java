@@ -37,16 +37,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.model.PostImage;
-import org.floens.chan.core.site.common.ChanParser;
-import org.floens.chan.core.site.common.DefaultFutabaChanParserHandler;
-import org.floens.chan.core.site.common.FutabaChanParser;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.parser.CommentParser;
+import org.floens.chan.core.site.common.DefaultPostParser;
+import org.floens.chan.core.site.parser.PostParser;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.theme.Theme;
@@ -123,9 +123,14 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
     };
 
-    private ChanParser.Callback parserCallback = new ChanParser.Callback() {
+    private PostParser.Callback parserCallback = new PostParser.Callback() {
         @Override
         public boolean isSaved(int postNo) {
+            return false;
+        }
+
+        @Override
+        public boolean isInternal(int postNo) {
             return false;
         }
     };
@@ -275,7 +280,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                             "http://example.com/" +
                             "<br>" +
                             "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.");
-            Post post = new FutabaChanParser(new DefaultFutabaChanParserHandler()).parse(theme, builder, parserCallback);
+            Post post = new DefaultPostParser(new CommentParser()).parse(theme, builder, parserCallback);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);

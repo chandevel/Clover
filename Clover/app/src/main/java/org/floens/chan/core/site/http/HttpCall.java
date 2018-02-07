@@ -17,10 +17,11 @@
  */
 package org.floens.chan.core.site.http;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import org.floens.chan.core.site.Site;
-import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
-import org.floens.chan.utils.Logger;
 
 import java.io.IOException;
 
@@ -42,7 +43,7 @@ public abstract class HttpCall implements Callback {
 
     protected Site site;
 
-    private boolean successful = false;
+    private Handler handler = new Handler(Looper.getMainLooper());
     private HttpCallback callback;
     private Exception exception;
 
@@ -61,18 +62,16 @@ public abstract class HttpCall implements Callback {
             if (body != null) {
                 String responseString = body.string();
                 process(response, responseString);
-                successful = true;
             } else {
-                throw new IOException("HTTP " + response.code());
+                exception = new IOException("No body. HTTP " + response.code());
             }
         } catch (Exception e) {
-            exception = e;
-            Logger.e(TAG, "IOException processing response", e);
+            exception = new IOException("Error processing response", e);
         } finally {
             IOUtils.closeQuietly(body);
         }
 
-        if (successful) {
+        if (exception != null) {
             callSuccess();
         } else {
             callFail(exception);
@@ -88,28 +87,14 @@ public abstract class HttpCall implements Callback {
         return exception;
     }
 
-    public boolean isSuccessful() {
-        return successful;
-    }
-
+    @SuppressWarnings("unchecked")
     private void callSuccess() {
-        AndroidUtils.runOnUiThread(new Runnable() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void run() {
-                callback.onHttpSuccess(HttpCall.this);
-            }
-        });
+        handler.post(() -> callback.onHttpSuccess(HttpCall.this));
     }
 
+    @SuppressWarnings("unchecked")
     private void callFail(final Exception e) {
-        AndroidUtils.runOnUiThread(new Runnable() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void run() {
-                callback.onHttpFail(HttpCall.this, e);
-            }
-        });
+        handler.post(() -> callback.onHttpFail(HttpCall.this, e));
     }
 
     public void setCallback(HttpCallback<? extends HttpCall> callback) {

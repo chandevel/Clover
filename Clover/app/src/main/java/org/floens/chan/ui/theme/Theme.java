@@ -26,11 +26,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.widget.ImageView;
 
 import org.floens.chan.R;
+import org.floens.chan.core.site.parser.PostParser;
 import org.floens.chan.utils.AndroidUtils;
 
 /**
  * A Theme<br>
- * Used for setting the toolbar color, and passed around {@link org.floens.chan.core.site.common.ChanParser} to give the spans the correct color.<br>
+ * Used for setting the toolbar color, and passed around {@link PostParser} to give the spans the correct color.<br>
  * Technically should the parser not do UI, but it is important that the spans do not get created on an UI thread for performance.
  */
 public class Theme {

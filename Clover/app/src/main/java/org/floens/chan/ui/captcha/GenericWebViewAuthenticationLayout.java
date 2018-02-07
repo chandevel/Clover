@@ -26,7 +26,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -38,7 +38,7 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
 
     private Site site;
     private AuthenticationLayoutCallback callback;
-    private Authentication authentication;
+    private SiteAuthentication authentication;
     private boolean resettingFromFoundText = false;
 
     public GenericWebViewAuthenticationLayout(Context context) {
@@ -61,7 +61,7 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
         this.site = site;
         this.callback = callback;
 
-        authentication = site.postAuthenticate();
+        authentication = site.actions().postAuthenticate();
 
         // Older versions just have to manually go back or something.
         if (Build.VERSION.SDK_INT >= 17) {

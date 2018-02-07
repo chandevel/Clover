@@ -38,7 +38,7 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.loader.ChanLoader;
+import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.Logger;
@@ -668,11 +668,11 @@ public class WatchManager {
         }
     }
 
-    public class PinWatcher implements ChanLoader.ChanLoaderCallback {
+    public class PinWatcher implements ChanThreadLoader.ChanLoaderCallback {
         private static final String TAG = "PinWatcher";
 
         private final Pin pin;
-        private ChanLoader chanLoader;
+        private ChanThreadLoader chanLoader;
 
         private final List<Post> posts = new ArrayList<>();
         private final List<Post> quotes = new ArrayList<>();

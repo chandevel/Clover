@@ -1,58 +1,45 @@
-/*
- * Clover - 4chan browser https://github.com/Floens/Clover/
- * Copyright (C) 2014  Floens
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package org.floens.chan.core.site.sites.vichan;
 
-
 import android.support.annotation.Nullable;
-import android.webkit.WebView;
+import android.util.JsonReader;
 
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostHttpIcon;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.site.Authentication;
-import org.floens.chan.core.site.Resolvable;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
-import org.floens.chan.core.site.SiteRequestModifier;
-import org.floens.chan.core.site.common.ChanReader;
-import org.floens.chan.core.site.common.CommonReplyHttpCall;
-import org.floens.chan.core.site.common.FutabaChanParser;
+import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.core.site.parser.ChanReaderProcessingQueue;
+import org.floens.chan.core.site.common.DefaultPostParser;
 import org.floens.chan.core.site.common.FutabaChanReader;
-import org.floens.chan.core.site.http.HttpCall;
-import org.floens.chan.core.site.http.HttpCallManager;
+import org.floens.chan.core.site.common.MultipartHttpCall;
 import org.floens.chan.core.site.http.Reply;
-import org.floens.chan.utils.Logger;
+import org.floens.chan.core.site.http.ReplyResponse;
+import org.floens.chan.core.site.common.CommonSite;
+import org.floens.chan.ui.theme.Theme;
+import org.jsoup.Jsoup;
+import org.jsoup.parser.Parser;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-import okhttp3.Request;
+import okhttp3.Response;
 
-import static org.floens.chan.Chan.injector;
+import static android.text.TextUtils.isEmpty;
+import static org.floens.chan.core.site.SiteEndpoints.makeArgument;
 
-public class ViChan extends SiteBase {
-    private static final String TAG = "ViChan";
-
-    public static final Resolvable RESOLVABLE = new Resolvable() {
+public class ViChan extends CommonSite {
+    public static final CommonSiteUrlHandler RESOLVABLE = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
             return ViChan.class;
@@ -67,252 +54,495 @@ public class ViChan extends SiteBase {
         public boolean respondsTo(HttpUrl url) {
             return url.host().equals("8ch.net");
         }
-    };
-
-    private final SiteEndpoints endpoints = new SiteEndpoints() {
-        private final HttpUrl root = new HttpUrl.Builder()
-                .scheme("https")
-                .host("8ch.net")
-                .build();
-
-        private final HttpUrl media = new HttpUrl.Builder()
-                .scheme("https")
-                .host("media.8ch.net")
-                .build();
-
-        private final HttpUrl sys = new HttpUrl.Builder()
-                .scheme("https")
-                .host("sys.8ch.net")
-                .build();
 
         @Override
-        public HttpUrl catalog(Board board) {
-            return root.newBuilder()
-                    .addPathSegment(board.code)
-                    .addPathSegment("catalog.json")
-                    .build();
-        }
+        public Loadable resolveLoadable(Site site, HttpUrl url) {
+            Matcher board = Pattern.compile("/(\\w+)")
+                    .matcher(url.encodedPath());
+            Matcher thread = Pattern.compile("/(\\w+)/res/(\\d+).html")
+                    .matcher(url.encodedPath());
 
-        @Override
-        public HttpUrl thread(Board board, Loadable loadable) {
-            return root.newBuilder()
-                    .addPathSegment(board.code)
-                    .addPathSegment("res")
-                    .addPathSegment(loadable.no + ".json")
-                    .build();
-        }
+            try {
+                if (thread.find()) {
+                    Board b = site.board(thread.group(1));
+                    if (b == null) {
+                        return null;
+                    }
+                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)));
 
-        @Override
-        public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-            return root.newBuilder()
-                    .addPathSegment("file_store")
-                    .addPathSegment(arg.get("tim") + "." + arg.get("ext"))
-                    .build();
-        }
-
-        @Override
-        public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-            String ext;
-            switch (arg.get("ext")) {
-                case "jpeg":
-                case "jpg":
-                case "png":
-                case "gif":
-                    ext = arg.get("ext");
-                    break;
-                default:
-                    ext = "jpg";
-                    break;
-            }
-
-            return root.newBuilder()
-                    .addPathSegment("file_store")
-                    .addPathSegment("thumb")
-                    .addPathSegment(arg.get("tim") + "." + ext)
-                    .build();
-        }
-
-        @Override
-        public HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg) {
-            HttpUrl.Builder stat = root.newBuilder().addPathSegment("static");
-
-            switch (icon) {
-                case "country":
-                    stat.addPathSegment("flags");
-                    stat.addPathSegment(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".png");
-                    break;
-            }
-
-            return stat.build();
-        }
-
-        @Override
-        public HttpUrl boards() {
-            return null;
-        }
-
-        @Override
-        public HttpUrl reply(Loadable loadable) {
-            return sys.newBuilder()
-                    .addPathSegment("post.php")
-                    .build();
-        }
-
-        @Override
-        public HttpUrl delete(Post post) {
-            return null;
-        }
-
-        @Override
-        public HttpUrl report(Post post) {
-            return null;
-        }
-
-        @Override
-        public HttpUrl login() {
-            return null;
-        }
-    };
-
-    private SiteRequestModifier siteRequestModifier = new SiteRequestModifier() {
-        @Override
-        public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public void modifyWebView(WebView webView) {
-        }
-    };
-
-    @Override
-    public String name() {
-        return "8chan";
-    }
-
-    @Override
-    public SiteIcon icon() {
-        return SiteIcon.fromAssets("icons/8chan.png");
-    }
-
-    @Override
-    public Resolvable resolvable() {
-        return RESOLVABLE;
-    }
-
-    @Override
-    public Loadable resolveLoadable(HttpUrl url) {
-        List<String> parts = url.pathSegments();
-
-        if (!parts.isEmpty()) {
-            String boardCode = parts.get(0);
-            Board board = board(boardCode);
-            if (board != null) {
-                if (parts.size() < 3) {
-                    // Board mode
-                    return loadableProvider.get(Loadable.forCatalog(board));
-                } else if (parts.size() >= 3) {
-                    // Thread mode
-                    int no = -1;
-                    try {
-                        no = Integer.parseInt(parts.get(2).replace(".html", ""));
-                    } catch (NumberFormatException ignored) {
+                    if (isEmpty(url.fragment())) {
+                        l.markedNo = Integer.parseInt(url.fragment());
                     }
 
-                    int post = -1;
-                    String fragment = url.fragment();
-                    if (fragment != null) {
-                        try {
-                            post = Integer.parseInt(fragment);
-                        } catch (NumberFormatException ignored) {
-                        }
+                    return l;
+                } else if (board.find()) {
+                    Board b = site.board(board.group(1));
+                    if (b == null) {
+                        return null;
                     }
 
-                    if (no >= 0) {
-                        Loadable loadable = loadableProvider.get(
-                                Loadable.forThread(this, board, no));
-                        if (post >= 0) {
-                            loadable.markedNo = post;
-                        }
-
-                        return loadable;
-                    }
+                    return Loadable.forCatalog(b);
                 }
+            } catch (NumberFormatException ignored) {
+            }
+
+            return null;
+        }
+
+        @Override
+        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+            if (loadable.isCatalogMode()) {
+                return "https://8ch.net/" + loadable.boardCode;
+            } else if (loadable.isThreadMode()) {
+                return "https://8ch.net/" + loadable.boardCode + "/res/" + loadable.no + ".html";
+            } else {
+                return "https://8ch.net/";
             }
         }
+    };
 
-        return null;
-    }
-
-    @Override
-    public boolean feature(Feature feature) {
-        switch (feature) {
-            case POSTING:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    @Override
-    public boolean boardFeature(BoardFeature boardFeature, Board board) {
-        return false;
-    }
-
-    @Override
-    public SiteEndpoints endpoints() {
-        return endpoints;
-    }
-
-    @Override
-    public SiteRequestModifier requestModifier() {
-        return siteRequestModifier;
-    }
-
-    @Override
-    public BoardsType boardsType() {
-        return BoardsType.INFINITE;
-    }
-
-    @Override
-    public String desktopUrl(Loadable loadable, @Nullable Post post) {
-        return "https://8ch.net/";
-    }
-
-    @Override
-    public void boards(BoardsListener boardsListener) {
-    }
+    private static final String TAG = "ViChan";
 
     @Override
     public ChanReader chanReader() {
-        FutabaChanParser parser = new FutabaChanParser(new ViChanParserHandler());
-        return new FutabaChanReader(parser);
+        return new FutabaChanReader(new DefaultPostParser(new ViChanCommentParser()));
     }
 
     @Override
-    public void post(Reply reply, final PostListener postListener) {
-        // TODO
-        HttpCallManager httpCallManager = injector().instance(HttpCallManager.class);
-        httpCallManager.makeHttpCall(new ViChanReplyHttpCall(this, reply),
-                new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                    @Override
-                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                        postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                    }
+    public void setup() {
+        setName("8chan");
+        setIcon(SiteIcon.fromAssets("icons/8chan.png"));
+        setBoardsType(BoardsType.INFINITE);
 
-                    @Override
-                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                        Logger.e(TAG, "post error", e);
+        setResolvable(RESOLVABLE);
 
-                        postListener.onPostError(httpPost);
+        setConfig(new CommonConfig() {
+            @Override
+            public boolean feature(Feature feature) {
+                return feature == Feature.POSTING;
+            }
+        });
+
+        setEndpoints(new CommonEndpoints() {
+            private final SimpleHttpUrl root = from("https://8ch.net");
+            private final SimpleHttpUrl sys = from("https://sys.8ch.net");
+
+            @Override
+            public HttpUrl catalog(Board board) {
+                return root.builder().s(board.code).s("catalog.json").url();
+            }
+
+            @Override
+            public HttpUrl thread(Board board, Loadable loadable) {
+                return root.builder().s(board.code).s("res").s(loadable.no + ".json").url();
+            }
+
+            @Override
+            public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
+                return root.builder().s("file_store").s(arg.get("tim") + "." + arg.get("ext")).url();
+            }
+
+            @Override
+            public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
+                String ext;
+                switch (arg.get("ext")) {
+                    case "jpeg":
+                    case "jpg":
+                    case "png":
+                    case "gif":
+                        ext = arg.get("ext");
+                        break;
+                    default:
+                        ext = "jpg";
+                        break;
+                }
+
+                return root.builder().s("file_store").s("thumb").s(arg.get("tim") + "." + ext).url();
+            }
+
+            @Override
+            public HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg) {
+                SimpleHttpUrl stat = root.builder().s("static");
+
+                if (icon.equals("country")) {
+                    stat.s("flags").s(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".png");
+                }
+
+                return stat.url();
+            }
+
+            @Override
+            public HttpUrl reply(Loadable loadable) {
+                return sys.builder().s("post.php").url();
+            }
+
+        });
+
+        setActions(new CommonActions() {
+            @Override
+            public void setupPost(Reply reply, MultipartHttpCall call) {
+                call.parameter("board", reply.loadable.board.code);
+
+                if (reply.loadable.isThreadMode()) {
+                    call.parameter("post", "New Reply");
+                    call.parameter("thread", String.valueOf(reply.loadable.no));
+                } else {
+                    call.parameter("post", "New Thread");
+                    call.parameter("page", "1");
+                }
+
+                call.parameter("pwd", reply.password);
+                call.parameter("name", reply.name);
+                call.parameter("email", reply.options);
+
+                if (!reply.loadable.isThreadMode() && !isEmpty(reply.subject)) {
+                    call.parameter("subject", reply.subject);
+                }
+
+                call.parameter("body", reply.comment);
+
+                if (reply.file != null) {
+                    call.fileParameter("file", reply.fileName, reply.file);
+                }
+
+                if (reply.spoilerImage) {
+                    call.parameter("spoiler", "on");
+                }
+            }
+
+            @Override
+            public void handlePost(ReplyResponse replyResponse, Response response, String result) {
+                Matcher auth = Pattern.compile(".*\"captcha\": ?true.*").matcher(result);
+                Matcher err = Pattern.compile(".*<h1>Error</h1>.*<h2[^>]*>(.*?)</h2>.*").matcher(result);
+                if (auth.find()) {
+                    replyResponse.requireAuthentication = true;
+                    replyResponse.errorMessage = result;
+                } else if (err.find()) {
+                    replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
+                } else {
+                    HttpUrl url = response.request().url();
+                    Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+).html").matcher(url.encodedPath());
+                    try {
+                        if (m.find()) {
+                            replyResponse.threadNo = Integer.parseInt(m.group(1));
+                            replyResponse.postNo = Integer.parseInt(url.encodedFragment());
+                            replyResponse.posted = true;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        replyResponse.errorMessage = "Error posting: could not find posted thread.";
                     }
-                });
+                }
+            }
+
+            @Override
+            public SiteAuthentication postAuthenticate() {
+                return SiteAuthentication.fromUrl("https://8ch.net/dnsbls_bypass.php",
+                        "You failed the CAPTCHA",
+                        "You may now go back and make your post");
+            }
+        });
+
+        setApi(new ViChanApi());
+
+        setParser(new CommonParser() {
+            @Override
+            public Post parse(Theme theme, Post.Builder builder, Callback callback) {
+                return null;
+            }
+        });
     }
 
-    @Override
-    public Authentication postAuthenticate() {
-        return Authentication.fromUrl("https://8ch.net/dnsbls_bypass.php",
-                "You failed the CAPTCHA",
-                "You may now go back and make your post");
+    private class ViChanApi extends CommonApi {
+        @Override
+        public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+            reader.beginObject();
+            // Page object
+            while (reader.hasNext()) {
+                String key = reader.nextName();
+                if (key.equals("posts")) {
+                    reader.beginArray();
+                    // Thread array
+                    while (reader.hasNext()) {
+                        // Thread object
+                        readPostObject(reader, queue);
+                    }
+                    reader.endArray();
+                } else {
+                    reader.skipValue();
+                }
+            }
+            reader.endObject();
+        }
+
+        @Override
+        public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+            reader.beginArray(); // Array of pages
+
+            while (reader.hasNext()) {
+                reader.beginObject(); // Page object
+
+                while (reader.hasNext()) {
+                    if (reader.nextName().equals("threads")) {
+                        reader.beginArray(); // Threads array
+
+                        while (reader.hasNext()) {
+                            readPostObject(reader, queue);
+                        }
+
+                        reader.endArray();
+                    } else {
+                        reader.skipValue();
+                    }
+                }
+
+                reader.endObject();
+            }
+
+            reader.endArray();
+        }
+
+        @Override
+        public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception {
+            Post.Builder builder = new Post.Builder();
+            builder.board(queue.getLoadable().board);
+
+            SiteEndpoints endpoints = queue.getLoadable().getSite().endpoints();
+
+            // File
+            String fileId = null;
+            String fileExt = null;
+            int fileWidth = 0;
+            int fileHeight = 0;
+            long fileSize = 0;
+            boolean fileSpoiler = false;
+            String fileName = null;
+
+            List<PostImage> files = new ArrayList<>();
+
+            // Country flag
+            String countryCode = null;
+            String trollCountryCode = null;
+            String countryName = null;
+
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String key = reader.nextName();
+
+                switch (key) {
+                    case "no":
+                        builder.id(reader.nextInt());
+                        break;
+                    case "sub":
+                        builder.subject(reader.nextString());
+                        break;
+                    case "name":
+                        builder.name(reader.nextString());
+                        break;
+                    case "com":
+                        builder.comment(reader.nextString());
+                        break;
+                    case "tim":
+                        fileId = reader.nextString();
+                        break;
+                    case "time":
+                        builder.setUnixTimestampSeconds(reader.nextLong());
+                        break;
+                    case "ext":
+                        fileExt = reader.nextString().replace(".", "");
+                        break;
+                    case "w":
+                        fileWidth = reader.nextInt();
+                        break;
+                    case "h":
+                        fileHeight = reader.nextInt();
+                        break;
+                    case "fsize":
+                        fileSize = reader.nextLong();
+                        break;
+                    case "filename":
+                        fileName = reader.nextString();
+                        break;
+                    case "trip":
+                        builder.tripcode(reader.nextString());
+                        break;
+                    case "country":
+                        countryCode = reader.nextString();
+                        break;
+                    case "troll_country":
+                        trollCountryCode = reader.nextString();
+                        break;
+                    case "country_name":
+                        countryName = reader.nextString();
+                        break;
+                    case "spoiler":
+                        fileSpoiler = reader.nextInt() == 1;
+                        break;
+                    case "resto":
+                        int opId = reader.nextInt();
+                        builder.op(opId == 0);
+                        builder.opId(opId);
+                        break;
+                    case "sticky":
+                        builder.sticky(reader.nextInt() == 1);
+                        break;
+                    case "closed":
+                        builder.closed(reader.nextInt() == 1);
+                        break;
+                    case "archived":
+                        builder.archived(reader.nextInt() == 1);
+                        break;
+                    case "replies":
+                        builder.replies(reader.nextInt());
+                        break;
+                    case "images":
+                        builder.images(reader.nextInt());
+                        break;
+                    case "unique_ips":
+                        builder.uniqueIps(reader.nextInt());
+                        break;
+                    case "id":
+                        builder.posterId(reader.nextString());
+                        break;
+                    case "capcode":
+                        builder.moderatorCapcode(reader.nextString());
+                        break;
+                    case "extra_files":
+                        reader.beginArray();
+
+                        while (reader.hasNext()) {
+                            PostImage postImage = readPostImage(reader, builder, endpoints);
+                            if (postImage != null) {
+                                files.add(postImage);
+                            }
+                        }
+
+                        reader.endArray();
+                        break;
+                    default:
+                        // Unknown/ignored key
+                        reader.skipValue();
+                        break;
+                }
+            }
+            reader.endObject();
+
+            // The file from between the other values.
+            if (fileId != null && fileName != null && fileExt != null) {
+                Map<String, String> args = makeArgument("tim", fileId,
+                        "ext", fileExt);
+                PostImage image = new PostImage.Builder()
+                        .originalName(String.valueOf(fileId))
+                        .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
+                        .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
+                        .imageUrl(endpoints.imageUrl(builder, args))
+                        .filename(Parser.unescapeEntities(fileName, false))
+                        .extension(fileExt)
+                        .imageWidth(fileWidth)
+                        .imageHeight(fileHeight)
+                        .spoiler(fileSpoiler)
+                        .size(fileSize)
+                        .build();
+                // Insert it at the beginning.
+                files.add(0, image);
+            }
+
+            builder.images(files);
+
+            if (builder.op) {
+                // Update OP fields later on the main thread
+                Post.Builder op = new Post.Builder();
+                op.closed(builder.closed);
+                op.archived(builder.archived);
+                op.sticky(builder.sticky);
+                op.replies(builder.replies);
+                op.images(builder.imagesCount);
+                op.uniqueIps(builder.uniqueIps);
+                queue.setOp(op);
+            }
+
+            Post cached = queue.getCachedPost(builder.id);
+            if (cached != null) {
+                // Id is known, use the cached post object.
+                queue.addForReuse(cached);
+                return;
+            }
+
+            if (countryCode != null && countryName != null) {
+                HttpUrl countryUrl = endpoints.icon(builder, "country",
+                        makeArgument("country_code", countryCode));
+                builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            }
+
+            if (trollCountryCode != null && countryName != null) {
+                HttpUrl countryUrl = endpoints.icon(builder, "troll_country",
+                        makeArgument("troll_country_code", trollCountryCode));
+                builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
+            }
+
+            queue.addForParse(builder);
+        }
+
+        private PostImage readPostImage(JsonReader reader, Post.Builder builder,
+                                        SiteEndpoints endpoints) throws IOException {
+            reader.beginObject();
+
+            String fileId = null;
+            long fileSize = 0;
+
+            String fileExt = null;
+            int fileWidth = 0;
+            int fileHeight = 0;
+            boolean fileSpoiler = false;
+            String fileName = null;
+
+            while (reader.hasNext()) {
+                switch (reader.nextName()) {
+                    case "tim":
+                        fileId = reader.nextString();
+                        break;
+                    case "fsize":
+                        fileSize = reader.nextLong();
+                        break;
+                    case "w":
+                        fileWidth = reader.nextInt();
+                        break;
+                    case "h":
+                        fileHeight = reader.nextInt();
+                        break;
+                    case "spoiler":
+                        fileSpoiler = reader.nextInt() == 1;
+                        break;
+                    case "ext":
+                        fileExt = reader.nextString().replace(".", "");
+                        break;
+                    case "filename":
+                        fileName = reader.nextString();
+                        break;
+                    default:
+                        reader.skipValue();
+                        break;
+                }
+            }
+
+            reader.endObject();
+
+            if (fileId != null && fileName != null && fileExt != null) {
+                Map<String, String> args = makeArgument("tim", fileId,
+                        "ext", fileExt);
+                return new PostImage.Builder()
+                        .originalName(String.valueOf(fileId))
+                        .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
+                        .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
+                        .imageUrl(endpoints.imageUrl(builder, args))
+                        .filename(Parser.unescapeEntities(fileName, false))
+                        .extension(fileExt)
+                        .imageWidth(fileWidth)
+                        .imageHeight(fileHeight)
+                        .spoiler(fileSpoiler)
+                        .size(fileSize)
+                        .build();
+            }
+            return null;
+        }
     }
 }

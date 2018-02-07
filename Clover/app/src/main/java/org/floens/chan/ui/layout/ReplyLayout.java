@@ -42,7 +42,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
-import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.activity.StartActivity;
@@ -254,7 +254,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     }
 
     @Override
-    public void initializeAuthentication(Site site, Authentication authentication,
+    public void initializeAuthentication(Site site, SiteAuthentication authentication,
                                          AuthenticationLayoutCallback callback) {
         if (authenticationLayout == null) {
             switch (authentication.type) {

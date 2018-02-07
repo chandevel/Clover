@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.common;
+package org.floens.chan.core.site.parser;
 
 import android.util.JsonReader;
 
@@ -31,9 +31,12 @@ import org.floens.chan.core.site.loader.ChanLoaderResponse;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -165,10 +168,29 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
         List<Post.Builder> toParse = queue.getToParse();
 
+        // A list of all ids in the thread. Used for checking if a quote if for the current
+        // thread or externally.
+        Set<Integer> internalIds = new HashSet<>();
+        // All ids of cached posts.
+        for (int i = 0; i < cached.size(); i++) {
+            internalIds.add(cached.get(i).no);
+        }
+        // And ids for posts to parse, from the builder.
+        for (int i = 0; i < toParse.size(); i++) {
+            internalIds.add(toParse.get(i).id);
+        }
+        // Do not modify internalIds after this point.
+        internalIds = Collections.unmodifiableSet(internalIds);
+
         List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
         for (int i = 0; i < toParse.size(); i++) {
             Post.Builder post = toParse.get(i);
-            tasks.add(new PostParseCallable(filterEngine, filters, databaseSavedReplyManager, post, reader));
+            tasks.add(new PostParseCallable(filterEngine,
+                    filters,
+                    databaseSavedReplyManager,
+                    post,
+                    reader,
+                    internalIds));
         }
 
         if (!tasks.isEmpty()) {

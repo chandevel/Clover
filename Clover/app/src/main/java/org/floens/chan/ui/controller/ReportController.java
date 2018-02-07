@@ -26,12 +26,14 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.ui.helper.PostHelper;
 
 import okhttp3.HttpUrl;
 
 public class ReportController extends Controller {
     private Post post;
+    private SiteRequestModifier siteRequestModifier;
 
     public ReportController(Context context, Post post) {
         super(context);
@@ -49,7 +51,10 @@ public class ReportController extends Controller {
 
         WebView webView = new WebView(context);
 
-        site.requestModifier().modifyWebView(webView);
+        siteRequestModifier = site.requestModifier();
+        if (siteRequestModifier != null) {
+            siteRequestModifier.modifyWebView(webView);
+        }
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);

@@ -217,7 +217,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, Integer id) {
         if (presenter.isBound()) {
             Loadable loadable = presenter.getLoadable();
-            String link = loadable.site.desktopUrl(loadable, null);
+            String link = loadable.site.resolvable().desktopUrl(loadable, null);
 
             if (id == SHARE_ID) {
                 AndroidUtils.shareLink(link);

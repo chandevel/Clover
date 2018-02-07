@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class SiteManager {
+public class SiteService {
     private static boolean addSiteForLegacy = false;
 
     /**
@@ -48,7 +48,7 @@ public class SiteManager {
     private boolean initialized = false;
 
     @Inject
-    public SiteManager(SiteRepository siteRepository,
+    public SiteService(SiteRepository siteRepository,
                        SiteResolver resolver) {
         this.siteRepository = siteRepository;
         this.resolver = resolver;

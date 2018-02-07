@@ -146,7 +146,7 @@ public abstract class ThreadController extends Controller implements
         NdefMessage message = null;
 
         if (loadable != null) {
-            url = loadable.site.desktopUrl(loadable, null);
+            url = loadable.site.resolvable().desktopUrl(loadable, null);
         }
 
         if (url != null) {

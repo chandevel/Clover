@@ -44,7 +44,7 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteManager;
+import org.floens.chan.core.site.SiteService;
 import org.floens.chan.core.site.SiteResolver;
 import org.floens.chan.core.site.Sites;
 import org.floens.chan.ui.controller.BrowseController;
@@ -96,7 +96,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     SiteResolver siteResolver;
 
     @Inject
-    SiteManager siteManager;
+    SiteService siteService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +151,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     }
 
     private void restoreFresh() {
-        if (!siteManager.areSitesSetup()) {
+        if (!siteService.areSitesSetup()) {
             SitesSetupController setupController = new SitesSetupController(this);
 
             if (drawerController.childControllers.get(0) instanceof DoubleNavigationController) {

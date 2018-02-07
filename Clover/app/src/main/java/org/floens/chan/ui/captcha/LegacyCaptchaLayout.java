@@ -34,7 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.view.FixedRatioThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -121,7 +121,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
     public void initialize(Site site, AuthenticationLayoutCallback callback) {
         this.callback = callback;
 
-        Authentication authentication = site.postAuthenticate();
+        SiteAuthentication authentication = site.actions().postAuthenticate();
 
         this.siteKey = authentication.siteKey;
         this.baseUrl = authentication.baseUrl;

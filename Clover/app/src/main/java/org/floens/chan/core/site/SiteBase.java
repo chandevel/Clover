@@ -29,10 +29,7 @@ import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.settings.json.JsonSettingsProvider;
-import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCallManager;
-import org.floens.chan.core.site.http.LoginRequest;
-import org.floens.chan.core.site.http.Reply;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,16 +63,16 @@ public abstract class SiteBase implements Site {
         requestQueue = injector.instance(RequestQueue.class);
         boardManager = injector.instance(BoardManager.class);
         loadableProvider = injector.instance(LoadableProvider.class);
-        SiteManager siteManager = injector.instance(SiteManager.class);
+        SiteService siteService = injector.instance(SiteService.class);
 
         settingsProvider = new JsonSettingsProvider(userSettings, () -> {
-            siteManager.updateUserSettings(this, userSettings);
+            siteService.updateUserSettings(this, userSettings);
         });
 
         initializeSettings();
 
         if (boardsType() == BoardsType.DYNAMIC) {
-            boards(boards -> boardManager.createAll(boards.boards));
+            actions().boards(boards -> boardManager.createAll(boards.boards));
         }
     }
 
@@ -107,41 +104,5 @@ public abstract class SiteBase implements Site {
         Board board = Board.fromSiteNameCode(this, name, code);
         boardManager.createAll(Collections.singletonList(board));
         return board;
-    }
-
-    @Override
-    public boolean postRequiresAuthentication() {
-        return false;
-    }
-
-    @Override
-    public void post(Reply reply, PostListener postListener) {
-    }
-
-    @Override
-    public Authentication postAuthenticate() {
-        return Authentication.fromNone();
-    }
-
-    @Override
-    public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
-    }
-
-    @Override
-    public void login(LoginRequest loginRequest, LoginListener loginListener) {
-    }
-
-    @Override
-    public void logout() {
-    }
-
-    @Override
-    public boolean isLoggedIn() {
-        return false;
-    }
-
-    @Override
-    public LoginRequest getLoginDetails() {
-        return null;
     }
 }

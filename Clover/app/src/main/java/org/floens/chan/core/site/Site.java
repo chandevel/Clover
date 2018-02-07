@@ -17,33 +17,25 @@
  */
 package org.floens.chan.core.site;
 
-import android.support.annotation.Nullable;
-
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.json.JsonSettings;
-import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.parser.ChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
-import org.floens.chan.core.site.http.DeleteResponse;
-import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.LoginRequest;
-import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
-import org.floens.chan.core.site.http.ReplyResponse;
 
 import java.util.List;
-
-import okhttp3.HttpUrl;
 
 public interface Site {
     enum Feature {
         /**
          * This site supports posting. (Or rather, we've implemented support for it.)
          *
-         * @see #post(Reply, PostListener)
+         * @see SiteActions#post(Reply, SiteActions.PostListener)
          * @see SiteEndpoints#reply(Loadable)
          */
         POSTING,
@@ -51,7 +43,7 @@ public interface Site {
         /**
          * This site supports deleting posts.
          *
-         * @see #delete(DeleteRequest, DeleteListener)
+         * @see SiteActions#delete(DeleteRequest, SiteActions.DeleteListener)
          * @see SiteEndpoints#delete(Post)
          */
         POST_DELETE,
@@ -66,7 +58,7 @@ public interface Site {
         /**
          * This site supports some sort of authentication (like 4pass).
          *
-         * @see #login(LoginRequest, LoginListener)
+         * @see SiteActions#login(LoginRequest, SiteActions.LoginListener)
          * @see SiteEndpoints#login()
          */
         LOGIN
@@ -90,7 +82,7 @@ public interface Site {
     }
 
     /**
-     * How the boards are organized for this size.
+     * How the boards are organized for this site.
      */
     enum BoardsType {
         /**
@@ -134,9 +126,9 @@ public interface Site {
 
     SiteIcon icon();
 
-    Resolvable resolvable();
+    BoardsType boardsType();
 
-    Loadable resolveLoadable(HttpUrl url);
+    SiteUrlHandler resolvable();
 
     boolean feature(Feature feature);
 
@@ -148,15 +140,9 @@ public interface Site {
 
     SiteRequestModifier requestModifier();
 
-    BoardsType boardsType();
+    ChanReader chanReader();
 
-    String desktopUrl(Loadable loadable, @Nullable Post post);
-
-    void boards(BoardsListener boardsListener);
-
-    interface BoardsListener {
-        void onBoardsReceived(Boards boards);
-    }
+    SiteActions actions();
 
     /**
      * Return the board for this site with the given {@code code}.
@@ -178,56 +164,4 @@ public interface Site {
      * @return the created board.
      */
     Board createBoard(String name, String code);
-
-    ChanReader chanReader();
-
-    void post(Reply reply, PostListener postListener);
-
-    interface PostListener {
-
-        void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse);
-
-        void onPostError(HttpCall httpCall);
-
-    }
-
-    boolean postRequiresAuthentication();
-
-    /**
-     * If {@link ReplyResponse#requireAuthentication} was {@code true}, or if
-     * {@link #postRequiresAuthentication()} is {@code true}, get the authentication
-     * required to post.
-     * <p>
-     * <p>Some sites know beforehand if you need to authenticate, some sites only report it
-     * after posting. That's why there are two methods.</p>
-     *
-     * @return an {@link Authentication} model that describes the way to authenticate.
-     */
-    Authentication postAuthenticate();
-
-    void delete(DeleteRequest deleteRequest, DeleteListener deleteListener);
-
-    interface DeleteListener {
-        void onDeleteComplete(HttpCall httpCall, DeleteResponse deleteResponse);
-
-        void onDeleteError(HttpCall httpCall);
-    }
-
-    /* TODO(multi-site) this login mechanism is probably not generic enough right now,
-     * especially if we're thinking about what a login really is
-     * We'll expand this later when we have a better idea of what other sites require.
-     */
-    void login(LoginRequest loginRequest, LoginListener loginListener);
-
-    void logout();
-
-    boolean isLoggedIn();
-
-    LoginRequest getLoginDetails();
-
-    interface LoginListener {
-        void onLoginComplete(HttpCall httpCall, LoginResponse loginResponse);
-
-        void onLoginError(HttpCall httpCall);
-    }
 }

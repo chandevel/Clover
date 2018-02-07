@@ -7,7 +7,10 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostHttpIcon;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.site.SiteEndpoints;
-import org.jsoup.parser.Parser;
+import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.core.site.parser.ChanReaderProcessingQueue;
+import org.floens.chan.core.site.parser.CommentParser;
+import org.floens.chan.core.site.parser.PostParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,19 +23,19 @@ import okhttp3.HttpUrl;
 import static org.floens.chan.core.site.SiteEndpoints.makeArgument;
 
 public class FutabaChanReader implements ChanReader {
-    private final ChanParser chanParser;
+    private final PostParser postParser;
 
     public FutabaChanReader() {
-        this.chanParser = new FutabaChanParser(new DefaultFutabaChanParserHandler());
+        this.postParser = new DefaultPostParser(new CommentParser());
     }
 
-    public FutabaChanReader(ChanParser chanParser) {
-        this.chanParser = chanParser;
+    public FutabaChanReader(PostParser postParser) {
+        this.postParser = postParser;
     }
 
     @Override
-    public ChanParser getParser() {
-        return chanParser;
+    public PostParser getParser() {
+        return postParser;
     }
 
     @Override
@@ -226,7 +229,7 @@ public class FutabaChanReader implements ChanReader {
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(Parser.unescapeEntities(fileName, false))
+                    .filename(org.jsoup.parser.Parser.unescapeEntities(fileName, false))
                     .extension(fileExt)
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)
@@ -331,7 +334,7 @@ public class FutabaChanReader implements ChanReader {
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(Parser.unescapeEntities(fileName, false))
+                    .filename(org.jsoup.parser.Parser.unescapeEntities(fileName, false))
                     .extension(fileExt)
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)

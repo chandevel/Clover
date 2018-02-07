@@ -20,7 +20,7 @@ package org.floens.chan.core.presenter;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteManager;
+import org.floens.chan.core.site.SiteService;
 import org.floens.chan.core.site.Sites;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class SitesSetupPresenter {
-    private SiteManager siteManager;
+    private SiteService siteService;
     private BoardManager boardManager;
 
     private Callback callback;
@@ -38,8 +38,8 @@ public class SitesSetupPresenter {
     private List<Site> sites = new ArrayList<>();
 
     @Inject
-    public SitesSetupPresenter(SiteManager siteManager, BoardManager boardManager) {
-        this.siteManager = siteManager;
+    public SitesSetupPresenter(SiteService siteService, BoardManager boardManager) {
+        this.siteService = siteService;
         this.boardManager = boardManager;
     }
 
@@ -84,7 +84,7 @@ public class SitesSetupPresenter {
     }
 
     public void onAddClicked(String url) {
-        siteManager.addSite(url, new SiteManager.SiteAddCallback() {
+        siteService.addSite(url, new SiteService.SiteAddCallback() {
             @Override
             public void onSiteAdded(Site site) {
                 siteAdded(site);

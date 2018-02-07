@@ -263,7 +263,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         final List<PostLinkable> linkables = post.linkables;
         String[] keys = new String[linkables.size()];
         for (int i = 0; i < linkables.size(); i++) {
-            keys[i] = linkables.get(i).key;
+            keys[i] = linkables.get(i).key.toString();
         }
 
         new AlertDialog.Builder(getContext())

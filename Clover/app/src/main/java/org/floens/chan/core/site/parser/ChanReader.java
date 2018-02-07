@@ -15,15 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.common;
+package org.floens.chan.core.site.parser;
 
-import org.floens.chan.core.model.Post;
-import org.floens.chan.ui.theme.Theme;
 
-public interface ChanParser {
-    Post parse(Theme theme, Post.Builder builder, Callback callback);
+import android.util.JsonReader;
 
-    interface Callback {
-        boolean isSaved(int postNo);
-    }
+public interface ChanReader {
+    PostParser getParser();
+
+    void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception;
+
+    void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception;
+
+    void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue) throws Exception;
 }

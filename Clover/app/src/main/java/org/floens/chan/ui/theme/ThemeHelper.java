@@ -22,6 +22,7 @@ import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.support.annotation.AnyThread;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.ChanSettings;
@@ -101,6 +102,7 @@ public class ThemeHelper {
         }
     }
 
+    @AnyThread
     public Theme getTheme() {
         return theme;
     }

@@ -30,15 +30,16 @@ import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
 import org.floens.chan.core.settings.StringSetting;
-import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Boards;
-import org.floens.chan.core.site.Resolvable;
+import org.floens.chan.core.site.SiteUrlHandler;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
-import org.floens.chan.core.site.common.ChanReader;
+import org.floens.chan.core.site.parser.ChanReader;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
 import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
@@ -61,7 +62,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 
 public class Chan4 extends SiteBase {
-    public static final Resolvable RESOLVABLE = new Resolvable() {
+    public static final SiteUrlHandler SITE_URL_HANDLER = new SiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
             return Chan4.class;
@@ -77,6 +78,67 @@ public class Chan4 extends SiteBase {
             return url.host().equals("4chan.org") ||
                     url.host().equals("www.4chan.org") ||
                     url.host().equals("boards.4chan.org");
+        }
+
+        @Override
+        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+            if (loadable.isCatalogMode()) {
+                return "https://boards.4chan.org/" + loadable.board.code + "/";
+            } else if (loadable.isThreadMode()) {
+                String url = "https://boards.4chan.org/" + loadable.board.code + "/thread/" + loadable.no;
+                if (post != null) {
+                    url += "#p" + post.no;
+                }
+                return url;
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        @Override
+        public Loadable resolveLoadable(Site site, HttpUrl url) {
+            List<String> parts = url.pathSegments();
+
+            if (!parts.isEmpty()) {
+                String boardCode = parts.get(0);
+                Board board = site.board(boardCode);
+                if (board != null) {
+                    if (parts.size() < 3) {
+                        // Board mode
+                        return Loadable.forCatalog(board);
+                    } else if (parts.size() >= 3) {
+                        // Thread mode
+                        int no = -1;
+                        try {
+                            no = Integer.parseInt(parts.get(2));
+                        } catch (NumberFormatException ignored) {
+                        }
+
+                        int post = -1;
+                        String fragment = url.fragment();
+                        if (fragment != null) {
+                            int index = fragment.indexOf("p");
+                            if (index >= 0) {
+                                try {
+                                    post = Integer.parseInt(fragment.substring(index + 1));
+                                } catch (NumberFormatException ignored) {
+                                }
+                            }
+                        }
+
+                        if (no >= 0) {
+                            Loadable loadable = Loadable.forThread(site, board, no);
+                            if (post >= 0) {
+                                loadable.markedNo = post;
+                            }
+
+                            return loadable;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     };
 
@@ -223,7 +285,7 @@ public class Chan4 extends SiteBase {
     private SiteRequestModifier siteRequestModifier = new SiteRequestModifier() {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
-            if (isLoggedIn()) {
+            if (actions.isLoggedIn()) {
                 requestBuilder.addHeader("Cookie", "pass_id=" + passToken.get());
             }
         }
@@ -238,7 +300,7 @@ public class Chan4 extends SiteBase {
 
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.removeAllCookie();
-            if (isLoggedIn()) {
+            if (actions.isLoggedIn()) {
                 String[] passCookies = {
                         "pass_enabled=1;",
                         "pass_id=" + passToken.get() + ";"
@@ -248,6 +310,114 @@ public class Chan4 extends SiteBase {
                     cookieManager.setCookie(domain, cookie);
                 }
             }
+        }
+    };
+
+    private SiteActions actions = new SiteActions() {
+        @Override
+        public void boards(final BoardsListener listener) {
+            requestQueue.add(new Chan4BoardsRequest(Chan4.this, response -> {
+                listener.onBoardsReceived(new Boards(response));
+            }, (error) -> {
+                Logger.e(TAG, "Failed to get boards from server", error);
+
+                // API fail, provide some default boards
+                List<Board> list = new ArrayList<>();
+                list.add(new Board(Chan4.this, "Technology", "g", true, true));
+                list.add(new Board(Chan4.this, "Food & Cooking", "ck", true, true));
+                list.add(new Board(Chan4.this, "Do It Yourself", "diy", true, true));
+                list.add(new Board(Chan4.this, "Animals & Nature", "an", true, true));
+                Collections.shuffle(list);
+                listener.onBoardsReceived(new Boards(list));
+            }));
+        }
+
+        @Override
+        public void post(Reply reply, final PostListener postListener) {
+            httpCallManager.makeHttpCall(new Chan4ReplyCall(Chan4.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+                @Override
+                public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                    postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                }
+
+                @Override
+                public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                    postListener.onPostError(httpPost);
+                }
+            });
+        }
+
+        @Override
+        public boolean postRequiresAuthentication() {
+            return !isLoggedIn();
+        }
+
+        @Override
+        public SiteAuthentication postAuthenticate() {
+            if (isLoggedIn()) {
+                return SiteAuthentication.fromNone();
+            } else {
+                switch (captchaType.get()) {
+                    case V2JS:
+                        return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, "https://boards.4chan.org");
+                    case V2NOJS:
+                        return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, "https://boards.4chan.org");
+                    default:
+                        throw new IllegalArgumentException();
+                }
+            }
+        }
+
+        @Override
+        public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
+            httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this, deleteRequest), new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
+                @Override
+                public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
+                    deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
+                }
+
+                @Override
+                public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
+                    deleteListener.onDeleteError(httpPost);
+                }
+            });
+        }
+
+        @Override
+        public void login(LoginRequest loginRequest, final LoginListener loginListener) {
+            passUser.set(loginRequest.user);
+            passPass.set(loginRequest.pass);
+
+            httpCallManager.makeHttpCall(new Chan4PassHttpCall(Chan4.this, loginRequest), new HttpCall.HttpCallback<Chan4PassHttpCall>() {
+                @Override
+                public void onHttpSuccess(Chan4PassHttpCall httpCall) {
+                    LoginResponse loginResponse = httpCall.loginResponse;
+                    if (loginResponse.success) {
+                        passToken.set(loginResponse.token);
+                    }
+                    loginListener.onLoginComplete(httpCall, loginResponse);
+                }
+
+                @Override
+                public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
+                    loginListener.onLoginError(httpCall);
+                }
+            });
+        }
+
+        @Override
+        public void logout() {
+            passToken.set("");
+        }
+
+        @Override
+        public boolean isLoggedIn() {
+            return !passToken.get().isEmpty();
+        }
+
+        @Override
+        public LoginRequest getLoginDetails() {
+            return new LoginRequest(passUser.get(), passPass.get());
         }
     };
 
@@ -310,55 +480,8 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
-    public Resolvable resolvable() {
-        return RESOLVABLE;
-    }
-
-    @Override
-    public Loadable resolveLoadable(HttpUrl url) {
-        List<String> parts = url.pathSegments();
-
-        if (!parts.isEmpty()) {
-            String boardCode = parts.get(0);
-            Board board = board(boardCode);
-            if (board != null) {
-                if (parts.size() < 3) {
-                    // Board mode
-                    return loadableProvider.get(Loadable.forCatalog(board));
-                } else if (parts.size() >= 3) {
-                    // Thread mode
-                    int no = -1;
-                    try {
-                        no = Integer.parseInt(parts.get(2));
-                    } catch (NumberFormatException ignored) {
-                    }
-
-                    int post = -1;
-                    String fragment = url.fragment();
-                    if (fragment != null) {
-                        int index = fragment.indexOf("p");
-                        if (index >= 0) {
-                            try {
-                                post = Integer.parseInt(fragment.substring(index + 1));
-                            } catch (NumberFormatException ignored) {
-                            }
-                        }
-                    }
-
-                    if (no >= 0) {
-                        Loadable loadable = loadableProvider.get(
-                                Loadable.forThread(this, board, no));
-                        if (post >= 0) {
-                            loadable.markedNo = post;
-                        }
-
-                        return loadable;
-                    }
-                }
-            }
-        }
-
-        return null;
+    public SiteUrlHandler resolvable() {
+        return SITE_URL_HANDLER;
     }
 
     @Override
@@ -388,21 +511,6 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
-    public String desktopUrl(Loadable loadable, @Nullable Post post) {
-        if (loadable.isCatalogMode()) {
-            return "https://boards.4chan.org/" + loadable.board.code + "/";
-        } else if (loadable.isThreadMode()) {
-            String url = "https://boards.4chan.org/" + loadable.board.code + "/thread/" + loadable.no;
-            if (post != null) {
-                url += "#p" + post.no;
-            }
-            return url;
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    @Override
     public boolean boardFeature(BoardFeature boardFeature, Board board) {
         switch (boardFeature) {
             case POSTING_IMAGE:
@@ -416,23 +524,6 @@ public class Chan4 extends SiteBase {
         }
     }
 
-    @Override
-    public void boards(final BoardsListener listener) {
-        requestQueue.add(new Chan4BoardsRequest(this, response -> {
-            listener.onBoardsReceived(new Boards(response));
-        }, (error) -> {
-            Logger.e(TAG, "Failed to get boards from server", error);
-
-            // API fail, provide some default boards
-            List<Board> list = new ArrayList<>();
-            list.add(new Board(Chan4.this, "Technology", "g", true, true));
-            list.add(new Board(Chan4.this, "Food & Cooking", "ck", true, true));
-            list.add(new Board(Chan4.this, "Do It Yourself", "diy", true, true));
-            list.add(new Board(Chan4.this, "Animals & Nature", "an", true, true));
-            Collections.shuffle(list);
-            listener.onBoardsReceived(new Boards(list));
-        }));
-    }
 
     @Override
     public SiteEndpoints endpoints() {
@@ -450,90 +541,7 @@ public class Chan4 extends SiteBase {
     }
 
     @Override
-    public void post(Reply reply, final PostListener postListener) {
-        httpCallManager.makeHttpCall(new Chan4ReplyCall(this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-            @Override
-            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                postListener.onPostComplete(httpPost, httpPost.replyResponse);
-            }
-
-            @Override
-            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                postListener.onPostError(httpPost);
-            }
-        });
-    }
-
-    @Override
-    public boolean postRequiresAuthentication() {
-        return !isLoggedIn();
-    }
-
-    @Override
-    public Authentication postAuthenticate() {
-        if (isLoggedIn()) {
-            return Authentication.fromNone();
-        } else {
-            switch (captchaType.get()) {
-                case V2JS:
-                    return Authentication.fromCaptcha2(CAPTCHA_KEY, "https://boards.4chan.org");
-                case V2NOJS:
-                    return Authentication.fromCaptcha2nojs(CAPTCHA_KEY, "https://boards.4chan.org");
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-    }
-
-    @Override
-    public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
-        httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(this, deleteRequest), new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
-            @Override
-            public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
-                deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
-            }
-
-            @Override
-            public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
-                deleteListener.onDeleteError(httpPost);
-            }
-        });
-    }
-
-    @Override
-    public void login(LoginRequest loginRequest, final LoginListener loginListener) {
-        passUser.set(loginRequest.user);
-        passPass.set(loginRequest.pass);
-
-        httpCallManager.makeHttpCall(new Chan4PassHttpCall(this, loginRequest), new HttpCall.HttpCallback<Chan4PassHttpCall>() {
-            @Override
-            public void onHttpSuccess(Chan4PassHttpCall httpCall) {
-                LoginResponse loginResponse = httpCall.loginResponse;
-                if (loginResponse.success) {
-                    passToken.set(loginResponse.token);
-                }
-                loginListener.onLoginComplete(httpCall, loginResponse);
-            }
-
-            @Override
-            public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
-                loginListener.onLoginError(httpCall);
-            }
-        });
-    }
-
-    @Override
-    public void logout() {
-        passToken.set("");
-    }
-
-    @Override
-    public boolean isLoggedIn() {
-        return !passToken.get().isEmpty();
-    }
-
-    @Override
-    public LoginRequest getLoginDetails() {
-        return new LoginRequest(passUser.get(), passPass.get());
+    public SiteActions actions() {
+        return actions;
     }
 }

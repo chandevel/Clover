@@ -21,7 +21,6 @@ import android.text.TextUtils;
 
 import org.floens.chan.Chan;
 import org.floens.chan.R;
-import org.floens.chan.core.site.loader.ChanLoader;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.manager.WatchManager;
@@ -37,9 +36,11 @@ import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -58,7 +59,7 @@ import javax.inject.Inject;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutPresenterCallback {
+public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutPresenterCallback {
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
@@ -81,7 +82,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     private ChanLoaderFactory chanLoaderFactory;
 
     private Loadable loadable;
-    private ChanLoader chanLoader;
+    private ChanThreadLoader chanLoader;
     private boolean searchOpen = false;
     private String searchQuery;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
@@ -252,7 +253,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
     }
 
     /*
-     * ChanLoader callbacks
+     * ChanThreadLoader callbacks
      */
     @Override
     public void onChanLoaderData(ChanThread result) {
@@ -530,12 +531,12 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
                 watchManager.createPin(pinLoadable, post);
                 break;
             case POST_OPTION_OPEN_BROWSER: {
-                String url = loadable.site.desktopUrl(loadable, post.isOP ? null : post);
+                String url = loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post);
                 AndroidUtils.openLink(url);
                 break;
             }
             case POST_OPTION_SHARE: {
-                String url = loadable.site.desktopUrl(loadable, post.isOP ? null : post);
+                String url = loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post);
                 AndroidUtils.shareLink(url);
                 break;
             }
@@ -637,7 +638,7 @@ public class ThreadPresenter implements ChanLoader.ChanLoaderCallback, PostAdapt
         );
         if (reply != null) {
             Site site = loadable.getSite();
-            site.delete(new DeleteRequest(post, reply, onlyImageDelete), new Site.DeleteListener() {
+            site.actions().delete(new DeleteRequest(post, reply, onlyImageDelete), new SiteActions.DeleteListener() {
                 @Override
                 public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
                     String message;

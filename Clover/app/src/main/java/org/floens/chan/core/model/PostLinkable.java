@@ -27,7 +27,7 @@ import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.theme.Theme;
 
 /**
- * A Clickable span that handles post clicks. These are created in ChanParser for post quotes, spoilers etc.<br>
+ * A Clickable span that handles post clicks. These are created in PostParser for post quotes, spoilers etc.<br>
  * PostCell has a {@link PostCell.PostViewMovementMethod}, that searches spans at the location the TextView was tapped,
  * and handled if it was a PostLinkable.
  */
@@ -37,14 +37,14 @@ public class PostLinkable extends ClickableSpan {
     }
 
     public final Theme theme;
-    public final String key;
+    public final CharSequence key;
     public final Object value;
     public final Type type;
 
     private boolean spoilerVisible = ChanSettings.revealTextSpoilers.get();
     private int markedNo = -1;
 
-    public PostLinkable(Theme theme, String key, Object value, Type type) {
+    public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
         this.theme = theme;
         this.key = key;
         this.value = value;

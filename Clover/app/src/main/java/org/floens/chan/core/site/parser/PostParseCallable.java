@@ -15,14 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.common;
+package org.floens.chan.core.site.parser;
 
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
 import org.floens.chan.core.manager.FilterEngine;
-import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Filter;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 // Called concurrently to parse the post html and the filters on it
@@ -35,17 +36,19 @@ class PostParseCallable implements Callable<Post> {
     private DatabaseSavedReplyManager savedReplyManager;
     private Post.Builder post;
     private ChanReader reader;
+    private final Set<Integer> internalIds;
 
     public PostParseCallable(FilterEngine filterEngine,
                              List<Filter> filters,
                              DatabaseSavedReplyManager savedReplyManager,
                              Post.Builder post,
-                             ChanReader reader) {
+                             ChanReader reader, Set<Integer> internalIds) {
         this.filterEngine = filterEngine;
         this.filters = filters;
         this.savedReplyManager = savedReplyManager;
         this.post = post;
         this.reader = reader;
+        this.internalIds = internalIds;
     }
 
     @Override
@@ -55,14 +58,15 @@ class PostParseCallable implements Callable<Post> {
 
         post.isSavedReply(savedReplyManager.isSaved(post.board, post.id));
 
-//        if (!post.parse(parser)) {
-//            Logger.e(TAG, "Incorrect data about post received for post " + post.no);
-//            return null;
-//        }
-        return reader.getParser().parse(null, post, new ChanParser.Callback() {
+        return reader.getParser().parse(null, post, new PostParser.Callback() {
             @Override
             public boolean isSaved(int postNo) {
                 return savedReplyManager.isSaved(post.board, postNo);
+            }
+
+            @Override
+            public boolean isInternal(int postNo) {
+                return internalIds.contains(postNo);
             }
         });
     }

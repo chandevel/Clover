@@ -38,7 +38,7 @@ public class SiteSetupPresenter {
     public void show() {
         setBoardCount(callback, site);
         if (hasLogin) {
-            callback.setIsLoggedIn(site.isLoggedIn());
+            callback.setIsLoggedIn(site.actions().isLoggedIn());
         }
     }
 

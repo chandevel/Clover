@@ -29,8 +29,9 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.Authentication;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
@@ -49,7 +50,7 @@ import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, Site.PostListener {
+public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
     public enum Page {
         INPUT,
         AUTHENTICATION,
@@ -195,7 +196,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
 
         draft.captchaResponse = null;
-        if (loadable.site.postRequiresAuthentication()) {
+        if (loadable.site.actions().postRequiresAuthentication()) {
             switchPage(Page.AUTHENTICATION, true);
         } else {
             makeSubmitCall();
@@ -369,7 +370,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     private void makeSubmitCall() {
-        loadable.getSite().post(draft, this);
+        loadable.getSite().actions().post(draft, this);
         switchPage(Page.LOADING, true);
     }
 
@@ -384,7 +385,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     callback.setPage(Page.INPUT, animate);
                     break;
                 case AUTHENTICATION:
-                    Authentication authentication = loadable.site.postAuthenticate();
+                    SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
 
                     callback.initializeAuthentication(loadable.site, authentication, this);
                     callback.setPage(Page.AUTHENTICATION, true);
@@ -447,7 +448,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void setPage(Page page, boolean animate);
 
-        void initializeAuthentication(Site site, Authentication authentication,
+        void initializeAuthentication(Site site, SiteAuthentication authentication,
                                       AuthenticationLayoutCallback callback);
 
         void resetAuthentication();
