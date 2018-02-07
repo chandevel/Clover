@@ -17,31 +17,18 @@
  */
 package org.floens.chan.core.site.sites.vichan;
 
-import android.text.SpannableString;
-
-import org.floens.chan.core.model.Post;
 import org.floens.chan.core.site.parser.CommentParser;
-import org.floens.chan.core.site.parser.CommentParserHelper;
-import org.floens.chan.ui.span.ForegroundColorSpanHashed;
-import org.floens.chan.ui.theme.Theme;
-import org.jsoup.nodes.Element;
+import org.floens.chan.core.site.parser.StyleRule;
 
 import java.util.regex.Pattern;
+
+import static org.floens.chan.core.site.parser.StyleRule.tagRule;
 
 public class ViChanCommentParser extends CommentParser {
     public ViChanCommentParser() {
         setQuotePattern(Pattern.compile(".*#(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
-    }
 
-    @Override
-    public CharSequence handleParagraph(Theme theme, Post.Builder post, CharSequence text, Element element) {
-        if (element.hasClass("quote")) {
-            SpannableString res = span(text, new ForegroundColorSpanHashed(theme.inlineQuoteColor));
-            CommentParserHelper.detectLinks(theme, post, res.toString(), res);
-            return res;
-        } else {
-            return text;
-        }
+        rule(tagRule("p").cssClass("quote").color(StyleRule.Color.INLINE_QUOTE).linkify());
     }
 }

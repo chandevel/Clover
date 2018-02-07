@@ -21,9 +21,7 @@ import android.graphics.Typeface;
 import android.support.annotation.AnyThread;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
 import org.floens.chan.core.model.Post;
@@ -35,11 +33,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.floens.chan.core.site.parser.StyleRule.tagRule;
 import static org.floens.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -51,6 +52,38 @@ public class CommentParser {
     private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
+
+    private Map<String, List<StyleRule>> rules = new HashMap<>();
+
+    public CommentParser() {
+        rule(tagRule("br").just("\n"));
+
+        rule(tagRule("a").action(this::handleAnchor));
+
+        rule(tagRule("span").cssClass("deadlink").color(StyleRule.Color.QUOTE).strikeThrough());
+        rule(tagRule("span").cssClass("spoiler").link(PostLinkable.Type.SPOILER));
+        rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
+        rule(tagRule("span").cssClass("abbr").nullify());
+        rule(tagRule("span").color(StyleRule.Color.INLINE_QUOTE).linkify());
+
+        rule(tagRule("table").action(this::handleTable));
+
+        rule(tagRule("s").link(PostLinkable.Type.SPOILER));
+
+        rule(tagRule("strong").color(StyleRule.Color.QUOTE).bold());
+
+        rule(tagRule("pre").cssClass("prettyprint").monospace().size(sp(12f)));
+    }
+
+    public void rule(StyleRule rule) {
+        List<StyleRule> list = rules.get(rule.tag());
+        if (list == null) {
+            list = new ArrayList<>(3);
+            rules.put(rule.tag(), list);
+        }
+
+        list.add(rule);
+    }
 
     public void setQuotePattern(Pattern quotePattern) {
         this.quotePattern = quotePattern;
@@ -66,24 +99,23 @@ public class CommentParser {
                                   String tag,
                                   CharSequence text,
                                   Element element) {
+
+        List<StyleRule> rules = this.rules.get(tag);
+        if (rules != null) {
+            for (int i = 0; i < 2; i++) {
+                boolean highPriority = i == 0;
+                for (StyleRule rule : rules) {
+                    if (rule.highPriority() == highPriority && rule.applies(element)) {
+                        return rule.apply(theme, callback, post, text, element);
+                    }
+                }
+            }
+        }
+
         switch (tag) {
-            case "br":
-                return "\n";
-            case "span":
-                return handleSpan(theme, post, text, element);
             case "p":
                 return appendBreakIfNotLastSibling(
                         handleParagraph(theme, post, text, element), element);
-            case "table":
-                return handleTable(theme, post, text, element);
-            case "strong":
-                return handleStrong(theme, post, text, element);
-            case "a":
-                return handleAnchor(theme, post, text, element, callback);
-            case "s":
-                return handleStrike(theme, post, text, element);
-            case "pre":
-                return handlePre(theme, post, text, element);
             default:
                 // Unknown tag, return the text;
                 return text;
@@ -99,10 +131,10 @@ public class CommentParser {
     }
 
     private CharSequence handleAnchor(Theme theme,
+                                      PostParser.Callback callback,
                                       Post.Builder post,
                                       CharSequence text,
-                                      Element anchor,
-                                      PostParser.Callback callback) {
+                                      Element anchor) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
 
         if (handlerLink != null) {
@@ -136,19 +168,14 @@ public class CommentParser {
         }
     }
 
-    public CharSequence handleSpan(Theme theme, Post.Builder post, CharSequence text, Element span) {
-        SpannableString quote;
-
+    private CharSequence handleFortune(Theme theme,
+                                       PostParser.Callback callback,
+                                       Post.Builder builder,
+                                       CharSequence text,
+                                       Element span) {
         Set<String> classes = span.classNames();
-        if (classes.contains("deadlink")) {
-            quote = new SpannableString(span.text());
-            quote.setSpan(new ForegroundColorSpanHashed(theme.quoteColor), 0, quote.length(), 0);
-            quote.setSpan(new StrikethroughSpan(), 0, quote.length(), 0);
-        } else if (classes.contains("fortune")) {
+        if (classes.contains("fortune")) {
             // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
-            // manually add these <br>
-            quote = new SpannableString("\n\n" + span.text());
-
             String style = span.attr("style");
             if (!TextUtils.isEmpty(style)) {
                 style = style.replace(" ", "");
@@ -167,30 +194,27 @@ public class CommentParser {
                 }
 
                 if (hexColor >= 0 && hexColor <= 0xffffff) {
-                    quote.setSpan(new ForegroundColorSpanHashed(0xff000000 + hexColor), 0, quote.length(), 0);
-                    quote.setSpan(new StyleSpan(Typeface.BOLD), 0, quote.length(), 0);
+                    text = span(text, new ForegroundColorSpanHashed(0xff000000 + hexColor),
+                            new StyleSpan(Typeface.BOLD));
                 }
             }
-        } else if (classes.contains("spoiler")) {
-            PostLinkable pl = new PostLinkable(theme, span.text(), span.text(), PostLinkable.Type.SPOILER);
-            post.addLinkable(pl);
-            return span(span.text(), pl);
-        } else if (classes.contains("abbr")) {
-            return null;
-        } else {
-            quote = new SpannableString(span.text());
-            quote.setSpan(new ForegroundColorSpanHashed(theme.inlineQuoteColor), 0, quote.length(), 0);
-            CommentParserHelper.detectLinks(theme, post, span.text(), quote);
         }
 
-        return quote;
-    }
-
-    public CharSequence handleParagraph(Theme theme, Post.Builder post, CharSequence text, Element span) {
         return text;
     }
 
-    public CharSequence handleTable(Theme theme, Post.Builder post, CharSequence text, Element table) {
+    public CharSequence handleParagraph(Theme theme,
+                                        Post.Builder post,
+                                        CharSequence text,
+                                        Element span) {
+        return text;
+    }
+
+    public CharSequence handleTable(Theme theme,
+                                    PostParser.Callback callback,
+                                    Post.Builder builder,
+                                    CharSequence text,
+                                    Element table) {
         List<CharSequence> parts = new ArrayList<>();
         Elements tableRows = table.getElementsByTag("tr");
         for (int i = 0; i < tableRows.size(); i++) {
@@ -219,31 +243,6 @@ public class CommentParser {
         return span(TextUtils.concat(parts.toArray(new CharSequence[parts.size()])),
                 new ForegroundColorSpanHashed(theme.inlineQuoteColor),
                 new AbsoluteSizeSpanHashed(sp(12f)));
-    }
-
-    public CharSequence handleStrong(Theme theme, Post.Builder post, CharSequence text, Element strong) {
-        return span(text,
-                new ForegroundColorSpanHashed(theme.quoteColor),
-                new StyleSpan(Typeface.BOLD));
-    }
-
-    public CharSequence handlePre(Theme theme, Post.Builder post, CharSequence text, Element pre) {
-        Set<String> classes = pre.classNames();
-        if (classes.contains("prettyprint")) {
-//            String linebreakText = CommentParserHelper.getNodeTextPreservingLineBreaks(pre);
-            return span(text,
-                    new TypefaceSpan("monospace"),
-                    new AbsoluteSizeSpanHashed(sp(12f)));
-        } else {
-            return pre.text();
-        }
-    }
-
-    public CharSequence handleStrike(Theme theme, Post.Builder post, CharSequence text, Element strike) {
-        PostLinkable pl = new PostLinkable(theme, text.toString(), text, PostLinkable.Type.SPOILER);
-        post.addLinkable(pl);
-
-        return span(text, pl);
     }
 
     public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
