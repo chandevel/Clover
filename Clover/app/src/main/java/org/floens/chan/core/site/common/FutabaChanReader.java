@@ -92,6 +92,7 @@ public class FutabaChanReader implements ChanReader {
 
         // File
         String fileId = null;
+        String fileMd5 = null;
         String fileExt = null;
         int fileWidth = 0;
         int fileHeight = 0;
@@ -131,6 +132,10 @@ public class FutabaChanReader implements ChanReader {
                     break;
                 case "tim":
                     fileId = reader.nextString();
+                    break;
+                case "md5":
+                    fileMd5 = reader.nextString();
+
                     break;
                 case "time":
                     builder.setUnixTimestampSeconds(reader.nextLong());
@@ -218,14 +223,16 @@ public class FutabaChanReader implements ChanReader {
         reader.endObject();
 
         // The file from between the other values.
-        if (fileId != null && fileName != null && fileExt != null) {
+        if (fileId != null && fileName != null && fileExt != null && fileMd5 != null) {
             Map<String, String> args = makeArgument("tim", fileId,
-                    "ext", fileExt);
+                    "ext", fileExt, "md5", fileMd5);
+
             PostImage image = new PostImage.Builder()
                     .originalName(String.valueOf(fileId))
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
+                    .md5(fileMd5)
                     .filename(Parser.unescapeEntities(fileName, false))
                     .extension(fileExt)
                     .imageWidth(fileWidth)
@@ -287,6 +294,7 @@ public class FutabaChanReader implements ChanReader {
         long fileSize = 0;
 
         String fileExt = null;
+        String fileMd5 = null;
         int fileWidth = 0;
         int fileHeight = 0;
         boolean fileSpoiler = false;
@@ -312,6 +320,9 @@ public class FutabaChanReader implements ChanReader {
                 case "ext":
                     fileExt = reader.nextString().replace(".", "");
                     break;
+                case "md5":
+                    fileMd5 = reader.nextString();
+                    break;
                 case "filename":
                     fileName = reader.nextString();
                     break;
@@ -325,12 +336,13 @@ public class FutabaChanReader implements ChanReader {
 
         if (fileId != null && fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileId,
-                    "ext", fileExt);
+                    "ext", fileExt, "md5", fileMd5);
             return new PostImage.Builder()
                     .originalName(String.valueOf(fileId))
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
+                    .md5(fileMd5)
                     .filename(Parser.unescapeEntities(fileName, false))
                     .extension(fileExt)
                     .imageWidth(fileWidth)

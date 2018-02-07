@@ -221,9 +221,15 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
                         for (ImageSearch imageSearch : ImageSearch.engines) {
                             if (((Integer) item.getId()) == imageSearch.getId()) {
-                                final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
-                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
-                                break;
+                                if(imageSearch.getType()=="link") {
+                                    final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
+                                    AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
+                                    break;
+                                } else{
+                                    final String searchImageMd5 = getSearchImageMd5(presenter.getCurrentPostImage());
+                                    AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageMd5));
+                                    break;
+                                }
                             }
                         }
                     }
@@ -575,4 +581,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private HttpUrl getSearchImageUrl(final PostImage postImage) {
         return postImage.type == PostImage.Type.MOVIE ? postImage.thumbnailUrl : postImage.imageUrl;
     }
+    private String getSearchImageMd5(final PostImage postImage){
+        return postImage.type == PostImage.Type.MOVIE ? postImage.md5 : postImage.md5;
+    }
+
 }

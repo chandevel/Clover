@@ -30,6 +30,7 @@ public class PostImage {
     public final HttpUrl thumbnailUrl;
     public final HttpUrl spoilerThumbnailUrl;
     public final HttpUrl imageUrl;
+    public final String md5;
     public final String filename;
     public final String extension;
     public final int imageWidth;
@@ -44,6 +45,7 @@ public class PostImage {
         this.thumbnailUrl = builder.thumbnailUrl;
         this.spoilerThumbnailUrl = builder.spoilerThumbnailUrl;
         this.imageUrl = builder.imageUrl;
+        this.md5 = builder.md5;
         this.filename = builder.filename;
         this.extension = builder.extension;
         this.imageWidth = builder.imageWidth;
@@ -82,6 +84,7 @@ public class PostImage {
         private HttpUrl thumbnailUrl;
         private HttpUrl spoilerThumbnailUrl;
         private HttpUrl imageUrl;
+        private String md5;
         private String filename;
         private String extension;
         private int imageWidth;
@@ -109,6 +112,11 @@ public class PostImage {
 
         public Builder imageUrl(HttpUrl imageUrl) {
             this.imageUrl = imageUrl;
+            return this;
+        }
+
+        public Builder md5(String md5){
+            this.md5 = md5;
             return this;
         }
 

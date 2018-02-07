@@ -64,4 +64,12 @@ public interface SiteEndpoints {
         map.put(key2, value2);
         return map;
     }
+    static Map<String, String> makeArgument(String key1, String value1,
+                                            String key2, String value2,
+                                            String key3, String value3) {
+        Map<String, String> map = new ArrayMap<>(2);
+        map.put(key1, value1);
+        map.put(key2, value2);
+        return map;
+    }
 }

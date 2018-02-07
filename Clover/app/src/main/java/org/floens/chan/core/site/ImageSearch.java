@@ -25,6 +25,8 @@ public abstract class ImageSearch {
 
     public abstract int getId();
 
+    public abstract String getType();
+
     public abstract String getName();
 
     public abstract String getUrl(String imageUrl);
@@ -33,6 +35,10 @@ public abstract class ImageSearch {
         engines.add(new ImageSearch() {
             public int getId() {
                 return 0;
+            }
+
+            public String getType(){
+                return "link";
             }
 
             public String getName() {
@@ -49,6 +55,10 @@ public abstract class ImageSearch {
                 return 1;
             }
 
+            public String getType(){
+                return "link";
+            }
+
             public String getName() {
                 return "iqdb";
             }
@@ -61,6 +71,10 @@ public abstract class ImageSearch {
         engines.add(new ImageSearch() {
             public int getId() {
                 return 2;
+            }
+
+            public String getType(){
+                return "link";
             }
 
             public String getName() {
@@ -77,6 +91,10 @@ public abstract class ImageSearch {
                 return 3;
             }
 
+            public String getType(){
+                return "link";
+            }
+
             public String getName() {
                 return "TinEye";
             }
@@ -89,6 +107,10 @@ public abstract class ImageSearch {
         engines.add(new ImageSearch() {
             public int getId() {
                 return 4;
+            }
+
+            public String getType(){
+                return "link";
             }
 
             public String getName() {
@@ -105,6 +127,10 @@ public abstract class ImageSearch {
                 return 5;
             }
 
+            public String getType(){
+                return "link";
+            }
+
             public String getName() {
                 return "Yandex";
             }
@@ -116,6 +142,10 @@ public abstract class ImageSearch {
         engines.add(new ImageSearch() {
             public int getId() {
                 return 6;
+            }
+
+            public String getType(){
+                return "md5";
             }
 
             public String getName() {
