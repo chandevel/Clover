@@ -72,9 +72,9 @@ public abstract class HttpCall implements Callback {
         }
 
         if (exception != null) {
-            callSuccess();
-        } else {
             callFail(exception);
+        } else {
+            callSuccess();
         }
     }
 
