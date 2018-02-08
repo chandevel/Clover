@@ -19,6 +19,7 @@ package org.floens.chan.core.site.parser;
 
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -31,6 +32,7 @@ import org.floens.chan.ui.theme.Theme;
 import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StyleRule {
@@ -38,6 +40,8 @@ public class StyleRule {
         INLINE_QUOTE,
         QUOTE
     }
+
+    private final List<String> blockElements = Arrays.asList("p", "div");
 
     public static StyleRule tagRule(String tag) {
         return new StyleRule().tag(tag);
@@ -61,8 +65,14 @@ public class StyleRule {
 
     private String justText = null;
 
+    private boolean blockElement = false;
+
     public StyleRule tag(String tag) {
         this.tag = tag;
+
+        if (blockElements.contains(tag)) {
+            blockElement = true;
+        }
 
         return this;
     }
@@ -140,6 +150,12 @@ public class StyleRule {
         return this;
     }
 
+    public StyleRule blockElement(boolean blockElement) {
+        this.blockElement = blockElement;
+
+        return this;
+    }
+
     public boolean highPriority() {
         return classes != null && !classes.isEmpty();
     }
@@ -206,6 +222,11 @@ public class StyleRule {
 
         if (!spansToApply.isEmpty()) {
             result = applySpan(result, spansToApply);
+        }
+
+        // Apply break if not the last element.
+        if (blockElement && element.nextSibling() != null) {
+            result = TextUtils.concat(result, "\n");
         }
 
         if (linkify) {

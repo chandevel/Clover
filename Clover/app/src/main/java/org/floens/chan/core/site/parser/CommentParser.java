@@ -56,6 +56,9 @@ public class CommentParser {
     private Map<String, List<StyleRule>> rules = new HashMap<>();
 
     public CommentParser() {
+        rule(tagRule("p"));
+        rule(tagRule("div"));
+
         rule(tagRule("br").just("\n"));
 
         rule(tagRule("a").action(this::handleAnchor));
@@ -113,9 +116,6 @@ public class CommentParser {
         }
 
         switch (tag) {
-            case "p":
-                return appendBreakIfNotLastSibling(
-                        handleParagraph(theme, post, text, element), element);
             default:
                 // Unknown tag, return the text;
                 return text;
