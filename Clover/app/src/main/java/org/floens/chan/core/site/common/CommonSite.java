@@ -355,6 +355,8 @@ public abstract class CommonSite extends SiteBase {
                 }
             };
 
+            call.url(endpoints().reply(reply.loadable));
+
             setupPost(reply, call);
 
             httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {

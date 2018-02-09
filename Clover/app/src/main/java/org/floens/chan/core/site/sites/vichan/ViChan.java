@@ -168,7 +168,6 @@ public class ViChan extends CommonSite {
             public HttpUrl reply(Loadable loadable) {
                 return sys.builder().s("post.php").url();
             }
-
         });
 
         setActions(new CommonActions() {

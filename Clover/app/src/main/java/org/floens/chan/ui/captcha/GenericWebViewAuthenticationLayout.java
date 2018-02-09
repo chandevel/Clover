@@ -31,7 +31,7 @@ import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.AndroidUtils;
 
 public class GenericWebViewAuthenticationLayout extends WebView implements AuthenticationLayoutInterface {
-    public static final int CHECK_INTERVAL = 800;
+    public static final int CHECK_INTERVAL = 500;
 
     private final Handler handler = new Handler();
     private boolean attachedToWindow = false;
