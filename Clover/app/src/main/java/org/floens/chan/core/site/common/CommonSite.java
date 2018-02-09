@@ -40,6 +40,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.parser.PostParser;
 
 import java.io.IOException;
@@ -62,8 +63,9 @@ public abstract class CommonSite extends SiteBase {
     private CommonEndpoints endpoints;
     private CommonActions actions;
     private CommonApi api;
-    private CommonParser parser;
     private CommonRequestModifier requestModifier;
+
+    private PostParser postParser;
 
     @Override
     public void initialize(int id, SiteConfig config, JsonSettings userSettings) {
@@ -102,7 +104,7 @@ public abstract class CommonSite extends SiteBase {
             throw new NullPointerException("setApi not called");
         }
 
-        if (parser == null) {
+        if (postParser == null) {
             throw new NullPointerException("setParser not called");
         }
 
@@ -147,8 +149,8 @@ public abstract class CommonSite extends SiteBase {
         this.api = api;
     }
 
-    public void setParser(CommonParser parser) {
-        this.parser = parser;
+    public void setParser(CommentParser commentParser) {
+        postParser = new DefaultPostParser(commentParser);
     }
 
     public void setRequestModifier(CommonRequestModifier requestModifier) {
@@ -407,11 +409,8 @@ public abstract class CommonSite extends SiteBase {
     public abstract class CommonApi implements ChanReader {
         @Override
         public PostParser getParser() {
-            return parser;
+            return postParser;
         }
-    }
-
-    public abstract class CommonParser implements PostParser {
     }
 
     public abstract class CommonRequestModifier implements SiteRequestModifier {

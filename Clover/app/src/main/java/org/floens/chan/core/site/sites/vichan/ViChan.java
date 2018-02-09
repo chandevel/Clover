@@ -8,19 +8,17 @@ import org.floens.chan.core.model.PostHttpIcon;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
-import org.floens.chan.core.site.parser.ChanReader;
-import org.floens.chan.core.site.parser.ChanReaderProcessingQueue;
-import org.floens.chan.core.site.common.DefaultPostParser;
-import org.floens.chan.core.site.common.FutabaChanReader;
+import org.floens.chan.core.site.common.CommonSite;
 import org.floens.chan.core.site.common.MultipartHttpCall;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
-import org.floens.chan.core.site.common.CommonSite;
-import org.floens.chan.ui.theme.Theme;
+import org.floens.chan.core.site.parser.ChanReaderProcessingQueue;
+import org.floens.chan.core.site.parser.CommentParser;
+import org.floens.chan.core.site.parser.StyleRule;
 import org.jsoup.Jsoup;
 import org.jsoup.parser.Parser;
 
@@ -102,11 +100,6 @@ public class ViChan extends CommonSite {
     };
 
     private static final String TAG = "ViChan";
-
-    @Override
-    public ChanReader chanReader() {
-        return new FutabaChanReader(new DefaultPostParser(new ViChanCommentParser()));
-    }
 
     @Override
     public void setup() {
@@ -244,12 +237,13 @@ public class ViChan extends CommonSite {
 
         setApi(new ViChanApi());
 
-        setParser(new CommonParser() {
-            @Override
-            public Post parse(Theme theme, Post.Builder builder, Callback callback) {
-                return null;
-            }
-        });
+        CommentParser commentParser = new CommentParser();
+        commentParser.addDefaultRules();
+        commentParser.setQuotePattern(Pattern.compile(".*#(\\d+)"));
+        commentParser.setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
+        commentParser.rule(StyleRule.tagRule("p").cssClass("quote").color(StyleRule.Color.INLINE_QUOTE).linkify());
+
+        setParser(commentParser);
     }
 
     private class ViChanApi extends CommonApi {

@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,16 +50,18 @@ public class CommentParser {
 
     private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
-    private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]*)");
+    private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
 
     private Map<String, List<StyleRule>> rules = new HashMap<>();
 
     public CommentParser() {
+        // Required tags.
         rule(tagRule("p"));
         rule(tagRule("div"));
-
         rule(tagRule("br").just("\n"));
+    }
 
+    public void addDefaultRules() {
         rule(tagRule("a").action(this::handleAnchor));
 
         rule(tagRule("span").cssClass("deadlink").color(StyleRule.Color.QUOTE).strikeThrough());
@@ -73,7 +74,11 @@ public class CommentParser {
 
         rule(tagRule("s").link(PostLinkable.Type.SPOILER));
 
-        rule(tagRule("strong").color(StyleRule.Color.QUOTE).bold());
+        rule(tagRule("strong").bold());
+        rule(tagRule("b").bold());
+
+        rule(tagRule("i").italic());
+        rule(tagRule("em").italic());
 
         rule(tagRule("pre").cssClass("prettyprint").monospace().size(sp(12f)));
     }
@@ -173,26 +178,14 @@ public class CommentParser {
                                        Post.Builder builder,
                                        CharSequence text,
                                        Element span) {
-        Set<String> classes = span.classNames();
-        if (classes.contains("fortune")) {
-            // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
-            String style = span.attr("style");
-            if (!TextUtils.isEmpty(style)) {
-                style = style.replace(" ", "");
+        // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
+        String style = span.attr("style");
+        if (!TextUtils.isEmpty(style)) {
+            style = style.replace(" ", "");
 
-                Matcher matcher = colorPattern.matcher(style);
-
-                int hexColor = 0xff0000;
-                if (matcher.find()) {
-                    String group = matcher.group(1);
-                    if (!TextUtils.isEmpty(group)) {
-                        try {
-                            hexColor = Integer.parseInt(group, 16);
-                        } catch (NumberFormatException ignored) {
-                        }
-                    }
-                }
-
+            Matcher matcher = colorPattern.matcher(style);
+            if (matcher.find()) {
+                int hexColor = Integer.parseInt(matcher.group(1), 16);
                 if (hexColor >= 0 && hexColor <= 0xffffff) {
                     text = span(text, new ForegroundColorSpanHashed(0xff000000 + hexColor),
                             new StyleSpan(Typeface.BOLD));
@@ -200,13 +193,6 @@ public class CommentParser {
             }
         }
 
-        return text;
-    }
-
-    public CharSequence handleParagraph(Theme theme,
-                                        Post.Builder post,
-                                        CharSequence text,
-                                        Element span) {
         return text;
     }
 

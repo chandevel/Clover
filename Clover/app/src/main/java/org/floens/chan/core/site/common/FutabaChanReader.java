@@ -26,7 +26,9 @@ public class FutabaChanReader implements ChanReader {
     private final PostParser postParser;
 
     public FutabaChanReader() {
-        this.postParser = new DefaultPostParser(new CommentParser());
+        CommentParser commentParser = new CommentParser();
+        commentParser.addDefaultRules();
+        this.postParser = new DefaultPostParser(commentParser);
     }
 
     public FutabaChanReader(PostParser postParser) {

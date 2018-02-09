@@ -23,12 +23,6 @@ import android.text.SpannableString;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.ui.theme.Theme;
-import org.jsoup.helper.StringUtil;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.NodeTraversor;
-import org.jsoup.select.NodeVisitor;
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
@@ -60,71 +54,5 @@ public class CommentParserHelper {
             spannable.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), 0);
             post.addLinkable(pl);
         }
-    }
-
-    // Below code taken from org.jsoup.nodes.Element.text(), but it preserves <br>
-    public static String getNodeTextPreservingLineBreaks(Element node) {
-        final StringBuilder accum = new StringBuilder();
-        new NodeTraversor(new NodeVisitor() {
-            public void head(Node node, int depth) {
-                if (node instanceof TextNode) {
-                    TextNode textNode = (TextNode) node;
-                    appendNormalisedText(accum, textNode);
-                } else if (node instanceof Element) {
-                    Element element = (Element) node;
-                    if (accum.length() > 0 &&
-                            element.isBlock() &&
-                            !lastCharIsWhitespace(accum))
-                        accum.append(" ");
-
-                    if (element.tag().getName().equals("br")) {
-                        accum.append("\n");
-                    }
-                }
-            }
-
-            public void tail(Node node, int depth) {
-            }
-        }).traverse(node);
-        return accum.toString().trim();
-    }
-
-    // Copied from org.jsoup.nodes.Element.text()
-    private static boolean lastCharIsWhitespace(StringBuilder sb) {
-        return sb.length() != 0 && sb.charAt(sb.length() - 1) == ' ';
-    }
-
-    // Copied from org.jsoup.nodes.Element.text()
-    private static void appendNormalisedText(StringBuilder accum, TextNode textNode) {
-        String text = textNode.getWholeText();
-
-        if (!preserveWhitespace(textNode.parent())) {
-            text = normaliseWhitespace(text);
-            if (lastCharIsWhitespace(accum))
-                text = stripLeadingWhitespace(text);
-        }
-        accum.append(text);
-    }
-
-    // Copied from org.jsoup.nodes.Element.text()
-    private static String normaliseWhitespace(String text) {
-        text = StringUtil.normaliseWhitespace(text);
-        return text;
-    }
-
-    // Copied from org.jsoup.nodes.Element.text()
-    private static String stripLeadingWhitespace(String text) {
-        return text.replaceFirst("^\\s+", "");
-    }
-
-    // Copied from org.jsoup.nodes.Element.text()
-    private static boolean preserveWhitespace(Node node) {
-        // looks only at this element and one level up, to prevent recursion & needless stack searches
-        if (node != null && node instanceof Element) {
-            Element element = (Element) node;
-            return element.tag().preserveWhitespace() ||
-                    element.parent() != null && element.parent().tag().preserveWhitespace();
-        }
-        return false;
     }
 }

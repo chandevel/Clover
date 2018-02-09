@@ -55,6 +55,7 @@ public class StyleRule {
     private Color color = null;
     private boolean strikeThrough = false;
     private boolean bold = false;
+    private boolean italic = false;
     private boolean monospace = false;
     private int size = 0;
 
@@ -116,6 +117,12 @@ public class StyleRule {
 
     public StyleRule bold() {
         bold = true;
+
+        return this;
+    }
+
+    public StyleRule italic() {
+        italic = true;
 
         return this;
     }
@@ -202,8 +209,12 @@ public class StyleRule {
             spansToApply.add(new StrikethroughSpan());
         }
 
-        if (bold) {
+        if (bold && italic) {
+            spansToApply.add(new StyleSpan(Typeface.BOLD_ITALIC));
+        } else if (bold) {
             spansToApply.add(new StyleSpan(Typeface.BOLD));
+        } else if (italic) {
+            spansToApply.add(new StyleSpan(Typeface.ITALIC));
         }
 
         if (monospace) {
