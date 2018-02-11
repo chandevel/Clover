@@ -1,3 +1,20 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.floens.chan.core.site.sites.lainchan;
 
 import android.support.annotation.Nullable;
@@ -12,13 +29,13 @@ import org.floens.chan.core.site.common.CommonSite;
 import org.floens.chan.core.site.common.MultipartHttpCall;
 import org.floens.chan.core.site.common.vichan.VichanAntispam;
 import org.floens.chan.core.site.common.vichan.VichanApi;
+import org.floens.chan.core.site.common.vichan.VichanEndpoints;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.parser.StyleRule;
 import org.jsoup.Jsoup;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,7 +81,23 @@ public class Lainchan extends CommonSite {
     public void setup() {
         setName("Lainchan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
-        setBoardsType(BoardsType.INFINITE);
+
+        setBoards(
+                Board.fromSiteNameCode(this, "Programming", "λ"),
+                Board.fromSiteNameCode(this, "Do It Yourself", "Δ"),
+                Board.fromSiteNameCode(this, "Security", "sec"),
+                Board.fromSiteNameCode(this, "Technology", "Ω"),
+                Board.fromSiteNameCode(this, "Games and Interactive Media", "inter"),
+                Board.fromSiteNameCode(this, "Literature", "lit"),
+                Board.fromSiteNameCode(this, "Musical and Audible Media", "music"),
+                Board.fromSiteNameCode(this, "Visual Media", "vis"),
+                Board.fromSiteNameCode(this, "Humanity", "hum"),
+                Board.fromSiteNameCode(this, "Drugs 3.0", "drug"),
+                Board.fromSiteNameCode(this, "Consciousness and Dreams", "zzz"),
+                Board.fromSiteNameCode(this, "layer", "layer"),
+                Board.fromSiteNameCode(this, "Questions and Complaints", "q"),
+                Board.fromSiteNameCode(this, "Random", "r")
+        );
 
         setResolvable(URL_HANDLER);
 
@@ -75,46 +108,9 @@ public class Lainchan extends CommonSite {
             }
         });
 
-        setEndpoints(new CommonEndpoints() {
-            private final SimpleHttpUrl root = from("https://lainchan.org");
-            private final SimpleHttpUrl sys = from("https://lainchan.org");
-
-            @Override
-            public HttpUrl catalog(Board board) {
-                return root.builder().s(board.code).s("catalog.json").url();
-            }
-
-            @Override
-            public HttpUrl thread(Board board, Loadable loadable) {
-                return root.builder().s(board.code).s("res").s(loadable.no + ".json").url();
-            }
-
-            @Override
-            public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-                return root.builder().s(post.board.code).s("thumb").s(arg.get("tim") + ".png").url();
-            }
-
-            @Override
-            public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return root.builder().s(post.board.code).s("src").s(arg.get("tim") + "." + arg.get("ext")).url();
-            }
-
-            @Override
-            public HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg) {
-                SimpleHttpUrl stat = root.builder().s("static");
-
-                if (icon.equals("country")) {
-                    stat.s("flags").s(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".png");
-                }
-
-                return stat.url();
-            }
-
-            @Override
-            public HttpUrl reply(Loadable loadable) {
-                return sys.builder().s("post.php").url();
-            }
-        });
+        setEndpoints(new VichanEndpoints(this,
+                "https://lainchan.org",
+                "https://lainchan.org"));
 
         setActions(new CommonActions() {
             @Override

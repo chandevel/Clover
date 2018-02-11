@@ -88,17 +88,28 @@ public interface Site {
         /**
          * The site's boards are static, there is no extra info for a board in the api.
          */
-        STATIC,
+        STATIC(true),
 
         /**
          * The site's boards are dynamic, a boards.json like endpoint is available to get the available boards.
          */
-        DYNAMIC,
+        DYNAMIC(true),
 
         /**
          * The site's boards are dynamic and infinite, existence of boards should be checked per board.
          */
-        INFINITE
+        INFINITE(false);
+
+        /**
+         * Can the boards be listed, in other words, can
+         * {@link SiteActions#boards(SiteActions.BoardsListener)} be used, and is
+         * {@link #board(String)} available.
+         */
+        public boolean canList;
+
+        BoardsType(boolean canList) {
+            this.canList = canList;
+        }
     }
 
     /**
@@ -147,7 +158,7 @@ public interface Site {
     /**
      * Return the board for this site with the given {@code code}.
      * <p>This does not need to create the board if it doesn't exist. This is important for
-     * sites that have a board type different to DYNAMIC. Returning from the database is
+     * sites that have the board type INFINITE. Returning from the database is
      * enough.</p>
      *
      * @param code the board code
@@ -157,7 +168,7 @@ public interface Site {
 
     /**
      * Create a new board with the specified {@code code} and {@code name}.
-     * <p>This is only applicable to sites with a board type other than DYNAMIC.</p>
+     * <p>This is only applicable to sites with a board type INFINITE.</p>
      *
      * @param name the name of the board.
      * @param code the code to create the board with.

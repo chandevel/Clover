@@ -71,7 +71,7 @@ public abstract class SiteBase implements Site {
 
         initializeSettings();
 
-        if (boardsType() == BoardsType.DYNAMIC) {
+        if (boardsType().canList) {
             actions().boards(boards -> boardManager.createAll(boards.boards));
         }
     }

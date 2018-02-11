@@ -1,9 +1,8 @@
-package org.floens.chan.core.site.sites.vichan;
+package org.floens.chan.core.site.sites.chan8;
 
 import android.support.annotation.Nullable;
 
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
@@ -11,13 +10,13 @@ import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.common.CommonSite;
 import org.floens.chan.core.site.common.MultipartHttpCall;
 import org.floens.chan.core.site.common.vichan.VichanApi;
+import org.floens.chan.core.site.common.vichan.VichanEndpoints;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.parser.StyleRule;
 import org.jsoup.Jsoup;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,11 +26,11 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public class ViChan extends CommonSite {
+public class Chan8 extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
-            return ViChan.class;
+            return Chan8.class;
         }
 
         @Override
@@ -62,7 +61,7 @@ public class ViChan extends CommonSite {
     @Override
     public void setup() {
         setName("8chan");
-        setIcon(SiteIcon.fromAssets("icons/8chan.png"));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8ch.net/favicon.ico")));
         setBoardsType(BoardsType.INFINITE);
 
         setResolvable(URL_HANDLER);
@@ -74,20 +73,9 @@ public class ViChan extends CommonSite {
             }
         });
 
-        setEndpoints(new CommonEndpoints() {
-            private final SimpleHttpUrl root = from("https://8ch.net");
-            private final SimpleHttpUrl sys = from("https://sys.8ch.net");
-
-            @Override
-            public HttpUrl catalog(Board board) {
-                return root.builder().s(board.code).s("catalog.json").url();
-            }
-
-            @Override
-            public HttpUrl thread(Board board, Loadable loadable) {
-                return root.builder().s(board.code).s("res").s(loadable.no + ".json").url();
-            }
-
+        setEndpoints(new VichanEndpoints(this,
+                "https://8ch.net",
+                "https://sys.8ch.net") {
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
                 return root.builder().s("file_store").s(arg.get("tim") + "." + arg.get("ext")).url();
@@ -109,22 +97,6 @@ public class ViChan extends CommonSite {
                 }
 
                 return root.builder().s("file_store").s("thumb").s(arg.get("tim") + "." + ext).url();
-            }
-
-            @Override
-            public HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg) {
-                SimpleHttpUrl stat = root.builder().s("static");
-
-                if (icon.equals("country")) {
-                    stat.s("flags").s(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".png");
-                }
-
-                return stat.url();
-            }
-
-            @Override
-            public HttpUrl reply(Loadable loadable) {
-                return sys.builder().s("post.php").url();
             }
         });
 

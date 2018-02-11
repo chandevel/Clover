@@ -28,6 +28,7 @@ import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.json.JsonSettings;
+import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.SiteAuthentication;
@@ -47,6 +48,9 @@ import org.floens.chan.core.site.parser.PostParser;
 
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -72,6 +76,8 @@ public abstract class CommonSite extends SiteBase {
     private CommonRequestModifier requestModifier;
 
     private PostParser postParser;
+
+    private List<Board> staticBoards = new ArrayList<>();
 
     @Override
     public void initialize(int id, SiteConfig config, JsonSettings userSettings) {
@@ -133,6 +139,11 @@ public abstract class CommonSite extends SiteBase {
 
     public void setBoardsType(BoardsType boardsType) {
         this.boardsType = boardsType;
+    }
+
+    public void setBoards(Board... boards) {
+        boardsType = BoardsType.STATIC;
+        staticBoards.addAll(Arrays.asList(boards));
     }
 
     public void setConfig(CommonConfig config) {
@@ -303,7 +314,13 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public abstract class CommonEndpoints implements SiteEndpoints {
+    public static abstract class CommonEndpoints implements SiteEndpoints {
+        private CommonSite commonSite;
+
+        public CommonEndpoints(CommonSite commonSite) {
+            this.commonSite = commonSite;
+        }
+
         @NonNull
         public SimpleHttpUrl from(String url) {
             return new SimpleHttpUrl(url);
@@ -360,7 +377,7 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public class SimpleHttpUrl {
+    public static class SimpleHttpUrl {
         @NonNull
         public HttpUrl.Builder url;
 
@@ -399,6 +416,9 @@ public abstract class CommonSite extends SiteBase {
 
         @Override
         public void boards(BoardsListener boardsListener) {
+            if (!staticBoards.isEmpty()) {
+                boardsListener.onBoardsReceived(new Boards(staticBoards));
+            }
         }
 
         @Override
