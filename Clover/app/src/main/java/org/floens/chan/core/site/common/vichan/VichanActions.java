@@ -20,6 +20,8 @@ package org.floens.chan.core.site.common.vichan;
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.common.CommonSite;
 import org.floens.chan.core.site.common.MultipartHttpCall;
+import org.floens.chan.core.site.http.DeleteRequest;
+import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.jsoup.Jsoup;
@@ -86,7 +88,7 @@ public class VichanActions extends CommonSite.CommonActions {
     @Override
     public void handlePost(ReplyResponse replyResponse, Response response, String result) {
         Matcher auth = Pattern.compile(".*\"captcha\": ?true.*").matcher(result);
-        Matcher err = Pattern.compile(".*<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>.*").matcher(result);
+        Matcher err = errorPattern().matcher(result);
         if (auth.find()) {
             replyResponse.requireAuthentication = true;
             replyResponse.errorMessage = result;
@@ -110,6 +112,32 @@ public class VichanActions extends CommonSite.CommonActions {
                 replyResponse.errorMessage = "Error posting: could not find posted thread.";
             }
         }
+    }
+
+    @Override
+    public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall call) {
+        call.parameter("board", deleteRequest.post.board.code);
+        call.parameter("delete", "Delete");
+        call.parameter("delete_" + deleteRequest.post.no, "on");
+        call.parameter("password", deleteRequest.savedReply.password);
+
+        if (deleteRequest.imageOnly) {
+            call.parameter("file", "on");
+        }
+    }
+
+    @Override
+    public void handleDelete(DeleteResponse response, Response httpResponse, String responseBody) {
+        Matcher err = errorPattern().matcher(responseBody);
+        if (err.find()) {
+            response.errorMessage = Jsoup.parse(err.group(1)).body().text();
+        } else {
+            response.deleted = true;
+        }
+    }
+
+    public Pattern errorPattern() {
+        return Pattern.compile(".*<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>.*");
     }
 
     @Override

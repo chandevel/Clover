@@ -13,6 +13,7 @@ import org.floens.chan.core.site.common.vichan.VichanActions;
 import org.floens.chan.core.site.common.vichan.VichanApi;
 import org.floens.chan.core.site.common.vichan.VichanCommentParser;
 import org.floens.chan.core.site.common.vichan.VichanEndpoints;
+import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.Reply;
 
 import java.util.Map;
@@ -62,7 +63,7 @@ public class Chan8 extends CommonSite {
         setConfig(new CommonConfig() {
             @Override
             public boolean feature(Feature feature) {
-                return feature == Feature.POSTING;
+                return feature == Feature.POSTING || feature == Feature.POST_DELETE;
             }
         });
 
@@ -118,6 +119,11 @@ public class Chan8 extends CommonSite {
                 return SiteAuthentication.fromUrl("https://8ch.net/dnsbls_bypass.php",
                         "You failed the CAPTCHA",
                         "You may now go back and make your post");
+            }
+
+            @Override
+            public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
+                super.delete(deleteRequest, deleteListener);
             }
         });
 

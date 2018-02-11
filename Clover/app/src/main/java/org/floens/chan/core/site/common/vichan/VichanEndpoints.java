@@ -72,4 +72,9 @@ public class VichanEndpoints extends CommonSite.CommonEndpoints {
     public HttpUrl reply(Loadable loadable) {
         return sys.builder().s("post.php").url();
     }
+
+    @Override
+    public HttpUrl delete(Post post) {
+        return sys.builder().s("post.php").url();
+    }
 }

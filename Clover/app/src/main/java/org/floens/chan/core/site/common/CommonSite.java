@@ -38,6 +38,7 @@ import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
 import org.floens.chan.core.site.SiteUrlHandler;
 import org.floens.chan.core.site.http.DeleteRequest;
+import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.Reply;
@@ -414,19 +415,6 @@ public abstract class CommonSite extends SiteBase {
             this.site = site;
         }
 
-        public void setupPost(Reply reply, MultipartHttpCall call) {
-        }
-
-        public void handlePost(ReplyResponse response, Response httpResponse, String responseBody) {
-        }
-
-        @Override
-        public void boards(BoardsListener boardsListener) {
-            if (!site.staticBoards.isEmpty()) {
-                boardsListener.onBoardsReceived(new Boards(site.staticBoards));
-            }
-        }
-
         @Override
         public void post(Reply reply, PostListener postListener) {
             ReplyResponse replyResponse = new ReplyResponse();
@@ -458,6 +446,22 @@ public abstract class CommonSite extends SiteBase {
             }
         }
 
+        public void setupPost(Reply reply, MultipartHttpCall call) {
+        }
+
+        public void handlePost(ReplyResponse response, Response httpResponse, String responseBody) {
+        }
+
+        @Override
+        public boolean postRequiresAuthentication() {
+            return false;
+        }
+
+        @Override
+        public SiteAuthentication postAuthenticate() {
+            return SiteAuthentication.fromNone();
+        }
+
         private void makePostCall(HttpCall call, ReplyResponse replyResponse, PostListener postListener) {
             site.httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
                 @Override
@@ -480,28 +484,50 @@ public abstract class CommonSite extends SiteBase {
         }
 
         @Override
-        public boolean postRequiresAuthentication() {
-            return false;
-        }
-
-        @Override
-        public SiteAuthentication postAuthenticate() {
-            return SiteAuthentication.fromNone();
-        }
-
-        @Override
         public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
+            DeleteResponse deleteResponse = new DeleteResponse();
 
+            MultipartHttpCall call = new MultipartHttpCall(site) {
+                @Override
+                public void process(Response response, String result) throws IOException {
+                    handleDelete(deleteResponse, response, result);
+                }
+            };
+
+            call.url(site.endpoints().delete(deleteRequest.post));
+            setupDelete(deleteRequest, call);
+            site.httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
+                @Override
+                public void onHttpSuccess(HttpCall httpCall) {
+                    deleteListener.onDeleteComplete(httpCall, deleteResponse);
+                }
+
+                @Override
+                public void onHttpFail(HttpCall httpCall, Exception e) {
+                    deleteListener.onDeleteError(httpCall);
+                }
+            });
+        }
+
+        public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall call) {
+        }
+
+        public void handleDelete(DeleteResponse response, Response httpResponse, String responseBody) {
+        }
+
+        @Override
+        public void boards(BoardsListener boardsListener) {
+            if (!site.staticBoards.isEmpty()) {
+                boardsListener.onBoardsReceived(new Boards(site.staticBoards));
+            }
         }
 
         @Override
         public void login(LoginRequest loginRequest, LoginListener loginListener) {
-
         }
 
         @Override
         public void logout() {
-
         }
 
         @Override
