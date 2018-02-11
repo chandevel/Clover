@@ -315,10 +315,10 @@ public abstract class CommonSite extends SiteBase {
     }
 
     public static abstract class CommonEndpoints implements SiteEndpoints {
-        private CommonSite commonSite;
+        protected CommonSite site;
 
-        public CommonEndpoints(CommonSite commonSite) {
-            this.commonSite = commonSite;
+        public CommonEndpoints(CommonSite site) {
+            this.site = site;
         }
 
         @NonNull
@@ -407,7 +407,13 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public abstract class CommonActions implements SiteActions {
+    public static abstract class CommonActions implements SiteActions {
+        protected CommonSite site;
+
+        public CommonActions(CommonSite site) {
+            this.site = site;
+        }
+
         public void setupPost(Reply reply, MultipartHttpCall call) {
         }
 
@@ -416,8 +422,8 @@ public abstract class CommonSite extends SiteBase {
 
         @Override
         public void boards(BoardsListener boardsListener) {
-            if (!staticBoards.isEmpty()) {
-                boardsListener.onBoardsReceived(new Boards(staticBoards));
+            if (!site.staticBoards.isEmpty()) {
+                boardsListener.onBoardsReceived(new Boards(site.staticBoards));
             }
         }
 
@@ -425,17 +431,17 @@ public abstract class CommonSite extends SiteBase {
         public void post(Reply reply, PostListener postListener) {
             ReplyResponse replyResponse = new ReplyResponse();
 
-            reply.password = Long.toHexString(secureRandom.nextLong());
+            reply.password = Long.toHexString(site.secureRandom.nextLong());
             replyResponse.password = reply.password;
 
-            MultipartHttpCall call = new MultipartHttpCall(CommonSite.this) {
+            MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override
                 public void process(Response response, String result) throws IOException {
                     handlePost(replyResponse, response, result);
                 }
             };
 
-            call.url(endpoints().reply(reply.loadable));
+            call.url(site.endpoints().reply(reply.loadable));
 
             if (requirePrepare()) {
                 Handler handler = new Handler(Looper.getMainLooper());
@@ -453,7 +459,7 @@ public abstract class CommonSite extends SiteBase {
         }
 
         private void makePostCall(HttpCall call, ReplyResponse replyResponse, PostListener postListener) {
-            httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
+            site.httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
                 @Override
                 public void onHttpSuccess(HttpCall httpCall) {
                     postListener.onPostComplete(httpCall, replyResponse);
@@ -510,15 +516,15 @@ public abstract class CommonSite extends SiteBase {
     }
 
     public static abstract class CommonApi implements ChanReader {
-        private CommonSite commonSite;
+        protected CommonSite site;
 
-        public CommonApi(CommonSite commonSite) {
-            this.commonSite = commonSite;
+        public CommonApi(CommonSite site) {
+            this.site = site;
         }
 
         @Override
         public PostParser getParser() {
-            return commonSite.postParser;
+            return site.postParser;
         }
     }
 
