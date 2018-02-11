@@ -104,7 +104,7 @@ public class SiteService {
             Site site = new Chan4();
 
             SiteConfig config = new SiteConfig();
-            config.classId = Sites.SITE_CLASSES.indexOfValue(site.getClass());
+            config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
             config.external = false;
 
             SiteModel model = siteRepository.create(config, new JsonSettings());
@@ -138,7 +138,7 @@ public class SiteService {
         SiteConfig config = new SiteConfig();
         JsonSettings settings = new JsonSettings();
 
-        config.classId = Sites.SITE_CLASSES.indexOfValue(site.getClass());
+        config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
         config.external = false;
 
         siteRepository.create(config, settings);
@@ -155,7 +155,7 @@ public class SiteService {
     }
 
     private Site instantiateSiteClass(int classId) {
-        Class<? extends Site> clazz = Sites.SITE_CLASSES.get(classId);
+        Class<? extends Site> clazz = SiteRegistry.SITE_CLASSES.get(classId);
         if (clazz == null) {
             throw new IllegalArgumentException("Unknown class id");
         }

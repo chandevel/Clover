@@ -1,39 +1,17 @@
 package org.floens.chan.core.site;
 
-import android.util.SparseArray;
-
-import org.floens.chan.core.site.sites.vichan.ViChan;
-import org.floens.chan.core.site.sites.chan4.Chan4;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Sites {
-    public static final SparseArray<Class<? extends Site>> SITE_CLASSES = new SparseArray<>();
-
-    static {
-        // This id-siteclass mapping is used to look up the correct site class at deserialization.
-        // This differs from the Site.id() id, that id is used for site instance linking, this is just to
-        // find the correct class to use.
-        SITE_CLASSES.put(0, Chan4.class);
-
-        SITE_CLASSES.put(1, ViChan.class);
-    }
-
-    public static final List<SiteUrlHandler> URL_HANDLERS = new ArrayList<>();
-
-    static {
-        URL_HANDLERS.add(Chan4.SITE_URL_HANDLER);
-        URL_HANDLERS.add(ViChan.RESOLVABLE);
-    }
-
     private static List<Site> ALL_SITES = Collections.unmodifiableList(new ArrayList<Site>());
 
     /**
      * Return all sites known in the system.
      * <p>This list is immutable. Changes to the known sites cause this function to return a new immutable list
      * with the site changes.
+     *
      * @return list of sites known in the system.
      */
     public static List<Site> allSites() {

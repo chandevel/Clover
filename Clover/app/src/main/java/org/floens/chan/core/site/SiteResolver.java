@@ -67,7 +67,7 @@ public class SiteResolver {
     }
 
     public SiteResolverResult resolveSiteForUrl(String url) {
-        List<SiteUrlHandler> siteUrlHandlers = Sites.URL_HANDLERS;
+        List<SiteUrlHandler> siteUrlHandlers = SiteRegistry.URL_HANDLERS;
 
         HttpUrl httpUrl = sanitizeUrl(url);
 

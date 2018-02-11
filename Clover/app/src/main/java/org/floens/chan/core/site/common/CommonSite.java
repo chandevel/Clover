@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.site.common;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.webkit.WebView;
@@ -47,10 +49,14 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static android.text.TextUtils.isEmpty;
 
 public abstract class CommonSite extends SiteBase {
     private final Random secureRandom = new SecureRandom();
@@ -222,24 +228,78 @@ public abstract class CommonSite extends SiteBase {
     }
 
     public static abstract class CommonSiteUrlHandler implements SiteUrlHandler {
+        public abstract HttpUrl getUrl();
+
+        public abstract String[] getNames();
+
         @Override
         public boolean matchesName(String value) {
+            for (String s : getNames()) {
+                if (value.equals(s)) {
+                    return true;
+                }
+            }
+
             return false;
         }
 
         @Override
         public boolean respondsTo(HttpUrl url) {
-            return false;
+            return getUrl().host().equals(url.host());
         }
 
         @Override
         public String desktopUrl(Loadable loadable, @Nullable Post post) {
-            return null;
+            if (loadable.isCatalogMode()) {
+                return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
+            } else if (loadable.isThreadMode()) {
+                return getUrl().newBuilder()
+                        .addPathSegment(loadable.boardCode).addPathSegment("res")
+                        .addPathSegment(String.valueOf(loadable.no))
+                        .toString();
+            } else {
+                return getUrl().toString();
+            }
         }
 
         @Override
         public Loadable resolveLoadable(Site site, HttpUrl url) {
+            Matcher board = boardPattern().matcher(url.encodedPath());
+            Matcher thread = threadPattern().matcher(url.encodedPath());
+
+            try {
+                if (thread.find()) {
+                    Board b = site.board(thread.group(1));
+                    if (b == null) {
+                        return null;
+                    }
+                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)));
+
+                    if (isEmpty(url.fragment())) {
+                        l.markedNo = Integer.parseInt(url.fragment());
+                    }
+
+                    return l;
+                } else if (board.find()) {
+                    Board b = site.board(board.group(1));
+                    if (b == null) {
+                        return null;
+                    }
+
+                    return Loadable.forCatalog(b);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+
             return null;
+        }
+
+        public Pattern boardPattern() {
+            return Pattern.compile("/(\\w+)");
+        }
+
+        public Pattern threadPattern() {
+            return Pattern.compile("/(\\w+)/\\w+/(\\d+).*");
         }
     }
 
@@ -357,8 +417,22 @@ public abstract class CommonSite extends SiteBase {
 
             call.url(endpoints().reply(reply.loadable));
 
-            setupPost(reply, call);
+            if (requirePrepare()) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                new Thread(() -> {
+                    prepare(call, reply, replyResponse);
+                    handler.post(() -> {
+                        setupPost(reply, call);
+                        makePostCall(call, replyResponse, postListener);
+                    });
+                }).start();
+            } else {
+                setupPost(reply, call);
+                makePostCall(call, replyResponse, postListener);
+            }
+        }
 
+        private void makePostCall(HttpCall call, ReplyResponse replyResponse, PostListener postListener) {
             httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
                 @Override
                 public void onHttpSuccess(HttpCall httpCall) {
@@ -370,6 +444,13 @@ public abstract class CommonSite extends SiteBase {
                     postListener.onPostError(httpCall);
                 }
             });
+        }
+
+        public boolean requirePrepare() {
+            return false;
+        }
+
+        public void prepare(MultipartHttpCall call, Reply reply, ReplyResponse replyResponse) {
         }
 
         @Override
@@ -408,10 +489,16 @@ public abstract class CommonSite extends SiteBase {
         }
     }
 
-    public abstract class CommonApi implements ChanReader {
+    public static abstract class CommonApi implements ChanReader {
+        private CommonSite commonSite;
+
+        public CommonApi(CommonSite commonSite) {
+            this.commonSite = commonSite;
+        }
+
         @Override
         public PostParser getParser() {
-            return postParser;
+            return commonSite.postParser;
         }
     }
 

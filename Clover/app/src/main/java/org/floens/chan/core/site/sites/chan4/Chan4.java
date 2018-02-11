@@ -62,7 +62,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 
 public class Chan4 extends SiteBase {
-    public static final SiteUrlHandler SITE_URL_HANDLER = new SiteUrlHandler() {
+    public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
             return Chan4.class;
@@ -481,7 +481,7 @@ public class Chan4 extends SiteBase {
 
     @Override
     public SiteUrlHandler resolvable() {
-        return SITE_URL_HANDLER;
+        return URL_HANDLER;
     }
 
     @Override

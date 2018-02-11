@@ -22,6 +22,7 @@ import android.os.Looper;
 
 import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.IOUtils;
+import org.floens.chan.utils.Logger;
 
 import java.io.IOException;
 
@@ -72,6 +73,7 @@ public abstract class HttpCall implements Callback {
         }
 
         if (exception != null) {
+            Logger.e(TAG, "onResponse", exception);
             callFail(exception);
         } else {
             callSuccess();
@@ -80,6 +82,7 @@ public abstract class HttpCall implements Callback {
 
     @Override
     public void onFailure(Call call, IOException e) {
+        Logger.e(TAG, "onFailure", e);
         callFail(e);
     }
 

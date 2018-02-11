@@ -23,14 +23,23 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+
+import org.floens.chan.utils.Logger;
+
 import java.io.IOException;
 
 import okhttp3.HttpUrl;
 
+import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {
+    private static final String TAG = "SiteIcon";
+    private static final int FAVICON_SIZE = 64;
+
     private String assetPath;
     private HttpUrl url;
 
@@ -40,7 +49,7 @@ public class SiteIcon {
         return siteIcon;
     }
 
-    public static SiteIcon fromUrl(HttpUrl url) {
+    public static SiteIcon fromFavicon(HttpUrl url) {
         SiteIcon siteIcon = new SiteIcon();
         siteIcon.url = url;
         return siteIcon;
@@ -65,7 +74,20 @@ public class SiteIcon {
             drawable.getPaint().setFilterBitmap(false);
             result.onSiteIcon(this, drawable);
         } else if (url != null) {
-            // TODO
+            injector().instance(ImageLoader.class).get(url.toString(), new ImageLoader.ImageListener() {
+                @Override
+                public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                    if (response.getBitmap() != null) {
+                        Drawable drawable = new BitmapDrawable(response.getBitmap());
+                        result.onSiteIcon(SiteIcon.this, drawable);
+                    }
+                }
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Logger.e(TAG, "Error loading favicon", error);
+                }
+            }, FAVICON_SIZE, FAVICON_SIZE);
         }
     }
 
