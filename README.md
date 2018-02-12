@@ -1,5 +1,5 @@
 # Clover - 4chan browser for Android  
-[![slack](https://slack.plebco.de/badge.svg)](https://slack.plebco.de/)
+[![chat on slack](https://slack.plebco.de/badge.svg)](https://slack.plebco.de/)
 [![irc](https://img.shields.io/badge/freenode-%23Clover-blue.svg)](https://webchat.freenode.net/?url=irc:///#Clover)
 
 Clover is a fast Android app for browsing [4chan](https://www.4chan.org/).  
