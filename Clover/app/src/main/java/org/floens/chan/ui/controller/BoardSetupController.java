@@ -28,6 +28,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,13 +45,16 @@ import org.floens.chan.core.presenter.BoardSetupPresenter;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.layout.BoardAddLayout;
+import org.floens.chan.ui.view.DividerItemDecoration;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.text.TextUtils.isEmpty;
 import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
+import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -117,6 +121,8 @@ public class BoardSetupController extends Controller implements View.OnClickList
         // View setup
         savedBoardsRecycler.setLayoutManager(new LinearLayoutManager(context));
         savedBoardsRecycler.setAdapter(savedAdapter);
+        savedBoardsRecycler.addItemDecoration(
+                new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
         add.setOnClickListener(this);
@@ -222,7 +228,25 @@ public class BoardSetupController extends Controller implements View.OnClickList
         public void onBindViewHolder(SavedBoardCell holder, int position) {
             Board savedBoard = savedBoards.get(position);
             holder.text.setText(BoardHelper.getName(savedBoard));
-            holder.description.setText(savedBoard.order + " - " + BoardHelper.getDescription(savedBoard));
+            String description = BoardHelper.getDescription(savedBoard);
+            boolean enableDescription = !isEmpty(description);
+            if (enableDescription) {
+                holder.description.setVisibility(View.VISIBLE);
+                holder.description.setText(description);
+            } else {
+                holder.description.setVisibility(View.GONE);
+            }
+
+            // Fill the height for the title if there is no description, otherwise make room
+            // for it.
+            ViewGroup.LayoutParams p = holder.text.getLayoutParams();
+            int newHeight = enableDescription ? dp(28) : dp(56);
+            if (newHeight != p.height) {
+                p.height = newHeight;
+                holder.text.setLayoutParams(p);
+            }
+            holder.text.setGravity(Gravity.CENTER_VERTICAL);
+            holder.text.setPadding(dp(8), dp(8), dp(8), enableDescription ? 0 : dp(8));
         }
 
         @Override

@@ -40,6 +40,7 @@ import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.SiteAddLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.ui.view.DividerItemDecoration;
 import org.floens.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
@@ -90,6 +91,8 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         // View setup
         sitesRecyclerview.setLayoutManager(new LinearLayoutManager(context));
         sitesRecyclerview.setAdapter(sitesAdapter);
+        sitesRecyclerview.addItemDecoration(
+                new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         addButton.setOnClickListener(this);
         theme().applyFabColor(addButton);
 
