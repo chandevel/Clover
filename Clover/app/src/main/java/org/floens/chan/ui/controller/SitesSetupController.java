@@ -40,6 +40,7 @@ import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.SiteAddLayout;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.ui.view.DividerItemDecoration;
 import org.floens.chan.ui.view.FloatingMenuItem;
 
@@ -60,6 +61,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
     private ToolbarMenuItem doneMenuItem;
 
+    private CrossfadeView crossfadeView;
     private RecyclerView sitesRecyclerview;
     private FloatingActionButton addButton;
 
@@ -82,6 +84,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         navigation.setTitle(R.string.setup_sites_title);
 
         // View binding
+        crossfadeView = view.findViewById(R.id.crossfade);
         sitesRecyclerview = view.findViewById(R.id.sites_recycler);
         addButton = view.findViewById(R.id.add);
 
@@ -95,6 +98,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
                 new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         addButton.setOnClickListener(this);
         theme().applyFabColor(addButton);
+        crossfadeView.toggle(false, false);
 
         // Presenter
         presenter.create(this);
@@ -195,6 +199,8 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         this.sites.clear();
         this.sites.addAll(sites);
         sitesAdapter.notifyDataSetChanged();
+
+        crossfadeView.toggle(!sites.isEmpty(), true);
     }
 
     @Override

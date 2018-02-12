@@ -45,6 +45,7 @@ import org.floens.chan.core.presenter.BoardSetupPresenter;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.layout.BoardAddLayout;
+import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.ui.view.DividerItemDecoration;
 
 import java.util.List;
@@ -64,6 +65,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
     @Inject
     BoardSetupPresenter presenter;
 
+    private CrossfadeView crossfadeView;
     private RecyclerView savedBoardsRecycler;
     private FloatingActionButton add;
 
@@ -112,6 +114,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         navigation.swipeable = false;
 
         // View binding
+        crossfadeView = view.findViewById(R.id.crossfade);
         savedBoardsRecycler = view.findViewById(R.id.boards_recycler);
         add = view.findViewById(R.id.add);
 
@@ -127,6 +130,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
         add.setOnClickListener(this);
         theme().applyFabColor(add);
+        crossfadeView.toggle(false, false);
 
         // Presenter
         presenter.create(this, site);
@@ -175,6 +179,7 @@ public class BoardSetupController extends Controller implements View.OnClickList
     @Override
     public void setSavedBoards(List<Board> savedBoards) {
         savedAdapter.setSavedBoards(savedBoards);
+        crossfadeView.toggle(!savedBoards.isEmpty(), true);
     }
 
     @Override

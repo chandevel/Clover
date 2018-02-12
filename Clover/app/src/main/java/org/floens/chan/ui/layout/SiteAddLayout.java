@@ -2,15 +2,15 @@ package org.floens.chan.ui.layout;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputLayout;
 import android.util.AttributeSet;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SitesSetupPresenter;
 
-public class SiteAddLayout extends ConstraintLayout implements SitesSetupPresenter.AddCallback {
+public class SiteAddLayout extends LinearLayout implements SitesSetupPresenter.AddCallback {
     private EditText url;
     private TextInputLayout urlContainer;
 
