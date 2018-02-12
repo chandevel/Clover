@@ -102,8 +102,9 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public void onPopulatePostOptions(Post post, List<FloatingMenuItem> menu) {
+        public Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu) {
             menu.add(new FloatingMenuItem(1, "Option"));
+            return 0;
         }
 
         @Override

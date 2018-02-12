@@ -75,6 +75,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     private static final int POST_OPTION_HIDE = 12;
     private static final int POST_OPTION_OPEN_BROWSER = 13;
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
+    private static final int POST_OPTION_EXTRA = 15;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private WatchManager watchManager;
@@ -442,7 +443,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     }
 
     @Override
-    public void onPopulatePostOptions(Post post, List<FloatingMenuItem> menu) {
+    public Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu,
+                                        List<FloatingMenuItem> extraMenu) {
         if (!loadable.isThreadMode()) {
             menu.add(new FloatingMenuItem(POST_OPTION_PIN, R.string.action_pin));
         } else {
@@ -450,18 +452,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
-        menu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
-        menu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
-        menu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
-        menu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
+        if (!loadable.isThreadMode()) {
+            menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+        }
 
         if (loadable.getSite().feature(Site.Feature.POST_REPORT)) {
             menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
-        }
-
-        if (!loadable.isThreadMode()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
         }
 
         if (loadable.isThreadMode()) {
@@ -480,9 +476,19 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
         }
 
+        menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
+
+        extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        extraMenu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
+        extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
+        extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
+        extraMenu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
+
         if (ChanSettings.developer.get()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_SAVE, "Save"));
+            extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, "Save"));
         }
+
+        return POST_OPTION_EXTRA;
     }
 
     public void onPostOptionClicked(Post post, Object id) {

@@ -91,27 +91,33 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
 
         setOnClickListener(this);
 
-        options.setOnClickListener(new OnClickListener() {
+        options.setOnClickListener(v -> {
+            List<FloatingMenuItem> items = new ArrayList<>();
+            List<FloatingMenuItem> extraItems = new ArrayList<>();
+            Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
+            showOptions(v, items, extraItems, extraOption);
+        });
+    }
+
+    private void showOptions(View anchor, List<FloatingMenuItem> items,
+                             List<FloatingMenuItem> extraItems,
+                             Object extraOption) {
+        FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
+        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
-            public void onClick(View v) {
-                List<FloatingMenuItem> items = new ArrayList<>();
+            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                if (item.getId() == extraOption) {
+                    showOptions(anchor, extraItems, null, null);
+                }
 
-                callback.onPopulatePostOptions(post, items);
+                callback.onPostOptionClicked(post, item.getId());
+            }
 
-                FloatingMenu menu = new FloatingMenu(getContext(), v, items);
-                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-                    @Override
-                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        callback.onPostOptionClicked(post, item.getId());
-                    }
-
-                    @Override
-                    public void onFloatingMenuDismissed(FloatingMenu menu) {
-                    }
-                });
-                menu.show();
+            @Override
+            public void onFloatingMenuDismissed(FloatingMenu menu) {
             }
         });
+        menu.show();
     }
 
     @Override

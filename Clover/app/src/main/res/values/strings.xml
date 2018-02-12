@@ -296,6 +296,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="post_hide">Hide</string>
     <string name="post_hidden">Thread hidden</string>
     <string name="post_delete">Delete</string>
+    <string name="post_more">More…</string>
 
     <string name="reply_name">Name</string>
     <string name="reply_options">Options</string>

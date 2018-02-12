@@ -90,8 +90,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         if (!ChanSettings.enableReplyFab.get()) {
             items.add(new FloatingMenuItem(REPLY_ID, context.getString(R.string.action_reply)));
         }
-        items.add(new FloatingMenuItem(REFRESH_ID, R.string.action_reload));
         items.add(new FloatingMenuItem(SEARCH_ID, R.string.action_search));
+        items.add(new FloatingMenuItem(REFRESH_ID, R.string.action_reload));
         items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
         items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
         items.add(new FloatingMenuItem(UP_ID, R.string.action_up));

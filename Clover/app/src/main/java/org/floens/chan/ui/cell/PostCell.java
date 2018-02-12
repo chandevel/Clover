@@ -200,30 +200,39 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         });
 
         options.setOnClickListener(v -> {
-            if (ThemeHelper.getInstance().getTheme().isLightTheme) {
-                options.setImageResource(R.drawable.ic_overflow_black);
-            }
-
             List<FloatingMenuItem> items = new ArrayList<>();
-
-            callback.onPopulatePostOptions(post, items);
-
-            FloatingMenu menu = new FloatingMenu(getContext(), v, items);
-            menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-                @Override
-                public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                    callback.onPostOptionClicked(post, item.getId());
-                }
-
-                @Override
-                public void onFloatingMenuDismissed(FloatingMenu menu) {
-                    options.setImageResource(R.drawable.ic_overflow);
-                }
-            });
-            menu.show();
+            List<FloatingMenuItem> extraItems = new ArrayList<>();
+            Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
+            showOptions(v, items, extraItems, extraOption);
         });
 
         setOnClickListener(selfClicked);
+    }
+
+    private void showOptions(View anchor, List<FloatingMenuItem> items,
+                             List<FloatingMenuItem> extraItems,
+                             Object extraOption) {
+        if (ThemeHelper.getInstance().getTheme().isLightTheme) {
+            options.setImageResource(R.drawable.ic_overflow_black);
+        }
+
+        FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
+        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+            @Override
+            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                if (item.getId() == extraOption) {
+                    showOptions(anchor, extraItems, null, null);
+                }
+
+                callback.onPostOptionClicked(post, item.getId());
+            }
+
+            @Override
+            public void onFloatingMenuDismissed(FloatingMenu menu) {
+                options.setImageResource(R.drawable.ic_overflow);
+            }
+        });
+        menu.show();
     }
 
     @Override

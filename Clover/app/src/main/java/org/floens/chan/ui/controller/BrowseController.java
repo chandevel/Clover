@@ -126,12 +126,12 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         if (!ChanSettings.enableReplyFab.get()) {
             items.add(new FloatingMenuItem(REPLY_ID, R.string.action_reply));
         }
-        items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
         viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, postViewMode == ChanSettings.PostViewMode.LIST ?
                 R.string.action_switch_catalog : R.string.action_switch_board);
         items.add(viewModeMenuItem);
         items.add(new FloatingMenuItem(ORDER_ID, R.string.action_order));
         items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
+        items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
 
         overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
 

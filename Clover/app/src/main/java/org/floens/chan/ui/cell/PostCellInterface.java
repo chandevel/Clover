@@ -53,7 +53,8 @@ public interface PostCellInterface {
 
         void onShowPostReplies(Post post);
 
-        void onPopulatePostOptions(Post post, List<FloatingMenuItem> menu);
+        Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu,
+                                     List<FloatingMenuItem> extraMenu);
 
         void onPostOptionClicked(Post post, Object id);
 
