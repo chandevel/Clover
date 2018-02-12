@@ -48,6 +48,16 @@ public class DatabaseBoardManager {
         };
     }
 
+    public Callable<Void> updateIncludingUserFields(final List<Board> boards) {
+        return () -> {
+            for (Board board : boards) {
+                helper.boardsDao.update(board);
+            }
+
+            return null;
+        };
+    }
+
     public Callable<Void> updateOrders(final List<Board> boards) {
         return () -> {
             SelectArg id = new SelectArg();

@@ -97,23 +97,23 @@ public class BoardManager {
         return savedBoardsObservable;
     }
 
-    public void saveBoard(Board board) {
-        setSaved(board, true);
-    }
-
-    public void unsaveBoard(Board board) {
-        setSaved(board, false);
-    }
-
     public void updateBoardOrders(List<Board> boards) {
         databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                 .updateOrders(boards));
         updateSavedBoardsAndNotify();
     }
 
-    private void setSaved(Board board, boolean saved) {
+    public void setSaved(Board board, boolean saved) {
         board.saved = saved;
         databaseManager.runTask(databaseManager.getDatabaseBoardManager().updateIncludingUserFields(board));
+        updateSavedBoardsAndNotify();
+    }
+
+    public void setAllSaved(List<Board> boards, boolean saved) {
+        for (Board board : boards) {
+            board.saved = saved;
+        }
+        databaseManager.runTask(databaseManager.getDatabaseBoardManager().updateIncludingUserFields(boards));
         updateSavedBoardsAndNotify();
     }
 

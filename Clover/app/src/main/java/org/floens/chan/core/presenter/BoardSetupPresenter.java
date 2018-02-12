@@ -107,6 +107,8 @@ public class BoardSetupPresenter {
     public void onAddDialogPositiveClicked() {
         int count = 0;
 
+        List<Board> boardsToSave = new ArrayList<>();
+
         if (site.boardsType().canList) {
             List<Board> siteBoards = boardManager.getSiteBoards(site);
             Map<String, Board> siteBoardsByCode = new HashMap<>();
@@ -116,7 +118,7 @@ public class BoardSetupPresenter {
             for (String selectedSuggestion : selectedSuggestions) {
                 Board board = siteBoardsByCode.get(selectedSuggestion);
                 if (board != null) {
-                    boardManager.saveBoard(board);
+                    boardsToSave.add(board);
                     savedBoards.add(board);
                     count++;
                 }
@@ -124,11 +126,13 @@ public class BoardSetupPresenter {
         } else {
             for (String suggestion : selectedSuggestions) {
                 Board board = site.createBoard(suggestion, suggestion);
-                boardManager.saveBoard(board);
+                boardsToSave.add(board);
                 savedBoards.add(board);
                 count++;
             }
         }
+
+        boardManager.setAllSaved(boardsToSave, true);
 
         setOrder();
         callback.setSavedBoards(savedBoards);
@@ -145,7 +149,7 @@ public class BoardSetupPresenter {
 
     public void remove(int position) {
         Board board = savedBoards.remove(position);
-        boardManager.unsaveBoard(board);
+        boardManager.setSaved(board, false);
 
         setOrder();
         callback.setSavedBoards(savedBoards);
@@ -154,7 +158,7 @@ public class BoardSetupPresenter {
     }
 
     public void undoRemoveBoard(Board board) {
-        boardManager.saveBoard(board);
+        boardManager.setSaved(board, true);
         savedBoards.add(board.order, board);
         setOrder();
         callback.setSavedBoards(savedBoards);
