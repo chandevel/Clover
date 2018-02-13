@@ -59,6 +59,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private static final int VIEW_MODE_ID = 104;
     private static final int ORDER_ID = 105;
     private static final int OPEN_BROWSER_ID = 106;
+    private static final int ARCHIVE_ID = 107;
 
     @Inject
     BrowsePresenter presenter;
@@ -70,6 +71,7 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
     private ToolbarMenuItem search;
     private ToolbarMenuItem refresh;
     private ToolbarMenuItem overflow;
+    private FloatingMenuItem archive;
 
     public BrowseController(Context context) {
         super(context);
@@ -129,6 +131,11 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, postViewMode == ChanSettings.PostViewMode.LIST ?
                 R.string.action_switch_catalog : R.string.action_switch_board);
         items.add(viewModeMenuItem);
+
+        archive = new FloatingMenuItem(ARCHIVE_ID, R.string.thread_view_archive);
+        items.add(archive);
+        archive.setEnabled(false);
+
         items.add(new FloatingMenuItem(ORDER_ID, R.string.action_order));
         items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
         items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
@@ -207,6 +214,25 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 handleOrder(presenter);
 
                 break;
+            case ARCHIVE_ID:
+                openArchive();
+                break;
+        }
+    }
+
+    private void openArchive() {
+        Board board = presenter.currentBoard();
+        if (board == null) {
+            return;
+        }
+
+        ArchiveController archiveController = new ArchiveController(context);
+        archiveController.setBoard(board);
+
+        if (doubleNavigationController != null) {
+            doubleNavigationController.pushController(archiveController);
+        } else {
+            navigationController.pushController(archiveController);
         }
     }
 
@@ -314,6 +340,11 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
         } else {
             navigationController.pushController(siteSetupController);
         }
+    }
+
+    @Override
+    public void showArchiveOption(boolean show) {
+        archive.setEnabled(show);
     }
 
     @Override

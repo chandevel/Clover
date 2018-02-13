@@ -66,9 +66,13 @@ Changes in version 21:
 ALTER TABLE loadable ADD COLUMN lastLoaded default -1;
 
 
-Changes in version 22:
+Changes in version 22: (also configures the 4chan site with id 0)
 CREATE TABLE `site` (`configuration` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `userSettings` VARCHAR );
 ALTER TABLE loadable ADD COLUMN site INTEGER default 0;
 ALTER TABLE board ADD COLUMN site INTEGER default 0;
 ALTER TABLE savedreply ADD COLUMN site INTEGER default 0;
 ALTER TABLE threadhide ADD COLUMN site INTEGER default 0;
+
+
+Changes in version 23:
+ALTER TABLE board ADD COLUMN "archive" INTEGER;

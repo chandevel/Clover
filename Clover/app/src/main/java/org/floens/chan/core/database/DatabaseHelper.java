@@ -45,7 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 22;
+    private static final int DATABASE_VERSION = 23;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -229,6 +229,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             }
 
             SiteService.addSiteForLegacy();
+        }
+
+        if (oldVersion < 23) {
+            try {
+                pinDao.executeRawNoArgs("ALTER TABLE board ADD COLUMN \"archive\" INTEGER;");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 14", e);
+            }
         }
     }
 

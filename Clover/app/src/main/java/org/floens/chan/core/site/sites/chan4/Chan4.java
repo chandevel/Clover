@@ -30,16 +30,15 @@ import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
 import org.floens.chan.core.settings.StringSetting;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Boards;
-import org.floens.chan.core.site.SiteUrlHandler;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
-import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.core.site.SiteUrlHandler;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
 import org.floens.chan.core.site.common.FutabaChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
@@ -47,6 +46,7 @@ import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.core.site.parser.ChanReader;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -174,6 +174,11 @@ public class Chan4 extends SiteBase {
                 .host("sys.4chan.org")
                 .build();
 
+        private final HttpUrl b = new HttpUrl.Builder()
+                .scheme("https")
+                .host("boards.4chan.org")
+                .build();
+
         @Override
         public HttpUrl catalog(Board board) {
             return a.newBuilder()
@@ -245,6 +250,14 @@ public class Chan4 extends SiteBase {
         public HttpUrl boards() {
             return a.newBuilder()
                     .addPathSegment("boards.json")
+                    .build();
+        }
+
+        @Override
+        public HttpUrl archive(Board board) {
+            return b.newBuilder()
+                    .addPathSegment(board.code)
+                    .addPathSegment("archive")
                     .build();
         }
 
@@ -330,6 +343,13 @@ public class Chan4 extends SiteBase {
                 Collections.shuffle(list);
                 listener.onBoardsReceived(new Boards(list));
             }));
+        }
+
+        @Override
+        public void archive(Board board, ArchiveListener archiveListener) {
+            requestQueue.add(new Chan4ArchiveRequest(Chan4.this, board,
+                    archiveListener::onArchive,
+                    error -> archiveListener.onArchiveError()));
         }
 
         @Override
@@ -519,11 +539,12 @@ public class Chan4 extends SiteBase {
             case POSTING_SPOILER:
                 // depends if the board supports it.
                 return board.spoilers;
+            case ARCHIVE:
+                return board.archive;
             default:
                 return false;
         }
     }
-
 
     @Override
     public SiteEndpoints endpoints() {

@@ -131,6 +131,9 @@ public class Board implements SiteReference {
     @DatabaseField
     public String description;
 
+    @DatabaseField
+    public boolean archive = false;
+
     @Deprecated // public, at least
     public Board() {
     }
@@ -200,6 +203,7 @@ public class Board implements SiteReference {
         trollFlags = o.trollFlags;
         mathTags = o.mathTags;
         description = o.description;
+        archive = o.archive;
     }
 
     /**
@@ -238,6 +242,7 @@ public class Board implements SiteReference {
         b.trollFlags = trollFlags;
         b.mathTags = mathTags;
         b.description = description;
+        b.archive = archive;
         return b;
     }
 }

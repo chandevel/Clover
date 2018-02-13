@@ -358,6 +358,11 @@ public abstract class CommonSite extends SiteBase {
         }
 
         @Override
+        public HttpUrl archive(Board board) {
+            return null;
+        }
+
+        @Override
         public HttpUrl reply(Loadable thread) {
             return null;
         }
@@ -520,6 +525,10 @@ public abstract class CommonSite extends SiteBase {
             if (!site.staticBoards.isEmpty()) {
                 boardsListener.onBoardsReceived(new Boards(site.staticBoards));
             }
+        }
+
+        @Override
+        public void archive(Board board, ArchiveListener archiveListener) {
         }
 
         @Override

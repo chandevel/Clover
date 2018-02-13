@@ -175,6 +175,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_empty_select">Please select a thread</string>
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
+    <string name="thread_view_archive">Archive</string>
 
     <string name="intro_title">Clover</string>
     <string name="intro_content">Browse your favorite imageboards</string>
@@ -272,6 +273,9 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="saved_reply_clear">Clear posting history</string>
     <string name="saved_reply_clear_confirm">Clear posting history?</string>
     <string name="saved_reply_clear_confirm_button">Clear</string>
+
+    <string name="archive_title">%s archive</string>
+    <string name="archive_error">Error loading archive</string>
 
     <string name="drawer_board">Board</string>
     <string name="drawer_catalog">Catalog</string>

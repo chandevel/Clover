@@ -118,11 +118,14 @@ public class BrowsePresenter implements Observer {
     private void loadBoard(Board board) {
         currentBoard = board;
         callback.loadBoard(getLoadableForBoard(board));
+        callback.showArchiveOption(board.site.boardFeature(Site.BoardFeature.ARCHIVE, board));
     }
 
     public interface Callback {
         void loadBoard(Loadable loadable);
 
         void loadSiteSetup(Site site);
+
+        void showArchiveOption(boolean show);
     }
 }

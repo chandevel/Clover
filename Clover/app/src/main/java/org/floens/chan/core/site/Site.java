@@ -79,6 +79,11 @@ public interface Site {
          */
         // TODO(multisite) use this
         POSTING_SPOILER,
+
+        /**
+         * This board support loading the archive, a list of threads that are locked after expiring.
+         */
+        ARCHIVE,
     }
 
     /**

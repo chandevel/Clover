@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.site;
 
+import org.floens.chan.core.model.Archive;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
@@ -61,6 +63,14 @@ public interface SiteActions {
         void onDeleteComplete(HttpCall httpCall, DeleteResponse deleteResponse);
 
         void onDeleteError(HttpCall httpCall);
+    }
+
+    void archive(Board board, ArchiveListener archiveListener);
+
+    interface ArchiveListener {
+        void onArchive(Archive archive);
+
+        void onArchiveError();
     }
 
     /* TODO(multi-site) this login mechanism is probably not generic enough right now,

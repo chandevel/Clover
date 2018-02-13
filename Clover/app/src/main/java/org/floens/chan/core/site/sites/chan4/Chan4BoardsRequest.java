@@ -161,6 +161,9 @@ public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
                 case "meta_description":
                     board.description = reader.nextString();
                     break;
+                case "is_archived":
+                    board.archive = reader.nextInt() == 1;
+                    break;
                 default:
                     reader.skipValue();
                     break;
