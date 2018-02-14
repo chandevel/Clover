@@ -306,7 +306,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public void quote(Post post, CharSequence text) {
-        handleQuote(null, text.toString());
+        handleQuote(post, text.toString());
     }
 
     private void handleQuote(Post post, String textQuote) {
@@ -318,7 +318,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             extraNewline = "\n";
         }
 
-        String postQuote = post != null ? ">>" + post.no + "\n" : "";
+        String postQuote = "";
+        if (post != null) {
+            if (!draft.comment.contains(">>" + post.no)) {
+                postQuote = ">>" + post.no + "\n";
+            }
+        }
 
         StringBuilder textQuoteResult = new StringBuilder();
         if (textQuote != null) {
