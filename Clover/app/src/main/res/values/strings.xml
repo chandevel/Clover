@@ -315,6 +315,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="reply_no_preview">No preview</string>
     <string name="reply_submit">Submit</string>
     <string name="reply_error">Error posting</string>
+    <string name="reply_error_message">Error posting: %s</string>
     <string name="reply_success">Post successful</string>
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote">&gt;</string>

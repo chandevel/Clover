@@ -29,15 +29,16 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -46,6 +47,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import static org.floens.chan.utils.AndroidUtils.getAppContext;
 import static org.floens.chan.utils.AndroidUtils.getReadableFileSize;
 import static org.floens.chan.utils.AndroidUtils.getRes;
 import static org.floens.chan.utils.AndroidUtils.getString;
@@ -57,6 +59,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         LOADING
     }
 
+    private static final String TAG = "ReplyPresenter";
     private static final Pattern QUOTE_PATTERN = Pattern.compile(">>\\d+");
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
@@ -243,19 +246,33 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION, true);
         } else {
-            if (replyResponse.errorMessage == null) {
-                replyResponse.errorMessage = getString(R.string.reply_error);
+            String errorMessage = getString(R.string.reply_error);
+            if (replyResponse.errorMessage != null) {
+                errorMessage = getAppContext().getString(
+                        R.string.reply_error_message, replyResponse.errorMessage);
             }
 
+            Logger.e(TAG, "onPostComplete error", errorMessage);
             switchPage(Page.INPUT, true);
-            callback.openMessage(true, false, replyResponse.errorMessage, true);
+            callback.openMessage(true, false, errorMessage, true);
         }
     }
 
     @Override
-    public void onPostError(HttpCall httpCall) {
+    public void onPostError(HttpCall httpCall, Exception exception) {
+        Logger.e(TAG, "onPostError", exception);
+
         switchPage(Page.INPUT, true);
-        callback.openMessage(true, false, getString(R.string.reply_error), true);
+
+        String errorMessage = getString(R.string.reply_error);
+        if (exception != null) {
+            String message = exception.getMessage();
+            if (message != null) {
+                errorMessage = getAppContext().getString(R.string.reply_error_message, message);
+            }
+        }
+
+        callback.openMessage(true, false, errorMessage, true);
     }
 
     @Override

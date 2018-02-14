@@ -362,7 +362,7 @@ public class Chan4 extends SiteBase {
 
                 @Override
                 public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                    postListener.onPostError(httpPost);
+                    postListener.onPostError(httpPost, e);
                 }
             });
         }

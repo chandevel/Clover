@@ -476,7 +476,7 @@ public abstract class CommonSite extends SiteBase {
 
                 @Override
                 public void onHttpFail(HttpCall httpCall, Exception e) {
-                    postListener.onPostError(httpCall);
+                    postListener.onPostError(httpCall, e);
                 }
             });
         }

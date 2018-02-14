@@ -40,7 +40,7 @@ public interface SiteActions {
 
         void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse);
 
-        void onPostError(HttpCall httpCall);
+        void onPostError(HttpCall httpCall, Exception exception);
     }
 
     boolean postRequiresAuthentication();
