@@ -101,6 +101,10 @@ public class MediaSettingsController extends SettingsController {
                     R.string.setting_save_original_filename,
                     R.string.setting_save_original_filename_description));
 
+            media.add(new BooleanSettingView(this, ChanSettings.videoDefaultMuted,
+                    R.string.setting_video_default_muted,
+                    R.string.setting_video_default_muted_description));
+
             media.add(new BooleanSettingView(this, ChanSettings.videoOpenExternal,
                     R.string.setting_video_open_external,
                     R.string.setting_video_open_external_description));

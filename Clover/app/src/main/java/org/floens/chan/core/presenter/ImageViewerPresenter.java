@@ -58,11 +58,13 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     private boolean viewPagerVisible = false;
     private boolean changeViewsOnInTransitionEnd = false;
 
-    private boolean muted = true;
+    private boolean muted;
 
     public ImageViewerPresenter(Callback callback) {
         this.callback = callback;
         inject(this);
+
+        muted = ChanSettings.videoDefaultMuted.get();
     }
 
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
