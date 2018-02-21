@@ -1,24 +1,27 @@
 # Clover - 4chan browser for Android  
-[![chat on slack](https://slack.plebco.de/badge.svg)](https://slack.plebco.de/)
-[![irc](https://img.shields.io/badge/freenode-%23Clover-blue.svg)](https://webchat.freenode.net/?url=irc:///#Clover)
 
 Clover is a fast Android app for browsing [4chan](https://www.4chan.org/).  
 Clover adds inline replying, thread watching, notifications, themes, pass support, filters and a whole lot more. Clover is licensed under the GPL and will always be free.
 
+[Join the Slack!](https://join.slack.com/t/uchan/shared_invite/enQtMjkyOTM3NDczNTcxLTNkMzljNDUyNjkzNjEwOTNkZTljZWQ3ZDNmNWUyMTY2YTAwNzBhNmI3YTg1YmNjMDQxZTgzMTM2YzE2YzRhMGI)  
+[IRC](https://webchat.freenode.net/?url=irc:///#Clover)  
 [Clover website](http://floens.github.io/Clover/)  
-[Get Clover from F-Droid](https://floens.github.io/Clover/#fdroid)  
+[Clover dev builds](https://floens.github.io/Clover/#dev)  
+[F-Droid](https://floens.github.io/Clover/#fdroid)  
 [APK releases](https://floens.github.io/Clover/#releases)  
 [Donate](https://floens.github.io/Clover/#donate)  
 
-## Contributing
-Contributing to Clover is appreciated, there's always stuff to do or bugs to fix. I keep the todo list of Clover in the 
-[Clover Trello board](https://trello.com/b/V6gclKvM/clover).  
-[Make a new theme](https://github.com/Floens/Clover/wiki/Adding-a-new-theme)  
-
 
 ## Issues and features
-[The issues page](https://github.com/Floens/Clover/issues) is for reporting bugs and feature requests. Please search before reporting an issue to avoid duplicates.  
+Issues can be reported at the [Slack](https://join.slack.com/t/uchan/shared_invite/enQtMjkyOTM3NDczNTcxLTNkMzljNDUyNjkzNjEwOTNkZTljZWQ3ZDNmNWUyMTY2YTAwNzBhNmI3YTg1YmNjMDQxZTgzMTM2YzE2YzRhMGI) or here at the [Github Issues page](https://github.com/Floens/Clover/issues). Please search before reporting an issue to avoid duplicates!    
+
 Also take a look at the [Trello board](https://trello.com/b/V6gclKvM/clover) to see if your issue or feature has already been considered.  
+
+
+## Contributing
+Contributing to Clover is appreciated, there's always stuff to do or bugs to fix. I keep the todo list of Clover at the 
+[Clover Trello board](https://trello.com/b/V6gclKvM/clover).  
+[Make a new theme](https://github.com/Floens/Clover/wiki/Adding-a-new-theme)  
 
 
 ## Building Clover
