@@ -69,6 +69,7 @@ import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -250,7 +251,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             ImageSaveTask task = new ImageSaveTask(postImage);
             task.setShare(share);
             if (ChanSettings.saveBoardFolder.get()) {
-                task.setSubFolder(presenter.getLoadable().boardCode);
+                task.setSubFolder(presenter.getLoadable().site.name() +
+                        File.separator +
+                        presenter.getLoadable().boardCode);
             }
             ImageSaver.getInstance().startDownloadTask(context, task);
         }
