@@ -123,9 +123,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     public File getSaveLocation(ImageSaveTask task) {
         String base = ChanSettings.saveLocation.get();
-        String boardName = task.getSubFolder();
-        if (boardName != null) {
-            return new File(base + File.separator + boardName);
+        String subFolder = task.getSubFolder();
+        if (subFolder != null) {
+            return new File(base + File.separator + subFolder);
         } else {
             return new File(base);
         }
