@@ -22,7 +22,9 @@ import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.cache.FileCacheDownloader;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
@@ -38,7 +40,7 @@ import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
-public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
+public class ImageSaveTask extends FileCacheListener implements Runnable {
     private static final String TAG = "ImageSaveTask";
 
     @Inject
@@ -116,7 +118,8 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
                 // Manually call postFinished()
                 postFinished(success);
             } else {
-                FileCache.FileCacheDownloader fileCacheDownloader = fileCache.downloadFile(postImage.imageUrl.toString(), this);
+                FileCacheDownloader fileCacheDownloader =
+                        fileCache.downloadFile(postImage.imageUrl.toString(), this);
 
                 // If the fileCacheDownloader is null then the destination already existed and onSuccess() has been called.
                 // Wait otherwise for the download to finish to avoid that the next task is immediately executed.
@@ -133,21 +136,16 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     }
 
     @Override
-    public void onProgress(long downloaded, long total, boolean done) {
-    }
-
-    @Override
-    public void onFail(boolean notFound) {
-        postFinished(success);
-    }
-
-    @Override
     public void onSuccess(File file) {
         if (copyToDestination(file)) {
             onDestination();
         } else {
             deleteDestination();
         }
+    }
+
+    @Override
+    public void onEnd() {
         postFinished(success);
     }
 
@@ -221,12 +219,8 @@ public class ImageSaveTask implements Runnable, FileCache.DownloadedCallback {
     }
 
     private void postFinished(final boolean success) {
-        AndroidUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                callback.imageSaveTaskFinished(ImageSaveTask.this, success);
-            }
-        });
+        AndroidUtils.runOnUiThread(() ->
+                callback.imageSaveTaskFinished(ImageSaveTask.this, success));
     }
 
     public interface ImageSaveTaskCallback {

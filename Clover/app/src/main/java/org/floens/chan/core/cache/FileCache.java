@@ -17,57 +17,36 @@
  */
 package org.floens.chan.core.cache;
 
-import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.utils.AndroidUtils;
+import android.support.annotation.MainThread;
+
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InterruptedIOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
-import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.internal.Util;
-import okio.BufferedSource;
 
-public class FileCache {
+public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
     private static final int TIMEOUT = 10000;
-    private static final int TRIM_TRIES = 20;
-    private static final int THREAD_COUNT = 2;
+    private static final int DOWNLOAD_POOL_SIZE = 2;
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
+    private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
     private String userAgent;
-    private OkHttpClient httpClient;
+    protected OkHttpClient httpClient;
 
-    private final File directory;
-    private final long maxSize;
-    private AtomicLong size = new AtomicLong();
-    private AtomicBoolean trimRunning = new AtomicBoolean(false);
+    private final CacheHandler cacheHandler;
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
     public FileCache(File directory, long maxSize, String userAgent) {
-        this.directory = directory;
-        this.maxSize = maxSize;
         this.userAgent = userAgent;
 
         httpClient = new OkHttpClient.Builder()
@@ -78,411 +57,88 @@ public class FileCache {
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .build();
 
-        createDirectories();
-        recalculateSize();
+        cacheHandler = new CacheHandler(directory, maxSize);
     }
 
     public void clearCache() {
-        Logger.d(TAG, "Clearing cache");
         for (FileCacheDownloader downloader : downloaders) {
             downloader.cancel();
         }
 
-        if (directory.exists() && directory.isDirectory()) {
-            for (File file : directory.listFiles()) {
-                if (!file.delete()) {
-                    Logger.d(TAG, "Could not delete cache file while clearing cache " + file.getName());
-                }
-            }
-        }
-        recalculateSize();
+        cacheHandler.clearCache();
     }
 
     /**
      * Start downloading the file located at the url.<br>
-     * If the file is in the cache then the callback is executed immediately and null is returned.<br>
-     * Otherwise if the file is downloading or has not yet started downloading an {@link FileCacheDownloader} is returned.<br>
-     * Only call this method on the UI thread.<br>
+     * If the file is in the cache then the callback is executed immediately and null is
+     * returned.<br>
+     * Otherwise if the file is downloading or has not yet started downloading a
+     * {@link FileCacheDownloader} is returned.<br>
      *
-     * @param urlString the url to download.
-     * @param callback  callback to execute callbacks on.
-     * @return null if in the cache, {@link FileCacheDownloader} otherwise.
+     * @param url      the url to download.
+     * @param listener listener to execute callbacks on.
+     * @return {@code null} if in the cache, {@link FileCacheDownloader} otherwise.
      */
-    public FileCacheDownloader downloadFile(final String urlString, final DownloadedCallback callback) {
-        FileCacheDownloader downloader = null;
-        for (FileCacheDownloader downloaderItem : downloaders) {
-            if (downloaderItem.getUrl().equals(urlString)) {
-                downloader = downloaderItem;
-                break;
-            }
+    @MainThread
+    public FileCacheDownloader downloadFile(String url, FileCacheListener listener) {
+        FileCacheDownloader runningDownloaderForKey = getDownloaderByKey(url);
+        if (runningDownloaderForKey != null) {
+            runningDownloaderForKey.addListener(listener);
+            return runningDownloaderForKey;
         }
 
-        if (downloader != null) {
-            downloader.addCallback(callback);
-            return downloader;
+        File file = get(url);
+        if (file.exists()) {
+            handleFileImmediatelyAvailable(listener, file);
+            return null;
         } else {
-            File file = get(urlString);
-            if (file.exists()) {
-                // TODO: setLastModified doesn't seem to work on Android...
-                if (!file.setLastModified(Time.get())) {
-//                    Logger.e(TAG, "Could not set last modified time on file");
-                }
-                callback.onProgress(0, 0, true);
-                callback.onSuccess(file);
-                return null;
-            } else {
-                FileCacheDownloader newDownloader = new FileCacheDownloader(this, urlString, file, userAgent);
-                newDownloader.addCallback(callback);
-                Future<?> future = executor.submit(newDownloader);
-                newDownloader.setFuture(future);
-                downloaders.add(newDownloader);
-                return newDownloader;
+            return handleStartDownload(listener, file, url);
+        }
+    }
+
+    public FileCacheDownloader getDownloaderByKey(String key) {
+        for (FileCacheDownloader downloader : downloaders) {
+            if (downloader.getUrl().equals(key)) {
+                return downloader;
             }
         }
+        return null;
+    }
+
+    @Override
+    public void downloaderFinished(FileCacheDownloader fileCacheDownloader) {
+        downloaders.remove(fileCacheDownloader);
+    }
+
+    @Override
+    public void downloaderAddedFile(File file) {
+        cacheHandler.fileWasAdded(file);
     }
 
     public boolean exists(String key) {
-        return get(key).exists();
+        return cacheHandler.exists(key);
     }
 
     public File get(String key) {
-        createDirectories();
-
-        return new File(directory, Integer.toString(key.hashCode()));
+        return cacheHandler.get(key);
     }
 
-    private void createDirectories() {
-        if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                Logger.e(TAG, "Unable to create file cache dir " + directory.getAbsolutePath());
-            } else {
-                recalculateSize();
-            }
+    private void handleFileImmediatelyAvailable(FileCacheListener listener, File file) {
+        // TODO: setLastModified doesn't seem to work on Android...
+        if (!file.setLastModified(Time.get())) {
+            Logger.e(TAG, "Could not set last modified time on file");
         }
+        listener.onSuccess(file);
+        listener.onEnd();
     }
 
-    private void fileWasAdded(File file) {
-        long adjustedSize = size.addAndGet(file.length());
-
-        if (adjustedSize > maxSize && trimRunning.compareAndSet(false, true)) {
-            executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        trim();
-                    } catch (Exception e) {
-                        Logger.e(TAG, "Error trimming", e);
-                    } finally {
-                        trimRunning.set(false);
-                    }
-                }
-            });
-        }
-    }
-
-    // Called on a background thread
-    private void trim() {
-        File[] directoryFiles = directory.listFiles();
-
-        // Don't try to trim empty directories or just one image in it.
-        if (directoryFiles == null || directoryFiles.length <= 1) {
-            return;
-        }
-
-        List<File> files = new ArrayList<>(Arrays.asList(directoryFiles));
-
-        int trimmed = 0;
-        long workingSize = size.get();
-        int tries = 0;
-        while (workingSize > maxSize && tries++ < TRIM_TRIES) {
-            // Find the oldest file
-            long oldest = Long.MAX_VALUE;
-            File oldestFile = null;
-            for (File file : files) {
-                long modified = file.lastModified();
-                if (modified != 0L && modified < oldest) {
-                    oldest = modified;
-                    oldestFile = file;
-                }
-            }
-
-            if (oldestFile != null) {
-                Logger.d(TAG, "Delete for trim" + oldestFile.getAbsolutePath());
-                workingSize -= oldestFile.length();
-                trimmed++;
-                files.remove(oldestFile);
-
-                if (!oldestFile.delete()) {
-                    Logger.e(TAG, "Failed to delete cache file for trim");
-                    break;
-                }
-            } else {
-                Logger.e(TAG, "No files to trim");
-                break;
-            }
-        }
-
-        if (trimmed > 0) {
-            recalculateSize();
-        }
-    }
-
-    // Called on a background thread
-    private void recalculateSize() {
-        long calculatedSize = 0;
-
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                calculatedSize += file.length();
-            }
-        }
-
-        size.set(calculatedSize);
-    }
-
-    private void removeFromDownloaders(FileCacheDownloader downloader) {
-        downloaders.remove(downloader);
-    }
-
-    public interface DownloadedCallback {
-        void onProgress(long downloaded, long total, boolean done);
-
-        void onSuccess(File file);
-
-        void onFail(boolean notFound);
-    }
-
-    public static class FileCacheDownloader implements Runnable {
-        private final FileCache fileCache;
-        private final String url;
-        private final File output;
-        private final String userAgent;
-
-        // Modify the callbacks list on the UI thread only!
-        private final List<DownloadedCallback> callbacks = new ArrayList<>();
-
-        private AtomicBoolean running = new AtomicBoolean(false);
-        private AtomicBoolean userCancelled = new AtomicBoolean(false);
-
-        private Closeable downloadInput;
-        private Closeable downloadOutput;
-        private Call call;
-        private ResponseBody body;
-        private boolean cancelled = false;
-        private Future<?> future;
-
-        private FileCacheDownloader(FileCache fileCache, String url, File output, String userAgent) {
-            this.fileCache = fileCache;
-            this.url = url;
-            this.output = output;
-            this.userAgent = userAgent;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void addCallback(DownloadedCallback callback) {
-            callbacks.add(callback);
-        }
-
-        /**
-         * Cancel this download by interrupting the downloading thread. No callbacks will be executed.
-         */
-        public void cancel() {
-            if (userCancelled.compareAndSet(false, true)) {
-                future.cancel(true);
-                // Did not start running yet, call cancelDueToCancellation manually to remove from downloaders list.
-                if (!running.get()) {
-                    cancelDueToCancellation();
-                }
-            }
-        }
-
-        public void run() {
-            Logger.d(TAG, "Start load of " + url);
-            try {
-                running.set(true);
-                execute();
-            } catch (Exception e) {
-                if (userCancelled.get()) {
-                    cancelDueToCancellation();
-                } else {
-                    cancelDueToException(e);
-                }
-            } finally {
-                cleanup();
-            }
-        }
-
-        public Future<?> getFuture() {
-            return future;
-        }
-
-        private void setFuture(Future<?> future) {
-            this.future = future;
-        }
-
-        private void cancelDueToException(Exception e) {
-            if (cancelled) return;
-            cancelled = true;
-
-            Logger.w(TAG, "IOException downloading url " + url, e);
-
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    purgeOutput();
-                    removeFromDownloadersList();
-                    for (DownloadedCallback callback : callbacks) {
-                        callback.onProgress(0, 0, true);
-                        callback.onFail(false);
-                    }
-                }
-            });
-        }
-
-        private void cancelDueToHttpError(final int code) {
-            if (cancelled) return;
-            cancelled = true;
-
-            Logger.w(TAG, "Cancel " + url + " due to http error, code: " + code);
-
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    purgeOutput();
-                    removeFromDownloadersList();
-                    for (DownloadedCallback callback : callbacks) {
-                        callback.onProgress(0, 0, true);
-                        callback.onFail(code == 404);
-                    }
-                }
-            });
-        }
-
-        private void cancelDueToCancellation() {
-            if (cancelled) return;
-            cancelled = true;
-
-            Logger.d(TAG, "Cancel " + url + " due to cancellation");
-
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    purgeOutput();
-                    removeFromDownloadersList();
-                }
-            });
-        }
-
-        private void success() {
-            Logger.d(TAG, "Success downloading " + url);
-
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    fileCache.fileWasAdded(output);
-                    removeFromDownloadersList();
-                    for (DownloadedCallback callback : callbacks) {
-                        callback.onProgress(0, 0, true);
-                        callback.onSuccess(output);
-                    }
-                }
-            });
-            call = null;
-        }
-
-        /**
-         * Always called before any cancelDueTo method or success on the downloading thread.
-         */
-        private void cleanup() {
-            Util.closeQuietly(downloadInput);
-            Util.closeQuietly(downloadOutput);
-
-            if (call != null) {
-                call.cancel();
-                call = null;
-            }
-
-            if (body != null) {
-                Util.closeQuietly(body);
-                body = null;
-            }
-        }
-
-        private void removeFromDownloadersList() {
-            fileCache.removeFromDownloaders(this);
-        }
-
-        private void purgeOutput() {
-            if (output.exists()) {
-                if (!output.delete()) {
-                    Logger.w(TAG, "Could not delete the file in purgeOutput");
-                }
-            }
-        }
-
-        private void postProgress(final long downloaded, final long total, final boolean done) {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    for (DownloadedCallback callback : callbacks) {
-                        callback.onProgress(downloaded, total, done);
-                    }
-                }
-            });
-        }
-
-        private void post(Runnable runnable) {
-            AndroidUtils.runOnUiThread(runnable);
-        }
-
-        private void execute() throws Exception {
-            Request request = new Request.Builder()
-                    .url(url)
-                    .header("User-Agent", userAgent)
-                    .build();
-
-            call = fileCache.httpClient.newBuilder()
-                    .proxy(ChanSettings.getProxy())
-                    .build()
-                    .newCall(request);
-
-            Response response = call.execute();
-            if (!response.isSuccessful()) {
-                cancelDueToHttpError(response.code());
-                return;
-            }
-
-            body = response.body();
-            long contentLength = body.contentLength();
-            BufferedSource source = body.source();
-            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(output));
-
-            downloadInput = source;
-            downloadOutput = outputStream;
-
-            Logger.d(TAG, "Got input stream for " + url);
-
-            int read;
-            long total = 0;
-            long totalLast = 0;
-            byte[] buffer = new byte[4096];
-            while ((read = source.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, read);
-                total += read;
-
-                if (total >= totalLast + 16384) {
-                    totalLast = total;
-                    postProgress(total, contentLength <= 0 ? total : contentLength, false);
-                }
-            }
-
-            if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException();
-
-            success();
-        }
+    private FileCacheDownloader handleStartDownload(
+            FileCacheListener listener, File file, String url) {
+        FileCacheDownloader downloader = FileCacheDownloader.fromCallbackClientUrlOutputUserAgent(
+                this, httpClient, url, file, userAgent);
+        downloader.addListener(listener);
+        downloader.execute(downloadPool);
+        downloaders.add(downloader);
+        return downloader;
     }
 }

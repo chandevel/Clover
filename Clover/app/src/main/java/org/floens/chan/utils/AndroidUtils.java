@@ -352,12 +352,9 @@ public class AndroidUtils {
         if (returnIfNotZero && width > 0 && height > 0) {
             callback.onMeasured(view);
         } else {
-            Logger.d(TAG, "Adding OnPreDrawListener to ViewTreeObserver");
             viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    Logger.d(TAG, "OnPreDraw callback");
-
                     ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
                     if (viewTreeObserver != view.getViewTreeObserver()) {
                         Logger.e(TAG, "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one");

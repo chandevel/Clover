@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import com.android.volley.RequestQueue;
 
 import org.floens.chan.BuildConfig;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.net.UpdateApiRequest;
 import org.floens.chan.core.settings.ChanSettings;
@@ -164,10 +165,10 @@ public class UpdateManager {
      * @param update update with apk details.
      */
     public void doUpdate(Update update) {
-        fileCache.downloadFile(update.apkUrl.toString(), new FileCache.DownloadedCallback() {
+        fileCache.downloadFile(update.apkUrl.toString(), new FileCacheListener() {
             @Override
-            public void onProgress(long downloaded, long total, boolean done) {
-                if (!done) callback.onUpdateDownloadProgress(downloaded, total);
+            public void onProgress(long downloaded, long total) {
+                callback.onUpdateDownloadProgress(downloaded, total);
             }
 
             @Override
@@ -178,6 +179,11 @@ public class UpdateManager {
 
             @Override
             public void onFail(boolean notFound) {
+                callback.onUpdateDownloadFailed();
+            }
+
+            @Override
+            public void onCancel() {
                 callback.onUpdateDownloadFailed();
             }
         });

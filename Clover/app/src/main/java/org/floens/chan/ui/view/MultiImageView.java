@@ -40,7 +40,9 @@ import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 
 import org.floens.chan.R;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.cache.FileCacheDownloader;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
@@ -78,9 +80,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private boolean hasContent = false;
     private ImageContainer thumbnailRequest;
-    private FileCache.FileCacheDownloader bigImageRequest;
-    private FileCache.FileCacheDownloader gifRequest;
-    private FileCache.FileCacheDownloader videoRequest;
+    private FileCacheDownloader bigImageRequest;
+    private FileCacheDownloader gifRequest;
+    private FileCacheDownloader videoRequest;
 
     private VideoView videoView;
     private boolean videoError = false;
@@ -231,29 +233,34 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        bigImageRequest = fileCache.downloadFile(imageUrl, new FileCache.DownloadedCallback() {
+        bigImageRequest = fileCache.downloadFile(imageUrl, new FileCacheListener() {
             @Override
-            public void onProgress(long downloaded, long total, boolean done) {
+            public void onProgress(long downloaded, long total) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
-                if (done) {
-                    callback.showProgress(MultiImageView.this, false);
-                }
             }
 
             @Override
             public void onSuccess(File file) {
-                bigImageRequest = null;
                 setBigImageFile(file);
             }
 
             @Override
             public void onFail(boolean notFound) {
-                bigImageRequest = null;
                 if (notFound) {
                     onNotFoundError();
                 } else {
                     onError();
                 }
+            }
+
+            @Override
+            public void onCancel() {
+            }
+
+            @Override
+            public void onEnd() {
+                bigImageRequest = null;
+                callback.showProgress(MultiImageView.this, false);
             }
         });
     }
@@ -273,18 +280,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        gifRequest = fileCache.downloadFile(gifUrl, new FileCache.DownloadedCallback() {
+        gifRequest = fileCache.downloadFile(gifUrl, new FileCacheListener() {
             @Override
-            public void onProgress(long downloaded, long total, boolean done) {
+            public void onProgress(long downloaded, long total) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
-                if (done) {
-                    callback.showProgress(MultiImageView.this, false);
-                }
             }
 
             @Override
             public void onSuccess(File file) {
-                gifRequest = null;
                 if (!hasContent || mode == Mode.GIF) {
                     setGifFile(file);
                 }
@@ -292,12 +295,21 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             @Override
             public void onFail(boolean notFound) {
-                gifRequest = null;
                 if (notFound) {
                     onNotFoundError();
                 } else {
                     onError();
                 }
+            }
+
+            @Override
+            public void onCancel() {
+            }
+
+            @Override
+            public void onEnd() {
+                gifRequest = null;
+                callback.showProgress(MultiImageView.this, false);
             }
         });
     }
@@ -337,18 +349,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
 
         callback.showProgress(this, true);
-        videoRequest = fileCache.downloadFile(videoUrl, new FileCache.DownloadedCallback() {
+        videoRequest = fileCache.downloadFile(videoUrl, new FileCacheListener() {
             @Override
-            public void onProgress(long downloaded, long total, boolean done) {
+            public void onProgress(long downloaded, long total) {
                 callback.onProgress(MultiImageView.this, downloaded, total);
-                if (done) {
-                    callback.showProgress(MultiImageView.this, false);
-                }
             }
 
             @Override
             public void onSuccess(File file) {
-                videoRequest = null;
                 if (!hasContent || mode == Mode.MOVIE) {
                     setVideoFile(file);
                 }
@@ -356,12 +364,21 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             @Override
             public void onFail(boolean notFound) {
-                videoRequest = null;
                 if (notFound) {
                     onNotFoundError();
                 } else {
                     onError();
                 }
+            }
+
+            @Override
+            public void onCancel() {
+            }
+
+            @Override
+            public void onEnd() {
+                videoRequest = null;
+                callback.showProgress(MultiImageView.this, false);
             }
         });
     }

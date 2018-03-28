@@ -35,7 +35,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 public class IOUtils {
-    private static final int DEFAULT_BUFFER_SIZE = 4096;
+    private static final int DEFAULT_BUFFER_SIZE = 8192;
 
     public static String assetAsString(Context context, String assetName) {
         String res = null;
