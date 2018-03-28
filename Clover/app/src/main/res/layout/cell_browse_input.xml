@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:ellipsize="end"
         android:gravity="center_vertical"
+        android:hint="@string/thread_boards_search_hint"
         android:inputType="text"
         android:maxLines="1"
         android:paddingLeft="16dp"

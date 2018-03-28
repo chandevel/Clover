@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="48dp"
+    android:background="?attr/selectableItemBackground"
     android:ellipsize="end"
     android:gravity="center_vertical"
     android:lines="1"

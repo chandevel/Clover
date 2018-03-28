@@ -84,10 +84,6 @@ public class BrowsePresenter implements Observer {
         callback.loadSiteSetup(site);
     }
 
-    public BoardManager.SavedBoards getSavedBoardsObservable() {
-        return boardManager.getSavedBoardsObservable();
-    }
-
     @Override
     public void update(Observable o, Object arg) {
         if (o == savedBoardsObservable) {

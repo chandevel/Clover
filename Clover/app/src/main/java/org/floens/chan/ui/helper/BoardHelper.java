@@ -25,6 +25,7 @@ import org.jsoup.parser.Parser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
@@ -38,6 +39,31 @@ public class BoardHelper {
 
     public static String getDescription(Board board) {
         return board.description == null ? null : Parser.unescapeEntities(board.description, false);
+    }
+
+    public static List<Board> quickSearch(List<Board> from, String query) {
+        from = new ArrayList<>(from);
+        query = query.toLowerCase();
+
+        List<Board> res = new ArrayList<>();
+
+        for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
+            Board board = iterator.next();
+            if (board.code.toLowerCase().equals(query)) {
+                iterator.remove();
+                res.add(board);
+            }
+        }
+
+        for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
+            Board board = iterator.next();
+            if (board.name.toLowerCase().contains(query)) {
+                iterator.remove();
+                res.add(board);
+            }
+        }
+
+        return res;
     }
 
     public static List<Board> search(List<Board> from, final String query) {

@@ -19,6 +19,7 @@ package org.floens.chan.core.manager;
 
 import android.util.Pair;
 
+import org.floens.chan.core.database.DatabaseBoardManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
@@ -52,20 +53,24 @@ public class BoardManager {
     private static final Comparator<Board> ORDER_SORT = (lhs, rhs) -> lhs.order - rhs.order;
 
     private final DatabaseManager databaseManager;
+    private final DatabaseBoardManager databaseBoardManager;
 
-    private final List<Pair<Site, List<Board>>> sitesWithSavedBoards = new ArrayList<>();
+    private final AllBoards allBoardsObservable = new AllBoards();
     private final SavedBoards savedBoardsObservable = new SavedBoards();
+
+    private final List<Pair<Site, List<Board>>> sitesWithBoards = new ArrayList<>();
+    private final List<Pair<Site, List<Board>>> sitesWithSavedBoards = new ArrayList<>();
 
     @Inject
     public BoardManager(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
+        databaseBoardManager = databaseManager.getDatabaseBoardManager();
 
-        updateSavedBoardsAndNotify();
+        updateObservables();
     }
 
     public void createAll(List<Board> boards) {
-        databaseManager.runTask(
-                databaseManager.getDatabaseBoardManager().createAll(boards));
+        databaseManager.runTask(databaseBoardManager.createAll(boards));
     }
 
     /**
@@ -77,20 +82,23 @@ public class BoardManager {
      * @return the board code with the same site and board code, or {@code null} if not found.
      */
     public Board getBoard(Site site, String code) {
-        return databaseManager.runTask(
-                databaseManager.getDatabaseBoardManager().getBoard(site, code));
+        return databaseManager.runTask(databaseBoardManager.getBoard(site, code));
     }
 
     public List<Board> getSiteBoards(Site site) {
-        return databaseManager.runTask(
-                databaseManager.getDatabaseBoardManager().getSiteBoards(site));
+        List<Board> boards = databaseManager.runTask(databaseBoardManager.getSiteBoards(site));
+        Collections.sort(boards, ORDER_SORT);
+        return boards;
     }
 
     public List<Board> getSiteSavedBoards(Site site) {
-        List<Board> boards = databaseManager.runTask(
-                databaseManager.getDatabaseBoardManager().getSiteSavedBoards(site));
+        List<Board> boards = databaseManager.runTask(databaseBoardManager.getSiteSavedBoards(site));
         Collections.sort(boards, ORDER_SORT);
         return boards;
+    }
+
+    public AllBoards getAllBoardsObservable() {
+        return allBoardsObservable;
     }
 
     public SavedBoards getSavedBoardsObservable() {
@@ -98,33 +106,50 @@ public class BoardManager {
     }
 
     public void updateBoardOrders(List<Board> boards) {
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager()
-                .updateOrders(boards));
-        updateSavedBoardsAndNotify();
+        databaseManager.runTask(databaseBoardManager.updateOrders(boards));
+        updateObservables();
     }
 
     public void setSaved(Board board, boolean saved) {
         board.saved = saved;
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager().updateIncludingUserFields(board));
-        updateSavedBoardsAndNotify();
+        databaseManager.runTask(databaseBoardManager.updateIncludingUserFields(board));
+        updateObservables();
     }
 
     public void setAllSaved(List<Board> boards, boolean saved) {
         for (Board board : boards) {
             board.saved = saved;
         }
-        databaseManager.runTask(databaseManager.getDatabaseBoardManager().updateIncludingUserFields(boards));
-        updateSavedBoardsAndNotify();
+        databaseManager.runTask(databaseBoardManager.updateIncludingUserFields(boards));
+        updateObservables();
     }
 
-    private void updateSavedBoardsAndNotify() {
-        sitesWithSavedBoards.clear();
+    private void updateObservables() {
+        sitesWithBoards.clear();
         for (Site site : Sites.allSites()) {
-            List<Board> siteBoards = getSiteSavedBoards(site);
-            sitesWithSavedBoards.add(new Pair<>(site, siteBoards));
+            List<Board> all = getSiteBoards(site);
+            sitesWithBoards.add(new Pair<>(site, all));
+
+            List<Board> saved = new ArrayList<>();
+            for (Board siteBoard : all) {
+                if (siteBoard.saved) saved.add(siteBoard);
+            }
+            sitesWithSavedBoards.add(new Pair<>(site, saved));
         }
 
+        allBoardsObservable.doNotify();
         savedBoardsObservable.doNotify();
+    }
+
+    public class AllBoards extends Observable {
+        private void doNotify() {
+            setChanged();
+            notifyObservers();
+        }
+
+        public List<Pair<Site, List<Board>>> get() {
+            return sitesWithBoards;
+        }
     }
 
     public class SavedBoards extends Observable {

@@ -51,7 +51,11 @@ import javax.inject.Inject;
 import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class BrowseController extends ThreadController implements ToolbarMenuItem.ToolbarMenuItemCallback, ThreadLayout.ThreadLayoutCallback, BrowsePresenter.Callback {
+public class BrowseController extends ThreadController implements
+        ToolbarMenuItem.ToolbarMenuItemCallback,
+        ThreadLayout.ThreadLayoutCallback,
+        BrowsePresenter.Callback,
+        BrowseBoardsFloatingMenu.ClickCallback {
     private static final int SEARCH_ID = 1;
     private static final int REFRESH_ID = 2;
     private static final int REPLY_ID = 101;
@@ -151,20 +155,9 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
             @SuppressLint("InflateParams")
             @Override
             public void show(View anchor) {
-                BrowseBoardsFloatingMenu boardsFloatingMenu =
-                        new BrowseBoardsFloatingMenu(presenter.getSavedBoardsObservable());
-                boardsFloatingMenu.show(anchor, presenter.currentBoard());
-                boardsFloatingMenu.setCallback(new BrowseBoardsFloatingMenu.Callback() {
-                    @Override
-                    public void onBoardClicked(Board item) {
-                        presenter.onBoardsFloatingMenuBoardClicked(item);
-                    }
-
-                    @Override
-                    public void onSiteClicked(Site site) {
-                        presenter.onBoardsFloatingMenuSiteClicked(site);
-                    }
-                });
+                BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
+                boardsFloatingMenu.show(view, anchor, BrowseController.this,
+                        presenter.currentBoard());
             }
         };
     }
@@ -218,6 +211,16 @@ public class BrowseController extends ThreadController implements ToolbarMenuIte
                 openArchive();
                 break;
         }
+    }
+
+    @Override
+    public void onBoardClicked(Board item) {
+        presenter.onBoardsFloatingMenuBoardClicked(item);
+    }
+
+    @Override
+    public void onSiteClicked(Site site) {
+        presenter.onBoardsFloatingMenuSiteClicked(site);
     }
 
     private void openArchive() {

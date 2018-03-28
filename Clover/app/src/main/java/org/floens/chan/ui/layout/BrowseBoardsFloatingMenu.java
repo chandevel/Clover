@@ -17,219 +17,453 @@
  */
 package org.floens.chan.ui.layout;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.graphics.drawable.Drawable;
-import android.util.Pair;
-import android.view.Gravity;
+import android.content.Context;
+import android.graphics.Point;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
+import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.presenter.BoardsMenuPresenter;
+import org.floens.chan.core.presenter.BoardsMenuPresenter.Item;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.ui.helper.BoardHelper;
-import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.utils.AndroidUtils;
 
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import static org.floens.chan.utils.AndroidUtils.dp;
+import javax.inject.Inject;
 
-public class BrowseBoardsFloatingMenu implements Observer, AdapterView.OnItemClickListener {
-    private FloatingMenu floatingMenu;
-    private BoardManager.SavedBoards savedBoards;
+import static org.floens.chan.Chan.inject;
+import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.removeFromParentView;
+
+/**
+ * A ViewGroup that attaches above the entire window, containing a list of boards the user can
+ * select. The list is aligned to a view, given to
+ * {@link #show(ViewGroup, View, ClickCallback, Board)}.
+ * This view completely covers the window to catch any input that goes outside the inner list view.
+ * It also features a search field at the top. The data shown is controlled by
+ * {@link BoardsMenuPresenter}.
+ */
+public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuPresenter.Callback,
+        Observer {
+    private static final int MINIMAL_WIDTH_DP = 4 * 56;
+    private static final int ELEVATION_DP = 4;
+    private static final int OFFSET_X_DP = 5;
+    private static final int OFFSET_Y_DP = 5;
+    private static final int MARGIN_DP = 5;
+    private static final int ANIMATE_IN_TRANSLATION_Y_DP = 25;
+
+    private View anchor;
+    private RecyclerView recyclerView;
+
+    private Point position = new Point(0, 0);
+    private boolean dismissed = false;
+
+    @Inject
+    private BoardsMenuPresenter presenter;
+    private BoardsMenuPresenter.Items items;
+
     private BrowseBoardsAdapter adapter;
 
-    private Callback callback;
+    private ClickCallback clickCallback;
+    private ViewTreeObserver.OnGlobalLayoutListener layoutListener;
 
-    public BrowseBoardsFloatingMenu(BoardManager.SavedBoards savedBoards) {
-        this.savedBoards = savedBoards;
-        this.savedBoards.addObserver(this);
+    public BrowseBoardsFloatingMenu(Context context) {
+        this(context, null);
     }
 
-    private void onDismissed() {
-        savedBoards.deleteObserver(this);
+    public BrowseBoardsFloatingMenu(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
     }
 
-    public void setCallback(Callback callback) {
-        this.callback = callback;
+    public BrowseBoardsFloatingMenu(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+
+        inject(this);
+
+        layoutListener = this::repositionToAnchor;
+
+        setFocusableInTouchMode(true);
+        setFocusable(true);
     }
 
-    public void show(View anchor, Board selectedBoard) {
-        floatingMenu = new FloatingMenu(anchor.getContext());
-        floatingMenu.setCallback(new FloatingMenu.FloatingMenuCallbackAdapter() {
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
-                onDismissed();
-            }
-        });
-        floatingMenu.setManageItems(false);
-        floatingMenu.setAnchor(anchor, Gravity.LEFT, dp(5), dp(5));
-        floatingMenu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
+    public void show(ViewGroup baseView, View anchor, ClickCallback clickCallback,
+                     Board selectedBoard) {
+        this.anchor = anchor;
+        this.clickCallback = clickCallback;
+
+        ViewGroup rootView = baseView.getRootView().findViewById(android.R.id.content);
+
+        setupChildViews();
+
         adapter = new BrowseBoardsAdapter();
-        floatingMenu.setAdapter(adapter);
-        floatingMenu.setOnItemClickListener(this);
-        floatingMenu.setSelectedPosition(resolveCurrentIndex(selectedBoard));
-        floatingMenu.show();
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(null);
+
+        rootView.addView(this, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+
+        requestFocus();
+
+        watchAnchor();
+
+        animateIn();
+
+        presenter.create(this, selectedBoard);
+        items = presenter.items();
+        items.addObserver(this);
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o == savedBoards) {
+        if (o == presenter.items()) {
             adapter.notifyDataSetChanged();
         }
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Pair<Site, Board> siteOrBoard = getAtPosition(position);
-        if (siteOrBoard.second != null) {
-            callback.onBoardClicked(siteOrBoard.second);
+    public void scrollToPosition(int position) {
+        recyclerView.scrollToPosition(position);
+    }
+
+    private void itemClicked(Site site, Board board) {
+        if (!isInteractive()) return;
+
+        if (board != null) {
+            clickCallback.onBoardClicked(board);
         } else {
-            callback.onSiteClicked(siteOrBoard.first);
+            clickCallback.onSiteClicked(site);
         }
-        floatingMenu.dismiss();
+        dismiss();
     }
 
-    private int getCount() {
-        int count = 0;
-        for (Pair<Site, List<Board>> siteListPair : savedBoards.get()) {
-            count += 1;
-            count += siteListPair.second.size();
-        }
-
-        return count;
+    private void inputChanged(String input) {
+        presenter.filterChanged(input);
     }
 
-    private int resolveCurrentIndex(Board board) {
-        int position = 0;
-        for (Pair<Site, List<Board>> siteListPair : savedBoards.get()) {
-            position += 1;
+    private void dismiss() {
+        if (dismissed) return;
+        dismissed = true;
 
-            for (Board other : siteListPair.second) {
-                if (board == other) {
-                    return position;
-                }
-                position++;
-            }
+        items.deleteObserver(this);
+        presenter.destroy();
+
+        AndroidUtils.hideKeyboard(this);
+
+        // ???
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
         }
 
-        return 0;
+        animateOut(() -> removeFromParentView(this));
     }
 
-    private Pair<Site, Board> getAtPosition(int position) {
-        for (Pair<Site, List<Board>> siteListPair : savedBoards.get()) {
-            if (position == 0) {
-                return new Pair<>(siteListPair.first, null);
-            }
-            position -= 1;
+    private void setupChildViews() {
+        // View creation
+        recyclerView = new RecyclerView(getContext());
 
-            if (position < siteListPair.second.size()) {
-                return new Pair<>(null, siteListPair.second.get(position));
-            }
-            position -= siteListPair.second.size();
+        // View setup
+        recyclerView.setBackgroundColor(AndroidUtils.getAttrColor(getContext(), R.attr.backcolor));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            recyclerView.setElevation(dp(ELEVATION_DP));
         }
-        throw new IllegalArgumentException();
+
+        // View attaching
+        int recyclerWidth = Math.max(
+                anchor.getWidth(),
+                dp(MINIMAL_WIDTH_DP));
+
+        LayoutParams params = new LayoutParams(
+                recyclerWidth,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.leftMargin = dp(MARGIN_DP);
+        params.topMargin = dp(MARGIN_DP);
+        params.rightMargin = dp(MARGIN_DP);
+        params.bottomMargin = dp(MARGIN_DP);
+        addView(recyclerView, params);
     }
 
-    private class BrowseBoardsAdapter extends BaseAdapter {
-        final int TYPE_SITE = 0;
-        final int TYPE_BOARD = 1;
+    private void watchAnchor() {
+        repositionToAnchor();
+        anchor.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+    }
+
+    private void repositionToAnchor() {
+        int[] anchorPos = new int[2];
+        int[] recyclerViewPos = new int[2];
+        anchor.getLocationInWindow(anchorPos);
+        recyclerView.getLocationInWindow(recyclerViewPos);
+        anchorPos[0] += dp(OFFSET_X_DP);
+        anchorPos[1] += dp(OFFSET_Y_DP);
+        recyclerViewPos[0] += -recyclerView.getTranslationX() - getTranslationX();
+        recyclerViewPos[1] += -recyclerView.getTranslationY() - getTranslationY();
+
+        int x = anchorPos[0] - recyclerViewPos[0];
+        int y = anchorPos[1] - recyclerViewPos[1];
+
+        if (!position.equals(x, y)) {
+            position.set(x, y);
+
+            recyclerView.setTranslationX(x);
+            recyclerView.setTranslationY(y);
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (isInteractive() && keyCode == KeyEvent.KEYCODE_BACK) {
+            event.startTracking();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (isInteractive() && keyCode == KeyEvent.KEYCODE_BACK && event.isTracking() &&
+                !event.isCanceled()) {
+            dismiss();
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (!isInteractive()) return super.onTouchEvent(event);
+
+        dismiss();
+        return true;
+    }
+
+    private boolean isInteractive() {
+        return !dismissed;
+    }
+
+    private void animateIn() {
+        setAlpha(0f);
+        setTranslationY(-dp(ANIMATE_IN_TRANSLATION_Y_DP));
+        post(() -> {
+            animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setInterpolator(new DecelerateInterpolator(2f))
+                    .setDuration(250).start();
+        });
+    }
+
+    private void animateOut(Runnable done) {
+        animate().alpha(0f)
+                .setInterpolator(new DecelerateInterpolator(2f)).setDuration(250)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        done.run();
+                    }
+                })
+                .start();
+    }
+
+    private class BrowseBoardsAdapter extends RecyclerView.Adapter<ViewHolder> {
+        public BrowseBoardsAdapter() {
+            setHasStableIds(true);
+        }
 
         @Override
-        public int getViewTypeCount() {
-            return 2;
+        public int getItemCount() {
+            return items.getCount();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            Item item = items.getAtPosition(position);
+            return item.id;
         }
 
         @Override
         public int getItemViewType(int position) {
-            Pair<Site, Board> siteOrBoard = getAtPosition(position);
-            if (siteOrBoard.first != null) {
-                return TYPE_SITE;
-            } else if (siteOrBoard.second != null) {
-                return TYPE_BOARD;
+            Item item = items.getAtPosition(position);
+            return item.type.typeId;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            if (viewType == Item.Type.SEARCH.typeId) {
+                return new InputViewHolder(inflater.inflate(
+                        R.layout.cell_browse_input, parent, false));
+            } else if (viewType == Item.Type.SITE.typeId) {
+                return new SiteViewHolder(inflater.inflate(
+                        R.layout.cell_browse_site, parent, false));
+            } else if (viewType == Item.Type.BOARD.typeId) {
+                return new BoardViewHolder(inflater.inflate(
+                        R.layout.cell_browse_board, parent, false));
             } else {
                 throw new IllegalArgumentException();
             }
         }
 
         @Override
-        public int getCount() {
-            return BrowseBoardsFloatingMenu.this.getCount();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @SuppressLint("ViewHolder")
-        @Override
-        public View getView(int position, View view, ViewGroup parent) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-
-            Pair<Site, Board> siteOrBoard = getAtPosition(position);
-            if (siteOrBoard.first != null) {
-                Site site = siteOrBoard.first;
-
-                if (view == null) {
-                    view = inflater.inflate(R.layout.cell_browse_site, parent, false);
-                }
-
-                View divider = view.findViewById(R.id.divider);
-                final ImageView image = view.findViewById(R.id.image);
-                TextView text = view.findViewById(R.id.text);
-
-                divider.setVisibility(position == 0 ? View.GONE : View.VISIBLE);
-
-                final SiteIcon icon = site.icon();
-                image.setTag(icon);
-
-                icon.get(new SiteIcon.SiteIconResult() {
-                    @Override
-                    public void onSiteIcon(SiteIcon siteIcon, Drawable drawable) {
-                        if (image.getTag() == icon) {
-                            image.setImageDrawable(drawable);
-                        }
-                    }
-                });
-
-                text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
-                text.setText(site.name());
-
-                return view;
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            Item item = items.getAtPosition(position);
+            if (holder instanceof InputViewHolder) {
+                InputViewHolder inputViewHolder = ((InputViewHolder) holder);
+            } else if (holder instanceof SiteViewHolder) {
+                SiteViewHolder siteViewHolder = ((SiteViewHolder) holder);
+                siteViewHolder.bind(item.site);
+            } else if (holder instanceof BoardViewHolder) {
+                BoardViewHolder boardViewHolder = ((BoardViewHolder) holder);
+                boardViewHolder.bind(item.board);
             } else {
-                Board board = siteOrBoard.second;
-
-                if (view == null) {
-                    view = inflater.inflate(R.layout.cell_browse_board, parent, false);
-                }
-
-                TextView text = (TextView) view;
-
-                text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
-                text.setText(BoardHelper.getName(board));
-
-                return text;
+                throw new IllegalArgumentException();
             }
         }
     }
 
-    public interface Callback {
+    private class InputViewHolder extends ViewHolder implements TextWatcher,
+            OnFocusChangeListener, OnClickListener, OnKeyListener {
+        private EditText input;
+
+        public InputViewHolder(View itemView) {
+            super(itemView);
+
+            input = itemView.findViewById(R.id.input);
+            input.addTextChangedListener(this);
+            input.setOnFocusChangeListener(this);
+            input.setOnClickListener(this);
+            input.setOnKeyListener(this);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            inputChanged(input.getText().toString());
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (!hasFocus) {
+                AndroidUtils.hideKeyboard(v);
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            ((LinearLayoutManager) recyclerView.getLayoutManager())
+                    .scrollToPositionWithOffset(0, 0);
+        }
+
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                dismiss();
+            }
+            return true;
+        }
+    }
+
+    private class SiteViewHolder extends ViewHolder {
+        View divider;
+        ImageView image;
+        TextView text;
+
+        Site site;
+        SiteIcon icon;
+
+        public SiteViewHolder(View itemView) {
+            super(itemView);
+
+            itemView.setOnClickListener((v) -> itemClicked(site, null));
+
+            // View binding
+            divider = itemView.findViewById(R.id.divider);
+            image = itemView.findViewById(R.id.image);
+            text = itemView.findViewById(R.id.text);
+
+            // View setup
+            text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+        }
+
+        public void bind(Site site) {
+            this.site = site;
+
+            divider.setVisibility(getAdapterPosition() == 0 ? View.GONE : View.VISIBLE);
+
+            icon = site.icon();
+
+            image.setTag(icon);
+            icon.get((siteIcon, drawable) -> {
+                if (image.getTag() == siteIcon) {
+                    image.setImageDrawable(drawable);
+                }
+            });
+
+            text.setText(site.name());
+        }
+    }
+
+    private class BoardViewHolder extends ViewHolder {
+        TextView text;
+
+        Board board;
+
+        public BoardViewHolder(View itemView) {
+            super(itemView);
+
+            itemView.setOnClickListener((v) -> itemClicked(null, board));
+
+            // View binding
+            text = (TextView) itemView;
+
+            // View setup
+            text.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+        }
+
+        public void bind(Board board) {
+            this.board = board;
+            text.setText(BoardHelper.getName(board));
+        }
+    }
+
+    public interface ClickCallback {
         void onBoardClicked(Board item);
 
         void onSiteClicked(Site site);

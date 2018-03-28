@@ -132,7 +132,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE_LINK:
                 return new LinkHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
             case TYPE_BOARD_INPUT:
-                return new BoardInputHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_board_input, parent, false));
+                return new BoardInputHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false));
             case TYPE_DIVIDER:
                 return new DividerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
         }

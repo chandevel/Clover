@@ -1,0 +1,194 @@
+/*
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.floens.chan.core.presenter;
+
+import android.support.annotation.Nullable;
+import android.util.Pair;
+
+import org.floens.chan.core.manager.BoardManager;
+import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.site.Site;
+import org.floens.chan.ui.helper.BoardHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.inject.Inject;
+
+public class BoardsMenuPresenter implements Observer {
+    private Callback callback;
+    private BoardManager.AllBoards allBoards;
+
+    private Items items;
+
+    @Nullable
+    private String filter;
+
+    @Inject
+    public BoardsMenuPresenter(BoardManager boardManager) {
+        allBoards = boardManager.getAllBoardsObservable();
+    }
+
+    public void create(Callback callback, Board selectedBoard) {
+        this.callback = callback;
+
+        this.allBoards.addObserver(this);
+
+        items = new Items();
+
+        updateWithFilter();
+
+        callback.scrollToPosition(items.findBoardPosition(selectedBoard));
+    }
+
+    public void destroy() {
+        allBoards.deleteObserver(this);
+    }
+
+    public Items items() {
+        return items;
+    }
+
+    public void filterChanged(String filter) {
+        this.filter = filter;
+        updateWithFilter();
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o == allBoards) {
+            updateWithFilter();
+        }
+    }
+
+    private void updateWithFilter() {
+        items.update(this.allBoards.get(), filter);
+    }
+
+    public static class Items extends Observable {
+        public List<Item> items = new ArrayList<>();
+        private int itemIdCounter = 1;
+
+        public Items() {
+        }
+
+        public void update(List<Pair<Site, List<Board>>> allBoards, String filter) {
+            items.clear();
+
+            items.add(new Item(0, Item.Type.SEARCH));
+
+            for (Pair<Site, List<Board>> siteAndBoards : allBoards) {
+                Site site = siteAndBoards.first;
+                List<Board> boards = siteAndBoards.second;
+
+                items.add(new Item(itemIdCounter++, site));
+
+                if (filter == null || filter.length() == 0) {
+                    for (Board board : boards) {
+                        if (board.saved) {
+                            items.add(new Item(itemIdCounter++, board));
+                        }
+                    }
+                } else {
+                    List<Board> res = BoardHelper.quickSearch(boards, filter);
+                    for (Board b : res) {
+                        items.add(new Item(itemIdCounter++, b));
+                    }
+                }
+            }
+
+            setChanged();
+            notifyObservers();
+        }
+
+        private boolean shouldShowBoard(String filter, Board board) {
+            if (filter == null || filter.length() == 0) {
+                return board.saved;
+            }
+
+            String fl = filter.toLowerCase();
+            return board.code.toLowerCase().contains(fl) ||
+                    (board.name != null && board.name.toLowerCase().contains(fl));/* ||
+                    (board.description != null && board.description.toLowerCase().contains(fl));*/
+        }
+
+        public int getCount() {
+            return items.size();
+        }
+
+        public int findBoardPosition(Board board) {
+            int position = 0;
+            for (Item item : items) {
+
+                if (item.board != null && item.board.siteCodeEquals(board)) {
+                    return position;
+                }
+
+                position++;
+            }
+
+            return 0;
+        }
+
+        public Item getAtPosition(int position) {
+            return items.get(position);
+        }
+    }
+
+    public static class Item {
+        public enum Type {
+            BOARD(0),
+            SITE(1),
+            SEARCH(2);
+
+            public int typeId;
+
+            Type(int typeId) {
+                this.typeId = typeId;
+            }
+        }
+
+        public final Type type;
+        public Board board;
+        public Site site;
+        public int id;
+
+        public Item(int id, Type type) {
+            this.id = id;
+            this.type = type;
+        }
+
+        public Item(int id, Board board) {
+            this.id = id;
+            type = Type.BOARD;
+            this.board = board;
+        }
+
+        public Item(int id, Site site) {
+            this.id = id;
+            type = Type.SITE;
+            this.site = site;
+        }
+    }
+
+    public interface Callback {
+        void scrollToPosition(int position);
+    }
+}

@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -458,81 +459,90 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
     private LinearLayout createNavigationItemView(final NavigationItem item) {
         if (item.search) {
-            SearchLayout searchLayout = new SearchLayout(getContext());
+            return createSearchLayout(item);
+        } else {
+            return createNavigationLayout(item);
+        }
+    }
 
-            searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
+    @NonNull
+    private LinearLayout createNavigationLayout(NavigationItem item) {
+        @SuppressLint("InflateParams")
+        LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
+        menu.setGravity(Gravity.CENTER_VERTICAL);
+
+        FrameLayout titleContainer = menu.findViewById(R.id.title_container);
+
+        final TextView titleView = menu.findViewById(R.id.title);
+        titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+        titleView.setText(item.title);
+        titleView.setTextColor(0xffffffff);
+
+        if (item.middleMenu != null) {
+            int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
+            int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
+            Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
+            titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+            titleView.setOnClickListener(new OnClickListener() {
                 @Override
-                public void onSearchEntered(String entered) {
-                    item.searchText = entered;
-                    callback.onSearchEntered(item, entered);
+                public void onClick(View v) {
+                    item.middleMenu.show(titleView);
                 }
             });
-
-            if (item.searchText != null) {
-                searchLayout.setText(item.searchText);
-            }
-
-            searchLayout.setHint(callback.getSearchHint(item));
-
-            if (openKeyboardAfterSearchViewCreated) {
-                openKeyboardAfterSearchViewCreated = false;
-                searchLayout.openKeyboard();
-            }
-
-            searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
-
-            return searchLayout;
-        } else {
-            @SuppressLint("InflateParams")
-            LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
-            menu.setGravity(Gravity.CENTER_VERTICAL);
-
-            FrameLayout titleContainer = menu.findViewById(R.id.title_container);
-
-            final TextView titleView = menu.findViewById(R.id.title);
-            titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
-            titleView.setText(item.title);
-            titleView.setTextColor(0xffffffff);
-
-            if (item.middleMenu != null) {
-                int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
-                int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
-                Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
-                titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
-
-                titleView.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        item.middleMenu.show(titleView);
-                    }
-                });
-            }
-
-            TextView subtitleView = menu.findViewById(R.id.subtitle);
-            if (!TextUtils.isEmpty(item.subtitle)) {
-                ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
-                titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-                titleView.setLayoutParams(titleParams);
-                subtitleView.setText(item.subtitle);
-                subtitleView.setTextColor(0xffffffff);
-                titleView.setPadding(titleView.getPaddingLeft(), dp(5f), titleView.getPaddingRight(), titleView.getPaddingBottom());
-            } else {
-                titleContainer.removeView(subtitleView);
-            }
-
-            if (item.rightView != null) {
-                removeFromParentView(item.rightView);
-                item.rightView.setPadding(0, 0, dp(16), 0);
-                menu.addView(item.rightView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-            }
-
-            if (item.menu != null) {
-                removeFromParentView(item.menu);
-                menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-            }
-
-            return menu;
         }
+
+        TextView subtitleView = menu.findViewById(R.id.subtitle);
+        if (!TextUtils.isEmpty(item.subtitle)) {
+            ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
+            titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            titleView.setLayoutParams(titleParams);
+            subtitleView.setText(item.subtitle);
+            subtitleView.setTextColor(0xffffffff);
+            titleView.setPadding(titleView.getPaddingLeft(), dp(5f), titleView.getPaddingRight(), titleView.getPaddingBottom());
+        } else {
+            titleContainer.removeView(subtitleView);
+        }
+
+        if (item.rightView != null) {
+            removeFromParentView(item.rightView);
+            item.rightView.setPadding(0, 0, dp(16), 0);
+            menu.addView(item.rightView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+        }
+
+        if (item.menu != null) {
+            removeFromParentView(item.menu);
+            menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+        }
+
+        return menu;
+    }
+
+    @NonNull
+    private LinearLayout createSearchLayout(NavigationItem item) {
+        SearchLayout searchLayout = new SearchLayout(getContext());
+
+        searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
+            @Override
+            public void onSearchEntered(String entered) {
+                item.searchText = entered;
+                callback.onSearchEntered(item, entered);
+            }
+        });
+
+        if (item.searchText != null) {
+            searchLayout.setText(item.searchText);
+        }
+
+        searchLayout.setHint(callback.getSearchHint(item));
+
+        if (openKeyboardAfterSearchViewCreated) {
+            openKeyboardAfterSearchViewCreated = false;
+            searchLayout.openKeyboard();
+        }
+
+        searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
+
+        return searchLayout;
     }
 
     private void animateArrow(boolean toArrow) {
@@ -541,12 +551,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             ValueAnimator arrowAnimation = ValueAnimator.ofFloat(arrowMenuDrawable.getProgress(), to);
             arrowAnimation.setDuration(300);
             arrowAnimation.setInterpolator(new DecelerateInterpolator(2f));
-            arrowAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    setArrowMenuProgress((float) animation.getAnimatedValue());
-                }
-            });
+            arrowAnimation.addUpdateListener(animation ->
+                    setArrowMenuProgress((float) animation.getAnimatedValue()));
             arrowAnimation.start();
         }
     }

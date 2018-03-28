@@ -158,7 +158,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_open_failed">Failed to open image</string>
     <string name="image_spoiler_filename">Spoiler image</string>
 
-    <string name="thread_board_select_add">Add more&#8230;</string>
+    <string name="thread_boards_search_hint">Search</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
     <string name="thread_load_failed_network">Network error</string>
     <string name="thread_load_failed_parsing">API parse error</string>

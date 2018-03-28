@@ -170,6 +170,10 @@ public class Board implements SiteReference {
         return site;
     }
 
+    public boolean siteCodeEquals(Board other) {
+        return code.equals(other.code) && other.siteId == siteId;
+    }
+
     /**
      * Updates the board with data from {@code o}.<br>
      * {@link #id}, {@link #saved}, {@link #order} are skipped because these are user-set.
