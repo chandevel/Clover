@@ -65,7 +65,7 @@ public class SearchLayout extends LinearLayout {
         searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                clearButton.setAlpha(s.length() == 0 ? 0.6f : 1.0f);
+                clearButton.setAlpha(s.length() == 0 ? 0.0f : 1.0f);
                 callback.onSearchEntered(s.toString());
             }
 
@@ -92,7 +92,7 @@ public class SearchLayout extends LinearLayout {
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
 
-        clearButton.setAlpha(0.6f);
+        clearButton.setAlpha(0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(new OnClickListener() {
