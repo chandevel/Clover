@@ -23,6 +23,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.GridLayoutManager;
@@ -182,7 +183,14 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
             switch (postViewMode) {
                 case LIST:
-                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()) {
+                        @Override
+                        public boolean requestChildRectangleOnScreen(
+                                RecyclerView parent, View child, Rect rect, boolean immediate,
+                                boolean focusedChildVisible) {
+                            return false;
+                        }
+                    };
                     setRecyclerViewPadding();
                     recyclerView.setLayoutManager(linearLayoutManager);
                     layoutManager = linearLayoutManager;
@@ -194,7 +202,15 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
                     break;
                 case CARD:
-                    GridLayoutManager gridLayoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false);
+                    GridLayoutManager gridLayoutManager = new GridLayoutManager(
+                            null, spanCount, GridLayoutManager.VERTICAL, false) {
+                        @Override
+                        public boolean requestChildRectangleOnScreen(
+                                RecyclerView parent, View child, Rect rect, boolean immediate,
+                                boolean focusedChildVisible) {
+                            return false;
+                        }
+                    };
                     setRecyclerViewPadding();
                     recyclerView.setLayoutManager(gridLayoutManager);
                     layoutManager = gridLayoutManager;
