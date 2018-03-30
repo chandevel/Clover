@@ -24,18 +24,12 @@ import android.support.annotation.NonNull;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
-import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.Chan;
-import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -61,15 +55,9 @@ import de.greenrobot.event.EventBus;
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
-    private static final long THREAD_HIDE_TRIM_TRIGGER = 250;
-    private static final long THREAD_HIDE_TRIM_COUNT = 50;
-
     private final ExecutorService backgroundExecutor;
     private Thread executorThread;
     private final DatabaseHelper helper;
-
-    private final List<ThreadHide> threadHides = new ArrayList<>();
-    private final HashSet<Integer> threadHidesIds = new HashSet<>();
 
     private final DatabasePinManager databasePinManager;
     private final DatabaseLoadableManager databaseLoadableManager;
@@ -78,6 +66,7 @@ public class DatabaseManager {
     private final DatabaseFilterManager databaseFilterManager;
     private final DatabaseBoardManager databaseBoardManager;
     private final DatabaseSiteManager databaseSiteManager;
+    private final DatabaseHideManager databaseHideManager;
 
     @Inject
     public DatabaseManager(Context context) {
@@ -91,6 +80,7 @@ public class DatabaseManager {
         databaseFilterManager = new DatabaseFilterManager(this, helper);
         databaseBoardManager = new DatabaseBoardManager(this, helper);
         databaseSiteManager = new DatabaseSiteManager(this, helper);
+        databaseHideManager = new DatabaseHideManager(this, helper);
         initialize();
         EventBus.getDefault().register(this);
     }
@@ -123,6 +113,10 @@ public class DatabaseManager {
         return databaseSiteManager;
     }
 
+    public DatabaseHideManager getDatabaseHideManager() {
+        return databaseHideManager;
+    }
+
     // Called when the app changes foreground state
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
@@ -131,13 +125,12 @@ public class DatabaseManager {
     }
 
     private void initialize() {
-        loadThreadHides();
-
         // Loads data into fields.
         runTask(databaseSavedReplyManager.load());
 
         // Only trims.
         runTaskAsync(databaseHistoryManager.load());
+        runTaskAsync(databaseHideManager.load());
     }
 
     /**
@@ -146,67 +139,6 @@ public class DatabaseManager {
     public void reset() {
         helper.reset();
         initialize();
-    }
-
-    /**
-     * Check if the post is added in the threadhide table.
-     *
-     * @param post Post to check the board and no on
-     * @return true if it was hidden, false otherwise
-     */
-    public boolean isThreadHidden(Post post) {
-        if (threadHidesIds.contains(post.no)) {
-            for (ThreadHide hide : threadHides) {
-                if (hide.no == post.no && hide.board.equals(post.boardId)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Adds an entry to the threadhide table and updates any caching members.
-     *
-     * @param threadHide The {@link ThreadHide} to add.
-     */
-    public void addThreadHide(ThreadHide threadHide) {
-        try {
-            helper.threadHideDao.create(threadHide);
-            threadHides.add(threadHide);
-            threadHidesIds.add(threadHide.no);
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error adding threadhide", e);
-        }
-    }
-
-    /**
-     * Removes the entry from the threadhide table and updates any caching members.
-     *
-     * @param threadHide The {@link ThreadHide} to remove.
-     */
-    public void removeThreadHide(ThreadHide threadHide) {
-        try {
-            helper.threadHideDao.delete(threadHide);
-            threadHides.remove(threadHide);
-            // ThreadHidesIds not removed because there may be another post with the same id on another board
-            // It's just an caching thing, it'll reset itself after a restart
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error deleting threadhide", e);
-        }
-    }
-
-    /**
-     * Clears all {@link ThreadHide}s from the table and resets any caching members.
-     */
-    public void clearAllThreadHides() {
-        try {
-            TableUtils.clearTable(helper.getConnectionSource(), ThreadHide.class);
-            threadHides.clear();
-            threadHidesIds.clear();
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error clearing threadhide table", e);
-        }
     }
 
     /**
@@ -225,26 +157,12 @@ public class DatabaseManager {
             o += "ThreadHide rows: " + helper.threadHideDao.countOf() + "\n";
             o += "History rows: " + helper.historyDao.countOf() + "\n";
             o += "Filter rows: " + helper.filterDao.countOf() + "\n";
+            o += "Site rows: " + helper.siteDao.countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return o;
-    }
-
-    private void loadThreadHides() {
-        try {
-            trimTable(helper.threadHideDao, "threadhide", THREAD_HIDE_TRIM_TRIGGER, THREAD_HIDE_TRIM_COUNT);
-
-            threadHides.clear();
-            threadHides.addAll(helper.threadHideDao.queryForAll());
-            threadHidesIds.clear();
-            for (ThreadHide hide : threadHides) {
-                threadHidesIds.add(hide.no);
-            }
-        } catch (SQLException e) {
-            Logger.e(TAG, "Error loading thread hides", e);
-        }
     }
 
     /**

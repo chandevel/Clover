@@ -135,7 +135,8 @@ public class PostsFilter {
         Iterator<Post> i = posts.iterator();
         while (i.hasNext()) {
             Post post = i.next();
-            if (post.filterRemove || databaseManager.isThreadHidden(post)) {
+            if (post.filterRemove ||
+                    databaseManager.getDatabaseHideManager().isThreadHidden(post)) {
                 i.remove();
             }
         }

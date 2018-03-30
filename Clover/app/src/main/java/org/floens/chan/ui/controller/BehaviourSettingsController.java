@@ -160,7 +160,8 @@ public class BehaviourSettingsController extends SettingsController {
             public void onClick(View v) {
                 // TODO: don't do this here.
                 DatabaseManager databaseManager = injector().instance(DatabaseManager.class);
-                databaseManager.clearAllThreadHides();
+                databaseManager.runTask(
+                        databaseManager.getDatabaseHideManager().clearAllThreadHides());
                 Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG)
                         .show();
                 EventBus.getDefault().post(new RefreshUIMessage("clearhides"));

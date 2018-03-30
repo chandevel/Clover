@@ -20,6 +20,8 @@ package org.floens.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.model.Post;
+
 @DatabaseTable(tableName = "threadhide")
 public class ThreadHide {
     @DatabaseField(generatedId = true)
@@ -37,9 +39,12 @@ public class ThreadHide {
     public ThreadHide() {
     }
 
-    public ThreadHide(String board, int no) {
-        this.board = board;
-        this.no = no;
+    public static ThreadHide fromPost(Post post) {
+        ThreadHide hide = new ThreadHide();
+        hide.board = post.board.code;
+        hide.no = post.no;
+        hide.site = post.board.siteId;
+        return hide;
     }
 
     @Override
@@ -49,7 +54,7 @@ public class ThreadHide {
 
         ThreadHide that = (ThreadHide) o;
 
-        return no == that.no && board.equals(that.board);
+        return no == that.no && board.equals(that.board) && site == that.site;
     }
 
     @Override
@@ -57,5 +62,9 @@ public class ThreadHide {
         int result = board.hashCode();
         result = 31 * result + no;
         return result;
+    }
+
+    public boolean equalsPost(Post post) {
+        return post.no == no && board.equals(post.board.code) && post.board.siteId == site;
     }
 }
