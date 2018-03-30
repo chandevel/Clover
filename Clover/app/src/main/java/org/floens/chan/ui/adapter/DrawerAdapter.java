@@ -31,6 +31,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.helper.PinHelper;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
@@ -248,17 +249,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         holder.image.setUrl(pin.thumbnailUrl, dp(40), dp(40));
 
         if (ChanSettings.watchEnabled.get()) {
-            String count;
-            if (pin.isError) {
-                count = "E";
-            } else {
-                int c = pin.getNewPostCount();
-                if (c > 999) {
-                    count = "1k+";
-                } else {
-                    count = Integer.toString(c);
-                }
-            }
+            String count = PinHelper.getShortUnreadCount(pin.getNewPostCount());
             holder.watchCountText.setVisibility(View.VISIBLE);
             holder.watchCountText.setText(count);
 

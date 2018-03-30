@@ -26,6 +26,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
+import org.floens.chan.ui.helper.PinHelper;
+
 import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class ArrowMenuDrawable extends Drawable {
@@ -199,7 +201,7 @@ public class ArrowMenuDrawable extends Drawable {
     }
 
     public void setBadge(int count, boolean red) {
-        String text = count == 0 ? null : (count > 999 ? "1k+" : String.valueOf(count));
+        String text = count == 0 ? null : (PinHelper.getShortUnreadCount(count));
         if (badgeRed != red || !TextUtils.equals(text, badgeText)) {
             badgeText = text;
             badgeRed = red;
