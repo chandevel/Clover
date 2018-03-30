@@ -21,12 +21,15 @@ package org.floens.chan.core.site;
 import android.util.Pair;
 
 import org.floens.chan.core.model.json.site.SiteConfig;
-import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.model.orm.SiteModel;
+import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.site.sites.chan4.Chan4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Observable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,11 +50,17 @@ public class SiteService {
 
     private boolean initialized = false;
 
+    private SitesChangedObservable sitesChangedObservable = new SitesChangedObservable();
+
     @Inject
     public SiteService(SiteRepository siteRepository,
                        SiteResolver resolver) {
         this.siteRepository = siteRepository;
         this.resolver = resolver;
+    }
+
+    public SitesChangedObservable getSitesChangedObservable() {
+        return sitesChangedObservable;
     }
 
     public boolean areSitesSetup() {
@@ -84,12 +93,32 @@ public class SiteService {
         loadSites();
 
         callback.onSiteAdded(site);
+
+        sitesChangedObservable.doNotify();
     }
 
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
         SiteModel siteModel = siteRepository.byId(site.id());
         if (siteModel == null) throw new NullPointerException("siteModel == null");
         siteRepository.updateSiteUserSettingsAsync(siteModel, jsonSettings);
+    }
+
+    public List<Site> getAllSitesInOrder() {
+        Map<Integer, Integer> ordering = siteRepository.getOrdering();
+
+        List<Site> all = Sites.allSites();
+
+        Site[] ordered = new Site[all.size()];
+        for (Site site : all) {
+            ordered[ordering.get(site.id())] = site;
+        }
+
+        return Arrays.asList(ordered);
+    }
+
+    public void updateOrdering(List<Site> sitesInNewOrder) {
+        siteRepository.updateSiteOrderingAsync(sitesInNewOrder,
+                () -> sitesChangedObservable.doNotify());
     }
 
     public void initialize() {
@@ -179,5 +208,12 @@ public class SiteService {
         void onSiteAdded(Site site);
 
         void onSiteAddFailed(String message);
+    }
+
+    public class SitesChangedObservable extends Observable {
+        private void doNotify() {
+            setChanged();
+            notifyObservers();
+        }
     }
 }

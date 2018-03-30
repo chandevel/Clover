@@ -76,3 +76,7 @@ ALTER TABLE threadhide ADD COLUMN site INTEGER default 0;
 
 Changes in version 23:
 ALTER TABLE board ADD COLUMN "archive" INTEGER;
+
+
+Changes in version 24:
+ALTER TABLE site ADD COLUMN "order" INTEGER;

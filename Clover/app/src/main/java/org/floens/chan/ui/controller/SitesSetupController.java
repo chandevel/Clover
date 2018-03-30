@@ -21,11 +21,15 @@ package org.floens.chan.ui.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -51,9 +55,13 @@ import javax.inject.Inject;
 
 import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class SitesSetupController extends StyledToolbarNavigationController implements SitesSetupPresenter.Callback, ToolbarMenuItem.ToolbarMenuItemCallback, View.OnClickListener {
+public class SitesSetupController extends StyledToolbarNavigationController implements
+        SitesSetupPresenter.Callback,
+        ToolbarMenuItem.ToolbarMenuItemCallback,
+        View.OnClickListener {
     private static final int DONE_ID = 1;
 
     @Inject
@@ -66,7 +74,27 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     private FloatingActionButton addButton;
 
     private SitesAdapter sitesAdapter;
+    private ItemTouchHelper itemTouchHelper;
     private List<Site> sites = new ArrayList<>();
+
+    private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+            0
+    ) {
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
+
+            presenter.move(from, to);
+
+            return true;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+        }
+    };
 
     public SitesSetupController(Context context) {
         super(context);
@@ -96,6 +124,8 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         sitesRecyclerview.setAdapter(sitesAdapter);
         sitesRecyclerview.addItemDecoration(
                 new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(sitesRecyclerview);
         addButton.setOnClickListener(this);
         theme().applyFabColor(addButton);
         crossfadeView.toggle(false, false);
@@ -257,9 +287,11 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         private TextView description;
         private SiteIcon siteIcon;
         private ImageView settings;
+        private ImageView reorder;
 
         private Site site;
 
+        @SuppressLint("ClickableViewAccessibility")
         public SiteCell(View itemView) {
             super(itemView);
 
@@ -268,11 +300,24 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
             settings = itemView.findViewById(R.id.settings);
+            reorder = itemView.findViewById(R.id.reorder);
 
             // Setup views
             itemView.setOnClickListener(this);
             setRoundItemBackground(settings);
             theme().settingsDrawable.apply(settings);
+
+            Drawable drawable = DrawableCompat.wrap(
+                    context.getResources().getDrawable(R.drawable.ic_reorder_black_24dp)).mutate();
+            DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
+            reorder.setImageDrawable(drawable);
+
+            reorder.setOnTouchListener((v, event) -> {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    itemTouchHelper.startDrag(this);
+                }
+                return false;
+            });
         }
 
         private void setSite(Site site) {

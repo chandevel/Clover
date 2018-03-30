@@ -23,13 +23,14 @@ import org.floens.chan.core.database.DatabaseBoardManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.Sites;
+import org.floens.chan.core.site.SiteService;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Observable;
+import java.util.Observer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,13 +48,15 @@ import javax.inject.Singleton;
  * favorite board list, along with a {@link Board#order} in which they appear.
  */
 @Singleton
-public class BoardManager {
+public class BoardManager implements Observer {
     private static final String TAG = "BoardManager";
 
     private static final Comparator<Board> ORDER_SORT = (lhs, rhs) -> lhs.order - rhs.order;
 
     private final DatabaseManager databaseManager;
     private final DatabaseBoardManager databaseBoardManager;
+    private final SiteService siteService;
+    private final SiteService.SitesChangedObservable sitesChangedObservable;
 
     private final AllBoards allBoardsObservable = new AllBoards();
     private final SavedBoards savedBoardsObservable = new SavedBoards();
@@ -62,11 +65,25 @@ public class BoardManager {
     private final List<Pair<Site, List<Board>>> sitesWithSavedBoards = new ArrayList<>();
 
     @Inject
-    public BoardManager(DatabaseManager databaseManager) {
+    public BoardManager(DatabaseManager databaseManager, SiteService siteService) {
         this.databaseManager = databaseManager;
+        this.siteService = siteService;
+
+        sitesChangedObservable = siteService.getSitesChangedObservable();
+
         databaseBoardManager = databaseManager.getDatabaseBoardManager();
 
         updateObservables();
+
+        sitesChangedObservable.addObserver(this);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        // If the sites changed (added, removed or reordered) we need to reload the boards.
+        if (o == sitesChangedObservable) {
+            updateObservables();
+        }
     }
 
     public void createAll(List<Board> boards) {
@@ -126,7 +143,7 @@ public class BoardManager {
 
     private void updateObservables() {
         sitesWithBoards.clear();
-        for (Site site : Sites.allSites()) {
+        for (Site site : siteService.getAllSitesInOrder()) {
             List<Board> all = getSiteBoards(site);
             sitesWithBoards.add(new Pair<>(site, all));
 

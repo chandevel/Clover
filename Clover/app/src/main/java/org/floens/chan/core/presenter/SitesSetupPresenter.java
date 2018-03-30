@@ -21,7 +21,6 @@ package org.floens.chan.core.presenter;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteService;
-import org.floens.chan.core.site.Sites;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +45,7 @@ public class SitesSetupPresenter {
     public void create(Callback callback) {
         this.callback = callback;
 
-        sites.addAll(Sites.allSites());
+        sites.addAll(siteService.getAllSitesInOrder());
 
         this.callback.setAddedSites(sites);
 
@@ -58,6 +57,13 @@ public class SitesSetupPresenter {
     }
 
     public void show() {
+        callback.setAddedSites(sites);
+    }
+
+    public void move(int from, int to) {
+        Site item = sites.remove(from);
+        sites.add(to, item);
+        saveOrder();
         callback.setAddedSites(sites);
     }
 
@@ -110,8 +116,8 @@ public class SitesSetupPresenter {
     }
 
     private void siteAdded(Site site) {
-        sites.clear();
-        sites.addAll(Sites.allSites());
+        sites.add(site);
+        saveOrder();
 
         callback.setAddedSites(sites);
 
@@ -120,6 +126,10 @@ public class SitesSetupPresenter {
 
     public void onSiteCellSettingsClicked(Site site) {
         callback.openSiteConfiguration(site);
+    }
+
+    private void saveOrder() {
+        siteService.updateOrdering(sites);
     }
 
     public interface Callback {

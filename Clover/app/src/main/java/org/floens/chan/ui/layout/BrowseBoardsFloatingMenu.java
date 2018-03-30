@@ -430,6 +430,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
             icon = site.icon();
 
             image.setTag(icon);
+            image.setImageDrawable(null);
             icon.get((siteIcon, drawable) -> {
                 if (image.getTag() == siteIcon) {
                     image.setImageDrawable(drawable);

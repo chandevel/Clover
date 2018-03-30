@@ -72,4 +72,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:scaleType="center"
         tools:src="@drawable/ic_settings_black_24dp" />
 
+    <ImageView
+        android:id="@+id/reorder"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center_vertical"
+        android:padding="12dp"
+        android:scaleType="center"
+        tools:src="@drawable/ic_reorder_black_24dp" />
+
 </LinearLayout>

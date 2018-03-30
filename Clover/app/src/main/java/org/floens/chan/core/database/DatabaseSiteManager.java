@@ -18,9 +18,13 @@
 package org.floens.chan.core.database;
 
 
+import com.j256.ormlite.stmt.QueryBuilder;
+
 import org.floens.chan.core.model.orm.SiteModel;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class DatabaseSiteManager {
@@ -62,6 +66,31 @@ public class DatabaseSiteManager {
         return () -> {
             helper.siteDao.updateId(site, newId);
             return site;
+        };
+    }
+
+    public Callable<Map<Integer, Integer>> getOrdering() {
+        return () -> {
+            QueryBuilder<SiteModel, Integer> q = helper.siteDao.queryBuilder();
+            q.selectColumns("id", "order");
+            List<SiteModel> modelsWithOrder = q.query();
+            Map<Integer, Integer> ordering = new HashMap<>();
+            for (SiteModel siteModel : modelsWithOrder) {
+                ordering.put(siteModel.id, siteModel.order);
+            }
+            return ordering;
+        };
+    }
+
+    public Callable<Void> updateOrdering(final List<Integer> siteIdsWithCorrectOrder) {
+        return () -> {
+            for (int i = 0; i < siteIdsWithCorrectOrder.size(); i++) {
+                Integer id = siteIdsWithCorrectOrder.get(i);
+                SiteModel m = helper.siteDao.queryForId(id);
+                m.order = i;
+                helper.siteDao.update(m);
+            }
+            return null;
         };
     }
 }

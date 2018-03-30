@@ -118,17 +118,6 @@ public class BoardsMenuPresenter implements Observer {
             notifyObservers();
         }
 
-        private boolean shouldShowBoard(String filter, Board board) {
-            if (filter == null || filter.length() == 0) {
-                return board.saved;
-            }
-
-            String fl = filter.toLowerCase();
-            return board.code.toLowerCase().contains(fl) ||
-                    (board.name != null && board.name.toLowerCase().contains(fl));/* ||
-                    (board.description != null && board.description.toLowerCase().contains(fl));*/
-        }
-
         public int getCount() {
             return items.size();
         }

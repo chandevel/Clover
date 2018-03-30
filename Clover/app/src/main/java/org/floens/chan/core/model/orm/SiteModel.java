@@ -60,6 +60,9 @@ public class SiteModel {
     @DatabaseField
     public String userSettings;
 
+    @DatabaseField
+    public int order;
+
     public SiteModel() {
     }
 
