@@ -34,7 +34,7 @@ public class Board implements SiteReference {
     @DatabaseField(generatedId = true)
     public int id;
 
-    @DatabaseField(columnName = "site")
+    @DatabaseField(columnName = "site", index = true, indexName = "board_site_idx")
     public int siteId;
 
     /**
@@ -45,7 +45,7 @@ public class Board implements SiteReference {
     /**
      * The board appears in the dropdown.
      */
-    @DatabaseField
+    @DatabaseField(index = true, indexName = "board_saved_idx")
     public boolean saved = false;
 
     /**
@@ -57,7 +57,8 @@ public class Board implements SiteReference {
     @DatabaseField(columnName = "key") // named key for legacy support
     public String name;
 
-    @DatabaseField(columnName = "value") // named value for legacy support
+    // named value for legacy support
+    @DatabaseField(columnName = "value", index = true, indexName = "board_value_idx")
     // TODO(sec) force filter this to ascii & numbers.
     public String code;
 

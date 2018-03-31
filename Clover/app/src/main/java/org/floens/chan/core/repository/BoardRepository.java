@@ -52,11 +52,12 @@ public class BoardRepository implements Observer {
         this.siteRepository = siteRepository;
 
         allSites = this.siteRepository.all();
-        allSites.addObserver(this);
     }
 
     public void initialize() {
         updateObservablesSync();
+
+        allSites.addObserver(this);
     }
 
     @Override

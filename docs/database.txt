@@ -80,3 +80,9 @@ ALTER TABLE board ADD COLUMN "archive" INTEGER;
 
 Changes in version 24:
 ALTER TABLE site ADD COLUMN "order" INTEGER;
+
+
+Changes in version 25:
+CREATE INDEX board_site_idx ON board(site);
+CREATE INDEX board_saved_idx ON board(saved);
+CREATE INDEX board_value_idx ON board(value);

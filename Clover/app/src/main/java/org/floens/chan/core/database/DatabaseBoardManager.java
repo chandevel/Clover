@@ -179,6 +179,9 @@ public class DatabaseBoardManager {
                 ordering.put(siteModel.id, siteModel.order);
             }
 
+            Time.endTiming("getboards sites", start);
+            start = Time.startTiming();
+
             List<Site> sitesOrdered = new ArrayList<>(sites);
             // Sort the given sites array with these orders.
             Collections.sort(sitesOrdered,
@@ -192,6 +195,9 @@ public class DatabaseBoardManager {
             List<Board> allBoards = helper.boardsDao.queryBuilder()
                     .where().in("site", siteIds)
                     .query();
+
+            Time.endTiming("getboards boards", start);
+            start = Time.startTiming();
 
             // Map the boards from siteId to a list of boards.
             Map<Integer, Site> sitesById = new HashMap<>();
@@ -219,7 +225,8 @@ public class DatabaseBoardManager {
                 res.add(new Pair<>(site, siteBoards));
             }
 
-            Time.endTiming("getBoardsForAllSitesOrdered", start);
+            Time.endTiming("getboards process", start);
+            start = Time.startTiming();
 
             return res;
         };
