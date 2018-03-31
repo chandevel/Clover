@@ -18,10 +18,10 @@
 package org.floens.chan.core.presenter;
 
 import android.support.annotation.Nullable;
-import android.util.Pair;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.helper.BoardHelper;
 
@@ -34,7 +34,7 @@ import javax.inject.Inject;
 
 public class BoardsMenuPresenter implements Observer {
     private Callback callback;
-    private BoardManager.AllBoards allBoards;
+    private BoardRepository.SitesBoards allBoards;
 
     private Items items;
 
@@ -89,14 +89,14 @@ public class BoardsMenuPresenter implements Observer {
         public Items() {
         }
 
-        public void update(List<Pair<Site, List<Board>>> allBoards, String filter) {
+        public void update(List<BoardRepository.SiteBoards> allBoards, String filter) {
             items.clear();
 
             items.add(new Item(0, Item.Type.SEARCH));
 
-            for (Pair<Site, List<Board>> siteAndBoards : allBoards) {
-                Site site = siteAndBoards.first;
-                List<Board> boards = siteAndBoards.second;
+            for (BoardRepository.SiteBoards siteAndBoards : allBoards) {
+                Site site = siteAndBoards.site;
+                List<Board> boards = siteAndBoards.boards;
 
                 items.add(new Item(itemIdCounter++, site));
 

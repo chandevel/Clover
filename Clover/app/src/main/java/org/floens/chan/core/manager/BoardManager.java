@@ -17,20 +17,11 @@
  */
 package org.floens.chan.core.manager;
 
-import android.util.Pair;
-
-import org.floens.chan.core.database.DatabaseBoardManager;
-import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteService;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,46 +39,22 @@ import javax.inject.Singleton;
  * favorite board list, along with a {@link Board#order} in which they appear.
  */
 @Singleton
-public class BoardManager implements Observer {
+public class BoardManager {
     private static final String TAG = "BoardManager";
 
-    private static final Comparator<Board> ORDER_SORT = (lhs, rhs) -> lhs.order - rhs.order;
-
-    private final DatabaseManager databaseManager;
-    private final DatabaseBoardManager databaseBoardManager;
-    private final SiteService siteService;
-    private final SiteService.SitesChangedObservable sitesChangedObservable;
-
-    private final AllBoards allBoardsObservable = new AllBoards();
-    private final SavedBoards savedBoardsObservable = new SavedBoards();
-
-    private final List<Pair<Site, List<Board>>> sitesWithBoards = new ArrayList<>();
-    private final List<Pair<Site, List<Board>>> sitesWithSavedBoards = new ArrayList<>();
+    private final BoardRepository boardRepository;
 
     @Inject
-    public BoardManager(DatabaseManager databaseManager, SiteService siteService) {
-        this.databaseManager = databaseManager;
-        this.siteService = siteService;
-
-        sitesChangedObservable = siteService.getSitesChangedObservable();
-
-        databaseBoardManager = databaseManager.getDatabaseBoardManager();
-
-        updateObservables();
-
-        sitesChangedObservable.addObserver(this);
+    public BoardManager(BoardRepository boardRepository) {
+        this.boardRepository = boardRepository;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        // If the sites changed (added, removed or reordered) we need to reload the boards.
-        if (o == sitesChangedObservable) {
-            updateObservables();
-        }
+    public void initialize() {
+        boardRepository.initialize();
     }
 
-    public void createAll(List<Board> boards) {
-        databaseManager.runTask(databaseBoardManager.createAll(boards));
+    public void updateAvailableBoardsForSite(Site site, List<Board> boards) {
+        boardRepository.updateAvailableBoardsForSite(site, boards);
     }
 
     /**
@@ -99,84 +66,34 @@ public class BoardManager implements Observer {
      * @return the board code with the same site and board code, or {@code null} if not found.
      */
     public Board getBoard(Site site, String code) {
-        return databaseManager.runTask(databaseBoardManager.getBoard(site, code));
+        return boardRepository.getFromCode(site, code);
     }
 
     public List<Board> getSiteBoards(Site site) {
-        List<Board> boards = databaseManager.runTask(databaseBoardManager.getSiteBoards(site));
-        Collections.sort(boards, ORDER_SORT);
-        return boards;
+        return boardRepository.getSiteBoards(site);
     }
 
     public List<Board> getSiteSavedBoards(Site site) {
-        List<Board> boards = databaseManager.runTask(databaseBoardManager.getSiteSavedBoards(site));
-        Collections.sort(boards, ORDER_SORT);
-        return boards;
+        return boardRepository.getSiteSavedBoards(site);
     }
 
-    public AllBoards getAllBoardsObservable() {
-        return allBoardsObservable;
+    public BoardRepository.SitesBoards getAllBoardsObservable() {
+        return boardRepository.getAll();
     }
 
-    public SavedBoards getSavedBoardsObservable() {
-        return savedBoardsObservable;
+    public BoardRepository.SitesBoards getSavedBoardsObservable() {
+        return boardRepository.getSaved();
     }
 
     public void updateBoardOrders(List<Board> boards) {
-        databaseManager.runTask(databaseBoardManager.updateOrders(boards));
-        updateObservables();
+        boardRepository.updateBoardOrders(boards);
     }
 
     public void setSaved(Board board, boolean saved) {
-        board.saved = saved;
-        databaseManager.runTask(databaseBoardManager.updateIncludingUserFields(board));
-        updateObservables();
+        boardRepository.setSaved(board, saved);
     }
 
     public void setAllSaved(List<Board> boards, boolean saved) {
-        for (Board board : boards) {
-            board.saved = saved;
-        }
-        databaseManager.runTask(databaseBoardManager.updateIncludingUserFields(boards));
-        updateObservables();
-    }
-
-    private void updateObservables() {
-        sitesWithBoards.clear();
-        for (Site site : siteService.getAllSitesInOrder()) {
-            List<Board> all = getSiteBoards(site);
-            sitesWithBoards.add(new Pair<>(site, all));
-
-            List<Board> saved = new ArrayList<>();
-            for (Board siteBoard : all) {
-                if (siteBoard.saved) saved.add(siteBoard);
-            }
-            sitesWithSavedBoards.add(new Pair<>(site, saved));
-        }
-
-        allBoardsObservable.doNotify();
-        savedBoardsObservable.doNotify();
-    }
-
-    public class AllBoards extends Observable {
-        private void doNotify() {
-            setChanged();
-            notifyObservers();
-        }
-
-        public List<Pair<Site, List<Board>>> get() {
-            return sitesWithBoards;
-        }
-    }
-
-    public class SavedBoards extends Observable {
-        private void doNotify() {
-            setChanged();
-            notifyObservers();
-        }
-
-        public List<Pair<Site, List<Board>>> get() {
-            return sitesWithSavedBoards;
-        }
+        boardRepository.setAllSaved(boards, saved);
     }
 }

@@ -18,18 +18,11 @@
 package org.floens.chan.core.site;
 
 
-import android.util.Pair;
-
-import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.orm.SiteModel;
+import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.core.settings.json.JsonSettings;
-import org.floens.chan.core.site.sites.chan4.Chan4;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Observable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -50,21 +43,14 @@ public class SiteService {
 
     private boolean initialized = false;
 
-    private SitesChangedObservable sitesChangedObservable = new SitesChangedObservable();
-
     @Inject
-    public SiteService(SiteRepository siteRepository,
-                       SiteResolver resolver) {
+    public SiteService(SiteRepository siteRepository, SiteResolver resolver) {
         this.siteRepository = siteRepository;
         this.resolver = resolver;
     }
 
-    public SitesChangedObservable getSitesChangedObservable() {
-        return sitesChangedObservable;
-    }
-
     public boolean areSitesSetup() {
-        return !Sites.allSites().isEmpty();
+        return !siteRepository.all().getAll().isEmpty();
     }
 
     public void addSite(String url, SiteAddCallback callback) {
@@ -87,14 +73,9 @@ public class SiteService {
             return;
         }
 
-        Site site = instantiateSiteClass(siteClass);
-        createNewSite(site);
-
-        loadSites();
+        Site site = siteRepository.createFromClass(siteClass);
 
         callback.onSiteAdded(site);
-
-        sitesChangedObservable.doNotify();
     }
 
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
@@ -103,22 +84,8 @@ public class SiteService {
         siteRepository.updateSiteUserSettingsAsync(siteModel, jsonSettings);
     }
 
-    public List<Site> getAllSitesInOrder() {
-        Map<Integer, Integer> ordering = siteRepository.getOrdering();
-
-        List<Site> all = Sites.allSites();
-
-        Site[] ordered = new Site[all.size()];
-        for (Site site : all) {
-            ordered[ordering.get(site.id())] = site;
-        }
-
-        return Arrays.asList(ordered);
-    }
-
     public void updateOrdering(List<Site> sitesInNewOrder) {
-        siteRepository.updateSiteOrderingAsync(sitesInNewOrder,
-                () -> sitesChangedObservable.doNotify());
+        siteRepository.updateSiteOrderingAsync(sitesInNewOrder);
     }
 
     public void initialize() {
@@ -129,91 +96,15 @@ public class SiteService {
 
         if (addSiteForLegacy) {
             addSiteForLegacy = false;
-
-            Site site = new Chan4();
-
-            SiteConfig config = new SiteConfig();
-            config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
-            config.external = false;
-
-            SiteModel model = siteRepository.create(config, new JsonSettings());
-            siteRepository.setId(model, 0);
+            siteRepository.addLegacySite();
         }
 
-        loadSites();
-    }
-
-    private void loadSites() {
-        List<Site> sites = new ArrayList<>();
-
-        for (SiteModel siteModel : siteRepository.all()) {
-            sites.add(fromModel(siteModel));
-        }
-
-        Sites.initialize(sites);
-
-        for (Site site : sites) {
-            site.postInitialize();
-        }
-    }
-
-    /**
-     * Create a new site from the Site instance. This will insert the model for the site
-     * into the database and calls initialize on the site instance.
-     *
-     * @param site the site to add.
-     */
-    private void createNewSite(Site site) {
-        SiteConfig config = new SiteConfig();
-        JsonSettings settings = new JsonSettings();
-
-        config.classId = SiteRegistry.SITE_CLASSES.indexOfValue(site.getClass());
-        config.external = false;
-
-        siteRepository.create(config, settings);
-    }
-
-    private Site fromModel(SiteModel siteModel) {
-        Pair<SiteConfig, JsonSettings> configFields = siteModel.loadConfigFields();
-        SiteConfig config = configFields.first;
-        JsonSettings settings = configFields.second;
-
-        Site site = instantiateSiteClass(config.classId);
-        site.initialize(siteModel.id, config, settings);
-        return site;
-    }
-
-    private Site instantiateSiteClass(int classId) {
-        Class<? extends Site> clazz = SiteRegistry.SITE_CLASSES.get(classId);
-        if (clazz == null) {
-            throw new IllegalArgumentException("Unknown class id");
-        }
-        return instantiateSiteClass(clazz);
-    }
-
-    private Site instantiateSiteClass(Class<? extends Site> clazz) {
-        Site site;
-        //noinspection TryWithIdenticalCatches
-        try {
-            site = clazz.newInstance();
-        } catch (InstantiationException e) {
-            throw new IllegalArgumentException();
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException();
-        }
-        return site;
+        siteRepository.initialize();
     }
 
     public interface SiteAddCallback {
         void onSiteAdded(Site site);
 
         void onSiteAddFailed(String message);
-    }
-
-    public class SitesChangedObservable extends Observable {
-        private void doNotify() {
-            setChanged();
-            notifyObservers();
-        }
     }
 }

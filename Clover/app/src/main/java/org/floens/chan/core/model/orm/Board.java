@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.model.orm;
 
+import android.support.v4.util.ObjectsCompat;
 import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;
@@ -180,7 +181,7 @@ public class Board implements SiteReference {
      *
      * @param o other board to update from.
      */
-    public void updateExcudingUserFields(Board o) {
+    public void updateExcludingUserFields(Board o) {
         siteId = o.siteId;
         site = o.site;
         name = o.name;
@@ -248,5 +249,33 @@ public class Board implements SiteReference {
         b.description = description;
         b.archive = archive;
         return b;
+    }
+
+    public boolean propertiesEqual(Board b) {
+        return name.equals(b.name) &&
+                code.equals(b.code) &&
+                workSafe == b.workSafe &&
+                perPage == b.perPage &&
+                pages == b.pages &&
+                maxFileSize == b.maxFileSize &&
+                maxWebmSize == b.maxWebmSize &&
+                maxCommentChars == b.maxCommentChars &&
+                bumpLimit == b.bumpLimit &&
+                imageLimit == b.imageLimit &&
+                cooldownThreads == b.cooldownThreads &&
+                cooldownReplies == b.cooldownReplies &&
+                cooldownImages == b.cooldownImages &&
+                cooldownRepliesIntra == b.cooldownRepliesIntra &&
+                cooldownImagesIntra == b.cooldownImagesIntra &&
+                spoilers == b.spoilers &&
+                customSpoilers == b.customSpoilers &&
+                userIds == b.userIds &&
+                codeTags == b.codeTags &&
+                preuploadCaptcha == b.preuploadCaptcha &&
+                countryFlags == b.countryFlags &&
+                trollFlags == b.trollFlags &&
+                mathTags == b.mathTags &&
+                ObjectsCompat.equals(description, b.description) &&
+                archive == b.archive;
     }
 }

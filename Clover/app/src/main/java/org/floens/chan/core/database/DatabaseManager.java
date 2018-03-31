@@ -33,8 +33,9 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -70,7 +71,10 @@ public class DatabaseManager {
 
     @Inject
     public DatabaseManager(Context context) {
-        backgroundExecutor = Executors.newSingleThreadExecutor();
+        backgroundExecutor = new ThreadPoolExecutor(
+                1, 1,
+                1000L, TimeUnit.DAYS,
+                new LinkedBlockingQueue<>());
 
         helper = new DatabaseHelper(context);
         databaseLoadableManager = new DatabaseLoadableManager(this, helper);
@@ -81,8 +85,16 @@ public class DatabaseManager {
         databaseBoardManager = new DatabaseBoardManager(this, helper);
         databaseSiteManager = new DatabaseSiteManager(this, helper);
         databaseHideManager = new DatabaseHideManager(this, helper);
-        initialize();
         EventBus.getDefault().register(this);
+    }
+
+    public void initializeAndTrim() {
+        // Loads data into fields.
+        runTask(databaseSavedReplyManager.load());
+
+        // Only trims.
+        runTaskAsync(databaseHistoryManager.load());
+        runTaskAsync(databaseHideManager.load());
     }
 
     public DatabasePinManager getDatabasePinManager() {
@@ -116,21 +128,12 @@ public class DatabaseManager {
     public DatabaseHideManager getDatabaseHideManager() {
         return databaseHideManager;
     }
-
     // Called when the app changes foreground state
+
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
             runTaskAsync(databaseLoadableManager.flush());
         }
-    }
-
-    private void initialize() {
-        // Loads data into fields.
-        runTask(databaseSavedReplyManager.load());
-
-        // Only trims.
-        runTaskAsync(databaseHistoryManager.load());
-        runTaskAsync(databaseHideManager.load());
     }
 
     /**
@@ -138,7 +141,7 @@ public class DatabaseManager {
      */
     public void reset() {
         helper.reset();
-        initialize();
+        initializeAndTrim();
     }
 
     /**
@@ -187,7 +190,8 @@ public class DatabaseManager {
     }
 
     public <T> void runTaskAsync(final Callable<T> taskCallable) {
-        runTaskAsync(taskCallable, null);
+        runTaskAsync(taskCallable, result -> {
+        });
     }
 
     public <T> void runTaskAsync(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
@@ -254,12 +258,7 @@ public class DatabaseManager {
             try {
                 final T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
                 if (taskResult != null) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            taskResult.onComplete(result);
-                        }
-                    });
+                    new Handler(Looper.getMainLooper()).post(() -> taskResult.onComplete(result));
                 }
                 return result;
             } catch (Exception e) {

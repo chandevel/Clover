@@ -31,7 +31,6 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.AttributeSet;
-import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,7 +45,7 @@ import org.floens.chan.core.manager.FilterEngine;
 import org.floens.chan.core.manager.FilterType;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Filter;
-import org.floens.chan.core.site.Site;
+import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.ui.controller.FiltersController;
 import org.floens.chan.ui.dialog.ColorPickerView;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
@@ -231,8 +230,8 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
             List<Board> allSavedBoards = new ArrayList<>();
-            for (Pair<Site, List<Board>> sites : boardManager.getSavedBoardsObservable().get()) {
-                allSavedBoards.addAll(sites.second);
+            for (BoardRepository.SiteBoards item : boardManager.getSavedBoardsObservable().get()) {
+                allSavedBoards.addAll(item.boards);
             }
 
             for (Board board : allSavedBoards) {

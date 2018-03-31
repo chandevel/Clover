@@ -24,7 +24,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.SavedReply;
-import org.floens.chan.core.site.Sites;
+import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public class DatabaseSavedReplyManager {
                 for (int i = 0; i < all.size(); i++) {
                     SavedReply savedReply = all.get(i);
 
-                    savedReply.site = Sites.forId(savedReply.siteId);
+                    savedReply.site = SiteRepository.forId(savedReply.siteId);
 
                     List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
                     if (list == null) {

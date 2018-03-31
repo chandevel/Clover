@@ -22,7 +22,7 @@ import android.util.Log;
 import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.site.Sites;
+import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
@@ -124,7 +124,7 @@ public class DatabaseLoadableManager {
 
         // Add it to the cache, refresh contents
         helper.loadableDao.refresh(loadable);
-        loadable.site = Sites.forId(loadable.siteId);
+        loadable.site = SiteRepository.forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         cachedLoadables.put(loadable, loadable);
         return loadable;
@@ -165,7 +165,7 @@ public class DatabaseLoadableManager {
                         result = loadable;
                     } else {
                         Log.d(TAG, "Loadable found in db");
-                        result.site = Sites.forId(result.siteId);
+                        result.site = SiteRepository.forId(result.siteId);
                         result.board = result.site.board(result.boardCode);
                     }
 

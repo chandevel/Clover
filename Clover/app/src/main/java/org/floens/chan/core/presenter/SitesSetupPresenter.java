@@ -20,55 +20,78 @@ package org.floens.chan.core.presenter;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.core.site.SiteService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.inject.Inject;
 
-public class SitesSetupPresenter {
-    private SiteService siteService;
-    private BoardManager boardManager;
+public class SitesSetupPresenter implements Observer {
+    private final SiteService siteService;
+    private final SiteRepository siteRepository;
+    private final BoardManager boardManager;
 
     private Callback callback;
     private AddCallback addCallback;
 
-    private List<Site> sites = new ArrayList<>();
+    private SiteRepository.Sites sites;
+    private List<Site> sitesShown = new ArrayList<>();
 
     @Inject
-    public SitesSetupPresenter(SiteService siteService, BoardManager boardManager) {
+    public SitesSetupPresenter(SiteService siteService, SiteRepository siteRepository,
+                               BoardManager boardManager) {
         this.siteService = siteService;
+        this.siteRepository = siteRepository;
         this.boardManager = boardManager;
     }
 
     public void create(Callback callback) {
         this.callback = callback;
 
-        sites.addAll(siteService.getAllSitesInOrder());
+        sites = siteRepository.all();
+        sites.addObserver(this);
 
-        this.callback.setAddedSites(sites);
+        sitesShown.addAll(sites.getAllInOrder());
 
-        this.callback.setNextAllowed(!sites.isEmpty());
+        updateSitesInUi();
 
-        if (sites.isEmpty()) {
+        this.callback.setNextAllowed(!sitesShown.isEmpty());
+
+        if (sitesShown.isEmpty()) {
             callback.presentIntro();
         }
     }
 
+    public void destroy() {
+        sites.deleteObserver(this);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o == sites) {
+            sitesShown.clear();
+            sitesShown.addAll(sites.getAllInOrder());
+            updateSitesInUi();
+        }
+    }
+
     public void show() {
-        callback.setAddedSites(sites);
+        updateSitesInUi();
     }
 
     public void move(int from, int to) {
-        Site item = sites.remove(from);
-        sites.add(to, item);
+        Site item = sitesShown.remove(from);
+        sitesShown.add(to, item);
         saveOrder();
-        callback.setAddedSites(sites);
+        updateSitesInUi();
     }
 
     public void onIntroDismissed() {
-        if (sites.isEmpty()) {
+        if (sitesShown.isEmpty()) {
             callback.showHint();
         }
     }
@@ -82,7 +105,7 @@ public class SitesSetupPresenter {
     }
 
     public boolean mayExit() {
-        return sites.size() > 0;
+        return sitesShown.size() > 0;
     }
 
     public void onShowDialogClicked() {
@@ -111,17 +134,13 @@ public class SitesSetupPresenter {
     public void onDoneClicked() {
     }
 
-    public int getSiteBoardCount(Site site) {
-        return boardManager.getSiteSavedBoards(site).size();
-    }
-
     private void siteAdded(Site site) {
-        sites.add(site);
+        sitesShown.add(site);
         saveOrder();
 
-        callback.setAddedSites(sites);
+        updateSitesInUi();
 
-        callback.setNextAllowed(!sites.isEmpty());
+        callback.setNextAllowed(!sitesShown.isEmpty());
     }
 
     public void onSiteCellSettingsClicked(Site site) {
@@ -129,17 +148,35 @@ public class SitesSetupPresenter {
     }
 
     private void saveOrder() {
-        siteService.updateOrdering(sites);
+        siteService.updateOrdering(sitesShown);
+    }
+
+    private void updateSitesInUi() {
+        List<SiteBoardCount> r = new ArrayList<>();
+        for (Site site : sitesShown) {
+            r.add(new SiteBoardCount(site, boardManager.getSiteSavedBoards(site).size()));
+        }
+        callback.setSites(r);
+    }
+
+    public class SiteBoardCount {
+        public Site site;
+        public int boardCount;
+
+        public SiteBoardCount(Site site, int boardCount) {
+            this.site = site;
+            this.boardCount = boardCount;
+        }
     }
 
     public interface Callback {
+        void setSites(List<SiteBoardCount> sites);
+
         void presentIntro();
 
         void showHint();
 
         void showAddDialog();
-
-        void setAddedSites(List<Site> sites);
 
         void setNextAllowed(boolean nextAllowed);
 

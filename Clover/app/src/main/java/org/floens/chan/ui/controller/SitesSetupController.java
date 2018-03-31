@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
@@ -38,6 +39,7 @@ import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SitesSetupPresenter;
+import org.floens.chan.core.presenter.SitesSetupPresenter.SiteBoardCount;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.ui.helper.HintPopup;
@@ -75,7 +77,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
     private SitesAdapter sitesAdapter;
     private ItemTouchHelper itemTouchHelper;
-    private List<Site> sites = new ArrayList<>();
+    private List<SiteBoardCount> sites = new ArrayList<>();
 
     private ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP | ItemTouchHelper.DOWN,
@@ -139,6 +141,13 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         super.onShow();
 
         presenter.show();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        presenter.destroy();
     }
 
     public void showDoneCheckmark() {
@@ -225,7 +234,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     }
 
     @Override
-    public void setAddedSites(List<Site> sites) {
+    public void setSites(List<SiteBoardCount> sites) {
         this.sites.clear();
         this.sites.addAll(sites);
         sitesAdapter.notifyDataSetChanged();
@@ -254,22 +263,23 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         @Override
         public long getItemId(int position) {
-            return sites.get(position).id();
+            return sites.get(position).site.id();
         }
 
+        @NonNull
         @Override
-        public SiteCell onCreateViewHolder(ViewGroup parent, int viewType) {
+        public SiteCell onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new SiteCell(LayoutInflater.from(context).inflate(R.layout.cell_site, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(SiteCell holder, int position) {
-            Site site = sites.get(position);
-            holder.setSite(site);
-            holder.setSiteIcon(site);
-            holder.text.setText(site.name());
+        public void onBindViewHolder(@NonNull SiteCell holder, int position) {
+            SiteBoardCount site = sites.get(position);
+            holder.setSite(site.site);
+            holder.setSiteIcon(site.site);
+            holder.text.setText(site.site.name());
 
-            int boards = presenter.getSiteBoardCount(site);
+            int boards = site.boardCount;
             String boardsString = context.getResources().getQuantityString(R.plurals.board, boards, boards);
             String descriptionText = context.getString(R.string.setup_sites_site_description, boardsString);
             holder.description.setText(descriptionText);

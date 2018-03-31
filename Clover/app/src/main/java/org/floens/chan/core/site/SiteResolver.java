@@ -22,6 +22,7 @@ import android.support.annotation.Nullable;
 
 import org.floens.chan.core.database.LoadableProvider;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.repository.SiteRepository;
 
 import java.util.List;
 
@@ -30,18 +31,22 @@ import javax.inject.Inject;
 import okhttp3.HttpUrl;
 
 public class SiteResolver {
-    private LoadableProvider loadableProvider;
+    private final SiteRepository siteRepository;
+    private final LoadableProvider loadableProvider;
 
     @Inject
-    public SiteResolver(LoadableProvider loadableProvider) {
+    public SiteResolver(SiteRepository siteRepository, LoadableProvider loadableProvider) {
+        this.siteRepository = siteRepository;
         this.loadableProvider = loadableProvider;
     }
 
     public Site findSiteForUrl(String url) {
         HttpUrl httpUrl = sanitizeUrl(url);
 
+        SiteRepository.Sites sites = siteRepository.all();
+
         if (httpUrl == null) {
-            for (Site site : Sites.allSites()) {
+            for (Site site : sites.getAll()) {
                 SiteUrlHandler siteUrlHandler = site.resolvable();
 
                 if (siteUrlHandler.matchesName(url)) {
@@ -56,7 +61,7 @@ public class SiteResolver {
             httpUrl = httpUrl.newBuilder().scheme("https").build();
         }
 
-        for (Site site : Sites.allSites()) {
+        for (Site site : sites.getAll()) {
             SiteUrlHandler siteUrlHandler = site.resolvable();
             if (siteUrlHandler.respondsTo(httpUrl)) {
                 return site;
@@ -104,7 +109,7 @@ public class SiteResolver {
             return null;
         }
 
-        for (Site site : Sites.allSites()) {
+        for (Site site : siteRepository.all().getAll()) {
             if (site.resolvable().respondsTo(httpUrl)) {
                 Loadable resolved = loadableProvider.get(
                         site.resolvable().resolveLoadable(site, httpUrl));

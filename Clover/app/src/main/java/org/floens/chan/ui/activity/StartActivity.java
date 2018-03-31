@@ -44,9 +44,9 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.SiteService;
+import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.core.site.SiteResolver;
-import org.floens.chan.core.site.Sites;
+import org.floens.chan.core.site.SiteService;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
@@ -228,7 +228,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     }
 
     private Loadable resolveLoadable(Loadable stateLoadable, boolean forThread) {
-        Site site = Sites.forId(stateLoadable.siteId);
+        Site site = SiteRepository.forId(stateLoadable.siteId);
         if (site != null) {
             Board board = site.board(stateLoadable.boardCode);
             if (board != null) {

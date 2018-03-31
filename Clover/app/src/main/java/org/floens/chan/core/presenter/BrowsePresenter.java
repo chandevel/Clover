@@ -17,15 +17,13 @@
  */
 package org.floens.chan.core.presenter;
 
-import android.util.Pair;
-
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.site.Site;
 
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -39,7 +37,7 @@ public class BrowsePresenter implements Observer {
     private boolean hadBoards = false;
     private Board currentBoard;
 
-    private BoardManager.SavedBoards savedBoardsObservable;
+    private BoardRepository.SitesBoards savedBoardsObservable;
 
     @Inject
     public BrowsePresenter(DatabaseManager databaseManager, BoardManager boardManager) {
@@ -99,9 +97,9 @@ public class BrowsePresenter implements Observer {
     }
 
     private Board firstBoard() {
-        for (Pair<Site, List<Board>> siteListPair : savedBoardsObservable.get()) {
-            if (!siteListPair.second.isEmpty()) {
-                return siteListPair.second.get(0);
+        for (BoardRepository.SiteBoards item : savedBoardsObservable.get()) {
+            if (!item.boards.isEmpty()) {
+                return item.boards.get(0);
             }
         }
         return null;

@@ -30,6 +30,7 @@ import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.settings.json.JsonSettingsProvider;
 import org.floens.chan.core.site.http.HttpCallManager;
+import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,15 +50,24 @@ public abstract class SiteBase implements Site {
     private JsonSettings userSettings;
     protected SettingProvider settingsProvider;
 
+    private boolean initialized = false;
+
     @Override
     public void initialize(int id, SiteConfig config, JsonSettings userSettings) {
         this.id = id;
         this.config = config;
         this.userSettings = userSettings;
+
+        if (initialized) {
+            throw new IllegalStateException();
+        }
+        initialized = true;
     }
 
     @Override
     public void postInitialize() {
+        long start = Time.startTiming();
+
         Feather injector = injector();
         httpCallManager = injector.instance(HttpCallManager.class);
         requestQueue = injector.instance(RequestQueue.class);
@@ -72,8 +82,10 @@ public abstract class SiteBase implements Site {
         initializeSettings();
 
         if (boardsType().canList) {
-            actions().boards(boards -> boardManager.createAll(boards.boards));
+            actions().boards(boards -> boardManager.updateAvailableBoardsForSite(this, boards.boards));
         }
+
+        Time.endTiming("initialized " + name(), start);
     }
 
     @Override
@@ -102,7 +114,7 @@ public abstract class SiteBase implements Site {
         }
 
         Board board = Board.fromSiteNameCode(this, name, code);
-        boardManager.createAll(Collections.singletonList(board));
+        boardManager.updateAvailableBoardsForSite(this, Collections.singletonList(board));
         return board;
     }
 }
