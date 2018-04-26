@@ -161,7 +161,7 @@ public class Chan4 extends SiteBase {
 
         private final HttpUrl t = new HttpUrl.Builder()
                 .scheme("https")
-                .host("t.4cdn.org")
+                .host("i.4cdn.org")
                 .build();
 
         private final HttpUrl s = new HttpUrl.Builder()
