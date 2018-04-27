@@ -1,3 +1,13 @@
+New in 3.0.0 (2018-04-27)
+This release adds the foundation for support of multiple sites. Beta implementations of 8chan and Lainchan are implemented.
+
+- Multisite support.
+- Noscript recaptcha 2 support.
+- Added a scrollbar.
+- New posting options.
+- Post text selection.
+
+
 New in 2.3.1 (2017-07-15)
 - Better link detection.
 - More themes.

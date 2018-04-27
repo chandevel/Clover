@@ -21,10 +21,10 @@ android {
         minSdkVersion 15
         targetSdkVersion 25
 
-        versionName "v2.3.1"
+        versionName "v3.0.0"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
-        versionCode 20301
+        versionCode 30000
     }
 
     compileOptions {
@@ -80,7 +80,7 @@ android {
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", ""
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
-            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
+            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/api/update\""
             buildConfigField "String", "CRASH_REPORT_ENDPOINT", "\"https://acra.floens.org/clover/report\""
         }
 
