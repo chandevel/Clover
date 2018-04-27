@@ -3,17 +3,12 @@
     "messages": [
         {
             "type": "update",
-
-            "code": 20301,
-            "date": "2017-07-15T13:29:01.273664",
-            "message_html": "<h2>Clover v2.3.1 is available</h2>A new version of Clover is available.<br><br><b>New in this version:</b><br>Better link detection.<br>More themes.<br>Fix image loading taking a long time if the cache is full.<br>Fix crashing bug related to the status view.<br>Bug fixes.",
-
+            "code": 30000,
+            "date": "2018-04-27T16:44:58",
+            "message_html": "<h2>Clover update ready</h2>A new Clover version is available.<br><br>Changelog:<br>This release adds the foundation for support of multiple sites. Beta implementations of 8chan and Lainchan are implemented.<br><br>- Multisite support.<br>- Noscript recaptcha 2 support.<br>- Added a scrollbar.<br>- New posting options.<br>- Post text selection.",
             "apk": {
                 "default": {
-                    "url": "https://github.com/Floens/Clover/releases/download/v2.3.1/Clover_v2.3.1.apk"
-                },
-                "fdroid": {
-                    "url": "https://f-droid.org/repo/org.floens.chan_20301.apk"
+                    "url": "https://build.floens.org/builds/Clover-v3.0.0.apk"
                 }
             }
         }
