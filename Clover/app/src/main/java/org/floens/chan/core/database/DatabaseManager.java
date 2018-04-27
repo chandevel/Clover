@@ -18,6 +18,7 @@
 package org.floens.chan.core.database;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -77,6 +78,11 @@ public class DatabaseManager {
                 new LinkedBlockingQueue<>());
 
         helper = new DatabaseHelper(context);
+
+        // Immediately trigger onUpgrade if necessary.
+        SQLiteDatabase writableDatabase = helper.getWritableDatabase();
+        writableDatabase.close();
+
         databaseLoadableManager = new DatabaseLoadableManager(this, helper);
         databasePinManager = new DatabasePinManager(this, helper, databaseLoadableManager);
         databaseHistoryManager = new DatabaseHistoryManager(this, helper, databaseLoadableManager);
