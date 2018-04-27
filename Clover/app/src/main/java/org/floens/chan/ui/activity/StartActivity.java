@@ -42,9 +42,9 @@ import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
+import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.core.site.SiteResolver;
 import org.floens.chan.core.site.SiteService;
 import org.floens.chan.ui.controller.BrowseController;
@@ -86,6 +86,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     private RuntimePermissionsHelper runtimePermissionsHelper;
     private VersionHandler versionHandler;
 
+    private boolean intentMismatchWorkaroundActive = false;
+
     @Inject
     DatabaseManager databaseManager;
 
@@ -102,6 +104,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         inject(this);
+
+        if (intentMismatchWorkaround()) {
+            return;
+        }
 
         ThemeHelper.getInstance().setupContext(this);
 
@@ -467,6 +473,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onDestroy() {
         super.onDestroy();
 
+        if (intentMismatchWorkaround()) {
+            return;
+        }
+
         // TODO: clear whole stack?
         stackTop().onHide();
         stackTop().onDestroy();
@@ -482,5 +492,26 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     private Controller stackTop() {
         return stack.get(stack.size() - 1);
+    }
+
+    private boolean intentMismatchWorkaround() {
+        // Workaround for an intent mismatch that causes a new activity instance to be started
+        // every time the app is launched from the launcher.
+        // See https://issuetracker.google.com/issues/36907463
+        if (intentMismatchWorkaroundActive) {
+            return true;
+        }
+
+        if (!isTaskRoot()) {
+            Intent intent = getIntent();
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
+                    Intent.ACTION_MAIN.equals(intent.getAction())) {
+                Logger.w(TAG, "Workaround for intent mismatch.");
+                intentMismatchWorkaroundActive = true;
+                finish();
+                return true;
+            }
+        }
+        return false;
     }
 }
