@@ -83,6 +83,10 @@ public class BoardSetupController extends Controller implements View.OnClickList
             int from = viewHolder.getAdapterPosition();
             int to = target.getAdapterPosition();
 
+            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
+                return false;
+            }
+
             presenter.move(from, to);
 
             return true;
