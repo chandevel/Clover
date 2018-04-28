@@ -234,6 +234,11 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     }
 
     private Loadable resolveLoadable(Loadable stateLoadable, boolean forThread) {
+        // invalid (no state saved).
+        if (stateLoadable.mode != (forThread ? Loadable.Mode.THREAD : Loadable.Mode.CATALOG)) {
+            return null;
+        }
+
         Site site = SiteRepository.forId(stateLoadable.siteId);
         if (site != null) {
             Board board = site.board(stateLoadable.boardCode);
