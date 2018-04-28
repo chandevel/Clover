@@ -5,7 +5,7 @@
             "type": "update",
             "code": 30000,
             "date": "2018-04-27T16:44:58",
-            "message_html": "<h2>Clover update ready</h2>A new Clover version is available.<br><br>Changelog:<br>This release adds the foundation for support of multiple sites. Beta implementations of 8chan and Lainchan are implemented.<br><br>- Multisite support.<br>- Noscript recaptcha 2 support.<br>- Added a scrollbar.<br>- New posting options.<br>- Post text selection.",
+            "message_html": "<h2>Clover update ready</h2>Clover v3.0.0 is ready.<br><b>This update also fixes the issue of thumbnails not appearing.</b><br><br>Changelog:<br>This release adds the foundation for support of multiple sites. Beta implementations of 8chan and Lainchan are implemented.<br><br>- Multisite support.<br>- Noscript recaptcha 2 support.<br>- Added a scrollbar.<br>- New posting options.<br>- Post text selection.",
             "apk": {
                 "default": {
                     "url": "https://build.floens.org/builds/Clover-v3.0.0.apk"
