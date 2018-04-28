@@ -111,11 +111,13 @@ public class SiteResolver {
 
         for (Site site : siteRepository.all().getAll()) {
             if (site.resolvable().respondsTo(httpUrl)) {
-                Loadable resolved = loadableProvider.get(
-                        site.resolvable().resolveLoadable(site, httpUrl));
+                Loadable resolvedLoadable = site.resolvable().resolveLoadable(site, httpUrl);
+                if (resolvedLoadable != null) {
+                    Loadable resolved = loadableProvider.get(resolvedLoadable);
 
-                if (resolved != null) {
-                    return new LoadableResult(resolved);
+                    if (resolved != null) {
+                        return new LoadableResult(resolved);
+                    }
                 }
             }
         }
