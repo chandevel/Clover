@@ -450,8 +450,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 // It'll just show the icon without doing anything. Remove when 4.0 is dropped.
                 return true;
             }
-        } catch (IllegalStateException e) {
+        } catch (RuntimeException e) {
             // getTrackInfo() raises an IllegalStateException on some devices.
+            // Samsung even throws a RuntimeException.
             // Return a default value.
             return true;
         }
