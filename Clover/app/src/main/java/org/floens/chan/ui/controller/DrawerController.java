@@ -143,7 +143,9 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         drawerLayout.post(() -> drawerLayout.post(() -> drawerLayout.closeDrawer(drawer)));
 
         ThreadController threadController = getTopThreadController();
-        threadController.openPin(pin);
+        if (threadController != null) {
+            threadController.openPin(pin);
+        }
     }
 
     @Override
@@ -300,7 +302,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
                 return (ThreadController) slideNav.leftController;
             }
         }
-        throw new IllegalStateException();
+
+        return null;
     }
 
     private ToolbarNavigationController getMainToolbarNavigationController() {
