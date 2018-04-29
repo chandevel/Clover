@@ -1,0 +1,10 @@
+To release:
+
+Update CHANGES.txt
+Change the version name and code in the app/build.gradle file.
+Change the previous version handler text in strings.xml.
+Commit it.
+Tag the commit (git tag v3.0.1).
+Merge into master.
+
+Upload APK to github releases.

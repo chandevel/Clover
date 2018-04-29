@@ -19,18 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Defined in gradle flavor -->
     <!--<string name="app_name">Clover</string>-->
 
-    <string name="changelog_30000">
+    <string name="changelog_30001">
         <![CDATA[
             <h3>Clover was updated</h3>
-
-            Clover was updated to v3.0.0<br>
-            This release adds the foundation for support of multiple sites. Beta implementations of 8chan and Lainchan are implemented.<br>
+            Clover was updated to v3.0.1<br>
             <br>
-            Multisite support.<br>
-            Noscript recaptcha 2 support.<br>
-            Added a scrollbar.<br>
-            New posting options.<br>
-            Post text selection.<br>
+            <b>New in this version:</b><br>
+            Bug fixes.<br>
         ]]>
     </string>
 

@@ -1,3 +1,7 @@
+New in 3.0.1 (2018-04-29)
+- Bug fixes.
+
+
 New in 3.0.0 (2018-04-27)
 This release adds the foundation for support of multiple sites. Beta implementations of 8chan and Lainchan are implemented.
 
