@@ -9,6 +9,9 @@
             "apk": {
                 "default": {
                     "url": "https://build.floens.org/builds/Clover-v3.0.0.apk"
+                },
+                "fdroid": {
+                    "url": "https://f-droid.org/repo/org.floens.chan_30000.apk"
                 }
             }
         }
