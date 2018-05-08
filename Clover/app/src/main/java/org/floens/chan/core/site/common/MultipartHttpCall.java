@@ -60,7 +60,11 @@ public abstract class MultipartHttpCall extends HttpCall {
     @Override
     public void setup(Request.Builder requestBuilder) {
         requestBuilder.url(url);
-        requestBuilder.addHeader("Referer", url.scheme() + "://" + url.host());
+        String r = url.scheme() + "://" + url.host();
+        if (url.port() != 80 && url.port() != 443) {
+            r += ":" + url.port();
+        }
+        requestBuilder.addHeader("Referer", r);
         requestBuilder.post(formBuilder.build());
     }
 }

@@ -87,7 +87,7 @@ public class VichanActions extends CommonSite.CommonActions {
 
     @Override
     public void handlePost(ReplyResponse replyResponse, Response response, String result) {
-        Matcher auth = Pattern.compile(".*\"captcha\": ?true.*").matcher(result);
+        Matcher auth = Pattern.compile("\"captcha\": ?true").matcher(result);
         Matcher err = errorPattern().matcher(result);
         if (auth.find()) {
             replyResponse.requireAuthentication = true;
@@ -137,7 +137,7 @@ public class VichanActions extends CommonSite.CommonActions {
     }
 
     public Pattern errorPattern() {
-        return Pattern.compile(".*<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>.*");
+        return Pattern.compile("<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>");
     }
 
     @Override
