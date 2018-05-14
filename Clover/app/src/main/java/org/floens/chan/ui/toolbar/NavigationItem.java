@@ -43,7 +43,9 @@ public class NavigationItem {
     public ToolbarMiddleMenu middleMenu;
     public View rightView;
 
-    public ToolbarMenuItem createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
+    public ToolbarMenuItem createOverflow(
+            Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback,
+            List<FloatingMenuItem> items) {
         ToolbarMenuItem overflow = menu.createOverflow(callback);
         FloatingMenu overflowMenu = new FloatingMenu(context, overflow.getView(), items);
         overflow.setSubMenu(overflowMenu);
@@ -52,5 +54,24 @@ public class NavigationItem {
 
     public void setTitle(int resId) {
         title = getString(resId);
+    }
+
+    public NavigationItem copy() {
+        NavigationItem c = new NavigationItem();
+        c.title = title;
+        c.subtitle = subtitle;
+
+        c.hasBack = hasBack;
+        c.hasDrawer = hasDrawer;
+        c.handlesToolbarInset = handlesToolbarInset;
+        c.swipeable = swipeable;
+
+        c.search = search;
+        c.searchText = searchText;
+
+//        c.menu = menu;
+        c.middleMenu = middleMenu;
+//        c.rightView = rightView;
+        return c;
     }
 }

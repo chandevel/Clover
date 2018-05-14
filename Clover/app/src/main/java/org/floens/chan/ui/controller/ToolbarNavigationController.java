@@ -61,7 +61,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
 
         toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);
         toolbar.beginTransition(to.navigation);
-        toolbar.transitionProgress(0f, false);
+        toolbar.transitionProgress(0f);
 
         return true;
     }
@@ -70,7 +70,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
     public void swipeTransitionProgress(float progress) {
         super.swipeTransitionProgress(progress);
 
-        toolbar.transitionProgress(progress, false);
+        toolbar.transitionProgress(progress);
     }
 
     @Override

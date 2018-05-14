@@ -17,10 +17,6 @@
  */
 package org.floens.chan.ui.toolbar;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -44,7 +40,6 @@ import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
 import org.floens.chan.ui.layout.SearchLayout;
-import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -52,10 +47,12 @@ import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+import static org.floens.chan.utils.AndroidUtils.hideKeyboard;
 import static org.floens.chan.utils.AndroidUtils.removeFromParentView;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class Toolbar extends LinearLayout implements View.OnClickListener {
+public class Toolbar extends LinearLayout implements
+        View.OnClickListener, ToolbarPresenter.Callback {
     public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
     public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
 
@@ -74,22 +71,17 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
     };
 
+    private ToolbarPresenter presenter;
+
     private ImageView arrowMenuView;
     private ArrowMenuDrawable arrowMenuDrawable;
 
-    private LoadView navigationItemContainer;
+    private ToolbarContainer navigationItemContainer;
 
     private ToolbarCallback callback;
-    private boolean openKeyboardAfterSearchViewCreated = false;
     private int lastScrollDeltaOffset;
     private int scrollOffset;
     private List<ToolbarCollapseCallback> collapseCallbacks = new ArrayList<>();
-
-    private boolean transitioning = false;
-    private NavigationItem fromItem;
-    private LinearLayout fromView;
-    private NavigationItem toItem;
-    private LinearLayout toView;
 
     public Toolbar(Context context) {
         this(context, null);
@@ -106,7 +98,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        return transitioning || super.dispatchTouchEvent(ev);
+        return isTransitioning() || super.dispatchTouchEvent(ev);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
     }
 
     public int getToolbarHeight() {
@@ -143,7 +141,10 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         scrollOffset = Math.max(0, Math.min(getHeight(), scrollOffset));
 
         if (animated) {
-            animate().translationY(-scrollOffset).setDuration(300).setInterpolator(new DecelerateInterpolator(2f)).start();
+            animate().translationY(-scrollOffset)
+                    .setDuration(300)
+                    .setInterpolator(new DecelerateInterpolator(2f))
+                    .start();
 
             boolean collapse = scrollOffset > 0;
             for (ToolbarCollapseCallback c : collapseCallbacks) {
@@ -181,94 +182,45 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
     }
 
-//    public void updateNavigation() {
-//        closeSearchInternal();
-//        setNavigationItem(false, false, toItem);
-//    }
-
-    public NavigationItem getNavigationItem() {
-        return toItem;
-    }
-
-    public boolean openSearch() {
-        return openSearchInternal();
+    public void openSearch() {
+        presenter.openSearch();
     }
 
     public boolean closeSearch() {
-        return closeSearchInternal();
+        return presenter.closeSearch();
+    }
+
+    public boolean isTransitioning() {
+        return navigationItemContainer.isTransitioning();
     }
 
     public void setNavigationItem(final boolean animate, final boolean pushing, final NavigationItem item) {
-        setNavigationItemInternal(animate, pushing, item);
+        ToolbarPresenter.AnimationStyle animationStyle;
+        if (!animate) {
+            animationStyle = ToolbarPresenter.AnimationStyle.NONE;
+        } else if (pushing) {
+            animationStyle = ToolbarPresenter.AnimationStyle.PUSH;
+        } else {
+            animationStyle = ToolbarPresenter.AnimationStyle.POP;
+        }
+
+        presenter.set(item, animationStyle);
     }
 
     public void setArrowMenuIconShown(boolean show) {
         arrowMenuView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-    public boolean isTransitioning() {
-        return transitioning;
-    }
-
     public void beginTransition(NavigationItem newItem) {
-        if (transitioning) {
-            throw new IllegalStateException("beginTransition called when already transitioning");
-        }
-
-        attachNavigationItem(newItem);
-
-        navigationItemContainer.addView(toView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-
-        transitioning = true;
+        presenter.startTransition(newItem, ToolbarPresenter.TransitionAnimationStyle.POP);
     }
 
-    public void transitionProgress(float progress, boolean pushing) {
-        if (!transitioning) {
-            throw new IllegalStateException("transitionProgress called while not transitioning");
-        }
-
-        progress = Math.max(0f, Math.min(1f, progress));
-
-        final int offset = dp(16);
-
-        toView.setTranslationY((pushing ? offset : -offset) * (1f - progress));
-        toView.setAlpha(progress);
-
-        if (fromItem != null) {
-            fromView.setTranslationY((pushing ? -offset : offset) * progress);
-            fromView.setAlpha(1f - progress);
-        }
-
-        float arrowEnd = toItem.hasBack || toItem.search ? 1f : 0f;
-        if (arrowMenuDrawable.getProgress() != arrowEnd) {
-            arrowMenuDrawable.setProgress(toItem.hasBack || toItem.search ? progress : 1f - progress);
-        }
+    public void transitionProgress(float progress) {
+        presenter.setTransitionProgress(progress);
     }
 
-    public void finishTransition(boolean finished) {
-        if (!transitioning) {
-            throw new IllegalStateException("finishTransition called when not transitioning");
-        }
-
-        if (finished) {
-            if (fromItem != null) {
-                // From a search otherwise
-                if (fromItem != toItem) {
-                    removeNavigationItem(fromItem, fromView);
-                    fromView = null;
-                }
-            }
-            setArrowMenuProgress(toItem.hasBack || toItem.search ? 1f : 0f);
-        } else {
-            removeNavigationItem(toItem, toView);
-            setArrowMenuProgress(fromItem.hasBack || fromItem.search ? 1f : 0f);
-            toItem = fromItem;
-            toView = fromView;
-        }
-
-        fromItem = null;
-        fromView = null;
-        transitioning = false;
+    public void finishTransition(boolean completed) {
+        presenter.stopTransition(completed);
     }
 
     public void setCallback(ToolbarCallback callback) {
@@ -280,11 +232,6 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         if (v == arrowMenuView) {
             callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f);
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return true;
     }
 
     public void setArrowMenuProgress(float progress) {
@@ -300,20 +247,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     }
 
     public void updateTitle(NavigationItem navigationItem) {
-        LinearLayout view = navigationItem == fromItem ? fromView : (navigationItem == toItem ? toView : null);
-        if (view != null) {
-            TextView titleView = view.findViewById(R.id.title);
-            if (titleView != null) {
-                titleView.setText(navigationItem.title);
-            }
-
-            if (!TextUtils.isEmpty(navigationItem.subtitle)) {
-                TextView subtitleView = view.findViewById(R.id.subtitle);
-                if (subtitleView != null) {
-                    subtitleView.setText(navigationItem.subtitle);
-                }
-            }
-        }
+        presenter.update(navigationItem);
     }
 
     private void init() {
@@ -321,6 +255,13 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         if (isInEditMode()) return;
 
+        presenter = new ToolbarPresenter();
+        presenter.create(this);
+
+        initView();
+    }
+
+    private void initView() {
         FrameLayout leftButtonContainer = new FrameLayout(getContext());
         addView(leftButtonContainer, LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
 
@@ -333,10 +274,15 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
 
         setRoundItemBackground(arrowMenuView);
 
-        leftButtonContainer.addView(arrowMenuView, new FrameLayout.LayoutParams(getResources().getDimensionPixelSize(R.dimen.toolbar_height), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL));
+        int toolbarSize = getResources().getDimensionPixelSize(R.dimen.toolbar_height);
+        FrameLayout.LayoutParams leftButtonContainerLp = new FrameLayout.LayoutParams(
+                toolbarSize, FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER_VERTICAL);
+        leftButtonContainer.addView(arrowMenuView, leftButtonContainerLp);
 
-        navigationItemContainer = new LoadView(getContext());
+        navigationItemContainer = new ToolbarContainer(getContext());
         addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
+
+        navigationItemContainer.setArrowMenu(arrowMenuDrawable);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (getElevation() == 0f) {
@@ -345,116 +291,51 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
     }
 
-    private boolean openSearchInternal() {
-        if (toItem != null && !toItem.search) {
-            toItem.search = true;
-            openKeyboardAfterSearchViewCreated = true;
-            setNavigationItemInternal(true, false, toItem);
-            callback.onSearchVisibilityChanged(toItem, true);
-            return true;
-        } else {
-            return false;
+    @Override
+    public void showForNavigationItem(
+            NavigationItem item, ToolbarPresenter.AnimationStyle animation) {
+        View view = createNavigationItemView(item);
+        boolean arrow = item.hasBack || item.search;
+
+        navigationItemContainer.set(view, arrow, animation);
+    }
+
+    @Override
+    public void containerStartTransition(
+            NavigationItem item, ToolbarPresenter.TransitionAnimationStyle animation) {
+        View view = createNavigationItemView(item);
+        boolean arrow = item.hasBack || item.search;
+
+        navigationItemContainer.startTransition(view, arrow, animation);
+    }
+
+    @Override
+    public void containerStopTransition(boolean didComplete) {
+        navigationItemContainer.stopTransition(didComplete);
+    }
+
+    @Override
+    public void containerSetTransitionProgress(float progress) {
+        navigationItemContainer.setTransitionProgress(progress);
+    }
+
+    @Override
+    public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
+        callback.onSearchVisibilityChanged(item, visible);
+
+        if (!visible) {
+            hideKeyboard(navigationItemContainer);
         }
     }
 
-    private boolean closeSearchInternal() {
-        if (toItem != null && toItem.search) {
-            toItem.search = false;
-            toItem.searchText = null;
-            setNavigationItemInternal(true, false, toItem);
-            callback.onSearchVisibilityChanged(toItem, false);
-            return true;
-        } else {
-            return false;
-        }
+    @Override
+    public void onSearchInput(NavigationItem item, String input) {
+        callback.onSearchEntered(item, input);
     }
 
-    private void setNavigationItemInternal(boolean animate, final boolean pushing, NavigationItem newItem) {
-        if (transitioning) {
-            throw new IllegalStateException("setNavigationItemInternal called when already transitioning");
-        }
-
-        attachNavigationItem(newItem);
-
-        transitioning = true;
-
-        if (fromItem == toItem) {
-            // Search toggled
-            navigationItemContainer.setListener(new LoadView.Listener() {
-                @Override
-                public void onLoadViewRemoved(View view) {
-                    // Remove the menu from the navigation item
-                    ((ViewGroup) view).removeAllViews();
-                    finishTransition(true);
-                    navigationItemContainer.setListener(null);
-                }
-            });
-            navigationItemContainer.setView(toView, animate);
-
-            animateArrow(toItem.hasBack || toItem.search);
-        } else {
-            navigationItemContainer.addView(toView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-
-            if (animate) {
-                toView.setAlpha(0f);
-
-                final ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
-                animator.setDuration(300);
-                animator.setInterpolator(new DecelerateInterpolator(2f));
-                animator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        finishTransition(true);
-                    }
-                });
-                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        transitionProgress((float) animation.getAnimatedValue(), pushing);
-                    }
-                });
-                if (!pushing) {
-                    animator.setStartDelay(100);
-                }
-
-                // hack to avoid the animation jumping when the current frame has a lot to do,
-                // which is often because setting a new navigationitem is almost always done
-                // when setting a new controller.
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        animator.start();
-                    }
-                });
-            } else {
-                arrowMenuDrawable.setProgress(toItem.hasBack || toItem.search ? 1f : 0f);
-                finishTransition(true);
-            }
-        }
-    }
-
-    private void attachNavigationItem(NavigationItem newItem) {
-        if (transitioning) {
-            throw new IllegalStateException("attachNavigationItem called while transitioning");
-        }
-
-        fromItem = toItem;
-        fromView = toView;
-        toItem = newItem;
-        toView = createNavigationItemView(toItem);
-
-        if (!toItem.search) {
-            AndroidUtils.hideKeyboard(navigationItemContainer);
-        }
-    }
-
-    private void removeNavigationItem(NavigationItem item, LinearLayout view) {
-        if (!transitioning) {
-            throw new IllegalStateException("removeNavigationItem called while not transitioning");
-        }
-
-        view.removeAllViews();
-        navigationItemContainer.removeView(view);
+    @Override
+    public void updateViewForItem(NavigationItem item, boolean current) {
+        navigationItemContainer.update(item, current);
     }
 
     private LinearLayout createNavigationItemView(final NavigationItem item) {
@@ -483,12 +364,7 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
             int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
             Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
             titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
-            titleView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    item.middleMenu.show(titleView);
-                }
-            });
+            titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
         }
 
         TextView subtitleView = menu.findViewById(R.id.subtitle);
@@ -521,12 +397,8 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
     private LinearLayout createSearchLayout(NavigationItem item) {
         SearchLayout searchLayout = new SearchLayout(getContext());
 
-        searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
-            @Override
-            public void onSearchEntered(String entered) {
-                item.searchText = entered;
-                callback.onSearchEntered(item, entered);
-            }
+        searchLayout.setCallback(input -> {
+            presenter.searchInput(input);
         });
 
         if (item.searchText != null) {
@@ -534,27 +406,9 @@ public class Toolbar extends LinearLayout implements View.OnClickListener {
         }
 
         searchLayout.setHint(callback.getSearchHint(item));
-
-        if (openKeyboardAfterSearchViewCreated) {
-            openKeyboardAfterSearchViewCreated = false;
-            searchLayout.openKeyboard();
-        }
-
         searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
 
         return searchLayout;
-    }
-
-    private void animateArrow(boolean toArrow) {
-        float to = toArrow ? 1f : 0f;
-        if (to != arrowMenuDrawable.getProgress()) {
-            ValueAnimator arrowAnimation = ValueAnimator.ofFloat(arrowMenuDrawable.getProgress(), to);
-            arrowAnimation.setDuration(300);
-            arrowAnimation.setInterpolator(new DecelerateInterpolator(2f));
-            arrowAnimation.addUpdateListener(animation ->
-                    setArrowMenuProgress((float) animation.getAnimatedValue()));
-            arrowAnimation.start();
-        }
     }
 
     public interface ToolbarCallback {
