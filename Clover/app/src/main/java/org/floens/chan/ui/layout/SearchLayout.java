@@ -130,12 +130,7 @@ public class SearchLayout extends LinearLayout {
     }
 
     public void openKeyboard() {
-        searchView.post(new Runnable() {
-            @Override
-            public void run() {
-                AndroidUtils.requestViewAndKeyboardFocus(searchView);
-            }
-        });
+        searchView.post(() -> AndroidUtils.requestViewAndKeyboardFocus(searchView));
     }
 
     public interface SearchLayoutCallback {
