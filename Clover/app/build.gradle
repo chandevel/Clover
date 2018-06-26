@@ -13,13 +13,13 @@ def getCommitHash = { ->
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     // update the travis config when changing this
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.0'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 28
 
         versionName "v3.0.1"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
@@ -87,7 +87,7 @@ android {
         dev {
             dimension "default"
             applicationId "org.floens.chan.dev"
-            resValue "string", "app_name", "Clover dev"
+            resValue "string", "app_name", "Clover Dev"
             resValue "string", "app_flavor_name", ""
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/api/update_dev\""
@@ -124,7 +124,7 @@ android {
 }
 
 dependencies {
-    def supportVersion = '27.1.0'
+    def supportVersion = '28.0.0-alpha3'
 
     implementation "com.android.support:support-v13:${supportVersion}"
     implementation "com.android.support:appcompat-v7:${supportVersion}"
@@ -133,19 +133,19 @@ dependencies {
     implementation "com.android.support:support-annotations:${supportVersion}"
     implementation "com.android.support:design:${supportVersion}"
     implementation "com.android.support:customtabs:${supportVersion}"
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
-    implementation 'com.squareup.okhttp3:okhttp:3.8.0'
-    implementation 'com.j256.ormlite:ormlite-core:4.48'
-    implementation 'com.j256.ormlite:ormlite-android:4.48'
-    implementation 'org.jsoup:jsoup:1.9.2'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.1.16'
-    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.5.0'
-    implementation 'de.greenrobot:eventbus:2.4.0'
-    implementation 'org.nibor.autolink:autolink:0.6.0'
-    implementation 'com.google.code.gson:gson:2.8.1'
-    implementation 'me.xdrop:fuzzywuzzy:1.1.9'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.j256.ormlite:ormlite-core:5.1'
+    implementation 'com.j256.ormlite:ormlite-android:5.1'
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
+    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'org.nibor.autolink:autolink:0.9.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'me.xdrop:fuzzywuzzy:1.1.10'
     implementation 'org.codejargon.feather:feather:1.0'
 
-    releaseImplementation 'ch.acra:acra-http:5.0.1'
+    releaseImplementation 'ch.acra:acra-http:5.1.3'
 }
