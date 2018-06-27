@@ -13,13 +13,13 @@ def getCommitHash = { ->
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 27
     // update the travis config when changing this
-    buildToolsVersion '28.0.0'
+    buildToolsVersion '27.1.1'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 27
 
         versionName "v3.0.1"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
@@ -87,7 +87,7 @@ android {
         dev {
             dimension "default"
             applicationId "org.floens.chan.dev"
-            resValue "string", "app_name", "Clover Dev"
+            resValue "string", "app_name", "Clover dev"
             resValue "string", "app_flavor_name", ""
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/api/update_dev\""
@@ -124,7 +124,7 @@ android {
 }
 
 dependencies {
-    def supportVersion = '28.0.0-alpha3'
+    def supportVersion = '27.1.1'
 
     implementation "com.android.support:support-v13:${supportVersion}"
     implementation "com.android.support:appcompat-v7:${supportVersion}"
