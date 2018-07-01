@@ -3,15 +3,15 @@
     "messages": [
         {
             "type": "update",
-            "code": 30000,
+            "code": 30001,
             "date": "2018-04-27T16:44:58",
-            "message_html": "<h2>Clover update ready</h2>Clover v3.0.0 is ready.<br><b>This update also fixes the issue of thumbnails not appearing.</b><br><br>Changelog:<br>This release adds the foundation for support of multiple sites. Beta implementations of 8chan and Lainchan are implemented.<br><br>- Multisite support.<br>- Noscript recaptcha 2 support.<br>- Added a scrollbar.<br>- New posting options.<br>- Post text selection.",
+            "message_html": "<h2>Clover update ready</h2>Clover v3.0.1 is ready.<br><b>This update contains bug fixes.<br><br>If you're seeing this update just now, make sure that you get update notifications from your F-Droid app.",
             "apk": {
                 "default": {
-                    "url": "https://build.floens.org/builds/Clover-v3.0.0.apk"
+                    "url": "https://build.floens.org/builds/Clover-v3.0.1.apk"
                 },
                 "fdroid": {
-                    "url": "https://f-droid.org/repo/org.floens.chan_30000.apk"
+                    "url": "https://f-droid.org/repo/org.floens.chan_30001.apk"
                 }
             }
         }
