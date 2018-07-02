@@ -72,6 +72,9 @@ android {
     defaultPublishConfig "default"
     flavorDimensions "default"
     productFlavors {
+        // NOTE: the file provider authority names append to the package name.
+        // When changing this also update the authority in the manifest files.
+
         // The app name refers to the name as displayed on the launcher.
         // the flavor name is appended to the name in the settings.
         "default" {

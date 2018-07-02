@@ -26,11 +26,15 @@ import org.floens.chan.utils.AndroidUtils;
 import java.io.File;
 
 public class FileCacheProvider {
-    // Same as the one defined in the manifest.
-    private static final String AUTHORITY = "org.floens.chan.fileprovider";
-
     public static Uri getUriForFile(File file) {
         Context applicationContext = AndroidUtils.getAppContext();
-        return FileProvider.getUriForFile(applicationContext, AUTHORITY, file);
+        String authority = getAuthority(applicationContext);
+        return FileProvider.getUriForFile(applicationContext, authority, file);
+    }
+
+    private static String getAuthority(Context applicationContext) {
+        // NOTE: keep this in line with the name defined in the different manifests for the
+        // different flavors.
+        return applicationContext.getPackageName() + ".fileprovider";
     }
 }
