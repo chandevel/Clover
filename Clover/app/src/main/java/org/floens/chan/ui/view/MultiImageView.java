@@ -22,9 +22,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
-import android.os.StrictMode;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -40,9 +38,10 @@ import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 
 import org.floens.chan.R;
-import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;
+import org.floens.chan.core.cache.FileCacheListener;
+import org.floens.chan.core.cache.FileCacheProvider;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
@@ -386,16 +385,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private void setVideoFile(final File file) {
         if (ChanSettings.videoOpenExternal.get()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(Uri.fromFile(file), "video/*");
+            intent.setDataAndType(FileCacheProvider.getUriForFile(file), "video/*");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-            {
-                StrictMode.VmPolicy vmPolicy = StrictMode.getVmPolicy();
-                StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
-
-                AndroidUtils.openIntent(intent);
-
-                StrictMode.setVmPolicy(vmPolicy);
-            }
+            AndroidUtils.openIntent(intent);
 
             onModeLoaded(Mode.MOVIE, videoView);
         } else {
