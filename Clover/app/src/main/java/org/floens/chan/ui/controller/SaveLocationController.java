@@ -18,7 +18,9 @@
 package org.floens.chan.ui.controller;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 
@@ -26,6 +28,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.saver.FileWatcher;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.storage.Storage;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.adapter.FilesAdapter;
 import org.floens.chan.ui.helper.RuntimePermissionsHelper;
@@ -73,6 +76,18 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
             initialize();
         } else {
             requestPermission();
+        }
+
+        test();
+    }
+
+    private void test() {
+        Storage storage = Storage.getInstance();
+        Intent intent = storage.requestExternalPermission(context.getApplicationContext());
+        if (intent != null) {
+            if (intent.resolveActivity(context.getPackageManager()) != null) {
+                ((Activity) context).startActivityForResult(intent, 10024);
+            }
         }
     }
 
