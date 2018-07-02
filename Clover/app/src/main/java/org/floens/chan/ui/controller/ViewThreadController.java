@@ -20,7 +20,9 @@ package org.floens.chan.ui.controller;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
@@ -32,13 +34,11 @@ import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.ThreadLayout;
+import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.ui.toolbar.ToolbarMenuSubItem;
 import org.floens.chan.utils.AndroidUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -46,22 +46,13 @@ import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
-public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
-    private static final int ALBUM_ID = 1;
-    private static final int PIN_ID = 2;
-    private static final int REPLY_ID = 101;
-    private static final int REFRESH_ID = 103;
-    private static final int SEARCH_ID = 104;
-    private static final int SHARE_ID = 105;
-    private static final int UP_ID = 106;
-    private static final int DOWN_ID = 107;
-    private static final int OPEN_BROWSER_ID = 108;
+public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback {
+    private static final int PIN_ID = 1;
 
     @Inject
     WatchManager watchManager;
 
-    private ToolbarMenuItem pinItem;
-    private ToolbarMenuItem overflowItem;
+    private boolean pinItemPinned = false;
     private Loadable loadable;
 
     public ViewThreadController(Context context) {
@@ -82,23 +73,79 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 
         navigation.hasDrawer = true;
-        navigation.menu = new ToolbarMenu(context);
 
-        navigation.menu.addItem(new ToolbarMenuItem(context, this, ALBUM_ID, R.drawable.ic_image_white_24dp));
-        pinItem = navigation.menu.addItem(new ToolbarMenuItem(context, this, PIN_ID, R.drawable.ic_bookmark_outline_white_24dp));
-        List<FloatingMenuItem> items = new ArrayList<>();
+        NavigationItem.MenuOverflowBuilder menuOverflowBuilder = navigation.buildMenu()
+                .withItem(R.drawable.ic_image_white_24dp, this::albumClicked)
+                .withItem(PIN_ID, R.drawable.ic_bookmark_outline_white_24dp, this::pinClicked)
+                .withOverflow();
+
         if (!ChanSettings.enableReplyFab.get()) {
-            items.add(new FloatingMenuItem(REPLY_ID, context.getString(R.string.action_reply)));
+            menuOverflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
         }
-        items.add(new FloatingMenuItem(SEARCH_ID, R.string.action_search));
-        items.add(new FloatingMenuItem(REFRESH_ID, R.string.action_reload));
-        items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
-        items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
-        items.add(new FloatingMenuItem(UP_ID, R.string.action_up));
-        items.add(new FloatingMenuItem(DOWN_ID, R.string.action_down));
-        overflowItem = navigation.createOverflow(context, this, items);
+
+        menuOverflowBuilder
+                .withSubItem(R.string.action_search, this::searchClicked)
+                .withSubItem(R.string.action_reload, this::reloadClicked)
+                .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
+                .withSubItem(R.string.action_share, this::shareClicked)
+                .withSubItem(R.string.action_up, this::upClicked)
+                .withSubItem(R.string.action_down, this::downClicked)
+                .build()
+                .build();
 
         loadThread(loadable);
+    }
+
+    private void albumClicked(ToolbarMenuItem item) {
+        threadLayout.getPresenter().showAlbum();
+    }
+
+    private void pinClicked(ToolbarMenuItem item) {
+        threadLayout.getPresenter().pin();
+        setPinIconState(true);
+        updateDrawerHighlighting(loadable);
+    }
+
+    private void searchClicked(ToolbarMenuSubItem item) {
+        ((ToolbarNavigationController) navigationController).showSearch();
+    }
+
+    private void replyClicked(ToolbarMenuSubItem item) {
+        threadLayout.openReply(true);
+    }
+
+    private void reloadClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().requestData();
+    }
+
+    private void openBrowserClicked(ToolbarMenuSubItem item) {
+        Loadable loadable = threadLayout.getPresenter().getLoadable();
+        String link = loadable.site.resolvable().desktopUrl(loadable, null);
+        AndroidUtils.openLinkInBrowser((Activity) context, link);
+    }
+
+    private void shareClicked(ToolbarMenuSubItem item) {
+        Loadable loadable = threadLayout.getPresenter().getLoadable();
+        String link = loadable.site.resolvable().desktopUrl(loadable, null);
+        AndroidUtils.shareLink(link);
+    }
+
+    private void upClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(0, false);
+    }
+
+    private void downClicked(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(-1, false);
+    }
+
+    @Override
+    public void onShow() {
+        super.onShow();
+
+        ThreadPresenter presenter = threadLayout.getPresenter();
+        if (presenter != null) {
+            setPinIconState(false);
+        }
     }
 
     @Override
@@ -114,15 +161,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     }
 
     public void onEvent(WatchManager.PinAddedMessage message) {
-        setPinIconState();
+        setPinIconState(true);
     }
 
     public void onEvent(WatchManager.PinRemovedMessage message) {
-        setPinIconState();
+        setPinIconState(true);
     }
 
     public void onEvent(WatchManager.PinChangedMessage message) {
-        setPinIconState();
+        setPinIconState(false);
         // Update title
         if (message.pin.loadable == loadable) {
             onShowPosts();
@@ -151,16 +198,18 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             this.loadable = presenter.getLoadable();
             navigation.title = loadable.title;
             ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
-            setPinIconState(presenter.isPinned());
+            setPinIconState(false);
             updateDrawerHighlighting(loadable);
             updateLeftPaneHighlighting(loadable);
             presenter.requestInitialData();
 
             int counter = ChanSettings.threadOpenCounter.increase();
             if (counter == 2) {
-                HintPopup.show(context, overflowItem.getView(), context.getString(R.string.thread_up_down_hint), -dp(1), 0);
+                View view = navigation.findItem(ToolbarMenu.OVERFLOW_ID).getView();
+                HintPopup.show(context, view, context.getString(R.string.thread_up_down_hint), -dp(1), 0);
             } else if (counter == 3) {
-                HintPopup.show(context, pinItem.getView(), context.getString(R.string.thread_pin_hint), -dp(1), 0);
+                View view = navigation.findItem(PIN_ID).getView();
+                HintPopup.show(context, view, context.getString(R.string.thread_pin_hint), -dp(1), 0);
             }
         }
     }
@@ -171,53 +220,6 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
         navigation.title = loadable.title;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
-    }
-
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
-        switch ((Integer) item.getId()) {
-            case ALBUM_ID:
-                threadLayout.getPresenter().showAlbum();
-                break;
-            case PIN_ID:
-                setPinIconState(threadLayout.getPresenter().pin());
-                updateDrawerHighlighting(loadable);
-                break;
-        }
-    }
-
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        Integer id = (Integer) item.getId();
-
-        switch (id) {
-            case REPLY_ID:
-                threadLayout.openReply(true);
-                break;
-            case REFRESH_ID:
-                threadLayout.getPresenter().requestData();
-                break;
-            case SEARCH_ID:
-                ((ToolbarNavigationController) navigationController).showSearch();
-                break;
-            case SHARE_ID:
-            case OPEN_BROWSER_ID:
-                Loadable loadable = threadLayout.getPresenter().getLoadable();
-                String link = loadable.site.resolvable().desktopUrl(loadable, null);
-
-                if (id == SHARE_ID) {
-                    AndroidUtils.shareLink(link);
-                } else {
-                    AndroidUtils.openLinkInBrowser((Activity) context, link);
-                }
-
-                break;
-            case UP_ID:
-            case DOWN_ID:
-                boolean up = id == UP_ID;
-                threadLayout.getPresenter().scrollTo(up ? 0 : -1, false);
-                break;
-        }
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
@@ -254,11 +256,26 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         }
     }
 
-    private void setPinIconState() {
-        setPinIconState(watchManager.findPinByLoadable(loadable) != null);
+    private void setPinIconState(boolean animated) {
+        ThreadPresenter presenter = threadLayout.getPresenter();
+        if (presenter != null) {
+            setPinIconStateDrawable(presenter.isPinned(), animated);
+        }
     }
 
-    private void setPinIconState(boolean pinned) {
-        pinItem.setImage(pinned ? R.drawable.ic_bookmark_white_24dp : R.drawable.ic_bookmark_outline_white_24dp);
+    private void setPinIconStateDrawable(boolean pinned, boolean animated) {
+        if (pinned == pinItemPinned) {
+            return;
+        }
+        pinItemPinned = pinned;
+
+        Drawable outline = context.getResources().getDrawable(
+                R.drawable.ic_bookmark_outline_white_24dp);
+        Drawable white = context.getResources().getDrawable(
+                R.drawable.ic_bookmark_white_24dp);
+
+        Drawable drawable = pinned ? white : outline;
+
+        navigation.findItem(PIN_ID).setImage(drawable, animated);
     }
 }

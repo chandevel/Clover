@@ -38,9 +38,7 @@ import org.floens.chan.core.manager.FilterType;
 import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.layout.FilterLayout;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,10 +53,9 @@ import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class FiltersController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, ToolbarNavigationController.ToolbarSearchCallback, View.OnClickListener {
-    private static final int SEARCH_ID = 1;
-    private static final int CLEAR_ID = 101;
-
+public class FiltersController extends Controller implements
+        ToolbarNavigationController.ToolbarSearchCallback,
+        View.OnClickListener {
     @Inject
     DatabaseManager databaseManager;
 
@@ -109,8 +106,10 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         inject(this);
 
         navigation.setTitle(R.string.filters_screen);
-        navigation.menu = new ToolbarMenu(context);
-        navigation.menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
+
+        navigation.buildMenu()
+                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
+                .build();
 
         view = inflateRes(R.layout.controller_filters);
 
@@ -134,15 +133,8 @@ public class FiltersController extends Controller implements ToolbarMenuItem.Too
         }
     }
 
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
-        if ((Integer) item.getId() == SEARCH_ID) {
-            ((ToolbarNavigationController) navigationController).showSearch();
-        }
-    }
-
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+    private void searchClicked(ToolbarMenuItem item) {
+        ((ToolbarNavigationController) navigationController).showSearch();
     }
 
     public void showFilterDialog(final Filter filter) {

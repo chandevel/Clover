@@ -17,74 +17,141 @@
  */
 package org.floens.chan.ui.toolbar;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.utils.Logger;
 
-import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.FloatingMenuCallback {
-    private ToolbarMenuItemCallback callback;
-    private Object id;
-    private int order;
-    private FloatingMenu subMenu;
+import static org.floens.chan.utils.AndroidUtils.getRes;
+import static org.floens.chan.utils.AndroidUtils.removeFromParentView;
 
-    private ImageView imageView;
+/**
+ * An item for the Toolbar menu. These are ImageViews with an icon, that wehen pressed call
+ * some callback. Add them with the NavigationItem MenuBuilder.
+ */
+public class ToolbarMenuItem {
+    private static final String TAG = "ToolbarMenuItem";
 
-    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, int order, int drawable) {
-        this(context, callback, order, order, context.getResources().getDrawable(drawable));
-    }
+    public Object id;
+    public int order;
 
-    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, Object id, int order, int drawable) {
-        this(context, callback, id, order, context.getResources().getDrawable(drawable));
-    }
+    public boolean overflowStyle = false;
 
-    public ToolbarMenuItem(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, Object id, int order, Drawable drawable) {
+    public boolean visible = true;
+
+    public Drawable drawable;
+
+    public final List<ToolbarMenuSubItem> subItems = new ArrayList<>();
+
+    private ClickCallback clicked;
+
+    // Views, only non-null if attached to ToolbarMenuView.
+    private ImageView view;
+
+    public ToolbarMenuItem(int id, int drawable, ClickCallback clicked) {
         this.id = id;
-        this.order = order;
-        this.callback = callback;
-
-        if (drawable != null) {
-            imageView = new ImageView(context);
-            imageView.setOnClickListener(this);
-            imageView.setFocusable(true);
-            imageView.setScaleType(ImageView.ScaleType.CENTER);
-            imageView.setLayoutParams(new LinearLayout.LayoutParams(dp(50), dp(56)));
-
-            imageView.setImageDrawable(drawable);
-            setRoundItemBackground(imageView);
-        }
+        this.drawable = getRes().getDrawable(drawable);
+        this.clicked = clicked;
     }
 
-    public void setImage(Drawable drawable) {
-        imageView.setImageDrawable(drawable);
+    public void attach(ImageView view) {
+        if (this.view != null) {
+            throw new IllegalStateException("Already attached");
+        }
+
+        this.view = view;
+    }
+
+    public void detach() {
+        if (this.view == null) {
+            throw new IllegalStateException("Not attached");
+        }
+
+        removeFromParentView(this.view);
+        this.view = null;
+    }
+
+    public ImageView getView() {
+        return view;
+    }
+
+    public void addSubItem(ToolbarMenuSubItem subItem) {
+        subItems.add(subItem);
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+
+        if (view != null) {
+            view.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
     }
 
     public void setImage(int drawable) {
-        imageView.setImageResource(drawable);
+        setImage(getRes().getDrawable(drawable));
+    }
+
+    public void setImage(Drawable drawable) {
+        setImage(drawable, false);
+    }
+
+    public void setImage(Drawable drawable, boolean animated) {
+        if (view == null) {
+            this.drawable = drawable;
+            return;
+        }
+
+        if (!animated) {
+            view.setImageDrawable(drawable);
+        } else {
+            TransitionDrawable transitionDrawable = new TransitionDrawable(new Drawable[]{
+                    this.drawable.mutate(), drawable.mutate()
+            });
+
+            view.setImageDrawable(transitionDrawable);
+
+            transitionDrawable.setCrossFadeEnabled(true);
+            transitionDrawable.startTransition(100);
+        }
+
+        this.drawable = drawable;
     }
 
     public void setSubMenu(FloatingMenu subMenu) {
-        this.subMenu = subMenu;
-        subMenu.setCallback(this);
     }
 
-    public FloatingMenu getSubMenu() {
-        return subMenu;
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (subMenu != null && !subMenu.isShowing()) {
-            subMenu.show();
+    public void showSubmenu() {
+        if (view == null) {
+            Logger.w(TAG, "Item not attached, can't show submenu");
+            return;
         }
-        callback.onMenuItemClicked(this);
+
+        List<FloatingMenuItem> floatingMenuItems = new ArrayList<>();
+        List<ToolbarMenuSubItem> subItems = new ArrayList<>(this.subItems);
+        for (ToolbarMenuSubItem subItem : subItems) {
+            floatingMenuItems.add(new FloatingMenuItem(subItem.id, subItem.text, subItem.enabled));
+        }
+
+        FloatingMenu overflowMenu = new FloatingMenu(view.getContext(), view, floatingMenuItems);
+        overflowMenu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+            @Override
+            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                ToolbarMenuSubItem subItem = subItems.get(floatingMenuItems.indexOf(item));
+                subItem.performClick();
+            }
+
+            @Override
+            public void onFloatingMenuDismissed(FloatingMenu menu) {
+            }
+        });
+        overflowMenu.show();
     }
 
     public Object getId() {
@@ -95,22 +162,13 @@ public class ToolbarMenuItem implements View.OnClickListener, FloatingMenu.Float
         return order;
     }
 
-    public ImageView getView() {
-        return imageView;
+    public void performClick() {
+        if (clicked != null) {
+            clicked.clicked(this);
+        }
     }
 
-    @Override
-    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-        callback.onSubMenuItemClicked(this, item);
-    }
-
-    @Override
-    public void onFloatingMenuDismissed(FloatingMenu menu) {
-    }
-
-    public interface ToolbarMenuItemCallback {
-        void onMenuItemClicked(ToolbarMenuItem item);
-
-        void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item);
+    public interface ClickCallback {
+        void clicked(ToolbarMenuItem item);
     }
 }

@@ -27,7 +27,6 @@ import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import org.floens.chan.R;
@@ -202,16 +201,13 @@ public class FloatingMenu {
         };
         anchor.getViewTreeObserver().addOnGlobalLayoutListener(globalLayoutListener);
 
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                if (anchor.getViewTreeObserver().isAlive()) {
-                    anchor.getViewTreeObserver().removeGlobalOnLayoutListener(globalLayoutListener);
-                }
-                globalLayoutListener = null;
-                popupWindow = null;
-                callback.onFloatingMenuDismissed(FloatingMenu.this);
+        popupWindow.setOnDismissListener(() -> {
+            if (anchor.getViewTreeObserver().isAlive()) {
+                anchor.getViewTreeObserver().removeGlobalOnLayoutListener(globalLayoutListener);
             }
+            globalLayoutListener = null;
+            popupWindow = null;
+            callback.onFloatingMenuDismissed(FloatingMenu.this);
         });
 
         popupWindow.show();

@@ -44,11 +44,8 @@ import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.SiteAddLayout;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
-import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.ui.view.DividerItemDecoration;
-import org.floens.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,14 +59,10 @@ import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class SitesSetupController extends StyledToolbarNavigationController implements
         SitesSetupPresenter.Callback,
-        ToolbarMenuItem.ToolbarMenuItemCallback,
         View.OnClickListener {
-    private static final int DONE_ID = 1;
 
     @Inject
     SitesSetupPresenter presenter;
-
-    private ToolbarMenuItem doneMenuItem;
 
     private CrossfadeView crossfadeView;
     private RecyclerView sitesRecyclerview;
@@ -152,21 +145,12 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
     public void showDoneCheckmark() {
         navigation.swipeable = false;
-        navigation.menu = new ToolbarMenu(context);
-        doneMenuItem = navigation.menu.addItem(
-                new ToolbarMenuItem(context, this, DONE_ID, 0, R.drawable.ic_done_white_24dp));
-        doneMenuItem.getView().setAlpha(0f);
-    }
 
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
-        if ((Integer) item.getId() == DONE_ID) {
-            presenter.onDoneClicked();
-        }
-    }
+        navigation.buildMenu()
+                .withItem(R.drawable.ic_done_white_24dp, (item) -> presenter.onDoneClicked())
+                .build();
 
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+//        doneMenuItem.getView().setAlpha(0f);
     }
 
     @Override
@@ -244,9 +228,9 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
     @Override
     public void setNextAllowed(boolean nextAllowed) {
-        if (doneMenuItem != null) {
-            doneMenuItem.getView().animate().alpha(nextAllowed ? 1f : 0f).start();
-        }
+//        if (doneMenuItem != null) {
+//            doneMenuItem.getView().animate().alpha(nextAllowed ? 1f : 0f).start();
+//        }
         if (!nextAllowed) {
             navigation.swipeable = false;
         }

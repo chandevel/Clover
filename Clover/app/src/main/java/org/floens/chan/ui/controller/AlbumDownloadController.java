@@ -33,14 +33,12 @@ import android.widget.ImageView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.saver.ImageSaveTask;
 import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.ui.theme.ThemeHelper;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.GridRecyclerView;
 import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.utils.RecyclerUtils;
@@ -51,9 +49,7 @@ import java.util.List;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class AlbumDownloadController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback, View.OnClickListener {
-    private static final int CHECK_ALL = 1;
-
+public class AlbumDownloadController extends Controller implements View.OnClickListener {
     private GridRecyclerView recyclerView;
     private GridLayoutManager gridLayoutManager;
     private FloatingActionButton download;
@@ -79,8 +75,9 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
 
         updateTitle();
 
-        navigation.menu = new ToolbarMenu(context);
-        navigation.menu.addItem(new ToolbarMenuItem(context, this, CHECK_ALL, R.drawable.ic_select_all_white_24dp));
+        navigation.buildMenu()
+                .withItem(R.drawable.ic_select_all_white_24dp, this::onCheckAllClicked)
+                .build();
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
@@ -134,28 +131,21 @@ public class AlbumDownloadController extends Controller implements ToolbarMenuIt
         }
     }
 
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem menuItem) {
-        if ((Integer) menuItem.getId() == CHECK_ALL) {
-            RecyclerUtils.clearRecyclerCache(recyclerView);
+    private void onCheckAllClicked(ToolbarMenuItem menuItem) {
+        RecyclerUtils.clearRecyclerCache(recyclerView);
 
-            for (int i = 0, itemsSize = items.size(); i < itemsSize; i++) {
-                AlbumDownloadItem item = items.get(i);
-                if (item.checked == allChecked) {
-                    item.checked = !allChecked;
-                    AlbumDownloadCell cell = (AlbumDownloadCell) recyclerView.findViewHolderForAdapterPosition(i);
-                    if (cell != null) {
-                        setItemChecked(cell, item.checked, true);
-                    }
+        for (int i = 0, itemsSize = items.size(); i < itemsSize; i++) {
+            AlbumDownloadItem item = items.get(i);
+            if (item.checked == allChecked) {
+                item.checked = !allChecked;
+                AlbumDownloadCell cell = (AlbumDownloadCell) recyclerView.findViewHolderForAdapterPosition(i);
+                if (cell != null) {
+                    setItemChecked(cell, item.checked, true);
                 }
             }
-            updateAllChecked();
-            updateTitle();
         }
-    }
-
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
+        updateAllChecked();
+        updateTitle();
     }
 
     public void setPostImages(Loadable loadable, List<PostImage> postImages) {
