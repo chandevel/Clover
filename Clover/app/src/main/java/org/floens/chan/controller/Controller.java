@@ -29,6 +29,7 @@ import org.floens.chan.controller.transition.FadeOutTransition;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.toolbar.NavigationItem;
+import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -245,6 +246,10 @@ public abstract class Controller {
 
     public ViewGroup inflateRes(int resId) {
         return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
+    }
+
+    public Toolbar getToolbar() {
+        return null;
     }
 
     private void attachToView(ViewGroup parentView, boolean over) {

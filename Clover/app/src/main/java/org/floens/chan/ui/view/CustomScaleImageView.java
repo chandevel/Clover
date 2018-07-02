@@ -69,6 +69,10 @@ public class CustomScaleImageView extends SubsamplingScaleImageView {
             }
 
             @Override
+            public void onPreviewReleased() {
+            }
+
+            @Override
             public void onImageLoadError(Exception e) {
                 Logger.w(TAG, "onImageLoadError", e);
                 if (callback != null) {

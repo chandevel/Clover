@@ -10,6 +10,7 @@ import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteRegistry;
 import org.floens.chan.core.site.sites.chan4.Chan4;
+import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,8 @@ import javax.inject.Singleton;
 
 @Singleton
 public class SiteRepository {
+    private static final String TAG = "SiteRepository";
+
     private DatabaseManager databaseManager;
 
     private Sites sitesObservable = new Sites();
@@ -84,7 +87,13 @@ public class SiteRepository {
                 databaseManager.getDatabaseSiteManager().getAll());
 
         for (SiteModel siteModel : models) {
-            SiteConfigSettingsHolder holder = instantiateSiteFromModel(siteModel);
+            SiteConfigSettingsHolder holder;
+            try {
+                holder = instantiateSiteFromModel(siteModel);
+            } catch (IllegalArgumentException e) {
+                Logger.e(TAG, "instantiateSiteFromModel", e);
+                break;
+            }
 
             Site site = holder.site;
             SiteConfig config = holder.config;

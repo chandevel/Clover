@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+
+    <!-- Corresponds to the file path chosen in the NetModule.getCacheDir method -->
+    <cache-path
+        name="fc"
+        path="filecache/" />
+    <external-cache-path
+        name="exfc"
+        path="filecache/" />
+
+</paths>

@@ -26,24 +26,21 @@ import android.view.ViewGroup;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.ui.cell.AlbumViewCell;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
-import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.ui.toolbar.ToolbarMenuSubItem;
 import org.floens.chan.ui.view.GridRecyclerView;
 import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.ui.view.ThumbnailView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
-public class AlbumViewController extends Controller implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback, ToolbarMenuItem.ToolbarMenuItemCallback {
-    private static final int SAVE_ALBUM_ID = 101;
-
+public class AlbumViewController extends Controller implements
+        ImageViewerController.ImageViewerCallback,
+        ImageViewerController.GoPostCallback {
     private GridRecyclerView recyclerView;
     private GridLayoutManager gridLayoutManager;
 
@@ -61,13 +58,13 @@ public class AlbumViewController extends Controller implements ImageViewerContro
     public void onCreate() {
         super.onCreate();
 
+        // Navigation
+        navigation.buildMenu().withOverflow()
+                .withSubItem(R.string.action_download_album, this::downloadAlbumClicked)
+                .build().build();
+
+        // View setup
         view = inflateRes(R.layout.controller_album_view);
-
-        navigation.menu = new ToolbarMenu(context);
-        List<FloatingMenuItem> items = new ArrayList<>();
-        items.add(new FloatingMenuItem(SAVE_ALBUM_ID, R.string.action_download_album));
-        navigation.createOverflow(context, this, items);
-
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         gridLayoutManager = new GridLayoutManager(context, 3);
@@ -88,19 +85,10 @@ public class AlbumViewController extends Controller implements ImageViewerContro
         targetIndex = index;
     }
 
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
-    }
-
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        switch ((Integer) item.getId()) {
-            case SAVE_ALBUM_ID:
-                AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
-                albumDownloadController.setPostImages(loadable, postImages);
-                navigationController.pushController(albumDownloadController);
-                break;
-        }
+    private void downloadAlbumClicked(ToolbarMenuSubItem item) {
+        AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
+        albumDownloadController.setPostImages(loadable, postImages);
+        navigationController.pushController(albumDownloadController);
     }
 
     @Override

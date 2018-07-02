@@ -62,7 +62,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         SwitchCompat globalSwitch = new SwitchCompat(context);
         globalSwitch.setChecked(enabled);
         globalSwitch.setOnCheckedChangeListener(this);
-        navigation.rightView = globalSwitch;
+        navigation.setRightView(globalSwitch);
 
         populatePreferences();
 

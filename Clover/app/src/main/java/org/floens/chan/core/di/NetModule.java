@@ -37,6 +37,11 @@ public class NetModule {
     }
 
     private File getCacheDir(Context applicationContext) {
-        return applicationContext.getExternalCacheDir() != null ? applicationContext.getExternalCacheDir() : applicationContext.getCacheDir();
+        // See also res/xml/filepaths.xml for the fileprovider.
+        if (applicationContext.getExternalCacheDir() != null) {
+            return applicationContext.getExternalCacheDir();
+        } else {
+            return applicationContext.getCacheDir();
+        }
     }
 }

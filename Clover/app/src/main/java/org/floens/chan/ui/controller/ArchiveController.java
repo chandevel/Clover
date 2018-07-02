@@ -33,12 +33,10 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ArchivePresenter;
 import org.floens.chan.ui.helper.BoardHelper;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
 import org.floens.chan.ui.view.CrossfadeView;
 import org.floens.chan.ui.view.DividerItemDecoration;
 import org.floens.chan.ui.view.FastScrollerHelper;
-import org.floens.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +46,6 @@ import javax.inject.Inject;
 import static org.floens.chan.Chan.inject;
 
 public class ArchiveController extends Controller implements ArchivePresenter.Callback,
-        ToolbarMenuItem.ToolbarMenuItemCallback,
         ToolbarNavigationController.ToolbarSearchCallback,
         SwipeRefreshLayout.OnRefreshListener {
     private static final int SEARCH_ID = 1;
@@ -84,9 +81,9 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
 
         // Navigation
         navigation.title = context.getString(R.string.archive_title, BoardHelper.getName(board));
-        ToolbarMenu menu = new ToolbarMenu(context);
-        navigation.menu = menu;
-        menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
+        navigation.buildMenu()
+                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
+                .build();
 
         // View binding
         crossfadeView = view.findViewById(R.id.crossfade);
@@ -112,18 +109,12 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
         presenter.create(this, board);
     }
 
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
+    private void searchClicked(ToolbarMenuItem item) {
         ((ToolbarNavigationController) navigationController).showSearch();
     }
 
     @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-    }
-
-    @Override
     public void onSearchEntered(String entered) {
-        presenter.onSearchEntered(entered);
     }
 
     @Override

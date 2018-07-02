@@ -27,24 +27,18 @@ import android.widget.Toast;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
-import org.floens.chan.ui.toolbar.ToolbarMenu;
-import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.view.FloatingMenuItem;
+import org.floens.chan.ui.toolbar.ToolbarMenuSubItem;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
-public class LogsController extends Controller implements ToolbarMenuItem.ToolbarMenuItemCallback {
+public class LogsController extends Controller {
     private static final String TAG = "LogsController";
-
-    private static final int COPY_ID = 101;
 
     private TextView logTextView;
 
@@ -60,10 +54,9 @@ public class LogsController extends Controller implements ToolbarMenuItem.Toolba
 
         navigation.setTitle(org.floens.chan.R.string.settings_logs_screen);
 
-        navigation.menu = new ToolbarMenu(context);
-        List<FloatingMenuItem> items = new ArrayList<>();
-        items.add(new FloatingMenuItem(COPY_ID, R.string.settings_logs_copy));
-        navigation.createOverflow(context, this, items);
+        navigation.buildMenu().withOverflow()
+                .withSubItem(R.string.settings_logs_copy, this::copyLogsClicked)
+                .build().build();
 
         ScrollView container = new ScrollView(context);
         container.setBackgroundColor(getAttrColor(context, org.floens.chan.R.attr.backcolor));
@@ -75,18 +68,11 @@ public class LogsController extends Controller implements ToolbarMenuItem.Toolba
         loadLogs();
     }
 
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
-    }
-
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        if ((int) item.getId() == COPY_ID) {
-            ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Logs", logText);
-            clipboard.setPrimaryClip(clip);
-            Toast.makeText(context, R.string.settings_logs_copied_to_clipboard, Toast.LENGTH_SHORT).show();
-        }
+    private void copyLogsClicked(ToolbarMenuSubItem item) {
+        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Logs", logText);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(context, R.string.settings_logs_copied_to_clipboard, Toast.LENGTH_SHORT).show();
     }
 
     private void loadLogs() {

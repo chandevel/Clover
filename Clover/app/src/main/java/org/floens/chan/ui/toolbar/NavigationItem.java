@@ -17,16 +17,18 @@
  */
 package org.floens.chan.ui.toolbar;
 
-import android.content.Context;
 import android.view.View;
 
-import org.floens.chan.ui.view.FloatingMenu;
-import org.floens.chan.ui.view.FloatingMenuItem;
-
-import java.util.List;
+import org.floens.chan.R;
 
 import static org.floens.chan.utils.AndroidUtils.getString;
 
+/**
+ * The navigation properties for a Controller. Controls common properties that parent controlers
+ * need to know, such as the title of the controller.
+ * <p>
+ * This is also used to set up the toolbar menu, see {@link #buildMenu()}.
+ */
 public class NavigationItem {
     public String title = "";
     public String subtitle = "";
@@ -39,18 +41,110 @@ public class NavigationItem {
     boolean search = false;
     String searchText;
 
-    public ToolbarMenu menu;
-    public ToolbarMiddleMenu middleMenu;
-    public View rightView;
+    protected ToolbarMenu menu;
+    protected ToolbarMiddleMenu middleMenu;
+    protected View rightView;
 
-    public ToolbarMenuItem createOverflow(Context context, ToolbarMenuItem.ToolbarMenuItemCallback callback, List<FloatingMenuItem> items) {
-        ToolbarMenuItem overflow = menu.createOverflow(callback);
-        FloatingMenu overflowMenu = new FloatingMenu(context, overflow.getView(), items);
-        overflow.setSubMenu(overflowMenu);
-        return overflow;
+    public boolean hasArrow() {
+        return hasBack || search;
     }
 
     public void setTitle(int resId) {
         title = getString(resId);
+    }
+
+    public MenuBuilder buildMenu() {
+        return new MenuBuilder(this);
+    }
+
+    public void setMiddleMenu(ToolbarMiddleMenu middleMenu) {
+        this.middleMenu = middleMenu;
+    }
+
+    public void setRightView(View view) {
+        rightView = view;
+    }
+
+    public ToolbarMenuItem findItem(int id) {
+        if (menu != null) {
+            return menu.findItem(id);
+        }
+        return null;
+    }
+
+    public ToolbarMenuSubItem findSubItem(int id) {
+        if (menu != null) {
+            return menu.findSubItem(id);
+        }
+        return null;
+    }
+
+    public static class MenuBuilder {
+        private final NavigationItem navigationItem;
+        private final ToolbarMenu menu;
+
+        public MenuBuilder(NavigationItem navigationItem) {
+            this.navigationItem = navigationItem;
+            menu = new ToolbarMenu(null);
+        }
+
+        public MenuBuilder withItem(int drawable, ToolbarMenuItem.ClickCallback clicked) {
+            return withItem(-1, drawable, clicked);
+        }
+
+        public MenuBuilder withItem(int id, int drawable, ToolbarMenuItem.ClickCallback clicked) {
+            return withItem(new ToolbarMenuItem(id, drawable, clicked));
+        }
+
+        public MenuBuilder withItem(ToolbarMenuItem menuItem) {
+            menu.addItem(menuItem);
+            return this;
+        }
+
+        public MenuOverflowBuilder withOverflow() {
+            return new MenuOverflowBuilder(
+                    this,
+                    new ToolbarMenuItem(
+                            ToolbarMenu.OVERFLOW_ID,
+                            R.drawable.ic_more_vert_white_24dp,
+                            ToolbarMenuItem::showSubmenu));
+        }
+
+        public ToolbarMenu build() {
+            navigationItem.menu = menu;
+            return menu;
+        }
+    }
+
+    public static class MenuOverflowBuilder {
+        private final MenuBuilder menuBuilder;
+        private final ToolbarMenuItem menuItem;
+
+        public MenuOverflowBuilder(MenuBuilder menuBuilder, ToolbarMenuItem menuItem) {
+            this.menuBuilder = menuBuilder;
+            this.menuItem = menuItem;
+        }
+
+        public MenuOverflowBuilder withSubItem(int text, ToolbarMenuSubItem.ClickCallback clicked) {
+            return withSubItem(-1, getString(text), clicked);
+        }
+
+        public MenuOverflowBuilder withSubItem(String text, ToolbarMenuSubItem.ClickCallback clicked) {
+            return withSubItem(-1, text, clicked);
+        }
+
+        public MenuOverflowBuilder withSubItem(int id, int text, ToolbarMenuSubItem.ClickCallback clicked) {
+            return withSubItem(id, getString(text), clicked);
+        }
+
+        public MenuOverflowBuilder withSubItem(int id, String text, ToolbarMenuSubItem.ClickCallback clicked) {
+            menuItem.addSubItem(new ToolbarMenuSubItem(id, text, clicked));
+
+            return this;
+        }
+
+        public MenuBuilder build() {
+            return menuBuilder.withItem(menuItem);
+        }
     }
 }

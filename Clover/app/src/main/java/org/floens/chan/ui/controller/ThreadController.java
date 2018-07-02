@@ -231,7 +231,7 @@ public abstract class ThreadController extends Controller implements
     @Override
     public Toolbar getToolbar() {
         if (navigationController instanceof ToolbarNavigationController) {
-            return ((ToolbarNavigationController) navigationController).getToolbar();
+            return navigationController.getToolbar();
         } else {
             return null;
         }
