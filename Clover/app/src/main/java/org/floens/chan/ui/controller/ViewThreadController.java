@@ -203,14 +203,26 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             updateLeftPaneHighlighting(loadable);
             presenter.requestInitialData();
 
-            int counter = ChanSettings.threadOpenCounter.increase();
-            if (counter == 2) {
+            showHints();
+        }
+    }
+
+    private void showHints() {
+        int counter = ChanSettings.threadOpenCounter.increase();
+        if (counter == 2) {
+            view.postDelayed(() -> {
                 View view = navigation.findItem(ToolbarMenu.OVERFLOW_ID).getView();
-                HintPopup.show(context, view, context.getString(R.string.thread_up_down_hint), -dp(1), 0);
-            } else if (counter == 3) {
+                if (view != null) {
+                    HintPopup.show(context, view, context.getString(R.string.thread_up_down_hint), -dp(1), 0);
+                }
+            }, 600);
+        } else if (counter == 3) {
+            view.postDelayed(() -> {
                 View view = navigation.findItem(PIN_ID).getView();
-                HintPopup.show(context, view, context.getString(R.string.thread_pin_hint), -dp(1), 0);
-            }
+                if (view != null) {
+                    HintPopup.show(context, view, context.getString(R.string.thread_pin_hint), -dp(1), 0);
+                }
+            }, 600);
         }
     }
 
