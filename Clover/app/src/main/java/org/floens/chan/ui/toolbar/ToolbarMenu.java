@@ -18,52 +18,42 @@
 package org.floens.chan.ui.toolbar;
 
 import android.content.Context;
-import android.util.AttributeSet;
-import android.view.Gravity;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-
-import org.floens.chan.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.floens.chan.utils.AndroidUtils.dp;
+public class ToolbarMenu {
+    public static final int OVERFLOW_ID = 1000;
 
-public class ToolbarMenu extends LinearLayout {
-    private List<ToolbarMenuItem> items = new ArrayList<>();
+    public final List<ToolbarMenuItem> items = new ArrayList<>();
 
-    public ToolbarMenu(Context context) {
-        this(context, null);
-    }
-
-    public ToolbarMenu(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public ToolbarMenu(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-
-        setOrientation(HORIZONTAL);
-        setGravity(Gravity.CENTER_VERTICAL);
+    public ToolbarMenu(@Deprecated Context context) {
     }
 
     public ToolbarMenuItem addItem(ToolbarMenuItem item) {
         items.add(item);
-        ImageView icon = item.getView();
-        if (icon != null) {
-            int viewIndex = Math.min(getChildCount(), item.getOrder());
-            addView(icon, viewIndex);
-        }
         return item;
     }
 
-    public ToolbarMenuItem createOverflow(ToolbarMenuItem.ToolbarMenuItemCallback callback) {
-        ToolbarMenuItem overflow = addItem(new ToolbarMenuItem(getContext(), callback, 100, 100, R.drawable.ic_more_vert_white_24dp));
-        ImageView overflowImage = overflow.getView();
-        overflowImage.setLayoutParams(new LinearLayout.LayoutParams(dp(44), dp(54)));
-        overflowImage.setPadding(dp(8), 0, dp(16), 0);
+    public ToolbarMenuItem findItem(int id) {
+        for (ToolbarMenuItem item : items) {
+            if (item.id.equals(id)) {
+                return item;
+            }
+        }
+        return null;
+    }
 
-        return overflow;
+    public ToolbarMenuSubItem findSubItem(int id) {
+        ToolbarMenuItem overflow = findItem(OVERFLOW_ID);
+        if (overflow != null) {
+            for (ToolbarMenuSubItem subItem : overflow.subItems) {
+                if (subItem.id == id) {
+                    return subItem;
+                }
+            }
+        }
+
+        return null;
     }
 }

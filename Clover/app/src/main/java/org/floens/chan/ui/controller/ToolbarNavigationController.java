@@ -35,6 +35,7 @@ public abstract class ToolbarNavigationController extends NavigationController i
         super(context);
     }
 
+    @Override
     public Toolbar getToolbar() {
         return toolbar;
     }

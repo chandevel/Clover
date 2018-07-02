@@ -17,12 +17,13 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.annotation.SuppressLint;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.orm.Board;
@@ -36,9 +37,10 @@ import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.ui.layout.BrowseBoardsFloatingMenu;
 import org.floens.chan.ui.layout.ThreadLayout;
+import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
-import org.floens.chan.ui.toolbar.ToolbarMiddleMenu;
+import org.floens.chan.ui.toolbar.ToolbarMenuSubItem;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.utils.AndroidUtils;
@@ -52,30 +54,17 @@ import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class BrowseController extends ThreadController implements
-        ToolbarMenuItem.ToolbarMenuItemCallback,
         ThreadLayout.ThreadLayoutCallback,
         BrowsePresenter.Callback,
         BrowseBoardsFloatingMenu.ClickCallback {
-    private static final int SEARCH_ID = 1;
-    private static final int REFRESH_ID = 2;
-    private static final int REPLY_ID = 101;
-    private static final int SHARE_ID = 103;
-    private static final int VIEW_MODE_ID = 104;
-    private static final int ORDER_ID = 105;
-    private static final int OPEN_BROWSER_ID = 106;
-    private static final int ARCHIVE_ID = 107;
+    private static final int VIEW_MODE_ID = 1;
+    private static final int ARCHIVE_ID = 2;
 
     @Inject
     BrowsePresenter presenter;
 
     private ChanSettings.PostViewMode postViewMode;
     private PostsFilter.Order order;
-
-    private FloatingMenuItem viewModeMenuItem;
-    private ToolbarMenuItem search;
-    private ToolbarMenuItem refresh;
-    private ToolbarMenuItem overflow;
-    private FloatingMenuItem archive;
 
     public BrowseController(Context context) {
         super(context);
@@ -118,11 +107,9 @@ public class BrowseController extends ThreadController implements
         setupMiddleNavigation();
 
         // Toolbar menu
-        ToolbarMenu menu = new ToolbarMenu(context);
-        navigation.menu = menu;
         navigation.hasBack = false;
 
-        search = menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
+        /*search = menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
         refresh = menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
 
         // Toolbar overflow
@@ -144,73 +131,102 @@ public class BrowseController extends ThreadController implements
         items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
         items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
 
-        overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));
+        overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));*/
+
+        NavigationItem.MenuOverflowBuilder overflowBuilder = navigation.buildMenu()
+                .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
+                .withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked)
+                .withOverflow();
+
+        if (!ChanSettings.enableReplyFab.get()) {
+            overflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
+        }
+
+        overflowBuilder.withSubItem(VIEW_MODE_ID,
+                postViewMode == ChanSettings.PostViewMode.LIST ?
+                        R.string.action_switch_catalog : R.string.action_switch_board,
+                this::viewModeClicked);
+
+        overflowBuilder
+                .withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
+                .withSubItem(R.string.action_order, this::orderClicked)
+                .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
+                .withSubItem(R.string.action_share, this::shareClicked)
+                .build()
+                .build();
 
         // Presenter
         presenter.create(this);
     }
 
-    private void setupMiddleNavigation() {
-        navigation.middleMenu = new ToolbarMiddleMenu() {
-            @SuppressLint("InflateParams")
-            @Override
-            public void show(View anchor) {
-                BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
-                boardsFloatingMenu.show(view, anchor, BrowseController.this,
-                        presenter.currentBoard());
-            }
-        };
-    }
-
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
+    private void searchClicked(ToolbarMenuItem item) {
         ThreadPresenter presenter = threadLayout.getPresenter();
+        if (presenter.isBound()) {
+            View refreshView = item.getView();
+            refreshView.setScaleX(1f);
+            refreshView.setScaleY(1f);
+            refreshView.animate()
+                    .scaleX(10f)
+                    .scaleY(10f)
+                    .setDuration(500)
+                    .setInterpolator(new AccelerateInterpolator(2f))
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            refreshView.setScaleX(1f);
+                            refreshView.setScaleY(1f);
+                        }
+                    });
 
-        switch ((Integer) item.getId()) {
-            case SEARCH_ID:
-                if (presenter.isBound()) {
-                    ((ToolbarNavigationController) navigationController).showSearch();
-                }
-                break;
-            case REFRESH_ID:
-                if (presenter.isBound()) {
-                    presenter.requestData();
-                    ImageView refreshView = refresh.getView();
-                    refreshView.setRotation(0f);
-                    refreshView.animate()
-                            .rotation(360f)
-                            .setDuration(500)
-                            .setInterpolator(new DecelerateInterpolator(2f));
-                }
-                break;
+            ((ToolbarNavigationController) navigationController).showSearch();
         }
     }
 
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        final ThreadPresenter presenter = threadLayout.getPresenter();
+    private void reloadClicked(ToolbarMenuItem item) {
+        ThreadPresenter presenter = threadLayout.getPresenter();
+        if (presenter.isBound()) {
+            presenter.requestData();
 
-        Integer id = (Integer) item.getId();
-        switch (id) {
-            case REPLY_ID:
-                handleReply();
-                break;
-            case SHARE_ID:
-            case OPEN_BROWSER_ID:
-                handleShareAndOpenInBrowser(presenter, id);
-                break;
-            case VIEW_MODE_ID:
-                handleViewMode();
-
-                break;
-            case ORDER_ID:
-                handleOrder(presenter);
-
-                break;
-            case ARCHIVE_ID:
-                openArchive();
-                break;
+            // Give the rotation menu item view a spin.
+            View refreshView = item.getView();
+            refreshView.setRotation(0f);
+            refreshView.animate()
+                    .rotation(360f)
+                    .setDuration(500)
+                    .setInterpolator(new DecelerateInterpolator(2f));
         }
+    }
+
+    private void replyClicked(ToolbarMenuSubItem item) {
+        threadLayout.openReply(true);
+    }
+
+    private void viewModeClicked(ToolbarMenuSubItem item) {
+        handleViewMode(item);
+    }
+
+    private void archiveClicked(ToolbarMenuSubItem item) {
+        openArchive();
+    }
+
+    private void orderClicked(ToolbarMenuSubItem item) {
+        handleOrder(threadLayout.getPresenter());
+    }
+
+    private void openBrowserClicked(ToolbarMenuSubItem item) {
+        handleShareAndOpenInBrowser(threadLayout.getPresenter(), false);
+    }
+
+    private void shareClicked(ToolbarMenuSubItem item) {
+        handleShareAndOpenInBrowser(threadLayout.getPresenter(), true);
+    }
+
+    private void setupMiddleNavigation() {
+        navigation.setMiddleMenu(anchor -> {
+            BrowseBoardsFloatingMenu boardsFloatingMenu = new BrowseBoardsFloatingMenu(context);
+            boardsFloatingMenu.show(view, anchor, BrowseController.this,
+                    presenter.currentBoard());
+        });
     }
 
     @Override
@@ -239,16 +255,12 @@ public class BrowseController extends ThreadController implements
         }
     }
 
-    private void handleReply() {
-        threadLayout.openReply(true);
-    }
-
-    private void handleShareAndOpenInBrowser(ThreadPresenter presenter, Integer id) {
+    private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
             Loadable loadable = presenter.getLoadable();
             String link = loadable.site.resolvable().desktopUrl(loadable, null);
 
-            if (id == SHARE_ID) {
+            if (share) {
                 AndroidUtils.shareLink(link);
             } else {
                 AndroidUtils.openLinkInBrowser((Activity) context, link);
@@ -256,7 +268,7 @@ public class BrowseController extends ThreadController implements
         }
     }
 
-    private void handleViewMode() {
+    private void handleViewMode(ToolbarMenuSubItem item) {
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
             postViewMode = ChanSettings.PostViewMode.CARD;
         } else {
@@ -267,7 +279,7 @@ public class BrowseController extends ThreadController implements
 
         int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST ?
                 R.string.action_switch_catalog : R.string.action_switch_board;
-        viewModeMenuItem.setText(context.getString(viewModeText));
+        item.text = context.getString(viewModeText);
 
         threadLayout.setPostViewMode(postViewMode);
     }
@@ -302,6 +314,7 @@ public class BrowseController extends ThreadController implements
             items.add(new FloatingMenuItem(order, name));
         }
 
+        ToolbarMenuItem overflow = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
         FloatingMenu menu = new FloatingMenu(context, overflow.getView(), items);
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
@@ -347,7 +360,8 @@ public class BrowseController extends ThreadController implements
 
     @Override
     public void showArchiveOption(boolean show) {
-        archive.setEnabled(show);
+        ToolbarMenuSubItem archive = navigation.findSubItem(ARCHIVE_ID);
+        archive.enabled = show;
     }
 
     @Override

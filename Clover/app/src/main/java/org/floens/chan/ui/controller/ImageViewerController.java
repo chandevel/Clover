@@ -39,7 +39,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -55,9 +54,11 @@ import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.ImageSearch;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
+import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.toolbar.ToolbarMenu;
 import org.floens.chan.ui.toolbar.ToolbarMenuItem;
+import org.floens.chan.ui.toolbar.ToolbarMenuSubItem;
 import org.floens.chan.ui.view.CustomScaleImageView;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
@@ -81,18 +82,12 @@ import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback, ToolbarMenuItem.ToolbarMenuItemCallback {
+public class ImageViewerController extends Controller implements ImageViewerPresenter.Callback {
     private static final String TAG = "ImageViewerController";
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
-    private static final int GO_POST_ID = 1;
-    private static final int VOLUME_ID = 3;
-    private static final int SAVE_ID = 2;
-    private static final int OPEN_BROWSER_ID = 103;
-    private static final int SHARE_ID = 104;
-    private static final int SEARCH_ID = 105;
-    private static final int SAVE_ALBUM = 106;
+    private static final int VOLUME_ID = 1;
 
     @Inject
     ImageLoader imageLoader;
@@ -110,9 +105,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private OptionalSwipeViewPager pager;
     private LoadingBar loadingBar;
 
-    private ToolbarMenuItem overflowMenuItem;
-    private ToolbarMenuItem volumeMenuItem;
-
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
         inject(this);
@@ -126,24 +118,27 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public void onCreate() {
         super.onCreate();
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        // Navigation
         navigation.subtitle = "0";
-        navigation.menu = new ToolbarMenu(context);
+
+        NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
         if (goPostCallback != null) {
-            navigation.menu.addItem(new ToolbarMenuItem(context, this, GO_POST_ID, R.drawable.ic_subdirectory_arrow_left_white_24dp));
+            menuBuilder.withItem(R.drawable.ic_subdirectory_arrow_left_white_24dp, this::goPostClicked);
         }
 
-        volumeMenuItem = navigation.menu.addItem(new ToolbarMenuItem(context,
-                this, VOLUME_ID, R.drawable.ic_volume_off_white_24dp));
-        navigation.menu.addItem(new ToolbarMenuItem(context, this, SAVE_ID, R.drawable.ic_file_download_white_24dp));
+        menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
+        menuBuilder.withItem(R.drawable.ic_file_download_white_24dp, this::saveClicked);
 
-        List<FloatingMenuItem> items = new ArrayList<>();
-        items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
-        items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
-        items.add(new FloatingMenuItem(SEARCH_ID, R.string.action_search_image));
-        items.add(new FloatingMenuItem(SAVE_ALBUM, R.string.action_download_album));
-        overflowMenuItem = navigation.createOverflow(context, this, items);
+        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
+        overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
+        overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
+        overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
+        overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+
+        overflowBuilder.build().build();
+
+        // View setup
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         view = inflateRes(R.layout.controller_image_viewer);
         previewImage = view.findViewById(R.id.preview_image);
@@ -164,84 +159,56 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         });
     }
 
+    private void goPostClicked(ToolbarMenuItem item) {
+        PostImage postImage = presenter.getCurrentPostImage();
+        ImageViewerCallback imageViewerCallback = goPostCallback.goToPost(postImage);
+        if (imageViewerCallback != null) {
+            // hax: we need to wait for the recyclerview to do a layout before we know
+            // where the new thumbnails are to get the bounds from to animate to
+            this.imageViewerCallback = imageViewerCallback;
+            AndroidUtils.waitForLayout(view, view -> {
+                presenter.onExit();
+                return false;
+            });
+        } else {
+            presenter.onExit();
+        }
+    }
+
+    private void volumeClicked(ToolbarMenuItem item) {
+        presenter.onVolumeClicked();
+    }
+
+    private void saveClicked(ToolbarMenuItem item) {
+        saveShare(false, presenter.getCurrentPostImage());
+    }
+
+    private void openBrowserClicked(ToolbarMenuSubItem item) {
+        PostImage postImage = presenter.getCurrentPostImage();
+        AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
+    }
+
+    private void shareClicked(ToolbarMenuSubItem item) {
+        PostImage postImage = presenter.getCurrentPostImage();
+        saveShare(true, postImage);
+    }
+
+    private void searchClicked(ToolbarMenuSubItem item) {
+        showImageSearchOptions();
+    }
+
+    private void downloadAlbumClicked(ToolbarMenuSubItem item) {
+        List<PostImage> all = presenter.getAllPostImages();
+        AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
+        albumDownloadController.setPostImages(presenter.getLoadable(), all);
+        navigationController.pushController(albumDownloadController);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    @Override
-    public void onMenuItemClicked(ToolbarMenuItem item) {
-        switch ((Integer) item.getId()) {
-            case GO_POST_ID:
-                PostImage postImage = presenter.getCurrentPostImage();
-                ImageViewerCallback imageViewerCallback = goPostCallback.goToPost(postImage);
-                if (imageViewerCallback != null) {
-                    // hax: we need to wait for the recyclerview to do a layout before we know
-                    // where the new thumbnails are to get the bounds from to animate to
-                    this.imageViewerCallback = imageViewerCallback;
-                    AndroidUtils.waitForLayout(view, new AndroidUtils.OnMeasuredCallback() {
-                        @Override
-                        public boolean onMeasured(View view) {
-                            presenter.onExit();
-                            return false;
-                        }
-                    });
-                } else {
-                    presenter.onExit();
-                }
-                break;
-            case SAVE_ID:
-                saveShare(false, presenter.getCurrentPostImage());
-                break;
-            case VOLUME_ID:
-                presenter.onVolumeClicked();
-                break;
-        }
-    }
-
-    @Override
-    public void onSubMenuItemClicked(ToolbarMenuItem parent, FloatingMenuItem item) {
-        PostImage postImage = presenter.getCurrentPostImage();
-        switch ((Integer) item.getId()) {
-            case SHARE_ID:
-                saveShare(true, postImage);
-                break;
-            case OPEN_BROWSER_ID:
-                AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
-                break;
-            case SEARCH_ID:
-                List<FloatingMenuItem> items = new ArrayList<>();
-                for (ImageSearch imageSearch : ImageSearch.engines) {
-                    items.add(new FloatingMenuItem(imageSearch.getId(), imageSearch.getName()));
-                }
-                FloatingMenu menu = new FloatingMenu(context, overflowMenuItem.getView(), items);
-                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-                    @Override
-                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        for (ImageSearch imageSearch : ImageSearch.engines) {
-                            if (((Integer) item.getId()) == imageSearch.getId()) {
-                                final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
-                                AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
-                                break;
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFloatingMenuDismissed(FloatingMenu menu) {
-                    }
-                });
-                menu.show();
-                break;
-            case SAVE_ALBUM:
-                List<PostImage> all = presenter.getAllPostImages();
-                AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
-                albumDownloadController.setPostImages(presenter.getLoadable(), all);
-                navigationController.pushController(albumDownloadController);
-                break;
-        }
     }
 
     private void saveShare(boolean share, PostImage postImage) {
@@ -353,10 +320,37 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public void showVolumeMenuItem(boolean show, boolean muted) {
-        ImageView view = volumeMenuItem.getView();
-        view.setVisibility(show ? View.VISIBLE : View.GONE);
-        view.setImageResource(muted ?
-                R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
+        ToolbarMenuItem volumeMenuItem = navigation.findItem(VOLUME_ID);
+        volumeMenuItem.setVisible(show);
+        volumeMenuItem.setImage(
+                muted ? R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
+    }
+
+    private void showImageSearchOptions() {
+        // TODO: move to presenter
+        List<FloatingMenuItem> items = new ArrayList<>();
+        for (ImageSearch imageSearch : ImageSearch.engines) {
+            items.add(new FloatingMenuItem(imageSearch.getId(), imageSearch.getName()));
+        }
+        ToolbarMenuItem overflowMenuItem = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
+        FloatingMenu menu = new FloatingMenu(context, overflowMenuItem.getView(), items);
+        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+            @Override
+            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                for (ImageSearch imageSearch : ImageSearch.engines) {
+                    if (((Integer) item.getId()) == imageSearch.getId()) {
+                        final HttpUrl searchImageUrl = getSearchImageUrl(presenter.getCurrentPostImage());
+                        AndroidUtils.openLinkInBrowser((Activity) context, imageSearch.getUrl(searchImageUrl.toString()));
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onFloatingMenuDismissed(FloatingMenu menu) {
+            }
+        });
+        menu.show();
     }
 
     public void startPreviewInTransition(PostImage postImage) {

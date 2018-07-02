@@ -22,22 +22,35 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
+import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.layout.SearchLayout;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
+import static org.floens.chan.utils.AndroidUtils.getAttrColor;
+import static org.floens.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
  * The container for the views created by the toolbar for the navigation items.
@@ -57,14 +70,20 @@ import static org.floens.chan.utils.AndroidUtils.dp;
  * drawable.
  */
 public class ToolbarContainer extends FrameLayout {
+    private Callback callback;
+
     private ArrowMenuDrawable arrowMenu;
 
-    private View previousView;
-    private boolean previousArrow;
-    private View currentView;
-    private boolean currentArrow;
-    private View transitionView;
-    private boolean transitionArrow;
+    @Nullable
+    private ItemView previousView;
+
+    @Nullable
+    private ItemView currentView;
+
+    @Nullable
+    private ItemView transitionView;
+
+    @Nullable
     private ToolbarPresenter.TransitionAnimationStyle transitionAnimationStyle;
 
     private Map<View, Animator> animatorSet = new HashMap<>();
@@ -81,23 +100,27 @@ public class ToolbarContainer extends FrameLayout {
         super(context, attrs, defStyle);
     }
 
+    public void setCallback(Callback callback) {
+        this.callback = callback;
+    }
+
     public void setArrowMenu(ArrowMenuDrawable arrowMenu) {
         this.arrowMenu = arrowMenu;
     }
 
-    public void set(View view, boolean arrow, ToolbarPresenter.AnimationStyle animation) {
+    public void set(NavigationItem item, ToolbarPresenter.AnimationStyle animation) {
         if (transitionView != null) {
             throw new IllegalStateException("Currently in transition mode");
         }
 
         endAnimations();
 
-        previousView = currentView;
-        previousArrow = currentArrow;
-        currentView = view;
-        currentArrow = arrow;
+        ItemView itemView = new ItemView(item);
 
-        addView(view, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        previousView = currentView;
+        currentView = itemView;
+
+        addView(itemView.view, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         if (getChildCount() > 2) {
             throw new IllegalArgumentException("More than 2 child views attached");
@@ -106,22 +129,24 @@ public class ToolbarContainer extends FrameLayout {
         // Can't run the animation if there is no previous view
         // Otherwise just show it without an animation.
         if (animation != ToolbarPresenter.AnimationStyle.NONE && previousView != null) {
-            setAnimation(view, previousView, animation);
+            setAnimation(itemView, previousView, animation);
         } else {
             if (previousView != null) {
-                removeView(previousView);
+                removeItem(previousView);
                 previousView = null;
             }
         }
 
         if (animation == ToolbarPresenter.AnimationStyle.NONE) {
-            setArrowProgress(1f, !currentArrow);
+            setArrowProgress(1f, !currentView.item.hasArrow());
         }
+
+        itemView.attach();
     }
 
     public void update(NavigationItem item, boolean current) {
-        // TODO: clean up
-        View view = current ? currentView : (previousView != null ? previousView : transitionView);
+        // TODO
+        View view = viewForItem(item);
         if (view != null) {
             TextView titleView = view.findViewById(R.id.title);
             if (titleView != null) {
@@ -137,26 +162,49 @@ public class ToolbarContainer extends FrameLayout {
         }
     }
 
+    public View viewForItem(NavigationItem item) {
+        ItemView itemView = itemViewForItem(item);
+        if (itemView == null) {
+            return null;
+        }
+        return itemView.view;
+    }
+
+    private ItemView itemViewForItem(NavigationItem item) {
+        if (currentView != null && item == currentView.item) {
+            return currentView;
+        } else if (previousView != null && item == previousView.item) {
+            return previousView;
+        } else if (transitionView != null && item == transitionView.item) {
+            return transitionView;
+        } else {
+            return null;
+        }
+    }
+
     public boolean isTransitioning() {
         return transitionView != null || previousView != null;
     }
 
     public void startTransition(
-            View view, boolean arrow, ToolbarPresenter.TransitionAnimationStyle style) {
+            NavigationItem item, ToolbarPresenter.TransitionAnimationStyle style) {
         if (transitionView != null) {
             throw new IllegalStateException("Already in transition mode");
         }
 
         endAnimations();
 
-        transitionView = view;
-        transitionArrow = arrow;
+        ItemView itemView = new ItemView(item);
+
+        transitionView = itemView;
         transitionAnimationStyle = style;
-        addView(view, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        addView(itemView.view, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         if (getChildCount() > 2) {
             throw new IllegalArgumentException("More than 2 child views attached");
         }
+
+        itemView.attach();
     }
 
     public void stopTransition(boolean didComplete) {
@@ -165,12 +213,11 @@ public class ToolbarContainer extends FrameLayout {
         }
 
         if (didComplete) {
-            removeView(currentView);
+            removeItem(currentView);
             currentView = transitionView;
-            currentArrow = transitionArrow;
             transitionView = null;
         } else {
-            removeView(transitionView);
+            removeItem(transitionView);
             transitionView = null;
         }
 
@@ -189,14 +236,14 @@ public class ToolbarContainer extends FrameLayout {
 
     private void endAnimations() {
         if (previousView != null) {
-            endAnimation(previousView);
+            endAnimation(previousView.view);
             if (previousView != null) {
                 throw new IllegalStateException("Animation end did not remove view");
             }
         }
 
         if (currentView != null) {
-            endAnimation(currentView);
+            endAnimation(currentView.view);
         }
     }
 
@@ -207,7 +254,7 @@ public class ToolbarContainer extends FrameLayout {
         }
     }
 
-    private void setAnimation(View view, View previousView,
+    private void setAnimation(ItemView view, ItemView previousView,
                               ToolbarPresenter.AnimationStyle animationStyle) {
         if (animationStyle == ToolbarPresenter.AnimationStyle.PUSH ||
                 animationStyle == ToolbarPresenter.AnimationStyle.POP) {
@@ -217,69 +264,69 @@ public class ToolbarContainer extends FrameLayout {
             ValueAnimator previousAnimation = getShortAnimator();
             previousAnimation.addUpdateListener(a -> {
                 float value = (float) a.getAnimatedValue();
-                setPreviousAnimationProgress(previousView, pushing, value);
+                setPreviousAnimationProgress(previousView.view, pushing, value);
             });
             previousAnimation.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    animatorSet.remove(previousView);
-                    removeView(previousView);
+                    animatorSet.remove(previousView.view);
+                    removeItem(previousView);
                     ToolbarContainer.this.previousView = null;
                 }
             });
             if (!pushing) previousAnimation.setStartDelay(100);
-            animatorSet.put(previousView, previousAnimation);
+            animatorSet.put(previousView.view, previousAnimation);
 
             post(previousAnimation::start);
 
             // Current animation + arrow
-            view.setAlpha(0f);
+            view.view.setAlpha(0f);
             ValueAnimator animation = getShortAnimator();
             animation.addUpdateListener(a -> {
                 float value = (float) a.getAnimatedValue();
-                setAnimationProgress(view, pushing, value);
+                setAnimationProgress(view.view, pushing, value);
 
-                if (previousArrow != currentArrow) {
-                    setArrowProgress(value, !currentArrow);
+                if (previousView.item.hasArrow() != currentView.item.hasArrow()) {
+                    setArrowProgress(value, !currentView.item.hasArrow());
                 }
             });
             animation.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    animatorSet.remove(view);
+                    animatorSet.remove(view.view);
                 }
             });
             if (!pushing) animation.setStartDelay(100);
-            animatorSet.put(view, animation);
+            animatorSet.put(view.view, animation);
 
             post(animation::start);
         } else if (animationStyle == ToolbarPresenter.AnimationStyle.FADE) {
             // Previous animation
             ValueAnimator previousAnimation =
-                    ObjectAnimator.ofFloat(previousView, View.ALPHA, 1f, 0f);
+                    ObjectAnimator.ofFloat(previousView.view, View.ALPHA, 1f, 0f);
             previousAnimation.setDuration(300);
             previousAnimation.setInterpolator(new LinearInterpolator());
             previousAnimation.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    animatorSet.remove(previousView);
-                    removeView(previousView);
+                    animatorSet.remove(previousView.view);
+                    removeItem(previousView);
                     ToolbarContainer.this.previousView = null;
                 }
             });
-            animatorSet.put(previousView, previousAnimation);
+            animatorSet.put(previousView.view, previousAnimation);
 
             post(previousAnimation::start);
 
             // Current animation + arrow
-            view.setAlpha(0f);
-            ValueAnimator animation = ObjectAnimator.ofFloat(view, View.ALPHA, 0f, 1f);
+            view.view.setAlpha(0f);
+            ValueAnimator animation = ObjectAnimator.ofFloat(view.view, View.ALPHA, 0f, 1f);
             animation.setDuration(300);
             animation.setInterpolator(new LinearInterpolator());
             animation.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    animatorSet.remove(view);
+                    animatorSet.remove(view.view);
                 }
             });
             // A different animator for the arrow because that one needs the deceleration
@@ -289,8 +336,8 @@ public class ToolbarContainer extends FrameLayout {
             arrow.setInterpolator(new DecelerateInterpolator(2f));
             arrow.addUpdateListener(a -> {
                 float value = (float) a.getAnimatedValue();
-                if (previousArrow != currentArrow) {
-                    setArrowProgress(value, !currentArrow);
+                if (previousView.item.hasArrow() != currentView.item.hasArrow()) {
+                    setArrowProgress(value, !currentView.item.hasArrow());
                 }
             });
 
@@ -299,11 +346,11 @@ public class ToolbarContainer extends FrameLayout {
             animationAndArrow.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    animatorSet.remove(view);
+                    animatorSet.remove(view.view);
                 }
             });
 
-            animatorSet.put(view, animationAndArrow);
+            animatorSet.put(view.view, animationAndArrow);
 
             post(animationAndArrow::start);
         }
@@ -338,14 +385,14 @@ public class ToolbarContainer extends FrameLayout {
 
         boolean pushing = style == ToolbarPresenter.TransitionAnimationStyle.PUSH;
 
-        transitionView.setTranslationY((pushing ? offset : -offset) * (1f - progress));
-        transitionView.setAlpha(progress);
+        transitionView.view.setTranslationY((pushing ? offset : -offset) * (1f - progress));
+        transitionView.view.setAlpha(progress);
 
-        currentView.setTranslationY((pushing ? -offset : offset) * progress);
-        currentView.setAlpha(1f - progress);
+        currentView.view.setTranslationY((pushing ? -offset : offset) * progress);
+        currentView.view.setAlpha(1f - progress);
 
-        if (transitionArrow != currentArrow) {
-            setArrowProgress(progress, !transitionArrow);
+        if (transitionView.item.hasArrow() != currentView.item.hasArrow()) {
+            setArrowProgress(progress, !transitionView.item.hasArrow());
         }
     }
 
@@ -354,5 +401,130 @@ public class ToolbarContainer extends FrameLayout {
         animator.setDuration(300);
         animator.setInterpolator(new DecelerateInterpolator(2f));
         return animator;
+    }
+
+    private void removeItem(ItemView item) {
+        item.remove();
+        removeView(item.view);
+    }
+
+    private class ItemView {
+        final View view;
+        final NavigationItem item;
+
+        @Nullable
+        private ToolbarMenuView menuView;
+
+        public ItemView(NavigationItem item) {
+            this.view = createNavigationItemView(item);
+            this.item = item;
+        }
+
+        public void attach() {
+            if (item.menu != null) {
+                menuView.attach(item.menu);
+            }
+        }
+
+        public void remove() {
+            if (menuView != null) {
+                menuView.detach();
+            }
+        }
+
+        private LinearLayout createNavigationItemView(final NavigationItem item) {
+            if (item.search) {
+                return createSearchLayout(item);
+            } else {
+                return createNavigationLayout(item);
+            }
+        }
+
+        @NonNull
+        private LinearLayout createNavigationLayout(NavigationItem item) {
+            @SuppressLint("InflateParams")
+            LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
+            menu.setGravity(Gravity.CENTER_VERTICAL);
+
+            FrameLayout titleContainer = menu.findViewById(R.id.title_container);
+
+            // Title
+            final TextView titleView = menu.findViewById(R.id.title);
+            titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
+            titleView.setText(item.title);
+            titleView.setTextColor(0xffffffff);
+
+            // Middle title with arrow and callback
+            if (item.middleMenu != null) {
+                int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
+                int arrowPressedColor = getAttrColor(
+                        getContext(), R.attr.dropdown_light_pressed_color);
+                Drawable drawable = new DropdownArrowDrawable(
+                        dp(12), dp(12), true, arrowColor, arrowPressedColor);
+                titleView.setCompoundDrawablesWithIntrinsicBounds(
+                        null, null, drawable, null);
+                titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
+            }
+
+            // Possible subtitle.
+            TextView subtitleView = menu.findViewById(R.id.subtitle);
+            if (!TextUtils.isEmpty(item.subtitle)) {
+                ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
+                titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                titleView.setLayoutParams(titleParams);
+                subtitleView.setText(item.subtitle);
+                subtitleView.setTextColor(0xffffffff);
+                titleView.setPadding(titleView.getPaddingLeft(), dp(5f),
+                        titleView.getPaddingRight(), titleView.getPaddingBottom());
+            } else {
+                titleContainer.removeView(subtitleView);
+            }
+
+            // Possible view shown at the right side.
+            if (item.rightView != null) {
+                removeFromParentView(item.rightView);
+                item.rightView.setPadding(0, 0, dp(16), 0);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                menu.addView(item.rightView, lp);
+            }
+
+            // Possible menu with items.
+            if (item.menu != null) {
+                menuView = new ToolbarMenuView(getContext());
+
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                menu.addView(this.menuView, lp);
+            }
+
+            return menu;
+        }
+
+        @NonNull
+        private LinearLayout createSearchLayout(NavigationItem item) {
+            SearchLayout searchLayout = new SearchLayout(getContext());
+
+            searchLayout.setCallback(input -> {
+                callback.searchInput(input);
+            });
+
+            if (item.searchText != null) {
+                searchLayout.setText(item.searchText);
+            }
+
+            searchLayout.setHint(callback.searchHint(item));
+            searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
+
+            return searchLayout;
+        }
+    }
+
+    public interface Callback {
+        void searchInput(String input);
+
+        String searchHint(NavigationItem item);
     }
 }

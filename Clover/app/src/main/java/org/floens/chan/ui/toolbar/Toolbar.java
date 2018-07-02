@@ -19,40 +19,29 @@ package org.floens.chan.ui.toolbar;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.ui.drawable.ArrowMenuDrawable;
-import org.floens.chan.ui.drawable.DropdownArrowDrawable;
-import org.floens.chan.ui.layout.SearchLayout;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.hideKeyboard;
-import static org.floens.chan.utils.AndroidUtils.removeFromParentView;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class Toolbar extends LinearLayout implements
-        View.OnClickListener, ToolbarPresenter.Callback {
+        View.OnClickListener, ToolbarPresenter.Callback, ToolbarContainer.Callback {
     public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
     public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
 
@@ -234,14 +223,6 @@ public class Toolbar extends LinearLayout implements
         }
     }
 
-    public void setArrowMenuProgress(float progress) {
-        arrowMenuDrawable.setProgress(progress);
-    }
-
-    public void setShowArrowMenu(boolean show) {
-        arrowMenuView.setVisibility(show ? VISIBLE : GONE);
-    }
-
     public ArrowMenuDrawable getArrowMenuDrawable() {
         return arrowMenuDrawable;
     }
@@ -282,6 +263,7 @@ public class Toolbar extends LinearLayout implements
         navigationItemContainer = new ToolbarContainer(getContext());
         addView(navigationItemContainer, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f));
 
+        navigationItemContainer.setCallback(this);
         navigationItemContainer.setArrowMenu(arrowMenuDrawable);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -294,19 +276,13 @@ public class Toolbar extends LinearLayout implements
     @Override
     public void showForNavigationItem(
             NavigationItem item, ToolbarPresenter.AnimationStyle animation) {
-        View view = createNavigationItemView(item);
-        boolean arrow = item.hasBack || item.search;
-
-        navigationItemContainer.set(view, arrow, animation);
+        navigationItemContainer.set(item, animation);
     }
 
     @Override
     public void containerStartTransition(
             NavigationItem item, ToolbarPresenter.TransitionAnimationStyle animation) {
-        View view = createNavigationItemView(item);
-        boolean arrow = item.hasBack || item.search;
-
-        navigationItemContainer.startTransition(view, arrow, animation);
+        navigationItemContainer.startTransition(item, animation);
     }
 
     @Override
@@ -320,6 +296,16 @@ public class Toolbar extends LinearLayout implements
     }
 
     @Override
+    public void searchInput(String input) {
+        presenter.searchInput(input);
+    }
+
+    @Override
+    public String searchHint(NavigationItem item) {
+        return callback.getSearchHint(item);
+    }
+
+    @Override
     public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
         callback.onSearchVisibilityChanged(item, visible);
 
@@ -327,6 +313,7 @@ public class Toolbar extends LinearLayout implements
             hideKeyboard(navigationItemContainer);
         }
     }
+
 
     @Override
     public void onSearchInput(NavigationItem item, String input) {
@@ -336,79 +323,6 @@ public class Toolbar extends LinearLayout implements
     @Override
     public void updateViewForItem(NavigationItem item, boolean current) {
         navigationItemContainer.update(item, current);
-    }
-
-    private LinearLayout createNavigationItemView(final NavigationItem item) {
-        if (item.search) {
-            return createSearchLayout(item);
-        } else {
-            return createNavigationLayout(item);
-        }
-    }
-
-    @NonNull
-    private LinearLayout createNavigationLayout(NavigationItem item) {
-        @SuppressLint("InflateParams")
-        LinearLayout menu = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_menu, null);
-        menu.setGravity(Gravity.CENTER_VERTICAL);
-
-        FrameLayout titleContainer = menu.findViewById(R.id.title_container);
-
-        final TextView titleView = menu.findViewById(R.id.title);
-        titleView.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
-        titleView.setText(item.title);
-        titleView.setTextColor(0xffffffff);
-
-        if (item.middleMenu != null) {
-            int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
-            int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
-            Drawable drawable = new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
-            titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
-            titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
-        }
-
-        TextView subtitleView = menu.findViewById(R.id.subtitle);
-        if (!TextUtils.isEmpty(item.subtitle)) {
-            ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
-            titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            titleView.setLayoutParams(titleParams);
-            subtitleView.setText(item.subtitle);
-            subtitleView.setTextColor(0xffffffff);
-            titleView.setPadding(titleView.getPaddingLeft(), dp(5f), titleView.getPaddingRight(), titleView.getPaddingBottom());
-        } else {
-            titleContainer.removeView(subtitleView);
-        }
-
-        if (item.rightView != null) {
-            removeFromParentView(item.rightView);
-            item.rightView.setPadding(0, 0, dp(16), 0);
-            menu.addView(item.rightView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-        }
-
-        if (item.menu != null) {
-            removeFromParentView(item.menu);
-            menu.addView(item.menu, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-        }
-
-        return menu;
-    }
-
-    @NonNull
-    private LinearLayout createSearchLayout(NavigationItem item) {
-        SearchLayout searchLayout = new SearchLayout(getContext());
-
-        searchLayout.setCallback(input -> {
-            presenter.searchInput(input);
-        });
-
-        if (item.searchText != null) {
-            searchLayout.setText(item.searchText);
-        }
-
-        searchLayout.setHint(callback.getSearchHint(item));
-        searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
-
-        return searchLayout;
     }
 
     public interface ToolbarCallback {
