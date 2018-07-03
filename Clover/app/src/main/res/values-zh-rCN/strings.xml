@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="add">Add</string>
   <string name="close">Close</string>
   <string name="back">Back</string>
-  <string name="up">Up</string>
   <string name="ok">OK</string>
   <string name="exit">Exit</string>
   <string name="delete">Delete</string>
@@ -437,6 +436,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
 
 Re-enable this permission in the app settings if you permanently disabled it.\"</string>
   <string name="setting_folder_pick_ok">Choose</string>
+  <string name="setting_folder_navigate_up">Up</string>
   <!-- Theme settings -->
   <string name="setting_theme_explanation">Swipe to change the theme.\nTap the toolbar menu to change its color.\n</string>
   <string name="setting_theme_accent">Click here to change the FAB color</string>
