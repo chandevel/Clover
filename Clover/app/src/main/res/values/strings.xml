@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Defined in gradle flavor -->
     <!--<string name="app_name">Clover</string>-->
 
-    <string name="changelog_30001">
+    <!-- No need to update the changelog, we can't get it translated in time. -->
+    <string name="changelog_30001" translatable="false">
         <![CDATA[
             <h3>Clover was updated</h3>
             Clover was updated to v3.0.1<br>
@@ -142,7 +143,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_confirm_exit_title">Confirm exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
-    <string name="thumbnail_load_failed_server">404</string>
+    <string name="thumbnail_load_failed_server" translatable="false">404</string>
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
     <string name="image_failed_big_image">Deepzoom loading failed</string>
@@ -169,7 +170,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_pin_hint">Bookmark this thread</string>
     <string name="thread_view_archive">Archive</string>
 
-    <string name="thread_empty_setup_feature">&#128564;</string>
+    <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
     <string name="thread_empty_setup_hint">Add a site here</string>
