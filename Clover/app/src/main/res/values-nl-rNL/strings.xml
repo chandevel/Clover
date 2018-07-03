@@ -33,8 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_none">Clover is up-to-date</string>
   <string name="update_check_failed">Updates controleren mislukt.</string>
   <string name="update_install">Installeren</string>
-  <string name="update_install_downloading">Downloading update</string>
-  <string name="update_install_download_failed">Download failed</string>
+  <string name="update_install_downloading">Update aan het downloaden</string>
+  <string name="update_install_download_failed">Downloaden mislukt</string>
   <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
   <string name="update_retry_title">Retry update</string>
   <string name="update_retry">Clover was not updated yet. Click retry to retry the install.</string>
