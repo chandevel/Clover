@@ -35,42 +35,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_install">Installeren</string>
   <string name="update_install_downloading">Update aan het downloaden</string>
   <string name="update_install_download_failed">Downloaden mislukt</string>
-  <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
-  <string name="update_retry_title">Retry update</string>
-  <string name="update_retry">Clover was not updated yet. Click retry to retry the install.</string>
-  <string name="update_retry_button">retry</string>
-  <string name="update_storage_permission_required_title">Storage permission required</string>
+  <string name="update_install_download_move_failed">Kon het gedownloade bestand niet verplaatsen naar de Downloads map.</string>
+  <string name="update_retry_title">Probeer update opnieuw</string>
+  <string name="update_retry">Clover is nog niet geüpdatet. Click probeer opnieuw om de installatie opnieuw te proberen.</string>
+  <string name="update_retry_button">opnieuw proberen</string>
+  <string name="update_storage_permission_required_title">Opslagpermissie vereist</string>
   <string name="update_storage_permission_required">
-\"Permission to access storage is required for installing the update.
+\"Permissie voor toegang tot de opslag is vereist voor het installeren van de update.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"</string>
   <plurals name="minutes">
-    <item quantity="one">%d minute</item>
-    <item quantity="other">%d minutes</item>
+    <item quantity="one">%d minuut</item>
+    <item quantity="other">%d minuut</item>
   </plurals>
   <plurals name="posts">
-    <item quantity="one">post</item>
-    <item quantity="other">posts</item>
+    <item quantity="one">paal</item>
+    <item quantity="other">paal</item>
   </plurals>
   <plurals name="reply">
-    <item quantity="one">%d reply</item>
-    <item quantity="other">%d replies</item>
+    <item quantity="one">%d antwoord</item>
+    <item quantity="other">%d antwoorden</item>
   </plurals>
   <plurals name="image">
-    <item quantity="one">%d image</item>
-    <item quantity="other">%d images</item>
+    <item quantity="one">%d afbeelding</item>
+    <item quantity="other">%d afbeeldingen</item>
   </plurals>
   <plurals name="board">
-    <item quantity="one">%d board</item>
-    <item quantity="other">%d boards</item>
+    <item quantity="one">%d bord</item>
+    <item quantity="other">%d borden</item>
   </plurals>
   <plurals name="type">
     <item quantity="one">%d type</item>
     <item quantity="other">%d types</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="one">%d bookmark</item>
-    <item quantity="other">%d bookmarks</item>
+    <item quantity="one">%d bladwijzer</item>
+    <item quantity="other">%d bladwijzers</item>
   </plurals>
   <plurals name="filter">
     <item quantity="one">%d filter</item>
@@ -80,19 +80,19 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <item quantity="one">%d site</item>
     <item quantity="other">%d sites</item>
   </plurals>
-  <string name="card_stats">%1$dR %2$dI</string>
-  <string name="action_reload">Reload</string>
-  <string name="action_pin">Pin</string>
-  <string name="action_open_browser">Open in browser</string>
-  <string name="action_share">Share</string>
+  <string name="card_stats">%1$dA %2$dA</string>
+  <string name="action_reload">Herlaad</string>
+  <string name="action_pin">Vastzetten</string>
+  <string name="action_open_browser">Openen in browser</string>
+  <string name="action_share">Delen</string>
   <string name="action_download_album">Download album</string>
-  <string name="action_search">Search</string>
-  <string name="action_search_image">Image search</string>
-  <string name="action_switch_catalog">Catalog mode</string>
-  <string name="action_switch_board">Board mode</string>
-  <string name="action_up">Top</string>
-  <string name="action_down">Bottom</string>
-  <string name="action_order">Order</string>
+  <string name="action_search">Zoeken</string>
+  <string name="action_search_image">Afbeelding zoeken</string>
+  <string name="action_switch_catalog">Catalogusmodus</string>
+  <string name="action_switch_board">Bordmodus</string>
+  <string name="action_up">Omhoog</string>
+  <string name="action_down">Omlaag</string>
+  <string name="action_order">Volgorde</string>
   <string name="action_rename_pin">Rename pin</string>
   <string name="action_rename">Rename</string>
   <string name="action_reply">Reply</string>
