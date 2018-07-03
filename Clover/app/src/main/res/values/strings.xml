@@ -16,20 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <!-- Defined in gradle flavor -->
-    <!--<string name="app_name">Clover</string>-->
-
-    <!-- No need to update the changelog, we can't get it translated in time. -->
-    <string name="changelog_30001" translatable="false">
-        <![CDATA[
-            <h3>Clover was updated</h3>
-            Clover was updated to v3.0.1<br>
-            <br>
-            <b>New in this version:</b><br>
-            Bug fixes.<br>
-        ]]>
-    </string>
-
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
