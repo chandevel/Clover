@@ -23,6 +23,7 @@ import org.floens.chan.core.database.DatabaseBoardManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ import javax.inject.Singleton;
 
 @Singleton
 public class BoardRepository implements Observer {
+    private static final String TAG = "BoardRepository";
+
     private final DatabaseManager databaseManager;
     private final DatabaseBoardManager databaseBoardManager;
 
@@ -68,7 +71,11 @@ public class BoardRepository implements Observer {
     }
 
     public void updateAvailableBoardsForSite(Site site, List<Board> availableBoards) {
-        databaseManager.runTask(databaseBoardManager.createAll(site, availableBoards));
+        boolean changed = databaseManager.runTask(databaseBoardManager.createAll(site, availableBoards));
+        Logger.d(TAG, "updateAvailableBoardsForSite changed = " + changed);
+        if (changed) {
+            updateObservablesAsync();
+        }
     }
 
     public Board getFromCode(Site site, String code) {

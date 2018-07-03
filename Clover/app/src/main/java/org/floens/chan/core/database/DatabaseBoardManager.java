@@ -89,7 +89,7 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Void> createAll(final Site site, final List<Board> boards) {
+    public Callable<Boolean> createAll(final Site site, final List<Board> boards) {
         return () -> {
             long start = Time.startTiming();
 
@@ -146,7 +146,7 @@ public class DatabaseBoardManager {
             Time.endTiming("createAll boards " +
                     toCreate.size() + ", " + toUpdate.size(), start);
 
-            return null;
+            return !toCreate.isEmpty() || !toUpdate.isEmpty();
         };
     }
 

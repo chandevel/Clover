@@ -103,6 +103,10 @@ public abstract class ThreadController extends Controller implements
         EventBus.getDefault().unregister(this);
     }
 
+    public void showSitesNotSetup() {
+        threadLayout.getPresenter().showNoContent();
+    }
+
     public abstract void openPin(Pin pin);
 
     /*

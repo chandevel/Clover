@@ -20,6 +20,7 @@ package org.floens.chan.core.presenter;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.utils.BackgroundUtils;
@@ -29,12 +30,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-public class BoardSetupPresenter {
+public class BoardSetupPresenter implements Observer {
     private BoardManager boardManager;
 
     private Callback callback;
@@ -44,11 +47,15 @@ public class BoardSetupPresenter {
 
     private List<Board> savedBoards;
 
+    private BoardRepository.SitesBoards allBoardsObservable;
+
     private Executor executor = Executors.newSingleThreadExecutor();
     private BackgroundUtils.Cancelable suggestionCall;
 
     private List<BoardSuggestion> suggestions = new ArrayList<>();
     private List<String> selectedSuggestions = new LinkedList<>();
+
+    private String suggestionsQuery = null;
 
     @Inject
     public BoardSetupPresenter(BoardManager boardManager) {
@@ -61,10 +68,25 @@ public class BoardSetupPresenter {
 
         savedBoards = boardManager.getSiteSavedBoards(site);
         callback.setSavedBoards(savedBoards);
+
+        allBoardsObservable = boardManager.getAllBoardsObservable();
+        allBoardsObservable.addObserver(this);
     }
 
     public void destroy() {
         boardManager.updateBoardOrders(savedBoards);
+
+        allBoardsObservable.deleteObserver(this);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o == allBoardsObservable) {
+            if (addCallback != null) {
+                // Update the boards shown in the query.
+                queryBoardsWithQueryAndShowInAddDialog();
+            }
+        }
     }
 
     public void addClicked() {
@@ -74,13 +96,14 @@ public class BoardSetupPresenter {
     public void bindAddDialog(AddCallback addCallback) {
         this.addCallback = addCallback;
 
-        searchEntered(null);
+        queryBoardsWithQueryAndShowInAddDialog();
     }
 
     public void unbindAddDialog() {
         this.addCallback = null;
         suggestions.clear();
         selectedSuggestions.clear();
+        suggestionsQuery = null;
     }
 
     public void onSelectAllClicked() {
@@ -88,7 +111,7 @@ public class BoardSetupPresenter {
             suggestion.checked = true;
             selectedSuggestions.add(suggestion.getCode());
         }
-        addCallback.updateSuggestions();
+        addCallback.suggestionsWereChanged();
     }
 
     public void onSuggestionClicked(BoardSuggestion suggestion) {
@@ -165,12 +188,17 @@ public class BoardSetupPresenter {
     }
 
     public void searchEntered(String userQuery) {
+        suggestionsQuery = userQuery;
+        queryBoardsWithQueryAndShowInAddDialog();
+    }
+
+    private void queryBoardsWithQueryAndShowInAddDialog() {
         if (suggestionCall != null) {
             suggestionCall.cancel();
         }
 
-        final String query = userQuery == null ? null :
-                userQuery.replace("/", "").replace("\\", "");
+        final String query = suggestionsQuery == null ? null :
+                suggestionsQuery.replace("/", "").replace("\\", "");
         suggestionCall = BackgroundUtils.runWithExecutor(executor, () -> {
             List<BoardSuggestion> suggestions = new ArrayList<>();
             if (site.boardsType().canList) {
@@ -210,7 +238,7 @@ public class BoardSetupPresenter {
             updateSuggestions(result);
 
             if (addCallback != null) {
-                addCallback.updateSuggestions();
+                addCallback.suggestionsWereChanged();
             }
         });
     }
@@ -240,7 +268,7 @@ public class BoardSetupPresenter {
     }
 
     public interface AddCallback {
-        void updateSuggestions();
+        void suggestionsWereChanged();
     }
 
     public static class BoardSuggestion {

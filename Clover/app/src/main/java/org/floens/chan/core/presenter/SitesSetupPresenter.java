@@ -59,10 +59,8 @@ public class SitesSetupPresenter implements Observer {
 
         updateSitesInUi();
 
-        this.callback.setNextAllowed(!sitesShown.isEmpty());
-
-        if (sitesShown.isEmpty()) {
-            callback.presentIntro();
+        if (sites.getAll().isEmpty()) {
+            callback.showHint();
         }
     }
 
@@ -90,22 +88,12 @@ public class SitesSetupPresenter implements Observer {
         updateSitesInUi();
     }
 
-    public void onIntroDismissed() {
-        if (sitesShown.isEmpty()) {
-            callback.showHint();
-        }
-    }
-
     public void bindAddDialog(AddCallback addCallback) {
         this.addCallback = addCallback;
     }
 
     public void unbindAddDialog() {
         this.addCallback = null;
-    }
-
-    public boolean mayExit() {
-        return sitesShown.size() > 0;
     }
 
     public void onShowDialogClicked() {
@@ -131,16 +119,11 @@ public class SitesSetupPresenter implements Observer {
         });
     }
 
-    public void onDoneClicked() {
-    }
-
     private void siteAdded(Site site) {
         sitesShown.add(site);
         saveOrder();
 
         updateSitesInUi();
-
-        callback.setNextAllowed(!sitesShown.isEmpty());
     }
 
     public void onSiteCellSettingsClicked(Site site) {
@@ -172,13 +155,9 @@ public class SitesSetupPresenter implements Observer {
     public interface Callback {
         void setSites(List<SiteBoardCount> sites);
 
-        void presentIntro();
-
         void showHint();
 
         void showAddDialog();
-
-        void setNextAllowed(boolean nextAllowed);
 
         void openSiteConfiguration(Site site);
     }

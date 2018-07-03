@@ -50,7 +50,6 @@ import org.floens.chan.core.site.SiteService;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
-import org.floens.chan.ui.controller.SitesSetupController;
 import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
@@ -158,15 +157,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     private void restoreFresh() {
         if (!siteService.areSitesSetup()) {
-            SitesSetupController setupController = new SitesSetupController(this);
-
-            if (drawerController.childControllers.get(0) instanceof DoubleNavigationController) {
-                DoubleNavigationController doubleNavigationController =
-                        (DoubleNavigationController) drawerController.childControllers.get(0);
-                doubleNavigationController.pushController(setupController, false);
-            } else {
-                mainNavigationController.pushController(setupController, false);
-            }
+            browseController.showSitesNotSetup();
         } else {
             browseController.loadWithDefaultBoard();
         }

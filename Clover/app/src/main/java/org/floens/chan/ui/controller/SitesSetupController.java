@@ -68,6 +68,8 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     private RecyclerView sitesRecyclerview;
     private FloatingActionButton addButton;
 
+    private HintPopup addBoardsHint;
+
     private SitesAdapter sitesAdapter;
     private ItemTouchHelper itemTouchHelper;
     private List<SiteBoardCount> sites = new ArrayList<>();
@@ -143,16 +145,6 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         presenter.destroy();
     }
 
-    public void showDoneCheckmark() {
-        navigation.swipeable = false;
-
-        navigation.buildMenu()
-                .withItem(R.drawable.ic_done_white_24dp, (item) -> presenter.onDoneClicked())
-                .build();
-
-//        doneMenuItem.getView().setAlpha(0f);
-    }
-
     @Override
     public void onClick(View v) {
         if (v == addButton) {
@@ -161,27 +153,10 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     }
 
     @Override
-    public boolean onBack() {
-        if (presenter.mayExit()) {
-            return super.onBack();
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void presentIntro() {
-        presentController(new IntroController(context), false);
-    }
-
-    public void onIntroDismissed() {
-        presenter.onIntroDismissed();
-    }
-
-    @Override
     public void showHint() {
         String s = context.getString(R.string.setup_sites_add_hint);
         HintPopup popup = new HintPopup(context, addButton, s, 0, 0, true);
+        popup.wiggle();
         popup.show();
     }
 
@@ -226,16 +201,6 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         crossfadeView.toggle(!sites.isEmpty(), true);
     }
 
-    @Override
-    public void setNextAllowed(boolean nextAllowed) {
-//        if (doneMenuItem != null) {
-//            doneMenuItem.getView().animate().alpha(nextAllowed ? 1f : 0f).start();
-//        }
-        if (!nextAllowed) {
-            navigation.swipeable = false;
-        }
-    }
-
     private void onSiteCellSettingsClicked(Site site) {
         presenter.onSiteCellSettingsClicked(site);
     }
@@ -267,6 +232,14 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
             String boardsString = context.getResources().getQuantityString(R.plurals.board, boards, boards);
             String descriptionText = context.getString(R.string.setup_sites_site_description, boardsString);
             holder.description.setText(descriptionText);
+
+            if (boards == 0) {
+                if (addBoardsHint != null) {
+                    addBoardsHint.dismiss();
+                }
+                addBoardsHint = HintPopup.show(context, holder.settings, R.string.setup_sites_add_boards_hint);
+                addBoardsHint.wiggle();
+            }
         }
 
         @Override
