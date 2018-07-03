@@ -1,3 +1,4 @@
+base_path: Clover/app/src/main
 files:
-  - source: Clover/app/src/main/res/values/strings.xml
-    translation: Clover/app/src/main/res/values-%android_code%/strings.xml
+  - source: /res/values/strings.xml
+    translation: /res/values-%android_code%/strings.xml
