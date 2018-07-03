@@ -35,6 +35,7 @@ public class SiteAddLayout extends LinearLayout implements SitesSetupPresenter.A
 
         urlContainer = findViewById(R.id.url_container);
         url = findViewById(R.id.url);
+        url.setHint(R.string.setup_sites_url_hint);
     }
 
     public void setDialog(Dialog dialog) {

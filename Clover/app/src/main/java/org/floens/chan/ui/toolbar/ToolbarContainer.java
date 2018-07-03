@@ -27,7 +27,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -48,6 +49,7 @@ import org.floens.chan.utils.AndroidUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.text.TextUtils.isEmpty;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.removeFromParentView;
@@ -153,7 +155,7 @@ public class ToolbarContainer extends FrameLayout {
                 titleView.setText(item.title);
             }
 
-            if (!TextUtils.isEmpty(item.subtitle)) {
+            if (!isEmpty(item.subtitle)) {
                 TextView subtitleView = view.findViewById(R.id.subtitle);
                 if (subtitleView != null) {
                     subtitleView.setText(item.subtitle);
@@ -459,16 +461,33 @@ public class ToolbarContainer extends FrameLayout {
                 int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
                 int arrowPressedColor = getAttrColor(
                         getContext(), R.attr.dropdown_light_pressed_color);
-                Drawable drawable = new DropdownArrowDrawable(
+                final Drawable arrowDrawable = new DropdownArrowDrawable(
                         dp(12), dp(12), true, arrowColor, arrowPressedColor);
                 titleView.setCompoundDrawablesWithIntrinsicBounds(
-                        null, null, drawable, null);
+                        null, null, arrowDrawable, null);
                 titleView.setOnClickListener(v -> item.middleMenu.show(titleView));
+
+                // Hide the dropdown arrow if there is no text.
+                titleView.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        arrowDrawable.setAlpha(isEmpty(s) ? 0 : 255);
+                    }
+                });
+                arrowDrawable.setAlpha(isEmpty(item.title) ? 0 : 255);
             }
 
             // Possible subtitle.
             TextView subtitleView = menu.findViewById(R.id.subtitle);
-            if (!TextUtils.isEmpty(item.subtitle)) {
+            if (!isEmpty(item.subtitle)) {
                 ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
                 titleParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 titleView.setLayoutParams(titleParams);

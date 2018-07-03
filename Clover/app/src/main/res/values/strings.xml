@@ -172,18 +172,20 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_pin_hint">Bookmark this thread</string>
     <string name="thread_view_archive">Archive</string>
 
-    <string name="intro_title">Clover</string>
-    <string name="intro_content">Browse your favorite imageboards</string>
-    <string name="intro_start">Get started</string>
+    <string name="thread_empty_setup_feature">&#128564;</string>
+    <string name="thread_empty_setup_title">Nothing to show</string>
+    <string name="thread_empty_setup_body">Add a site to begin browsing</string>
+    <string name="thread_empty_setup_hint">Add a site here</string>
 
-    <string name="setup_sites_title">Your sites</string>
+    <string name="setup_sites_title">Setup sites</string>
     <string name="setup_sites_empty">No sites added</string>
-    <string name="setup_sites_add_hint">Add sites</string>
+    <string name="setup_sites_add_hint">Add a site here</string>
     <string name="setup_sites_add_title">Add site</string>
-    <string name="setup_sites_description">Enter the url of the site you want to browse</string>
-    <string name="setup_sites_url">Site url</string>
-    <string name="setup_sites_url_hint">http://</string>
+    <string name="setup_sites_description">Add a site by its url or name</string>
+    <string name="setup_sites_url">URL or name</string>
+    <string name="setup_sites_url_hint">http://example.com</string>
     <string name="setup_sites_site_description">%s added</string>
+    <string name="setup_sites_add_boards_hint">Tap to add boards</string>
 
     <string name="setup_site_title">Configure %s</string>
     <string name="setup_site_group_general">General</string>
@@ -369,7 +371,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_save_failed">Saving image failed</string>
     <string name="image_save_directory_error">Cannot make save directory</string>
 
-    <string name="drawer_sites">Sites</string>
+    <string name="drawer_sites">Setup sites</string>
     <string name="drawer_history">History</string>
 
     <!-- Main settings -->

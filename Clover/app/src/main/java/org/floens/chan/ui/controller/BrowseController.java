@@ -35,6 +35,7 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.helper.BoardHelper;
+import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.BrowseBoardsFloatingMenu;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.NavigationItem;
@@ -92,6 +93,15 @@ public class BrowseController extends ThreadController implements
         presenter.destroy();
     }
 
+    @Override
+    public void showSitesNotSetup() {
+        super.showSitesNotSetup();
+
+        HintPopup hint = HintPopup.show(context, getToolbar(), R.string.thread_empty_setup_hint);
+        hint.alignLeft();
+        hint.wiggle();
+    }
+
     public void setBoard(Board board) {
         presenter.setBoard(board);
     }
@@ -108,30 +118,6 @@ public class BrowseController extends ThreadController implements
 
         // Toolbar menu
         navigation.hasBack = false;
-
-        /*search = menu.addItem(new ToolbarMenuItem(context, this, SEARCH_ID, R.drawable.ic_search_white_24dp));
-        refresh = menu.addItem(new ToolbarMenuItem(context, this, REFRESH_ID, R.drawable.ic_refresh_white_24dp));
-
-        // Toolbar overflow
-        overflow = menu.createOverflow(this);
-
-        List<FloatingMenuItem> items = new ArrayList<>();
-        if (!ChanSettings.enableReplyFab.get()) {
-            items.add(new FloatingMenuItem(REPLY_ID, R.string.action_reply));
-        }
-        viewModeMenuItem = new FloatingMenuItem(VIEW_MODE_ID, postViewMode == ChanSettings.PostViewMode.LIST ?
-                R.string.action_switch_catalog : R.string.action_switch_board);
-        items.add(viewModeMenuItem);
-
-        archive = new FloatingMenuItem(ARCHIVE_ID, R.string.thread_view_archive);
-        items.add(archive);
-        archive.setEnabled(false);
-
-        items.add(new FloatingMenuItem(ORDER_ID, R.string.action_order));
-        items.add(new FloatingMenuItem(OPEN_BROWSER_ID, R.string.action_open_browser));
-        items.add(new FloatingMenuItem(SHARE_ID, R.string.action_share));
-
-        overflow.setSubMenu(new FloatingMenu(context, overflow.getView(), items));*/
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = navigation.buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)

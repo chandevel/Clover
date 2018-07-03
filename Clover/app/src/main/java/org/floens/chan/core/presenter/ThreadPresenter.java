@@ -102,6 +102,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         this.threadPresenterCallback = threadPresenterCallback;
     }
 
+    public void showNoContent() {
+        threadPresenterCallback.showEmpty();
+    }
+
     public void bindLoadable(Loadable loadable) {
         if (!loadable.equals(this.loadable)) {
             if (chanLoader != null) {
@@ -750,6 +754,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         void showError(ChanLoaderException error);
 
         void showLoading();
+
+        void showEmpty();
 
         void showPostInfo(String info);
 

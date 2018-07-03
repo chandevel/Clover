@@ -23,6 +23,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 public class DropdownArrowDrawable extends Drawable {
     private Paint paint = new Paint();
@@ -45,7 +46,7 @@ public class DropdownArrowDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         path.rewind();
         path.moveTo(0, height / 4);
         path.lineTo(width, height / 4);
@@ -84,7 +85,9 @@ public class DropdownArrowDrawable extends Drawable {
         }
         int color = pressed ? pressedColor : this.color;
         if (color != paint.getColor()) {
+            int prevAlpha = paint.getAlpha();
             paint.setColor(color);
+            paint.setAlpha(prevAlpha);
             invalidateSelf();
             return true;
         } else {
@@ -100,6 +103,7 @@ public class DropdownArrowDrawable extends Drawable {
     @Override
     public void setAlpha(int alpha) {
         paint.setAlpha(alpha);
+        invalidateSelf();
     }
 
     @Override

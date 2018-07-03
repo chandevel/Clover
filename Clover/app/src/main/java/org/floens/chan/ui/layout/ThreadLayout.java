@@ -70,7 +70,8 @@ import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 /**
- * Wrapper around ThreadListLayout, so that it cleanly manages between a load bar and the list view.
+ * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
+ * and the recycler view.
  */
 public class ThreadLayout extends CoordinatorLayout implements
         ThreadPresenter.ThreadPresenterCallback,
@@ -78,9 +79,10 @@ public class ThreadLayout extends CoordinatorLayout implements
         View.OnClickListener,
         ThreadListLayout.ThreadListLayoutCallback {
     private enum Visible {
+        EMPTY,
         LOADING,
         THREAD,
-        ERROR;
+        ERROR
     }
 
     @Inject
@@ -137,6 +139,9 @@ public class ThreadLayout extends CoordinatorLayout implements
                 .inflate(R.layout.layout_thread_error, this, false);
         errorText = errorLayout.findViewById(R.id.text);
         errorRetryButton = errorLayout.findViewById(R.id.button);
+
+        // Inflate empty layout
+
 
         // View setup
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
@@ -249,6 +254,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     @Override
     public void showLoading() {
         switchVisible(Visible.LOADING);
+    }
+
+    @Override
+    public void showEmpty() {
+        switchVisible(Visible.EMPTY);
     }
 
     public void showPostInfo(String info) {
@@ -538,6 +548,9 @@ public class ThreadLayout extends CoordinatorLayout implements
 
             this.visible = visible;
             switch (visible) {
+                case EMPTY:
+                    loadView.setView(inflateEmptyView());
+                    break;
                 case LOADING:
                     View view = loadView.setView(null);
                     // TODO: cleanup
@@ -557,6 +570,11 @@ public class ThreadLayout extends CoordinatorLayout implements
                     break;
             }
         }
+    }
+
+    @SuppressLint("InflateParams")
+    private View inflateEmptyView() {
+        return LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
     }
 
     @Override

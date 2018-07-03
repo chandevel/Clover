@@ -17,10 +17,12 @@
  */
 package org.floens.chan.ui.helper;
 
+import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,15 +53,18 @@ public class HintPopup {
 
     private TextView textView;
     private PopupWindow popupWindow;
-    private LinearLayout popupView;
+    private ViewGroup popupView;
     private final View anchor;
     private String text;
     private final int offsetX;
     private final int offsetY;
     private final boolean top;
     private boolean dismissed;
+    private boolean rightAligned = true;
+    private boolean wiggle = false;
 
-    public HintPopup(Context context, final View anchor, final String text, final int offsetX, final int offsetY, final boolean top) {
+    public HintPopup(Context context, final View anchor, final String text,
+                     final int offsetX, final int offsetY, final boolean top) {
         this.anchor = anchor;
         this.text = text;
         this.offsetX = offsetX;
@@ -71,7 +76,7 @@ public class HintPopup {
 
     @SuppressLint("InflateParams")
     private void createView(Context context) {
-        popupView = (LinearLayout) LayoutInflater.from(context)
+        popupView = (ViewGroup) LayoutInflater.from(context)
                 .inflate(top ? R.layout.popup_hint_top : R.layout.popup_hint, null);
 
         textView = popupView.findViewById(R.id.text);
@@ -91,13 +96,44 @@ public class HintPopup {
             if (!dismissed) {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
                 // TODO: cleanup
-                int xoff = -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX - dp(2);
+                int xoff;
+                if (rightAligned) {
+                    xoff = -popupView.getMeasuredWidth() + anchor.getWidth() + offsetX - dp(2);
+                } else {
+                    xoff = -popupView.getMeasuredWidth() + offsetX - dp(2);
+                }
                 int yoff = -dp(25) + offsetY + (top ? -anchor.getHeight() - dp(30) : 0);
                 popupWindow.showAsDropDown(anchor, xoff, yoff);
+
+                if (wiggle) {
+                    TimeInterpolator wiggleInterpolator = input ->
+                            (float) Math.sin(60 * input * 2.0 * Math.PI);
+
+                    popupView.animate()
+                            .translationY(dp(2))
+                            .setInterpolator(wiggleInterpolator)
+                            .setDuration(60000)
+                            .start();
+                }
+
+                if (!rightAligned) {
+                    View arrow = popupView.findViewById(R.id.arrow);
+                    LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) arrow.getLayoutParams();
+                    lp.gravity = Gravity.LEFT;
+                    arrow.setLayoutParams(lp);
+                }
             }
         }, 400);
 
         // popupView.postDelayed(popupWindow::dismiss, 5000);
+    }
+
+    public void alignLeft() {
+        rightAligned = false;
+    }
+
+    public void wiggle() {
+        wiggle = true;
     }
 
     public void dismiss() {
