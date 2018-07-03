@@ -33,12 +33,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_none">Clover ĝisdatas</string>
   <string name="update_check_failed">Malsukcesis kontroli por ĝisdatigoj.</string>
   <string name="update_install">Instali</string>
-  <string name="update_install_downloading">Downloading update</string>
-  <string name="update_install_download_failed">Download failed</string>
-  <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
-  <string name="update_retry_title">Retry update</string>
-  <string name="update_retry">Clover was not updated yet. Click retry to retry the install.</string>
-  <string name="update_retry_button">retry</string>
+  <string name="update_install_downloading">Elŝutas ĝisdatigon</string>
+  <string name="update_install_download_failed">Elŝuto malsukcesis</string>
+  <string name="update_install_download_move_failed">Malsukcesis meti elŝutitan dosieron al la Elŝutujo.</string>
+  <string name="update_retry_title">Reprovi ĝisdatigon</string>
+  <string name="update_retry">Clover ne jam ĝisdatigis. Premu «reprovi» por reprovi la instaladon.</string>
+  <string name="update_retry_button">reprovu</string>
   <string name="update_storage_permission_required_title">Storage permission required</string>
   <string name="update_storage_permission_required">
 \"Permission to access storage is required for installing the update.
