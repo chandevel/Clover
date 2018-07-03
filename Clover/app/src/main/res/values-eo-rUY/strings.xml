@@ -39,25 +39,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_retry_title">Reprovi ĝisdatigon</string>
   <string name="update_retry">Clover ne jam ĝisdatigis. Premu «reprovi» por reprovi la instaladon.</string>
   <string name="update_retry_button">reprovu</string>
-  <string name="update_storage_permission_required_title">Storage permission required</string>
+  <string name="update_storage_permission_required_title">Konserva-permeso bezonatas</string>
   <string name="update_storage_permission_required">
-\"Permission to access storage is required for installing the update.
+«Permeso al atingi konservon estas bezonata por instali la ĝisdatigon.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <plurals name="minutes">
-    <item quantity="one">%d minute</item>
-    <item quantity="other">%d minutes</item>
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%d minutoj</item>
   </plurals>
   <plurals name="posts">
-    <item quantity="one">post</item>
-    <item quantity="other">posts</item>
+    <item quantity="one">afiŝo</item>
+    <item quantity="other">afiŝoj</item>
   </plurals>
   <plurals name="reply">
-    <item quantity="one">%d reply</item>
-    <item quantity="other">%d replies</item>
+    <item quantity="one">%d respondo</item>
+    <item quantity="other">%d respondoj</item>
   </plurals>
   <plurals name="image">
-    <item quantity="one">%d image</item>
+    <item quantity="one">%d bildo</item>
     <item quantity="other">%d images</item>
   </plurals>
   <plurals name="board">
