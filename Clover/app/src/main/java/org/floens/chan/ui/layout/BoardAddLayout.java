@@ -110,7 +110,7 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
     }
 
     @Override
-    public void updateSuggestions() {
+    public void suggestionsWereChanged() {
         suggestionsAdapter.notifyDataSetChanged();
     }
 
