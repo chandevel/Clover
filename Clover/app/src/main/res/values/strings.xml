@@ -16,19 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <!-- Defined in gradle flavor -->
-    <!--<string name="app_name">Clover</string>-->
-
-    <string name="changelog_30001">
-        <![CDATA[
-            <h3>Clover was updated</h3>
-            Clover was updated to v3.0.1<br>
-            <br>
-            <b>New in this version:</b><br>
-            Bug fixes.<br>
-        ]]>
-    </string>
-
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -39,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="save">Save</string>
-    <string name="next">Next</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -108,10 +94,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="card_stats">%1$dR %2$dI</string>
 
-    <string name="action_view_album">View album</string>
     <string name="action_reload">Reload</string>
     <string name="action_pin">Pin</string>
-    <string name="action_go_post">Go to post</string>
     <string name="action_open_browser">Open in browser</string>
     <string name="action_share">Share</string>
     <string name="action_download_album">Download album</string>
@@ -145,7 +129,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_confirm_exit_title">Confirm exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
-    <string name="thumbnail_load_failed_server">404</string>
+    <string name="thumbnail_load_failed_server" translatable="false">404</string>
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
     <string name="image_failed_big_image">Deepzoom loading failed</string>
@@ -172,7 +156,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_pin_hint">Bookmark this thread</string>
     <string name="thread_view_archive">Archive</string>
 
-    <string name="thread_empty_setup_feature">&#128564;</string>
+    <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
     <string name="thread_empty_setup_hint">Add a site here</string>
@@ -199,7 +183,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="setup_board_title">Configure boards of %s</string>
     <string name="setup_board_empty">No boards added</string>
-    <string name="setup_board_add">Add board</string>
     <string name="setup_board_removed">Removed \'%s\'</string>
     <string name="setup_board_added">%s added</string>
     <string name="setup_board_select_all">Select all</string>
@@ -274,8 +257,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="archive_title">%s archive</string>
     <string name="archive_error">Error loading archive</string>
 
-    <string name="drawer_board">Board</string>
-    <string name="drawer_catalog">Catalog</string>
     <string name="drawer_pinned">Bookmarked threads</string>
     <string name="drawer_pin_removed">Removed \'%1$s\'</string>
     <string name="drawer_pins_cleared">%1$s cleared</string>
@@ -359,17 +340,13 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
 
-    <string name="album_view_screen">Album</string>
-
     <string name="report_screen">Report %1$s</string>
 
     <string name="image_save_notification_downloading">Downloading images</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
     <string name="image_save_as">Saved as %1$s</string>
-    <string name="image_save_succeeded">Saved image to</string>
     <string name="image_save_failed">Saving image failed</string>
-    <string name="image_save_directory_error">Cannot make save directory</string>
 
     <string name="drawer_sites">Setup sites</string>
     <string name="drawer_history">History</string>
@@ -544,8 +521,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 "Permission to access storage is required for browsing files.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
-    <string name="setting_save_folder">File save folder</string>
-    <string name="setting_save_folder_error_create_folder">Error creating save folder</string>
     <string name="setting_folder_pick_ok">Choose</string>
 
 
