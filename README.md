@@ -1,5 +1,6 @@
 # Clover - imageboard browser for Android  
 
+[![Build Status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/clover/localized.svg)](https://crowdin.com/project/clover)
 
 [Website](http://floens.github.io/Clover/)  
