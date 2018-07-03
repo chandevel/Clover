@@ -477,7 +477,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         if (loadable.site.feature(Site.Feature.POST_DELETE) &&
                 databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
-            menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.delete));
+            menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
         }
 
         menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
