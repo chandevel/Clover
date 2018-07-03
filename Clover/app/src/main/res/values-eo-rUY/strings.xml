@@ -58,37 +58,37 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   </plurals>
   <plurals name="image">
     <item quantity="one">%d bildo</item>
-    <item quantity="other">%d images</item>
+    <item quantity="other">%d bildoj</item>
   </plurals>
   <plurals name="board">
     <item quantity="one">%d board</item>
     <item quantity="other">%d boards</item>
   </plurals>
   <plurals name="type">
-    <item quantity="one">%d type</item>
-    <item quantity="other">%d types</item>
+    <item quantity="one">%d tipo</item>
+    <item quantity="other">%d tipoj</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="one">%d bookmark</item>
-    <item quantity="other">%d bookmarks</item>
+    <item quantity="one">%d paĝosigno</item>
+    <item quantity="other">%d paĝosignoj</item>
   </plurals>
   <plurals name="filter">
-    <item quantity="one">%d filter</item>
-    <item quantity="other">%d filters</item>
+    <item quantity="one">%d filtrilo</item>
+    <item quantity="other">%d filtriloj</item>
   </plurals>
   <plurals name="site">
-    <item quantity="one">%d site</item>
-    <item quantity="other">%d sites</item>
+    <item quantity="one">%d retpaĝo</item>
+    <item quantity="other">%d retpaĝoj</item>
   </plurals>
-  <string name="card_stats">%1$dR %2$dI</string>
-  <string name="action_reload">Reload</string>
-  <string name="action_pin">Pin</string>
-  <string name="action_open_browser">Open in browser</string>
-  <string name="action_share">Share</string>
-  <string name="action_download_album">Download album</string>
-  <string name="action_search">Search</string>
-  <string name="action_search_image">Image search</string>
-  <string name="action_switch_catalog">Catalog mode</string>
+  <string name="card_stats">%1$dR %2$dB</string>
+  <string name="action_reload">Reŝarĝi</string>
+  <string name="action_pin">Fiksi</string>
+  <string name="action_open_browser">Malfermi en retumilo</string>
+  <string name="action_share">Konigi</string>
+  <string name="action_download_album">Elŝuti fotaron</string>
+  <string name="action_search">Serĉi</string>
+  <string name="action_search_image">Bildserĉi</string>
+  <string name="action_switch_catalog">Katalogo-reĝimo</string>
   <string name="action_switch_board">Board mode</string>
   <string name="action_up">Top</string>
   <string name="action_down">Bottom</string>
