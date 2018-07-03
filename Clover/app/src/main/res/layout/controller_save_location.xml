@@ -55,7 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:text="@string/up"
+                    android:text="@string/setting_folder_navigate_up"
                     android:textSize="18sp" />
 
             </LinearLayout>
