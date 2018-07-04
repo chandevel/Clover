@@ -45,7 +45,7 @@ public class BehaviourSettingsController extends SettingsController {
     public void onCreate() {
         super.onCreate();
 
-        navigation.setTitle(R.string.settings_screen_behaviour);
+        navigation.setTitle(R.string.settings_screen_behavior);
 
         setupLayout();
 
