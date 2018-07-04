@@ -120,6 +120,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="order_image">Image count</string>
   <string name="order_newest">Newest</string>
   <string name="order_oldest">Oldest</string>
+  <string name="order_modified">Latest reply</string>
   <string name="search_hint">Search</string>
   <string name="search_results">Found %1$d %2$s for \"%3$s\"</string>
   <string name="search_empty">Search subjects, comments, names and filenames</string>
