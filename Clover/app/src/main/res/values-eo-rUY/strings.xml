@@ -30,14 +30,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="permission_app_settings">Agordoj</string>
   <string name="permission_grant">Permesi</string>
   <string name="update_later">Poste</string>
-  <string name="update_none">Clover is up-to-date</string>
+  <string name="update_none">Clover ĝisdatas</string>
   <string name="update_check_failed">Malsukcesis kontroli por ĝisdatigoj.</string>
   <string name="update_install">Instali</string>
   <string name="update_install_downloading">Elŝutas ĝisdatigon</string>
   <string name="update_install_download_failed">Elŝuto malsukcesis</string>
   <string name="update_install_download_move_failed">Malsukcesis meti elŝutitan dosieron al la Elŝutujo.</string>
   <string name="update_retry_title">Reprovi ĝisdatigon</string>
-  <string name="update_retry">Clover was not updated yet. Tap \"retry\" to retry the install.</string>
+  <string name="update_retry">Clover ne jam ĝisdatigis. Premu «reprovi» por reprovi la instaladon.</string>
   <string name="update_retry_button">reprovu</string>
   <string name="update_storage_permission_required_title">Konserva-permeso bezonatas</string>
   <string name="update_storage_permission_required">
@@ -49,8 +49,8 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
     <item quantity="other">%d minutoj</item>
   </plurals>
   <plurals name="posts">
-    <item quantity="one">%d post</item>
-    <item quantity="other">%d posts</item>
+    <item quantity="one">%d afiŝo</item>
+    <item quantity="other">%d afiŝoj</item>
   </plurals>
   <plurals name="reply">
     <item quantity="one">%d respondo</item>
@@ -83,20 +83,20 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="card_stats">%1$dR %2$dB</string>
   <string name="action_reload">Reŝarĝi</string>
   <string name="action_pin">Bookmark</string>
-  <string name="action_open_browser">Open in a browser</string>
+  <string name="action_open_browser">Malfermi en retumilo</string>
   <string name="action_share">Konigi</string>
   <string name="action_download_album">Elŝuti fotaron</string>
   <string name="action_search">Serĉi</string>
   <string name="action_search_image">Bildserĉi</string>
   <string name="action_switch_catalog">Katalogo-reĝimo</string>
   <string name="action_switch_board">Tabul-reĝimo</string>
-  <string name="action_scroll_to_top">Top</string>
-  <string name="action_scroll_to_bottom">Bottom</string>
+  <string name="action_scroll_to_top">Supri</string>
+  <string name="action_scroll_to_bottom">Subi</string>
   <string name="action_sort">Sort</string>
   <string name="action_rename_pin">Rename bookmark</string>
   <string name="action_rename">Renomi</string>
   <string name="action_reply">Respondi</string>
-  <string name="open_link_not_matched">Clover cannot open this link; it will open in your browser instead.</string>
+  <string name="open_link_not_matched">Clover ne povas malfermi tiun ligilon, do malfermos ĝin en via retumilo.</string>
   <string name="order_bump">Bump order</string>
   <string name="order_reply">Respondnombro</string>
   <string name="order_image">Bildnombro</string>
@@ -104,11 +104,11 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="order_oldest">Plej malnovaj</string>
   <string name="order_modified">Latest reply</string>
   <string name="search_hint">Serĉi</string>
-  <string name="search_results">Found %1$s for \"%2$s\"</string>
+  <string name="search_results">Trovis %1$s por «%2$s»</string>
   <string name="search_empty">Serĉi temojn, komentojn, nomojn kaj dosiernomojn</string>
-  <string name="open_link_confirmation">Open this link?</string>
+  <string name="open_link_confirmation">Ĉu malfermi ligilon?</string>
   <string name="open_thread_confirmation">Ĉu malfermi tiun fadenon?</string>
-  <string name="open_link_failed">No applications were found to open this link</string>
+  <string name="open_link_failed">Neniu aplikaĵo trovita por malfermi ligilon</string>
   <string name="action_confirm_exit_title">Konfirmi eliri</string>
   <string name="thumbnail_load_failed_network">Eraro</string>
   <string name="image_preview_failed">Malsukcesis montri bildon</string>
