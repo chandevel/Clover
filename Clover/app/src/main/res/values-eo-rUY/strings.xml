@@ -128,7 +128,10 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="thread_load_failed_retry">Reprovi</string>
   <string name="thread_archived">Enarĥivigita</string>
   <string name="thread_closed">Fermita</string>
-  <string name="thread_new_posts">%1$d nova(j) %2$s</string>
+  <plurals name="thread_new_posts">
+    <item quantity="one">%d new post</item>
+    <item quantity="other">%d new posts</item>
+  </plurals>
   <string name="thread_new_posts_goto">Vidi</string>
   <string name="thread_empty_select">Bonvole elekti fadenon</string>
   <string name="thread_up_down_hint">Rulumi superen/suben</string>
@@ -260,7 +263,6 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="reply_error_message">Eraro dum afiŝi: %s</string>
   <string name="reply_success">Afiŝado sukcesis</string>
   <string name="reply_captcha_text">Tajpi la tekston</string>
-  <string name="reply_comment_button_quote">&gt;</string>
   <string name="reply_comment_button_spoiler">[s]</string>
   <string name="delete_confirm">Ĉu forigi vian afiŝon?</string>
   <string name="delete_wait">Forigas afiŝon&#8230;</string>
