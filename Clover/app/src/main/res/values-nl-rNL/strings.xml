@@ -128,7 +128,10 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="thread_load_failed_retry">Opnieuw proberen</string>
   <string name="thread_archived">Gearchiveerd</string>
   <string name="thread_closed">Gesloten</string>
-  <string name="thread_new_posts">%1$d nieuwe %2$s</string>
+  <plurals name="thread_new_posts">
+    <item quantity="one">%d new post</item>
+    <item quantity="other">%d new posts</item>
+  </plurals>
   <string name="thread_new_posts_goto">Tonen</string>
   <string name="thread_empty_select">Selecteer een thread</string>
   <string name="thread_up_down_hint">Ga naar boven/beneden</string>
@@ -260,7 +263,6 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="reply_error_message">Error posting: %s</string>
   <string name="reply_success">Post successful</string>
   <string name="reply_captcha_text">Type the text</string>
-  <string name="reply_comment_button_quote">&gt;</string>
   <string name="reply_comment_button_spoiler">[s]</string>
   <string name="delete_confirm">Delete your post?</string>
   <string name="delete_wait">Deleting post&#8230;</string>
