@@ -99,6 +99,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private PostIcons icons;
     private TextView comment;
     private FastTextView replies;
+    private View repliesAdditionalArea;
     private ImageView options;
     private View divider;
     private View filterMatchColor;
@@ -153,6 +154,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         icons = findViewById(R.id.icons);
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
+        repliesAdditionalArea = findViewById(R.id.replies_additional_area);
         options = findViewById(R.id.options);
         divider = findViewById(R.id.divider);
         filterMatchColor = findViewById(R.id.filter_match_color);
@@ -186,18 +188,21 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         dividerParams.rightMargin = paddingPx;
         divider.setLayoutParams(dividerParams);
 
-        replies.setOnClickListener(v -> {
-            if (threadMode) {
-                int repliesFromSize;
-                synchronized (post.repliesFrom) {
-                    repliesFromSize = post.repliesFrom.size();
-                }
-
-                if (repliesFromSize > 0) {
-                    callback.onShowPostReplies(post);
-                }
+        OnClickListener repliesClickListener = v -> {
+            if (replies.getVisibility() != VISIBLE || !replies.isClickable() || !threadMode) {
+                return;
             }
-        });
+            int repliesFromSize;
+            synchronized (post.repliesFrom) {
+                repliesFromSize = post.repliesFrom.size();
+            }
+
+            if (repliesFromSize > 0) {
+                callback.onShowPostReplies(post);
+            }
+        };
+        replies.setOnClickListener(repliesClickListener);
+        repliesAdditionalArea.setOnClickListener(repliesClickListener);
 
         options.setOnClickListener(v -> {
             List<FloatingMenuItem> items = new ArrayList<>();
