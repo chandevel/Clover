@@ -268,7 +268,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="delete_image_only">Nur forigi ĉi tiun bildon</string>
   <string name="delete_error">Eraro dum forigi afiŝon</string>
   <string name="video_playback_warning_title">WebM-video eraro</string>
-  <string name="video_playback_warning">The WebM video failed to play. This might be a problem with the hardware of your phone.\n\nYou can install an external media player that has a software decoder and enable \"Open videos external\" in the settings so that the video opens externally in a software decoding app.</string>
+  <string name="video_playback_warning">La WebM-video malsukcesis ludi. Tio povas esti problemo de la aparataro de via poŝtelefono.\n\nVi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝalti «Malfermu videojn ekstere» en la agordoj por ke la video malfermas ekstere en programaran malkodanta apon.</string>
   <string name="video_playback_ignore">Don\'t show again</string>
   <string name="watch_pause_pins">Stop watching</string>
   <string name="watch_idle">No new posts</string>
