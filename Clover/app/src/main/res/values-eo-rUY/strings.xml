@@ -399,8 +399,6 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
   <!-- Behaviour reply group -->
   <string name="settings_group_reply">Reply</string>
-  <string name="setting_use_new_captcha">Use the new captcha</string>
-  <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha for thread replies.</string>
   <string name="setting_post_pin">Pin thread on post</string>
   <string name="setting_post_default_name">Default post name</string>
   <!-- Behaviour post group -->
