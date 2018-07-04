@@ -154,5 +154,5 @@ dependencies {
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
     implementation 'org.codejargon.feather:feather:1.0'
 
-    releaseImplementation 'ch.acra:acra-http:5.0.1'
+    releaseImplementation 'ch.acra:acra-http:5.1.3'
 }
