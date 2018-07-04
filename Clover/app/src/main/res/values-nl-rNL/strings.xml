@@ -107,7 +107,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="search_results">%1$s gevonden voor \"%2$s\"</string>
   <string name="search_empty">Zoek in onderwerpen, commentaar, namen en bestandsnamen</string>
   <string name="open_link_confirmation">Open deze link?</string>
-  <string name="open_thread_confirmation">Thread openen?</string>
+  <string name="open_thread_confirmation">Deze thread openen?</string>
   <string name="open_link_failed">Geen apps gevonden om deze link te openen</string>
   <string name="action_confirm_exit_title">Afsluiten bevestigen</string>
   <string name="thumbnail_load_failed_network">Fout</string>
@@ -149,8 +149,8 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setup_sites_url">URL of naam</string>
   <string name="setup_sites_url_hint">http://voorbeeld.nl</string>
   <string name="setup_sites_site_description">%s toegevoegd</string>
-  <string name="setup_sites_add_boards_hint">Tik om borden toe te voegen</string>
-  <string name="setup_site_title">Stel %s in</string>
+  <string name="setup_sites_add_boards_hint">Tik om boards toe te voegen</string>
+  <string name="setup_site_title">%s instellen</string>
   <string name="setup_site_group_general">Algemeen</string>
   <string name="setup_site_boards">Boards instellen</string>
   <string name="setup_site_boards_description">%s toegevoegd</string>
@@ -227,14 +227,14 @@ Als het patroon past kan de post verborgen worden of gemarkeerd worden.<br>
   <string name="saved_reply_clear_confirm_button">Wissen</string>
   <string name="archive_title">Archief van %s</string>
   <string name="archive_error">Fout bij laden van archief</string>
-  <string name="drawer_pinned">Threads met bladwijzer</string>
+  <string name="drawer_pinned">Bladwijzers</string>
   <string name="drawer_pin_removed">\"%1$s\" verwijderd</string>
   <string name="drawer_pins_cleared">%1$s gewist</string>
   <string name="drawer_pins_non_cleared">Geen bladwijzers gewist.</string>
   <string name="drawer_pins_non_cleared_try_all">Geen bladwijzers gewist. Hou ingedrukt om alles te wissen.</string>
   <string name="post_highlight_id">ID markeren</string>
-  <string name="post_highlight_tripcode">Struikelcode markeren</string>
-  <string name="post_filter_tripcode">Struikelcode filteren</string>
+  <string name="post_highlight_tripcode">Tripcode markeren</string>
+  <string name="post_filter_tripcode">Tripcode filteren</string>
   <string name="post_text_copied">Tekst gekopieerd naar klembord</string>
   <string name="post_quote">Citeren</string>
   <string name="post_quote_text">Tekst citeren</string>
@@ -251,11 +251,11 @@ Als het patroon past kan de post verborgen worden of gemarkeerd worden.<br>
   <string name="reply_name">Naam</string>
   <string name="reply_options">Opties</string>
   <string name="reply_subject">Onderwerp</string>
-  <string name="reply_comment_thread">Reageer</string>
-  <string name="reply_comment_board">Nieuwe thread</string>
+  <string name="reply_comment_thread">Commentaar</string>
+  <string name="reply_comment_board">Commentaar voor nieuwe thread</string>
   <string name="reply_file_name">Bestandsnaam</string>
   <string name="reply_file_too_big">Waarschuwing: Bestandsgrootte te groot (%1$s / %2$s)</string>
-  <string name="reply_webm_too_big">Waarschuwing: WebM-formaat te groot (%1$s / %2$s)</string>
+  <string name="reply_webm_too_big">Waarschuwing: WebM-grootte te groot (%1$s / %2$s)</string>
   <string name="reply_file_open_failed">Kon bestand niet openen</string>
   <string name="reply_spoiler_image">Spoiler afbeelding</string>
   <string name="reply_no_preview">Geen voorvertoning</string>
@@ -324,10 +324,10 @@ Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om 
   <!-- Thread watcher -->
   <string name="setting_watch_summary_enabled">Threads met bladwijzer aan het volgen</string>
   <string name="setting_watch_summary_disabled">Uit</string>
-  <string name="settings_screen_watch">Threadvolger instellingen</string>
+  <string name="settings_screen_watch">Threadvolger-instellingen</string>
   <string name="settings_group_watch">Instellingen</string>
   <string name="setting_watch_info">Zet de threadvolger aan om threads met bladwijzers te volgen voor nieuwe posts.</string>
-  <string name="setting_watch_enable_background">Uitvoeren in de achtergrond</string>
+  <string name="setting_watch_enable_background">Aanzetten in de achtergrond</string>
   <string name="setting_watch_enable_background_description">Bladwijzers volgen wanneer Clover in de achtergrond geplaatst is</string>
   <string name="setting_watch_background_timeout">Achtergrond update-interval</string>
   <string name="setting_watch_background_timeout_description">Het interval tussen updates wanneer de app in de achtergrond is geplaatst</string>
