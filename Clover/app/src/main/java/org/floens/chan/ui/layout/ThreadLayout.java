@@ -472,8 +472,8 @@ public class ThreadLayout extends CoordinatorLayout implements
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
             if (!threadListLayout.scrolledToBottom()) {
-                String text = getContext().getString(R.string.thread_new_posts,
-                        more, getContext().getResources().getQuantityString(R.plurals.posts, more, more));
+                String text = getContext().getResources()
+                        .getQuantityString(R.plurals.thread_new_posts, more, more);
 
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
                 newPostsNotification.setAction(R.string.thread_new_posts_goto, new OnClickListener() {
