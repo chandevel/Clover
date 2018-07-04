@@ -108,7 +108,6 @@ public class ChanSettings {
 
     public static final StringSetting postDefaultName;
     public static final BooleanSetting postPinThread;
-    public static final BooleanSetting postNewCaptcha;
 
     public static final BooleanSetting developer;
 
@@ -183,7 +182,6 @@ public class ChanSettings {
 
         postDefaultName = new StringSetting(p, "preference_default_name", "");
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
-        postNewCaptcha = new BooleanSetting(p, "preference_new_captcha", true);
 
         developer = new BooleanSetting(p, "preference_developer", false);
 

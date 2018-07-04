@@ -79,11 +79,6 @@ public class BehaviourSettingsController extends SettingsController {
         {
             SettingsGroup reply = new SettingsGroup(R.string.settings_group_reply);
 
-            reply.add(new BooleanSettingView(this,
-                    ChanSettings.postNewCaptcha,
-                    R.string.setting_use_new_captcha,
-                    R.string.setting_use_new_captcha_description));
-
             reply.add(new BooleanSettingView(this, ChanSettings.postPinThread,
                     R.string.setting_post_pin, 0));
 
