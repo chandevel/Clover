@@ -372,8 +372,8 @@ Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"    <
   <string name="settings_group_appearance">Uiterlijk</string>
   <string name="setting_theme">Thema</string>
   <!-- Appearance layout group -->
-  <string name="settings_group_layout">Layout</string>
-  <string name="setting_layout_mode">Layoutmodus</string>
+  <string name="settings_group_layout">Lay-out</string>
+  <string name="setting_layout_mode">Lay-out-modus</string>
   <string name="setting_layout_mode_auto">Automatisch</string>
   <string name="setting_layout_mode_phone">Telefoonlayout</string>
   <string name="setting_layout_mode_slide">Slidemodus</string>
@@ -432,7 +432,7 @@ Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"    <
   <string name="setting_save_original_filename">Sla originele bestandsnaam op</string>
   <string name="setting_save_original_filename_description">
 \"Sla de afbeelding op met de originele bestandsnaam.
-Wanneer uitgeschakeld, wordt de afbeelding opgeslagen met de bestandsnaam van de uploader.\"    </string>
+Wanneer uitgeschakeld wordt de afbeelding opgeslagen met de bestandsnaam van de uploader.\"    </string>
   <string name="setting_video_default_muted">Start video\'s gedempt</string>
   <string name="setting_video_default_muted_description">Als een video geluid heeft het standaard dempen.</string>
   <string name="setting_video_open_external">Speel video\'s af met een externe mediaspeler</string>
