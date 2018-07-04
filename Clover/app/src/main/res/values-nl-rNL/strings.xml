@@ -331,64 +331,63 @@ Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om 
   <string name="setting_watch_enable_background_description">Bladwijzers volgen wanneer Clover in de achtergrond geplaatst is</string>
   <string name="setting_watch_background_timeout">Achtergrond update-interval</string>
   <string name="setting_watch_background_timeout_description">Het interval tussen updates wanneer de app in de achtergrond is geplaatst</string>
-  <string name="setting_watch_notify_mode">Notify about</string>
+  <string name="setting_watch_notify_mode">Melding geven bij</string>
   <string-array name="setting_watch_notify_modes">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Alle posts</item>
+    <item>Alleen posts die jou citeren</item>
   </string-array>
-  <string name="setting_watch_sound">Notification sound</string>
+  <string name="setting_watch_sound">Meldingsgeluid</string>
   <string-array name="setting_watch_sounds">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Alle posts</item>
+    <item>Alleen posts die jou citeren</item>
   </string-array>
-  <string name="setting_watch_peek">Heads-up notification on quotes</string>
-  <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
-  <string name="setting_watch_led">Notification light</string>
+  <string name="setting_watch_peek">Heads-up meldingen bij citaten</string>
+  <string name="setting_watch_peek_description">Laat een heads-up melding zien wanneer je geciteerd wordt</string>
+  <string name="setting_watch_led">Meldingslicht</string>
   <string-array name="setting_watch_leds">
-    <item>None</item>
-    <item>White</item>
-    <item>Red</item>
-    <item>Yellow</item>
-    <item>Green</item>
-    <item>Cyan</item>
-    <item>Blue</item>
-    <item>Purple</item>
+    <item>Geen</item>
+    <item>Wit</item>
+    <item>Rood</item>
+    <item>Geel</item>
+    <item>Groen</item>
+    <item>Cyaan</item>
+    <item>Blauw</item>
+    <item>Paars</item>
   </string-array>
   <!-- Main About group -->
-  <string name="settings_group_about">About</string>
-  <string name="settings_update_check">Check for updates</string>
-  <string name="settings_crash_reporting">Report crashes</string>
+  <string name="settings_group_about">Over deze app</string>
+  <string name="settings_update_check">Op updates controleren</string>
+  <string name="settings_crash_reporting">Crashes rapporteren</string>
   <string name="settings_crash_reporting_description">
-\"Crash reporting creates reports of errors in Clover.
-Crash reports do not collect any personally identifiable information.\"
-    </string>
-  <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
-  <string name="settings_about_license">Released under the GNU GPLv3 license</string>
-  <string name="settings_about_license_description">Tap to see license</string>
-  <string name="settings_about_licenses">Open Source Licenses</string>
-  <string name="settings_about_licenses_description">Legal information about licenses</string>
-  <string name="settings_developer">Developer settings</string>
+\"Crashes rapporteren zet crashrapportages aan in Clover.
+Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"    </string>
+  <string name="settings_crash_reporting_toggle_notice">Instelling zal toegepast worden bij de volgende start.</string>
+  <string name="settings_about_license">Onder de GNU GPLv3 vrijgegeven</string>
+  <string name="settings_about_license_description">Tik om de licentie te zien</string>
+  <string name="settings_about_licenses">Open Source-licenties</string>
+  <string name="settings_about_licenses_description">Legale informatie over licenties</string>
+  <string name="settings_developer">Ontwikkelaarsinstellingen</string>
   <!-- Appearance -->
-  <string name="settings_screen_appearance">Appearance</string>
-  <string name="settings_group_appearance">Appearance</string>
-  <string name="setting_theme">Theme</string>
+  <string name="settings_screen_appearance">Uiterlijk</string>
+  <string name="settings_group_appearance">Uiterlijk</string>
+  <string name="setting_theme">Thema</string>
   <!-- Appearance layout group -->
   <string name="settings_group_layout">Layout</string>
-  <string name="setting_layout_mode">Layout mode</string>
-  <string name="setting_layout_mode_auto">Auto</string>
-  <string name="setting_layout_mode_phone">Phone layout</string>
-  <string name="setting_layout_mode_slide">Slide mode</string>
-  <string name="setting_layout_mode_split">Split mode</string>
-  <string name="setting_board_grid_span_count">Catalog mode column count</string>
-  <string name="setting_board_grid_span_count_default">Auto</string>
-  <string name="setting_board_grid_span_count_item">%1$d columns</string>
-  <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
-  <string name="setting_enable_reply_fab">Enable the reply button</string>
-  <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+  <string name="setting_layout_mode">Layoutmodus</string>
+  <string name="setting_layout_mode_auto">Automatisch</string>
+  <string name="setting_layout_mode_phone">Telefoonlayout</string>
+  <string name="setting_layout_mode_slide">Slidemodus</string>
+  <string name="setting_layout_mode_split">Splitmodus</string>
+  <string name="setting_board_grid_span_count">Catalogusmodus kolom-aantal</string>
+  <string name="setting_board_grid_span_count_default">Automatisch</string>
+  <string name="setting_board_grid_span_count_item">%1$d kolommen</string>
+  <string name="setting_never_hide_toolbar">Verberg de taakbalk nooit</string>
+  <string name="setting_enable_reply_fab">Zet de reactieknop aan</string>
+  <string name="setting_enable_reply_fab_description">De ronde knop wordt vervangen met een menuoptie als deze instelling uit wordt gezet</string>
   <!-- Appearance post group -->
   <string name="settings_group_post">Post</string>
-  <string name="setting_font_size">Font size</string>
-  <string name="setting_font_size_default">(default)</string>
+  <string name="setting_font_size">Lettertypegrootte</string>
+  <string name="setting_font_size_default">(standaard)</string>
   <string name="setting_font_condensed">Use condensed font</string>
   <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
   <string name="setting_post_full_date">Show the full date on posts</string>
