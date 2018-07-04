@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import okhttp3.HttpUrl;
-
 /**
  * Contains all data needed to represent a single post.<br>
  * All {@code final} fields are thread-safe.
@@ -99,12 +97,13 @@ public class Post {
     public final List<Integer> repliesFrom = new ArrayList<>();
 
     // These members may only mutate on the main thread.
-    private boolean sticky = false;
-    private boolean closed = false;
-    private boolean archived = false;
-    private int replies = -1;
-    private int imagesCount = -1;
-    private int uniqueIps = -1;
+    private boolean sticky;
+    private boolean closed;
+    private boolean archived;
+    private int replies;
+    private int imagesCount;
+    private int uniqueIps;
+    private long lastModified;
     private String title = "";
 
     private Post(Builder builder) {
@@ -116,6 +115,7 @@ public class Post {
         replies = builder.replies;
         imagesCount = builder.imagesCount;
         uniqueIps = builder.uniqueIps;
+        lastModified = builder.lastModified;
         sticky = builder.sticky;
         closed = builder.closed;
         archived = builder.archived;
@@ -215,6 +215,16 @@ public class Post {
     }
 
     @MainThread
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    @MainThread
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    @MainThread
     public String getTitle() {
         return title;
     }
@@ -246,18 +256,15 @@ public class Post {
         public boolean sticky;
         public boolean closed;
         public boolean archived;
+        public long lastModified = -1L;
 
         public String subject = "";
         public String name = "";
         public CharSequence comment = "";
         public String tripcode = "";
 
-        public long unixTimestampSeconds = -1;
+        public long unixTimestampSeconds = -1L;
         public List<PostImage> images;
-
-        public String countryCode;
-        public String countryName;
-        public HttpUrl countryUrl;
 
         public List<PostHttpIcon> httpIcons;
 
@@ -321,6 +328,11 @@ public class Post {
 
         public Builder archived(boolean archived) {
             this.archived = archived;
+            return this;
+        }
+
+        public Builder lastModified(long lastModified) {
+            this.lastModified = lastModified;
             return this;
         }
 

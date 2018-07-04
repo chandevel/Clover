@@ -310,6 +310,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
                 realOp.setReplies(fakeOp.replies);
                 realOp.setImagesCount(fakeOp.imagesCount);
                 realOp.setUniqueIps(fakeOp.uniqueIps);
+                realOp.setLastModified(fakeOp.lastModified);
             } else {
                 Logger.e(TAG, "Thread has no op!");
             }
