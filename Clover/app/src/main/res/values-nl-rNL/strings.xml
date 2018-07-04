@@ -399,39 +399,39 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setting_cleared_thread_hides">Alle verborgen threads zijn weer zichtbaar</string>
   <!-- Behaviour reply group -->
   <string name="settings_group_reply">Reacties</string>
-  <string name="setting_post_pin">Pin thread on post</string>
-  <string name="setting_post_default_name">Default post name</string>
+  <string name="setting_post_pin">Bladwijzer maken bij reageren</string>
+  <string name="setting_post_default_name">Standaard reageernaam</string>
   <!-- Behaviour post group -->
-  <string name="setting_text_only">Text only mode</string>
-  <string name="setting_text_only_description">Hide images when in board and thread view</string>
-  <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
-  <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear clicked</string>
-  <string name="setting_anonymize">Make everyone Anonymous</string>
-  <string name="setting_anonymize_ids">Hide IDs</string>
-  <string name="setting_show_anonymous_name">Show Anonymous username</string>
-  <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
-  <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
-  <string name="setting_tap_no_rely">Tap the post number to reply</string>
-  <string name="setting_open_link_confirmation">Ask before opening links</string>
+  <string name="setting_text_only">Alleen-tekst-modus</string>
+  <string name="setting_text_only_description">Afbeeldingen verbergen in de board- en threadweergave</string>
+  <string name="settings_reveal_text_spoilers">Tekstspoilers onthullen</string>
+  <string name="settings_reveal_text_spoilers_description">Hiermee wordt de spoilertekst weergeven alsof er op geklikt is</string>
+  <string name="setting_anonymize">Maak iedereen anoniem</string>
+  <string name="setting_anonymize_ids">Verberg IDs</string>
+  <string name="setting_show_anonymous_name">Toon \"Anonymous\" als naam</string>
+  <string name="setting_buttons_bottom">Reactieknoppen aan de onderkant</string>
+  <string name="setting_volume_key_scrolling">Volumetoetsen scrollen inhoud</string>
+  <string name="setting_tap_no_rely">Tik op het postnummer om te reageren</string>
+  <string name="setting_open_link_confirmation">Vragen voor het openen van links</string>
   <!-- Behaviour proxy group -->
-  <string name="settings_group_proxy">HTTP Proxy</string>
-  <string name="setting_proxy_enabled">Enable proxy</string>
-  <string name="setting_proxy_address">Proxy server address</string>
-  <string name="setting_proxy_port">Proxy server port</string>
+  <string name="settings_group_proxy">HTTP-Proxy</string>
+  <string name="setting_proxy_enabled">Proxy aanzetten</string>
+  <string name="setting_proxy_address">Proxyserver-adres</string>
+  <string name="setting_proxy_port">Proxyserver-poort</string>
   <!-- Media -->
   <string name="settings_screen_media">Media</string>
   <!-- Media general group -->
   <string name="settings_group_media">Media</string>
-  <string name="setting_save_board_folder">Save images in a board folder</string>
-  <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
-  <string name="setting_save_original_filename">Save original filename</string>
-  <string name="setting_save_original_filename_description">Save the image with the filename the site assigned.
-        If disabled, save the image with the filename from the uploader.</string>
-  <string name="setting_video_default_muted">Start videos muted</string>
-  <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
-  <string name="setting_video_open_external">Open videos external</string>
-  <string name="setting_video_open_external_description">Open videos in an external media player</string>
-  <string name="setting_share_url">Share url to image</string>
+  <string name="setting_save_board_folder">Sla afbeeldingen op in een boardmap</string>
+  <string name="setting_save_board_folder_description">Maak een map voor elk board om afbeeldingen in op te slaan</string>
+  <string name="setting_save_original_filename">Sla originele bestandsnaam op</string>
+  <string name="setting_save_original_filename_description">Sla de afbeelding op met de originele bestandsnaam.
+        Wanneer uitgeschakeld, wordt de afbeelding opgeslagen met de bestandsnaam van de uploader.</string>
+  <string name="setting_video_default_muted">Start video\'s gedempt</string>
+  <string name="setting_video_default_muted_description">Als een video geluid heeft het standaard dempen.</string>
+  <string name="setting_video_open_external">Open video\'s extern</string>
+  <string name="setting_video_open_external_description">Open video\'s in een externe mediaspeler</string>
+  <string name="setting_share_url">Deel URL van afbeelding</string>
   <string name="setting_share_url_description">Share the url to the image instead of the image itself</string>
   <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
   <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
