@@ -46,7 +46,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"</string>
   <plurals name="minutes">
     <item quantity="one">%d minuut</item>
-    <item quantity="other">%d minuut</item>
+    <item quantity="other">%d minuten</item>
   </plurals>
   <plurals name="posts">
     <item quantity="one">%d post</item>
@@ -54,15 +54,15 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   </plurals>
   <plurals name="reply">
     <item quantity="one">%d reactie</item>
-    <item quantity="other">%d reactie</item>
+    <item quantity="other">%d reacties</item>
   </plurals>
   <plurals name="image">
     <item quantity="one">%d afbeelding</item>
     <item quantity="other">%d afbeeldingen</item>
   </plurals>
   <plurals name="board">
-    <item quantity="one">%d bord</item>
-    <item quantity="other">%d borden</item>
+    <item quantity="one">%d board</item>
+    <item quantity="other">%d boards</item>
   </plurals>
   <plurals name="type">
     <item quantity="one">%d type</item>
@@ -80,16 +80,16 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
     <item quantity="one">%d site</item>
     <item quantity="other">%d sites</item>
   </plurals>
-  <string name="card_stats">%1$dA %2$dA</string>
+  <string name="card_stats">%1$dA %2$dR</string>
   <string name="action_reload">Herlaad</string>
   <string name="action_pin">Maak bladwijzer</string>
-  <string name="action_open_browser">Open in een browser</string>
+  <string name="action_open_browser">Openen in een browser</string>
   <string name="action_share">Delen</string>
-  <string name="action_download_album">Download album</string>
+  <string name="action_download_album">Album downloaden</string>
   <string name="action_search">Zoeken</string>
-  <string name="action_search_image">Afbeelding zoeken</string>
+  <string name="action_search_image">Op afbeelding zoeken</string>
   <string name="action_switch_catalog">Catalogusmodus</string>
-  <string name="action_switch_board">Bordmodus</string>
+  <string name="action_switch_board">Boardmodus</string>
   <string name="action_scroll_to_top">Boven</string>
   <string name="action_scroll_to_bottom">Onder</string>
   <string name="action_sort">Sorteer</string>
@@ -152,13 +152,13 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setup_sites_add_boards_hint">Tik om borden toe te voegen</string>
   <string name="setup_site_title">Stel %s in</string>
   <string name="setup_site_group_general">Algemeen</string>
-  <string name="setup_site_boards">Borden instellen</string>
+  <string name="setup_site_boards">Boards instellen</string>
   <string name="setup_site_boards_description">%s toegevoegd</string>
   <string name="setup_site_group_login">Authenticatie</string>
   <string name="setup_site_login">Login</string>
   <string name="setup_site_login_description_enabled">Ingelogd</string>
   <string name="setup_site_login_description_disabled">Uit</string>
-  <string name="setup_board_title">Stel borden in van %s</string>
+  <string name="setup_board_title">Stel boards in van %s</string>
   <string name="setup_board_empty">Geen boards toegevoegd</string>
   <string name="setup_board_removed">\"%s\" verwijderd</string>
   <string name="setup_board_added">%s toegevoegd</string>
@@ -172,8 +172,8 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="filter_pattern_hint_regex">Patroon</string>
   <string name="filter_boards">Boards</string>
   <string name="filter_types">Types</string>
-  <string name="filter_type_string_matching">String matchen</string>
-  <string name="filter_type_regex_matching">Regex matchen</string>
+  <string name="filter_type_string_matching">String passen</string>
+  <string name="filter_type_regex_matching">Regex passen</string>
   <string name="filter_all">alle</string>
   <string name="filter_hide">Post verbergen</string>
   <string name="filter_color">Post markeren</string>
@@ -183,7 +183,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="filter_no_matches">Komt niet overeen</string>
   <string name="filter_matches">Komt overeen</string>
   <string name="filter_color_pick">Kies kleur</string>
-  <string name="filter_help_title">Filter hulp</string>
+  <string name="filter_help_title">Filterhulp</string>
   <string name="filter_help">
 <![CDATA[
 Filters werken met patronen en een plek om de patronen te zoeken.<br>
@@ -292,14 +292,14 @@ Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om 
     <item quantity="other">%d nieuwe posts die jou citeren</item>
   </plurals>
   <plurals name="watch_new_quoting">
-    <item quantity="one">%1$d nieuwe post, %2$d die jou citeren</item>
+    <item quantity="one">%1$d nieuwe post, %2$d die jou citeert</item>
     <item quantity="other">%1$d nieuwe posts, %2$d die jou citeren</item>
   </plurals>
   <string name="history_screen">Geschiedenis</string>
   <string name="filters_screen">Filters</string>
   <string name="album_download_screen">Selecteer afbeeldingen (%1$d / %2$d)</string>
   <string name="album_download_none_checked">Selecteer de afbeeldingen om te downloaden</string>
-  <string name="album_download_confirm">%1$s afbeeldingen zullen gedownload worden naar de map %2$s</string>
+  <string name="album_download_confirm">%1$s zullen gedownload worden naar de map %2$s</string>
   <string name="report_screen">Rapporteer %1$s</string>
   <string name="image_save_notification_downloading">Afbeeldingen aan het downloaden</string>
   <string name="image_save_notification_cancel">Tik om te annuleren</string>
