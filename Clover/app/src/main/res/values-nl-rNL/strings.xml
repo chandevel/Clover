@@ -102,6 +102,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="order_image">Aantal afbeeldingen</string>
   <string name="order_newest">Nieuwste</string>
   <string name="order_oldest">Oudste</string>
+  <string name="order_modified">Latest reply</string>
   <string name="search_hint">Zoeken</string>
   <string name="search_results">%1$d %2$s gevonden voor \"%3$s\"</string>
   <string name="search_empty">Zoek in onderwerpen, commentaar, namen en bestandsnamen</string>
