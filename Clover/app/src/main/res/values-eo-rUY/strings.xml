@@ -113,7 +113,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="thumbnail_load_failed_network">Eraro</string>
   <string name="image_preview_failed">Malsukcesis montri bildon</string>
   <string name="image_preview_failed_oom">Malsukcesis montri bildon: memormanko</string>
-  <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
+  <string name="image_failed_big_image">Fortzomo-ŝarĝo malsukcesis</string>
   <string name="image_not_found">Bildo ne trovita</string>
   <string name="image_open_failed">Malsukcesis malfermi bildon</string>
   <string name="image_spoiler_filename">Spoiler image</string>
@@ -125,7 +125,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="thread_load_failed_not_found">404 ne trovita</string>
   <string name="thread_refresh_bar_inactive">Promi por aktualigi</string>
   <string name="thread_refresh_now">Ŝarĝi</string>
-  <string name="thread_refresh_countdown">Loading in %1$ds</string>
+  <string name="thread_refresh_countdown">Ŝarĝi je %1$ds</string>
   <string name="thread_load_failed_retry">Reprovi</string>
   <string name="thread_archived">Enarĥivigita</string>
   <string name="thread_closed">Fermita</string>
@@ -145,7 +145,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="setup_sites_empty">Neniujn retpaĝojn aligitajn</string>
   <string name="setup_sites_add_hint">Aligi retpaĝon ĉi tie</string>
   <string name="setup_sites_add_title">Aligi retpaĝon</string>
-  <string name="setup_sites_description">Add a site by its URL or name</string>
+  <string name="setup_sites_description">Aligi retpaĝon per ĝia URL aŭ nomo</string>
   <string name="setup_sites_url">URL aŭ nomo</string>
   <string name="setup_sites_url_hint">http://esperanto.net/</string>
   <string name="setup_sites_site_description">%s aligita</string>
@@ -160,7 +160,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="setup_site_login_description_disabled">Off</string>
   <string name="setup_board_title">Configure boards of %s</string>
   <string name="setup_board_empty">No boards added</string>
-  <string name="setup_board_removed">Removed \"%s\"</string>
+  <string name="setup_board_removed">Forigis «%s»</string>
   <string name="setup_board_added">%s added</string>
   <string name="setup_board_select_all">Select all</string>
   <string name="filter_summary_all_boards">All boards</string>
@@ -228,7 +228,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="archive_title">%s arĥivo</string>
   <string name="archive_error">Eraro dum ŝarĝi arĥivon</string>
   <string name="drawer_pinned">Paĝosignaj fadenoj</string>
-  <string name="drawer_pin_removed">Removed \"%1$s\"</string>
+  <string name="drawer_pin_removed">Forigis «%1$s»</string>
   <string name="drawer_pins_cleared">%1$s vakigita</string>
   <string name="drawer_pins_non_cleared">Neniuj paĝosignoj vekitas.</string>
   <string name="drawer_pins_non_cleared_try_all">Neniuj paĝosignoj vekitas. Tuŝadi por forigi ĉiujn.</string>
@@ -272,11 +272,9 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="delete_error">Eraro dum forigi afiŝon</string>
   <string name="video_playback_warning_title">WebM-video eraro</string>
   <string name="video_playback_warning">
-\"The WebM video failed to play. This might be a problem with the hardware of your phone.
+\"La WebM-video malsukcesis ludi. Tio povas esti problemo de la aparataro de via poŝtelefono.
 
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
-    </string>
+Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝalti «Malfermu videojn ekstere» en la agordoj por ke la video malfermas ekstere en programaran malkodanta apon.\"    </string>
   <string name="video_playback_ignore">Don\'t show again</string>
   <string name="watch_pause_pins">Stop watching</string>
   <string name="watch_idle">No new posts</string>
