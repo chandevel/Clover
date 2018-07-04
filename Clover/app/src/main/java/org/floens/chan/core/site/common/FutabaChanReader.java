@@ -193,6 +193,9 @@ public class FutabaChanReader implements ChanReader {
                 case "unique_ips":
                     builder.uniqueIps(reader.nextInt());
                     break;
+                case "last_modified":
+                    builder.lastModified(reader.nextLong());
+                    break;
                 case "id":
                     builder.posterId(reader.nextString());
                     break;
@@ -253,6 +256,7 @@ public class FutabaChanReader implements ChanReader {
             op.replies(builder.replies);
             op.images(builder.imagesCount);
             op.uniqueIps(builder.uniqueIps);
+            op.lastModified(builder.lastModified);
             queue.setOp(op);
         }
 

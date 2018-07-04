@@ -11,3 +11,6 @@ android:
     - android-27
 
 script: cd Clover && ./gradlew build --console plain -x lint
+
+notifications:
+  email: false

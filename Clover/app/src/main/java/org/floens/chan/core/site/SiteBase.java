@@ -25,7 +25,6 @@ import org.floens.chan.core.database.LoadableProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.orm.Board;
-import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.settings.json.JsonSettingsProvider;
@@ -99,7 +98,7 @@ public abstract class SiteBase implements Site {
     }
 
     @Override
-    public List<Setting<?>> settings() {
+    public List<SiteSetting> settings() {
         return new ArrayList<>();
     }
 

@@ -290,6 +290,9 @@ public class BrowseController extends ThreadController implements
                 case OLDEST:
                     nameId = R.string.order_oldest;
                     break;
+                case MODIFIED:
+                    nameId = R.string.order_modified;
+                    break;
             }
 
             String name = getString(nameId);

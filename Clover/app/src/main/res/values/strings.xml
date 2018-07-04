@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="add">Add</string>
     <string name="close">Close</string>
     <string name="back">Back</string>
-    <string name="up">Up</string>
     <string name="ok">OK</string>
     <string name="exit">Exit</string>
     <string name="delete">Delete</string>
@@ -117,6 +116,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="order_image">Image count</string>
     <string name="order_newest">Newest</string>
     <string name="order_oldest">Oldest</string>
+    <string name="order_modified">Latest reply</string>
 
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$d %2$s for "%3$s"</string>
@@ -149,7 +149,10 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
-    <string name="thread_new_posts">%1$d new %2$s</string>
+    <plurals name="thread_new_posts">
+        <item quantity="one">%d new post</item>
+        <item quantity="other">%d new posts</item>
+    </plurals>
     <string name="thread_new_posts_goto">View</string>
     <string name="thread_empty_select">Please select a thread</string>
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
@@ -296,7 +299,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="reply_error_message">Error posting: %s</string>
     <string name="reply_success">Post successful</string>
     <string name="reply_captcha_text">Type the text</string>
-    <string name="reply_comment_button_quote">&gt;</string>
+    <string name="reply_comment_button_quote" translatable="false">&gt;</string>
     <string name="reply_comment_button_spoiler">[s]</string>
 
     <string name="delete_confirm">Delete your post?</string>
@@ -522,6 +525,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
     <string name="setting_folder_pick_ok">Choose</string>
+    <string name="setting_folder_navigate_up">Up</string>
 
 
     <!-- Theme settings -->

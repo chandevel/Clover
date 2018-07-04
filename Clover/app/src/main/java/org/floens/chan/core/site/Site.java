@@ -21,12 +21,11 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.json.JsonSettings;
-import org.floens.chan.core.site.parser.ChanReader;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.core.site.parser.ChanReader;
 
 import java.util.List;
 
@@ -150,7 +149,7 @@ public interface Site {
 
     boolean boardFeature(BoardFeature boardFeature, Board board);
 
-    List<Setting<?>> settings();
+    List<SiteSetting> settings();
 
     SiteEndpoints endpoints();
 

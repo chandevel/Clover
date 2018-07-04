@@ -18,12 +18,13 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SiteSetupPresenter;
 import org.floens.chan.core.settings.OptionsSetting;
-import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteSetting;
 import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.ListSettingView;
 import org.floens.chan.ui.settings.SettingsController;
@@ -98,27 +99,42 @@ public class SiteSetupController extends SettingsController implements SiteSetup
     }
 
     @Override
-    public void showSettings(List<Setting<?>> settings) {
+    public void showSettings(List<SiteSetting> settings) {
         SettingsGroup group = new SettingsGroup("Additional settings");
 
-        for (Setting<?> setting : settings) {
-            if (setting instanceof OptionsSetting) {
-                OptionsSetting optionsSetting = (OptionsSetting) setting;
+        for (SiteSetting setting : settings) {
+            if (setting.type == SiteSetting.Type.OPTIONS) {
+
+                // Turn the SiteSetting for a list of options into a proper setting with a
+                // name and a list of options, both given in the SiteSetting.
+                OptionsSetting optionsSetting = (OptionsSetting) setting.setting;
 
                 List<ListSettingView.Item<Enum>> items = new ArrayList<>();
-                for (Enum anEnum : optionsSetting.getItems()) {
-                    items.add(new ListSettingView.Item<>(anEnum.name(), anEnum));
+                Enum[] settingItems = optionsSetting.getItems();
+                for (int i = 0; i < settingItems.length; i++) {
+                    String name = setting.optionNames.get(i);
+                    Enum anEnum = settingItems[i];
+                    items.add(new ListSettingView.Item<>(name, anEnum));
                 }
 
-                String name = optionsSetting.getItems()[0].getDeclaringClass().getSimpleName();
-                ListSettingView<?> v = new ListSettingView(this,
-                        optionsSetting, name, items);
+                ListSettingView<?> v = getListSettingView(setting, optionsSetting, items);
 
                 group.add(v);
             }
         }
 
         groups.add(group);
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    private ListSettingView<?> getListSettingView(
+            SiteSetting setting,
+            OptionsSetting optionsSetting,
+            List<ListSettingView.Item<Enum>> items) {
+        // we know it's an enum
+        return (ListSettingView<?>) new ListSettingView(this,
+                optionsSetting, setting.name, items);
     }
 
     @Override

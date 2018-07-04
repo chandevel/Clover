@@ -115,6 +115,7 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
 
     @Override
     public void onSearchEntered(String entered) {
+        presenter.onSearchEntered(entered);
     }
 
     @Override

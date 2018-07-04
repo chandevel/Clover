@@ -35,33 +35,20 @@ import javax.inject.Inject;
 import static org.floens.chan.Chan.inject;
 
 public class PostsFilter {
-    public static final Comparator<Post> IMAGE_COMPARATOR = new Comparator<Post>() {
-        @Override
-        public int compare(Post lhs, Post rhs) {
-            return rhs.getImagesCount() - lhs.getImagesCount();
-        }
-    };
+    private static final Comparator<Post> IMAGE_COMPARATOR =
+            (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount();
 
-    public static final Comparator<Post> REPLY_COMPARATOR = new Comparator<Post>() {
-        @Override
-        public int compare(Post lhs, Post rhs) {
-            return rhs.getReplies() - lhs.getReplies();
-        }
-    };
+    private static final Comparator<Post> REPLY_COMPARATOR =
+            (lhs, rhs) -> rhs.getReplies() - lhs.getReplies();
 
-    public static final Comparator<Post> NEWEST_COMPARATOR = new Comparator<Post>() {
-        @Override
-        public int compare(Post lhs, Post rhs) {
-            return (int) (rhs.time - lhs.time);
-        }
-    };
+    private static final Comparator<Post> NEWEST_COMPARATOR =
+            (lhs, rhs) -> (int) (rhs.time - lhs.time);
 
-    public static final Comparator<Post> OLDEST_COMPARATOR = new Comparator<Post>() {
-        @Override
-        public int compare(Post lhs, Post rhs) {
-            return (int) (lhs.time - rhs.time);
-        }
-    };
+    private static final Comparator<Post> OLDEST_COMPARATOR =
+            (lhs, rhs) -> (int) (lhs.time - rhs.time);
+
+    private static final Comparator<Post> MODIFIED_COMPARATOR =
+            (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified());
 
     @Inject
     DatabaseManager databaseManager;
@@ -98,6 +85,9 @@ public class PostsFilter {
                     break;
                 case OLDEST:
                     Collections.sort(posts, OLDEST_COMPARATOR);
+                    break;
+                case MODIFIED:
+                    Collections.sort(posts, MODIFIED_COMPARATOR);
                     break;
             }
         }
@@ -149,7 +139,8 @@ public class PostsFilter {
         REPLY("reply"),
         IMAGE("image"),
         NEWEST("newest"),
-        OLDEST("oldest");
+        OLDEST("oldest"),
+        MODIFIED("modified");
 
         public String name;
 
