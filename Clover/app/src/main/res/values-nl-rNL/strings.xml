@@ -53,8 +53,8 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
     <item quantity="other">posts</item>
   </plurals>
   <plurals name="reply">
-    <item quantity="one">%d antwoord</item>
-    <item quantity="other">%d antwoorden</item>
+    <item quantity="one">%d reactie</item>
+    <item quantity="other">%d reactie</item>
   </plurals>
   <plurals name="image">
     <item quantity="one">%d afbeelding</item>
@@ -102,7 +102,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="order_image">Aantal afbeeldingen</string>
   <string name="order_newest">Nieuwste</string>
   <string name="order_oldest">Oudste</string>
-  <string name="order_modified">Latest reply</string>
+  <string name="order_modified">Laatste reactie</string>
   <string name="search_hint">Zoeken</string>
   <string name="search_results">%1$d %2$s gevonden voor \"%3$s\"</string>
   <string name="search_empty">Zoek in onderwerpen, commentaar, namen en bestandsnamen</string>
@@ -130,8 +130,8 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="thread_archived">Gearchiveerd</string>
   <string name="thread_closed">Gesloten</string>
   <plurals name="thread_new_posts">
-    <item quantity="one">%d new post</item>
-    <item quantity="other">%d new posts</item>
+    <item quantity="one">%d nieuwe post</item>
+    <item quantity="other">%d nieuwe posts</item>
   </plurals>
   <string name="thread_new_posts_goto">Tonen</string>
   <string name="thread_empty_select">Selecteer een thread</string>
@@ -159,31 +159,31 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setup_site_login_description_enabled">Ingelogd</string>
   <string name="setup_site_login_description_disabled">Uit</string>
   <string name="setup_board_title">Stel borden in van %s</string>
-  <string name="setup_board_empty">No boards added</string>
-  <string name="setup_board_removed">Removed \'%s\'</string>
-  <string name="setup_board_added">%s added</string>
-  <string name="setup_board_select_all">Select all</string>
-  <string name="filter_summary_all_boards">all boards</string>
-  <string name="filter_enabled">Enabled</string>
+  <string name="setup_board_empty">Geen boards toegevoegd</string>
+  <string name="setup_board_removed">\'%s\' verwijderd</string>
+  <string name="setup_board_added">%s toegevoegd</string>
+  <string name="setup_board_select_all">Alles selecteren</string>
+  <string name="filter_summary_all_boards">alle boards</string>
+  <string name="filter_enabled">Aan</string>
   <string name="filter_filter">Filter</string>
-  <string name="filter_action">Action</string>
-  <string name="filter_pattern">Pattern</string>
-  <string name="filter_match_test">Test pattern</string>
-  <string name="filter_pattern_hint_regex">Pattern</string>
+  <string name="filter_action">Actie</string>
+  <string name="filter_pattern">Patroon</string>
+  <string name="filter_match_test">Testpatroon</string>
+  <string name="filter_pattern_hint_regex">Patroon</string>
   <string name="filter_boards">Boards</string>
   <string name="filter_types">Types</string>
-  <string name="filter_type_string_matching">String matching</string>
-  <string name="filter_type_regex_matching">Regex matching</string>
-  <string name="filter_all">all</string>
-  <string name="filter_hide">Hide post</string>
-  <string name="filter_color">Highlight post</string>
-  <string name="filter_remove">Remove post</string>
-  <string name="filter_invalid_pattern">Invalid pattern</string>
-  <string name="filter_preview">Test your filter</string>
-  <string name="filter_no_matches">Does not match</string>
-  <string name="filter_matches">Matches</string>
-  <string name="filter_color_pick">Pick color</string>
-  <string name="filter_help_title">Filter help</string>
+  <string name="filter_type_string_matching">String matchen</string>
+  <string name="filter_type_regex_matching">Regex matchen</string>
+  <string name="filter_all">alle</string>
+  <string name="filter_hide">Post verbergen</string>
+  <string name="filter_color">Post markeren</string>
+  <string name="filter_remove">Post verwijderen</string>
+  <string name="filter_invalid_pattern">Ongeldig patroon</string>
+  <string name="filter_preview">Test je filter</string>
+  <string name="filter_no_matches">Komt niet overeen</string>
+  <string name="filter_matches">Komt overeen</string>
+  <string name="filter_color_pick">Kies kleur</string>
+  <string name="filter_help_title">Filter hulp</string>
   <string name="filter_help">
         <![CDATA[
         Filters act on a given pattern and a place to search the pattern.<br>
@@ -210,8 +210,8 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
         ]]>
     </string>
   <string name="filter_tripcode">Tripcode</string>
-  <string name="filter_name">Name</string>
-  <string name="filter_comment">Comment</string>
+  <string name="filter_name">Naam</string>
+  <string name="filter_comment">Commentaar</string>
   <string name="filter_id">ID</string>
   <string name="filter_subject">Subject</string>
   <string name="filter_filename">Filename</string>
@@ -398,7 +398,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setting_clear_thread_hides">Clear all thread hides</string>
   <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
   <!-- Behaviour reply group -->
-  <string name="settings_group_reply">Reply</string>
+  <string name="settings_group_reply">Reacties</string>
   <string name="setting_use_new_captcha">Use the new captcha</string>
   <string name="setting_use_new_captcha_description">Enable to use the newer recaptcha for thread replies.</string>
   <string name="setting_post_pin">Pin thread on post</string>
