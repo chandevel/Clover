@@ -102,6 +102,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="order_image">Bildnombro</string>
   <string name="order_newest">Plej novaj</string>
   <string name="order_oldest">Plej malnovaj</string>
+  <string name="order_modified">Latest reply</string>
   <string name="search_hint">Serĉi</string>
   <string name="search_results">Trovis %1$d %2$s por «%3$s»</string>
   <string name="search_empty">Serĉi temojn, komentojn, nomojn kaj dosiernomojn</string>
