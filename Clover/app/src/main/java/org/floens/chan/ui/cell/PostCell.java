@@ -189,7 +189,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         divider.setLayoutParams(dividerParams);
 
         OnClickListener repliesClickListener = v -> {
-            if (replies.getVisibility() != VISIBLE || !replies.isClickable() || !threadMode) {
+            if (replies.getVisibility() != VISIBLE || !threadMode) {
                 return;
             }
             int repliesFromSize;
@@ -326,6 +326,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         setPostLinkableListener(post, true);
 
         replies.setClickable(threadMode);
+        repliesAdditionalArea.setClickable(threadMode);
 
         if (!threadMode) {
             replies.setBackgroundResource(0);
