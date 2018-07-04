@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_install_download_failed">Downloaden mislukt</string>
   <string name="update_install_download_move_failed">Kon het gedownloade bestand niet verplaatsen naar de Downloads map.</string>
   <string name="update_retry_title">Probeer update opnieuw</string>
-  <string name="update_retry">Clover was not updated yet. Tap \"retry\" to retry the install.</string>
+  <string name="update_retry">Clover is nog niet geüpdatet. Tik op \"opnieuw proberen\" om de installatie opnieuw te proberen.</string>
   <string name="update_retry_button">opnieuw proberen</string>
   <string name="update_storage_permission_required_title">Opslagpermissie vereist</string>
   <string name="update_storage_permission_required">
@@ -82,21 +82,21 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   </plurals>
   <string name="card_stats">%1$dA %2$dA</string>
   <string name="action_reload">Herlaad</string>
-  <string name="action_pin">Bookmark</string>
-  <string name="action_open_browser">Open in a browser</string>
+  <string name="action_pin">Maak bladwijzer</string>
+  <string name="action_open_browser">Open in een browser</string>
   <string name="action_share">Delen</string>
   <string name="action_download_album">Download album</string>
   <string name="action_search">Zoeken</string>
   <string name="action_search_image">Afbeelding zoeken</string>
   <string name="action_switch_catalog">Catalogusmodus</string>
   <string name="action_switch_board">Bordmodus</string>
-  <string name="action_scroll_to_top">Top</string>
-  <string name="action_scroll_to_bottom">Bottom</string>
-  <string name="action_sort">Sort</string>
-  <string name="action_rename_pin">Rename bookmark</string>
+  <string name="action_scroll_to_top">Boven</string>
+  <string name="action_scroll_to_bottom">Onder</string>
+  <string name="action_sort">Sorteer</string>
+  <string name="action_rename_pin">Hernoem bladwijzer</string>
   <string name="action_rename">Hernoemen</string>
   <string name="action_reply">Reageren</string>
-  <string name="open_link_not_matched">Clover cannot open this link; it will open in your browser instead.</string>
+  <string name="open_link_not_matched">Clover kan deze link niet openen; we openen het in je browser.</string>
   <string name="order_bump">Stootvolgorde</string>
   <string name="order_reply">Aantal reacties</string>
   <string name="order_image">Aantal afbeeldingen</string>
@@ -104,16 +104,16 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="order_oldest">Oudste</string>
   <string name="order_modified">Laatste reactie</string>
   <string name="search_hint">Zoeken</string>
-  <string name="search_results">Found %1$s for \"%2$s\"</string>
+  <string name="search_results">%1$s gevonden voor \"%2$s\"</string>
   <string name="search_empty">Zoek in onderwerpen, commentaar, namen en bestandsnamen</string>
-  <string name="open_link_confirmation">Open this link?</string>
+  <string name="open_link_confirmation">Open deze link?</string>
   <string name="open_thread_confirmation">Thread openen?</string>
-  <string name="open_link_failed">No applications were found to open this link</string>
+  <string name="open_link_failed">Geen apps gevonden om deze link te openen</string>
   <string name="action_confirm_exit_title">Afsluiten bevestigen</string>
   <string name="thumbnail_load_failed_network">Fout</string>
   <string name="image_preview_failed">Kon afbeelding niet weergeven</string>
   <string name="image_preview_failed_oom">Kon afbeelding niet weergeven, geen geheugen meer</string>
-  <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
+  <string name="image_failed_big_image">Kon afbeelding niet weergeven, deep-zoom is gefaald</string>
   <string name="image_not_found">Afbeelding niet gevonden</string>
   <string name="image_open_failed">Kon afbeelding niet openen</string>
   <string name="image_spoiler_filename">Spoilerafbeelding</string>
@@ -125,7 +125,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="thread_load_failed_not_found">404 niet gevonden</string>
   <string name="thread_refresh_bar_inactive">Tik om te vernieuwen</string>
   <string name="thread_refresh_now">Laden</string>
-  <string name="thread_refresh_countdown">Loading in %1$ds</string>
+  <string name="thread_refresh_countdown">Laden over %1$ds</string>
   <string name="thread_load_failed_retry">Opnieuw proberen</string>
   <string name="thread_archived">Gearchiveerd</string>
   <string name="thread_closed">Gesloten</string>
@@ -145,7 +145,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setup_sites_empty">Geen sites toegevoegd</string>
   <string name="setup_sites_add_hint">Voeg hier een site toe</string>
   <string name="setup_sites_add_title">Site toevoegen</string>
-  <string name="setup_sites_description">Add a site by its URL or name</string>
+  <string name="setup_sites_description">Voeg een site toe met de URL of naam</string>
   <string name="setup_sites_url">URL of naam</string>
   <string name="setup_sites_url_hint">http://voorbeeld.nl</string>
   <string name="setup_sites_site_description">%s toegevoegd</string>
@@ -160,15 +160,15 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setup_site_login_description_disabled">Uit</string>
   <string name="setup_board_title">Stel borden in van %s</string>
   <string name="setup_board_empty">Geen boards toegevoegd</string>
-  <string name="setup_board_removed">Removed \"%s\"</string>
+  <string name="setup_board_removed">\"%s\" verwijderd</string>
   <string name="setup_board_added">%s toegevoegd</string>
   <string name="setup_board_select_all">Alles selecteren</string>
-  <string name="filter_summary_all_boards">All boards</string>
+  <string name="filter_summary_all_boards">Alle boards</string>
   <string name="filter_enabled">Aan</string>
   <string name="filter_filter">Filter</string>
   <string name="filter_action">Actie</string>
   <string name="filter_pattern">Patroon</string>
-  <string name="filter_match_test">Test the pattern</string>
+  <string name="filter_match_test">Test het patroon</string>
   <string name="filter_pattern_hint_regex">Patroon</string>
   <string name="filter_boards">Boards</string>
   <string name="filter_types">Types</string>
@@ -228,7 +228,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="archive_title">Archief van %s</string>
   <string name="archive_error">Fout bij laden van archief</string>
   <string name="drawer_pinned">Threads met bladwijzer</string>
-  <string name="drawer_pin_removed">Removed \"%1$s\"</string>
+  <string name="drawer_pin_removed">\"%1$s\" verwijderd</string>
   <string name="drawer_pins_cleared">%1$s gewist</string>
   <string name="drawer_pins_non_cleared">Geen bladwijzers gewist.</string>
   <string name="drawer_pins_non_cleared_try_all">Geen bladwijzers gewist. Hou ingedrukt om alles te wissen.</string>
@@ -272,11 +272,10 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="delete_error">Fout bij verwijderen post</string>
   <string name="video_playback_warning_title">WebM-video fout</string>
   <string name="video_playback_warning">
-\"The WebM video failed to play. This might be a problem with the hardware of your phone.
+\"De WebM-video kon niet afgespeeld worden. Dit kan een probleem zijn met de hardware van je telefoon.
 
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
-    </string>
+Als tijdelijke oplossing kan je een externe mediaspeler met een software-decoder gebruiken.
+Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om video\'s af te spelen in een externe mediaspeler.\"    </string>
   <string name="video_playback_ignore">Niet meer tonen</string>
   <string name="watch_pause_pins">Stop met volgen</string>
   <string name="watch_idle">Geen nieuwe posts</string>
@@ -305,7 +304,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="image_save_notification_downloading">Afbeeldingen aan het downloaden</string>
   <string name="image_save_notification_cancel">Tik om te annuleren</string>
   <string name="image_save_saved">Afbeelding opgeslagen</string>
-  <string name="image_save_as">Saved as \"%1$s\"</string>
+  <string name="image_save_as">Opgeslagen als \"%1$s\"</string>
   <string name="image_save_failed">Afbeelding opslaan mislukt</string>
   <string name="drawer_sites">Sites instellen</string>
   <string name="drawer_history">Geschiedenis</string>
@@ -317,21 +316,21 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="settings_sites">Sites</string>
   <string name="settings_appearance">Uiterlijk</string>
   <string name="settings_appearance_description">Thema, layout, lettertype, etc.</string>
-  <string name="settings_behavior">Behavior</string>
-  <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
+  <string name="settings_behavior">Gedrag</string>
+  <string name="settings_behavior_description">Threadverversing, captcha, etc.</string>
   <string name="settings_media">Media</string>
   <string name="settings_media_description">Opslaglocatie, automatisch laden, etc.</string>
   <string name="settings_filters">Filters</string>
   <!-- Thread watcher -->
-  <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
+  <string name="setting_watch_summary_enabled">Threads met bladwijzer aan het volgen</string>
   <string name="setting_watch_summary_disabled">Uit</string>
   <string name="settings_screen_watch">Threadvolger instellingen</string>
   <string name="settings_group_watch">Instellingen</string>
-  <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
+  <string name="setting_watch_info">Zet de threadvolger aan om threads met bladwijzers te volgen voor nieuwe posts.</string>
   <string name="setting_watch_enable_background">Uitvoeren in de achtergrond</string>
-  <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
+  <string name="setting_watch_enable_background_description">Bladwijzers volgen wanneer Clover in de achtergrond geplaatst is</string>
   <string name="setting_watch_background_timeout">Achtergrond update-interval</string>
-  <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
+  <string name="setting_watch_background_timeout_description">Het interval tussen updates wanneer de app in de achtergrond is geplaatst</string>
   <string name="setting_watch_notify_mode">Notify about</string>
   <string-array name="setting_watch_notify_modes">
     <item>All posts</item>
@@ -438,7 +437,7 @@ If disabled, save the image with the filename the uploader assigned.\"
     </string>
   <string name="setting_video_default_muted">Start video\'s gedempt</string>
   <string name="setting_video_default_muted_description">Als een video geluid heeft het standaard dempen.</string>
-  <string name="setting_video_open_external">Play videos with external player</string>
+  <string name="setting_video_open_external">Speel video\'s af met een externe mediaspeler</string>
   <string name="setting_video_open_external_description">Play videos in an external media player app</string>
   <string name="setting_share_url">Share URL to image</string>
   <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
