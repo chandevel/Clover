@@ -119,7 +119,9 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="thread_load_failed_retry">Retry</string>
   <string name="thread_archived">Archived</string>
   <string name="thread_closed">Closed</string>
-  <string name="thread_new_posts">%1$d new %2$s</string>
+  <plurals name="thread_new_posts">
+    <item quantity="other">%d new posts</item>
+  </plurals>
   <string name="thread_new_posts_goto">View</string>
   <string name="thread_empty_select">Please select a thread</string>
   <string name="thread_up_down_hint">Scroll to top/bottom</string>
@@ -251,7 +253,6 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="reply_error_message">Error posting: %s</string>
   <string name="reply_success">Post successful</string>
   <string name="reply_captcha_text">Type the text</string>
-  <string name="reply_comment_button_quote">&gt;</string>
   <string name="reply_comment_button_spoiler">[s]</string>
   <string name="delete_confirm">Delete your post?</string>
   <string name="delete_wait">Deleting post&#8230;</string>
