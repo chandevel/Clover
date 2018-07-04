@@ -26,7 +26,6 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.OptionSettingItem;
 import org.floens.chan.core.settings.OptionsSetting;
-import org.floens.chan.core.settings.Setting;
 import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
 import org.floens.chan.core.settings.StringSetting;
@@ -38,6 +37,7 @@ import org.floens.chan.core.site.SiteBase;
 import org.floens.chan.core.site.SiteEndpoints;
 import org.floens.chan.core.site.SiteIcon;
 import org.floens.chan.core.site.SiteRequestModifier;
+import org.floens.chan.core.site.SiteSetting;
 import org.floens.chan.core.site.SiteUrlHandler;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
 import org.floens.chan.core.site.common.FutabaChanReader;
@@ -478,14 +478,18 @@ public class Chan4 extends SiteBase {
     public void initializeSettings() {
         super.initializeSettings();
 
-        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type",
+        captchaType = new OptionsSetting<>(settingsProvider,
+                "preference_captcha_type",
                 CaptchaType.class, CaptchaType.V2NOJS);
     }
 
     @Override
-    public List<Setting<?>> settings() {
+    public List<SiteSetting> settings() {
         return Arrays.asList(
-                captchaType
+                SiteSetting.forOption(
+                        captchaType,
+                        "Captcha type",
+                        Arrays.asList("Javascript", "Noscript"))
         );
     }
 
