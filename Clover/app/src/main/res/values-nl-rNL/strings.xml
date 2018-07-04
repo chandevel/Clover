@@ -432,38 +432,38 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
   <string name="setting_video_open_external">Open video\'s extern</string>
   <string name="setting_video_open_external_description">Open video\'s in een externe mediaspeler</string>
   <string name="setting_share_url">Deel URL van afbeelding</string>
-  <string name="setting_share_url_description">Share the url to the image instead of the image itself</string>
-  <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
-  <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
+  <string name="setting_share_url_description">Deel de URL van de afbeelding in plaats van de afbeelding zelf</string>
+  <string name="settings_reveal_image_spoilers">Afbeeldingspoilers onthullen</string>
+  <string name="settings_reveal_image_spoilers_description">Altijd afbeeldingspoilers onthullen.</string>
   <!-- Media loading group -->
-  <string name="settings_group_media_loading">Media loading</string>
-  <string name="setting_image_auto_load">Auto load images</string>
-  <string name="setting_image_auto_load_all">Always</string>
-  <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
-  <string name="setting_image_auto_load_none">Never</string>
-  <string name="setting_video_auto_load">Auto load videos</string>
+  <string name="settings_group_media_loading">Media laden</string>
+  <string name="setting_image_auto_load">Automatisch afbeeldingen laden</string>
+  <string name="setting_image_auto_load_all">Altijd</string>
+  <string name="setting_image_auto_load_wifi">Alleen Wi-Fi</string>
+  <string name="setting_image_auto_load_none">Nooit</string>
+  <string name="setting_video_auto_load">Automatisch video\'s laden</string>
   <!-- Save location settings -->
-  <string name="save_location_screen">Save location</string>
-  <string name="save_location_storage_permission_required_title">Storage permission required</string>
+  <string name="save_location_screen">Opslaglocatie</string>
+  <string name="save_location_storage_permission_required_title">Opslagpermissie vereist</string>
   <string name="save_location_storage_permission_required">
-\"Permission to access storage is required for browsing files.
+\"Permissie voor toegang tot de opslag is vereist voor het weergeven van bestanden.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
-  <string name="setting_folder_pick_ok">Choose</string>
-  <string name="setting_folder_navigate_up">Up</string>
+Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"</string>
+  <string name="setting_folder_pick_ok">Kiezen</string>
+  <string name="setting_folder_navigate_up">Omhoog</string>
   <!-- Theme settings -->
-  <string name="setting_theme_explanation">Swipe to change the theme.\nTap the toolbar menu to change its color.\n</string>
-  <string name="setting_theme_accent">Click here to change the FAB color</string>
+  <string name="setting_theme_explanation">Swipe om het thema te veranderen.\nTik op het taakbalkmenu om de kleur te veranderen.\n</string>
+  <string name="setting_theme_accent">Klik hier om de FAB van kleur te veranderen</string>
   <!-- Developer settings -->
-  <string name="settings_open_logs">View logs</string>
-  <string name="settings_logs_screen">Logs</string>
-  <string name="settings_logs_copy">Copy</string>
-  <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
+  <string name="settings_open_logs">Bekijk logboeken</string>
+  <string name="settings_logs_screen">Logboeken</string>
+  <string name="settings_logs_copy">Kopiëren</string>
+  <string name="settings_logs_copied_to_clipboard">Gekopieerd naar klembord</string>
   <string name="settings_screen_pass">4chan pass</string>
   <string name="setting_pass_token">Token</string>
   <string name="setting_pass_pin">PIN</string>
-  <string name="setting_pass_authenticated">Device authorized!</string>
-  <string name="setting_pass_login">Submit</string>
+  <string name="setting_pass_authenticated">Apparaat geautoriseerd!</string>
+  <string name="setting_pass_login">Versturen</string>
   <string name="setting_pass_logout">Logout</string>
   <string name="setting_pass_logging_in">Loading&#8230;</string>
   <string name="setting_pass_error">Connection error</string>
