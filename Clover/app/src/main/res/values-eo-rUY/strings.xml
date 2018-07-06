@@ -291,12 +291,12 @@ Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝa
     <item quantity="other">%d novaj afiŝoj citantaj vin</item>
   </plurals>
   <plurals name="watch_new_quoting">
-    <item quantity="one">%1$d new post, %2$d quoting you</item>
-    <item quantity="other">%1$d new posts, %2$d quoting you</item>
+    <item quantity="one">%1$d nova afiŝo, %2$d citanta(j) vin</item>
+    <item quantity="other">%1$d novaj afiŝoj, %2$d citanta(j) vin</item>
   </plurals>
-  <string name="history_screen">History</string>
-  <string name="filters_screen">Filters</string>
-  <string name="album_download_screen">Select images (%1$d / %2$d)</string>
+  <string name="history_screen">Historio</string>
+  <string name="filters_screen">Filtriloj</string>
+  <string name="album_download_screen">Elekti bildojn (%1$d / %2$d)</string>
   <string name="album_download_none_checked">Please select images to download</string>
   <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
   <string name="report_screen">Report %1$s</string>
