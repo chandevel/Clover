@@ -279,8 +279,8 @@ Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝa
   <string name="watch_pause_pins">Ĉesi spekti</string>
   <string name="watch_idle">Neniu nova afiŝo</string>
   <plurals name="watch_title">
-    <item quantity="one">Watching one thread</item>
-    <item quantity="other">Watching %d threads</item>
+    <item quantity="one">Atentanta unun fadenon</item>
+    <item quantity="other">Atentanta %d fadenojn</item>
   </plurals>
   <plurals name="watch_new">
     <item quantity="one">%d nova afiŝo</item>
@@ -394,16 +394,16 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_post_file_info">Show file info on posts</string>
   <string name="setting_post_filename">Show filename on posts</string>
   <!-- Behavior -->
-  <string name="settings_screen_behavior">Behavior</string>
+  <string name="settings_screen_behavior">Sinteno</string>
   <!-- Behavior general group -->
-  <string name="settings_group_general">General</string>
+  <string name="settings_group_general">Ĝeneralaj</string>
   <string name="setting_auto_refresh_thread">Auto refresh threads</string>
   <string name="setting_confirm_exit">Confirm before exit</string>
   <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
   <string name="setting_clear_thread_hides">Clear all thread hides</string>
   <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
   <!-- Behavior reply group -->
-  <string name="settings_group_reply">Reply</string>
+  <string name="settings_group_reply">Respondi</string>
   <string name="setting_post_pin">Bookmark thread on post</string>
   <string name="setting_post_default_name">Default post name</string>
   <!-- Behavior post group -->
@@ -412,7 +412,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
   <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
   <string name="setting_anonymize">Make everyone Anonymous</string>
-  <string name="setting_anonymize_ids">Hide IDs</string>
+  <string name="setting_anonymize_ids">Kaŝi identigojn</string>
   <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
   <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
   <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
