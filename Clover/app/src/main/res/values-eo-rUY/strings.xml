@@ -466,8 +466,8 @@ Premi la ilobretan menuon por ŝanĝi ĝian koloron.»    </string>
   <!-- Developer settings -->
   <string name="settings_open_logs">View logs</string>
   <string name="settings_logs_screen">Logs</string>
-  <string name="settings_logs_copy">Copy</string>
-  <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
+  <string name="settings_logs_copy">Kopii</string>
+  <string name="settings_logs_copied_to_clipboard">Kopiita al tondejo</string>
   <string name="settings_screen_pass">4chan pass</string>
   <string name="setting_pass_token">Token</string>
   <string name="setting_pass_pin">PIN</string>
