@@ -303,21 +303,21 @@ Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝa
   <string name="image_save_notification_downloading">Elŝutas bildojn</string>
   <string name="image_save_notification_cancel">Premi por rezigni</string>
   <string name="image_save_saved">Bildo konservatita</string>
-  <string name="image_save_as">Saved as \"%1$s\"</string>
-  <string name="image_save_failed">Saving image failed</string>
-  <string name="drawer_sites">Setup sites</string>
-  <string name="drawer_history">History</string>
+  <string name="image_save_as">Konservatita kiel «%1$s»</string>
+  <string name="image_save_failed">Bildkonservado malsukcesis</string>
+  <string name="drawer_sites">Agordi retpaĝojn</string>
+  <string name="drawer_history">Historio</string>
   <!-- Main settings -->
-  <string name="settings_screen">Settings</string>
+  <string name="settings_screen">Agordoj</string>
   <!-- Main "Settings" group -->
-  <string name="settings_group_settings">Settings</string>
-  <string name="settings_watch">Thread watcher</string>
-  <string name="settings_sites">Sites</string>
-  <string name="settings_appearance">Appearance</string>
-  <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
-  <string name="settings_behavior">Behavior</string>
-  <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
-  <string name="settings_media">Media</string>
+  <string name="settings_group_settings">Agordoj</string>
+  <string name="settings_watch">Atentilo de fadenoj</string>
+  <string name="settings_sites">Retpaĝoj</string>
+  <string name="settings_appearance">Aspekto</string>
+  <string name="settings_appearance_description">Etoso, aranĝo, tiparoj, ktp.</string>
+  <string name="settings_behavior">Sinteno</string>
+  <string name="settings_behavior_description">Fadeno-aktualigado, nerobottestilo, ktp.</string>
+  <string name="settings_media">Aŭdvidaĵoj</string>
   <string name="settings_media_description">Save location, auto loading, etc.</string>
   <string name="settings_filters">Filters</string>
   <!-- Thread watcher -->
