@@ -276,19 +276,19 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 
 Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝalti «Malfermu videojn ekstere» en la agordoj por ke la video malfermas ekstere en programaran malkodanta apon.\"    </string>
   <string name="video_playback_ignore">Ne montri denove</string>
-  <string name="watch_pause_pins">Stop watching</string>
-  <string name="watch_idle">No new posts</string>
+  <string name="watch_pause_pins">Ĉesi spekti</string>
+  <string name="watch_idle">Neniu nova afiŝo</string>
   <plurals name="watch_title">
     <item quantity="one">Watching one thread</item>
     <item quantity="other">Watching %d threads</item>
   </plurals>
   <plurals name="watch_new">
-    <item quantity="one">%d new post</item>
-    <item quantity="other">%d new posts</item>
+    <item quantity="one">%d nova afiŝo</item>
+    <item quantity="other">%d novaj afiŝoj</item>
   </plurals>
   <plurals name="watch_new_quotes">
-    <item quantity="one">%d new post quoting you</item>
-    <item quantity="other">%d new posts quoting you</item>
+    <item quantity="one">%d nova afiŝo citanta vin</item>
+    <item quantity="other">%d novaj afiŝoj citantaj vin</item>
   </plurals>
   <plurals name="watch_new_quoting">
     <item quantity="one">%1$d new post, %2$d quoting you</item>
