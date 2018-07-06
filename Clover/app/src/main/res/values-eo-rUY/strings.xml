@@ -82,7 +82,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   </plurals>
   <string name="card_stats">%1$dR %2$dB</string>
   <string name="action_reload">Reŝarĝi</string>
-  <string name="action_pin">Bookmark</string>
+  <string name="action_pin">Paĝosigno</string>
   <string name="action_open_browser">Malfermi en retumilo</string>
   <string name="action_share">Konigi</string>
   <string name="action_download_album">Elŝuti fotaron</string>
@@ -165,7 +165,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="setup_board_select_all">Elekti ĉiujn</string>
   <string name="filter_summary_all_boards">Ĉiuj tabuloj</string>
   <string name="filter_enabled">Ŝaltita</string>
-  <string name="filter_filter">Filter</string>
+  <string name="filter_filter">Filtrilo</string>
   <string name="filter_action">Ago</string>
   <string name="filter_pattern">Ŝablono</string>
   <string name="filter_match_test">Testi ŝablonon</string>
@@ -173,7 +173,7 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="filter_boards">Tabuloj</string>
   <string name="filter_types">Tipoj</string>
   <string name="filter_type_string_matching">Ĉenkongruado</string>
-  <string name="filter_type_regex_matching">Regex matching</string>
+  <string name="filter_type_regex_matching">Regeks-kongruado</string>
   <string name="filter_all">ĉiu</string>
   <string name="filter_hide">Kaŝi afiŝon</string>
   <string name="filter_color">Emfazi afiŝon</string>
@@ -219,10 +219,10 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="board_select_none">Elekti neniun</string>
   <string name="history_clear">Forviŝi historion</string>
   <string name="history_clear_confirm">Ĉu forviŝi historion?</string>
-  <string name="history_clear_confirm_button">Clear</string>
+  <string name="history_clear_confirm_button">Vakigi</string>
   <string name="history_toggle_hint">Enable or disable history</string>
-  <string name="history_empty_info">No history</string>
-  <string name="saved_reply_clear">Clear posting history</string>
+  <string name="history_empty_info">Neniu historio</string>
+  <string name="saved_reply_clear">Vakigi afiŝan historion</string>
   <string name="saved_reply_clear_confirm">Ĉu vakigi afiŝan historion?</string>
   <string name="saved_reply_clear_confirm_button">Vakigi</string>
   <string name="archive_title">%s arĥivo</string>
@@ -275,7 +275,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 \"La WebM-video malsukcesis ludi. Tio povas esti problemo de la aparataro de via poŝtelefono.
 
 Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝalti «Malfermu videojn ekstere» en la agordoj por ke la video malfermas ekstere en programaran malkodanta apon.\"    </string>
-  <string name="video_playback_ignore">Don\'t show again</string>
+  <string name="video_playback_ignore">Ne montri denove</string>
   <string name="watch_pause_pins">Stop watching</string>
   <string name="watch_idle">No new posts</string>
   <plurals name="watch_title">
@@ -383,13 +383,13 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_board_grid_span_count_item">%1$d kolumnoj</string>
   <string name="setting_never_hide_toolbar">Neniam kasi ilobreton</string>
   <string name="setting_enable_reply_fab">Ŝalti respondbutonon</string>
-  <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+  <string name="setting_enable_reply_fab_description">Malŝaltado anstataǔigas la rondan butonon per menuopcio</string>
   <!-- Appearance post group -->
   <string name="settings_group_post">Afiŝo</string>
   <string name="setting_font_size">Tipargrando</string>
   <string name="setting_font_size_default">(defaǔlta)</string>
-  <string name="setting_font_condensed">Use condensed font</string>
-  <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
+  <string name="setting_font_condensed">Uzi densigan tiparon</string>
+  <string name="setting_font_condensed_description">Uzi densigan tiparon por la afiŝoj</string>
   <string name="setting_post_full_date">Show the full date on posts</string>
   <string name="setting_post_file_info">Show file info on posts</string>
   <string name="setting_post_filename">Show filename on posts</string>
@@ -444,26 +444,24 @@ If disabled, save the image with the filename the uploader assigned.\"
   <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
   <!-- Media loading group -->
   <string name="settings_group_media_loading">Media loading</string>
-  <string name="setting_image_auto_load">Automatically load images</string>
-  <string name="setting_image_auto_load_all">Always</string>
-  <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
-  <string name="setting_image_auto_load_none">Never</string>
-  <string name="setting_video_auto_load">Automatically load videos</string>
+  <string name="setting_image_auto_load">Aǔtomate sarĝi bildojn</string>
+  <string name="setting_image_auto_load_all">Ĉiam</string>
+  <string name="setting_image_auto_load_wifi">Nur je Wi-Fi</string>
+  <string name="setting_image_auto_load_none">Neniam</string>
+  <string name="setting_video_auto_load">Aǔtomate sarĝi videojn</string>
   <!-- Save location settings -->
-  <string name="save_location_screen">Save location</string>
-  <string name="save_location_storage_permission_required_title">Storage permission required</string>
+  <string name="save_location_screen">Konservi lokon</string>
+  <string name="save_location_storage_permission_required_title">Konserva-permeso bezonatas</string>
   <string name="save_location_storage_permission_required">
-\"Permission to access storage is required for browsing files.
+«Permeso al atingi konservon estas bezonata por foliumi la dosierojn.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"
-    </string>
-  <string name="setting_folder_pick_ok">Choose</string>
-  <string name="setting_folder_navigate_up">Up</string>
+Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»    </string>
+  <string name="setting_folder_pick_ok">Elekti</string>
+  <string name="setting_folder_navigate_up">Super</string>
   <!-- Theme settings -->
   <string name="setting_theme_explanation">
-\"Swipe to change the theme.
-Tap the toolbar menu to change its color.\"
-    </string>
+«Ŝovumi por ŝanĝi etoson.
+Premi la ilobretan menuon por ŝanĝi ĝian koloron.»    </string>
   <string name="setting_theme_accent">Tap here to change the FAB color</string>
   <!-- Developer settings -->
   <string name="settings_open_logs">View logs</string>
@@ -487,5 +485,5 @@ Don't have a 4chan Pass?<br>
 <a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
 ]]>
     \"</string>
-  <string name="settings_screen_theme">Themes</string>
+  <string name="settings_screen_theme">Etosoj</string>
 </resources>
