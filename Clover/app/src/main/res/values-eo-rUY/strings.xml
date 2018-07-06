@@ -182,8 +182,8 @@ Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
   <string name="filter_preview">Testi vian filtrilon</string>
   <string name="filter_no_matches">Ne kongruas</string>
   <string name="filter_matches">Kongruas</string>
-  <string name="filter_color_pick">Pick color</string>
-  <string name="filter_help_title">Filter help</string>
+  <string name="filter_color_pick">Elekti koloron</string>
+  <string name="filter_help_title">Helpo pri filtriloj</string>
   <string name="filter_help">
 <![CDATA[
 Filters act on a given pattern and a place to search the pattern.<br>
@@ -209,16 +209,16 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 </p>
 ]]>
     </string>
-  <string name="filter_tripcode">Tripcode</string>
-  <string name="filter_name">Name</string>
-  <string name="filter_comment">Comment</string>
-  <string name="filter_id">ID</string>
-  <string name="filter_subject">Subject</string>
-  <string name="filter_filename">Filename</string>
-  <string name="board_select_all">Select all</string>
-  <string name="board_select_none">Select none</string>
-  <string name="history_clear">Clear history</string>
-  <string name="history_clear_confirm">Clear history?</string>
+  <string name="filter_tripcode">Sennomkodo</string>
+  <string name="filter_name">Nomo</string>
+  <string name="filter_comment">Komento</string>
+  <string name="filter_id">Identigilo</string>
+  <string name="filter_subject">Temo</string>
+  <string name="filter_filename">Dosiernomo</string>
+  <string name="board_select_all">Elekti ĉiujn</string>
+  <string name="board_select_none">Elekti neniun</string>
+  <string name="history_clear">Forviŝi historion</string>
+  <string name="history_clear_confirm">Ĉu forviŝi historion?</string>
   <string name="history_clear_confirm_button">Clear</string>
   <string name="history_toggle_hint">Enable or disable history</string>
   <string name="history_empty_info">No history</string>
@@ -326,55 +326,55 @@ Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝa
   <string name="settings_screen_watch">Thread watcher settings</string>
   <string name="settings_group_watch">Settings</string>
   <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
-  <string name="setting_watch_enable_background">Enable in the background</string>
-  <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
-  <string name="setting_watch_background_timeout">Background update interval</string>
-  <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
-  <string name="setting_watch_notify_mode">Notify about</string>
+  <string name="setting_watch_enable_background">Ŝalti fone</string>
+  <string name="setting_watch_enable_background_description">Atenti paĝsignojn kiam Clover estas fonigita</string>
+  <string name="setting_watch_background_timeout">Fonĝisdatiga intervalo</string>
+  <string name="setting_watch_background_timeout_description">Intervalo inter ĝisdatigoj kiam fonigita</string>
+  <string name="setting_watch_notify_mode">Atentigi pri</string>
   <string-array name="setting_watch_notify_modes">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Ĉiuj afiŝoj</item>
+    <item>Nur afiŝoj citantaj vin</item>
   </string-array>
-  <string name="setting_watch_sound">Notification sound</string>
+  <string name="setting_watch_sound">Atentiga sono</string>
   <string-array name="setting_watch_sounds">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Ĉiuj afiŝoj</item>
+    <item>Nur afiŝoj citantaj vin</item>
   </string-array>
   <string name="setting_watch_peek">Heads-up notification on quotes</string>
   <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
-  <string name="setting_watch_led">Notification light</string>
+  <string name="setting_watch_led">Atentiga lumo</string>
   <string-array name="setting_watch_leds">
-    <item>None</item>
-    <item>White</item>
-    <item>Red</item>
-    <item>Yellow</item>
-    <item>Green</item>
-    <item>Cyan</item>
-    <item>Blue</item>
-    <item>Purple</item>
+    <item>Neniu</item>
+    <item>Blanka</item>
+    <item>Ruĝa</item>
+    <item>Flava</item>
+    <item>Verda</item>
+    <item>Cejana</item>
+    <item>Blua</item>
+    <item>Purpura</item>
   </string-array>
   <!-- Main About group -->
-  <string name="settings_group_about">About</string>
-  <string name="settings_update_check">Check for updates</string>
-  <string name="settings_crash_reporting">Report crashes</string>
+  <string name="settings_group_about">Pri</string>
+  <string name="settings_update_check">Kontroli por ĝisdatigoj</string>
+  <string name="settings_crash_reporting">Raporti kraŝojn</string>
   <string name="settings_crash_reporting_description">
 \"Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information.\"
     </string>
-  <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
-  <string name="settings_about_license">Released under the GNU GPLv3 license</string>
-  <string name="settings_about_license_description">Tap to see license</string>
-  <string name="settings_about_licenses">Open Source Licenses</string>
+  <string name="settings_crash_reporting_toggle_notice">Agordoj aplikatos je la sekva starto.</string>
+  <string name="settings_about_license">Publikigita je GNU GPLv3-permesilo</string>
+  <string name="settings_about_license_description">Premi por vidi permesilon</string>
+  <string name="settings_about_licenses">Malfermitkodaj permesiloj</string>
   <string name="settings_about_licenses_description">Legal information about licenses</string>
-  <string name="settings_developer">Developer settings</string>
+  <string name="settings_developer">Programistaj agordoj</string>
   <!-- Appearance -->
-  <string name="settings_screen_appearance">Appearance</string>
-  <string name="settings_group_appearance">Appearance</string>
-  <string name="setting_theme">Theme</string>
+  <string name="settings_screen_appearance">Aspekto</string>
+  <string name="settings_group_appearance">Aspekto</string>
+  <string name="setting_theme">Etoso</string>
   <!-- Appearance layout group -->
-  <string name="settings_group_layout">Layout</string>
-  <string name="setting_layout_mode">Layout mode</string>
-  <string name="setting_layout_mode_auto">Auto</string>
+  <string name="settings_group_layout">Aranĝo</string>
+  <string name="setting_layout_mode">Aranĝo-reĝimo</string>
+  <string name="setting_layout_mode_auto">Aŭtomate</string>
   <string name="setting_layout_mode_phone">Phone layout</string>
   <string name="setting_layout_mode_slide">Slide mode</string>
   <string name="setting_layout_mode_split">Split mode</string>
