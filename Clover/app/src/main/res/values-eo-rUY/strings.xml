@@ -318,14 +318,14 @@ Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝa
   <string name="settings_behavior">Sinteno</string>
   <string name="settings_behavior_description">Fadeno-aktualigado, nerobottestilo, ktp.</string>
   <string name="settings_media">Aŭdvidaĵoj</string>
-  <string name="settings_media_description">Save location, auto loading, etc.</string>
-  <string name="settings_filters">Filters</string>
+  <string name="settings_media_description">Konservi lokon, aǔtomate ŝarĝi, ktp.</string>
+  <string name="settings_filters">Filtriloj</string>
   <!-- Thread watcher -->
-  <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
-  <string name="setting_watch_summary_disabled">Off</string>
-  <string name="settings_screen_watch">Thread watcher settings</string>
-  <string name="settings_group_watch">Settings</string>
-  <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
+  <string name="setting_watch_summary_enabled">Atendanta paĝosignitajn fadenojn</string>
+  <string name="setting_watch_summary_disabled">For</string>
+  <string name="settings_screen_watch">Fadenon-atentilaj agordoj</string>
+  <string name="settings_group_watch">Agordoj</string>
+  <string name="setting_watch_info">Por atenti paĝsignojn por novaj afiŝoj, ŝaltu la fadenon-atentilon.</string>
   <string name="setting_watch_enable_background">Ŝalti fone</string>
   <string name="setting_watch_enable_background_description">Atenti paĝsignojn kiam Clover estas fonigita</string>
   <string name="setting_watch_background_timeout">Fonĝisdatiga intervalo</string>
@@ -436,14 +436,14 @@ If disabled, save the image with the filename the uploader assigned.\"
     </string>
   <string name="setting_video_default_muted">Start videos muted</string>
   <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
-  <string name="setting_video_open_external">Play videos with external player</string>
-  <string name="setting_video_open_external_description">Play videos in an external media player app</string>
-  <string name="setting_share_url">Share URL to image</string>
-  <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
+  <string name="setting_video_open_external">Ludi videojn per ekstera ludilo</string>
+  <string name="setting_video_open_external_description">Ludi videojn per ekstera kantludil-apo</string>
+  <string name="setting_share_url">Disigi URL al bildo</string>
+  <string name="setting_share_url_description">Disigi URL al bildo anstataǔ la bildon mem</string>
   <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
   <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
   <!-- Media loading group -->
-  <string name="settings_group_media_loading">Media loading</string>
+  <string name="settings_group_media_loading">Aŭdovidaĵoj ŝarĝantaj</string>
   <string name="setting_image_auto_load">Aǔtomate sarĝi bildojn</string>
   <string name="setting_image_auto_load_all">Ĉiam</string>
   <string name="setting_image_auto_load_wifi">Nur je Wi-Fi</string>
