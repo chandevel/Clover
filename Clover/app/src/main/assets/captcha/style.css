@@ -1,0 +1,351 @@
+@import url(//fonts.googleapis.com/css?family=Roboto:400,500);
+body{
+    margin:0px;
+    padding:0px;
+    border:none
+}
+.fbc-alert{
+    position:absolute;
+    color:red;
+    font-size:13px
+}
+.fbc{
+    background:#f9f9f9;
+    border:1px solid #c1c1c1;
+    border-radius:3px;
+    height:421px;
+    width:300px
+}
+.fbc-header{
+    height:50px;
+    margin:10px
+}
+.fbc-logo{
+    float:right;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none
+}
+.fbc-logo-img{
+    background:url('https://www.gstatic.com/recaptcha/api2/logo_48.png');
+    background-repeat:no-repeat;
+    background-size:30px;
+    height:30px;
+    margin:0px 12px 0px 12px;
+    width:30px
+}
+.fbc-logo-text{
+    color:#9b9b9b;
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:9px;
+    font-weight:400;
+    line-height:9px;
+    margin-top:2px;
+    text-align:center;
+    width:54px
+}
+.fbc-message{
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:12px;
+    font-weight:400;
+    height:20px;
+    width:250px;
+    margin-left:25px
+}
+.fbc-main-message{
+    position:absolute;
+    top:85px;
+    font-size:14px
+}
+.fbc-input-field{
+    height:50px
+}
+.fbc-input-field input:focus{
+    border:1px solid #4a90e2
+}
+.fbc-input-field input{
+    border:1px solid #c1c1c1;
+    height:35px;
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:16px;
+    font-weight:500;
+    margin:5px 24px 5px 24px;
+    padding-left:5px;
+    padding-right:5px;
+    outline:none;
+    width:240px
+}
+.fbc-payload{
+    margin-top:10px;
+    margin-bottom:10px;
+    height:150px;
+    background:white;
+    padding-top:70px
+}
+.fbc-audio-payload{
+    margin-top:30px;
+    height:70px
+}
+.fbc-payload audio{
+    margin:8px 25px 0px 25px;
+    width:250px
+}
+.fbc-audio-space{
+    height:135px
+}
+.fbc-button-verify{
+    float:right;
+    margin:2px 11px 2px 24px
+}
+.fbc-button-verify input{
+    background:#4a90e2;
+    border:0;
+    border-radius:2px;
+    color:#fff;
+    cursor:pointer;
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:12px;
+    font-weight:500;
+    height:25px;
+    margin-top:2px;
+    min-width:74px;
+    padding:0px 10px 0px 10px;
+    text-align:center;
+    width:90px
+}
+.fbc-buttons{
+    margin:3px 20px 20px 11px
+}
+.fbc-button-holder{
+    display:inline-block;
+    height:24px;
+    margin-right:10px;
+    width:24px
+}
+.fbc-button-reload{
+    background:url('https://www.gstatic.com/recaptcha/api2/refresh_black.png')
+}
+.fbc-button-audio{
+    background:url('https://www.gstatic.com/recaptcha/api2/audio_black.png')
+}
+.fbc-button-image{
+    background:url('https://www.gstatic.com/recaptcha/api2/image_black.png')
+}
+.fbc-button:hover,.fbc-button:focus{
+    opacity:.8
+}
+.fbc-audio-controls{
+    width:250px;
+    margin-left:25px
+}
+.fbc-button{
+    background-repeat:no-repeat;
+    border:none;
+    color:transparent;
+    font-size:0px;
+    height:24px;
+    width:24px;
+    opacity:.55
+}
+.fbc-challenge{
+    position:relative;
+    top:6px
+}
+.fbc-separator{
+}
+.fbc-success{
+    height:350px;
+    position:relative
+}
+.fbc-verification-token{
+    height:180px;
+    margin:45px 25px 10px 25px;
+    width:250px
+}
+.fbc-verification-token textarea{
+    background:#ebebeb;
+    border:1px solid #4a90e2;
+    color:#4a90e2;
+    font-size:10px;
+    height:100%;
+    padding:0;
+    resize:none;
+    width:100%
+}
+.fbc-message.fbc-valid-time{
+    margin-top:20px
+}
+.fbc-message.fbc-paste{
+    margin-top:180px
+}
+.fbc-paste-area{
+}
+.fbc-privacy{
+    bottom:13px;
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:8px;
+    font-weight:400;
+    position:absolute;
+    right:13px
+}
+.fbc-privacy a:link,a:visited{
+    color:#9b9b9b;
+    text-decoration:none
+}
+.fbc-why-fallback{
+    bottom:11px;
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:11px;
+    font-weight:400;
+    position:absolute;
+    left:15px
+}
+.fbc-why-fallback a:link,a:visited{
+    color:#4e4e4e;
+    text-decoration:none
+}
+.fbc-privacy a:hover{
+    text-decoration:underline
+}
+.fbc-payload-imageselect{
+    margin-top:10px;
+    margin-left:10px;
+    height:290px
+}
+.fbc-imageselect-message{
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:14px;
+    font-weight:400;
+    height:20px;
+    margin-top:-45px;
+    margin-left:65px
+}
+.fbc-imageselect-message-without-candidate-image{
+    font-family:Roboto,helvetica,arial,sans-serif;
+    font-size:14px;
+    font-weight:400;
+    height:20px;
+    margin-top:-40px;
+    margin-left:20px
+}
+.fbc-imageselect-candidates{
+    height:45px
+}
+.fbc-imageselect-candidates-image{
+    height:45px
+}
+.fbc-imageselect-header{
+    height:50px
+}
+.fbc-imageselect-challenge{
+    position:relative
+}
+.fbc-imageselect-payload{
+    height:280px
+}
+.fbc-imageselect-checkbox-1{
+    position:absolute;
+    margin-top:39px; /* originally 78px */
+    margin-left:39px; /* originally 78px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-2{
+    position:absolute;
+    margin-top:39px; /* originally 78px */
+    margin-left:132px; /* originally 171px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-3{
+    position:absolute;
+    margin-top:39px; /* originally 78px */
+    margin-left:225px; /* originally 265px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-4{
+    position:absolute;
+    margin-top:132px; /* originally 171px */
+    margin-left:39px; /* originally 78px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-5{
+    position:absolute;
+    margin-top:132px; /* originally 171px */
+    margin-left:132px; /* originally 171px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-6{
+    position:absolute;
+    margin-top:132px; /* originally 171px */
+    margin-left:225px; /* originally 265px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-7{
+    position:absolute;
+    margin-top:225px; /* originally 265px */
+    margin-left:39px; /* originally 78px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-8{
+    position:absolute;
+    margin-top:225px; /* originally 265px */
+    margin-left:132px; /* originally 171px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.fbc-imageselect-checkbox-9{
+    position:absolute;
+    margin-top:225px; /* originally 265px */
+    margin-left:225px; /* originally 265px */
+    -webkit-transform:scale(1.5);
+    -moz-transform:scale(1.5);
+    -ms-transform:scale(1.5);
+    -o-transform:scale(1.5);
+    transform:scale(1.5)
+}
+.if-js-enabled{
+    display:none
+}
+body.js-enabled .if-js-enabled{
+    display:block
+}
+/* Scale to fill the square, remove dotted outline, and make invisible when unchecked */
+input[type=checkbox] {
+    -webkit-filter: opacity(0.0);
+    outline: none;
+    transform:scale(5.2);
+}
+/* Turn semi-transparent when checked */
+input[type=checkbox]:checked {
+    -webkit-filter: opacity(0.5);
+}
