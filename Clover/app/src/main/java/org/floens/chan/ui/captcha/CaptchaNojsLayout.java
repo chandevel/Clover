@@ -153,7 +153,7 @@ public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutIn
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 if (body == null) throw new IOException();
-                String responseHtml = body.string();
+                String responseHtml = body.string().replaceAll("https\\:\\/\\/www\\.gstatic\\.com\\/recaptcha\\/api2\\/[a-zA-Z0-9]*\\/fallback\\_\\_ltr\\.css", "file:///android_asset/captcha/style.css");
 
                 post(() -> {
                     loadDataWithBaseURL(recaptchaUrl,
