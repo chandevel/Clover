@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Simple ImageDecoder. Taken from Volley ImageRequest.
@@ -55,26 +56,27 @@ public class ImageDecoder {
         if (!file.exists())
             return null;
 
-        FileInputStream fis;
-
         try {
-            fis = new FileInputStream(file);
+            InputStream fis = new FileInputStream(file);
+            return decodeFile(fis, maxWidth, maxHeight);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
+    }
 
+    public static Bitmap decodeFile(InputStream is, int maxWidth, int maxHeight) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         Bitmap bitmap = null;
 
         try {
-            IOUtils.copy(fis, baos);
+            IOUtils.copy(is, baos);
             bitmap = decode(baos.toByteArray(), maxWidth, maxHeight);
         } catch (IOException | OutOfMemoryError e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeQuietly(fis);
+            IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(baos);
         }
 

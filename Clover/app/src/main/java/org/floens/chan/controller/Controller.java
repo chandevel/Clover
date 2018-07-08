@@ -18,6 +18,7 @@
 package org.floens.chan.controller;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -135,6 +136,9 @@ public abstract class Controller {
             controller.navigationController = navigationController;
         }
         controller.onCreate();
+        if (controller.view == null) {
+            throw new IllegalArgumentException("Controller has no view");
+        }
     }
 
     public boolean removeChildController(Controller controller) {
@@ -184,6 +188,12 @@ public abstract class Controller {
         }
 
         return false;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        for (Controller childController : childControllers) {
+            childController.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     public void presentController(Controller controller) {

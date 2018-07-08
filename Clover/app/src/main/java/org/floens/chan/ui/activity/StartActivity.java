@@ -51,6 +51,7 @@ import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
 import org.floens.chan.ui.controller.SplitNavigationController;
+import org.floens.chan.ui.controller.StorageSetupController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
 import org.floens.chan.ui.controller.ViewThreadController;
@@ -164,6 +165,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         } else {
             browseController.loadWithDefaultBoard();
         }
+
+        mainNavigationController.pushController(new StorageSetupController(this), false);
     }
 
     private boolean restoreFromUrl() {
@@ -487,6 +490,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         super.onActivityResult(requestCode, resultCode, data);
 
         imagePickDelegate.onActivityResult(requestCode, resultCode, data);
+
+        drawerController.onActivityResult(requestCode, resultCode, data);
     }
 
     private Controller stackTop() {

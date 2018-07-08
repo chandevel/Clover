@@ -46,6 +46,9 @@ import org.floens.chan.utils.RecyclerUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -59,6 +62,8 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
 
     private boolean allChecked = true;
     private AlbumAdapter adapter;
+
+    @Inject
     private ImageSaver imageSaver;
 
     public AlbumDownloadController(Context context) {
@@ -69,7 +74,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
     public void onCreate() {
         super.onCreate();
 
-        imageSaver = ImageSaver.getInstance();
+        inject(this);
 
         view = inflateRes(R.layout.controller_album_download);
 

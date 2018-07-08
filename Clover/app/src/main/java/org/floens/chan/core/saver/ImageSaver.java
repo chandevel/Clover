@@ -27,6 +27,8 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.storage.Storage;
+import org.floens.chan.core.storage.StorageFile;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.helper.RuntimePermissionsHelper;
 import org.floens.chan.ui.service.SavingNotification;
@@ -37,11 +39,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
+@Singleton
 public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_RENAME_TRIES = 500;
@@ -49,18 +55,18 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
     private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
-    private static final ImageSaver instance = new ImageSaver();
     private NotificationManager notificationManager;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private int doneTasks = 0;
     private int totalTasks = 0;
     private Toast toast;
 
-    public static ImageSaver getInstance() {
-        return instance;
-    }
+    private Storage storage;
 
-    private ImageSaver() {
+    @Inject
+    public ImageSaver(Storage storage) {
+        this.storage = storage;
+
         EventBus.getDefault().register(this);
         notificationManager = (NotificationManager) getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
     }
@@ -68,8 +74,13 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     public void startDownloadTask(Context context, final ImageSaveTask task) {
         PostImage postImage = task.getPostImage();
         String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
-        String fileName = filterName(name + "." + postImage.extension);
-        task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName), false));
+//        String fileName = filterName(name + "." + postImage.extension);
+
+        // TODO
+        StorageFile file = storage.obtainStorageFileForName(name + "." + postImage.extension);
+        task.setDestination(file);
+
+//        task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName), false));
 
 //        task.setMakeBitmap(true);
         task.setShowToast(true);
@@ -163,9 +174,9 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
             String fileName = filterName(postImage.originalName + "." + postImage.extension);
-            task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder + File.separator + fileName));
-
-            startTask(task);
+            // TODO
+//            task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder + File.separator + fileName));
+//            startTask(task);
         }
         updateNotification();
     }
@@ -194,7 +205,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext());
         builder.setSmallIcon(R.drawable.ic_stat_notify);
         builder.setContentTitle(getString(R.string.image_save_saved));
-        String savedAs = getAppContext().getString(R.string.image_save_as, task.getDestination().getName());
+        String savedAs = getAppContext().getString(R.string.image_save_as, task.getDestination().name());
         builder.setContentText(savedAs);
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setStyle(new NotificationCompat.BigPictureStyle()
@@ -210,7 +221,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         }
 
         String text = success ?
-                getAppContext().getString(R.string.image_save_as, task.getDestination().getName()) :
+                getAppContext().getString(R.string.image_save_as, task.getDestination().name()) :
                 getString(R.string.image_save_failed);
         toast = Toast.makeText(getAppContext(), text, Toast.LENGTH_LONG);
         toast.show();

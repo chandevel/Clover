@@ -19,15 +19,14 @@ package org.floens.chan.core.saver;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 
-import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.storage.StorageFile;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
 
@@ -38,7 +37,6 @@ import javax.inject.Inject;
 
 import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageSaveTask extends FileCacheListener implements Runnable {
     private static final String TAG = "ImageSaveTask";
@@ -48,7 +46,7 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private PostImage postImage;
     private ImageSaveTaskCallback callback;
-    private File destination;
+    private StorageFile destination;
     private boolean share;
     private boolean makeBitmap;
     private Bitmap bitmap;
@@ -78,11 +76,11 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         return postImage;
     }
 
-    public void setDestination(File destination) {
+    public void setDestination(StorageFile destination) {
         this.destination = destination;
     }
 
-    public File getDestination() {
+    public StorageFile getDestination() {
         return destination;
     }
 
@@ -165,46 +163,32 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         success = true;
         scanDestination();
         if (makeBitmap) {
-            bitmap = ImageDecoder.decodeFile(destination, dp(512), dp(256));
+            try {
+                bitmap = ImageDecoder.decodeFile(destination.inputStream(), dp(512), dp(256));
+            } catch (IOException e) {
+                Logger.e(TAG, "onDestination decodeFile", e);
+                bitmap = null;
+            }
         }
     }
 
     private boolean copyToDestination(File source) {
-        boolean result = false;
-
         try {
-            File parent = destination.getParentFile();
-            if (!parent.mkdirs() && !parent.isDirectory()) {
-                throw new IOException("Could not create parent directory");
-            }
-
-            if (destination.isDirectory()) {
-                throw new IOException("Destination file is already a directory");
-            }
-
-            IOUtils.copyFile(source, destination);
-
-            result = true;
+            destination.copyFrom(source);
+            return true;
         } catch (IOException e) {
-            Logger.e(TAG, "Error writing to file", e);
+            Logger.e(TAG, "copyToDestination copyFrom", e);
         }
 
-        return result;
+        return false;
     }
 
     private void scanDestination() {
-        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-            @Override
-            public void onScanCompleted(String path, final Uri uri) {
-                // Runs on a binder thread
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        afterScan(uri);
-                    }
-                });
-            }
-        });
+        // TODO
+//        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, (path, uri) -> {
+//             Runs on a binder thread
+//            AndroidUtils.runOnUiThread(() -> afterScan(uri));
+//        });
     }
 
     private void afterScan(final Uri uri) {

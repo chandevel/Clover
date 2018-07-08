@@ -1,66 +1,58 @@
 package org.floens.chan.core.storage;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
-import android.os.storage.StorageManager;
-import android.os.storage.StorageVolume;
 
-import java.util.Objects;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
+/**
+ * Abstraction of the storage APIs available in Android.
+ * <p>
+ * This is used primarily for saving images, especially on removable storage.
+ * <p>
+ * First, a good read:
+ * https://commonsware.com/blog/2017/11/13/storage-situation-internal-storage.html
+ * https://commonsware.com/blog/2017/11/14/storage-situation-external-storage.html
+ * https://commonsware.com/blog/2017/11/15/storage-situation-removable-storage.html
+ * <p>
+ * The Android Storage Access Framework can be used from Android 5.0 and higher. Since Android 5.0
+ * it has support for granting permissions for a directory, which we want to save our files to.
+ * <p>
+ * Otherwise a fallback is provided for only saving on the primary volume with the older APIs.
+ */
+@Singleton
 public class Storage {
-    private static final Storage instance;
-
-    static {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            instance = new Storage(new BaseStorageImpl());
-        } else {
-            instance = new Storage(new NougatStorageImpl());
-        }
-
-    }
-
-    public static Storage getInstance() {
-        return instance;
-    }
-
     private StorageImpl impl;
 
-    public Storage(StorageImpl impl) {
-        this.impl = impl;
-    }
-
-    public Intent requestExternalPermission(Context applicationContext) {
-        return impl.requestExternalPermission(applicationContext);
-    }
-
-    public interface StorageImpl {
-        Intent requestExternalPermission(Context applicationContext);
-    }
-
-    public static class BaseStorageImpl implements StorageImpl {
-        @Override
-        public Intent requestExternalPermission(Context applicationContext) {
-            throw new UnsupportedOperationException();
+    @Inject
+    public Storage(Context applicationContext) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            impl = new BaseStorageImpl(applicationContext);
+        } else {
+            impl = new LollipopStorageImpl(applicationContext);
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
-    public static class NougatStorageImpl extends BaseStorageImpl {
-        @Override
-        public Intent requestExternalPermission(Context applicationContext) {
-            StorageManager sm = (StorageManager)
-                    applicationContext.getSystemService(Context.STORAGE_SERVICE);
-            Objects.requireNonNull(sm);
-            for (StorageVolume storageVolume : sm.getStorageVolumes()) {
-                if (!storageVolume.isPrimary()) {
-                    Intent accessIntent = storageVolume.createAccessIntent(null);
-                    return accessIntent;
-                }
-            }
+    public boolean supportsExternalStorage() {
+        return impl.supportsExternalStorage();
+    }
 
-            return null;
-        }
+    public Intent getOpenTreeIntent() {
+        return impl.getOpenTreeIntent();
+    }
+
+    public void handleOpenTreeIntent(Uri uri) {
+        impl.handleOpenTreeIntent(uri);
+    }
+
+    public StorageFile obtainStorageFileForName(String name) {
+        return impl.obtainStorageFileForName(name);
+    }
+
+    public String currentStorageName() {
+        return impl.currentStorageName();
     }
 }

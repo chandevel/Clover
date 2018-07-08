@@ -92,6 +92,9 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     @Inject
     ImageLoader imageLoader;
 
+    @Inject
+    ImageSaver imageSaver;
+
     private int statusBarColorPrevious;
     private AnimatorSet startAnimation;
     private AnimatorSet endAnimation;
@@ -226,7 +229,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                         File.separator +
                         presenter.getLoadable().boardCode);
             }
-            ImageSaver.getInstance().startDownloadTask(context, task);
+            imageSaver.startDownloadTask(context, task);
         }
     }
 
