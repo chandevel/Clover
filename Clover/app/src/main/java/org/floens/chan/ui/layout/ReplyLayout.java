@@ -54,7 +54,7 @@ import org.floens.chan.ui.captcha.LegacyCaptchaLayout;
 import org.floens.chan.ui.captcha.v1.CaptchaNojsLayoutV1;
 import org.floens.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
-import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.ui.activity.ImagePickDelegate;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
 import org.floens.chan.utils.AndroidUtils;

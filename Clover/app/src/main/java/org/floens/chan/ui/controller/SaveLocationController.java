@@ -28,7 +28,7 @@ import org.floens.chan.core.saver.FileWatcher;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.adapter.FilesAdapter;
-import org.floens.chan.ui.helper.RuntimePermissionsHelper;
+import org.floens.chan.ui.activity.RuntimePermissionsHelper;
 import org.floens.chan.ui.layout.FilesLayout;
 
 import java.io.File;

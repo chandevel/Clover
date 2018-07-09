@@ -30,7 +30,7 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.storage.Storage;
 import org.floens.chan.core.storage.StorageFile;
 import org.floens.chan.ui.activity.StartActivity;
-import org.floens.chan.ui.helper.RuntimePermissionsHelper;
+import org.floens.chan.ui.activity.RuntimePermissionsHelper;
 import org.floens.chan.ui.service.SavingNotification;
 
 import java.io.File;

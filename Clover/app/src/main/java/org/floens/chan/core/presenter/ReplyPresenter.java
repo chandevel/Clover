@@ -37,7 +37,7 @@ import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
-import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.ui.activity.ImagePickDelegate;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;

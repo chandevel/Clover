@@ -546,10 +546,6 @@ Re-enable this permission in the app settings if you permanently disabled it."
     <string name="setting_folder_navigate_up">Up</string>
 
 
-    <!-- Storage setup settings -->
-    <string name="storage_setup_screen">Setup storage</string>
-
-
     <!-- Theme settings -->
     <string name="setting_theme_explanation">
 "Swipe to change the theme.

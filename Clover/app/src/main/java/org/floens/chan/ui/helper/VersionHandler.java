@@ -34,6 +34,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.net.UpdateApiRequest;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.update.UpdateManager;
+import org.floens.chan.ui.activity.RuntimePermissionsHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 

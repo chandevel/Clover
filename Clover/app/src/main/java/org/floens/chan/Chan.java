@@ -33,11 +33,14 @@ import org.floens.chan.core.di.NetModule;
 import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.SiteService;
+import org.floens.chan.ui.activity.ActivityResultHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.LocaleUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -45,7 +48,10 @@ import javax.inject.Inject;
 import de.greenrobot.event.EventBus;
 
 @SuppressLint("Registered") // extended by ChanApplication, which is registered in the manifest.
-public class Chan extends Application implements UserAgentProvider, Application.ActivityLifecycleCallbacks {
+public class Chan extends Application implements
+        UserAgentProvider,
+        ActivityResultHelper.ApplicationActivitiesProvider,
+        Application.ActivityLifecycleCallbacks {
     private static final String TAG = "ChanApplication";
 
     @SuppressLint("StaticFieldLeak")
@@ -62,6 +68,8 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
     @Inject
     BoardManager boardManager;
+
+    private List<Activity> activities = new ArrayList<>();
 
     private Feather feather;
 
@@ -190,7 +198,13 @@ public class Chan extends Application implements UserAgentProvider, Application.
     }
 
     @Override
+    public List<Activity> getActivities() {
+        return activities;
+    }
+
+    @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        activities.add(activity);
     }
 
     @Override
@@ -217,5 +231,6 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
     @Override
     public void onActivityDestroyed(Activity activity) {
+        activities.remove(activity);
     }
 }

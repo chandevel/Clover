@@ -17,9 +17,12 @@
  */
 package org.floens.chan.ui.controller;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 
 import org.floens.chan.R;
+import org.floens.chan.core.presenter.StorageSetupPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
@@ -31,11 +34,18 @@ import org.floens.chan.ui.settings.SettingsGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
+import javax.inject.Inject;
 
+import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class MediaSettingsController extends SettingsController {
+public class MediaSettingsController extends SettingsController implements
+        StorageSetupPresenter.Callback {
+    private static final int OPEN_TREE_INTENT_RESULT_ID = 101;
+
+    @Inject
+    private StorageSetupPresenter presenter;
+
     // Special setting views
     private LinkSettingView saveLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
@@ -49,7 +59,7 @@ public class MediaSettingsController extends SettingsController {
     public void onCreate() {
         super.onCreate();
 
-        EventBus.getDefault().register(this);
+        inject(this);
 
         navigation.setTitle(R.string.settings_screen_media);
 
@@ -60,13 +70,22 @@ public class MediaSettingsController extends SettingsController {
         buildPreferences();
 
         onPreferenceChange(imageAutoLoadView);
+
+        presenter.create(this);
+    }
+
+    private void requestTree() {
+//        Intent i = storage.getOpenTreeIntent();
+//        ((Activity) context).startActivityForResult(i, OPEN_TREE_INTENT_RESULT_ID);
+//        updateName();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        EventBus.getDefault().unregister(this);
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == OPEN_TREE_INTENT_RESULT_ID && resultCode == Activity.RESULT_OK) {
+//            storage.handleOpenTreeIntent(intent);
+//            updateName();
+        }
     }
 
     @Override
@@ -78,10 +97,9 @@ public class MediaSettingsController extends SettingsController {
         }
     }
 
-    public void onEvent(ChanSettings.SettingChanged setting) {
-        if (setting.setting == ChanSettings.saveLocation) {
-            updateSaveLocationSetting();
-        }
+    @Override
+    public void setSaveLocationDescription(String description) {
+        saveLocation.setDescription(description);
     }
 
     private void populatePreferences() {
@@ -199,11 +217,6 @@ public class MediaSettingsController extends SettingsController {
     private void setupSaveLocationSetting(SettingsGroup media) {
         saveLocation = (LinkSettingView) media.add(new LinkSettingView(this,
                 R.string.save_location_screen, 0,
-                v -> navigationController.pushController(new SaveLocationController(context))));
-        updateSaveLocationSetting();
-    }
-
-    private void updateSaveLocationSetting() {
-        saveLocation.setDescription(ChanSettings.saveLocation.get());
+                v -> presenter.saveLocationClicked()));
     }
 }
