@@ -303,7 +303,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
   <string name="report_screen">Report %1$s</string>
   <string name="image_save_notification_downloading">Downloading images</string>
-  <string name="image_save_notification_cancel">Tap to cancel</string>
+  <string name="image_save_notification_cancel">Pulse para cancelar</string>
   <string name="image_save_saved">Image saved</string>
   <string name="image_save_as">Saved as \"%1$s\"</string>
   <string name="image_save_failed">Saving image failed</string>
