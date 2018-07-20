@@ -34,11 +34,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_check_failed">Не удалось проверить обновления.</string>
   <string name="update_install">Установить</string>
   <string name="update_install_downloading">Загружается обновление</string>
-  <string name="update_install_download_failed">Download failed</string>
-  <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
+  <string name="update_install_download_failed">Ошибка при загрузке</string>
+  <string name="update_install_download_move_failed">Не удалось переместить скачанный файл в каталог Загрузки.</string>
   <string name="update_retry_title">Retry update</string>
-  <string name="update_retry">Clover was not updated yet. Tap \"retry\" to retry the install.</string>
-  <string name="update_retry_button">retry</string>
+  <string name="update_retry">Clover пока не был обновлен. Коснитесь \"повтор\" чтобы повторить установку.</string>
+  <string name="update_retry_button">повтор</string>
   <string name="update_storage_permission_required_title">Storage permission required</string>
   <string name="update_storage_permission_required">
 \"Permission to access storage is required for installing the update.
@@ -48,17 +48,17 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <item quantity="one">%d minute</item>
     <item quantity="few">%d minutes</item>
     <item quantity="many">%d minutes</item>
-    <item quantity="other">%d minutes</item>
+    <item quantity="other">%d минут</item>
   </plurals>
   <plurals name="posts">
     <item quantity="one">%d post</item>
-    <item quantity="few">%d posts</item>
+    <item quantity="few">%d постов</item>
     <item quantity="many">%d posts</item>
     <item quantity="other">%d posts</item>
   </plurals>
   <plurals name="reply">
     <item quantity="one">%d reply</item>
-    <item quantity="few">%d replies</item>
+    <item quantity="few">%d ответов</item>
     <item quantity="many">%d replies</item>
     <item quantity="other">%d replies</item>
   </plurals>
@@ -99,9 +99,9 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <item quantity="other">%d sites</item>
   </plurals>
   <string name="card_stats">%1$dR %2$dI</string>
-  <string name="action_reload">Reload</string>
+  <string name="action_reload">Обновить</string>
   <string name="action_pin">Bookmark</string>
-  <string name="action_open_browser">Open in a browser</string>
+  <string name="action_open_browser">Открыть в браузере</string>
   <string name="action_share">Share</string>
   <string name="action_download_album">Download album</string>
   <string name="action_search">Search</string>
