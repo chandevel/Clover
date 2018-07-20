@@ -18,22 +18,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-  <string name="cancel">Cancel</string>
-  <string name="add">Add</string>
-  <string name="close">Close</string>
-  <string name="back">Back</string>
-  <string name="ok">OK</string>
-  <string name="exit">Exit</string>
-  <string name="delete">Delete</string>
+  <string name="cancel">Отмена</string>
+  <string name="add">Добавить</string>
+  <string name="close">Закрыть</string>
+  <string name="back">Назад</string>
+  <string name="ok">ОК</string>
+  <string name="exit">Выход</string>
+  <string name="delete">Удалить</string>
   <string name="undo">Undo</string>
-  <string name="save">Save</string>
-  <string name="permission_app_settings">App settings</string>
-  <string name="permission_grant">Grant</string>
-  <string name="update_later">Later</string>
+  <string name="save">Сохранить</string>
+  <string name="permission_app_settings">Настройки приложения</string>
+  <string name="permission_grant">Разрешить</string>
+  <string name="update_later">Позже</string>
   <string name="update_none">Clover is up-to-date</string>
-  <string name="update_check_failed">Failed to check for updates.</string>
-  <string name="update_install">Install</string>
-  <string name="update_install_downloading">Downloading update</string>
+  <string name="update_check_failed">Не удалось проверить обновления.</string>
+  <string name="update_install">Установить</string>
+  <string name="update_install_downloading">Загружается обновление</string>
   <string name="update_install_download_failed">Download failed</string>
   <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
   <string name="update_retry_title">Retry update</string>
