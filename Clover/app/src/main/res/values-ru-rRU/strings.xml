@@ -75,45 +75,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item quantity="other">%d борд</item>
   </plurals>
   <plurals name="type">
-    <item quantity="one">%d type</item>
-    <item quantity="few">%d types</item>
-    <item quantity="many">%d types</item>
-    <item quantity="other">%d types</item>
+    <item quantity="one">%d тип</item>
+    <item quantity="few">%d типа</item>
+    <item quantity="many">%d типов</item>
+    <item quantity="other">%d типов</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="one">%d bookmark</item>
-    <item quantity="few">%d bookmarks</item>
-    <item quantity="many">%d bookmarks</item>
-    <item quantity="other">%d bookmarks</item>
+    <item quantity="one">%d закладка</item>
+    <item quantity="few">%d закладки</item>
+    <item quantity="many">%d закладок</item>
+    <item quantity="other">%d закладок</item>
   </plurals>
   <plurals name="filter">
-    <item quantity="one">%d filter</item>
-    <item quantity="few">%d filters</item>
-    <item quantity="many">%d filters</item>
-    <item quantity="other">%d filters</item>
+    <item quantity="one">%d фильтр</item>
+    <item quantity="few">%d фильтра</item>
+    <item quantity="many">%d фильтров</item>
+    <item quantity="other">%d фильтров</item>
   </plurals>
   <plurals name="site">
-    <item quantity="one">%d site</item>
-    <item quantity="few">%d sites</item>
-    <item quantity="many">%d sites</item>
-    <item quantity="other">%d sites</item>
+    <item quantity="one">%d сайт</item>
+    <item quantity="few">%d сайта</item>
+    <item quantity="many">%d сайтов</item>
+    <item quantity="other">%d сайтов</item>
   </plurals>
   <string name="card_stats">%1$dО %2$dИ</string>
   <string name="action_reload">Обновить</string>
-  <string name="action_pin">Bookmark</string>
+  <string name="action_pin">В закладки</string>
   <string name="action_open_browser">Открыть в браузере</string>
   <string name="action_share">Поделиться</string>
-  <string name="action_download_album">Download album</string>
-  <string name="action_search">Search</string>
-  <string name="action_search_image">Image search</string>
+  <string name="action_download_album">Скачать альбом</string>
+  <string name="action_search">Поиск</string>
+  <string name="action_search_image">Поиск по изображению</string>
   <string name="action_switch_catalog">Режим каталога</string>
   <string name="action_switch_board">Режим борды</string>
-  <string name="action_scroll_to_top">Top</string>
-  <string name="action_scroll_to_bottom">Bottom</string>
+  <string name="action_scroll_to_top">Наверх</string>
+  <string name="action_scroll_to_bottom">Вниз</string>
   <string name="action_sort">Сортировать</string>
   <string name="action_rename_pin">Переименовать закладку</string>
   <string name="action_rename">Переименовать</string>
-  <string name="action_reply">Reply</string>
+  <string name="action_reply">Ответ</string>
   <string name="open_link_not_matched">Clover не может открыть эту ссылку, она откроется в вашем браузере.</string>
   <string name="order_bump">Порядок бампа</string>
   <string name="order_reply">Reply count</string>
@@ -180,7 +180,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setup_site_login_description_disabled">Off</string>
   <string name="setup_board_title">Configure boards of %s</string>
   <string name="setup_board_empty">No boards added</string>
-  <string name="setup_board_removed">Removed \"%s\"</string>
+  <string name="setup_board_removed">Убрано \"%s\"</string>
   <string name="setup_board_added">%s added</string>
   <string name="setup_board_select_all">Выбрать все</string>
   <string name="filter_summary_all_boards">All boards</string>
@@ -197,7 +197,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="filter_all">all</string>
   <string name="filter_hide">Hide post</string>
   <string name="filter_color">Highlight post</string>
-  <string name="filter_remove">Remove post</string>
+  <string name="filter_remove">Убрать пост</string>
   <string name="filter_invalid_pattern">Invalid pattern</string>
   <string name="filter_preview">Test your filter</string>
   <string name="filter_no_matches">Does not match</string>
@@ -248,7 +248,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="archive_title">%s archive</string>
   <string name="archive_error">Ошибка загрузки архива</string>
   <string name="drawer_pinned">Bookmarked threads</string>
-  <string name="drawer_pin_removed">Removed \"%1$s\"</string>
+  <string name="drawer_pin_removed">Убрано \"%1$s\"</string>
   <string name="drawer_pins_cleared">%1$s cleared</string>
   <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
   <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
