@@ -351,7 +351,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="settings_media_description">Save location, auto loading, etc.</string>
   <string name="settings_filters">Фильтры</string>
   <!-- Thread watcher -->
-  <string name="setting_watch_summary_enabled">Следить за тредами в закладках</string>
+  <string name="setting_watch_summary_enabled">Следит за тредами в закладках</string>
   <string name="setting_watch_summary_disabled">Выключено</string>
   <string name="settings_screen_watch">Настройки наблюдения за тредами</string>
   <string name="settings_group_watch">Настройки</string>
@@ -372,9 +372,9 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   </string-array>
   <string name="setting_watch_peek">Уведомление при цитировании вас</string>
   <string name="setting_watch_peek_description">Показывать уведомление когда вас цитируют</string>
-  <string name="setting_watch_led">Индикатор уведомлений</string>
+  <string name="setting_watch_led">Индикатор уведомлений (диод)</string>
   <string-array name="setting_watch_leds">
-    <item>Отключить</item>
+    <item>Отключен</item>
     <item>Белый</item>
     <item>Красный</item>
     <item>Жёлтый</item>
