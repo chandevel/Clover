@@ -410,31 +410,31 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_layout_mode_split">Split mode</string>
   <string name="setting_board_grid_span_count">Столбцов в режиме каталога</string>
   <string name="setting_board_grid_span_count_default">Автоматически</string>
-  <string name="setting_board_grid_span_count_item">%1$d columns</string>
-  <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
-  <string name="setting_enable_reply_fab">Enable the reply button</string>
-  <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+  <string name="setting_board_grid_span_count_item">%1$d столбца</string>
+  <string name="setting_never_hide_toolbar">Не скрывать панель инструментов</string>
+  <string name="setting_enable_reply_fab">Включить кнопку ответа</string>
+  <string name="setting_enable_reply_fab_description">При отключении заменяет круглую кнопку на опцию в меню</string>
   <!-- Appearance post group -->
   <string name="settings_group_post">Пост</string>
-  <string name="setting_font_size">Font size</string>
-  <string name="setting_font_size_default">(default)</string>
-  <string name="setting_font_condensed">Use condensed font</string>
+  <string name="setting_font_size">Размер шрифта</string>
+  <string name="setting_font_size_default">(по умолчанию)</string>
+  <string name="setting_font_condensed">Использовать узкий шрифт</string>
   <string name="setting_font_condensed_description">Использовать узкий шрифт для постов</string>
   <string name="setting_post_full_date">Показать полную дату поста</string>
   <string name="setting_post_file_info">Показать информацию о файле поста</string>
   <string name="setting_post_filename">Показать имя файла поста</string>
   <!-- Behavior -->
-  <string name="settings_screen_behavior">Behavior</string>
+  <string name="settings_screen_behavior">Поведение</string>
   <!-- Behavior general group -->
-  <string name="settings_group_general">General</string>
-  <string name="setting_auto_refresh_thread">Auto refresh threads</string>
-  <string name="setting_confirm_exit">Confirm before exit</string>
-  <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
-  <string name="setting_clear_thread_hides">Clear all thread hides</string>
-  <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
+  <string name="settings_group_general">Основные</string>
+  <string name="setting_auto_refresh_thread">Автообновление тредов</string>
+  <string name="setting_confirm_exit">Подтверждать перед выходом</string>
+  <string name="setting_controller_swipeable">Позволять смахивать экраны в сторону</string>
+  <string name="setting_clear_thread_hides">Восстановить все скрытые треды</string>
+  <string name="setting_cleared_thread_hides">Все скрытые треды восстановлены</string>
   <!-- Behavior reply group -->
-  <string name="settings_group_reply">Reply</string>
-  <string name="setting_post_pin">В закладки при постинге</string>
+  <string name="settings_group_reply">Ответ</string>
+  <string name="setting_post_pin">Добавить в закладки при постинге</string>
   <string name="setting_post_default_name">Имя по умолчанию при постинге</string>
   <!-- Behavior post group -->
   <string name="setting_text_only">Только текст</string>
