@@ -36,14 +36,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_install_downloading">Загружается обновление</string>
   <string name="update_install_download_failed">Ошибка при загрузке</string>
   <string name="update_install_download_move_failed">Не удалось переместить скачанный файл в каталог Загрузки.</string>
-  <string name="update_retry_title">Retry update</string>
-  <string name="update_retry">Clover пока не был обновлен. Коснитесь \"повтор\" чтобы повторить установку.</string>
+  <string name="update_retry_title">Повторите попытку обновления</string>
+  <string name="update_retry">Clover пока не был обновлен. Нажмите \"повтор\" чтобы повторить установку.</string>
   <string name="update_retry_button">повтор</string>
   <string name="update_storage_permission_required_title">Нужно разрешение на доступ к памяти устройства</string>
   <string name="update_storage_permission_required">
-\"Permission to access storage is required for installing the update.
+\"Разрешение на доступ к памяти устройства необходимо для установки обновления.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+Включите это разрешение в настройках приложений если ранее отказали в нем.\"</string>
   <plurals name="minutes">
     <item quantity="one">%d минута</item>
     <item quantity="few">%d минуты</item>
@@ -69,10 +69,10 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <item quantity="other">%d изображений</item>
   </plurals>
   <plurals name="board">
-    <item quantity="one">%d board</item>
-    <item quantity="few">%d boards</item>
-    <item quantity="many">%d boards</item>
-    <item quantity="other">%d boards</item>
+    <item quantity="one">%d борда</item>
+    <item quantity="few">%d борды</item>
+    <item quantity="many">%d борд</item>
+    <item quantity="other">%d борд</item>
   </plurals>
   <plurals name="type">
     <item quantity="one">%d type</item>
@@ -292,10 +292,10 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="delete_error">Ошибка при удалении поста</string>
   <string name="video_playback_warning_title">WebM video error</string>
   <string name="video_playback_warning">
-\"The WebM video failed to play. This might be a problem with the hardware of your phone.
+\"Не удалось запустить видео. Это может быть связано с характеристиками вашего устройства.
 
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
+Использование внешнего проигрывателя с софтовым декодированием может решить проблему.
+Включите \"Использовать внешний проигрыватель\" в настройках.\"
     </string>
   <string name="video_playback_ignore">Don\'t show again</string>
   <string name="watch_pause_pins">Перестать следить</string>
@@ -467,7 +467,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_video_default_muted">Отключать звук видео на старте</string>
   <string name="setting_video_default_muted_description">Если у видео есть звук, то он выключается.</string>
   <string name="setting_video_open_external">Использовать внешний проигрыватель</string>
-  <string name="setting_video_open_external_description">Play videos in an external media player app</string>
+  <string name="setting_video_open_external_description">Запускать видео во внешнем проигрывателе</string>
   <string name="setting_share_url">Делиться ссылкой на изображение</string>
   <string name="setting_share_url_description">Делиться ссылкой на изображение заместо него самого</string>
   <string name="settings_reveal_image_spoilers">Раскрыть заспойлеренные изображения</string>
