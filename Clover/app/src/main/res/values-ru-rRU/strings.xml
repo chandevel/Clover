@@ -346,9 +346,9 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="settings_appearance">Оформление</string>
   <string name="settings_appearance_description">Темы, отображение, шрифты...</string>
   <string name="settings_behavior">Поведение</string>
-  <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
-  <string name="settings_media">Media</string>
-  <string name="settings_media_description">Save location, auto loading, etc.</string>
+  <string name="settings_behavior_description">Обновление тредов, капча...</string>
+  <string name="settings_media">Медиа</string>
+  <string name="settings_media_description">Папка сохранения, авто загрузка...</string>
   <string name="settings_filters">Фильтры</string>
   <!-- Thread watcher -->
   <string name="setting_watch_summary_enabled">Следит за тредами в закладках</string>
@@ -384,18 +384,18 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <item>Фиолетовый</item>
   </string-array>
   <!-- Main About group -->
-  <string name="settings_group_about">About</string>
-  <string name="settings_update_check">Check for updates</string>
+  <string name="settings_group_about">О программе</string>
+  <string name="settings_update_check">Проверить обновления</string>
   <string name="settings_crash_reporting">Report crashes</string>
   <string name="settings_crash_reporting_description">
 \"Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information.\"
     </string>
   <string name="settings_crash_reporting_toggle_notice">Настройка будет применена при следующем запуске приложения.</string>
-  <string name="settings_about_license">Released under the GNU GPLv3 license</string>
-  <string name="settings_about_license_description">Tap to see license</string>
-  <string name="settings_about_licenses">Open Source Licenses</string>
-  <string name="settings_about_licenses_description">Legal information about licenses</string>
+  <string name="settings_about_license">Выпущен под лицензией GNU GPLv3</string>
+  <string name="settings_about_license_description">Нажмите, чтобы увидеть лицензию</string>
+  <string name="settings_about_licenses">Open Source лицензии</string>
+  <string name="settings_about_licenses_description">Юридическая информация</string>
   <string name="settings_developer">Настройки для разработчиков</string>
   <!-- Appearance -->
   <string name="settings_screen_appearance">Appearance</string>
