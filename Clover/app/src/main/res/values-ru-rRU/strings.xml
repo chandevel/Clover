@@ -57,10 +57,10 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <item quantity="other">%d постов</item>
   </plurals>
   <plurals name="reply">
-    <item quantity="one">%d reply</item>
-    <item quantity="few">%d ответов</item>
-    <item quantity="many">%d replies</item>
-    <item quantity="other">%d replies</item>
+    <item quantity="one">%d ответ</item>
+    <item quantity="few">%d ответа</item>
+    <item quantity="many">%d ответов</item>
+    <item quantity="other">%d ответов</item>
   </plurals>
   <plurals name="image">
     <item quantity="one">%d изображение</item>
@@ -391,12 +391,12 @@ Enable \"Play videos with external player\" in the settings to play videos with 
 \"Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information.\"
     </string>
-  <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
+  <string name="settings_crash_reporting_toggle_notice">Настройка будет применена при следующем запуске приложения.</string>
   <string name="settings_about_license">Released under the GNU GPLv3 license</string>
   <string name="settings_about_license_description">Tap to see license</string>
   <string name="settings_about_licenses">Open Source Licenses</string>
   <string name="settings_about_licenses_description">Legal information about licenses</string>
-  <string name="settings_developer">Developer settings</string>
+  <string name="settings_developer">Настройки для разработчиков</string>
   <!-- Appearance -->
   <string name="settings_screen_appearance">Appearance</string>
   <string name="settings_group_appearance">Appearance</string>
@@ -434,7 +434,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
   <!-- Behavior reply group -->
   <string name="settings_group_reply">Reply</string>
-  <string name="setting_post_pin">Bookmark thread on post</string>
+  <string name="setting_post_pin">В закладки при постинге</string>
   <string name="setting_post_default_name">Имя по умолчанию при постинге</string>
   <!-- Behavior post group -->
   <string name="setting_text_only">Только текст</string>
@@ -505,17 +505,17 @@ Tap the toolbar menu to change its color.\"
   <string name="setting_pass_pin">PIN</string>
   <string name="setting_pass_authenticated">Device authorized!</string>
   <string name="setting_pass_login">Submit</string>
-  <string name="setting_pass_logout">Logout</string>
-  <string name="setting_pass_logging_in">Loading&#8230;</string>
-  <string name="setting_pass_error">Connection error</string>
+  <string name="setting_pass_logout">Выйти</string>
+  <string name="setting_pass_logging_in">Загрузка&#8230;</string>
+  <string name="setting_pass_error">Ошибка соединения</string>
   <string name="setting_pass_bottom_description">\"
 <![CDATA[
-Forgot your 4chan Pass login details?<br>
-<a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
+Забыли свои данные входа для 4chan Pass?<br>
+<a href=\"https://www.4chan.org/pass?reset\">Нажмите сюда, чтобы сбросить PIN.</a><br>
 <br>
-Don't have a 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
+Нет 4chan Pass?<br>
+<a href=\"https://www.4chan.org/pass\">Нажмите сюда, чтобы узнать больше.</a>
 ]]>
     \"</string>
-  <string name="settings_screen_theme">Themes</string>
+  <string name="settings_screen_theme">Темы</string>
 </resources>
