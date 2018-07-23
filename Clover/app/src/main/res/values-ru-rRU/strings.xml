@@ -254,7 +254,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="drawer_pins_non_cleared_try_all">Закладки не были убраны. Удерживайте, чтобы убрать все.</string>
   <string name="post_highlight_id">Выделить ID</string>
   <string name="post_highlight_tripcode">Выделить трипкод</string>
-  <string name="post_filter_tripcode">Filter tripcode</string>
+  <string name="post_filter_tripcode">Фильтровать трипкод</string>
   <string name="post_text_copied">Текст скопирован в буфер обмена</string>
   <string name="post_quote">Цитировать</string>
   <string name="post_quote_text">Цитировать текст</string>
@@ -282,29 +282,29 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="reply_submit">Отправить</string>
   <string name="reply_error">Ошибка постинга</string>
   <string name="reply_error_message">Ошибка постинга: %s</string>
-  <string name="reply_success">Post successful</string>
+  <string name="reply_success">Успешно</string>
   <string name="reply_captcha_text">Введите текст</string>
   <string name="reply_comment_button_spoiler">[s]</string>
   <string name="delete_confirm">Удалить ваш пост?</string>
   <string name="delete_wait">Удаление поста&#8230;</string>
   <string name="delete_success">Пост удален</string>
-  <string name="delete_image_only">Only delete the image</string>
+  <string name="delete_image_only">Удалить изображение</string>
   <string name="delete_error">Ошибка при удалении поста</string>
-  <string name="video_playback_warning_title">WebM video error</string>
+  <string name="video_playback_warning_title">Ошибка видео</string>
   <string name="video_playback_warning">
 \"Не удалось запустить видео. Это может быть связано с характеристиками вашего устройства.
 
 Использование внешнего проигрывателя с софтовым декодированием может решить проблему.
 Включите \"Использовать внешний проигрыватель\" в настройках.\"
     </string>
-  <string name="video_playback_ignore">Don\'t show again</string>
+  <string name="video_playback_ignore">Не показывать снова</string>
   <string name="watch_pause_pins">Перестать следить</string>
   <string name="watch_idle">Нет новых постов</string>
   <plurals name="watch_title">
-    <item quantity="one">Watching one thread</item>
-    <item quantity="few">Watching %d threads</item>
-    <item quantity="many">Watching %d threads</item>
-    <item quantity="other">Watching %d threads</item>
+    <item quantity="one">Слежу за одним тредом</item>
+    <item quantity="few">Слежу за %d тредами</item>
+    <item quantity="many">Слежу за %d тредами</item>
+    <item quantity="other">Слежу за %d тредами</item>
   </plurals>
   <plurals name="watch_new">
     <item quantity="one">%d новый пост</item>
@@ -329,13 +329,13 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="album_download_screen">Выбрано изображений (%1$d / %2$d)</string>
   <string name="album_download_none_checked">Пожалуйста, выберите изображения для скачивания</string>
   <string name="album_download_confirm">%1$s будет скачано в папку %2$s</string>
-  <string name="report_screen">Report %1$s</string>
+  <string name="report_screen">Пожаловаться на %1$s</string>
   <string name="image_save_notification_downloading">Скачивание изображений</string>
   <string name="image_save_notification_cancel">Отменить</string>
   <string name="image_save_saved">Изображение сохранено</string>
   <string name="image_save_as">Сохранено как \"%1$s\"</string>
   <string name="image_save_failed">Не удалось сохранить изображение</string>
-  <string name="drawer_sites">Setup sites</string>
+  <string name="drawer_sites">Настроить сайты</string>
   <string name="drawer_history">История</string>
   <!-- Main settings -->
   <string name="settings_screen">Настройки</string>
@@ -386,7 +386,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <!-- Main About group -->
   <string name="settings_group_about">О программе</string>
   <string name="settings_update_check">Проверить обновления</string>
-  <string name="settings_crash_reporting">Сообщать об ошибках</string>
+  <string name="settings_crash_reporting">Слать отчеты об ошибках</string>
   <string name="settings_crash_reporting_description">
 \"Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information.\"
@@ -481,11 +481,11 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_video_auto_load">Автоматически загружать видео</string>
   <!-- Save location settings -->
   <string name="save_location_screen">Папка сохранения</string>
-  <string name="save_location_storage_permission_required_title">Storage permission required</string>
+  <string name="save_location_storage_permission_required_title">Нужно разрешение на доступ к памяти устройства</string>
   <string name="save_location_storage_permission_required">
-\"Permission to access storage is required for browsing files.
+\"Разрешение на доступ к памяти устройства необходимо для просмотра файлов.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"
+Включите это разрешение в настройках приложений если ранее отказали в нем.\"
     </string>
   <string name="setting_folder_pick_ok">Выбрать</string>
   <string name="setting_folder_navigate_up">На директорию вверх</string>
