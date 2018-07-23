@@ -45,16 +45,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Re-enable this permission in the app settings if you permanently disabled it.\"</string>
   <plurals name="minutes">
-    <item quantity="one">%d minute</item>
-    <item quantity="few">%d minutes</item>
-    <item quantity="many">%d minutes</item>
+    <item quantity="one">%d минута</item>
+    <item quantity="few">%d минуты</item>
+    <item quantity="many">%d минут</item>
     <item quantity="other">%d минут</item>
   </plurals>
   <plurals name="posts">
-    <item quantity="one">%d post</item>
-    <item quantity="few">%d постов</item>
-    <item quantity="many">%d posts</item>
-    <item quantity="other">%d posts</item>
+    <item quantity="one">%d пост</item>
+    <item quantity="few">%d поста</item>
+    <item quantity="many">%d постов</item>
+    <item quantity="other">%d постов</item>
   </plurals>
   <plurals name="reply">
     <item quantity="one">%d reply</item>
@@ -148,10 +148,10 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="thread_archived">Архивирован</string>
   <string name="thread_closed">Закрыт</string>
   <plurals name="thread_new_posts">
-    <item quantity="one">%d new post</item>
-    <item quantity="few">%d new posts</item>
-    <item quantity="many">%d new posts</item>
-    <item quantity="other">%d new posts</item>
+    <item quantity="one">%d новый пост</item>
+    <item quantity="few">%d новых поста</item>
+    <item quantity="many">%d новых постов</item>
+    <item quantity="other">%d новых постов</item>
   </plurals>
   <string name="thread_new_posts_goto">View</string>
   <string name="thread_empty_select">Please select a thread</string>
@@ -367,7 +367,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   </string-array>
   <string name="setting_watch_sound">Notification sound</string>
   <string-array name="setting_watch_sounds">
-    <item>All posts</item>
+    <item>Все посты</item>
     <item>Only posts quoting you</item>
   </string-array>
   <string name="setting_watch_peek">Heads-up notification on quotes</string>
@@ -419,7 +419,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_font_size">Font size</string>
   <string name="setting_font_size_default">(default)</string>
   <string name="setting_font_condensed">Use condensed font</string>
-  <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
+  <string name="setting_font_condensed_description">Использовать узкий шрифт для постов</string>
   <string name="setting_post_full_date">Show the full date on posts</string>
   <string name="setting_post_file_info">Show file info on posts</string>
   <string name="setting_post_filename">Show filename on posts</string>
@@ -437,7 +437,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_post_pin">Bookmark thread on post</string>
   <string name="setting_post_default_name">Default post name</string>
   <!-- Behavior post group -->
-  <string name="setting_text_only">Text only mode</string>
+  <string name="setting_text_only">Только текст</string>
   <string name="setting_text_only_description">Hide images when in board and thread view</string>
   <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
   <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
@@ -446,7 +446,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
   <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
   <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
-  <string name="setting_tap_no_rely">Tap the post number to reply</string>
+  <string name="setting_tap_no_rely">Нажать на номер поста для ответа</string>
   <string name="setting_open_link_confirmation">Ask before opening links</string>
   <!-- Behavior proxy group -->
   <string name="settings_group_proxy">HTTP Proxy</string>
