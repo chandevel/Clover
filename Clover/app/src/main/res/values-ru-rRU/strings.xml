@@ -242,8 +242,8 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="history_clear_confirm_button">Очистить</string>
   <string name="history_toggle_hint">Enable or disable history</string>
   <string name="history_empty_info">История пуста</string>
-  <string name="saved_reply_clear">Clear posting history</string>
-  <string name="saved_reply_clear_confirm">Clear posting history?</string>
+  <string name="saved_reply_clear">Очистить историю постинга</string>
+  <string name="saved_reply_clear_confirm">Очистить историю постинга?</string>
   <string name="saved_reply_clear_confirm_button">Clear</string>
   <string name="archive_title">%s archive</string>
   <string name="archive_error">Ошибка загрузки архива</string>
@@ -259,7 +259,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="post_quote">Quote</string>
   <string name="post_quote_text">Quote text</string>
   <string name="post_info">Info</string>
-  <string name="post_info_title">Post info</string>
+  <string name="post_info_title">Информация о посте</string>
   <string name="post_show_links">Show links</string>
   <string name="post_share">Поделиться</string>
   <string name="post_copy_text">Скопировать текст</string>
@@ -285,11 +285,11 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="reply_success">Post successful</string>
   <string name="reply_captcha_text">Введите текст</string>
   <string name="reply_comment_button_spoiler">[s]</string>
-  <string name="delete_confirm">Delete your post?</string>
-  <string name="delete_wait">Deleting post&#8230;</string>
-  <string name="delete_success">Post deleted</string>
+  <string name="delete_confirm">Удалить ваш пост?</string>
+  <string name="delete_wait">Удаление поста&#8230;</string>
+  <string name="delete_success">Пост удален</string>
   <string name="delete_image_only">Only delete the image</string>
-  <string name="delete_error">Error deleting post</string>
+  <string name="delete_error">Ошибка при удалении поста</string>
   <string name="video_playback_warning_title">WebM video error</string>
   <string name="video_playback_warning">
 \"The WebM video failed to play. This might be a problem with the hardware of your phone.
@@ -299,7 +299,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     </string>
   <string name="video_playback_ignore">Don\'t show again</string>
   <string name="watch_pause_pins">Stop watching</string>
-  <string name="watch_idle">No new posts</string>
+  <string name="watch_idle">Нет новых постов</string>
   <plurals name="watch_title">
     <item quantity="one">Watching one thread</item>
     <item quantity="few">Watching %d threads</item>
@@ -307,10 +307,10 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <item quantity="other">Watching %d threads</item>
   </plurals>
   <plurals name="watch_new">
-    <item quantity="one">%d new post</item>
-    <item quantity="few">%d new posts</item>
-    <item quantity="many">%d new posts</item>
-    <item quantity="other">%d new posts</item>
+    <item quantity="one">%d новый пост</item>
+    <item quantity="few">%d новых поста</item>
+    <item quantity="many">%d новых постов</item>
+    <item quantity="other">%d новых постов</item>
   </plurals>
   <plurals name="watch_new_quotes">
     <item quantity="one">%d new post quoting you</item>
@@ -362,13 +362,13 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
   <string name="setting_watch_notify_mode">Notify about</string>
   <string-array name="setting_watch_notify_modes">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Все посты</item>
+    <item>Только посты, цитирующие вас</item>
   </string-array>
   <string name="setting_watch_sound">Notification sound</string>
   <string-array name="setting_watch_sounds">
     <item>Все посты</item>
-    <item>Only posts quoting you</item>
+    <item>Только посты, цитирующие вас</item>
   </string-array>
   <string name="setting_watch_peek">Heads-up notification on quotes</string>
   <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
@@ -415,12 +415,12 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_enable_reply_fab">Enable the reply button</string>
   <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
   <!-- Appearance post group -->
-  <string name="settings_group_post">Post</string>
+  <string name="settings_group_post">Пост</string>
   <string name="setting_font_size">Font size</string>
   <string name="setting_font_size_default">(default)</string>
   <string name="setting_font_condensed">Use condensed font</string>
   <string name="setting_font_condensed_description">Использовать узкий шрифт для постов</string>
-  <string name="setting_post_full_date">Show the full date on posts</string>
+  <string name="setting_post_full_date">Показать полную дату поста</string>
   <string name="setting_post_file_info">Show file info on posts</string>
   <string name="setting_post_filename">Show filename on posts</string>
   <!-- Behavior -->
@@ -435,7 +435,7 @@ Crash reports do not collect any personally identifiable information.\"
   <!-- Behavior reply group -->
   <string name="settings_group_reply">Reply</string>
   <string name="setting_post_pin">Bookmark thread on post</string>
-  <string name="setting_post_default_name">Default post name</string>
+  <string name="setting_post_default_name">Имя по умолчанию при постинге</string>
   <!-- Behavior post group -->
   <string name="setting_text_only">Только текст</string>
   <string name="setting_text_only_description">Hide images when in board and thread view</string>
