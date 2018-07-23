@@ -313,16 +313,16 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <item quantity="other">%d новых постов</item>
   </plurals>
   <plurals name="watch_new_quotes">
-    <item quantity="one">%d new post quoting you</item>
-    <item quantity="few">%d new posts quoting you</item>
-    <item quantity="many">%d new posts quoting you</item>
-    <item quantity="other">%d new posts quoting you</item>
+    <item quantity="one">%d новый пост, цитирующий вас</item>
+    <item quantity="few">%d новых поста, цитирующие вас</item>
+    <item quantity="many">%d новых постов, цитирующие вас</item>
+    <item quantity="other">%d новых постов, цитирующие вас</item>
   </plurals>
   <plurals name="watch_new_quoting">
-    <item quantity="one">%1$d new post, %2$d quoting you</item>
-    <item quantity="few">%1$d new posts, %2$d quoting you</item>
-    <item quantity="many">%1$d new posts, %2$d quoting you</item>
-    <item quantity="other">%1$d new posts, %2$d quoting you</item>
+    <item quantity="one">%1$d новый пост, %2$d цитирует вас</item>
+    <item quantity="few">%1$d новых поста, %2$d цитируют вас</item>
+    <item quantity="many">%1$d новых постов, %2$d цитируют вас</item>
+    <item quantity="other">%1$d новых постов, %2$d цитируют вас</item>
   </plurals>
   <string name="history_screen">История</string>
   <string name="filters_screen">Фильтры</string>
@@ -352,36 +352,36 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="settings_filters">Фильтры</string>
   <!-- Thread watcher -->
   <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
-  <string name="setting_watch_summary_disabled">Off</string>
+  <string name="setting_watch_summary_disabled">Выключено</string>
   <string name="settings_screen_watch">Thread watcher settings</string>
-  <string name="settings_group_watch">Settings</string>
-  <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
-  <string name="setting_watch_enable_background">Enable in the background</string>
-  <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
-  <string name="setting_watch_background_timeout">Background update interval</string>
-  <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
+  <string name="settings_group_watch">Настройки</string>
+  <string name="setting_watch_info">Чтобы отслеживать новые посты в закладках, включите наблюдение за тредами.</string>
+  <string name="setting_watch_enable_background">Работать в фоновом режиме</string>
+  <string name="setting_watch_enable_background_description">Отслеживать закладки когда Clover в фоновом режиме</string>
+  <string name="setting_watch_background_timeout">Интервал обновления в фоновом режиме</string>
+  <string name="setting_watch_background_timeout_description">Интервал обновлений когда приложение в фоновом режиме</string>
   <string name="setting_watch_notify_mode">Уведомлять о</string>
   <string-array name="setting_watch_notify_modes">
     <item>Всех постах</item>
     <item>Постах, цитирующих вас</item>
   </string-array>
-  <string name="setting_watch_sound">Notification sound</string>
+  <string name="setting_watch_sound">Уведомлять со звуком о</string>
   <string-array name="setting_watch_sounds">
     <item>Всех постах</item>
-    <item>Только посты, цитирующие вас</item>
+    <item>Постах, цитирующих вас</item>
   </string-array>
-  <string name="setting_watch_peek">Heads-up notification on quotes</string>
-  <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
-  <string name="setting_watch_led">Notification light</string>
+  <string name="setting_watch_peek">Уведомление при цитировании вас</string>
+  <string name="setting_watch_peek_description">Показывать уведомление когда вас цитируют</string>
+  <string name="setting_watch_led">Индикатор уведомлений</string>
   <string-array name="setting_watch_leds">
-    <item>None</item>
-    <item>White</item>
-    <item>Red</item>
-    <item>Yellow</item>
-    <item>Green</item>
-    <item>Cyan</item>
-    <item>Blue</item>
-    <item>Purple</item>
+    <item>Отключить</item>
+    <item>Белый</item>
+    <item>Красный</item>
+    <item>Жёлтый</item>
+    <item>Зелёный</item>
+    <item>Бирюзовый</item>
+    <item>Синий</item>
+    <item>Фиолетовый</item>
   </string-array>
   <!-- Main About group -->
   <string name="settings_group_about">About</string>
