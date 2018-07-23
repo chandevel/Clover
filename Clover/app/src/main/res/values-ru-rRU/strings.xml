@@ -206,26 +206,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="filter_help_title">Помощь по фильтрам</string>
   <string name="filter_help">
 <![CDATA[
-Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden or highlighted.<br>
+Фильтры работают по заданному пользователем паттерну и местам его работы.<br>
+Если паттерн срабатывает, то пост можно скрыть или выделить.<br>
 
-<h4>For tripcodes, names and IDs:</h4>
+<h4>Для трипкодов, имен и ID:</h4>
 <p>
-    It will match the given pattern exact.<br>
-    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
+    Сработает только при полном совпадении паттерна и содержимого.<br>
+    Фильтр на <tt>!Ep8pui8Vw2</tt> сработает на трипкод <i>!Ep8pui8Vw2</i>, но не на текст <i>Ep8pu</i>.
 </p>
 
-<h4>For comments, subjects and filenames:</h4>
+<h4>Для ответов, тем и имен файлов:</h4>
 <p>
-    These filters are pattern based, and have three modes:<br>
+    Эти фильтры имеют три режима:<br>
     <br>
-    1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
-    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i>, <i>foooo</i> but not <i>foobar</i><br>
+    1. Паттерн <tt>foo bar</tt> совпадет с текстом, который имеет любое из введенных слов. То есть он сработает на словах <i>foo</i> или <i>bar</i>, но не на <i>foobar</i>.
+    Если поместить знак * вот так <tt>f*o</tt>, то будут срабатывать случаи <i>foo</i>, <i>foooo</i>, но не <i>foobar</i><br>
     <br>
-    2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exactly.
-    <i>foo bar</i> matches but <i>foo</i> does not.<br>
+    2. Паттерн помещенный в <tt>\"</tt>, например <tt>\"foo bar\"</tt>, будет срабатывать только при полном совпадении.
+    <i>foo bar</i> сработает, а <i>foo</i> - нет.<br>
     <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example.
+    3. Регулярные выражения. <tt>/^>implying/</tt> например.
 </p>
 ]]>
     </string>
