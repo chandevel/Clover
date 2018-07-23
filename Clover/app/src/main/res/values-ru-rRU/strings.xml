@@ -63,10 +63,10 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <item quantity="other">%d replies</item>
   </plurals>
   <plurals name="image">
-    <item quantity="one">%d image</item>
-    <item quantity="few">%d images</item>
-    <item quantity="many">%d images</item>
-    <item quantity="other">%d images</item>
+    <item quantity="one">%d изображение</item>
+    <item quantity="few">%d изображения</item>
+    <item quantity="many">%d изображений</item>
+    <item quantity="other">%d изображений</item>
   </plurals>
   <plurals name="board">
     <item quantity="one">%d board</item>
@@ -421,8 +421,8 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_font_condensed">Use condensed font</string>
   <string name="setting_font_condensed_description">Использовать узкий шрифт для постов</string>
   <string name="setting_post_full_date">Показать полную дату поста</string>
-  <string name="setting_post_file_info">Show file info on posts</string>
-  <string name="setting_post_filename">Show filename on posts</string>
+  <string name="setting_post_file_info">Показать информацию о файле поста</string>
+  <string name="setting_post_filename">Показать имя файла поста</string>
   <!-- Behavior -->
   <string name="settings_screen_behavior">Behavior</string>
   <!-- Behavior general group -->
