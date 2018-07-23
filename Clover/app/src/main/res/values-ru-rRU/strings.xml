@@ -487,14 +487,14 @@ Crash reports do not collect any personally identifiable information.\"
 
 Re-enable this permission in the app settings if you permanently disabled it.\"
     </string>
-  <string name="setting_folder_pick_ok">Choose</string>
-  <string name="setting_folder_navigate_up">Up</string>
+  <string name="setting_folder_pick_ok">Выбрать</string>
+  <string name="setting_folder_navigate_up">На директорию вверх</string>
   <!-- Theme settings -->
   <string name="setting_theme_explanation">
-\"Swipe to change the theme.
-Tap the toolbar menu to change its color.\"
+\"Перелистывайте для выбора темы.
+Нажмите на меню инструментов для смены его цвета.\"
     </string>
-  <string name="setting_theme_accent">Tap here to change the FAB color</string>
+  <string name="setting_theme_accent">Нажмите здесь для смены цвета круглой кнопки</string>
   <!-- Developer settings -->
   <string name="settings_open_logs">View logs</string>
   <string name="settings_logs_screen">Logs</string>
