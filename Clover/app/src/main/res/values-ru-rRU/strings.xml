@@ -134,7 +134,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
   <string name="image_not_found">Изображение не найдено</string>
   <string name="image_open_failed">Не удается открыть изображение</string>
-  <string name="image_spoiler_filename">Spoiler image</string>
+  <string name="image_spoiler_filename">Спойлер</string>
   <string name="thread_boards_search_hint">Search</string>
   <string name="thread_load_failed_ssl">Ошибка HTTPS</string>
   <string name="thread_load_failed_network">Ошибка сети</string>
@@ -465,22 +465,22 @@ Crash reports do not collect any personally identifiable information.\"
 Если отключено, сохраняет с именем от загрузившего.\"
     </string>
   <string name="setting_video_default_muted">Отключать звук видео на старте</string>
-  <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
-  <string name="setting_video_open_external">Play videos with external player</string>
+  <string name="setting_video_default_muted_description">Если у видео есть звук, то он выключается.</string>
+  <string name="setting_video_open_external">Использовать внешний проигрыватель</string>
   <string name="setting_video_open_external_description">Play videos in an external media player app</string>
-  <string name="setting_share_url">Share URL to image</string>
-  <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
-  <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
-  <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
+  <string name="setting_share_url">Делиться ссылкой на изображение</string>
+  <string name="setting_share_url_description">Делиться ссылкой на изображение заместо него самого</string>
+  <string name="settings_reveal_image_spoilers">Раскрыть заспойлеренные изображения</string>
+  <string name="settings_reveal_image_spoilers_description">Сразу раскрывает заспойлеренные превью и изображения.</string>
   <!-- Media loading group -->
-  <string name="settings_group_media_loading">Media loading</string>
-  <string name="setting_image_auto_load">Automatically load images</string>
-  <string name="setting_image_auto_load_all">Always</string>
-  <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
-  <string name="setting_image_auto_load_none">Never</string>
-  <string name="setting_video_auto_load">Automatically load videos</string>
+  <string name="settings_group_media_loading">Загрузка медиа</string>
+  <string name="setting_image_auto_load">Автоматически загружать изображения</string>
+  <string name="setting_image_auto_load_all">Всегда</string>
+  <string name="setting_image_auto_load_wifi">Только по Wi-Fi</string>
+  <string name="setting_image_auto_load_none">Никогда</string>
+  <string name="setting_video_auto_load">Автоматически загружать видео</string>
   <!-- Save location settings -->
-  <string name="save_location_screen">Save location</string>
+  <string name="save_location_screen">Папка сохранения</string>
   <string name="save_location_storage_permission_required_title">Storage permission required</string>
   <string name="save_location_storage_permission_required">
 \"Permission to access storage is required for browsing files.
