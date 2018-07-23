@@ -338,18 +338,18 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="drawer_sites">Setup sites</string>
   <string name="drawer_history">История</string>
   <!-- Main settings -->
-  <string name="settings_screen">Settings</string>
+  <string name="settings_screen">Настройки</string>
   <!-- Main "Settings" group -->
-  <string name="settings_group_settings">Settings</string>
+  <string name="settings_group_settings">Настройки</string>
   <string name="settings_watch">Thread watcher</string>
   <string name="settings_sites">Сайты</string>
   <string name="settings_appearance">Оформление</string>
-  <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
+  <string name="settings_appearance_description">Темы, отображение, шрифты...</string>
   <string name="settings_behavior">Поведение</string>
   <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
   <string name="settings_media">Media</string>
   <string name="settings_media_description">Save location, auto loading, etc.</string>
-  <string name="settings_filters">Filters</string>
+  <string name="settings_filters">Фильтры</string>
   <!-- Thread watcher -->
   <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
   <string name="setting_watch_summary_disabled">Off</string>
@@ -360,14 +360,14 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
   <string name="setting_watch_background_timeout">Background update interval</string>
   <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
-  <string name="setting_watch_notify_mode">Notify about</string>
+  <string name="setting_watch_notify_mode">Уведомлять о</string>
   <string-array name="setting_watch_notify_modes">
-    <item>Все посты</item>
-    <item>Только посты, цитирующие вас</item>
+    <item>Всех постах</item>
+    <item>Постах, цитирующих вас</item>
   </string-array>
   <string name="setting_watch_sound">Notification sound</string>
   <string-array name="setting_watch_sounds">
-    <item>Все посты</item>
+    <item>Всех постах</item>
     <item>Только посты, цитирующие вас</item>
   </string-array>
   <string name="setting_watch_peek">Heads-up notification on quotes</string>
