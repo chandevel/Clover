@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="ok">ОК</string>
   <string name="exit">Выход</string>
   <string name="delete">Удалить</string>
-  <string name="undo">Undo</string>
+  <string name="undo">Отменить</string>
   <string name="save">Сохранить</string>
   <string name="permission_app_settings">Настройки приложения</string>
   <string name="permission_grant">Разрешить</string>
@@ -155,7 +155,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </plurals>
   <string name="thread_new_posts_goto">Посмотреть</string>
   <string name="thread_empty_select">Пожалуйста, выберите тред</string>
-  <string name="thread_up_down_hint">Scroll to top/bottom</string>
+  <string name="thread_up_down_hint">Прокрутить к началу/концу</string>
   <string name="thread_pin_hint">Добавить этот тред в закладки</string>
   <string name="thread_view_archive">Архив</string>
   <string name="thread_empty_setup_title">Нечего показывать</string>
@@ -388,8 +388,8 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="settings_update_check">Проверить обновления</string>
   <string name="settings_crash_reporting">Слать отчеты об ошибках</string>
   <string name="settings_crash_reporting_description">
-\"Crash reporting creates reports of errors in Clover.
-Crash reports do not collect any personally identifiable information.\"
+\"Ошибки в работе Clover собираются в отчет и отправляются разработчику.
+Данные отчеты не собирают личную информацию пользователя.\"
     </string>
   <string name="settings_crash_reporting_toggle_notice">Настройка будет применена при следующем запуске приложения.</string>
   <string name="settings_about_license">Выпущен под лицензией GNU GPLv3</string>
@@ -405,9 +405,9 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="settings_group_layout">Отображение</string>
   <string name="setting_layout_mode">Режим отображения</string>
   <string name="setting_layout_mode_auto">Автоматически</string>
-  <string name="setting_layout_mode_phone">Phone layout</string>
-  <string name="setting_layout_mode_slide">Slide mode</string>
-  <string name="setting_layout_mode_split">Split mode</string>
+  <string name="setting_layout_mode_phone">Режим для телефона</string>
+  <string name="setting_layout_mode_slide">Режим перелистывания</string>
+  <string name="setting_layout_mode_split">Разделение пополам</string>
   <string name="setting_board_grid_span_count">Столбцов в режиме каталога</string>
   <string name="setting_board_grid_span_count_default">Автоматически</string>
   <string name="setting_board_grid_span_count_item">%1$d столбца</string>
