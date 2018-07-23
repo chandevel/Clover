@@ -182,7 +182,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="setup_board_empty">No boards added</string>
   <string name="setup_board_removed">Removed \"%s\"</string>
   <string name="setup_board_added">%s added</string>
-  <string name="setup_board_select_all">Select all</string>
+  <string name="setup_board_select_all">Выбрать все</string>
   <string name="filter_summary_all_boards">All boards</string>
   <string name="filter_enabled">Enabled</string>
   <string name="filter_filter">Filter</string>
@@ -201,7 +201,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="filter_invalid_pattern">Invalid pattern</string>
   <string name="filter_preview">Test your filter</string>
   <string name="filter_no_matches">Does not match</string>
-  <string name="filter_matches">Matches</string>
+  <string name="filter_matches">Совпадения</string>
   <string name="filter_color_pick">Pick color</string>
   <string name="filter_help_title">Filter help</string>
   <string name="filter_help">
@@ -229,19 +229,19 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 </p>
 ]]>
     </string>
-  <string name="filter_tripcode">Tripcode</string>
-  <string name="filter_name">Name</string>
+  <string name="filter_tripcode">Трипкод</string>
+  <string name="filter_name">Имя</string>
   <string name="filter_comment">Comment</string>
   <string name="filter_id">ID</string>
-  <string name="filter_subject">Subject</string>
-  <string name="filter_filename">Filename</string>
-  <string name="board_select_all">Select all</string>
-  <string name="board_select_none">Select none</string>
-  <string name="history_clear">Clear history</string>
-  <string name="history_clear_confirm">Clear history?</string>
-  <string name="history_clear_confirm_button">Clear</string>
+  <string name="filter_subject">Тема</string>
+  <string name="filter_filename">Имя файла</string>
+  <string name="board_select_all">Выбрать все</string>
+  <string name="board_select_none">Снять выделение</string>
+  <string name="history_clear">Очистить историю</string>
+  <string name="history_clear_confirm">Очистить историю?</string>
+  <string name="history_clear_confirm_button">Очистить</string>
   <string name="history_toggle_hint">Enable or disable history</string>
-  <string name="history_empty_info">No history</string>
+  <string name="history_empty_info">История пуста</string>
   <string name="saved_reply_clear">Clear posting history</string>
   <string name="saved_reply_clear_confirm">Clear posting history?</string>
   <string name="saved_reply_clear_confirm_button">Clear</string>
@@ -255,7 +255,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="post_highlight_id">Highlight ID</string>
   <string name="post_highlight_tripcode">Highlight tripcode</string>
   <string name="post_filter_tripcode">Filter tripcode</string>
-  <string name="post_text_copied">Text copied to clipboard</string>
+  <string name="post_text_copied">Текст скопирован в буфер обмена</string>
   <string name="post_quote">Quote</string>
   <string name="post_quote_text">Quote text</string>
   <string name="post_info">Info</string>
