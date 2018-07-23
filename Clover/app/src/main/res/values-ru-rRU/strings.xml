@@ -107,7 +107,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <string name="action_search">Search</string>
   <string name="action_search_image">Image search</string>
   <string name="action_switch_catalog">Режим каталога</string>
-  <string name="action_switch_board">Board mode</string>
+  <string name="action_switch_board">Режим борды</string>
   <string name="action_scroll_to_top">Top</string>
   <string name="action_scroll_to_bottom">Bottom</string>
   <string name="action_sort">Сортировать</string>
@@ -398,18 +398,18 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="settings_about_licenses_description">Юридическая информация</string>
   <string name="settings_developer">Настройки для разработчиков</string>
   <!-- Appearance -->
-  <string name="settings_screen_appearance">Appearance</string>
-  <string name="settings_group_appearance">Appearance</string>
-  <string name="setting_theme">Theme</string>
+  <string name="settings_screen_appearance">Оформление</string>
+  <string name="settings_group_appearance">Оформление</string>
+  <string name="setting_theme">Тема</string>
   <!-- Appearance layout group -->
-  <string name="settings_group_layout">Layout</string>
-  <string name="setting_layout_mode">Layout mode</string>
-  <string name="setting_layout_mode_auto">Auto</string>
+  <string name="settings_group_layout">Отображение</string>
+  <string name="setting_layout_mode">Режим отображения</string>
+  <string name="setting_layout_mode_auto">Автоматически</string>
   <string name="setting_layout_mode_phone">Phone layout</string>
   <string name="setting_layout_mode_slide">Slide mode</string>
   <string name="setting_layout_mode_split">Split mode</string>
-  <string name="setting_board_grid_span_count">Catalog mode column count</string>
-  <string name="setting_board_grid_span_count_default">Auto</string>
+  <string name="setting_board_grid_span_count">Столбцов в режиме каталога</string>
+  <string name="setting_board_grid_span_count_default">Автоматически</string>
   <string name="setting_board_grid_span_count_item">%1$d columns</string>
   <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
   <string name="setting_enable_reply_fab">Enable the reply button</string>
