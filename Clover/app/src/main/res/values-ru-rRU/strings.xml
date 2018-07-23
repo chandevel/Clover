@@ -298,7 +298,7 @@ A workaround is to use an external media player with a software decoder.
 Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
     </string>
   <string name="video_playback_ignore">Don\'t show again</string>
-  <string name="watch_pause_pins">Перестать отслеживать</string>
+  <string name="watch_pause_pins">Перестать следить</string>
   <string name="watch_idle">Нет новых постов</string>
   <plurals name="watch_title">
     <item quantity="one">Watching one thread</item>
@@ -341,7 +341,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="settings_screen">Настройки</string>
   <!-- Main "Settings" group -->
   <string name="settings_group_settings">Настройки</string>
-  <string name="settings_watch">Thread watcher</string>
+  <string name="settings_watch">Наблюдение за тредами</string>
   <string name="settings_sites">Сайты</string>
   <string name="settings_appearance">Оформление</string>
   <string name="settings_appearance_description">Темы, отображение, шрифты...</string>
@@ -351,13 +351,13 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="settings_media_description">Save location, auto loading, etc.</string>
   <string name="settings_filters">Фильтры</string>
   <!-- Thread watcher -->
-  <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
+  <string name="setting_watch_summary_enabled">Следить за тредами в закладках</string>
   <string name="setting_watch_summary_disabled">Выключено</string>
-  <string name="settings_screen_watch">Thread watcher settings</string>
+  <string name="settings_screen_watch">Настройки наблюдения за тредами</string>
   <string name="settings_group_watch">Настройки</string>
-  <string name="setting_watch_info">Чтобы отслеживать новые посты в закладках, включите наблюдение за тредами.</string>
+  <string name="setting_watch_info">Чтобы следить за новыми постами в закладках, включите наблюдение за тредами.</string>
   <string name="setting_watch_enable_background">Работать в фоновом режиме</string>
-  <string name="setting_watch_enable_background_description">Отслеживать закладки когда Clover в фоновом режиме</string>
+  <string name="setting_watch_enable_background_description">Следить за новыми постами в закладках когда Clover в фоновом режиме</string>
   <string name="setting_watch_background_timeout">Интервал обновления в фоновом режиме</string>
   <string name="setting_watch_background_timeout_description">Интервал обновлений когда приложение в фоновом режиме</string>
   <string name="setting_watch_notify_mode">Уведомлять о</string>
