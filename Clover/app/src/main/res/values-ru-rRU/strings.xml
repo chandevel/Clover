@@ -438,33 +438,33 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_post_default_name">Имя по умолчанию при постинге</string>
   <!-- Behavior post group -->
   <string name="setting_text_only">Только текст</string>
-  <string name="setting_text_only_description">Hide images when in board and thread view</string>
-  <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
-  <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
-  <string name="setting_anonymize">Make everyone Anonymous</string>
-  <string name="setting_anonymize_ids">Hide IDs</string>
-  <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
+  <string name="setting_text_only_description">Скрыть все изображения в бордах и тредах</string>
+  <string name="settings_reveal_text_spoilers">Раскрыть текстовые спойлеры</string>
+  <string name="settings_reveal_text_spoilers_description">Делает текстовые спойлеры сразу раскрытыми</string>
+  <string name="setting_anonymize">Сделать всех Анонимами</string>
+  <string name="setting_anonymize_ids">Скрыть ID</string>
+  <string name="setting_show_anonymous_name">Всегда показывать имя \"Anonymous\"</string>
   <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
-  <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
+  <string name="setting_volume_key_scrolling">Прокрутка кнопками громкости</string>
   <string name="setting_tap_no_rely">Нажать на номер поста для ответа</string>
-  <string name="setting_open_link_confirmation">Ask before opening links</string>
+  <string name="setting_open_link_confirmation">Спрашивать перед открытием ссылок</string>
   <!-- Behavior proxy group -->
-  <string name="settings_group_proxy">HTTP Proxy</string>
-  <string name="setting_proxy_enabled">Enable proxy</string>
-  <string name="setting_proxy_address">Proxy server address</string>
-  <string name="setting_proxy_port">Proxy server port</string>
+  <string name="settings_group_proxy">HTTP прокси</string>
+  <string name="setting_proxy_enabled">Включить прокси</string>
+  <string name="setting_proxy_address">Адрес прокси сервера</string>
+  <string name="setting_proxy_port">Порт прокси сервера</string>
   <!-- Media -->
-  <string name="settings_screen_media">Media</string>
+  <string name="settings_screen_media">Медиа</string>
   <!-- Media general group -->
-  <string name="settings_group_media">Media</string>
-  <string name="setting_save_board_folder">Save images in a board folder</string>
-  <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
-  <string name="setting_save_original_filename">Save original filename</string>
+  <string name="settings_group_media">Медиа</string>
+  <string name="setting_save_board_folder">Сохранять в папку борды</string>
+  <string name="setting_save_board_folder_description">Создавать для каждой борды свою папку и сохранять туда изображения</string>
+  <string name="setting_save_original_filename">Сохранять с исходным именем</string>
   <string name="setting_save_original_filename_description">
-\"Save the image with the filename the site assigned.
-If disabled, save the image with the filename the uploader assigned.\"
+\"Сохранять изображения с именем, присвоенным сайтом.
+Если отключено, сохраняет с именем от загрузившего.\"
     </string>
-  <string name="setting_video_default_muted">Start videos muted</string>
+  <string name="setting_video_default_muted">Отключать звук видео на старте</string>
   <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
   <string name="setting_video_open_external">Play videos with external player</string>
   <string name="setting_video_open_external_description">Play videos in an external media player app</string>
