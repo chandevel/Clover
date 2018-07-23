@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="permission_app_settings">Настройки приложения</string>
   <string name="permission_grant">Разрешить</string>
   <string name="update_later">Позже</string>
-  <string name="update_none">Clover is up-to-date</string>
+  <string name="update_none">Установлена актуальная версия Clover</string>
   <string name="update_check_failed">Не удалось проверить обновления.</string>
   <string name="update_install">Установить</string>
   <string name="update_install_downloading">Загружается обновление</string>
@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_retry_title">Retry update</string>
   <string name="update_retry">Clover пока не был обновлен. Коснитесь \"повтор\" чтобы повторить установку.</string>
   <string name="update_retry_button">повтор</string>
-  <string name="update_storage_permission_required_title">Storage permission required</string>
+  <string name="update_storage_permission_required_title">Нужно разрешение на доступ к памяти устройства</string>
   <string name="update_storage_permission_required">
 \"Permission to access storage is required for installing the update.
 
