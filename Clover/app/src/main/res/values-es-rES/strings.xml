@@ -414,9 +414,9 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
   <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
   <string name="setting_anonymize">Make everyone Anonymous</string>
-  <string name="setting_anonymize_ids">Hide IDs</string>
-  <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
-  <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
+  <string name="setting_anonymize_ids">Esconder IDs</string>
+  <string name="setting_show_anonymous_name">Mostrar siempre el nombre de \"Anónimo\"</string>
+  <string name="setting_buttons_bottom">Botones de respuesta abajo</string>
   <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
   <string name="setting_tap_no_rely">Tap the post number to reply</string>
   <string name="setting_open_link_confirmation">Ask before opening links</string>
@@ -489,5 +489,5 @@ Don't have a 4chan Pass?<br>
 <a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
 ]]>
     \"</string>
-  <string name="settings_screen_theme">Themes</string>
+  <string name="settings_screen_theme">Temas</string>
 </resources>
