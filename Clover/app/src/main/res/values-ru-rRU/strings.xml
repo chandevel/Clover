@@ -386,7 +386,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <!-- Main About group -->
   <string name="settings_group_about">О программе</string>
   <string name="settings_update_check">Проверить обновления</string>
-  <string name="settings_crash_reporting">Report crashes</string>
+  <string name="settings_crash_reporting">Сообщать об ошибках</string>
   <string name="settings_crash_reporting_description">
 \"Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information.\"
@@ -444,7 +444,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_anonymize">Сделать всех Анонимами</string>
   <string name="setting_anonymize_ids">Скрыть ID</string>
   <string name="setting_show_anonymous_name">Всегда показывать имя \"Anonymous\"</string>
-  <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
+  <string name="setting_buttons_bottom">Кнопки ответа внизу</string>
   <string name="setting_volume_key_scrolling">Прокрутка кнопками громкости</string>
   <string name="setting_tap_no_rely">Нажать на номер поста для ответа</string>
   <string name="setting_open_link_confirmation">Спрашивать перед открытием ссылок</string>
@@ -496,15 +496,15 @@ Re-enable this permission in the app settings if you permanently disabled it.\"
     </string>
   <string name="setting_theme_accent">Нажмите здесь для смены цвета круглой кнопки</string>
   <!-- Developer settings -->
-  <string name="settings_open_logs">View logs</string>
-  <string name="settings_logs_screen">Logs</string>
-  <string name="settings_logs_copy">Copy</string>
-  <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
-  <string name="settings_screen_pass">4chan pass</string>
-  <string name="setting_pass_token">Token</string>
+  <string name="settings_open_logs">Просмотреть логи</string>
+  <string name="settings_logs_screen">Логи</string>
+  <string name="settings_logs_copy">Скопировать</string>
+  <string name="settings_logs_copied_to_clipboard">Скопировано в буфер обмена</string>
+  <string name="settings_screen_pass">4chan Pass</string>
+  <string name="setting_pass_token">Токен</string>
   <string name="setting_pass_pin">PIN</string>
-  <string name="setting_pass_authenticated">Device authorized!</string>
-  <string name="setting_pass_login">Submit</string>
+  <string name="setting_pass_authenticated">Устройство авторизовано!</string>
+  <string name="setting_pass_login">Продолжить</string>
   <string name="setting_pass_logout">Выйти</string>
   <string name="setting_pass_logging_in">Загрузка&#8230;</string>
   <string name="setting_pass_error">Ошибка соединения</string>
