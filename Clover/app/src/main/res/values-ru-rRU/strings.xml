@@ -246,7 +246,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="saved_reply_clear_confirm">Clear posting history?</string>
   <string name="saved_reply_clear_confirm_button">Clear</string>
   <string name="archive_title">%s archive</string>
-  <string name="archive_error">Error loading archive</string>
+  <string name="archive_error">Ошибка загрузки архива</string>
   <string name="drawer_pinned">Bookmarked threads</string>
   <string name="drawer_pin_removed">Removed \"%1$s\"</string>
   <string name="drawer_pins_cleared">%1$s cleared</string>
