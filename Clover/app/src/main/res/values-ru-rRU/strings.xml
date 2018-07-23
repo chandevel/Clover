@@ -99,7 +99,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item quantity="other">%d сайтов</item>
   </plurals>
   <string name="card_stats">%1$dО %2$dИ</string>
-  <string name="action_reload">Обновить</string>
+  <string name="action_reload">Перезагрузить</string>
   <string name="action_pin">В закладки</string>
   <string name="action_open_browser">Открыть в браузере</string>
   <string name="action_share">Поделиться</string>
@@ -184,26 +184,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setup_board_added">%s добавлено</string>
   <string name="setup_board_select_all">Выбрать все</string>
   <string name="filter_summary_all_boards">Все борды</string>
-  <string name="filter_enabled">Enabled</string>
-  <string name="filter_filter">Filter</string>
-  <string name="filter_action">Action</string>
-  <string name="filter_pattern">Pattern</string>
-  <string name="filter_match_test">Test the pattern</string>
-  <string name="filter_pattern_hint_regex">Pattern</string>
-  <string name="filter_boards">Boards</string>
-  <string name="filter_types">Types</string>
-  <string name="filter_type_string_matching">String matching</string>
-  <string name="filter_type_regex_matching">Regex matching</string>
-  <string name="filter_all">all</string>
-  <string name="filter_hide">Hide post</string>
-  <string name="filter_color">Highlight post</string>
+  <string name="filter_enabled">Включен</string>
+  <string name="filter_filter">Фильтр</string>
+  <string name="filter_action">Действие</string>
+  <string name="filter_pattern">Паттерн</string>
+  <string name="filter_match_test">Проверить паттерн</string>
+  <string name="filter_pattern_hint_regex">Паттерн</string>
+  <string name="filter_boards">Борды</string>
+  <string name="filter_types">Типы</string>
+  <string name="filter_type_string_matching">Совпадение строк</string>
+  <string name="filter_type_regex_matching">Регулярное выражение</string>
+  <string name="filter_all">все</string>
+  <string name="filter_hide">Скрыть пост</string>
+  <string name="filter_color">Выделить пост</string>
   <string name="filter_remove">Убрать пост</string>
-  <string name="filter_invalid_pattern">Invalid pattern</string>
-  <string name="filter_preview">Test your filter</string>
-  <string name="filter_no_matches">Does not match</string>
-  <string name="filter_matches">Совпадения</string>
-  <string name="filter_color_pick">Pick color</string>
-  <string name="filter_help_title">Filter help</string>
+  <string name="filter_invalid_pattern">Неправильный паттерн</string>
+  <string name="filter_preview">Проверить фильтр</string>
+  <string name="filter_no_matches">Нет совпадений</string>
+  <string name="filter_matches">Есть совпадение</string>
+  <string name="filter_color_pick">Выберите цвет</string>
+  <string name="filter_help_title">Помощь по фильтрам</string>
   <string name="filter_help">
 <![CDATA[
 Filters act on a given pattern and a place to search the pattern.<br>
@@ -231,7 +231,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     </string>
   <string name="filter_tripcode">Трипкод</string>
   <string name="filter_name">Имя</string>
-  <string name="filter_comment">Comment</string>
+  <string name="filter_comment">Комментарий</string>
   <string name="filter_id">ID</string>
   <string name="filter_subject">Тема</string>
   <string name="filter_filename">Имя файла</string>
