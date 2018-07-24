@@ -492,7 +492,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <!-- Theme settings -->
   <string name="setting_theme_explanation">
 \"Перелистывайте для выбора темы.
-Нажмите на меню инструментов для смены его цвета.\"
+Нажмите на панель инструментов для смены её цвета.\"
     </string>
   <string name="setting_theme_accent">Нажмите здесь для смены цвета круглой кнопки</string>
   <!-- Developer settings -->
