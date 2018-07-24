@@ -63,10 +63,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item quantity="other">%d ответов</item>
   </plurals>
   <plurals name="image">
-    <item quantity="one">%d изображение</item>
-    <item quantity="few">%d изображения</item>
-    <item quantity="many">%d изображений</item>
-    <item quantity="other">%d изображений</item>
+    <item quantity="one">%d файл</item>
+    <item quantity="few">%d файла</item>
+    <item quantity="many">%d файлов</item>
+    <item quantity="other">%d файлов</item>
   </plurals>
   <plurals name="board">
     <item quantity="one">%d форум</item>
@@ -81,7 +81,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item quantity="other">%d типов</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="one">%d избранное</item>
+    <item quantity="one">%d избранный</item>
     <item quantity="few">%d избранных</item>
     <item quantity="many">%d избранных</item>
     <item quantity="other">%d избранных</item>
@@ -111,7 +111,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="action_scroll_to_top">Начало</string>
   <string name="action_scroll_to_bottom">Конец</string>
   <string name="action_sort">Сортировать</string>
-  <string name="action_rename_pin">Переименовать избранное</string>
+  <string name="action_rename_pin">Переименовать избранный</string>
   <string name="action_rename">Переименовать</string>
   <string name="action_reply">Ответ</string>
   <string name="open_link_not_matched">Clover не может открыть эту ссылку, она откроется в вашем браузере.</string>
@@ -250,8 +250,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="drawer_pinned">Избранное</string>
   <string name="drawer_pin_removed">Убрано \"%1$s\"</string>
   <string name="drawer_pins_cleared">%1$s убрано</string>
-  <string name="drawer_pins_non_cleared">Закладки не были убраны.</string>
-  <string name="drawer_pins_non_cleared_try_all">Закладки не были убраны. Удерживайте, чтобы убрать все.</string>
+  <string name="drawer_pins_non_cleared">Ничего не убрано.</string>
+  <string name="drawer_pins_non_cleared_try_all">Ничего не убрано. Удерживайте, чтобы убрать все.</string>
   <string name="post_highlight_id">Выделить ID</string>
   <string name="post_highlight_tripcode">Выделить трипкод</string>
   <string name="post_filter_tripcode">Фильтровать трипкод</string>
@@ -326,15 +326,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </plurals>
   <string name="history_screen">История</string>
   <string name="filters_screen">Фильтры</string>
-  <string name="album_download_screen">Выбрано изображений (%1$d / %2$d)</string>
-  <string name="album_download_none_checked">Пожалуйста, выберите изображения для скачивания</string>
+  <string name="album_download_screen">Выбрано файлов (%1$d / %2$d)</string>
+  <string name="album_download_none_checked">Пожалуйста, выберите файлы для скачивания</string>
   <string name="album_download_confirm">%1$s будет скачано в папку %2$s</string>
   <string name="report_screen">Пожаловаться на %1$s</string>
-  <string name="image_save_notification_downloading">Скачивание изображений</string>
+  <string name="image_save_notification_downloading">Скачивание файлов</string>
   <string name="image_save_notification_cancel">Отменить</string>
-  <string name="image_save_saved">Изображение сохранено</string>
+  <string name="image_save_saved">Файл сохранен</string>
   <string name="image_save_as">Сохранено как \"%1$s\"</string>
-  <string name="image_save_failed">Не удалось сохранить изображение</string>
+  <string name="image_save_failed">Не удалось сохранить файл</string>
   <string name="drawer_sites">Настроить сайты</string>
   <string name="drawer_history">История</string>
   <!-- Main settings -->
@@ -444,7 +444,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_anonymize">Сделать всех Анонимами</string>
   <string name="setting_anonymize_ids">Скрыть ID</string>
   <string name="setting_show_anonymous_name">Всегда показывать имя \"Anonymous\"</string>
-  <string name="setting_buttons_bottom">Кнопки ответа внизу</string>
+  <string name="setting_buttons_bottom">Кнопки ответов внизу</string>
   <string name="setting_volume_key_scrolling">Прокрутка кнопками громкости</string>
   <string name="setting_tap_no_rely">Нажать на номер поста для ответа</string>
   <string name="setting_open_link_confirmation">Спрашивать перед открытием ссылок</string>
@@ -458,18 +458,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <!-- Media general group -->
   <string name="settings_group_media">Медиа</string>
   <string name="setting_save_board_folder">Сохранять в папку форума</string>
-  <string name="setting_save_board_folder_description">Создавать для каждого форума свою папку и сохранять туда изображения</string>
+  <string name="setting_save_board_folder_description">Создавать для каждого форума свою папку и сохранять туда файлы</string>
   <string name="setting_save_original_filename">Сохранять с исходным именем</string>
   <string name="setting_save_original_filename_description">
-\"Сохранять изображения с именем, присвоенным сайтом.
+\"Сохранять файлы с именем, присвоенным сайтом.
 Если отключено, сохраняет с именем от загрузившего.\"
     </string>
   <string name="setting_video_default_muted">Отключать звук видео на старте</string>
   <string name="setting_video_default_muted_description">Если у видео есть звук, то он выключается.</string>
   <string name="setting_video_open_external">Использовать внешний проигрыватель</string>
   <string name="setting_video_open_external_description">Запускать видео во внешнем проигрывателе</string>
-  <string name="setting_share_url">Делиться ссылкой на изображение</string>
-  <string name="setting_share_url_description">Делиться ссылкой на изображение заместо него самого</string>
+  <string name="setting_share_url">Делиться ссылкой на файл</string>
+  <string name="setting_share_url_description">Делиться ссылкой на файл заместо него самого</string>
   <string name="settings_reveal_image_spoilers">Раскрыть заспойлеренные изображения</string>
   <string name="settings_reveal_image_spoilers_description">Сразу раскрывает заспойлеренные превью и изображения.</string>
   <!-- Media loading group -->
