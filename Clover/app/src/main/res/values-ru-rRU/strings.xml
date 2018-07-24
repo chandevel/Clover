@@ -69,10 +69,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item quantity="other">%d изображений</item>
   </plurals>
   <plurals name="board">
-    <item quantity="one">%d борда</item>
-    <item quantity="few">%d борды</item>
-    <item quantity="many">%d борд</item>
-    <item quantity="other">%d борд</item>
+    <item quantity="one">%d форум</item>
+    <item quantity="few">%d форума</item>
+    <item quantity="many">%d форумов</item>
+    <item quantity="other">%d форумов</item>
   </plurals>
   <plurals name="type">
     <item quantity="one">%d тип</item>
@@ -81,10 +81,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item quantity="other">%d типов</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="one">%d закладка</item>
-    <item quantity="few">%d закладки</item>
-    <item quantity="many">%d закладок</item>
-    <item quantity="other">%d закладок</item>
+    <item quantity="one">%d избранное</item>
+    <item quantity="few">%d избранных</item>
+    <item quantity="many">%d избранных</item>
+    <item quantity="other">%d избранных</item>
   </plurals>
   <plurals name="filter">
     <item quantity="one">%d фильтр</item>
@@ -100,18 +100,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </plurals>
   <string name="card_stats">%1$dО %2$dИ</string>
   <string name="action_reload">Перезагрузить</string>
-  <string name="action_pin">В закладки</string>
+  <string name="action_pin">В избранное</string>
   <string name="action_open_browser">Открыть в браузере</string>
   <string name="action_share">Поделиться</string>
   <string name="action_download_album">Скачать альбом</string>
   <string name="action_search">Поиск</string>
   <string name="action_search_image">Поиск по изображению</string>
   <string name="action_switch_catalog">Каталог</string>
-  <string name="action_switch_board">Режим борды</string>
-  <string name="action_scroll_to_top">Наверх</string>
-  <string name="action_scroll_to_bottom">Вниз</string>
+  <string name="action_switch_board">Страницы</string>
+  <string name="action_scroll_to_top">Начало</string>
+  <string name="action_scroll_to_bottom">Конец</string>
   <string name="action_sort">Сортировать</string>
-  <string name="action_rename_pin">Переименовать закладку</string>
+  <string name="action_rename_pin">Переименовать избранное</string>
   <string name="action_rename">Переименовать</string>
   <string name="action_reply">Ответ</string>
   <string name="open_link_not_matched">Clover не может открыть эту ссылку, она откроется в вашем браузере.</string>
@@ -156,7 +156,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="thread_new_posts_goto">Посмотреть</string>
   <string name="thread_empty_select">Пожалуйста, выберите тред</string>
   <string name="thread_up_down_hint">Прокрутить к началу/концу</string>
-  <string name="thread_pin_hint">Добавить этот тред в закладки</string>
+  <string name="thread_pin_hint">Добавить тред в избранное</string>
   <string name="thread_view_archive">Архив</string>
   <string name="thread_empty_setup_title">Нечего показывать</string>
   <string name="thread_empty_setup_body">Добавьте сайт, чтобы начать</string>
@@ -169,28 +169,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setup_sites_url">Адрес или имя</string>
   <string name="setup_sites_url_hint">http://example.com</string>
   <string name="setup_sites_site_description">%s добавлен</string>
-  <string name="setup_sites_add_boards_hint">Нажмите, чтобы добавить борды</string>
+  <string name="setup_sites_add_boards_hint">Нажмите, чтобы добавить форумы</string>
   <string name="setup_site_title">Настройка %s</string>
   <string name="setup_site_group_general">Основное</string>
-  <string name="setup_site_boards">Выбор борд</string>
+  <string name="setup_site_boards">Выбор форумов</string>
   <string name="setup_site_boards_description">%s добавлено</string>
   <string name="setup_site_group_login">Авторизация</string>
   <string name="setup_site_login">Вход</string>
   <string name="setup_site_login_description_enabled">Вход выполнен</string>
   <string name="setup_site_login_description_disabled">Не выполнен</string>
-  <string name="setup_board_title">Выбор борд %s</string>
-  <string name="setup_board_empty">Борд не добавлено</string>
+  <string name="setup_board_title">Выбор форумов %s</string>
+  <string name="setup_board_empty">Форумов не добавлено</string>
   <string name="setup_board_removed">Убрано \"%s\"</string>
   <string name="setup_board_added">%s добавлено</string>
   <string name="setup_board_select_all">Выбрать все</string>
-  <string name="filter_summary_all_boards">Все борды</string>
+  <string name="filter_summary_all_boards">Все форумы</string>
   <string name="filter_enabled">Включен</string>
   <string name="filter_filter">Фильтр</string>
   <string name="filter_action">Действие</string>
   <string name="filter_pattern">Паттерн</string>
   <string name="filter_match_test">Проверить паттерн</string>
   <string name="filter_pattern_hint_regex">Паттерн</string>
-  <string name="filter_boards">Борды</string>
+  <string name="filter_boards">Форумы</string>
   <string name="filter_types">Типы</string>
   <string name="filter_type_string_matching">Совпадение строк</string>
   <string name="filter_type_regex_matching">Регулярное выражение</string>
@@ -247,7 +247,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="saved_reply_clear_confirm_button">Очистить</string>
   <string name="archive_title">Архив %s</string>
   <string name="archive_error">Ошибка загрузки архива</string>
-  <string name="drawer_pinned">Закладки</string>
+  <string name="drawer_pinned">Избранное</string>
   <string name="drawer_pin_removed">Убрано \"%1$s\"</string>
   <string name="drawer_pins_cleared">%1$s убрано</string>
   <string name="drawer_pins_non_cleared">Закладки не были убраны.</string>
@@ -408,7 +408,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_layout_mode_phone">Режим для телефона</string>
   <string name="setting_layout_mode_slide">Режим перелистывания</string>
   <string name="setting_layout_mode_split">Разделение пополам</string>
-  <string name="setting_board_grid_span_count">Столбцов в режиме каталога</string>
+  <string name="setting_board_grid_span_count">Столбцов в каталоге</string>
   <string name="setting_board_grid_span_count_default">Автоматически</string>
   <string name="setting_board_grid_span_count_item">%1$d столбца</string>
   <string name="setting_never_hide_toolbar">Не скрывать панель инструментов</string>
@@ -438,7 +438,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_post_default_name">Имя по умолчанию при постинге</string>
   <!-- Behavior post group -->
   <string name="setting_text_only">Только текст</string>
-  <string name="setting_text_only_description">Скрыть все изображения в бордах и тредах</string>
+  <string name="setting_text_only_description">Скрыть все изображения в форумах и тредах</string>
   <string name="settings_reveal_text_spoilers">Раскрыть текстовые спойлеры</string>
   <string name="settings_reveal_text_spoilers_description">Делает текстовые спойлеры сразу раскрытыми</string>
   <string name="setting_anonymize">Сделать всех Анонимами</string>
@@ -457,8 +457,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="settings_screen_media">Медиа</string>
   <!-- Media general group -->
   <string name="settings_group_media">Медиа</string>
-  <string name="setting_save_board_folder">Сохранять в папку борды</string>
-  <string name="setting_save_board_folder_description">Создавать для каждой борды свою папку и сохранять туда изображения</string>
+  <string name="setting_save_board_folder">Сохранять в папку форума</string>
+  <string name="setting_save_board_folder_description">Создавать для каждого форума свою папку и сохранять туда изображения</string>
   <string name="setting_save_original_filename">Сохранять с исходным именем</string>
   <string name="setting_save_original_filename_description">
 \"Сохранять изображения с именем, присвоенным сайтом.
