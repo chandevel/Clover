@@ -140,7 +140,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="thread_load_failed_network">Ошибка сети</string>
   <string name="thread_load_failed_parsing">Ошибка API анализа</string>
   <string name="thread_load_failed_server">Ошибка сервера</string>
-  <string name="thread_load_failed_not_found">404 Не найдено</string>
+  <string name="thread_load_failed_not_found">404: Не найдено</string>
   <string name="thread_refresh_bar_inactive">Нажмите, чтобы обновить</string>
   <string name="thread_refresh_now">Обновляется</string>
   <string name="thread_refresh_countdown">Обновление через %1$ds</string>
@@ -470,7 +470,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_video_open_external_description">Запускать видео во внешнем проигрывателе</string>
   <string name="setting_share_url">Делиться ссылкой на файл</string>
   <string name="setting_share_url_description">Делиться ссылкой на файл заместо него самого</string>
-  <string name="settings_reveal_image_spoilers">Раскрыть заспойлеренные изображения</string>
+  <string name="settings_reveal_image_spoilers">Раскрыть изображения в спойлере</string>
   <string name="settings_reveal_image_spoilers_description">Сразу раскрывает заспойлеренные превью и изображения.</string>
   <!-- Media loading group -->
   <string name="settings_group_media_loading">Загрузка медиа</string>
