@@ -106,7 +106,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="action_download_album">Скачать альбом</string>
   <string name="action_search">Поиск</string>
   <string name="action_search_image">Поиск по изображению</string>
-  <string name="action_switch_catalog">Режим каталога</string>
+  <string name="action_switch_catalog">Каталог</string>
   <string name="action_switch_board">Режим борды</string>
   <string name="action_scroll_to_top">Наверх</string>
   <string name="action_scroll_to_bottom">Вниз</string>
