@@ -242,8 +242,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="history_clear_confirm_button">Очистить</string>
   <string name="history_toggle_hint">Включение или выключение истории</string>
   <string name="history_empty_info">История пуста</string>
-  <string name="saved_reply_clear">Очистить историю постинга</string>
-  <string name="saved_reply_clear_confirm">Очистить историю постинга?</string>
+  <string name="saved_reply_clear">Очистить историю ответов</string>
+  <string name="saved_reply_clear_confirm">Очистить историю ответов?</string>
   <string name="saved_reply_clear_confirm_button">Очистить</string>
   <string name="archive_title">Архив %s</string>
   <string name="archive_error">Ошибка загрузки архива</string>
@@ -280,8 +280,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="reply_spoiler_image">Спойлер</string>
   <string name="reply_no_preview">Нет превью</string>
   <string name="reply_submit">Отправить</string>
-  <string name="reply_error">Ошибка постинга</string>
-  <string name="reply_error_message">Ошибка постинга: %s</string>
+  <string name="reply_error">Ошибка ответа</string>
+  <string name="reply_error_message">Ошибка ответа: %s</string>
   <string name="reply_success">Успешно</string>
   <string name="reply_captcha_text">Введите текст</string>
   <string name="reply_comment_button_spoiler">[s]</string>
@@ -341,7 +341,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="settings_screen">Настройки</string>
   <!-- Main "Settings" group -->
   <string name="settings_group_settings">Настройки</string>
-  <string name="settings_watch">Наблюдение за тредами</string>
+  <string name="settings_watch">Отслеживание тредов</string>
   <string name="settings_sites">Сайты</string>
   <string name="settings_appearance">Оформление</string>
   <string name="settings_appearance_description">Темы, отображение, шрифты...</string>
@@ -351,13 +351,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="settings_media_description">Папка сохранения, авто загрузка...</string>
   <string name="settings_filters">Фильтры</string>
   <!-- Thread watcher -->
-  <string name="setting_watch_summary_enabled">Следит за тредами в закладках</string>
+  <string name="setting_watch_summary_enabled">Отслеживает треды в избранном</string>
   <string name="setting_watch_summary_disabled">Выключено</string>
-  <string name="settings_screen_watch">Настройки наблюдения за тредами</string>
+  <string name="settings_screen_watch">Настройки отслеживания тредов</string>
   <string name="settings_group_watch">Настройки</string>
-  <string name="setting_watch_info">Чтобы следить за новыми постами в закладках, включите наблюдение за тредами.</string>
+  <string name="setting_watch_info">Чтобы следить за новыми постами в избранном, включите отслеживание тредов.</string>
   <string name="setting_watch_enable_background">Работать в фоновом режиме</string>
-  <string name="setting_watch_enable_background_description">Следить за новыми постами в закладках когда Clover в фоновом режиме</string>
+  <string name="setting_watch_enable_background_description">Следить за новыми постами в избранном когда Clover в фоновом режиме</string>
   <string name="setting_watch_background_timeout">Интервал обновления в фоновом режиме</string>
   <string name="setting_watch_background_timeout_description">Интервал обновлений когда приложение в фоновом режиме</string>
   <string name="setting_watch_notify_mode">Уведомлять о</string>
@@ -434,8 +434,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_cleared_thread_hides">Все скрытые треды восстановлены</string>
   <!-- Behavior reply group -->
   <string name="settings_group_reply">Ответ</string>
-  <string name="setting_post_pin">Добавить в закладки при постинге</string>
-  <string name="setting_post_default_name">Имя по умолчанию при постинге</string>
+  <string name="setting_post_pin">Добавить в избранное при ответе</string>
+  <string name="setting_post_default_name">Имя по умолчанию при ответе</string>
   <!-- Behavior post group -->
   <string name="setting_text_only">Только текст</string>
   <string name="setting_text_only_description">Скрыть все изображения в форумах и тредах</string>
