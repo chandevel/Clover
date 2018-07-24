@@ -389,7 +389,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="settings_crash_reporting">Слать отчеты об ошибках</string>
   <string name="settings_crash_reporting_description">
 \"Ошибки в работе Clover собираются в отчет и отправляются разработчику.
-Данные отчеты не собирают личную информацию пользователя.\"
+Данные отчеты не собирают личную информацию о пользователе.\"
     </string>
   <string name="settings_crash_reporting_toggle_notice">Настройка будет применена при следующем запуске приложения.</string>
   <string name="settings_about_license">Выпущен под лицензией GNU GPLv3</string>
@@ -418,10 +418,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="settings_group_post">Пост</string>
   <string name="setting_font_size">Размер шрифта</string>
   <string name="setting_font_size_default">(по умолчанию)</string>
-  <string name="setting_font_condensed">Использовать узкий шрифт</string>
-  <string name="setting_font_condensed_description">Использовать узкий шрифт для постов</string>
+  <string name="setting_font_condensed">Использовать сжатый шрифт</string>
+  <string name="setting_font_condensed_description">Использовать сжатый шрифт для постов</string>
   <string name="setting_post_full_date">Показать полную дату поста</string>
-  <string name="setting_post_file_info">Показать информацию о файле поста</string>
+  <string name="setting_post_file_info">Показать сведения о файле поста</string>
   <string name="setting_post_filename">Показать имя файла поста</string>
   <!-- Behavior -->
   <string name="settings_screen_behavior">Поведение</string>
