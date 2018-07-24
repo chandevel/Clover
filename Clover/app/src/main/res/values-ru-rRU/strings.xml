@@ -179,7 +179,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setup_site_login_description_enabled">Вход выполнен</string>
   <string name="setup_site_login_description_disabled">Не выполнен</string>
   <string name="setup_board_title">Выбор форумов %s</string>
-  <string name="setup_board_empty">Форумов не добавлено</string>
+  <string name="setup_board_empty">Не добавлено форумов</string>
   <string name="setup_board_removed">Убрано \"%s\"</string>
   <string name="setup_board_added">%s добавлено</string>
   <string name="setup_board_select_all">Выбрать все</string>
@@ -200,7 +200,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="filter_remove">Убрать пост</string>
   <string name="filter_invalid_pattern">Неправильный паттерн</string>
   <string name="filter_preview">Проверить фильтр</string>
-  <string name="filter_no_matches">Нет совпадений</string>
+  <string name="filter_no_matches">Нет совпадения</string>
   <string name="filter_matches">Есть совпадение</string>
   <string name="filter_color_pick">Выберите цвет</string>
   <string name="filter_help_title">Помощь по фильтрам</string>
@@ -212,15 +212,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <h4>Для трипкодов, имен и ID:</h4>
 <p>
     Сработает только при полном совпадении паттерна и содержимого.<br>
-    Фильтр на <tt>!Ep8pui8Vw2</tt> сработает на трипкод <i>!Ep8pui8Vw2</i>, но не на текст <i>Ep8pu</i>.
+    Фильтр на <tt>!Ep8pui8Vw2</tt> сработает на трипкоде <i>!Ep8pui8Vw2</i>, но не на <i>Ep8pu</i>.
 </p>
 
-<h4>Для ответов, тем и имен файлов:</h4>
+<h4>Для текста, тем и имен файлов:</h4>
 <p>
     Эти фильтры имеют три режима:<br>
     <br>
     1. Паттерн <tt>foo bar</tt> совпадет с текстом, который имеет любое из введенных слов. То есть он сработает на словах <i>foo</i> или <i>bar</i>, но не на <i>foobar</i>.
-    Если поместить знак * вот так <tt>f*o</tt>, то будут срабатывать случаи <i>foo</i>, <i>foooo</i>, но не <i>foobar</i><br>
+    Если использовать знак *, например <tt>f*o</tt>, то будут срабатывать случаи <i>foo</i>, <i>foooo</i>, но не <i>foobar</i><br>
     <br>
     2. Паттерн помещенный в <tt>\"</tt>, например <tt>\"foo bar\"</tt>, будет срабатывать только при полном совпадении.
     <i>foo bar</i> сработает, а <i>foo</i> - нет.<br>
@@ -231,7 +231,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </string>
   <string name="filter_tripcode">Трипкод</string>
   <string name="filter_name">Имя</string>
-  <string name="filter_comment">Комментарий</string>
+  <string name="filter_comment">Текст поста</string>
   <string name="filter_id">ID</string>
   <string name="filter_subject">Тема</string>
   <string name="filter_filename">Имя файла</string>
@@ -240,7 +240,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="history_clear">Очистить историю</string>
   <string name="history_clear_confirm">Очистить историю?</string>
   <string name="history_clear_confirm_button">Очистить</string>
-  <string name="history_toggle_hint">Включение или выключение истории</string>
+  <string name="history_toggle_hint">Включение/выключение истории</string>
   <string name="history_empty_info">История пуста</string>
   <string name="saved_reply_clear">Очистить историю ответов</string>
   <string name="saved_reply_clear_confirm">Очистить историю ответов?</string>
