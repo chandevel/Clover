@@ -274,8 +274,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="reply_comment_thread">Текст ответа</string>
   <string name="reply_comment_board">Текст нового треда</string>
   <string name="reply_file_name">Имя файла</string>
-  <string name="reply_file_too_big">Предупреждение: Файл слишком большой (%1$s / %2$s)</string>
-  <string name="reply_webm_too_big">Предупреждение: Файл слишком большой (%1$s / %2$s)</string>
+  <string name="reply_file_too_big">Предупреждение: слишком большой файл (%1$s / %2$s)</string>
+  <string name="reply_webm_too_big">Предупреждение: слишком большой файл (%1$s / %2$s)</string>
   <string name="reply_file_open_failed">Не удалось открыть файл</string>
   <string name="reply_spoiler_image">Спойлер</string>
   <string name="reply_no_preview">Нет превью</string>
@@ -331,7 +331,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="album_download_confirm">%1$s будет скачано в папку %2$s</string>
   <string name="report_screen">Пожаловаться на %1$s</string>
   <string name="image_save_notification_downloading">Скачивание файлов</string>
-  <string name="image_save_notification_cancel">Отменить</string>
+  <string name="image_save_notification_cancel">Нажмите для отмены</string>
   <string name="image_save_saved">Файл сохранен</string>
   <string name="image_save_as">Сохранено как \"%1$s\"</string>
   <string name="image_save_failed">Не удалось сохранить файл</string>
@@ -348,7 +348,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="settings_behavior">Поведение</string>
   <string name="settings_behavior_description">Обновление тредов, капча...</string>
   <string name="settings_media">Медиа</string>
-  <string name="settings_media_description">Папка сохранения, авто загрузка...</string>
+  <string name="settings_media_description">Путь загрузки, автозагрузка...</string>
   <string name="settings_filters">Фильтры</string>
   <!-- Thread watcher -->
   <string name="setting_watch_summary_enabled">Отслеживает треды в избранном</string>
@@ -480,7 +480,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_image_auto_load_none">Никогда</string>
   <string name="setting_video_auto_load">Автоматически загружать видео</string>
   <!-- Save location settings -->
-  <string name="save_location_screen">Папка сохранения</string>
+  <string name="save_location_screen">Путь загрузки</string>
   <string name="save_location_storage_permission_required_title">Нужно разрешение на доступ к памяти устройства</string>
   <string name="save_location_storage_permission_required">
 \"Разрешение на доступ к памяти устройства необходимо для просмотра файлов.
