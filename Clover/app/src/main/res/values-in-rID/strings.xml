@@ -386,19 +386,19 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="settings_group_general">Umum</string>
   <string name="setting_auto_refresh_thread">Segarkan otomatis utas</string>
   <string name="setting_confirm_exit">Konfirmasikan sebelum keluar</string>
-  <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
-  <string name="setting_clear_thread_hides">Clear all thread hides</string>
-  <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
+  <string name="setting_controller_swipeable">Izinkan layar untuk digesek</string>
+  <string name="setting_clear_thread_hides">Hapus semua utas benang</string>
+  <string name="setting_cleared_thread_hides">Bersihkan semua utas benang</string>
   <!-- Behavior reply group -->
-  <string name="settings_group_reply">Reply</string>
-  <string name="setting_post_pin">Bookmark thread on post</string>
-  <string name="setting_post_default_name">Default post name</string>
+  <string name="settings_group_reply">Balas</string>
+  <string name="setting_post_pin">Tandai untaian di pos</string>
+  <string name="setting_post_default_name">Nama pos default</string>
   <!-- Behavior post group -->
-  <string name="setting_text_only">Text only mode</string>
-  <string name="setting_text_only_description">Hide images when in board and thread view</string>
-  <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
-  <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
-  <string name="setting_anonymize">Make everyone Anonymous</string>
+  <string name="setting_text_only">Mode hanya teks</string>
+  <string name="setting_text_only_description">Sembunyikan gambar saat dalam tampilan papan dan utas</string>
+  <string name="settings_reveal_text_spoilers">Mengungkapkan spoiler teks</string>
+  <string name="settings_reveal_text_spoilers_description">Membuat teks spoiler muncul disadap</string>
+  <string name="setting_anonymize">Jadikan semua orang Anonim</string>
   <string name="setting_anonymize_ids">Hide IDs</string>
   <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
   <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
