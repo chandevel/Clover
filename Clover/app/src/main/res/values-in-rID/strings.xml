@@ -176,26 +176,26 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
   <string name="filter_help_title">Filter bantuan</string>
   <string name="filter_help">
 <![CDATA[
-Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden or highlighted.<br>
+Filter bertindak berdasarkan pola yang diberikan dan tempat untuk mencari pola.<br>
+Jika polanya cocok maka pos dapat disembunyikan atau disorot.<br>
 
-<h4>For tripcodes, names and IDs:</h4>
+<h4>Untuk kode perjalanan, nama dan ID:</h4>
 <p>
-    It will match the given pattern exact.<br>
-    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
+    Ini akan cocok dengan pola yang tepat.<br>
+    <tt>!Ep8pui8Vw2</tt> akan cocok dengan kode perjalanan <i>!Ep8pui8Vw2</i> tapi tidak <i>Ep8pu</i>.
 </p>
 
-<h4>For comments, subjects and filenames:</h4>
+<h4>Untuk komentar, subjek, dan nama file:</h4>
 <p>
-    These filters are pattern based, and have three modes:<br>
+    Filter ini berdasarkan pola, dan memiliki tiga mode:<br>
     <br>
-    1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
-    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i>, <i>foooo</i> but not <i>foobar</i><br>
+    1. Pola <tt>foo bar</tt> akan mencocokkan teks yang memiliki salah satu kata di dalamnya. Itu akan cocok <i>foo</i> atau <i>bar</i>, tapi tidak <i>foobar</i>.
+    Menempatkan * memungkinkan karakter apa pun untuk diisi: <tt>f*o</tt> akan cocok dengan keduanya <i>foo</i>, <i>foooo</i> tapi tidak <i>foobar</i><br>
     <br>
-    2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exactly.
-    <i>foo bar</i> matches but <i>foo</i> does not.<br>
+    2. Mengutip pola Anda dengan <tt>\"</tt> seperti <tt>\"foo bar\"</tt> akan mencocokkan teks dengan tepat.
+    <i>foo bar</i> cocok tapi <i>foo</i> tidak.<br>
     <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example.
+    3. Ekspresi reguler. <tt>/^>menyiratkan/</tt> sebagai contoh.
 </p>
 ]]>
     </string>
