@@ -232,21 +232,21 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="post_info_title">Post info</string>
   <string name="post_show_links">Tampilkan tautan</string>
   <string name="post_share">Bagikan</string>
-  <string name="post_copy_text">Copy text</string>
-  <string name="post_report">Report</string>
-  <string name="post_hide">Hide</string>
-  <string name="post_hidden">Thread hidden</string>
-  <string name="post_delete">Delete</string>
-  <string name="post_more">More…</string>
-  <string name="reply_name">Name</string>
-  <string name="reply_options">Options</string>
-  <string name="reply_subject">Subject</string>
-  <string name="reply_comment_thread">Comment reply</string>
-  <string name="reply_comment_board">Comment new thread</string>
-  <string name="reply_file_name">File name</string>
-  <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
-  <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
-  <string name="reply_file_open_failed">Failed to open file</string>
+  <string name="post_copy_text">Salin Teks</string>
+  <string name="post_report">Laporkan</string>
+  <string name="post_hide">Sembunyikan</string>
+  <string name="post_hidden">Thread tersembunyi</string>
+  <string name="post_delete">Hapus</string>
+  <string name="post_more">Lagi…</string>
+  <string name="reply_name">Nama</string>
+  <string name="reply_options">Pilihan</string>
+  <string name="reply_subject">Subjek</string>
+  <string name="reply_comment_thread">Balasan komentar</string>
+  <string name="reply_comment_board">Beri komentar pada utas baru</string>
+  <string name="reply_file_name">Nama file</string>
+  <string name="reply_file_too_big">Peringatan: Ukuran file terlalu besar (%1$s / %2$s)</string>
+  <string name="reply_webm_too_big">Peringatan: Ukuran WebM terlalu besar (%1$s / %2$s)</string>
+  <string name="reply_file_open_failed">Gagal membuka file</string>
   <string name="reply_spoiler_image">Gambar spoiler</string>
   <string name="reply_no_preview">Tidak ada preview</string>
   <string name="reply_submit">Kirim</string>
@@ -448,15 +448,15 @@ Re-enable this permission in the app settings if you permanently disabled it.\"
   <string name="setting_folder_navigate_up">Up</string>
   <!-- Theme settings -->
   <string name="setting_theme_explanation">
-\"Swipe to change the theme.
-Tap the toolbar menu to change its color.\"
+\"Geser untuk mengubah tema.
+Ketuk menu bilah alat untuk mengubah warnanya.\"
     </string>
-  <string name="setting_theme_accent">Tap here to change the FAB color</string>
+  <string name="setting_theme_accent">Ketuk di sini untuk mengubah warna FAB</string>
   <!-- Developer settings -->
-  <string name="settings_open_logs">View logs</string>
+  <string name="settings_open_logs">Lihat log</string>
   <string name="settings_logs_screen">Logs</string>
-  <string name="settings_logs_copy">Copy</string>
-  <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
+  <string name="settings_logs_copy">Salin</string>
+  <string name="settings_logs_copied_to_clipboard">Salin ke papan klip</string>
   <string name="settings_screen_pass">4chan pass</string>
   <string name="setting_pass_token">Token</string>
   <string name="setting_pass_pin">PIN</string>
