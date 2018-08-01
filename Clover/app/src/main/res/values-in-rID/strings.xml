@@ -66,10 +66,10 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
     <item quantity="other">%d bookmark</item>
   </plurals>
   <plurals name="filter">
-    <item quantity="other">%d filters</item>
+    <item quantity="other">%d filter</item>
   </plurals>
   <plurals name="site">
-    <item quantity="other">%d sites</item>
+    <item quantity="other">%d situs</item>
   </plurals>
   <string name="card_stats">%1$dR %2$dI</string>
   <string name="action_reload">Muat ulang</string>
@@ -121,7 +121,7 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
   <string name="thread_archived">Diarsipkan</string>
   <string name="thread_closed">Tutup</string>
   <plurals name="thread_new_posts">
-    <item quantity="other">%d new posts</item>
+    <item quantity="other">%d posting baru</item>
   </plurals>
   <string name="thread_new_posts_goto">Lihat</string>
   <string name="thread_empty_select">Silakan pilih utas</string>
@@ -270,16 +270,16 @@ Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak
   <string name="watch_pause_pins">Berhenti menonton</string>
   <string name="watch_idle">Tidak ada posting baru</string>
   <plurals name="watch_title">
-    <item quantity="other">Watching %d threads</item>
+    <item quantity="other">Menonton %d utas</item>
   </plurals>
   <plurals name="watch_new">
-    <item quantity="other">%d new posts</item>
+    <item quantity="other">%d posting baru</item>
   </plurals>
   <plurals name="watch_new_quotes">
-    <item quantity="other">%d new posts quoting you</item>
+    <item quantity="other">%d posting baru yang mengutip Anda</item>
   </plurals>
   <plurals name="watch_new_quoting">
-    <item quantity="other">%1$d new posts, %2$d quoting you</item>
+    <item quantity="other">%1$d posting baru, %2$d mengutip Anda</item>
   </plurals>
   <string name="history_screen">Riwayat</string>
   <string name="filters_screen">Filter</string>
@@ -467,11 +467,11 @@ Ketuk menu bilah alat untuk mengubah warnanya.\"
   <string name="setting_pass_error">Kesalahan koneksi</string>
   <string name="setting_pass_bottom_description">\"
 <![CDATA[
-Forgot your 4chan Pass login details?<br>
-<a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
+Lupa rincian login 4chan Pass Anda?<br>
+<a href=\"https://www.4chan.org/pass?reset\">Buka di sini untuk mengatur ulang PIN Anda.</a><br>
 <br>
-Don't have a 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
+Tidak memiliki 4chan Pass?<br>
+<a href=\"https://www.4chan.org/pass\">Ketuk di sini untuk mempelajari lebih lanjut.</a>
 ]]>
     \"</string>
   <string name="settings_screen_theme">Tema</string>
