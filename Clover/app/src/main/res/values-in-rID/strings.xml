@@ -51,19 +51,19 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
     <item quantity="other">%d posts</item>
   </plurals>
   <plurals name="reply">
-    <item quantity="other">%d replies</item>
+    <item quantity="other">%d balasan</item>
   </plurals>
   <plurals name="image">
-    <item quantity="other">%d images</item>
+    <item quantity="other">%d gambar</item>
   </plurals>
   <plurals name="board">
-    <item quantity="other">%d boards</item>
+    <item quantity="other">%d papan</item>
   </plurals>
   <plurals name="type">
-    <item quantity="other">%d types</item>
+    <item quantity="other">%d jenis</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="other">%d bookmarks</item>
+    <item quantity="other">%d bookmark</item>
   </plurals>
   <plurals name="filter">
     <item quantity="other">%d filters</item>
@@ -366,20 +366,20 @@ Laporan kerusakan tidak mengumpulkan informasi identitas pribadi apa pun.\"
   <string name="setting_layout_mode_slide">Mode Slide</string>
   <string name="setting_layout_mode_split">Mode Split</string>
   <string name="setting_board_grid_span_count">Jumlah kolom mode katalog</string>
-  <string name="setting_board_grid_span_count_default">Auto</string>
-  <string name="setting_board_grid_span_count_item">%1$d columns</string>
-  <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
-  <string name="setting_enable_reply_fab">Enable the reply button</string>
-  <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+  <string name="setting_board_grid_span_count_default">Otomatis</string>
+  <string name="setting_board_grid_span_count_item">%1$d kolom</string>
+  <string name="setting_never_hide_toolbar">Jangan pernah menyembunyikan bilah alat</string>
+  <string name="setting_enable_reply_fab">Aktifkan tombol balas</string>
+  <string name="setting_enable_reply_fab_description">Menonaktifkan mengganti tombol bulat dengan opsi menu</string>
   <!-- Appearance post group -->
-  <string name="settings_group_post">Post</string>
-  <string name="setting_font_size">Font size</string>
-  <string name="setting_font_size_default">(default)</string>
-  <string name="setting_font_condensed">Use condensed font</string>
-  <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
-  <string name="setting_post_full_date">Show the full date on posts</string>
-  <string name="setting_post_file_info">Show file info on posts</string>
-  <string name="setting_post_filename">Show filename on posts</string>
+  <string name="settings_group_post">Pos</string>
+  <string name="setting_font_size">Ukuran huruf</string>
+  <string name="setting_font_size_default">(standar)</string>
+  <string name="setting_font_condensed">Gunakan font kental</string>
+  <string name="setting_font_condensed_description">Gunakan font yang kental untuk posting</string>
+  <string name="setting_post_full_date">Tampilkan tanggal lengkap pada posting</string>
+  <string name="setting_post_file_info">Tampilkan info file pada posting</string>
+  <string name="setting_post_filename">Tampilkan nama file pada posting</string>
   <!-- Behavior -->
   <string name="settings_screen_behavior">Tingkah laku</string>
   <!-- Behavior general group -->
@@ -414,38 +414,38 @@ Laporan kerusakan tidak mengumpulkan informasi identitas pribadi apa pun.\"
   <string name="settings_screen_media">Media</string>
   <!-- Media general group -->
   <string name="settings_group_media">Media</string>
-  <string name="setting_save_board_folder">Save images in a board folder</string>
-  <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
-  <string name="setting_save_original_filename">Save original filename</string>
+  <string name="setting_save_board_folder">Menyimpan gambar dalam folder papan</string>
+  <string name="setting_save_board_folder_description">Buat folder untuk setiap papan untuk menyimpan gambar</string>
+  <string name="setting_save_original_filename">Simpan nama file asli</string>
   <string name="setting_save_original_filename_description">
-\"Save the image with the filename the site assigned.
-If disabled, save the image with the filename the uploader assigned.\"
+\"Simpan gambar dengan nama file yang ditetapkan oleh situs.
+Jika dinonaktifkan, simpan gambar dengan nama file yang diunggah oleh pengunggah.\"
     </string>
-  <string name="setting_video_default_muted">Start videos muted</string>
-  <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
-  <string name="setting_video_open_external">Play videos with external player</string>
-  <string name="setting_video_open_external_description">Play videos in an external media player app</string>
-  <string name="setting_share_url">Share URL to image</string>
-  <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
-  <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
-  <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
+  <string name="setting_video_default_muted">Mulai video dibungkam</string>
+  <string name="setting_video_default_muted_description">Jika video memiliki audio, nonaktifkan secara default.</string>
+  <string name="setting_video_open_external">Putar video dengan pemutar eksternal</string>
+  <string name="setting_video_open_external_description">Putar video di aplikasi pemutar media eksternal</string>
+  <string name="setting_share_url">Bagikan URL ke gambar</string>
+  <string name="setting_share_url_description">Bagikan URL ke gambar, bukan gambar itu sendiri</string>
+  <string name="settings_reveal_image_spoilers">Mengungkapkan spoiler gambar</string>
+  <string name="settings_reveal_image_spoilers_description">Selalu tampilkan thumbnail dan gambar spoiler.</string>
   <!-- Media loading group -->
-  <string name="settings_group_media_loading">Media loading</string>
-  <string name="setting_image_auto_load">Automatically load images</string>
-  <string name="setting_image_auto_load_all">Always</string>
-  <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
-  <string name="setting_image_auto_load_none">Never</string>
-  <string name="setting_video_auto_load">Automatically load videos</string>
+  <string name="settings_group_media_loading">Pemuatan media</string>
+  <string name="setting_image_auto_load">Otomatis memuat gambar</string>
+  <string name="setting_image_auto_load_all">Selalu</string>
+  <string name="setting_image_auto_load_wifi">Wi-Fi saja</string>
+  <string name="setting_image_auto_load_none">Tak pernah</string>
+  <string name="setting_video_auto_load">Memuat video secara otomatis</string>
   <!-- Save location settings -->
-  <string name="save_location_screen">Save location</string>
-  <string name="save_location_storage_permission_required_title">Storage permission required</string>
+  <string name="save_location_screen">Lokasi Penyimpanan</string>
+  <string name="save_location_storage_permission_required_title">Izin penyimpanan diperlukan</string>
   <string name="save_location_storage_permission_required">
-\"Permission to access storage is required for browsing files.
+\"Izin untuk mengakses penyimpanan diperlukan untuk mencari file.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"
+Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya secara permanen.\"
     </string>
-  <string name="setting_folder_pick_ok">Choose</string>
-  <string name="setting_folder_navigate_up">Up</string>
+  <string name="setting_folder_pick_ok">Pilih</string>
+  <string name="setting_folder_navigate_up">Atas</string>
   <!-- Theme settings -->
   <string name="setting_theme_explanation">
 \"Geser untuk mengubah tema.
@@ -460,11 +460,11 @@ Ketuk menu bilah alat untuk mengubah warnanya.\"
   <string name="settings_screen_pass">4chan pass</string>
   <string name="setting_pass_token">Token</string>
   <string name="setting_pass_pin">PIN</string>
-  <string name="setting_pass_authenticated">Device authorized!</string>
-  <string name="setting_pass_login">Submit</string>
-  <string name="setting_pass_logout">Logout</string>
-  <string name="setting_pass_logging_in">Loading&#8230;</string>
-  <string name="setting_pass_error">Connection error</string>
+  <string name="setting_pass_authenticated">Perangkat resmi!</string>
+  <string name="setting_pass_login">Kirim</string>
+  <string name="setting_pass_logout">Keluar</string>
+  <string name="setting_pass_logging_in">Memuat&#8230;</string>
+  <string name="setting_pass_error">Kesalahan koneksi</string>
   <string name="setting_pass_bottom_description">\"
 <![CDATA[
 Forgot your 4chan Pass login details?<br>
@@ -474,5 +474,5 @@ Don't have a 4chan Pass?<br>
 <a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
 ]]>
     \"</string>
-  <string name="settings_screen_theme">Themes</string>
+  <string name="settings_screen_theme">Tema</string>
 </resources>
