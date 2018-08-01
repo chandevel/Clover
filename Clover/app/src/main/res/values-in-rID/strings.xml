@@ -200,13 +200,13 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 ]]>
     </string>
   <string name="filter_tripcode">Tripcode</string>
-  <string name="filter_name">Name</string>
-  <string name="filter_comment">Comment</string>
+  <string name="filter_name">Nama</string>
+  <string name="filter_comment">Komentar</string>
   <string name="filter_id">ID</string>
-  <string name="filter_subject">Subject</string>
-  <string name="filter_filename">Filename</string>
-  <string name="board_select_all">Select all</string>
-  <string name="board_select_none">Select none</string>
+  <string name="filter_subject">Subjek</string>
+  <string name="filter_filename">Nama file</string>
+  <string name="board_select_all">Pilih semua</string>
+  <string name="board_select_none">Tidak memilih</string>
   <string name="history_clear">Clear history</string>
   <string name="history_clear_confirm">Clear history?</string>
   <string name="history_clear_confirm_button">Clear</string>
@@ -256,20 +256,19 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="reply_captcha_text">Type the text</string>
   <string name="reply_comment_button_spoiler">[s]</string>
   <string name="delete_confirm">Delete your post?</string>
-  <string name="delete_wait">Deleting post&#8230;</string>
-  <string name="delete_success">Post deleted</string>
-  <string name="delete_image_only">Only delete the image</string>
-  <string name="delete_error">Error deleting post</string>
-  <string name="video_playback_warning_title">WebM video error</string>
+  <string name="delete_wait">Menghapus postingan&#8230;</string>
+  <string name="delete_success">Postingan dihapus</string>
+  <string name="delete_image_only">Hanya hapus gambar</string>
+  <string name="delete_error">Kesalahan saat menghapus pos</string>
+  <string name="video_playback_warning_title">Kesalahan video WebM</string>
   <string name="video_playback_warning">
-\"The WebM video failed to play. This might be a problem with the hardware of your phone.
+\"Video WebM gagal diputar. Ini mungkin masalah dengan perangkat keras ponsel Anda. 
 
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
+Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak. Aktifkan\" Putar video dengan pemutar eksternal \"di setelan untuk memutar video dengan pemain eksternal. \"
     </string>
-  <string name="video_playback_ignore">Don\'t show again</string>
-  <string name="watch_pause_pins">Stop watching</string>
-  <string name="watch_idle">No new posts</string>
+  <string name="video_playback_ignore">Jangan tunjukkan lagi</string>
+  <string name="watch_pause_pins">Berhenti menonton</string>
+  <string name="watch_idle">Tidak ada posting baru</string>
   <plurals name="watch_title">
     <item quantity="other">Watching %d threads</item>
   </plurals>
@@ -282,48 +281,48 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <plurals name="watch_new_quoting">
     <item quantity="other">%1$d new posts, %2$d quoting you</item>
   </plurals>
-  <string name="history_screen">History</string>
-  <string name="filters_screen">Filters</string>
-  <string name="album_download_screen">Select images (%1$d / %2$d)</string>
-  <string name="album_download_none_checked">Please select images to download</string>
-  <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
-  <string name="report_screen">Report %1$s</string>
-  <string name="image_save_notification_downloading">Downloading images</string>
-  <string name="image_save_notification_cancel">Tap to cancel</string>
-  <string name="image_save_saved">Image saved</string>
-  <string name="image_save_as">Saved as \"%1$s\"</string>
-  <string name="image_save_failed">Saving image failed</string>
-  <string name="drawer_sites">Setup sites</string>
-  <string name="drawer_history">History</string>
+  <string name="history_screen">Riwayat</string>
+  <string name="filters_screen">Filter</string>
+  <string name="album_download_screen">Pilih gambar (%1$d / %2$d)</string>
+  <string name="album_download_none_checked">Silakan pilih gambar untuk diunduh</string>
+  <string name="album_download_confirm">%1$s akan diunduh ke folder %2$s</string>
+  <string name="report_screen">Melaporkan %1$s</string>
+  <string name="image_save_notification_downloading">Mengunduh gambar</string>
+  <string name="image_save_notification_cancel">Ketuk untuk membatalkan</string>
+  <string name="image_save_saved">Gambar disimpan</string>
+  <string name="image_save_as">Disimpan sebagai \"%1$s\"</string>
+  <string name="image_save_failed">Menyimpan gambar gagal</string>
+  <string name="drawer_sites">Atur situs</string>
+  <string name="drawer_history">Riwayat</string>
   <!-- Main settings -->
-  <string name="settings_screen">Settings</string>
+  <string name="settings_screen">Pengaturan</string>
   <!-- Main "Settings" group -->
-  <string name="settings_group_settings">Settings</string>
-  <string name="settings_watch">Thread watcher</string>
-  <string name="settings_sites">Sites</string>
-  <string name="settings_appearance">Appearance</string>
-  <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
-  <string name="settings_behavior">Behavior</string>
-  <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
+  <string name="settings_group_settings">Pengaturan</string>
+  <string name="settings_watch">Pengamat benang</string>
+  <string name="settings_sites">Situs</string>
+  <string name="settings_appearance">Penampilan</string>
+  <string name="settings_appearance_description">Tema, tata letak, font, dll.</string>
+  <string name="settings_behavior">Tingkah laku</string>
+  <string name="settings_behavior_description">Penyegaran ulang, captcha, dll.</string>
   <string name="settings_media">Media</string>
-  <string name="settings_media_description">Save location, auto loading, etc.</string>
-  <string name="settings_filters">Filters</string>
+  <string name="settings_media_description">Simpan lokasi, pemuatan otomatis, dll.</string>
+  <string name="settings_filters">Filter</string>
   <!-- Thread watcher -->
-  <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
-  <string name="setting_watch_summary_disabled">Off</string>
-  <string name="settings_screen_watch">Thread watcher settings</string>
-  <string name="settings_group_watch">Settings</string>
-  <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
-  <string name="setting_watch_enable_background">Enable in the background</string>
-  <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
-  <string name="setting_watch_background_timeout">Background update interval</string>
-  <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
-  <string name="setting_watch_notify_mode">Notify about</string>
+  <string name="setting_watch_summary_enabled">Menonton rangkaian bookmark</string>
+  <string name="setting_watch_summary_disabled">Mati</string>
+  <string name="settings_screen_watch">Pengaturan pengamat benang</string>
+  <string name="settings_group_watch">Pengaturan</string>
+  <string name="setting_watch_info">Untuk menonton bookmark untuk posting baru, aktifkan pengamat thread.</string>
+  <string name="setting_watch_enable_background">Aktifkan di latar belakang</string>
+  <string name="setting_watch_enable_background_description">Tonton bookmark saat Clover ditempatkan di latar belakang</string>
+  <string name="setting_watch_background_timeout">Interval pembaruan latar belakang</string>
+  <string name="setting_watch_background_timeout_description">Interval antara pembaruan saat ditempatkan di latar belakang</string>
+  <string name="setting_watch_notify_mode">Beri tahu tentang</string>
   <string-array name="setting_watch_notify_modes">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Semua pos</item>
+    <item>Hanya posting yang mengutip Anda</item>
   </string-array>
-  <string name="setting_watch_sound">Notification sound</string>
+  <string name="setting_watch_sound">Suara notifikasi</string>
   <string-array name="setting_watch_sounds">
     <item>All posts</item>
     <item>Only posts quoting you</item>
@@ -382,11 +381,11 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_post_file_info">Show file info on posts</string>
   <string name="setting_post_filename">Show filename on posts</string>
   <!-- Behavior -->
-  <string name="settings_screen_behavior">Behavior</string>
+  <string name="settings_screen_behavior">Tingkah laku</string>
   <!-- Behavior general group -->
-  <string name="settings_group_general">General</string>
-  <string name="setting_auto_refresh_thread">Auto refresh threads</string>
-  <string name="setting_confirm_exit">Confirm before exit</string>
+  <string name="settings_group_general">Umum</string>
+  <string name="setting_auto_refresh_thread">Segarkan otomatis utas</string>
+  <string name="setting_confirm_exit">Konfirmasikan sebelum keluar</string>
   <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
   <string name="setting_clear_thread_hides">Clear all thread hides</string>
   <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
