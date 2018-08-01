@@ -345,27 +345,27 @@ Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak
   <string name="settings_update_check">Periksa pembaruan</string>
   <string name="settings_crash_reporting">Laporan mogok</string>
   <string name="settings_crash_reporting_description">
-\"Crash reporting creates reports of errors in Clover.
-Crash reports do not collect any personally identifiable information.\"
+\"Pelaporan kecelakaan menciptakan laporan kesalahan di Clover. 
+Laporan kerusakan tidak mengumpulkan informasi identitas pribadi apa pun.\"
     </string>
-  <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
-  <string name="settings_about_license">Released under the GNU GPLv3 license</string>
-  <string name="settings_about_license_description">Tap to see license</string>
-  <string name="settings_about_licenses">Open Source Licenses</string>
-  <string name="settings_about_licenses_description">Legal information about licenses</string>
-  <string name="settings_developer">Developer settings</string>
+  <string name="settings_crash_reporting_toggle_notice">Pengaturan akan diterapkan pada permulaan aplikasi berikutnya.</string>
+  <string name="settings_about_license">Dirilis di bawah lisensi GNU GPLv3</string>
+  <string name="settings_about_license_description">Ketuk untuk melihat lisensi</string>
+  <string name="settings_about_licenses">Lisensi Sumber Terbuka</string>
+  <string name="settings_about_licenses_description">Informasi hukum tentang lisensi</string>
+  <string name="settings_developer">Pengaturan pengembang</string>
   <!-- Appearance -->
-  <string name="settings_screen_appearance">Appearance</string>
-  <string name="settings_group_appearance">Appearance</string>
-  <string name="setting_theme">Theme</string>
+  <string name="settings_screen_appearance">Penampilan</string>
+  <string name="settings_group_appearance">Penampilan</string>
+  <string name="setting_theme">Tema</string>
   <!-- Appearance layout group -->
-  <string name="settings_group_layout">Layout</string>
-  <string name="setting_layout_mode">Layout mode</string>
-  <string name="setting_layout_mode_auto">Auto</string>
-  <string name="setting_layout_mode_phone">Phone layout</string>
-  <string name="setting_layout_mode_slide">Slide mode</string>
-  <string name="setting_layout_mode_split">Split mode</string>
-  <string name="setting_board_grid_span_count">Catalog mode column count</string>
+  <string name="settings_group_layout">Tata letak</string>
+  <string name="setting_layout_mode">Modus tata letak</string>
+  <string name="setting_layout_mode_auto">Otomatis</string>
+  <string name="setting_layout_mode_phone">Tata letak telepon</string>
+  <string name="setting_layout_mode_slide">Mode Slide</string>
+  <string name="setting_layout_mode_split">Mode Split</string>
+  <string name="setting_board_grid_span_count">Jumlah kolom mode katalog</string>
   <string name="setting_board_grid_span_count_default">Auto</string>
   <string name="setting_board_grid_span_count_item">%1$d columns</string>
   <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
