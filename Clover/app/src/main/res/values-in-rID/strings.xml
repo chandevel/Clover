@@ -104,19 +104,19 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
   <string name="thumbnail_load_failed_network">Kesalahan</string>
   <string name="image_preview_failed">Gagal menampilkan gambar</string>
   <string name="image_preview_failed_oom">Gagal menampilkan gambar, kehabisan memori</string>
-  <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
-  <string name="image_not_found">Image not found</string>
-  <string name="image_open_failed">Failed to open image</string>
-  <string name="image_spoiler_filename">Spoiler image</string>
-  <string name="thread_boards_search_hint">Search</string>
-  <string name="thread_load_failed_ssl">HTTPS error</string>
-  <string name="thread_load_failed_network">Network error</string>
-  <string name="thread_load_failed_parsing">API parse error</string>
+  <string name="image_failed_big_image">Gagal menampilkan gambar, pemuatan deep-zoom gagal</string>
+  <string name="image_not_found">Gambar tidak ditemukan</string>
+  <string name="image_open_failed">Gagal membuka gambar</string>
+  <string name="image_spoiler_filename">Gambar spoiler</string>
+  <string name="thread_boards_search_hint">Cari</string>
+  <string name="thread_load_failed_ssl">Kesalahan HTTPS</string>
+  <string name="thread_load_failed_network">Kesalahan jaringan</string>
+  <string name="thread_load_failed_parsing">Kesalahan parsing API</string>
   <string name="thread_load_failed_server">Server error</string>
-  <string name="thread_load_failed_not_found">404 not found</string>
-  <string name="thread_refresh_bar_inactive">Tap to refresh</string>
-  <string name="thread_refresh_now">Loading</string>
-  <string name="thread_refresh_countdown">Loading in %1$ds</string>
+  <string name="thread_load_failed_not_found">404 tidak ditemukan</string>
+  <string name="thread_refresh_bar_inactive">Ketuk untuk menyegarkan</string>
+  <string name="thread_refresh_now">Pemuatan</string>
+  <string name="thread_refresh_countdown">Sedang memuat %1$ds</string>
   <string name="thread_load_failed_retry">Coba lagi</string>
   <string name="thread_archived">Diarsipkan</string>
   <string name="thread_closed">Tutup</string>
@@ -124,15 +124,15 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
     <item quantity="other">%d new posts</item>
   </plurals>
   <string name="thread_new_posts_goto">Lihat</string>
-  <string name="thread_empty_select">Please select a thread</string>
-  <string name="thread_up_down_hint">Scroll to top/bottom</string>
-  <string name="thread_pin_hint">Bookmark this thread</string>
-  <string name="thread_view_archive">Archive</string>
-  <string name="thread_empty_setup_title">Nothing to show</string>
-  <string name="thread_empty_setup_body">Add a site to begin browsing</string>
-  <string name="thread_empty_setup_hint">Add a site here</string>
-  <string name="setup_sites_title">Setup sites</string>
-  <string name="setup_sites_empty">No sites added</string>
+  <string name="thread_empty_select">Silakan pilih utas</string>
+  <string name="thread_up_down_hint">Gulir ke atas/bawah</string>
+  <string name="thread_pin_hint">Tandai utas ini</string>
+  <string name="thread_view_archive">Arsip</string>
+  <string name="thread_empty_setup_title">Tidak ada yang ditampilkan</string>
+  <string name="thread_empty_setup_body">Tambahkan situs untuk mulai menjelajah</string>
+  <string name="thread_empty_setup_hint">Tambahkan situs di sini</string>
+  <string name="setup_sites_title">Atur situs</string>
+  <string name="setup_sites_empty">Tidak ada situs yang ditambahkan</string>
   <string name="setup_sites_add_hint">Tambahkan situs di sini</string>
   <string name="setup_sites_add_title">Tambahkan situs</string>
   <string name="setup_sites_description">Tambahkan situs berdasarkan URL atau nama</string>
@@ -247,15 +247,15 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
   <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
   <string name="reply_file_open_failed">Failed to open file</string>
-  <string name="reply_spoiler_image">Spoiler image</string>
-  <string name="reply_no_preview">No preview</string>
-  <string name="reply_submit">Submit</string>
-  <string name="reply_error">Error posting</string>
-  <string name="reply_error_message">Error posting: %s</string>
-  <string name="reply_success">Post successful</string>
-  <string name="reply_captcha_text">Type the text</string>
+  <string name="reply_spoiler_image">Gambar spoiler</string>
+  <string name="reply_no_preview">Tidak ada preview</string>
+  <string name="reply_submit">Kirim</string>
+  <string name="reply_error">Kesalahan posting</string>
+  <string name="reply_error_message">Kesalahan posting: %s</string>
+  <string name="reply_success">Posting sukses</string>
+  <string name="reply_captcha_text">Ketik teks</string>
   <string name="reply_comment_button_spoiler">[s]</string>
-  <string name="delete_confirm">Delete your post?</string>
+  <string name="delete_confirm">Hapus postingan Anda?</string>
   <string name="delete_wait">Menghapus postingan&#8230;</string>
   <string name="delete_success">Postingan dihapus</string>
   <string name="delete_image_only">Hanya hapus gambar</string>
@@ -324,26 +324,26 @@ Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak
   </string-array>
   <string name="setting_watch_sound">Suara notifikasi</string>
   <string-array name="setting_watch_sounds">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Semua pos</item>
+    <item>Hanya posting yang mengutip Anda</item>
   </string-array>
-  <string name="setting_watch_peek">Heads-up notification on quotes</string>
-  <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
-  <string name="setting_watch_led">Notification light</string>
+  <string name="setting_watch_peek">Pemberitahuan tentang tanda kutip</string>
+  <string name="setting_watch_peek_description">Tampilkan pemberitahuan pemberitahuan saat dikutip</string>
+  <string name="setting_watch_led">Lampu notifikasi</string>
   <string-array name="setting_watch_leds">
-    <item>None</item>
-    <item>White</item>
-    <item>Red</item>
-    <item>Yellow</item>
-    <item>Green</item>
-    <item>Cyan</item>
-    <item>Blue</item>
-    <item>Purple</item>
+    <item>Tak satupun</item>
+    <item>Putih</item>
+    <item>Merah</item>
+    <item>Kuning</item>
+    <item>Hijau</item>
+    <item>Biru kehijauan</item>
+    <item>Biru</item>
+    <item>Ungu</item>
   </string-array>
   <!-- Main About group -->
-  <string name="settings_group_about">About</string>
-  <string name="settings_update_check">Check for updates</string>
-  <string name="settings_crash_reporting">Report crashes</string>
+  <string name="settings_group_about">Tentang</string>
+  <string name="settings_update_check">Periksa pembaruan</string>
+  <string name="settings_crash_reporting">Laporan mogok</string>
   <string name="settings_crash_reporting_description">
 \"Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information.\"
