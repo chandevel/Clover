@@ -13,7 +13,7 @@ def getCommitHash = { ->
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 27
     // update the travis config when changing this
     buildToolsVersion '27.0.3'
 
