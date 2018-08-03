@@ -15,11 +15,11 @@ def getCommitHash = { ->
 android {
     compileSdkVersion 28
     // update the travis config when changing this
-    buildToolsVersion '28.0.1'
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 27
 
         versionName "v3.0.1"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
@@ -127,7 +127,7 @@ android {
 }
 
 dependencies {
-    def supportVersion = '28.0.0-beta01'
+    def supportVersion = '27.1.1'
 
     implementation "com.android.support:support-v13:${supportVersion}"
     implementation "com.android.support:appcompat-v7:${supportVersion}"
@@ -148,7 +148,7 @@ dependencies {
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.15'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     //noinspection GradleDependency
-    implementation 'de.greenrobot:eventbus:2.4.1' // implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'de.greenrobot:eventbus:2.4.1'
     implementation 'org.nibor.autolink:autolink:0.9.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
