@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.settings;
 
-import android.os.Environment;
 import android.text.TextUtils;
 
 import org.floens.chan.BuildConfig;
@@ -27,7 +26,6 @@ import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.utils.AndroidUtils;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
@@ -195,9 +193,7 @@ public class ChanSettings {
 
         developer = new BooleanSetting(p, "preference_developer", false);
 
-        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover");
-        saveLocation.addCallback((setting, value) ->
-                EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
+        saveLocation = new StringSetting(p, "preference_image_save_location", "");
         saveLocationTreeUri = new StringSetting(p, "preference_image_save_tree_uri", "");
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);

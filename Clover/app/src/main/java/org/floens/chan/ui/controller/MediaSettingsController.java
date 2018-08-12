@@ -18,8 +18,12 @@
 package org.floens.chan.ui.controller;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.StorageSetupPresenter;
@@ -37,6 +41,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static org.floens.chan.Chan.inject;
+import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController extends SettingsController implements
@@ -100,6 +105,26 @@ public class MediaSettingsController extends SettingsController implements
     @Override
     public void setSaveLocationDescription(String description) {
         saveLocation.setDescription(description);
+    }
+
+    @Override
+    public void showPathDialog(String path) {
+        FrameLayout container = new FrameLayout(context);
+        EditText dialogView = new EditText(context);
+        dialogView.setText(path);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        lp.leftMargin = lp.rightMargin = dp(20);
+        container.addView(dialogView, lp);
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.save_location_screen)
+                .setView(container)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    presenter.saveLocationEntered(dialogView.getText().toString());
+                })
+                .show();
     }
 
     private void populatePreferences() {
@@ -215,8 +240,19 @@ public class MediaSettingsController extends SettingsController implements
     }
 
     private void setupSaveLocationSetting(SettingsGroup media) {
+        // Register a normal click listener and a long click listener that sets the
+        // force file option to true.
         saveLocation = (LinkSettingView) media.add(new LinkSettingView(this,
                 R.string.save_location_screen, 0,
-                v -> presenter.saveLocationClicked()));
+                v -> presenter.saveLocationClicked(false)) {
+            @Override
+            public void setView(View view) {
+                super.setView(view);
+                view.setOnLongClickListener(v -> {
+                    presenter.saveLocationClicked(true);
+                    return true;
+                });
+            }
+        });
     }
 }

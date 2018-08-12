@@ -17,20 +17,24 @@
  */
 package org.floens.chan.core.storage;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.support.annotation.RequiresApi;
 
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.settings.StringSetting;
+import org.floens.chan.ui.activity.ActivityResultHelper;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import javax.inject.Inject;
@@ -55,6 +59,8 @@ import javax.inject.Singleton;
 public class Storage {
     private static final String TAG = "Storage";
 
+    private static final String DEFAULT_DIRECTORY_NAME = "Clover";
+
     /**
      * The current mode of the Storage.
      */
@@ -76,13 +82,15 @@ public class Storage {
     }
 
     private Context applicationContext;
+    private ActivityResultHelper results;
 
     private final StringSetting saveLocation;
     private final StringSetting saveLocationTreeUri;
 
     @Inject
-    public Storage(Context applicationContext) {
+    public Storage(Context applicationContext, ActivityResultHelper results) {
         this.applicationContext = applicationContext;
+        this.results = results;
 
         saveLocation = ChanSettings.saveLocation;
         saveLocationTreeUri = ChanSettings.saveLocationTreeUri;
@@ -97,11 +105,34 @@ public class Storage {
             return Mode.FILE;
         }
 
-        if (!saveLocation.get().isEmpty()) {
+        // File by default.
+        if (saveLocation.get().isEmpty() && saveLocationTreeUri.get().isEmpty()) {
             return Mode.FILE;
         }
 
-        return Mode.STORAGE_ACCESS_FRAMEWORK;
+        if (!saveLocationTreeUri.get().isEmpty()) {
+            return Mode.STORAGE_ACCESS_FRAMEWORK;
+        }
+
+        return Mode.FILE;
+    }
+
+    public Mode getModeForNewLocation() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return Mode.FILE;
+        } else {
+            return Mode.STORAGE_ACCESS_FRAMEWORK;
+        }
+    }
+
+    public String getFileSaveLocation() {
+        prepareDefaultFileSaveLocation();
+        return saveLocation.get();
+    }
+
+    public void setFileSaveLocation(String location) {
+        saveLocation.set(location);
+        saveLocationTreeUri.set("");
     }
 
     public String currentStorageName() {
@@ -112,7 +143,7 @@ public class Storage {
             case STORAGE_ACCESS_FRAMEWORK: {
                 String uriString = saveLocationTreeUri.get();
                 Uri treeUri = Uri.parse(uriString);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // lint
                     return queryTreeName(treeUri);
                 }
             }
@@ -120,12 +151,25 @@ public class Storage {
         throw new IllegalStateException();
     }
 
-    public Mode getModeForNewLocation() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return Mode.FILE;
-        } else {
-            return Mode.STORAGE_ACCESS_FRAMEWORK;
+    private void prepareDefaultFileSaveLocation() {
+        if (saveLocation.get().isEmpty()) {
+            File pictures = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES);
+            File directory = new File(pictures, DEFAULT_DIRECTORY_NAME);
+            String absolutePath = directory.getAbsolutePath();
+            saveLocation.set(absolutePath);
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void setupNewSAFSaveLocation(Runnable handled) {
+        Intent openTreeIntent = getOpenTreeIntent();
+        results.getResultFromIntent(openTreeIntent, (resultCode, result) -> {
+            if (resultCode == Activity.RESULT_OK) {
+                handleOpenTreeIntent(result);
+                handled.run();
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

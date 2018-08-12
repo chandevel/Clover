@@ -40,7 +40,7 @@ public class StorageFile {
     }
 
     public InputStream inputStream() throws IOException {
-        if (file != null) {
+        if (isFile()) {
             return new FileInputStream(file);
         } else {
             return contentResolver.openInputStream(uriOpenableByContentResolvers);
@@ -48,7 +48,7 @@ public class StorageFile {
     }
 
     public OutputStream outputStream() throws IOException {
-        if (file != null) {
+        if (isFile()) {
             File parent = file.getParentFile();
             if (!parent.mkdirs() && !parent.isDirectory()) {
                 throw new IOException("Could not create parent directory");
@@ -69,13 +69,20 @@ public class StorageFile {
     }
 
     public boolean exists() {
-        // TODO
-        return false;
+        if (isFile()) {
+            return file.exists() && file.isFile();
+        } else {
+            return false; // we don't know?
+        }
     }
 
     public boolean delete() {
-        // TODO
-        return true;
+        if (isFile()) {
+            return file.delete();
+        } else {
+            // TODO
+            return true;
+        }
     }
 
     public void copyFrom(File source) throws IOException {
@@ -89,5 +96,9 @@ public class StorageFile {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
         }
+    }
+
+    private boolean isFile() {
+        return file != null;
     }
 }

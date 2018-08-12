@@ -17,11 +17,9 @@
  */
 package org.floens.chan.core.presenter;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.os.Build;
 
 import org.floens.chan.core.storage.Storage;
-import org.floens.chan.ui.activity.ActivityResultHelper;
 
 import javax.inject.Inject;
 
@@ -29,12 +27,10 @@ public class StorageSetupPresenter {
     private Callback callback;
 
     private Storage storage;
-    private ActivityResultHelper results;
 
     @Inject
-    public StorageSetupPresenter(Storage storage, ActivityResultHelper results) {
+    public StorageSetupPresenter(Storage storage) {
         this.storage = storage;
-        this.results = results;
     }
 
     public void create(Callback callback) {
@@ -43,13 +39,20 @@ public class StorageSetupPresenter {
         updateDescription();
     }
 
-    public void saveLocationClicked() {
-        Intent openTreeIntent = storage.getOpenTreeIntent();
-        results.getResultFromIntent(openTreeIntent, (resultCode, result) -> {
-            if (resultCode == Activity.RESULT_OK) {
-                storage.handleOpenTreeIntent(result);
+    public void saveLocationClicked(boolean forceFile) {
+        if (!forceFile &&
+                storage.getModeForNewLocation() == Storage.Mode.STORAGE_ACCESS_FRAMEWORK) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // lint
+                storage.setupNewSAFSaveLocation(this::updateDescription);
             }
-        });
+        } else {
+            String fileSaveLocation = storage.getFileSaveLocation();
+            callback.showPathDialog(fileSaveLocation);
+        }
+    }
+
+    public void saveLocationEntered(String input) {
+        storage.setFileSaveLocation(input);
     }
 
     private void updateDescription() {
@@ -59,5 +62,7 @@ public class StorageSetupPresenter {
 
     public interface Callback {
         void setSaveLocationDescription(String description);
+
+        void showPathDialog(String path);
     }
 }
