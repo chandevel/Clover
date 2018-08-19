@@ -18,23 +18,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-  <string name="cancel">Cancel</string>
-  <string name="add">Add</string>
-  <string name="close">Close</string>
-  <string name="back">Back</string>
-  <string name="ok">OK</string>
-  <string name="exit">Exit</string>
-  <string name="delete">Delete</string>
-  <string name="undo">Undo</string>
-  <string name="save">Save</string>
-  <string name="permission_app_settings">App settings</string>
-  <string name="permission_grant">Grant</string>
-  <string name="update_later">Later</string>
-  <string name="update_none">Clover is up-to-date</string>
-  <string name="update_check_failed">Failed to check for updates.</string>
-  <string name="update_install">Install</string>
-  <string name="update_install_downloading">Downloading update</string>
-  <string name="update_install_download_failed">Download failed</string>
+  <string name="cancel">Cancella</string>
+  <string name="add">Aggiungi</string>
+  <string name="close">Chiudi</string>
+  <string name="back">Indietro</string>
+  <string name="ok">Conferma</string>
+  <string name="exit">Esci</string>
+  <string name="delete">Elimina</string>
+  <string name="undo">Annulla</string>
+  <string name="save">Salva</string>
+  <string name="permission_app_settings">Impostazioni App</string>
+  <string name="permission_grant">Concedi</string>
+  <string name="update_later">Più tardi</string>
+  <string name="update_none">Clover è aggiornato</string>
+  <string name="update_check_failed">Impossibile controllare gli aggiornamenti.</string>
+  <string name="update_install">Installa</string>
+  <string name="update_install_downloading">Scaricamento aggiornamento</string>
+  <string name="update_install_download_failed">Scaricamento fallito</string>
   <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
   <string name="update_retry_title">Retry update</string>
   <string name="update_retry">Clover was not updated yet. Tap \"retry\" to retry the install.</string>
