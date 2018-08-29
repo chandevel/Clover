@@ -24,6 +24,7 @@ import org.floens.chan.core.site.sites.lainchan.Lainchan;
 import org.floens.chan.core.site.sites.chan8.Chan8;
 import org.floens.chan.core.site.sites.arisuchan.Arisuchan;
 import org.floens.chan.core.site.sites.sushichan.Sushichan;
+import org.floens.chan.core.site.sites.chan55.Chan55;
 
 import java.util.ArrayList;
 import java.util.List;
