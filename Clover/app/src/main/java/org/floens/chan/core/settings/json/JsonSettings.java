@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.settings.json;
 
-
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;

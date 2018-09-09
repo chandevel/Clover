@@ -43,8 +43,7 @@ public class AbsoluteSizeSpanHashed extends AbsoluteSizeSpan {
 
         AbsoluteSizeSpanHashed that = (AbsoluteSizeSpanHashed) o;
 
-        if (getSize() != that.getSize()) return false;
-        return getDip() == that.getDip();
+		return getSize() == that.getSize() && getDip() == that.getDip();
     }
 
     @Override

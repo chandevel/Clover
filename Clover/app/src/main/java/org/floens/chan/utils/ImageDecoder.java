@@ -31,19 +31,11 @@ import java.io.IOException;
  */
 public class ImageDecoder {
     public static void decodeFileOnBackgroundThread(final File file, final int maxWidth, final int maxHeight, final ImageDecoderCallback callback) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
+		Thread thread = new Thread(() -> {
+			final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
 
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onImageBitmap(file, bitmap);
-                    }
-                });
-            }
-        });
+			AndroidUtils.runOnUiThread(() -> callback.onImageBitmap(file, bitmap));
+		});
         thread.start();
     }
 

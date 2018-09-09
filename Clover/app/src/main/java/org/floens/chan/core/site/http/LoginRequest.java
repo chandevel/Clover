@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.http;
 
-
 public class LoginRequest {
     public final String user;
     public final String pass;

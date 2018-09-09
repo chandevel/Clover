@@ -43,7 +43,6 @@ public class LoginController extends Controller implements View.OnClickListener,
     private CrossfadeView crossfadeView;
     private TextView errors;
     private Button button;
-    private TextView bottomDescription;
     private EditText inputToken;
     private EditText inputPin;
     private TextView authenticated;
@@ -69,7 +68,7 @@ public class LoginController extends Controller implements View.OnClickListener,
         crossfadeView = view.findViewById(R.id.crossfade);
         errors = view.findViewById(R.id.errors);
         button = view.findViewById(R.id.button);
-        bottomDescription = view.findViewById(R.id.bottom_description);
+		TextView bottomDescription = view.findViewById(R.id.bottom_description);
         inputToken = view.findViewById(R.id.input_token);
         inputPin = view.findViewById(R.id.input_pin);
         authenticated = view.findViewById(R.id.authenticated);
@@ -93,15 +92,12 @@ public class LoginController extends Controller implements View.OnClickListener,
         }
 
         // TODO: remove
-        AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public boolean onMeasured(View view) {
-                crossfadeView.getLayoutParams().height = crossfadeView.getHeight();
-                crossfadeView.requestLayout();
-                crossfadeView.toggle(!loggedIn, false);
-                return false;
-            }
-        });
+		AndroidUtils.waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
+			crossfadeView.getLayoutParams().height = crossfadeView.getHeight();
+			crossfadeView.requestLayout();
+			crossfadeView.toggle(!loggedIn, false);
+			return false;
+		});
     }
 
     @Override

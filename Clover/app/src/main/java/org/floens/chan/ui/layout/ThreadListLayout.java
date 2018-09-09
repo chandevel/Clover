@@ -387,7 +387,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (setEmptyText) {
             searchStatus.setText(R.string.search_empty);
         }
-
+		// TODO: fix wrong argument count
         if (query != null) {
             int size = postAdapter.getDisplayList().size();
             searchStatus.setText(getContext().getString(R.string.search_results,
@@ -470,13 +470,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.scrollToPosition(bottom);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, new AndroidUtils.OnMeasuredCallback() {
-                    @Override
-                    public boolean onMeasured(View view) {
-                        itemAnimator.endAnimations();
-                        return true;
-                    }
-                });
+				AndroidUtils.waitForLayout(recyclerView, view -> {
+					itemAnimator.endAnimations();
+					return true;
+				});
             }
         } else {
             int scrollPosition = postAdapter.getScrollPosition(displayPosition);
@@ -492,13 +489,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.scrollToPosition(scrollPosition);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, new AndroidUtils.OnMeasuredCallback() {
-                    @Override
-                    public boolean onMeasured(View view) {
-                        itemAnimator.endAnimations();
-                        return true;
-                    }
-                });
+				AndroidUtils.waitForLayout(recyclerView, view -> {
+					itemAnimator.endAnimations();
+					return true;
+				});
             }
         }
     }

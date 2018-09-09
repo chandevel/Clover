@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.loader;
 
-
 import com.android.volley.Request;
 
 public class ChanLoaderRequest {

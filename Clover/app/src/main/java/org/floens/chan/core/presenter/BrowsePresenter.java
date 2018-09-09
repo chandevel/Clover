@@ -34,7 +34,7 @@ public class BrowsePresenter implements Observer {
     private final BoardManager boardManager;
     private Callback callback;
 
-    private boolean hadBoards = false;
+	private boolean hadBoards;
     private Board currentBoard;
 
     private BoardRepository.SitesBoards savedBoardsObservable;

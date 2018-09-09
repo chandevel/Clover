@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site;
 
-
 import com.android.volley.RequestQueue;
 
 import org.codejargon.feather.Feather;
@@ -74,9 +73,8 @@ public abstract class SiteBase implements Site {
         loadableProvider = injector.instance(LoadableProvider.class);
         SiteService siteService = injector.instance(SiteService.class);
 
-        settingsProvider = new JsonSettingsProvider(userSettings, () -> {
-            siteService.updateUserSettings(this, userSettings);
-        });
+		settingsProvider = new JsonSettingsProvider(userSettings, () ->
+				siteService.updateUserSettings(this, userSettings));
 
         initializeSettings();
 

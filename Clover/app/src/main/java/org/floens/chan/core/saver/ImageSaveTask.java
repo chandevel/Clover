@@ -22,9 +22,9 @@ import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
-import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
@@ -193,18 +193,10 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     }
 
     private void scanDestination() {
-        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-            @Override
-            public void onScanCompleted(String path, final Uri uri) {
-                // Runs on a binder thread
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        afterScan(uri);
-                    }
-                });
-            }
-        });
+		MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, (path, uri) -> {
+			// Runs on a binder thread
+			AndroidUtils.runOnUiThread(() -> afterScan(uri));
+		});
     }
 
     private void afterScan(final Uri uri) {

@@ -17,7 +17,6 @@
  */
 package org.floens.chan.utils;
 
-
 import android.content.Context;
 
 import java.io.BufferedInputStream;

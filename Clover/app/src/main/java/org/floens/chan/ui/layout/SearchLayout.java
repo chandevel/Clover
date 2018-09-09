@@ -23,13 +23,10 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.utils.AndroidUtils;
@@ -77,17 +74,14 @@ public class SearchLayout extends LinearLayout {
             public void afterTextChanged(Editable s) {
             }
         });
-        searchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    AndroidUtils.hideKeyboard(searchView);
-                    callback.onSearchEntered(searchView.getText().toString());
-                    return true;
-                }
-                return false;
-            }
-        });
+		searchView.setOnEditorActionListener((v, actionId, event) -> {
+			if (actionId == EditorInfo.IME_ACTION_DONE) {
+				AndroidUtils.hideKeyboard(searchView);
+				callback.onSearchEntered(searchView.getText().toString());
+				return true;
+			}
+			return false;
+		});
         LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
@@ -95,13 +89,10 @@ public class SearchLayout extends LinearLayout {
         clearButton.setAlpha(0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
-        clearButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setText("");
-                AndroidUtils.requestKeyboardFocus(searchView);
-            }
-        });
+		clearButton.setOnClickListener(v -> {
+			searchView.setText("");
+			AndroidUtils.requestKeyboardFocus(searchView);
+		});
         addView(clearButton, dp(48), LayoutParams.MATCH_PARENT);
     }
 

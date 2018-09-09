@@ -18,7 +18,6 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -51,14 +50,12 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 
 public class AlbumDownloadController extends Controller implements View.OnClickListener {
     private GridRecyclerView recyclerView;
-    private GridLayoutManager gridLayoutManager;
     private FloatingActionButton download;
 
     private List<AlbumDownloadItem> items = new ArrayList<>();
     private Loadable loadable;
 
     private boolean allChecked = true;
-    private AlbumAdapter adapter;
     private ImageSaver imageSaver;
 
     public AlbumDownloadController(Context context) {
@@ -84,11 +81,11 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
         theme().applyFabColor(download);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        gridLayoutManager = new GridLayoutManager(context, 3);
+		GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setSpanWidth(dp(90));
 
-        adapter = new AlbumAdapter();
+		AlbumAdapter adapter = new AlbumAdapter();
         recyclerView.setAdapter(adapter);
     }
 
@@ -111,21 +108,18 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                 new AlertDialog.Builder(context)
                         .setMessage(message)
                         .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                List<ImageSaveTask> tasks = new ArrayList<>(items.size());
-                                for (AlbumDownloadItem item : items) {
-                                    if (item.checked) {
-                                        tasks.add(new ImageSaveTask(item.postImage));
-                                    }
-                                }
+						.setPositiveButton(R.string.ok, (dialog, which) -> {
+							List<ImageSaveTask> tasks = new ArrayList<>(items.size());
+							for (AlbumDownloadItem item : items) {
+								if (item.checked) {
+									tasks.add(new ImageSaveTask(item.postImage));
+								}
+							}
 
-                                if (imageSaver.startBundledTask(context, folderForAlbum, tasks)) {
-                                    navigationController.popController();
-                                }
-                            }
-                        })
+							if (imageSaver.startBundledTask(context, folderForAlbum, tasks)) {
+								navigationController.popController();
+							}
+						})
                         .show();
             }
         }

@@ -25,7 +25,6 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -255,12 +254,7 @@ public class AndroidUtils {
 
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
         view.requestFocus();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                requestKeyboardFocus(view);
-            }
-        });
+		dialog.setOnShowListener(dialog1 -> requestKeyboardFocus(view));
     }
 
     public static void requestKeyboardFocus(final View view) {

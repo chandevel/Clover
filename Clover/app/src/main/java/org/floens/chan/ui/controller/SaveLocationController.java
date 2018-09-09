@@ -109,27 +109,19 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
     }
 
     private void requestPermission() {
-        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, new RuntimePermissionsHelper.Callback() {
-            @Override
-            public void onRuntimePermissionResult(boolean granted) {
-                gotPermission = granted;
-                if (gotPermission) {
-                    initialize();
-                } else {
-                    runtimePermissionsHelper.showPermissionRequiredDialog(
-                            context,
-                            context.getString(save_location_storage_permission_required_title),
-                            context.getString(save_location_storage_permission_required),
-                            new RuntimePermissionsHelper.PermissionRequiredDialogCallback() {
-                                @Override
-                                public void retryPermissionRequest() {
-                                    requestPermission();
-                                }
-                            }
-                    );
-                }
-            }
-        });
+		runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
+			gotPermission = granted;
+			if (gotPermission) {
+				initialize();
+			} else {
+				runtimePermissionsHelper.showPermissionRequiredDialog(
+						context,
+						context.getString(save_location_storage_permission_required_title),
+						context.getString(save_location_storage_permission_required),
+						this::requestPermission
+				);
+			}
+		});
     }
 
     private void initialize() {

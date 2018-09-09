@@ -25,7 +25,6 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -305,14 +304,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             new AlertDialog.Builder(context)
                     .setTitle(R.string.video_playback_warning_title)
                     .setView(notice)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (dontShowAgain.isChecked()) {
-                                ChanSettings.videoErrorIgnore.set(true);
-                            }
-                        }
-                    })
+					.setPositiveButton(R.string.ok, (dialog, which) -> {
+						if (dontShowAgain.isChecked()) {
+							ChanSettings.videoErrorIgnore.set(true);
+						}
+					})
                     .setCancelable(false)
                     .show();
         }
@@ -356,7 +352,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     public void startPreviewInTransition(PostImage postImage) {
         ThumbnailView startImageView = getTransitionImageView(postImage);
 
-        if (!setTransitionViewData(startImageView)) {
+		if (setTransitionViewData(startImageView)) {
             Logger.test("Oops");
             return; // TODO
         }
@@ -370,13 +366,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         startAnimation = new AnimatorSet();
 
         ValueAnimator progress = ValueAnimator.ofFloat(0f, 1f);
-        progress.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                setBackgroundAlpha(Math.min(1f, (float) animation.getAnimatedValue()));
-                previewImage.setProgress((float) animation.getAnimatedValue());
-            }
-        });
+		progress.addUpdateListener(animation -> {
+			setBackgroundAlpha(Math.min(1f, (float) animation.getAnimatedValue()));
+			previewImage.setProgress((float) animation.getAnimatedValue());
+		});
 
         startAnimation.play(progress);
         startAnimation.setDuration(TRANSITION_DURATION);
@@ -448,17 +441,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         ThumbnailView startImage = getTransitionImageView(postImage);
 
         endAnimation = new AnimatorSet();
-        if (!setTransitionViewData(startImage) || bitmap == null) {
+		if (setTransitionViewData(startImage) || bitmap == null) {
             if (bitmap != null) {
                 previewImage.setBitmap(bitmap);
             }
             ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
-            backgroundAlpha.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    setBackgroundAlpha((float) animation.getAnimatedValue());
-                }
-            });
+			backgroundAlpha.addUpdateListener(animation -> setBackgroundAlpha((float) animation.getAnimatedValue()));
 
             endAnimation
                     .play(ObjectAnimator.ofFloat(previewImage, View.Y, previewImage.getTop(), previewImage.getTop() + dp(20)))
@@ -467,13 +455,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
         } else {
             ValueAnimator progress = ValueAnimator.ofFloat(1f, 0f);
-            progress.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    setBackgroundAlpha((float) animation.getAnimatedValue());
-                    previewImage.setProgress((float) animation.getAnimatedValue());
-                }
-            });
+			progress.addUpdateListener(animation -> {
+				setBackgroundAlpha((float) animation.getAnimatedValue());
+				previewImage.setProgress((float) animation.getAnimatedValue());
+			});
 
             endAnimation.play(progress);
         }
@@ -497,12 +482,12 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private boolean setTransitionViewData(ThumbnailView startView) {
         if (startView == null || startView.getWindowToken() == null) {
-            return false;
+			return true;
         }
 
         Bitmap bitmap = startView.getBitmap();
         if (bitmap == null) {
-            return false;
+			return true;
         }
 
         int[] loc = new int[2];
@@ -510,7 +495,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         Point windowLocation = new Point(loc[0], loc[1]);
         Point size = new Point(startView.getWidth(), startView.getHeight());
         previewImage.setSourceImageView(windowLocation, size, bitmap);
-        return true;
+		return false;
     }
 
     private void setBackgroundAlpha(float alpha) {

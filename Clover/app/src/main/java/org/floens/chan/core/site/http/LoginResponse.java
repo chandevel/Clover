@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.http;
 
-
 public class LoginResponse {
     public boolean success;
     public String message;

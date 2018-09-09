@@ -292,13 +292,7 @@ public class WatchNotifier extends Service {
     private static class PostAgeComparator implements Comparator<Post> {
         @Override
         public int compare(Post lhs, Post rhs) {
-            if (lhs.time < rhs.time) {
-                return 1;
-            } else if (lhs.time > rhs.time) {
-                return -1;
-            } else {
-                return 0;
-            }
+			return Long.compare(rhs.time, lhs.time);
         }
     }
 }

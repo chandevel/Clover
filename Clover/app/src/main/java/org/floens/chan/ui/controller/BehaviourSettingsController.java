@@ -18,7 +18,6 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.Toast;
 
 import org.floens.chan.R;
@@ -155,17 +154,14 @@ public class BehaviourSettingsController extends SettingsController {
     }
 
     private void setupClearThreadHidesSetting(SettingsGroup post) {
-        post.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: don't do this here.
-                DatabaseManager databaseManager = injector().instance(DatabaseManager.class);
-                databaseManager.runTask(
-                        databaseManager.getDatabaseHideManager().clearAllThreadHides());
-                Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG)
-                        .show();
-                EventBus.getDefault().post(new RefreshUIMessage("clearhides"));
-            }
-        }));
+		post.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, v -> {
+			// TODO: don't do this here.
+			DatabaseManager databaseManager = injector().instance(DatabaseManager.class);
+			databaseManager.runTask(
+					databaseManager.getDatabaseHideManager().clearAllThreadHides());
+			Toast.makeText(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG)
+					.show();
+			EventBus.getDefault().post(new RefreshUIMessage("clearhides"));
+		}));
     }
 }

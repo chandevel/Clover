@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.database;
 
-
 import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.floens.chan.core.model.orm.SiteModel;

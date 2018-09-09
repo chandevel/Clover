@@ -18,7 +18,6 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -79,7 +78,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         view = inflateRes(R.layout.controller_navigation_drawer);
         container = view.findViewById(R.id.container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
+		drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
         drawer = view.findViewById(R.id.drawer);
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -163,12 +162,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
                 //noinspection WrongConstant
                 Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pins_cleared, text), 4000);
                 fixSnackbarText(context, snackbar);
-                snackbar.setAction(R.string.undo, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        watchManager.addAll(pins);
-                    }
-                });
+				snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
                 snackbar.show();
             } else {
                 int text = watchManager.getAllPins().isEmpty() ? R.string.drawer_pins_non_cleared : R.string.drawer_pins_non_cleared_try_all;
@@ -185,12 +179,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         watchManager.deletePin(pin);
         Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
         fixSnackbarText(context, snackbar);
-        snackbar.setAction(R.string.undo, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                watchManager.createPin(undoPin);
-            }
-        });
+		snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
         snackbar.show();
     }
 
@@ -204,17 +193,14 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         wrap.addView(text, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         AlertDialog dialog = new AlertDialog.Builder(context)
-                .setPositiveButton(R.string.action_rename, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String value = text.getText().toString();
+				.setPositiveButton(R.string.action_rename, (dialog1, which) -> {
+					String value = text.getText().toString();
 
-                        if (!TextUtils.isEmpty(value)) {
-                            pin.loadable.title = value;
-                            watchManager.updatePin(pin);
-                        }
-                    }
-                })
+					if (!TextUtils.isEmpty(value)) {
+						pin.loadable.title = value;
+						watchManager.updatePin(pin);
+					}
+				})
                 .setNegativeButton(R.string.cancel, null)
                 .setTitle(R.string.action_rename_pin)
                 .setView(wrap)
@@ -289,7 +275,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
             ((DoubleNavigationController) top).pushController(controller);
         }
 
-        drawerLayout.closeDrawer(Gravity.LEFT);
+		drawerLayout.closeDrawer(Gravity.START);
     }
 
     private ThreadController getTopThreadController() {

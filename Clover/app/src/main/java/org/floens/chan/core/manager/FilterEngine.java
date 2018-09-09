@@ -164,9 +164,7 @@ public class FilterEngine {
             for (PostImage image : post.images) {
                 filename.append(image.filename).append(" ");
             }
-            if ((filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename.toString(), false)) {
-                return true;
-            }
+			return (filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename.toString(), false);
         }
 
         return false;
@@ -245,18 +243,18 @@ public class FilterEngine {
             pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
         } else {
             String[] words = rawPattern.split(" ");
-            String text = "";
+			StringBuilder text = new StringBuilder();
             for (int i = 0, wordsLength = words.length; i < wordsLength; i++) {
                 String word = words[i];
                 // Find a word (bounded by \b), replacing any * with \S*
-                text += "(\\b" + (wildcardPattern.matcher(escapeRegex(word)).replaceAll("\\\\S*")) + "\\b)";
+				text.append("(\\b").append(wildcardPattern.matcher(escapeRegex(word)).replaceAll("\\\\S*")).append("\\b)");
                 // Allow multiple words by joining them with |
                 if (i < words.length - 1) {
-                    text += "|";
+					text.append("|");
                 }
             }
 
-            pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
+			pattern = Pattern.compile(text.toString(), Pattern.CASE_INSENSITIVE);
         }
 
         return pattern;

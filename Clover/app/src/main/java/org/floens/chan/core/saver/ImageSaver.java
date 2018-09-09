@@ -69,25 +69,22 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         PostImage postImage = task.getPostImage();
         String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
-        task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName), false));
+		task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName)));
 
 //        task.setMakeBitmap(true);
         task.setShowToast(true);
 
-        if (!hasPermission(context)) {
+		if (hasPermission(context)) {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the task.
-            requestPermission(context, new RuntimePermissionsHelper.Callback() {
-                @Override
-                public void onRuntimePermissionResult(boolean granted) {
-                    if (granted) {
-                        startTask(task);
-                        updateNotification();
-                    } else {
-                        showToast(null, false);
-                    }
-                }
-            });
+			requestPermission(context, granted -> {
+				if (granted) {
+					startTask(task);
+					updateNotification();
+				} else {
+					showToast(null, false);
+				}
+			});
         } else {
             startTask(task);
             updateNotification();
@@ -95,19 +92,16 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     public boolean startBundledTask(Context context, final String subFolder, final List<ImageSaveTask> tasks) {
-        if (!hasPermission(context)) {
+		if (hasPermission(context)) {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the tasks.
-            requestPermission(context, new RuntimePermissionsHelper.Callback() {
-                @Override
-                public void onRuntimePermissionResult(boolean granted) {
-                    if (granted) {
-                        startBundledTaskInternal(subFolder, tasks);
-                    } else {
-                        showToast(null, false);
-                    }
-                }
-            });
+			requestPermission(context, granted -> {
+				if (granted) {
+					startBundledTaskInternal(subFolder, tasks);
+				} else {
+					showToast(null, false);
+				}
+			});
             return false;
         } else {
             startBundledTaskInternal(subFolder, tasks);
@@ -163,7 +157,8 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         for (ImageSaveTask task : tasks) {
             PostImage postImage = task.getPostImage();
             String fileName = filterName(postImage.originalName + "." + postImage.extension);
-            task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder + File.separator + fileName));
+			task.setDestination(new File(getSaveLocation(task) + File.separator + subFolder +
+					File.separator + fileName));
 
             startTask(task);
         }
@@ -226,39 +221,26 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return name;
     }
 
-    private File findUnusedFileName(File start, boolean directory) {
+	private File findUnusedFileName(File start) {
         String base;
         String extension;
 
-        if (directory) {
-            base = start.getAbsolutePath();
-            extension = null;
-        } else {
-            String[] splitted = start.getAbsolutePath().split("\\.(?=[^\\.]+$)");
-            if (splitted.length == 2) {
-                base = splitted[0];
-                extension = "." + splitted[1];
-            } else {
-                base = splitted[0];
-                extension = ".";
-            }
-        }
+		String[] splitted = start.getAbsolutePath().split("\\.(?=[^\\.]+$)");
+		if (splitted.length == 2) {
+			base = splitted[0];
+			extension = "." + splitted[1];
+		} else {
+			base = splitted[0];
+			extension = ".";
+		}
 
         File test;
-        if (directory) {
-            test = new File(base);
-        } else {
-            test = new File(base + extension);
-        }
+		test = new File(base + extension);
 
         int index = 0;
         int tries = 0;
         while (test.exists() && tries++ < MAX_RENAME_TRIES) {
-            if (directory) {
-                test = new File(base + "_" + index);
-            } else {
-                test = new File(base + "_" + index + extension);
-            }
+			test = new File(base + "_" + index + extension);
             index++;
         }
 
@@ -266,7 +248,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     }
 
     private boolean hasPermission(Context context) {
-        return ((StartActivity) context).getRuntimePermissionsHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		return !((StartActivity) context).getRuntimePermissionsHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {

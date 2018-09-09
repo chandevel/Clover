@@ -154,7 +154,7 @@ public abstract class Controller {
             if (LOG_STATES) {
                 Logger.test(getClass().getSimpleName() + " view attached");
             }
-            attachToView(parentView, true);
+			attachToView(parentView);
         }
     }
 
@@ -196,7 +196,7 @@ public abstract class Controller {
         controller.presentedByController = this;
 
         controller.onCreate();
-        controller.attachToView(contentView, true);
+		controller.attachToView(contentView);
         controller.onShow();
 
         if (animated) {
@@ -216,12 +216,7 @@ public abstract class Controller {
         if (animated) {
             ControllerTransition transition = new FadeOutTransition();
             transition.from = this;
-            transition.setCallback(new ControllerTransition.Callback() {
-                @Override
-                public void onControllerTransitionCompleted(ControllerTransition transition) {
-                    finishPresenting();
-                }
-            });
+			transition.setCallback(transition1 -> finishPresenting());
             transition.perform();
         } else {
             finishPresenting();
@@ -252,7 +247,7 @@ public abstract class Controller {
         return null;
     }
 
-    private void attachToView(ViewGroup parentView, boolean over) {
+	private void attachToView(ViewGroup parentView) {
         ViewGroup.LayoutParams params = view.getLayoutParams();
 
         if (params == null) {
@@ -264,10 +259,6 @@ public abstract class Controller {
 
         view.setLayoutParams(params);
 
-        if (over) {
-            parentView.addView(view, view.getLayoutParams());
-        } else {
-            parentView.addView(view, 0, view.getLayoutParams());
-        }
+		parentView.addView(view, view.getLayoutParams());
     }
 }

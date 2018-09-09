@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.loader;
 
-
 import com.android.volley.Response;
 
 import org.floens.chan.core.model.Post;

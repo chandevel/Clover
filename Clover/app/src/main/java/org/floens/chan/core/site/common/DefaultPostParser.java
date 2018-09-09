@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.common;
 
-
 import android.support.annotation.AnyThread;
 import android.text.SpannableString;
 import android.text.TextUtils;

@@ -27,8 +27,8 @@ import android.text.TextUtils;
 import com.android.volley.RequestQueue;
 
 import org.floens.chan.BuildConfig;
-import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.net.UpdateApiRequest;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.IOUtils;
@@ -151,9 +151,9 @@ public class UpdateManager {
             } else {
                 return true;
             }
-        } else if (message.hash != null) {
+        }/* else if (message.hash != null) {
             return !message.hash.equals(BuildConfig.BUILD_HASH);
-        } else {
+        }*/ else {
             Logger.w(TAG, "No code or hash found");
             return false;
         }

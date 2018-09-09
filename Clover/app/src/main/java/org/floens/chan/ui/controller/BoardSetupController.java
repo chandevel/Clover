@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.controller;
 
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -280,16 +279,12 @@ public class BoardSetupController extends Controller implements View.OnClickList
             DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
             reorder.setImageDrawable(drawable);
 
-            View.OnTouchListener l = new View.OnTouchListener() {
-                @SuppressLint("ClickableViewAccessibility")
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                        itemTouchHelper.startDrag(SavedBoardCell.this);
-                    }
-                    return false;
-                }
-            };
+			View.OnTouchListener l = (v, event) -> {
+				if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+					itemTouchHelper.startDrag(SavedBoardCell.this);
+				}
+				return false;
+			};
             reorder.setOnTouchListener(l);
         }
     }

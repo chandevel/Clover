@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site;
 
-
 import android.support.annotation.Nullable;
 
 import org.floens.chan.core.model.Post;

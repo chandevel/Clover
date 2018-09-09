@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site;
 
-
 import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.core.settings.json.JsonSettings;

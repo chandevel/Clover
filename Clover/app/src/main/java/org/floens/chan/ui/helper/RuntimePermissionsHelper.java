@@ -19,7 +19,6 @@ package org.floens.chan.ui.helper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -85,21 +84,13 @@ public class RuntimePermissionsHelper {
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(false)
-                .setNeutralButton(R.string.permission_app_settings, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        callback.retryPermissionRequest();
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:" + context.getPackageName()));
-                        AndroidUtils.openIntent(intent);
-                    }
-                })
-                .setPositiveButton(R.string.permission_grant, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        callback.retryPermissionRequest();
-                    }
-                })
+				.setNeutralButton(R.string.permission_app_settings, (dialog, which) -> {
+					callback.retryPermissionRequest();
+					Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+							Uri.parse("package:" + context.getPackageName()));
+					AndroidUtils.openIntent(intent);
+				})
+				.setPositiveButton(R.string.permission_grant, (dialog, which) -> callback.retryPermissionRequest())
                 .show();
     }
 

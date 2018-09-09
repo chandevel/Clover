@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.presenter;
 
-
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.repository.BoardRepository;

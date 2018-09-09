@@ -51,7 +51,6 @@ public class HintPopup {
         return hintPopup;
     }
 
-    private TextView textView;
     private PopupWindow popupWindow;
     private ViewGroup popupView;
     private final View anchor;
@@ -79,7 +78,7 @@ public class HintPopup {
         popupView = (ViewGroup) LayoutInflater.from(context)
                 .inflate(top ? R.layout.popup_hint_top : R.layout.popup_hint, null);
 
-        textView = popupView.findViewById(R.id.text);
+		TextView textView = popupView.findViewById(R.id.text);
         textView.setText(text);
 
         popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -119,7 +118,7 @@ public class HintPopup {
                 if (!rightAligned) {
                     View arrow = popupView.findViewById(R.id.arrow);
                     LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) arrow.getLayoutParams();
-                    lp.gravity = Gravity.LEFT;
+					lp.gravity = Gravity.START;
                     arrow.setLayoutParams(lp);
                 }
             }

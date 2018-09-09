@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 
@@ -107,12 +106,7 @@ public class WatchManager {
     private static final long WAKELOCK_MAX_TIME = 60 * 1000;
     private static final long BACKGROUND_UPDATE_MIN_DELAY = 90 * 1000;
 
-    private static final Comparator<Pin> SORT_PINS = new Comparator<Pin>() {
-        @Override
-        public int compare(Pin lhs, Pin rhs) {
-            return lhs.order - rhs.order;
-        }
-    };
+	private static final Comparator<Pin> SORT_PINS = (lhs, rhs) -> lhs.order - rhs.order;
 
     ChanLoaderFactory chanLoaderFactory;
 
@@ -145,17 +139,14 @@ public class WatchManager {
         pins = databaseManager.runTask(databasePinManager.getPins());
         Collections.sort(pins, SORT_PINS);
 
-        handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                if (msg.what == MESSAGE_UPDATE) {
-                    update(false);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        });
+		handler = new Handler(Looper.getMainLooper(), msg -> {
+			if (msg.what == MESSAGE_UPDATE) {
+				update(false);
+				return true;
+			} else {
+				return false;
+			}
+		});
 
         EventBus.getDefault().register(this);
 

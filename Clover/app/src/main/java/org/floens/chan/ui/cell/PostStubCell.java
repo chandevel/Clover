@@ -54,7 +54,6 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     private PostCellInterface.PostCellCallback callback;
 
     private TextView title;
-    private ImageView options;
     private View divider;
 
     public PostStubCell(Context context) {
@@ -74,7 +73,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         super.onFinishInflate();
 
         title = findViewById(R.id.title);
-        options = findViewById(R.id.options);
+		ImageView options = findViewById(R.id.options);
         setRoundItemBackground(options);
         divider = findViewById(R.id.divider);
 

@@ -160,11 +160,7 @@ public class Board implements SiteReference {
     }
 
     public boolean finish() {
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0) {
-            return false;
-        }
-
-        return true;
+		return !TextUtils.isEmpty(name) && !TextUtils.isEmpty(code) && perPage >= 0 && pages >= 0;
     }
 
     @Override

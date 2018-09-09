@@ -85,8 +85,8 @@ public abstract class ImageSearch {
                 return "http://tineye.com/search/?url=" + imageUrl;
             }
         });
-        
-        engines.add(new ImageSearch() {
+
+		engines.add(new ImageSearch() {
             public int getId() {
                 return 4;
             }
@@ -99,8 +99,8 @@ public abstract class ImageSearch {
                 return "https://whatanime.ga/?url=" + imageUrl;
             }
         });
-        
-        engines.add(new ImageSearch() {
+
+		engines.add(new ImageSearch() {
             public int getId() {
                 return 5;
             }

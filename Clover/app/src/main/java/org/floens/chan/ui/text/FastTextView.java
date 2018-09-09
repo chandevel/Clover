@@ -129,7 +129,7 @@ public class FastTextView extends View {
         boolean handled = false;
 
         if (movementMethod != null && text instanceof Spanned && layout != null && isEnabled()) {
-            handled |= movementMethod.onTouchEvent(this, (Spanned) text, event);
+			handled = movementMethod.onTouchEvent(this, (Spanned) text, event);
         }
 
         return handled || super.onTouchEvent(event);
@@ -263,10 +263,8 @@ public class FastTextView extends View {
 
             FastTextViewItem that = (FastTextViewItem) o;
 
-            if (color != that.color) return false;
-            if (Float.compare(that.textSize, textSize) != 0) return false;
-            if (layoutWidth != that.layoutWidth) return false;
-            return text.equals(that.text);
+			return color == that.color && Float.compare(that.textSize, textSize) ==
+					0 && layoutWidth == that.layoutWidth && text.equals(that.text);
         }
 
         @Override

@@ -44,8 +44,8 @@ import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.common.DefaultPostParser;
+import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.parser.PostParser;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.cell.PostCell;
@@ -69,7 +69,6 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class ThemeSettingsController extends Controller implements View.OnClickListener {
     private Board dummyBoard;
-
     {
         dummyBoard = new Board();
         dummyBoard.name = "name";
@@ -77,7 +76,6 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
     }
 
     private Loadable dummyLoadable;
-
     {
         dummyLoadable = Loadable.emptyLoadable();
         dummyLoadable.mode = Loadable.Mode.THREAD;
@@ -140,7 +138,6 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
     private FloatingActionButton done;
     private TextView textView;
 
-    private Adapter adapter;
     private ThemeHelper themeHelper;
 
     private List<Theme> themes;
@@ -179,7 +176,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         textView.setText(TextUtils.concat(getString(R.string.setting_theme_explanation), changeAccentColor));
         textView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        adapter = new Adapter();
+		Adapter adapter = new Adapter();
         pager.setAdapter(adapter);
 
         ChanSettings.ThemeColor currentSettingsTheme = ChanSettings.getThemeAndColor();
@@ -288,35 +285,32 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
             linearLayout.setBackgroundColor(getAttrColor(themeContext, R.attr.backcolor));
 
             final Toolbar toolbar = new Toolbar(themeContext);
-            final View.OnClickListener colorClick = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    List<FloatingMenuItem> items = new ArrayList<>();
-                    FloatingMenuItem selected = null;
-                    for (ThemeHelper.PrimaryColor color : themeHelper.getColors()) {
-                        FloatingMenuItem floatingMenuItem = new FloatingMenuItem(new ColorsAdapterItem(color, color.color500), color.displayName);
-                        items.add(floatingMenuItem);
-                        if (color == selectedPrimaryColors.get(position)) {
-                            selected = floatingMenuItem;
-                        }
-                    }
+			final View.OnClickListener colorClick = v -> {
+				List<FloatingMenuItem> items = new ArrayList<>();
+				FloatingMenuItem selected = null;
+				for (ThemeHelper.PrimaryColor color : themeHelper.getColors()) {
+					FloatingMenuItem floatingMenuItem = new FloatingMenuItem(new ColorsAdapterItem(color, color.color500), color.displayName);
+					items.add(floatingMenuItem);
+					if (color == selectedPrimaryColors.get(position)) {
+						selected = floatingMenuItem;
+					}
+				}
 
-                    FloatingMenu menu = getColorsMenu(items, selected, toolbar);
-                    menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
-                        @Override
-                        public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                            ColorsAdapterItem colorItem = (ColorsAdapterItem) item.getId();
-                            selectedPrimaryColors.set(position, colorItem.color);
-                            toolbar.setBackgroundColor(colorItem.color.color);
-                        }
+				FloatingMenu menu = getColorsMenu(items, selected, toolbar);
+				menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+					@Override
+					public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+						ColorsAdapterItem colorItem = (ColorsAdapterItem) item.getId();
+						selectedPrimaryColors.set(position, colorItem.color);
+						toolbar.setBackgroundColor(colorItem.color.color);
+					}
 
-                        @Override
-                        public void onFloatingMenuDismissed(FloatingMenu menu) {
-                        }
-                    });
-                    menu.show();
-                }
-            };
+					@Override
+					public void onFloatingMenuDismissed(FloatingMenu menu) {
+					}
+				});
+				menu.show();
+			};
             toolbar.setCallback(new Toolbar.ToolbarCallback() {
                 @Override
                 public void onMenuOrBackClicked(boolean isArrow) {
@@ -357,7 +351,8 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     true,
                     ChanSettings.PostViewMode.LIST,
                     false);
-            linearLayout.addView(postCell, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+			linearLayout.addView(postCell, new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             return linearLayout;
         }

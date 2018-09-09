@@ -20,7 +20,6 @@ package org.floens.chan.core.settings;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.update.UpdateManager;
@@ -34,24 +33,8 @@ import java.net.Proxy;
 import de.greenrobot.event.EventBus;
 
 public class ChanSettings {
-    public enum MediaAutoLoadMode implements OptionSettingItem {
-        // ALways auto load, either wifi or mobile
-        ALL("all"),
-        // Only auto load if on wifi
-        WIFI("wifi"),
-        // Never auto load
-        NONE("none");
-
-        String name;
-
-        MediaAutoLoadMode(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getKey() {
-            return name;
-        }
+	public static boolean isCrashReportingAvailable() {
+		return true;
     }
 
     public enum PostViewMode implements OptionSettingItem {
@@ -255,8 +238,24 @@ public class ChanSettings {
         // counter_reply_open
     }
 
-    public static boolean isCrashReportingAvailable() {
-        return !BuildConfig.CRASH_REPORT_ENDPOINT.isEmpty();
+	public enum MediaAutoLoadMode implements OptionSettingItem {
+		// Always auto load, either wifi or mobile
+		ALL("all"),
+		// Only auto load if on wifi
+		WIFI("wifi"),
+		// Never auto load
+		NONE("none");
+
+		String name;
+
+		MediaAutoLoadMode(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getKey() {
+			return name;
+		}
     }
 
     public static boolean isCrashReportingEnabled() {

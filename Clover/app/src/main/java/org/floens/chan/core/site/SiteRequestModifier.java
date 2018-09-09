@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site;
 
-
 import android.webkit.WebView;
 
 import org.floens.chan.core.site.http.HttpCall;

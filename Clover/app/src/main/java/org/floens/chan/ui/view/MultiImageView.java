@@ -124,26 +124,23 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 //            Logger.test("Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
             this.mode = newMode;
 
-            AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
-                @Override
-                public boolean onMeasured(View view) {
-                    switch (newMode) {
-                        case LOWRES:
-                            setThumbnail(postImage.getThumbnailUrl().toString());
-                            break;
-                        case BIGIMAGE:
-                            setBigImage(postImage.imageUrl.toString());
-                            break;
-                        case GIF:
-                            setGif(postImage.imageUrl.toString());
-                            break;
-                        case MOVIE:
-                            setVideo(postImage.imageUrl.toString());
-                            break;
-                    }
-                    return true;
-                }
-            });
+			AndroidUtils.waitForMeasure(this, view -> {
+				switch (newMode) {
+					case LOWRES:
+						setThumbnail(postImage.getThumbnailUrl().toString());
+						break;
+					case BIGIMAGE:
+						setBigImage(postImage.imageUrl.toString());
+						break;
+					case GIF:
+						setGif(postImage.imageUrl.toString());
+						break;
+					case MOVIE:
+						setVideo(postImage.imageUrl.toString());
+						break;
+				}
+				return true;
+			});
         }
     }
 

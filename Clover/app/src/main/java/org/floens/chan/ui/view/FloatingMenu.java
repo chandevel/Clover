@@ -44,7 +44,7 @@ public class FloatingMenu {
 
     private final Context context;
     private View anchor;
-    private int anchorGravity = Gravity.LEFT;
+	private int anchorGravity = Gravity.START;
     private int anchorOffsetX;
     private int anchorOffsetY;
     private int popupWidth = POPUP_WIDTH_AUTO;
@@ -65,7 +65,7 @@ public class FloatingMenu {
         this.anchor = anchor;
         anchorOffsetX = -dp(5);
         anchorOffsetY = dp(5);
-        anchorGravity = Gravity.RIGHT;
+		anchorGravity = Gravity.END;
         this.items = items;
     }
 
@@ -168,37 +168,31 @@ public class FloatingMenu {
         }
 
         if (manageItems) {
-            popupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (position >= 0 && position < items.size()) {
-                        FloatingMenuItem item = items.get(position);
-                        if (item.isEnabled()) {
-                            callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
-                            popupWindow.dismiss();
-                        }
-                    } else {
-                        callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
-                    }
-                }
-            });
+			popupWindow.setOnItemClickListener((parent, view, position, id) -> {
+				if (position >= 0 && position < items.size()) {
+					FloatingMenuItem item = items.get(position);
+					if (item.isEnabled()) {
+						callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
+						popupWindow.dismiss();
+					}
+				} else {
+					callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
+				}
+			});
         } else {
             popupWindow.setOnItemClickListener(itemClickListener);
         }
 
-        globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (popupWindow == null) {
-                    Logger.w("FloatingMenu", "popupWindow null in layout listener");
-                } else {
-                    if (popupWindow.isShowing()) {
-                        // Recalculate anchor position
-                        popupWindow.show();
-                    }
-                }
-            }
-        };
+		globalLayoutListener = () -> {
+			if (popupWindow == null) {
+				Logger.w("FloatingMenu", "popupWindow null in layout listener");
+			} else {
+				if (popupWindow.isShowing()) {
+					// Recalculate anchor position
+					popupWindow.show();
+				}
+			}
+		};
         anchor.getViewTreeObserver().addOnGlobalLayoutListener(globalLayoutListener);
 
         popupWindow.setOnDismissListener(() -> {

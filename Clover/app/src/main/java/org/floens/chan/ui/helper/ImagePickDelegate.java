@@ -167,17 +167,14 @@ public class ImagePickDelegate implements Runnable {
             }
         }
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (success) {
-                    callback.onFilePicked(fileName, cacheFile);
-                } else {
-                    callback.onFilePickError(false);
-                }
-                reset();
-            }
-        });
+		runOnUiThread(() -> {
+			if (success) {
+				callback.onFilePicked(fileName, cacheFile);
+			} else {
+				callback.onFilePickError(false);
+			}
+			reset();
+		});
     }
 
     private void reset() {

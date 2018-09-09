@@ -80,7 +80,6 @@ import java.util.List;
 
 import okhttp3.HttpUrl;
 
-import static android.text.TextUtils.isEmpty;
 import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_CONDENSED_REGULAR;
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -431,7 +430,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             commentText = post.comment;
         }
 
-        comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
+		comment.setVisibility(VISIBLE);
 
         if (threadMode) {
             if (selectable) {

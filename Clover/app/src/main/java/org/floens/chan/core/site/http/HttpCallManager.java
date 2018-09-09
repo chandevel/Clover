@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.http;
 
-
 import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteRequestModifier;

@@ -42,9 +42,7 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
 
     private SuggestionsAdapter suggestionsAdapter;
 
-    private SearchLayout search;
     private Button checkAllButton;
-    private RecyclerView suggestionsRecycler;
 
     private AlertDialog dialog;
 
@@ -65,8 +63,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         super.onFinishInflate();
 
         // View binding
-        search = findViewById(R.id.search);
-        suggestionsRecycler = findViewById(R.id.suggestions);
+		SearchLayout search = findViewById(R.id.search);
+		RecyclerView suggestionsRecycler = findViewById(R.id.suggestions);
         checkAllButton = findViewById(R.id.select_all);
 
         // Adapters

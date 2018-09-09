@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.site.parser;
 
-
 import android.annotation.SuppressLint;
 
 import org.floens.chan.core.model.Post;

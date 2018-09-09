@@ -42,12 +42,10 @@ public class AlbumViewController extends Controller implements
         ImageViewerController.ImageViewerCallback,
         ImageViewerController.GoPostCallback {
     private GridRecyclerView recyclerView;
-    private GridLayoutManager gridLayoutManager;
 
     private List<PostImage> postImages;
     private int targetIndex = -1;
 
-    private AlbumAdapter albumAdapter;
     private Loadable loadable;
 
     public AlbumViewController(Context context) {
@@ -67,12 +65,12 @@ public class AlbumViewController extends Controller implements
         view = inflateRes(R.layout.controller_album_view);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        gridLayoutManager = new GridLayoutManager(context, 3);
+		GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setSpanWidth(dp(120));
         recyclerView.setItemAnimator(null);
-        albumAdapter = new AlbumAdapter();
+		AlbumAdapter albumAdapter = new AlbumAdapter();
         recyclerView.setAdapter(albumAdapter);
         recyclerView.scrollToPosition(targetIndex);
     }

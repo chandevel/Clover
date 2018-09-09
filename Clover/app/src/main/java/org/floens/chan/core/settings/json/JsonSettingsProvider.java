@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class JsonSettingsProvider implements SettingProvider {
     public final JsonSettings jsonSettings;
     private Callback callback;

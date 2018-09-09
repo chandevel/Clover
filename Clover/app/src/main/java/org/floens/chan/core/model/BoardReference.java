@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.model;
 
-
 import org.floens.chan.core.model.orm.Board;
 
 public interface BoardReference {

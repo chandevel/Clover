@@ -1,6 +1,5 @@
 package org.floens.chan.core.site.common;
 
-
 import android.util.JsonReader;
 
 import org.floens.chan.core.model.Post;

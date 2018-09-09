@@ -23,11 +23,10 @@ import java.util.concurrent.Callable;
 public class DatabaseBoardManager {
     private static final String TAG = "DatabaseBoardManager";
 
-    private DatabaseManager databaseManager;
     private DatabaseHelper helper;
 
     public DatabaseBoardManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.databaseManager = databaseManager;
+		DatabaseManager databaseManager1 = databaseManager;
         this.helper = helper;
     }
 

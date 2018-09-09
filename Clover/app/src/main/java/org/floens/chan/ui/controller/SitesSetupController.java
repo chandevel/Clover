@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.controller;
 
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -65,7 +64,6 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
     SitesSetupPresenter presenter;
 
     private CrossfadeView crossfadeView;
-    private RecyclerView sitesRecyclerview;
     private FloatingActionButton addButton;
 
     private HintPopup addBoardsHint;
@@ -110,7 +108,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
 
         // View binding
         crossfadeView = view.findViewById(R.id.crossfade);
-        sitesRecyclerview = view.findViewById(R.id.sites_recycler);
+		RecyclerView sitesRecyclerview = view.findViewById(R.id.sites_recycler);
         addButton = view.findViewById(R.id.add);
 
         // Adapters
@@ -180,9 +178,7 @@ public class SitesSetupController extends StyledToolbarNavigationController impl
         dialog.show();
 
         Button positiveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        positiveButton.setOnClickListener((v) -> {
-            dialogView.onPositiveClicked();
-        });
+		positiveButton.setOnClickListener((v) -> dialogView.onPositiveClicked());
     }
 
     @Override

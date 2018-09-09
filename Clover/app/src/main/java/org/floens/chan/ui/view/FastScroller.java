@@ -138,12 +138,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
     private final ValueAnimator mShowHideAnimator = ValueAnimator.ofFloat(0, 1);
     @AnimationState
     private int mAnimationState = ANIMATION_STATE_OUT;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide(HIDE_DURATION_MS);
-        }
-    };
+	private final Runnable mHideRunnable = () -> hide(HIDE_DURATION_MS);
     private final OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -263,6 +258,10 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                 mShowHideAnimator.setStartDelay(0);
                 mShowHideAnimator.start();
                 break;
+			case ANIMATION_STATE_FADING_IN:
+				break;
+			case ANIMATION_STATE_IN:
+				break;
         }
     }
 
@@ -282,6 +281,10 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                 mShowHideAnimator.setDuration(duration);
                 mShowHideAnimator.start();
                 break;
+			case ANIMATION_STATE_FADING_OUT:
+				break;
+			case ANIMATION_STATE_OUT:
+				break;
         }
     }
 
@@ -296,8 +299,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
 
     @Override
     public void onDrawOver(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
-        if (mRecyclerViewWidth != getRecyclerViewWidth()
-                || mRecyclerViewHeight != getRecyclerViewHeight()) {
+		if (mRecyclerViewWidth != getRecyclerViewWidth() || mRecyclerViewHeight != getRecyclerViewHeight()) {
             mRecyclerViewWidth = getRecyclerViewWidth();
             mRecyclerViewHeight = getRecyclerViewHeight();
             mRecyclerViewLeftPadding = getRecyclerViewLeftPadding();
@@ -458,7 +460,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                     mDragState = DRAG_X;
                     mHorizontalDragX = (int) ev.getX();
                     mHorizontalDragThumbWidth = mHorizontalThumbWidth;
-                } else if (insideVerticalThumb) {
+				} else {
                     mDragState = DRAG_Y;
                     mVerticalDragY = (int) ev.getY();
                     mVerticalDragThumbHeight = mVerticalThumbHeight;
@@ -469,11 +471,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
             } else {
                 handled = false;
             }
-        } else if (mState == STATE_DRAGGING) {
-            handled = true;
-        } else {
-            handled = false;
-        }
+		} else handled = mState == STATE_DRAGGING;
         return handled;
     }
 
@@ -491,7 +489,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                     mDragState = DRAG_X;
                     mHorizontalDragX = (int) me.getX();
                     mHorizontalDragThumbWidth = mHorizontalThumbWidth;
-                } else if (insideVerticalThumb) {
+				} else {
                     mDragState = DRAG_Y;
                     mVerticalDragY = (int) me.getY();
                     mVerticalDragThumbHeight = mVerticalThumbHeight;

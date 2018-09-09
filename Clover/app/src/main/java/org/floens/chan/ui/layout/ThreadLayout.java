@@ -25,7 +25,6 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -176,11 +175,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     public boolean canChildScrollUp() {
-        if (visible == Visible.THREAD) {
-            return threadListLayout.canChildScrollUp();
-        } else {
-            return true;
-        }
+		return visible != Visible.THREAD || threadListLayout.canChildScrollUp();
     }
 
     public boolean onBack() {
@@ -277,12 +272,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         }
 
         new AlertDialog.Builder(getContext())
-                .setItems(keys, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        presenter.onPostLinkableClicked(post, linkables.get(which));
-                    }
-                })
+				.setItems(keys, (dialog, which) -> presenter.onPostLinkableClicked(post, linkables.get(which)))
                 .show();
     }
 
@@ -298,12 +288,8 @@ public class ThreadLayout extends CoordinatorLayout implements
         if (ChanSettings.openLinkConfirmation.get()) {
             new AlertDialog.Builder(getContext())
                     .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
-                        }
-                    })
+					.setPositiveButton(R.string.ok, (dialog, which) ->
+							AndroidUtils.openLinkInBrowser((Activity) getContext(), link))
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
                     .show();
@@ -418,13 +404,10 @@ public class ThreadLayout extends CoordinatorLayout implements
                 .setTitle(R.string.delete_confirm)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        CheckBox checkBox = view.findViewById(R.id.image_only);
-                        presenter.deletePostConfirmed(post, checkBox.isChecked());
-                    }
-                })
+				.setPositiveButton(R.string.delete, (dialog, which) -> {
+					CheckBox checkBox = view.findViewById(R.id.image_only);
+					presenter.deletePostConfirmed(post, checkBox.isChecked());
+				})
                 .show();
     }
 
@@ -457,14 +440,11 @@ public class ThreadLayout extends CoordinatorLayout implements
         presenter.refreshUI();
 
         Snackbar snackbar = Snackbar.make(this, R.string.post_hidden, Snackbar.LENGTH_LONG);
-        snackbar.setAction(R.string.undo, new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                databaseManager.runTask(
-                        databaseManager.getDatabaseHideManager().removeThreadHide(threadHide));
-                presenter.refreshUI();
-            }
-        }).show();
+		snackbar.setAction(R.string.undo, v -> {
+			databaseManager.runTask(
+					databaseManager.getDatabaseHideManager().removeThreadHide(threadHide));
+			presenter.refreshUI();
+		}).show();
         fixSnackbarText(getContext(), snackbar);
     }
 
@@ -476,13 +456,10 @@ public class ThreadLayout extends CoordinatorLayout implements
                         .getQuantityString(R.plurals.thread_new_posts, more, more);
 
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
-                newPostsNotification.setAction(R.string.thread_new_posts_goto, new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        newPostsNotification = null;
-                        presenter.onNewPostsViewClicked();
-                    }
-                }).show();
+				newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
+					newPostsNotification = null;
+					presenter.onNewPostsViewClicked();
+				}).show();
                 fixSnackbarText(getContext(), newPostsNotification);
             }
         } else {

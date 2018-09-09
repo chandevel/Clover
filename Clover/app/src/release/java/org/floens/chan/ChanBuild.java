@@ -1,6 +1,6 @@
 /*
  * Clover - 4chan browser https://github.com/Floens/Clover/
- * Copyright (C) 2014  Floens
+ * Copyright (C) 2014 Floens
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

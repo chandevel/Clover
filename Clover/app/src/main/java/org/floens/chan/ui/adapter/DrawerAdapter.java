@@ -64,12 +64,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int TYPE_BOARD_INPUT = 3;
     private static final int TYPE_DIVIDER = 4;
 
-    private static final Comparator<Pin> SORT_PINS = new Comparator<Pin>() {
-        @Override
-        public int compare(Pin lhs, Pin rhs) {
-            return lhs.order - rhs.order;
-        }
-    };
+	private static final Comparator<Pin> SORT_PINS = (lhs, rhs) -> lhs.order - rhs.order;
 
     @Inject
     WatchManager watchManager;
@@ -306,37 +301,28 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             setRoundItemBackground(watchCountText);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int pos = getAdapterPosition() - PIN_OFFSET;
-                    if (pos >= 0 && pos < pins.size()) {
-                        callback.onPinClicked(pins.get(pos));
-                    }
-                }
-            });
+			itemView.setOnClickListener(v -> {
+				int pos = getAdapterPosition() - PIN_OFFSET;
+				if (pos >= 0 && pos < pins.size()) {
+					callback.onPinClicked(pins.get(pos));
+				}
+			});
 
-            /*itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    int pos = getAdapterPosition() - PIN_OFFSET;
-                    if (pos >= 0 && pos < pins.size()) {
-                        callback.onPinLongClicked(pins.get(pos));
-                    }
+            /*itemView.setOnLongClickListener(v -> {
+				int pos = getAdapterPosition() - PIN_OFFSET;
+				if (pos >= 0 && pos < pins.size()) {
+					callback.onPinLongClicked(pins.get(pos));
+				}
 
-                    return true;
-                }
-            });*/
+				return true;
+			});*/
 
-            watchCountText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int pos = getAdapterPosition() - PIN_OFFSET;
-                    if (pos >= 0 && pos < pins.size()) {
-                        callback.onWatchCountClicked(pins.get(pos));
-                    }
-                }
-            });
+			watchCountText.setOnClickListener(v -> {
+				int pos = getAdapterPosition() - PIN_OFFSET;
+				if (pos >= 0 && pos < pins.size()) {
+					callback.onWatchCountClicked(pins.get(pos));
+				}
+			});
         }
     }
 
@@ -350,19 +336,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             text.setTypeface(ROBOTO_MEDIUM);
             clear = itemView.findViewById(R.id.clear);
             setRoundItemBackground(clear);
-            clear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR);
-                }
-            });
-            clear.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR_ALL);
-                    return true;
-                }
-            });
+			clear.setOnClickListener(v -> callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR));
+			clear.setOnLongClickListener(v -> {
+				callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR_ALL);
+				return true;
+			});
         }
     }
 
@@ -376,19 +354,16 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             text = itemView.findViewById(R.id.text);
             text.setTypeface(ROBOTO_MEDIUM);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    switch (getAdapterPosition()) {
-                        case 0:
-                            callback.openSites();
-                            break;
-                        case 1:
-                            callback.openHistory();
-                            break;
-                    }
-                }
-            });
+			itemView.setOnClickListener(v -> {
+				switch (getAdapterPosition()) {
+					case 0:
+						callback.openSites();
+						break;
+					case 1:
+						callback.openHistory();
+						break;
+				}
+			});
         }
     }
 

@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.net;
 
-
 import android.util.JsonReader;
 
 import com.android.volley.Response;

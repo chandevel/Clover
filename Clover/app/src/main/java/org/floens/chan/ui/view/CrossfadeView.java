@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 public class CrossfadeView extends FrameLayout {
-    private int fadeDuration = 200;
 
     private View viewOne;
     private View viewTwo;
@@ -66,6 +65,7 @@ public class CrossfadeView extends FrameLayout {
     private void doToggle(boolean animated) {
         inited = true;
         if (animated) {
+			int fadeDuration = 200;
             if (viewOneSelected) {
                 viewOne.setVisibility(View.VISIBLE);
                 viewOne.animate().alpha(1f).setDuration(fadeDuration).setListener(null);

@@ -34,13 +34,10 @@ public class DatabaseFilterManager {
     }
 
     public Callable<Filter> createFilter(final Filter filter) {
-        return new Callable<Filter>() {
-            @Override
-            public Filter call() throws Exception {
-                helper.filterDao.create(filter);
-                return filter;
-            }
-        };
+		return () -> {
+			helper.filterDao.create(filter);
+			return filter;
+		};
     }
 
     public Callable<Void> deleteFilter(final Filter filter) {

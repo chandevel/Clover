@@ -24,7 +24,6 @@ import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -76,12 +75,7 @@ public class BoardHelper {
             }
         }
 
-        Collections.sort(ratios, new Comparator<Pair<Board, Integer>>() {
-            @Override
-            public int compare(Pair<Board, Integer> o1, Pair<Board, Integer> o2) {
-                return o2.second - o1.second;
-            }
-        });
+		Collections.sort(ratios, (o1, o2) -> o2.second - o1.second);
 
         List<Board> result = new ArrayList<>(ratios.size());
         for (Pair<Board, Integer> ratio : ratios) {

@@ -21,7 +21,6 @@ import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.ViewGroup;
 
 import org.floens.chan.R;
@@ -61,13 +60,10 @@ public class ThreadSlidingPaneLayout extends SlidingPaneLayout {
 
         // Forces a relayout after it has already been layed out, because SlidingPaneLayout sucks and otherwise
         // gives the children too much room until they request a relayout.
-        AndroidUtils.waitForLayout(this, new AndroidUtils.OnMeasuredCallback() {
-            @Override
-            public boolean onMeasured(View view) {
-                requestLayout();
-                return false;
-            }
-        });
+		AndroidUtils.waitForLayout(this, view -> {
+			requestLayout();
+			return false;
+		});
     }
 
     public void setThreadSlideController(ThreadSlideController threadSlideController) {
