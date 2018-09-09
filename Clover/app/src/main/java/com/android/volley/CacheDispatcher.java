@@ -134,14 +134,11 @@ public class CacheDispatcher extends Thread {
 
                     // Post the intermediate response back to the user and have
                     // the delivery then forward the request along to the network.
-                    mDelivery.postResponse(request, response, new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                mNetworkQueue.put(request);
-                            } catch (InterruptedException e) {
-                                // Not much we can do about this.
-                            }
+                    mDelivery.postResponse(request, response, () -> {
+                        try {
+                            mNetworkQueue.put(request);
+                        } catch (InterruptedException e) {
+                            // Not much we can do about this.
                         }
                     });
                 }
@@ -151,7 +148,6 @@ public class CacheDispatcher extends Thread {
                 if (mQuit) {
                     return;
                 }
-                continue;
             }
         }
     }

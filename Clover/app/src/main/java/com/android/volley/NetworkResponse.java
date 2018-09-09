@@ -41,7 +41,7 @@ public class NetworkResponse {
     }
 
     public NetworkResponse(byte[] data) {
-        this(HttpStatus.SC_OK, data, Collections.<String, String>emptyMap(), false);
+        this(HttpStatus.SC_OK, data, Collections.emptyMap(), false);
     }
 
     public NetworkResponse(byte[] data, Map<String, String> headers) {

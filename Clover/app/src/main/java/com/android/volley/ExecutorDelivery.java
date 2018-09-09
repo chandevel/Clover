@@ -33,12 +33,7 @@ public class ExecutorDelivery implements ResponseDelivery {
      */
     public ExecutorDelivery(final Handler handler) {
         // Make an Executor that just wraps the handler.
-        mResponsePoster = new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                handler.post(command);
-            }
-        };
+        mResponsePoster = handler::post;
     }
 
     /**
@@ -113,6 +108,6 @@ public class ExecutorDelivery implements ResponseDelivery {
             if (mRunnable != null) {
                 mRunnable.run();
             }
-       }
+        }
     }
 }

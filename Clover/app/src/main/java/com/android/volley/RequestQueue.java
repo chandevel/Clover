@@ -51,22 +51,22 @@ public class RequestQueue {
      * </ul>
      */
     private final Map<String, Queue<Request<?>>> mWaitingRequests =
-            new HashMap<String, Queue<Request<?>>>();
+            new HashMap<>();
 
     /**
      * The set of all requests currently being processed by this RequestQueue. A Request
      * will be in this set if it is waiting in any queue or currently being processed by
      * any dispatcher.
      */
-    private final Set<Request<?>> mCurrentRequests = new HashSet<Request<?>>();
+    private final Set<Request<?>> mCurrentRequests = new HashSet<>();
 
     /** The cache triage queue. */
     private final PriorityBlockingQueue<Request<?>> mCacheQueue =
-        new PriorityBlockingQueue<Request<?>>();
+            new PriorityBlockingQueue<>();
 
     /** The queue of requests that are actually going out to the network. */
     private final PriorityBlockingQueue<Request<?>> mNetworkQueue =
-        new PriorityBlockingQueue<Request<?>>();
+            new PriorityBlockingQueue<>();
 
     /** Number of network request dispatcher threads to start. */
     private static final int DEFAULT_NETWORK_THREAD_POOL_SIZE = 4;
@@ -149,9 +149,9 @@ public class RequestQueue {
         if (mCacheDispatcher != null) {
             mCacheDispatcher.quit();
         }
-        for (int i = 0; i < mDispatchers.length; i++) {
-            if (mDispatchers[i] != null) {
-                mDispatchers[i].quit();
+        for (NetworkDispatcher mDispatcher : mDispatchers) {
+            if (mDispatcher != null) {
+                mDispatcher.quit();
             }
         }
     }
@@ -171,11 +171,14 @@ public class RequestQueue {
     }
 
     /**
-     * A simple predicate or filter interface for Requests, for use by
-     * {@link RequestQueue#cancelAll(RequestFilter)}.
+     * Cancels all requests in this queue with the given tag. Tag must be non-null
+     * and equality is by identity.
      */
-    public interface RequestFilter {
-        public boolean apply(Request<?> request);
+    public void cancelAll(final Object tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("Cannot cancelAll with a null tag");
+        }
+        cancelAll(request -> request.getTag() == tag);
     }
 
     /**
@@ -190,22 +193,6 @@ public class RequestQueue {
                 }
             }
         }
-    }
-
-    /**
-     * Cancels all requests in this queue with the given tag. Tag must be non-null
-     * and equality is by identity.
-     */
-    public void cancelAll(final Object tag) {
-        if (tag == null) {
-            throw new IllegalArgumentException("Cannot cancelAll with a null tag");
-        }
-        cancelAll(new RequestFilter() {
-            @Override
-            public boolean apply(Request<?> request) {
-                return request.getTag() == tag;
-            }
-        });
     }
 
     /**
@@ -237,7 +224,7 @@ public class RequestQueue {
                 // There is already a request in flight. Queue up.
                 Queue<Request<?>> stagedRequests = mWaitingRequests.get(cacheKey);
                 if (stagedRequests == null) {
-                    stagedRequests = new LinkedList<Request<?>>();
+                    stagedRequests = new LinkedList<>();
                 }
                 stagedRequests.add(request);
                 mWaitingRequests.put(cacheKey, stagedRequests);
@@ -252,6 +239,14 @@ public class RequestQueue {
             }
             return request;
         }
+    }
+
+    /**
+     * A simple predicate or filter interface for Requests, for use by
+     * {@link RequestQueue#cancelAll(RequestFilter)}.
+     */
+    public interface RequestFilter {
+        boolean apply(Request<?> request);
     }
 
     /**

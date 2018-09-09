@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
@@ -29,7 +28,7 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
  * Handles fetching an image from a URL as well as the life-cycle of the
  * associated request.
  */
-public class NetworkImageView extends ImageView {
+public class NetworkImageView extends android.support.v7.widget.AppCompatImageView {
     /** The URL of the network image to load */
     private String mUrl;
 
@@ -146,7 +145,9 @@ public class NetworkImageView extends ImageView {
 
         // The pre-existing content of this view didn't match the current URL. Load the new image
         // from the network.
-        ImageContainer newContainer = mImageLoader.get(mUrl,
+
+        // update the ImageContainer to be the new bitmap container.
+        mImageContainer = mImageLoader.get(mUrl,
                 new ImageListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
@@ -162,12 +163,7 @@ public class NetworkImageView extends ImageView {
                         // inside of a layout. Instead, defer setting the image by posting back to
                         // the main thread.
                         if (isImmediate && isInLayoutPass) {
-                            post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    onResponse(response, false);
-                                }
-                            });
+                            post(() -> onResponse(response, false));
                             return;
                         }
 
@@ -178,9 +174,6 @@ public class NetworkImageView extends ImageView {
                         }
                     }
                 }, maxWidth, maxHeight);
-
-        // update the ImageContainer to be the new bitmap container.
-        mImageContainer = newContainer;
     }
 
     private void setDefaultImageOrNull() {

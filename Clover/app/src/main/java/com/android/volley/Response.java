@@ -23,10 +23,25 @@ package com.android.volley;
  */
 public class Response<T> {
 
+    /**
+     * Returns a successful response containing the parsed result.
+     */
+    public static <T> Response<T> success(T result, Cache.Entry cacheEntry) {
+        return new Response<>(result, cacheEntry);
+    }
+
+    /**
+     * Returns a failed response containing the given error code and an optional
+     * localized message displayed to the user.
+     */
+    public static <T> Response<T> error(VolleyError error) {
+        return new Response<>(error);
+    }
+
     /** Callback interface for delivering parsed responses. */
     public interface Listener<T> {
         /** Called when a response is received. */
-        public void onResponse(T response);
+        void onResponse(T response);
     }
 
     /** Callback interface for delivering error responses. */
@@ -35,20 +50,7 @@ public class Response<T> {
          * Callback method that an error has been occurred with the
          * provided error code and optional user-readable message.
          */
-        public void onErrorResponse(VolleyError error);
-    }
-
-    /** Returns a successful response containing the parsed result. */
-    public static <T> Response<T> success(T result, Cache.Entry cacheEntry) {
-        return new Response<T>(result, cacheEntry);
-    }
-
-    /**
-     * Returns a failed response containing the given error code and an optional
-     * localized message displayed to the user.
-     */
-    public static <T> Response<T> error(VolleyError error) {
-        return new Response<T>(error);
+        void onErrorResponse(VolleyError error);
     }
 
     /** Parsed response, or null in the case of error. */
@@ -69,7 +71,6 @@ public class Response<T> {
     public boolean isSuccess() {
         return error == null;
     }
-
 
     private Response(T result, Cache.Entry cacheEntry) {
         this.result = result;

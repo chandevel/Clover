@@ -47,7 +47,7 @@ public class HttpHeaderParser {
         long maxAge = 0;
         boolean hasCacheControl = false;
 
-        String serverEtag = null;
+		String serverEtag;
         String headerValue;
 
         headerValue = headers.get("Date");
@@ -59,8 +59,8 @@ public class HttpHeaderParser {
         if (headerValue != null) {
             hasCacheControl = true;
             String[] tokens = headerValue.split(",");
-            for (int i = 0; i < tokens.length; i++) {
-                String token = tokens[i].trim();
+			for (String token1 : tokens) {
+				String token = token1.trim();
                 if (token.equals("no-cache") || token.equals("no-store")) {
                     return null;
                 } else if (token.startsWith("max-age=")) {

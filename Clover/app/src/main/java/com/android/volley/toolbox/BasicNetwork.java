@@ -56,8 +56,6 @@ import java.util.TreeMap;
 public class BasicNetwork implements Network {
     protected static final boolean DEBUG = VolleyLog.DEBUG;
 
-    private static int SLOW_REQUEST_THRESHOLD_MS = 3000;
-
     private static int DEFAULT_POOL_SIZE = 4096;
 
     protected final HttpStack mHttpStack;
@@ -82,6 +80,17 @@ public class BasicNetwork implements Network {
         mPool = pool;
     }
 
+	/**
+	 * Converts Headers[] to Map<String, String>.
+	 */
+	protected static Map<String, String> convertHeaders(Header[] headers) {
+		Map<String, String> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		for (Header header : headers) {
+			result.put(header.getName(), header.getValue());
+		}
+		return result;
+	}
+
     @Override
     public NetworkResponse performRequest(Request<?> request) throws VolleyError {
         long requestStart = SystemClock.elapsedRealtime();
@@ -91,7 +100,7 @@ public class BasicNetwork implements Network {
             Map<String, String> responseHeaders = Collections.emptyMap();
             try {
                 // Gather headers.
-                Map<String, String> headers = new HashMap<String, String>();
+				Map<String, String> headers = new HashMap<>();
                 addCacheHeaders(headers, request.getCacheEntry());
                 httpResponse = mHttpStack.performRequest(request, headers);
                 StatusLine statusLine = httpResponse.getStatusLine();
@@ -140,7 +149,7 @@ public class BasicNetwork implements Network {
             } catch (MalformedURLException e) {
                 throw new RuntimeException("Bad URL " + request.getUrl(), e);
             } catch (IOException e) {
-                int statusCode = 0;
+				int statusCode;
                 NetworkResponse networkResponse = null;
                 if (httpResponse != null) {
                     statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -163,19 +172,6 @@ public class BasicNetwork implements Network {
                     throw new NetworkError(networkResponse);
                 }
             }
-        }
-    }
-
-    /**
-     * Logs requests that took over SLOW_REQUEST_THRESHOLD_MS to complete.
-     */
-    private void logSlowRequests(long requestLifetime, Request<?> request,
-            byte[] responseContents, StatusLine statusLine) {
-        if (DEBUG || requestLifetime > SLOW_REQUEST_THRESHOLD_MS) {
-            VolleyLog.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], " +
-                    "[rc=%d], [retryCount=%s]", request, requestLifetime,
-                    responseContents != null ? responseContents.length : "null",
-                    statusLine.getStatusCode(), request.getRetryPolicy().getCurrentRetryCount());
         }
     }
 
@@ -220,12 +216,24 @@ public class BasicNetwork implements Network {
         VolleyLog.v("HTTP ERROR(%s) %d ms to fetch %s", what, (now - start), url);
     }
 
+	/**
+	 * Logs requests that took over SLOW_REQUEST_THRESHOLD_MS to complete.
+	 */
+	private void logSlowRequests(long requestLifetime, Request<?> request,
+								 byte[] responseContents, StatusLine statusLine) {
+		int SLOW_REQUEST_THRESHOLD_MS = 3000;
+		if (DEBUG || requestLifetime > SLOW_REQUEST_THRESHOLD_MS) {
+			VolleyLog.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], " +
+							"[rc=%d], [retryCount=%s]", request, requestLifetime,
+					responseContents != null ? responseContents.length : "null",
+					statusLine.getStatusCode(), request.getRetryPolicy().getCurrentRetryCount());
+		}
+	}
+
     /** Reads the contents of HttpEntity into a byte[]. */
     private byte[] entityToBytes(HttpEntity entity) throws IOException, ServerError {
-        PoolingByteArrayOutputStream bytes =
-                new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength());
         byte[] buffer = null;
-        try {
+		try (PoolingByteArrayOutputStream bytes = new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength())) {
             InputStream in = entity.getContent();
             if (in == null) {
                 throw new ServerError();
@@ -246,18 +254,7 @@ public class BasicNetwork implements Network {
                 VolleyLog.v("Error occured when calling consumingContent");
             }
             mPool.returnBuf(buffer);
-            bytes.close();
-        }
-    }
 
-    /**
-     * Converts Headers[] to Map<String, String>.
-     */
-    protected static Map<String, String> convertHeaders(Header[] headers) {
-        Map<String, String> result = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-        for (int i = 0; i < headers.length; i++) {
-            result.put(headers[i].getName(), headers[i].getValue());
         }
-        return result;
     }
 }

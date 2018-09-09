@@ -52,9 +52,12 @@ import java.util.List;
  * least-recently-used buffers are disposed.
  */
 public class ByteArrayPool {
+    /**
+     * Compares buffers by size
+     */
+    protected static final Comparator<byte[]> BUF_COMPARATOR = (lhs, rhs) -> lhs.length - rhs.length;
     /** The buffer pool, arranged both by last use and by buffer size */
-    private List<byte[]> mBuffersByLastUse = new LinkedList<byte[]>();
-    private List<byte[]> mBuffersBySize = new ArrayList<byte[]>(64);
+    private List<byte[]> mBuffersByLastUse = new LinkedList<>();
 
     /** The total size of the buffers in the pool */
     private int mCurrentSize = 0;
@@ -64,14 +67,7 @@ public class ByteArrayPool {
      * under this limit.
      */
     private final int mSizeLimit;
-
-    /** Compares buffers by size */
-    protected static final Comparator<byte[]> BUF_COMPARATOR = new Comparator<byte[]>() {
-        @Override
-        public int compare(byte[] lhs, byte[] rhs) {
-            return lhs.length - rhs.length;
-        }
-    };
+    private List<byte[]> mBuffersBySize = new ArrayList<>(64);
 
     /**
      * @param sizeLimit the maximum size of the pool, in bytes
@@ -131,5 +127,4 @@ public class ByteArrayPool {
             mCurrentSize -= buf.length;
         }
     }
-
 }

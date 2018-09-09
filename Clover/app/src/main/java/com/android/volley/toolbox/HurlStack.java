@@ -51,15 +51,24 @@ public class HurlStack implements HttpStack {
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private final String mUserAgent;
 
-    /**
-     * An interface for transforming URLs before use.
+    /*
+     * Initializes an {@link HttpEntity} from the given {@link HttpURLConnection}.
+     * @param connection
+     * @return an HttpEntity populated with data from <code>connection</code>.
      */
-    public interface UrlRewriter {
-        /**
-         * Returns a URL to use instead of the provided one, or null to indicate
-         * this URL should not be used at all.
-         */
-        public String rewriteUrl(String originalUrl);
+    private static HttpEntity entityFromConnection(HttpURLConnection connection) {
+        BasicHttpEntity entity = new BasicHttpEntity();
+        InputStream inputStream;
+        try {
+            inputStream = connection.getInputStream();
+        } catch (IOException ioe) {
+            inputStream = connection.getErrorStream();
+        }
+        entity.setContent(inputStream);
+        entity.setContentLength(connection.getContentLength());
+        entity.setContentEncoding(connection.getContentEncoding());
+        entity.setContentType(connection.getContentType());
+        return entity;
     }
 
     private final UrlRewriter mUrlRewriter;
@@ -90,7 +99,7 @@ public class HurlStack implements HttpStack {
     public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError {
         String url = request.getUrl();
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.putAll(request.getHeaders());
         map.putAll(additionalHeaders);
         map.put("User-Agent", mUserAgent);
@@ -128,34 +137,7 @@ public class HurlStack implements HttpStack {
         return response;
     }
 
-    /**
-     * Initializes an {@link HttpEntity} from the given {@link HttpURLConnection}.
-     * @param connection
-     * @return an HttpEntity populated with data from <code>connection</code>.
-     */
-    private static HttpEntity entityFromConnection(HttpURLConnection connection) {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        InputStream inputStream;
-        try {
-            inputStream = connection.getInputStream();
-        } catch (IOException ioe) {
-            inputStream = connection.getErrorStream();
-        }
-        entity.setContent(inputStream);
-        entity.setContentLength(connection.getContentLength());
-        entity.setContentEncoding(connection.getContentEncoding());
-        entity.setContentType(connection.getContentType());
-        return entity;
-    }
-
-    /**
-     * Create an {@link HttpURLConnection} for the specified {@code url}.
-     */
-    protected HttpURLConnection createConnection(URL url) throws IOException {
-        return (HttpURLConnection) url.openConnection();
-    }
-
-    /**
+    /*
      * Opens an {@link HttpURLConnection} with parameters.
      * @param url
      * @return an open connection
@@ -176,6 +158,24 @@ public class HurlStack implements HttpStack {
         }
 
         return connection;
+    }
+
+    /**
+     * Create an {@link HttpURLConnection} for the specified {@code url}.
+     */
+    protected HttpURLConnection createConnection(URL url) throws IOException {
+        return (HttpURLConnection) url.openConnection();
+    }
+
+    /**
+     * An interface for transforming URLs before use.
+     */
+    public interface UrlRewriter {
+        /**
+         * Returns a URL to use instead of the provided one, or null to indicate
+         * this URL should not be used at all.
+         */
+        String rewriteUrl(String originalUrl);
     }
 
     @SuppressWarnings("deprecation")

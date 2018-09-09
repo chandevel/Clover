@@ -59,7 +59,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
     private VolleyError mException;
 
     public static <E> RequestFuture<E> newFuture() {
-        return new RequestFuture<E>();
+		return new RequestFuture<>();
     }
 
     private RequestFuture() {}
@@ -126,10 +126,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
 
     @Override
     public boolean isCancelled() {
-        if (mRequest == null) {
-            return false;
-        }
-        return mRequest.isCanceled();
+		return mRequest != null && mRequest.isCanceled();
     }
 
     @Override

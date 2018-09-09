@@ -64,7 +64,7 @@ public class HttpClientStack implements HttpStack {
 
     @SuppressWarnings("unused")
     private static List<NameValuePair> getPostParameterPairs(Map<String, String> postParams) {
-        List<NameValuePair> result = new ArrayList<NameValuePair>(postParams.size());
+        List<NameValuePair> result = new ArrayList<>(postParams.size());
         for (String key : postParams.keySet()) {
             result.add(new BasicNameValuePair(key, postParams.get(key)));
         }
@@ -157,7 +157,7 @@ public class HttpClientStack implements HttpStack {
      *
      * <p>Overwrite in subclasses to augment the request.</p>
      */
-    protected void onPrepareRequest(HttpUriRequest request) throws IOException {
+    protected void onPrepareRequest(HttpUriRequest request) {
         // Nothing.
     }
 
@@ -189,6 +189,5 @@ public class HttpClientStack implements HttpStack {
         public String getMethod() {
             return METHOD_NAME;
         }
-
     }
 }
