@@ -281,6 +281,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="watch_pause_pins">Stop watching</string>
   <string name="watch_idle">No new posts</string>
   <plurals name="watch_title">
+      // TODO: fix quantity one argument to please android studio
     <item quantity="one">Watching one thread</item>
     <item quantity="other">Watching %d threads</item>
   </plurals>
@@ -485,7 +486,7 @@ Tap the toolbar menu to change its color.\"
 Forgot your 4chan Pass login details?<br>
 <a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
 <br>
-Don't have a 4chan Pass?<br>
+Don\'t have a 4chan Pass?<br>
 <a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
 ]]>
     \"</string>
