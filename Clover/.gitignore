@@ -6,7 +6,6 @@ Clover/captures/
 
 #built application files
 # *.apk
-*.ap_
 
 # files for the dex VM
 *.dex
@@ -22,8 +21,7 @@ gen/
 local.properties
 
 # Android Studio
-.idea
-#.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
+.idea/
 .gradle
 build/
 *.iml
@@ -43,4 +41,3 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
-
