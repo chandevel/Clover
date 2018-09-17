@@ -341,23 +341,23 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <item>Todas las publicaciones</item>
     <item>Solo posts citandote</item>
   </string-array>
-  <string name="setting_watch_peek">Heads-up notification on quotes</string>
-  <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
-  <string name="setting_watch_led">Notification light</string>
+  <string name="setting_watch_peek">Notificaciones emergenes en citaciones</string>
+  <string name="setting_watch_peek_description">Mostrar una notificación emergente cuando sea citado</string>
+  <string name="setting_watch_led">Led de notificación</string>
   <string-array name="setting_watch_leds">
-    <item>None</item>
-    <item>White</item>
-    <item>Red</item>
-    <item>Yellow</item>
-    <item>Green</item>
-    <item>Cyan</item>
-    <item>Blue</item>
-    <item>Purple</item>
+    <item>Ninguno</item>
+    <item>Blanco</item>
+    <item>Rojo</item>
+    <item>Amarillo</item>
+    <item>Verde</item>
+    <item>Turquesa</item>
+    <item>Azul</item>
+    <item>Púrpura</item>
   </string-array>
   <!-- Main About group -->
-  <string name="settings_group_about">About</string>
-  <string name="settings_update_check">Check for updates</string>
-  <string name="settings_crash_reporting">Report crashes</string>
+  <string name="settings_group_about">Acerca de</string>
+  <string name="settings_update_check">Buscar actualizaciones</string>
+  <string name="settings_crash_reporting">Informe de accidentes</string>
   <string name="settings_crash_reporting_description">
 \"Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information.\"
