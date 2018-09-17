@@ -326,9 +326,9 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="setting_watch_summary_disabled">Desactivado</string>
   <string name="settings_screen_watch">Ajustes de observador de hilo</string>
   <string name="settings_group_watch">Preferencias</string>
-  <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
-  <string name="setting_watch_enable_background">Enable in the background</string>
-  <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
+  <string name="setting_watch_info">Para ver marcadores de nuevos post, active el observador de hilos</string>
+  <string name="setting_watch_enable_background">Actualizar en segundo plano</string>
+  <string name="setting_watch_enable_background_description">Ver marcadores cuando Clover está en segundo plano</string>
   <string name="setting_watch_background_timeout">Background update interval</string>
   <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
   <string name="setting_watch_notify_mode">Notify about</string>
