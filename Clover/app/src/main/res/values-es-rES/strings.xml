@@ -98,58 +98,58 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
   <string name="open_link_not_matched">Clover no puede abrir este enlace; en su lugar se abrirá en su navegador.</string>
   <string name="order_bump">Orden de bump</string>
   <string name="order_reply">Número de respuestas</string>
-  <string name="order_image">Image count</string>
-  <string name="order_newest">Newest</string>
-  <string name="order_oldest">Oldest</string>
-  <string name="order_modified">Latest reply</string>
-  <string name="search_hint">Search</string>
-  <string name="search_results">Found %1$s for \"%2$s\"</string>
-  <string name="search_empty">Search subjects, comments, names and filenames</string>
-  <string name="open_link_confirmation">Open this link?</string>
-  <string name="open_thread_confirmation">Open this thread?</string>
-  <string name="open_link_failed">No applications were found to open this link</string>
-  <string name="action_confirm_exit_title">Confirm exit</string>
+  <string name="order_image">Contador de Imágenes</string>
+  <string name="order_newest">Más reciente</string>
+  <string name="order_oldest">Más antíguos</string>
+  <string name="order_modified">Última respuesta</string>
+  <string name="search_hint">Buscar</string>
+  <string name="search_results">Encontrados %1$s para \"%2$s\"</string>
+  <string name="search_empty">Buscar asuntos, comentarios, nombres y nombres de archivo</string>
+  <string name="open_link_confirmation">¿Abrir este link?</string>
+  <string name="open_thread_confirmation">¿Abrir este hilo?</string>
+  <string name="open_link_failed">No se ha encontrado ninguna aplicación para abrir el archivo</string>
+  <string name="action_confirm_exit_title">Confirmar salida</string>
   <string name="thumbnail_load_failed_network">Error</string>
-  <string name="image_preview_failed">Failed to show image</string>
-  <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
-  <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
-  <string name="image_not_found">Image not found</string>
-  <string name="image_open_failed">Failed to open image</string>
-  <string name="image_spoiler_filename">Spoiler image</string>
-  <string name="thread_boards_search_hint">Search</string>
-  <string name="thread_load_failed_ssl">HTTPS error</string>
-  <string name="thread_load_failed_network">Network error</string>
-  <string name="thread_load_failed_parsing">API parse error</string>
-  <string name="thread_load_failed_server">Server error</string>
-  <string name="thread_load_failed_not_found">404 not found</string>
-  <string name="thread_refresh_bar_inactive">Tap to refresh</string>
-  <string name="thread_refresh_now">Loading</string>
-  <string name="thread_refresh_countdown">Loading in %1$ds</string>
-  <string name="thread_load_failed_retry">Retry</string>
-  <string name="thread_archived">Archived</string>
-  <string name="thread_closed">Closed</string>
+  <string name="image_preview_failed">No se pudo cargar la imagen</string>
+  <string name="image_preview_failed_oom">Error al mostrar la imagen, sin memoria</string>
+  <string name="image_failed_big_image">Error al mostrar la imagen, carga de zoom profundo falló</string>
+  <string name="image_not_found">Imagen no encontrada</string>
+  <string name="image_open_failed">Error al abrir la página</string>
+  <string name="image_spoiler_filename">Imagen spoiler</string>
+  <string name="thread_boards_search_hint">Buscar</string>
+  <string name="thread_load_failed_ssl">Error HTTPS</string>
+  <string name="thread_load_failed_network">Error de red</string>
+  <string name="thread_load_failed_parsing">Error de parse de la API</string>
+  <string name="thread_load_failed_server">Error del servidor</string>
+  <string name="thread_load_failed_not_found">Error 404 No encontrado</string>
+  <string name="thread_refresh_bar_inactive">Tocar para actualizar</string>
+  <string name="thread_refresh_now">Cargando</string>
+  <string name="thread_refresh_countdown">Carga en %1$ds</string>
+  <string name="thread_load_failed_retry">Reintentar</string>
+  <string name="thread_archived">Archivado</string>
+  <string name="thread_closed">Cerrado</string>
   <plurals name="thread_new_posts">
-    <item quantity="one">%d new post</item>
-    <item quantity="other">%d new posts</item>
+    <item quantity="one">%d nuevo post</item>
+    <item quantity="other">%d nuevos posts</item>
   </plurals>
-  <string name="thread_new_posts_goto">View</string>
-  <string name="thread_empty_select">Please select a thread</string>
-  <string name="thread_up_down_hint">Scroll to top/bottom</string>
-  <string name="thread_pin_hint">Bookmark this thread</string>
-  <string name="thread_view_archive">Archive</string>
-  <string name="thread_empty_setup_title">Nothing to show</string>
-  <string name="thread_empty_setup_body">Add a site to begin browsing</string>
-  <string name="thread_empty_setup_hint">Add a site here</string>
-  <string name="setup_sites_title">Setup sites</string>
-  <string name="setup_sites_empty">No sites added</string>
-  <string name="setup_sites_add_hint">Add a site here</string>
-  <string name="setup_sites_add_title">Add site</string>
-  <string name="setup_sites_description">Add a site by its URL or name</string>
-  <string name="setup_sites_url">URL or name</string>
-  <string name="setup_sites_url_hint">http://example.com</string>
-  <string name="setup_sites_site_description">%s added</string>
-  <string name="setup_sites_add_boards_hint">Tap to add boards</string>
-  <string name="setup_site_title">Configure %s</string>
+  <string name="thread_new_posts_goto">Ver</string>
+  <string name="thread_empty_select">Por favor, seleccione un hilo</string>
+  <string name="thread_up_down_hint">Desplazar hacia arriba/abajo</string>
+  <string name="thread_pin_hint">Marcar este hilo</string>
+  <string name="thread_view_archive">Archivar</string>
+  <string name="thread_empty_setup_title">Nada que mostrar</string>
+  <string name="thread_empty_setup_body">Añadir un sitio web para comenzar a navegar</string>
+  <string name="thread_empty_setup_hint">Añadir un sitio web aquí</string>
+  <string name="setup_sites_title">Configurar sitios</string>
+  <string name="setup_sites_empty">No hay sitios añadidos</string>
+  <string name="setup_sites_add_hint">Añadir un sitio web aquí</string>
+  <string name="setup_sites_add_title">Agregar sitio</string>
+  <string name="setup_sites_description">Añadir un sitio web por su dirección URL o nombre</string>
+  <string name="setup_sites_url">Dirección URL o nombre</string>
+  <string name="setup_sites_url_hint">http://ejemplo.com</string>
+  <string name="setup_sites_site_description">%s añadido</string>
+  <string name="setup_sites_add_boards_hint">Toca para añadir boards</string>
+  <string name="setup_site_title">Configurar %s</string>
   <string name="setup_site_group_general">General</string>
   <string name="setup_site_boards">Configurar borads</string>
   <string name="setup_site_boards_description">%s añadido</string>
@@ -331,15 +331,15 @@ Enable \"Play videos with external player\" in the settings to play videos with 
   <string name="setting_watch_enable_background_description">Ver marcadores cuando Clover está en segundo plano</string>
   <string name="setting_watch_background_timeout">Intervalo de actualización de segundo plano</string>
   <string name="setting_watch_background_timeout_description">El intervalo entre actualizaciones cuando se coloca en segundo plano</string>
-  <string name="setting_watch_notify_mode">Notify about</string>
+  <string name="setting_watch_notify_mode">Notificar sobre</string>
   <string-array name="setting_watch_notify_modes">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Todas las publicaciones</item>
+    <item>Solo post citandote</item>
   </string-array>
-  <string name="setting_watch_sound">Notification sound</string>
+  <string name="setting_watch_sound">Sonido de notificación</string>
   <string-array name="setting_watch_sounds">
-    <item>All posts</item>
-    <item>Only posts quoting you</item>
+    <item>Todas las publicaciones</item>
+    <item>Solo posts citandote</item>
   </string-array>
   <string name="setting_watch_peek">Heads-up notification on quotes</string>
   <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
