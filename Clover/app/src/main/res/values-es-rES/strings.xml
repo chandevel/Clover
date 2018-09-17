@@ -253,32 +253,30 @@ If the pattern matches then the post can be hidden or highlighted.<br>
   <string name="reply_comment_thread">Respuesta al comentario</string>
   <string name="reply_comment_board">Comentar un nuevo hilo</string>
   <string name="reply_file_name">Nombre del archivo</string>
-  <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
-  <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
-  <string name="reply_file_open_failed">Failed to open file</string>
-  <string name="reply_spoiler_image">Spoiler image</string>
-  <string name="reply_no_preview">No preview</string>
-  <string name="reply_submit">Submit</string>
-  <string name="reply_error">Error posting</string>
-  <string name="reply_error_message">Error posting: %s</string>
-  <string name="reply_success">Post successful</string>
-  <string name="reply_captcha_text">Type the text</string>
+  <string name="reply_file_too_big">Aviso: El tamaño del archivo es muy grande (%1$s / %2$s)</string>
+  <string name="reply_webm_too_big">Aviso: El tamaño del WebM es muy grande (%1$s / %2$s)</string>
+  <string name="reply_file_open_failed">Error al abrir el archivo</string>
+  <string name="reply_spoiler_image">Imagen spoiler</string>
+  <string name="reply_no_preview">Sin Vista Previa</string>
+  <string name="reply_submit">Enviar</string>
+  <string name="reply_error">Error al publicar</string>
+  <string name="reply_error_message">Error al publicar %s</string>
+  <string name="reply_success">Publicación exitosa</string>
+  <string name="reply_captcha_text">Escribe el texto</string>
   <string name="reply_comment_button_spoiler">[s]</string>
-  <string name="delete_confirm">Delete your post?</string>
-  <string name="delete_wait">Deleting post&#8230;</string>
-  <string name="delete_success">Post deleted</string>
-  <string name="delete_image_only">Only delete the image</string>
-  <string name="delete_error">Error deleting post</string>
-  <string name="video_playback_warning_title">WebM video error</string>
-  <string name="video_playback_warning">
-\"The WebM video failed to play. This might be a problem with the hardware of your phone.
+  <string name="delete_confirm">¿Eliminar esta publicación?</string>
+  <string name="delete_wait">Borrando post&#8230;</string>
+  <string name="delete_success">Publicación eliminada</string>
+  <string name="delete_image_only">Solo borra la imágen</string>
+  <string name="delete_error">Error al eliminar</string>
+  <string name="video_playback_warning_title">Error de video WebM</string>
+  <string name="video_playback_warning">\"El video WebM no se puro reproducir.Este puede ser un problema con el hardware del teléfono.
 
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
-    </string>
-  <string name="video_playback_ignore">Don\'t show again</string>
-  <string name="watch_pause_pins">Stop watching</string>
-  <string name="watch_idle">No new posts</string>
+Una posible solución es usar un reproductor de tercero con algún decodificador
+Active \"Reproducir videos con reproductor externo\" En las configuraciones\"</string>
+  <string name="video_playback_ignore">No mostrar de nuevo</string>
+  <string name="watch_pause_pins">Dejar de ver</string>
+  <string name="watch_idle">No nuevos posts</string>
   <plurals name="watch_title">
     <item quantity="one">Observando un hilo</item>
     <item quantity="other">Observando %d hilos</item>
@@ -421,21 +419,20 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_open_link_confirmation">Ask before opening links</string>
   <!-- Behavior proxy group -->
   <string name="settings_group_proxy">HTTP Proxy</string>
-  <string name="setting_proxy_enabled">Enable proxy</string>
-  <string name="setting_proxy_address">Proxy server address</string>
-  <string name="setting_proxy_port">Proxy server port</string>
+  <string name="setting_proxy_enabled">Activar proxy</string>
+  <string name="setting_proxy_address">Dirección del servidor proxy</string>
+  <string name="setting_proxy_port">Puerto del servidor proxy</string>
   <!-- Media -->
   <string name="settings_screen_media">Media</string>
   <!-- Media general group -->
   <string name="settings_group_media">Media</string>
-  <string name="setting_save_board_folder">Save images in a board folder</string>
-  <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
-  <string name="setting_save_original_filename">Save original filename</string>
+  <string name="setting_save_board_folder">Guardar imágenes en una carpeta dedicada al board</string>
+  <string name="setting_save_board_folder_description">Crear una carpeta para descargar imagenes para cada board</string>
+  <string name="setting_save_original_filename">Guardar nombre de archivo original</string>
   <string name="setting_save_original_filename_description">
-\"Save the image with the filename the site assigned.
-If disabled, save the image with the filename the uploader assigned.\"
-    </string>
-  <string name="setting_video_default_muted">Start videos muted</string>
+\"Guardar la imágen con el nombre de archivo asignado por el sitio.
+Si esta deshabilitado, guardar imágen con el nombre de archivo original de la subida\"    </string>
+  <string name="setting_video_default_muted">Inicio videos silenciados</string>
   <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
   <string name="setting_video_open_external">Play videos with external player</string>
   <string name="setting_video_open_external_description">Play videos in an external media player app</string>
