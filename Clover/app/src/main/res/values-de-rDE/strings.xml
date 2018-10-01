@@ -45,69 +45,69 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktiviert haben.\"</string>
   <plurals name="minutes">
-    <item quantity="one">%d minute</item>
-    <item quantity="other">%d minutes</item>
+    <item quantity="one">%d Minute</item>
+    <item quantity="other">%d Minuten</item>
   </plurals>
   <plurals name="posts">
-    <item quantity="one">%d post</item>
-    <item quantity="other">%d posts</item>
+    <item quantity="one">%d Beitrag</item>
+    <item quantity="other">%d Beiträge</item>
   </plurals>
   <plurals name="reply">
-    <item quantity="one">%d reply</item>
-    <item quantity="other">%d replies</item>
+    <item quantity="one">%d Antwort</item>
+    <item quantity="other">%d Antworten</item>
   </plurals>
   <plurals name="image">
-    <item quantity="one">%d image</item>
-    <item quantity="other">%d images</item>
+    <item quantity="one">%d Bild</item>
+    <item quantity="other">%d Bilder</item>
   </plurals>
   <plurals name="board">
-    <item quantity="one">%d board</item>
-    <item quantity="other">%d boards</item>
+    <item quantity="one">%d Board</item>
+    <item quantity="other">%d Boards</item>
   </plurals>
   <plurals name="type">
-    <item quantity="one">%d type</item>
-    <item quantity="other">%d types</item>
+    <item quantity="one">%d Typ</item>
+    <item quantity="other">%d Typen</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="one">%d bookmark</item>
-    <item quantity="other">%d bookmarks</item>
+    <item quantity="one">%d Lesezeichen</item>
+    <item quantity="other">%d Lesezeichen</item>
   </plurals>
   <plurals name="filter">
-    <item quantity="one">%d filter</item>
-    <item quantity="other">%d filters</item>
+    <item quantity="one">%d Filter</item>
+    <item quantity="other">%d Filter</item>
   </plurals>
   <plurals name="site">
-    <item quantity="one">%d site</item>
-    <item quantity="other">%d sites</item>
+    <item quantity="one">%d Seite</item>
+    <item quantity="other">%d Seiten</item>
   </plurals>
-  <string name="card_stats">%1$dR %2$dI</string>
-  <string name="action_reload">Reload</string>
-  <string name="action_pin">Bookmark</string>
-  <string name="action_open_browser">Open in a browser</string>
-  <string name="action_share">Share</string>
-  <string name="action_download_album">Download album</string>
-  <string name="action_search">Search</string>
-  <string name="action_search_image">Image search</string>
-  <string name="action_switch_catalog">Catalog mode</string>
-  <string name="action_switch_board">Board mode</string>
-  <string name="action_scroll_to_top">Top</string>
-  <string name="action_scroll_to_bottom">Bottom</string>
-  <string name="action_sort">Sort</string>
-  <string name="action_rename_pin">Rename bookmark</string>
-  <string name="action_rename">Rename</string>
-  <string name="action_reply">Reply</string>
-  <string name="open_link_not_matched">Clover cannot open this link; it will open in your browser instead.</string>
-  <string name="order_bump">Bump order</string>
-  <string name="order_reply">Reply count</string>
-  <string name="order_image">Image count</string>
-  <string name="order_newest">Newest</string>
-  <string name="order_oldest">Oldest</string>
-  <string name="order_modified">Latest reply</string>
-  <string name="search_hint">Search</string>
+  <string name="card_stats">%1$dA %2$dB</string>
+  <string name="action_reload">Aktualisieren</string>
+  <string name="action_pin">Lesezeichen</string>
+  <string name="action_open_browser">Im Browser öffnen</string>
+  <string name="action_share">Teilen</string>
+  <string name="action_download_album">Album herunterladen</string>
+  <string name="action_search">Suche</string>
+  <string name="action_search_image">Bildsuche</string>
+  <string name="action_switch_catalog">Katalog-Modus</string>
+  <string name="action_switch_board">Board-Modus</string>
+  <string name="action_scroll_to_top">Oben</string>
+  <string name="action_scroll_to_bottom">Unten</string>
+  <string name="action_sort">Sortieren</string>
+  <string name="action_rename_pin">Lesezeichen umbenennen</string>
+  <string name="action_rename">Umbenennen</string>
+  <string name="action_reply">Antworten</string>
+  <string name="open_link_not_matched">Clover kann diesen Link nicht öffnen; Es wird stattdessen in Ihrem Browser geöffnet.</string>
+  <string name="order_bump">Bump-Reihenfolge</string>
+  <string name="order_reply">Anzahl von Antworten</string>
+  <string name="order_image">Anzahl an Bildern</string>
+  <string name="order_newest">Neueste</string>
+  <string name="order_oldest">Älteste</string>
+  <string name="order_modified">Neueste Antwort</string>
+  <string name="search_hint">Suche</string>
   <string name="search_results">Found %1$s for \"%2$s\"</string>
-  <string name="search_empty">Search subjects, comments, names and filenames</string>
-  <string name="open_link_confirmation">Open this link?</string>
-  <string name="open_thread_confirmation">Open this thread?</string>
+  <string name="search_empty">Suche Themen, Kommentare, Namen und Dateinamen</string>
+  <string name="open_link_confirmation">Diesen Link öffnen?</string>
+  <string name="open_thread_confirmation">Diesen Thread öffnen?</string>
   <string name="open_link_failed">No applications were found to open this link</string>
   <string name="action_confirm_exit_title">Confirm exit</string>
   <string name="thumbnail_load_failed_network">Error</string>
