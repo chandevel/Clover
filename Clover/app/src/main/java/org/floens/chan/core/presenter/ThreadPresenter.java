@@ -51,8 +51,10 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -480,9 +482,16 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
         }
 
+        if(ChanSettings.accessibleInfo.get()){
+            //Accessible info enabled
+            menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        } else {
+            extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        }
+
         menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
 
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+
         extraMenu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
@@ -698,6 +707,9 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         }
 
         // TODO(multi-site) get this from the timestamp
+        Date date = new Date () ;
+        date.setTime((long)post.time*1000);
+        text.append(new StringBuilder("Date: " + date.toString()));
 //        text += "Date: " + post.date;
 
         if (!TextUtils.isEmpty(post.id)) {
