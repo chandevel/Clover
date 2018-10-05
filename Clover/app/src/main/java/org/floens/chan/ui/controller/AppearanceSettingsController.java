@@ -82,9 +82,8 @@ public class AppearanceSettingsController extends SettingsController {
                     R.string.setting_enable_reply_fab_description)));
 
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
-                    ChanSettings.accessibleInfo,
-                    "Enable accessible post info",
-                    "Place post info in a more accessible location")));
+                    ChanSettings.accessibleInfo, R.string.setting_enable_accessible_post_info,
+                    R.string.setting_enable_accessible_post_info_description)));
             groups.add(layout);
         }
 
