@@ -84,7 +84,7 @@ public class AppearanceSettingsController extends SettingsController {
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.accessibleInfo,
                     "Enable accessible post info",
-                    "Enabling places info in the first post option menu")));
+                    "Place post info in a more accessible location")));
             groups.add(layout);
         }
 
