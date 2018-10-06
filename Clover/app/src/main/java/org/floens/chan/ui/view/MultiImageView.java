@@ -52,6 +52,7 @@ import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;
 import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCacheProvider;
+import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
@@ -79,6 +80,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     @Inject
     ImageLoader imageLoader;
+
+    @Inject
+    UserAgentProvider userAgent;
 
     private ImageView playView;
 
@@ -178,8 +182,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setVolume(boolean muted) {
         final float volume = muted ? 0f : 1f;
-        if(ChanSettings.videoUseExoplayer.get()){
-            if(exoPlayer != null) {
+        if (ChanSettings.videoUseExoplayer.get()) {
+            if (exoPlayer != null) {
                 exoPlayer.getAudioComponent().setVolume(volume);
             }
         } else {
@@ -413,14 +417,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
             exoVideoView.setPlayer(exoPlayer);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                    Util.getUserAgent(getContext(),"Clover"));
+                    Util.getUserAgent(getContext(), userAgent.getUserAgent()));
             MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(android.net.Uri.fromFile(file));
 
             exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL); //Repeat forever
 
             exoPlayer.prepare(videoSource);
-            callback.onVideoLoaded(this,hasMediaPlayerAudioTracks(exoPlayer));
+            callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(exoPlayer));
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
         } else {
@@ -484,11 +488,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private boolean hasMediaPlayerAudioTracks(ExoPlayer mediaPlayer) {
-        if(mediaPlayer.getAudioComponent() == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return mediaPlayer.getAudioComponent() != null;
     }
 
     private void onVideoError() {
