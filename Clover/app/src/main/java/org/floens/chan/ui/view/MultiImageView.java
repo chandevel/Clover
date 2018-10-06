@@ -36,6 +36,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 import org.floens.chan.R;
 import org.floens.chan.core.cache.FileCache;
@@ -74,7 +84,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     private PostImage postImage;
     private Callback callback;
-
     private Mode mode = Mode.UNLOADED;
 
     private boolean hasContent = false;
@@ -84,8 +93,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private FileCacheDownloader videoRequest;
 
     private VideoView videoView;
+    private PlayerView exoVideoView;
     private boolean videoError = false;
     private MediaPlayer mediaPlayer;
+    private SimpleExoPlayer exoPlayer;
 
     public MultiImageView(Context context) {
         this(context, null);
@@ -166,9 +177,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     public void setVolume(boolean muted) {
-        if (mediaPlayer != null) {
-            final float volume = muted ? 0f : 1f;
-            mediaPlayer.setVolume(volume, volume);
+        final float volume = muted ? 0f : 1f;
+        if(ChanSettings.videoUseExoplayer.get()){
+            if(exoPlayer != null) {
+                exoPlayer.getAudioComponent().setVolume(volume);
+            }
+        } else {
+            if (mediaPlayer != null) {
+                mediaPlayer.setVolume(volume, volume);
+            }
         }
     }
 
@@ -391,6 +408,21 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             AndroidUtils.openIntent(intent);
 
             onModeLoaded(Mode.MOVIE, videoView);
+        } else if (ChanSettings.videoUseExoplayer.get()) {
+            exoVideoView = new PlayerView(getContext());
+            exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+            exoVideoView.setPlayer(exoPlayer);
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
+                    Util.getUserAgent(getContext(),"Clover"));
+            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(android.net.Uri.fromFile(file));
+
+            exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL); //Repeat forever
+
+            exoPlayer.prepare(videoSource);
+            callback.onVideoLoaded(this,hasMediaPlayerAudioTracks(exoPlayer));
+            addView(exoVideoView);
+            exoPlayer.setPlayWhenReady(true);
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
 
@@ -451,6 +483,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         }
     }
 
+    private boolean hasMediaPlayerAudioTracks(ExoPlayer mediaPlayer) {
+        if(mediaPlayer.getAudioComponent() == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     private void onVideoError() {
         if (!videoError) {
             videoError = true;
@@ -461,6 +501,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private void cleanupVideo(VideoView videoView) {
         videoView.stopPlayback();
         mediaPlayer = null;
+    }
+
+    private void cleanupVideo(PlayerView videoView) {
+        videoView.getPlayer().release();
     }
 
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
@@ -535,6 +579,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                     if (child != view) {
                         if (child instanceof VideoView) {
                             cleanupVideo((VideoView) child);
+                        } else if (child instanceof PlayerView) {
+                            cleanupVideo((PlayerView) child);
                         }
 
                         removeViewAt(i);

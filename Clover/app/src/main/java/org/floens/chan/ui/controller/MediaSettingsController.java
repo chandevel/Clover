@@ -109,6 +109,10 @@ public class MediaSettingsController extends SettingsController {
                     R.string.setting_video_open_external,
                     R.string.setting_video_open_external_description));
 
+            media.add(new BooleanSettingView(this, ChanSettings.videoUseExoplayer,
+                    R.string.setting_video_exoplayer,
+                    R.string.setting_video_exoplayer_description));
+
             media.add(new BooleanSettingView(this,
                     ChanSettings.shareUrl,
                     R.string.setting_share_url, R.string.setting_share_url_description));
