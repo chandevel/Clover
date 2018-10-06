@@ -53,7 +53,6 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -706,9 +705,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         }
 
         // TODO(multi-site) get this from the timestamp
-        Date date = new Date () ;
-        date.setTime(post.time*1000);
-        text.append("Date: ").append(date.toString());
 //        text += "Date: " + post.date;
 
         if (!TextUtils.isEmpty(post.id)) {
