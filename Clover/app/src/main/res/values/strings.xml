@@ -159,7 +159,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_pin_hint">Bookmark this thread</string>
     <string name="thread_view_archive">Archive</string>
 
-    <string name="thread_empty_setup_feature" translatable="false">&#128169;</string>
+    <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
     <string name="thread_empty_setup_hint">Add a site here</string>
