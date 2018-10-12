@@ -132,6 +132,7 @@ public class ChanSettings {
     public static final BooleanSetting controllerSwipeable;
     public static final BooleanSetting saveBoardFolder;
     public static final BooleanSetting videoDefaultMuted;
+    public static final BooleanSetting videoAutoLoop;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
@@ -209,6 +210,7 @@ public class ChanSettings {
         controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
         saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
+        videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
         watchEnabled.addCallback((setting, value) ->

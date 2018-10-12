@@ -406,7 +406,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             videoView.setOnPreparedListener(mp -> {
                 mediaPlayer = mp;
-                mp.setLooping(true);
+                mp.setLooping(ChanSettings.videoAutoLoop.get());
                 mp.setVolume(0f, 0f);
                 onModeLoaded(Mode.MOVIE, videoView);
                 callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(mp));
