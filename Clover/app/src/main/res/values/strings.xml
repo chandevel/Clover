@@ -523,6 +523,9 @@ If disabled, save the image with the filename the uploader assigned."
 
     <string name="setting_video_auto_load">Automatically load videos</string>
 
+    <string name="setting_video_auto_loop">Enable automatic video-looping</string>
+    <string name="setting_video_auto_loop_description">Automatically loop video content</string>
+
 
     <!-- Save location settings -->
     <string name="save_location_screen">Save location</string>
