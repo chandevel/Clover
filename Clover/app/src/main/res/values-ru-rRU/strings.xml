@@ -479,6 +479,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_image_auto_load_wifi">Только по Wi-Fi</string>
   <string name="setting_image_auto_load_none">Никогда</string>
   <string name="setting_video_auto_load">Автоматически загружать видео</string>
+  <string name="setting_video_auto_loop">Enable automatic video-looping</string>
+  <string name="setting_video_auto_loop_description">Automatically loop video content</string>
   <!-- Save location settings -->
   <string name="save_location_screen">Путь загрузки</string>
   <string name="save_location_storage_permission_required_title">Нужно разрешение на доступ к памяти устройства</string>
