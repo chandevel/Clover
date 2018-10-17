@@ -301,22 +301,22 @@ public class ThreadLayout extends CoordinatorLayout implements
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (ChanSettings.openLinkBrowser.get()) {
-                                AndroidUtils.openLink(link);
-                            } else {
-                                AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
-                            }
+                            openLinkConfirmed(link);
                         }
                     })
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
                     .show();
         } else {
-            if (ChanSettings.openLinkBrowser.get()) {
-                AndroidUtils.openLink(link);
-            } else {
-                AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
-            }
+            openLinkConfirmed(link);
+        }
+    }
+
+    public void openLinkConfirmed(final String link) {
+        if (ChanSettings.openLinkBrowser.get()) {
+            AndroidUtils.openLink(link);
+        } else {
+            AndroidUtils.openLinkInBrowser((Activity) getContext(), link);
         }
     }
 
