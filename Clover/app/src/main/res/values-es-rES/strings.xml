@@ -416,6 +416,7 @@ Los reportes de crash no recolectan información personal.\"    </string>
   <string name="setting_volume_key_scrolling">Usar teclas de volumen para ver contenido</string>
   <string name="setting_tap_no_rely">Tocar número de post para responder</string>
   <string name="setting_open_link_confirmation">Preguntar antes de abrir enlaces</string>
+  <string name="setting_open_link_browser">Always open links in external browser</string>
   <!-- Behavior proxy group -->
   <string name="settings_group_proxy">Proxy HTTP</string>
   <string name="setting_proxy_enabled">Activar proxy</string>
