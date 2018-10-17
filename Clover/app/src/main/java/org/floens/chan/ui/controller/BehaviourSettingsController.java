@@ -128,6 +128,9 @@ public class BehaviourSettingsController extends SettingsController {
             post.add(new BooleanSettingView(this,
                     ChanSettings.openLinkConfirmation,
                     R.string.setting_open_link_confirmation, 0));
+            post.add(new BooleanSettingView(this,
+                    ChanSettings.openLinkBrowser,
+                    R.string.setting_open_link_browser, 0));
 
             groups.add(post);
         }

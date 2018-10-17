@@ -95,6 +95,7 @@ public class ChanSettings {
     public static final StringSetting fontSize;
     public static final BooleanSetting fontCondensed;
     public static final BooleanSetting openLinkConfirmation;
+    public static final BooleanSetting openLinkBrowser;
     public static final BooleanSetting autoRefreshThread;
     //    public static final BooleanSetting imageAutoLoad;
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
@@ -170,6 +171,7 @@ public class ChanSettings {
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
         fontCondensed = new BooleanSetting(p, "preference_font_condensed", false);
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
+        openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
 //        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
         imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
