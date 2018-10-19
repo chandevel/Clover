@@ -412,36 +412,34 @@ Relatorios de crashes não coletam informações pessoais identificáveis.\"    
   <string name="settings_reveal_text_spoilers">Mostrar spoiler em textos</string>
   <string name="settings_reveal_text_spoilers_description">Fazer com que o texto de spoiler pareça precionado</string>
   <string name="setting_anonymize">Tornar todos anônimos</string>
-  <string name="setting_anonymize_ids">Hide IDs</string>
-  <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
-  <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
-  <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
-  <string name="setting_tap_no_rely">Tap the post number to reply</string>
-  <string name="setting_open_link_confirmation">Ask before opening links</string>
-  <string name="setting_open_link_browser">Always open links in external browser</string>
+  <string name="setting_anonymize_ids">Esconder IDs</string>
+  <string name="setting_show_anonymous_name">Sempre mostra nomes como \"anônimo\"</string>
+  <string name="setting_buttons_bottom">Botão de resposta em baixo</string>
+  <string name="setting_volume_key_scrolling">Botões de volume para deslizar conteúdo</string>
+  <string name="setting_tap_no_rely">Tocar no número da postagem para responder</string>
+  <string name="setting_open_link_confirmation">Perguntar antes de abrir links</string>
+  <string name="setting_open_link_browser">Sempre abrir links em um navegador externo</string>
   <!-- Behavior proxy group -->
-  <string name="settings_group_proxy">HTTP Proxy</string>
-  <string name="setting_proxy_enabled">Enable proxy</string>
-  <string name="setting_proxy_address">Proxy server address</string>
-  <string name="setting_proxy_port">Proxy server port</string>
+  <string name="settings_group_proxy">Proxy HTTP</string>
+  <string name="setting_proxy_enabled">Habilitar proxy</string>
+  <string name="setting_proxy_address">Endereço do servidor proxy</string>
+  <string name="setting_proxy_port">Porta do servidor proxy</string>
   <!-- Media -->
-  <string name="settings_screen_media">Media</string>
+  <string name="settings_screen_media">Mídia</string>
   <!-- Media general group -->
-  <string name="settings_group_media">Media</string>
-  <string name="setting_save_board_folder">Save images in a board folder</string>
-  <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
-  <string name="setting_save_original_filename">Save original filename</string>
+  <string name="settings_group_media">Mídia</string>
+  <string name="setting_save_board_folder">Salvar imagens em uma pasta específica para cada board</string>
+  <string name="setting_save_board_folder_description">Criar uma pasta específica para imagens de cada board</string>
+  <string name="setting_save_original_filename">Salvar arquivos com seus nomes originais</string>
   <string name="setting_save_original_filename_description">
-\"Save the image with the filename the site assigned.
-If disabled, save the image with the filename the uploader assigned.\"
-    </string>
-  <string name="setting_video_default_muted">Start videos muted</string>
-  <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
-  <string name="setting_video_open_external">Play videos with external player</string>
-  <string name="setting_video_open_external_description">Play videos in an external media player app</string>
-  <string name="setting_share_url">Share URL to image</string>
-  <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
-  <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
+\"Salvar a imagem com o nome dado pelo site. Caso desativado, salvar a imagem como o nome dado pelo postador original.\"    </string>
+  <string name="setting_video_default_muted">Começar vídeos sem som</string>
+  <string name="setting_video_default_muted_description">Se um vídeo tiver áudio, deixá-lo mudo como padrão.</string>
+  <string name="setting_video_open_external">Abrir videos num player externo</string>
+  <string name="setting_video_open_external_description">Abrir videos em um aplicativo externo</string>
+  <string name="setting_share_url">Compartilhar a URL da imagem</string>
+  <string name="setting_share_url_description">Compartilhar o URL da imagem ao invés da imagem em si</string>
+  <string name="settings_reveal_image_spoilers">Mostrar spoiler em imagens</string>
   <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
   <!-- Media loading group -->
   <string name="settings_group_media_loading">Media loading</string>
