@@ -359,37 +359,36 @@ Ative \"Abrir videos em um player externo\" nas configurações para abrir video
   <string name="settings_update_check">Procurar atualizações</string>
   <string name="settings_crash_reporting">Reportar crashes</string>
   <string name="settings_crash_reporting_description">
-\"Crash reporting creates reports of errors in Clover.
-Crash reports do not collect any personally identifiable information.\"
-    </string>
-  <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
-  <string name="settings_about_license">Released under the GNU GPLv3 license</string>
-  <string name="settings_about_license_description">Tap to see license</string>
-  <string name="settings_about_licenses">Open Source Licenses</string>
-  <string name="settings_about_licenses_description">Legal information about licenses</string>
-  <string name="settings_developer">Developer settings</string>
+\"Reportar crashes cria um relatório dos erros no Clover.
+Relatorios de crashes não coletam informações pessoais identificáveis.\"    </string>
+  <string name="settings_crash_reporting_toggle_notice">A configuração será aplicada na próxima vez que o aplicativo for aberto.</string>
+  <string name="settings_about_license">Lançado sob a licença GNU GPLv3</string>
+  <string name="settings_about_license_description">Toque para ver a licença</string>
+  <string name="settings_about_licenses">Licenças de código aberto</string>
+  <string name="settings_about_licenses_description">Informações legais sobre as licenças</string>
+  <string name="settings_developer">Configurações de desenvolvimento</string>
   <!-- Appearance -->
-  <string name="settings_screen_appearance">Appearance</string>
-  <string name="settings_group_appearance">Appearance</string>
-  <string name="setting_theme">Theme</string>
+  <string name="settings_screen_appearance">Aparência</string>
+  <string name="settings_group_appearance">Aparência</string>
+  <string name="setting_theme">Tema</string>
   <!-- Appearance layout group -->
-  <string name="settings_group_layout">Layout</string>
-  <string name="setting_layout_mode">Layout mode</string>
-  <string name="setting_layout_mode_auto">Auto</string>
-  <string name="setting_layout_mode_phone">Phone layout</string>
-  <string name="setting_layout_mode_slide">Slide mode</string>
-  <string name="setting_layout_mode_split">Split mode</string>
-  <string name="setting_board_grid_span_count">Catalog mode column count</string>
-  <string name="setting_board_grid_span_count_default">Auto</string>
-  <string name="setting_board_grid_span_count_item">%1$d columns</string>
-  <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
-  <string name="setting_enable_reply_fab">Enable the reply button</string>
-  <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+  <string name="settings_group_layout">Visualização</string>
+  <string name="setting_layout_mode">Modo de visualização</string>
+  <string name="setting_layout_mode_auto">Automático</string>
+  <string name="setting_layout_mode_phone">Layout do telefone</string>
+  <string name="setting_layout_mode_slide">Modo de slide</string>
+  <string name="setting_layout_mode_split">Modo dividido</string>
+  <string name="setting_board_grid_span_count">Contagem de colunas do modo de catálogo</string>
+  <string name="setting_board_grid_span_count_default">Automático</string>
+  <string name="setting_board_grid_span_count_item">%1$d colunas</string>
+  <string name="setting_never_hide_toolbar">Nunca esconder a barra de ferramentas</string>
+  <string name="setting_enable_reply_fab">Ativar o botão de resposta</string>
+  <string name="setting_enable_reply_fab_description">Desativar substitui o botão circular por um menu de opções</string>
   <!-- Appearance post group -->
-  <string name="settings_group_post">Post</string>
-  <string name="setting_font_size">Font size</string>
-  <string name="setting_font_size_default">(default)</string>
-  <string name="setting_font_condensed">Use condensed font</string>
+  <string name="settings_group_post">Postagem</string>
+  <string name="setting_font_size">Tamanho da letra</string>
+  <string name="setting_font_size_default">(padrão)</string>
+  <string name="setting_font_condensed">Usar fonte condensada</string>
   <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
   <string name="setting_post_full_date">Show the full date on posts</string>
   <string name="setting_post_file_info">Show file info on posts</string>
