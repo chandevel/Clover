@@ -37,36 +37,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="update_install_download_failed">Falha no download</string>
   <string name="update_install_download_move_failed">Falha ao mover o arquivo baixado para a pasta de downloads.</string>
   <string name="update_retry_title">Tente atualizar novamente</string>
-  <string name="update_retry">Clover was not updated yet. Tap \"retry\" to retry the install.</string>
-  <string name="update_retry_button">retry</string>
-  <string name="update_storage_permission_required_title">Storage permission required</string>
+  <string name="update_retry">O Clover não estava atualizado ainda. Toque \"tentar novamente\" para tentar instalar mais uma vez.</string>
+  <string name="update_retry_button">tentar novamente</string>
+  <string name="update_storage_permission_required_title">É necessária permissão de armazenamento.</string>
   <string name="update_storage_permission_required">
-\"Permission to access storage is required for installing the update.
+\"Garantir permissão para acessar o armazenamento é necessário para intalar a atualização.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+Ative essa permissão novamente nas configurações do aplicativo caso tenha desativado-as permanentemente.\"</string>
   <plurals name="minutes">
-    <item quantity="one">%d minute</item>
-    <item quantity="other">%d minutes</item>
+    <item quantity="one">%d minuto</item>
+    <item quantity="other">%d minutos</item>
   </plurals>
   <plurals name="posts">
-    <item quantity="one">%d post</item>
-    <item quantity="other">%d posts</item>
+    <item quantity="one">%d postagem</item>
+    <item quantity="other">%d postagens</item>
   </plurals>
   <plurals name="reply">
-    <item quantity="one">%d reply</item>
-    <item quantity="other">%d replies</item>
+    <item quantity="one">%d resposta</item>
+    <item quantity="other">%d respostas</item>
   </plurals>
   <plurals name="image">
-    <item quantity="one">%d image</item>
-    <item quantity="other">%d images</item>
+    <item quantity="one">%d imagem</item>
+    <item quantity="other">%d imagens</item>
   </plurals>
   <plurals name="board">
     <item quantity="one">%d board</item>
     <item quantity="other">%d boards</item>
   </plurals>
   <plurals name="type">
-    <item quantity="one">%d type</item>
-    <item quantity="other">%d types</item>
+    <item quantity="one">%d tipo</item>
+    <item quantity="other">%d tipos</item>
   </plurals>
   <plurals name="bookmark">
     <item quantity="one">%d bookmark</item>
