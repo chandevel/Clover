@@ -161,29 +161,29 @@ Ative essa permissão novamente nas configurações do aplicativo caso tenha des
   <string name="setup_board_title">Configurar boards do %s</string>
   <string name="setup_board_empty">Nenhuma board adicionada</string>
   <string name="setup_board_removed">\"%s\" removido</string>
-  <string name="setup_board_added">%s added</string>
-  <string name="setup_board_select_all">Select all</string>
-  <string name="filter_summary_all_boards">All boards</string>
-  <string name="filter_enabled">Enabled</string>
-  <string name="filter_filter">Filter</string>
-  <string name="filter_action">Action</string>
-  <string name="filter_pattern">Pattern</string>
-  <string name="filter_match_test">Test the pattern</string>
-  <string name="filter_pattern_hint_regex">Pattern</string>
+  <string name="setup_board_added">%s adicionado</string>
+  <string name="setup_board_select_all">Selecionar todas</string>
+  <string name="filter_summary_all_boards">Todas as boards</string>
+  <string name="filter_enabled">Ativado</string>
+  <string name="filter_filter">Filtro</string>
+  <string name="filter_action">Ação</string>
+  <string name="filter_pattern">Padrão</string>
+  <string name="filter_match_test">Testar o padrão</string>
+  <string name="filter_pattern_hint_regex">Padrão</string>
   <string name="filter_boards">Boards</string>
-  <string name="filter_types">Types</string>
-  <string name="filter_type_string_matching">String matching</string>
-  <string name="filter_type_regex_matching">Regex matching</string>
-  <string name="filter_all">all</string>
-  <string name="filter_hide">Hide post</string>
-  <string name="filter_color">Highlight post</string>
-  <string name="filter_remove">Remove post</string>
-  <string name="filter_invalid_pattern">Invalid pattern</string>
-  <string name="filter_preview">Test your filter</string>
-  <string name="filter_no_matches">Does not match</string>
-  <string name="filter_matches">Matches</string>
-  <string name="filter_color_pick">Pick color</string>
-  <string name="filter_help_title">Filter help</string>
+  <string name="filter_types">Tipos</string>
+  <string name="filter_type_string_matching">Correspondência por linha</string>
+  <string name="filter_type_regex_matching">Correspondência por Regex</string>
+  <string name="filter_all">todos</string>
+  <string name="filter_hide">Esconder postagem</string>
+  <string name="filter_color">Destacar postagem</string>
+  <string name="filter_remove">Remover postagem</string>
+  <string name="filter_invalid_pattern">Padrão inválido</string>
+  <string name="filter_preview">Teste seu filtro</string>
+  <string name="filter_no_matches">Não equivale</string>
+  <string name="filter_matches">Equivale</string>
+  <string name="filter_color_pick">Escolher cor</string>
+  <string name="filter_help_title">Ajuda do filtro</string>
   <string name="filter_help">
 <![CDATA[
 Filters act on a given pattern and a place to search the pattern.<br>
@@ -210,21 +210,21 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 ]]>
     </string>
   <string name="filter_tripcode">Tripcode</string>
-  <string name="filter_name">Name</string>
-  <string name="filter_comment">Comment</string>
+  <string name="filter_name">Nome</string>
+  <string name="filter_comment">Comentário</string>
   <string name="filter_id">ID</string>
-  <string name="filter_subject">Subject</string>
-  <string name="filter_filename">Filename</string>
-  <string name="board_select_all">Select all</string>
-  <string name="board_select_none">Select none</string>
-  <string name="history_clear">Clear history</string>
-  <string name="history_clear_confirm">Clear history?</string>
-  <string name="history_clear_confirm_button">Clear</string>
-  <string name="history_toggle_hint">Enable or disable history</string>
-  <string name="history_empty_info">No history</string>
-  <string name="saved_reply_clear">Clear posting history</string>
-  <string name="saved_reply_clear_confirm">Clear posting history?</string>
-  <string name="saved_reply_clear_confirm_button">Clear</string>
+  <string name="filter_subject">Assunto</string>
+  <string name="filter_filename">Nome do arquivo</string>
+  <string name="board_select_all">Selecionar todas</string>
+  <string name="board_select_none">Selecionar nenhuma</string>
+  <string name="history_clear">Limpar histórico</string>
+  <string name="history_clear_confirm">Limpar histórico?</string>
+  <string name="history_clear_confirm_button">Limpar</string>
+  <string name="history_toggle_hint">Ativar ou desativar histórico</string>
+  <string name="history_empty_info">Sem histórico</string>
+  <string name="saved_reply_clear">Limpar histórico de postagem</string>
+  <string name="saved_reply_clear_confirm">Limpar histórico de postagem?</string>
+  <string name="saved_reply_clear_confirm_button">Limpar</string>
   <string name="archive_title">Arquivo %s</string>
   <string name="archive_error">Erro ao carregar arquivo</string>
   <string name="drawer_pinned">Threads favoritadas</string>
@@ -348,7 +348,7 @@ Ative \"Abrir videos em um player externo\" nas configurações para abrir video
     <item>None</item>
     <item>White</item>
     <item>Red</item>
-    <item>Yellow</item>
+    <item>Amarelo</item>
     <item>Verde</item>
     <item>Ciano</item>
     <item>Azul</item>
@@ -410,8 +410,8 @@ Relatorios de crashes não coletam informações pessoais identificáveis.\"    
   <string name="setting_text_only">Modo de texto</string>
   <string name="setting_text_only_description">Esconder imagens quando em visualização de board ou thread</string>
   <string name="settings_reveal_text_spoilers">Mostrar spoiler em textos</string>
-  <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
-  <string name="setting_anonymize">Make everyone Anonymous</string>
+  <string name="settings_reveal_text_spoilers_description">Fazer com que o texto de spoiler pareça precionado</string>
+  <string name="setting_anonymize">Tornar todos anônimos</string>
   <string name="setting_anonymize_ids">Hide IDs</string>
   <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
   <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
