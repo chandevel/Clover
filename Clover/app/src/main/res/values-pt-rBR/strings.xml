@@ -69,35 +69,35 @@ Ative essa permissão novamente nas configurações do aplicativo caso tenha des
     <item quantity="other">%d tipos</item>
   </plurals>
   <plurals name="bookmark">
-    <item quantity="one">%d bookmark</item>
-    <item quantity="other">%d bookmarks</item>
+    <item quantity="one">%d favorito</item>
+    <item quantity="other">%d favoritos</item>
   </plurals>
   <plurals name="filter">
-    <item quantity="one">%d filter</item>
-    <item quantity="other">%d filters</item>
+    <item quantity="one">%d filtro</item>
+    <item quantity="other">%d filtros</item>
   </plurals>
   <plurals name="site">
     <item quantity="one">%d site</item>
     <item quantity="other">%d sites</item>
   </plurals>
   <string name="card_stats">%1$dR %2$dI</string>
-  <string name="action_reload">Reload</string>
-  <string name="action_pin">Bookmark</string>
-  <string name="action_open_browser">Open in a browser</string>
-  <string name="action_share">Share</string>
-  <string name="action_download_album">Download album</string>
-  <string name="action_search">Search</string>
-  <string name="action_search_image">Image search</string>
-  <string name="action_switch_catalog">Catalog mode</string>
-  <string name="action_switch_board">Board mode</string>
-  <string name="action_scroll_to_top">Top</string>
-  <string name="action_scroll_to_bottom">Bottom</string>
-  <string name="action_sort">Sort</string>
-  <string name="action_rename_pin">Rename bookmark</string>
-  <string name="action_rename">Rename</string>
-  <string name="action_reply">Reply</string>
-  <string name="open_link_not_matched">Clover cannot open this link; it will open in your browser instead.</string>
-  <string name="order_bump">Bump order</string>
+  <string name="action_reload">Atualizar</string>
+  <string name="action_pin">Favorito</string>
+  <string name="action_open_browser">Abrir no navegador</string>
+  <string name="action_share">Compartilhar</string>
+  <string name="action_download_album">Baixar álbum</string>
+  <string name="action_search">Procurar</string>
+  <string name="action_search_image">Pesquisar por imagem</string>
+  <string name="action_switch_catalog">Modo catálogo</string>
+  <string name="action_switch_board">Modo board</string>
+  <string name="action_scroll_to_top">Início</string>
+  <string name="action_scroll_to_bottom">Final</string>
+  <string name="action_sort">Ordenar</string>
+  <string name="action_rename_pin">Renomear favorito</string>
+  <string name="action_rename">Renomear</string>
+  <string name="action_reply">Responder</string>
+  <string name="open_link_not_matched">O Clover não conseguiu abrir esse link e tentará abrí-lo em seu navegador.</string>
+  <string name="order_bump">Ordem por bump</string>
   <string name="order_reply">Reply count</string>
   <string name="order_image">Image count</string>
   <string name="order_newest">Newest</string>
