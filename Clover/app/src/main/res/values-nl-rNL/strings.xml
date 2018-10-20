@@ -418,6 +418,7 @@ Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"    <
   <string name="setting_volume_key_scrolling">Volumetoetsen scrollen inhoud</string>
   <string name="setting_tap_no_rely">Tik op het postnummer om te reageren</string>
   <string name="setting_open_link_confirmation">Vragen voor het openen van links</string>
+  <string name="setting_open_link_browser">Always open links in external browser</string>
   <!-- Behavior proxy group -->
   <string name="settings_group_proxy">HTTP-Proxy</string>
   <string name="setting_proxy_enabled">Proxy aanzetten</string>

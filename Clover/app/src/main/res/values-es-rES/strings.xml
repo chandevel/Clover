@@ -416,6 +416,7 @@ Los reportes de crash no recolectan información personal.\"    </string>
   <string name="setting_volume_key_scrolling">Usar teclas de volumen para ver contenido</string>
   <string name="setting_tap_no_rely">Tocar número de post para responder</string>
   <string name="setting_open_link_confirmation">Preguntar antes de abrir enlaces</string>
+  <string name="setting_open_link_browser">Siempre abrir enlaces en el navegador interno</string>
   <!-- Behavior proxy group -->
   <string name="settings_group_proxy">Proxy HTTP</string>
   <string name="setting_proxy_enabled">Activar proxy</string>
@@ -446,8 +447,8 @@ Si esta deshabilitado, guardar imágen con el nombre de archivo original de la s
   <string name="setting_image_auto_load_wifi">Solo conexión Wi-Fi</string>
   <string name="setting_image_auto_load_none">Nunca</string>
   <string name="setting_video_auto_load">Automáticamente cargar videos</string>
-  <string name="setting_video_auto_loop">Enable automatic video-looping</string>
-  <string name="setting_video_auto_loop_description">Automatically loop video content</string>
+  <string name="setting_video_auto_loop">Activar loop de video automático</string>
+  <string name="setting_video_auto_loop_description">Automaticamente hacer loop del video</string>
   <!-- Save location settings -->
   <string name="save_location_screen">Ubicación de guardado</string>
   <string name="save_location_storage_permission_required_title">Permiso de almacenamiento requerido</string>

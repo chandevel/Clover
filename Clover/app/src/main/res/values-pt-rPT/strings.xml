@@ -421,6 +421,7 @@ Crash reports do not collect any personally identifiable information.\"
   <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
   <string name="setting_tap_no_rely">Tap the post number to reply</string>
   <string name="setting_open_link_confirmation">Ask before opening links</string>
+  <string name="setting_open_link_browser">Always open links in external browser</string>
   <!-- Behavior proxy group -->
   <string name="settings_group_proxy">HTTP Proxy</string>
   <string name="setting_proxy_enabled">Enable proxy</string>
