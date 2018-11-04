@@ -138,7 +138,7 @@ public class MainSettingsController extends SettingsController implements Settin
                             new AppearanceSettingsController(context))));
 
             general.add(new LinkSettingView(this,
-                    R.string.settings_behaviour, R.string.settings_behaviour_description,
+                    R.string.settings_behavior, R.string.settings_behavior_description,
                     v -> navigationController.pushController(
                             new BehaviourSettingsController(context))));
 

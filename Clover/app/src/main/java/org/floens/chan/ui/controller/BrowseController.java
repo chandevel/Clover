@@ -135,7 +135,7 @@ public class BrowseController extends ThreadController implements
 
         overflowBuilder
                 .withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
-                .withSubItem(R.string.action_order, this::orderClicked)
+                .withSubItem(R.string.action_sort, this::orderClicked)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .build()
@@ -196,7 +196,7 @@ public class BrowseController extends ThreadController implements
     }
 
     private void orderClicked(ToolbarMenuSubItem item) {
-        handleOrder(threadLayout.getPresenter());
+        handleSorting(threadLayout.getPresenter());
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
@@ -270,7 +270,7 @@ public class BrowseController extends ThreadController implements
         threadLayout.setPostViewMode(postViewMode);
     }
 
-    private void handleOrder(final ThreadPresenter presenter) {
+    private void handleSorting(final ThreadPresenter presenter) {
         List<FloatingMenuItem> items = new ArrayList<>();
         for (PostsFilter.Order order : PostsFilter.Order.values()) {
             int nameId = 0;

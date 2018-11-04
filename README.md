@@ -19,7 +19,7 @@ For first-time contributors, the issues with the label [good first issue](https:
 
 See the [Clover setup guide](https://github.com/Floens/Clover/wiki/Building-Clover) for a guide on building Clover.  
 
-We have a spacial guide for [making new themes](https://github.com/Floens/Clover/wiki/Adding-a-new-theme)  
+We have a special guide for [making new themes.](https://github.com/Floens/Clover/wiki/Adding-a-new-theme)
 
 
 ## Translations

@@ -391,7 +391,8 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         if (query != null) {
             int size = postAdapter.getDisplayList().size();
             searchStatus.setText(getContext().getString(R.string.search_results,
-                    size, getContext().getResources().getQuantityString(R.plurals.posts, size, size), query));
+                    getContext().getResources().getQuantityString(R.plurals.posts, size, size),
+                    query));
         }
     }
 

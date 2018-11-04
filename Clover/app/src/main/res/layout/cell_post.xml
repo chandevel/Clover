@@ -84,6 +84,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             app:textColor="?attr/text_color_secondary" />
 
         <View
+            android:id="@+id/replies_additional_area"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/replies"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/replies"
+            android:layout_toRightOf="@id/replies" />
+
+        <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"

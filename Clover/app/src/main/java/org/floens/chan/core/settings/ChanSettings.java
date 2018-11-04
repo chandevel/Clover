@@ -95,6 +95,7 @@ public class ChanSettings {
     public static final StringSetting fontSize;
     public static final BooleanSetting fontCondensed;
     public static final BooleanSetting openLinkConfirmation;
+    public static final BooleanSetting openLinkBrowser;
     public static final BooleanSetting autoRefreshThread;
     //    public static final BooleanSetting imageAutoLoad;
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
@@ -108,7 +109,6 @@ public class ChanSettings {
 
     public static final StringSetting postDefaultName;
     public static final BooleanSetting postPinThread;
-    public static final BooleanSetting postNewCaptcha;
 
     public static final BooleanSetting developer;
 
@@ -132,6 +132,7 @@ public class ChanSettings {
     public static final BooleanSetting controllerSwipeable;
     public static final BooleanSetting saveBoardFolder;
     public static final BooleanSetting videoDefaultMuted;
+    public static final BooleanSetting videoAutoLoop;
 
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
@@ -170,6 +171,7 @@ public class ChanSettings {
         fontSize = new StringSetting(p, "preference_font", tablet ? "16" : "14");
         fontCondensed = new BooleanSetting(p, "preference_font_condensed", false);
         openLinkConfirmation = new BooleanSetting(p, "preference_open_link_confirmation", false);
+        openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
         autoRefreshThread = new BooleanSetting(p, "preference_auto_refresh_thread", true);
 //        imageAutoLoad = new BooleanSetting(p, "preference_image_auto_load", true);
         imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
@@ -183,7 +185,6 @@ public class ChanSettings {
 
         postDefaultName = new StringSetting(p, "preference_default_name", "");
         postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
-        postNewCaptcha = new BooleanSetting(p, "preference_new_captcha", true);
 
         developer = new BooleanSetting(p, "preference_developer", false);
 
@@ -209,6 +210,7 @@ public class ChanSettings {
         controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
         saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
+        videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
 
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
         watchEnabled.addCallback((setting, value) ->

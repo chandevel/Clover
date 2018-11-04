@@ -45,7 +45,7 @@ public class BehaviourSettingsController extends SettingsController {
     public void onCreate() {
         super.onCreate();
 
-        navigation.setTitle(R.string.settings_screen_behaviour);
+        navigation.setTitle(R.string.settings_screen_behavior);
 
         setupLayout();
 
@@ -78,11 +78,6 @@ public class BehaviourSettingsController extends SettingsController {
         // Reply group
         {
             SettingsGroup reply = new SettingsGroup(R.string.settings_group_reply);
-
-            reply.add(new BooleanSettingView(this,
-                    ChanSettings.postNewCaptcha,
-                    R.string.setting_use_new_captcha,
-                    R.string.setting_use_new_captcha_description));
 
             reply.add(new BooleanSettingView(this, ChanSettings.postPinThread,
                     R.string.setting_post_pin, 0));
@@ -133,6 +128,9 @@ public class BehaviourSettingsController extends SettingsController {
             post.add(new BooleanSettingView(this,
                     ChanSettings.openLinkConfirmation,
                     R.string.setting_open_link_confirmation, 0));
+            post.add(new BooleanSettingView(this,
+                    ChanSettings.openLinkBrowser,
+                    R.string.setting_open_link_browser, 0));
 
             groups.add(post);
         }

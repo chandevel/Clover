@@ -88,8 +88,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_reload, this::reloadClicked)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
-                .withSubItem(R.string.action_up, this::upClicked)
-                .withSubItem(R.string.action_down, this::downClicked)
+                .withSubItem(R.string.action_scroll_to_top, this::upClicked)
+                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
                 .build()
                 .build();
 
