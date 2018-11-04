@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Clover - 4chan browser https://github.com/Floens/Clover/
+Copyright (C) 2014  Floens
+Kopirett (C) 2017 Allan Nordhøy
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+    <string name="cancel">Avbryt</string>
+    <string name="add">Legg til</string>
+    <string name="close">Lukk</string>
+    <string name="back">Tilbake</string>
+    <string name="up">Opp</string>
+    <string name="ok">OK</string>
+    <string name="exit">Avslutt</string>
+    <string name="delete">Slett</string>
+    <string name="undo">Angre</string>
+    <string name="save">Lagre</string>
+
+    <string name="permission_app_settings">Programinnstillinger</string>
+    <string name="permission_grant">Innvilg</string>
+
+    <string name="update_later">Senere</string>
+    <string name="update_none">Clover er oppdatert</string>
+    <string name="update_check_failed">Klarte ikke å se etter oppdateringer.</string>
+    <string name="update_install">Installer</string>
+    <string name="update_install_downloading">Laster ned oppdatering</string>
+    <string name="update_install_download_failed">Nedlasting mislyktes</string>
+    <string name="update_install_download_move_failed">Klarte ikke å flytte nedlastet fil til nedlastingsmappe.</string>
+    <string name="update_retry_title">Gjenta oppdatering</string>
+    <string name="update_retry">Clover har ikke blitt oppdatert enda. Klikk "Gjenta oppdatering" for å forsøke igjen.</string>
+    <string name="update_retry_button">prøv igjen</string>
+
+    <string name="update_storage_permission_required_title">Lagringstilgang kreves</string>
+    <string name="update_storage_permission_required">
+"Tilgang til lagringsmedium kreves for å installere denne oppdateringen.
+
+Tildel denne tilgangen i programinnstillingene igjen hvis du har tilbakekalt den."</string>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minutt</item>
+        <item quantity="other">%d minutter</item>
+    </plurals>
+
+    <plurals name="posts">
+        <item quantity="one">%d post</item>
+        <item quantity="other">%d poster</item>
+    </plurals>
+
+    <plurals name="reply">
+        <item quantity="one">%d svar</item>
+        <item quantity="other">%d svar</item>
+    </plurals>
+
+    <plurals name="image">
+        <item quantity="one">%d bilde</item>
+        <item quantity="other">%d bilder</item>
+    </plurals>
+
+    <plurals name="board">
+        <item quantity="one">%d oppslagstavle</item>
+        <item quantity="other">%d oppslagstavler</item>
+    </plurals>
+
+    <plurals name="type">
+        <item quantity="one">%d type</item>
+        <item quantity="other">%d typer</item>
+    </plurals>
+
+    <plurals name="bookmark">
+        <item quantity="one">%d bokmerke</item>
+        <item quantity="other">%d bokmerker</item>
+    </plurals>
+    
+    <plurals name="filter">
+        <item quantity="one">%d filter</item>
+        <item quantity="other">%d filtre</item>
+    </plurals>
+
+    <plurals name="site">
+        <item quantity="one">%d side</item>
+        <item quantity="other">%d sider</item>
+    </plurals>
+    
+    <string name="card_stats">%1$dR %2$dI</string>
+
+    <string name="action_reload">Last inn på nytt</string>
+    <string name="action_pin">Bokmerk</string>
+    <string name="action_open_browser">Åpne i nettleser</string>
+    <string name="action_share">Del</string>
+    <string name="action_download_album">Last ned album</string>
+    <string name="action_search">Søk</string>
+    <string name="action_search_image">Bildesøk</string>
+    <string name="action_switch_catalog">Katalogmodus</string>
+    <string name="action_switch_board">Oppslagstavlemodus</string>
+    <string name="action_up">Øverst</string>
+    <string name="action_down">Nederst</string>
+    <string name="action_order">Rekkefølge</string>
+    <string name="action_rename_pin">Gi bokmerke nytt navn</string>
+    <string name="action_rename">Gi nytt navn</string>
+    <string name="action_reply">Svar</string>
+
+    <string name="open_link_not_matched">Clover kan ikke åpne denne lenken, åpner i nettleser.</string>
+
+    <string name="order_bump">Oppdater rekkefølge</string>
+    <string name="order_reply">Antall svar</string>
+    <string name="order_image">Bildeantall</string>
+    <string name="order_newest">Nyeste</string>
+    <string name="order_oldest">Eldste</string>
+
+    <string name="search_hint">Søk</string>
+    <string name="search_results">Fant %1$d %2$s for \"%3$s\"</string>
+    <string name="search_empty">Søk i emner, kommentarer, navn og filnavn.</string>
+
+    <string name="open_link_confirmation">Åpne lenke?</string>
+    <string name="open_thread_confirmation">Åpne denne tråden?</string>
+    <string name="open_link_failed">Fant ingen programmer til åpning av denne lenken</string>
+    
+    <string name="action_confirm_exit_title">Bekreft avslutting</string>
+
+    <string name="thumbnail_load_failed_network">Feil</string>
+    <string name="thumbnail_load_failed_server">404</string>
+    <string name="image_preview_failed">Klarte ikke å vise bilde</string>
+    <string name="image_preview_failed_oom">Klarte ikke å vise bilde, slapp opp for minne</string>
+    <string name="image_failed_big_image">Forstørret innlasting mislyktes</string>
+    <string name="image_not_found">Fant ikke bildet</string>
+    <string name="image_open_failed">Klarte ikke å åpne bildet</string>
+    <string name="image_spoiler_filename">Tilsløret bilde</string>
+
+    <string name="thread_boards_search_hint">Søk</string>
+    <string name="thread_load_failed_ssl">HTTPS-feil</string>
+    <string name="thread_load_failed_network">Nettverksfeil</string>
+    <string name="thread_load_failed_parsing">API-tolkningsfeil</string>
+    <string name="thread_load_failed_server">Tjenerfeil</string>
+    <string name="thread_load_failed_not_found">404 ikke funnet</string>
+    <string name="thread_refresh_bar_inactive">Trykk for å gjenoppfriske</string>
+    <string name="thread_refresh_now">Laster</string>
+    <string name="thread_refresh_countdown">Laster inn %1$d</string>
+    <string name="thread_load_failed_retry">Prøv igjen</string>
+    <string name="thread_archived">Arkivert</string>
+    <string name="thread_closed">Lukket</string>
+    <plurals name="thread_new_posts">
+        <item quantity="one">%d ny post</item>
+        <item quantity="other">%d nye poster</item>
+    </plurals>
+    <string name="thread_new_posts_goto">Vis</string>
+    <string name="thread_empty_select">Velg en tråd</string>
+    <string name="thread_up_down_hint">Rull til topp/bunn</string>
+    <string name="thread_pin_hint">Bokmerk denne tråden</string>
+    <string name="thread_view_archive">Arkiver</string>
+
+    <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
+    <string name="thread_empty_setup_title">Ingenting å vise</string>
+    <string name="thread_empty_setup_body">Legg til side for å begynne surfing</string>
+    <string name="thread_empty_setup_hint">Legg til side her</string>
+
+    <string name="setup_sites_title">Sett opp sider</string>
+    <string name="setup_sites_empty">Ingen sider lagt til</string>
+    <string name="setup_sites_add_hint">Legg til en side her</string>
+    <string name="setup_sites_add_title">Legg til side</string>
+    <string name="setup_sites_description">Legg til en side ved dens nettadresse eller navn</string>
+    <string name="setup_sites_url">Nettadresse eller navn</string>
+    <string name="setup_sites_url_hint">http://eksempel.no</string>
+    <string name="setup_sites_site_description">%s lagt til</string>
+    <string name="setup_sites_add_boards_hint">Trykk for å legge til oppslagstavler</string>
+
+    <string name="setup_site_title">Sett opp %s</string>
+    <string name="setup_site_group_general">Generelt</string>
+    <string name="setup_site_boards">Sett opp oppslagstavler</string>
+    <string name="setup_site_boards_description">%s lagt til</string>
+
+    <string name="setup_site_group_login">Identitetsbekreftelse</string>
+    <string name="setup_site_login">Logg inn</string>
+    <string name="setup_site_login_description_enabled">Innlogget</string>
+    <string name="setup_site_login_description_disabled">Av</string>
+
+    <string name="setup_board_title">Sett opp oppslagstavler for %s</string>
+    <string name="setup_board_empty">Ingen oppslagstavler lagt til</string>
+    <string name="setup_board_removed">Fjernet \"%s\"</string>
+    <string name="setup_board_added">%s lagt til</string>
+    <string name="setup_board_select_all">Velg alle</string>
+
+    <string name="filter_summary_all_boards">Alle oppslagstavler</string>
+    <string name="filter_enabled">Påskrudd</string>
+    <string name="filter_filter">Filtrer</string>
+    <string name="filter_action">Handling</string>
+    <string name="filter_pattern">Mønster</string>
+    <string name="filter_match_test">Test mønster</string>
+    <string name="filter_pattern_hint_regex">Mønster</string>
+    <string name="filter_boards">Oppslagstavler</string>
+    <string name="filter_types">Typer</string>
+    <string name="filter_type_string_matching">Overensstemmelsessjekk av strenger</string>
+    <string name="filter_type_regex_matching">Overensstemmelsessjekk med regulære uttrykk</string>
+    <string name="filter_all">alle</string>
+    <string name="filter_hide">Skjul post</string>
+    <string name="filter_color">Framhev post</string>
+    <string name="filter_remove">Fjern post</string>
+    <string name="filter_invalid_pattern">Ugyldig mønster</string>
+    <string name="filter_preview">Test filteret ditt</string>
+    <string name="filter_no_matches">Samsvarer ikke</string>
+    <string name="filter_matches">Samsvarer</string>
+    <string name="filter_color_pick">Velg farge</string>
+    <string name="filter_help_title">Filterhjelp</string>
+    <string name="filter_help">
+        <![CDATA[
+        Filter har innvirkning på et gitt mønster og sted for å søke i mønsteret.<br>
+        Hvis mønsteret samsvarer kan posten skjules eller fremheves.<br>
+        <h4>For navnekoder, navn og ID-er:</h4>
+        <p>
+            Det vil samsvare eksakt med oppgitt mønster.<br>
+            <tt>!Ep8pui8Vw2</tt> vil samsvare med navnekoden <i>!Ep8pui8Vw2</i>, men ikke <i>Ep8pu</i>.
+        </p>
+        <h4>For kommentarer, emner og filnavn:</h4>
+        <p>
+            Disse filterne baserer seg på mønster, og har tre modi:<br>
+            <br>
+            1. Mønsteret <tt>foo bar</tt> samsvarer med tekst som ethvert av ordene i seg. Det vil stemme overens med <i>foo</i> eller <i>bar</i>, men ikke <i>foobar</i>.
+            Å skrive * tillater joker-tegn: <tt>f*o</tt> vil samsvare med både <i>foo</i>, <i>foooo</i>, men ikke  <i>foobar</i><br>
+            <br>
+            2. Sitering av mønster med <tt>\"</tt> ala <tt>\"foo bar\"</tt> vil samsvare med hele teksten bare slik den er skrevet.
+            <i>foo bar</i> samsvarer, men <i>foo</i> gjør det ikke.<br>
+            <br>
+            3. Regulære uttrykk. <tt>/^>antyder/</tt> for eksempel.
+        </p>
+        ]]>
+    </string>
+
+    <string name="filter_tripcode">Trippnavnekode</string>
+    <string name="filter_name">Navn</string>
+    <string name="filter_comment">Kommentar</string>
+    <string name="filter_id">ID</string>
+    <string name="filter_subject">Emne</string>
+    <string name="filter_filename">Filnavn</string>
+
+    <string name="board_select_all">Velg alt</string>
+    <string name="board_select_none">Velg ingenting</string>
+
+    <string name="history_clear">Tøm historikk</string>
+    <string name="history_clear_confirm">Tøm historikk?</string>
+    <string name="history_clear_confirm_button">Tøm</string>
+    <string name="history_toggle_hint">Skru på eller av historikk</string>
+    <string name="history_empty_info">Ingen historikk</string>
+
+    <string name="saved_reply_clear">Tøm postinnsendelseshistorikk</string>
+    <string name="saved_reply_clear_confirm">Tøm postinnsendelseshistorikk?</string>
+    <string name="saved_reply_clear_confirm_button">Tøm</string>
+    
+    <string name="archive_title">%s arkiv</string>
+    <string name="archive_error">Kunne ikke laste inn arkiv</string>
+
+    <string name="drawer_pinned">Bokmerkede tråder</string>
+    <string name="drawer_pin_removed">Fjernet \"%1$s\"</string>
+    <string name="drawer_pins_cleared">%1$s tømt</string>
+    <string name="drawer_pins_non_cleared">Ingen bokmerker ble fjernet.</string>
+    <string name="drawer_pins_non_cleared_try_all">Ingen bokmerker ble fjernet. Hold for å fjerne alle.</string>
+
+    <string name="post_highlight_id">Framhev ID</string>
+    <string name="post_highlight_tripcode">Framhev trippnavnekode</string>
+    <string name="post_filter_tripcode">Filtrer trippnavnekode</string>
+    <string name="post_text_copied">Tekst kopiert til utklippstavle</string>
+    <string name="post_quote">Siter</string>
+    <string name="post_quote_text">Siter tekst</string>
+    <string name="post_info">Info</string>
+    <string name="post_info_title">Post-info</string>
+    <string name="post_show_links">Vis lenker</string>
+    <string name="post_share">Del</string>
+    <string name="post_copy_text">Kopier tekst</string>
+    <string name="post_report">Rapporter</string>
+    <string name="post_hide">Skjul</string>
+    <string name="post_hidden">Tråd skjult</string>
+    <string name="post_delete">Slett</string>
+    <string name="post_more">More…</string>
+
+    <string name="reply_name">Navn</string>
+    <string name="reply_options">Valg</string>
+    <string name="reply_subject">Emne</string>
+    <string name="reply_comment_thread">Kommenter svar</string>
+    <string name="reply_comment_board">Kommenter ny tråd</string>
+    <string name="reply_file_name">Filnavn</string>
+    <string name="reply_file_too_big">Advarsel: Filstørrelsen er for stor (%1$s / %2$s)</string>
+    <string name="reply_webm_too_big">Advarsel: WebM overksred størrelsesavgrensning (%1$s / %2$s)</string>
+    <string name="reply_file_open_failed">Klarte ikke å åpne fil</string>
+    <string name="reply_spoiler_image">Tilsløret bilde</string>
+    <string name="reply_no_preview">Ingen forhåndsvisning</string>
+    <string name="reply_submit">Send inn</string>
+    <string name="reply_error">Feil ved postinnsendelse</string>
+    <string name="reply_success">Post innsendt</string>
+    <string name="reply_captcha_text">Skriv inn teksten</string>
+    <string name="reply_comment_button_quote" translatable="false">&gt;</string>
+    <string name="reply_comment_button_spoiler">[s]</string>
+    
+
+    <string name="delete_confirm">Slett posten din?</string>
+    <string name="delete_wait">Sletter post&#8230;</string>
+    <string name="delete_success">Post slettet</string>
+    <string name="delete_image_only">Kun slett bildet</string>
+    <string name="delete_error">Feil ved sletting av post</string>
+
+    <string name="video_playback_warning_title">WebM-videofeil</string>
+    <string name="video_playback_warning">Klarte ikke å spille av WebM-video. Dette kan ha sitt opphav i maskinvaren på enheten din.\n\nDu kan installere en ekstern avspiller 
+som har en programvare 
+dekoder og skru på 
+\"Åpne videoer eksternt\" i innstillingene slik at videoen åpnes i det programmet i steden for.</string>
+    <string name="video_playback_ignore">Ikke vis igjen</string>
+
+    <string name="watch_pause_pins">Stopp oppsyn</string>
+    <string name="watch_idle">Ingen nye poster</string>
+
+    <plurals name="watch_title">
+        <item quantity="one">Har oppsyn med én tråd</item>
+        <item quantity="other">Har oppsyn med %d tråder</item>
+    </plurals>
+
+    <plurals name="watch_new">
+        <item quantity="one">%d ny post</item>
+        <item quantity="other">%d nye poster</item>
+    </plurals>
+
+    <plurals name="watch_new_quotes">
+        <item quantity="one">%d ny post siterer deg</item>
+        <item quantity="other">%d nye poster siterer deg</item>
+    </plurals>
+
+    <plurals name="watch_new_quoting">
+        <item quantity="one">%1$d ny post, %2$d siterer deg</item>
+        <item quantity="other">%1$d nye poster, %2$d siterer deg</item>
+    </plurals>
+
+    <string name="history_screen">Historikk</string>
+
+    <string name="filters_screen">Filter</string>
+
+    <string name="album_download_screen">Velg bilder (%1$d / %2$d)</string>
+    <string name="album_download_none_checked">Velg bilder for nedlasting</string>
+    <string name="album_download_confirm">%1$s vil bli lastet ned til mappa %2$s</string>
+
+    <string name="report_screen">Rapporter %1$s</string>
+
+    <string name="image_save_notification_downloading">Laster ned bilder</string>
+    <string name="image_save_notification_cancel">Trykk for å avbryte</string>
+    <string name="image_save_saved">Bilde lagret</string>
+    <string name="image_save_as">Lagret som \"%1$s\"</string>
+    <string name="image_save_failed">Lagring av bilde mislyktes</string>
+    
+    <string name="drawer_sites">Sett opp sider</string>
+    <string name="drawer_history">Historikk</string>
+    
+    <!-- Hovedinnstillinger -->
+    <string name="settings_screen">Innstillinger</string>
+
+    <!-- Hoved "Innstillinger" gruppe -->
+    <string name="settings_screen">Innstillinger</string>
+    <string name="settings_watch">Trådoppsyn</string>
+    <string name="settings_appearance">Utseende</string>
+    <string name="settings_appearance_description">Drakt, oppsett, skrifter, osv.</string>
+    <string name="settings_behavior">Oppførsel</string>
+    <string name="settings_behavior_description">Tråd, gjenoppfrisking, CAPTCHA, osv.</string>
+    <string name="settings_media">Media</string>
+    <string name="settings_media_description">Lagring av plassering, automatisk innlasting, osv.</string>
+    <string name="settings_filters">Filtre</string>
+ 
+    <!-- Trådoppsyn -->
+    <string name="setting_watch_summary_enabled">Holder oppsun med bokmerkede tråder</string>
+    <string name="setting_watch_summary_disabled">Av</string>
+
+    <string name="settings_screen_watch">Oppsynsinnstillinger</string>
+    <string name="settings_group_watch">Innstillinger</string>
+    <string name="setting_watch_info">For å vise festinger av nye poster, skru trådoppsyn på.</string>
+    <string name="setting_watch_enable_background">Skru på i bakgrunnen</string>
+    <string name="setting_watch_enable_background_description">Hold oppsyn med festede ting når Clover kjører i bakgrunnen</string>
+    <string name="setting_watch_background_timeout">Intervall for bakgrunnsoppdatering</string>
+    <string name="setting_watch_background_timeout_description">Tiden mellom hver oppdatering når programmet kjører i bakgrunnen</string>
+    <string name="setting_watch_notify_mode">Send merknad om</string>
+    <string-array name="setting_watch_notify_modes">
+        <item>Alle poster</item>
+        <item>Kun poster som siterer deg</item>
+    </string-array>
+    <string name="setting_watch_sound">Merknadslyd</string>
+    <string-array name="setting_watch_sounds">
+        <item>Alle poster</item>
+        <item>Bare poster som siterer deg</item>
+    </string-array>
+    <string name="setting_watch_peek">Menyoppsprettsmerknad når du blir nevnt</string>
+    <string name="setting_watch_peek_description">Vis en oppsprettsmerknad i Android-menyen når du blir nevnt</string>
+    <string name="setting_watch_led">Merknadslys</string>
+    <string-array name="setting_watch_leds">
+        <item>Inget</item>
+        <item>Hvitt</item>
+        <item>Rødt</item>
+        <item>Gult</item>
+        <item>Grønt</item>
+        <item>Cyanblått</item>
+        <item>Blått</item>
+        <item>Lilla</item>
+    </string-array>
+
+    <!-- Hoved Om gruppe -->
+    <string name="settings_group_about">Om</string>
+    <string name="settings_update_check">Se etter oppdateringer</string>
+    <string name="settings_crash_reporting">Innrapporter kræsj</string>
+    <string name="settings_crash_reporting_description">
+"Kræsjrapportering oppretter rapporter om kræsj i Clover.
+Kræsjrapporter samler ikke inn noe personvernsinfo."
+    </string>
+    <string name="settings_crash_reporting_toggle_notice">Innstillingen vil tre i kraft ved neste programstart.</string>
+    <string name="settings_about_license">Utgitt med GNU GPLv3+lisens</string>
+    <string name="settings_about_license_description">Trykk for å vise lisens</string>
+    <string name="settings_about_licenses">Friproglisenser</string>
+    <string name="settings_about_licenses_description">Juridisk info om lisenser</string>
+    <string name="settings_developer">Utviklerinnstillinger</string>
+
+
+    <!-- Appearance -->
+    <string name="settings_screen_appearance">Utseende</string>
+    <string name="settings_group_appearance">Utseende</string>
+    <string name="setting_theme">Drakt</string>
+
+    <!-- Utseende-oppsettsgruppe -->
+    <string name="settings_group_layout">Oppsett</string>
+    <string name="setting_layout_mode">Oppsettsmodus</string>
+    <string name="setting_layout_mode_auto">Auto</string>
+    <string name="setting_layout_mode_phone">Telefonoppsett</string>
+    <string name="setting_layout_mode_slide">Glidemodus</string>
+    <string name="setting_layout_mode_split">Delt modus</string>
+    <string name="setting_board_grid_span_count">Kolonneantall i katalogmodus</string>
+    <string name="setting_board_grid_span_count_default">Auto</string>
+    <string name="setting_board_grid_span_count_item">%1$d kolonner</string>
+    <string name="setting_never_hide_toolbar">Aldri skjul verktøyslinjen</string>
+    <string name="setting_enable_reply_fab">Skru på \"svar\"-knappen</string>
+    <string name="setting_enable_reply_fab_description">Å skru dette av erstatter den runde knappen med et menyvalg</string>
+
+    <!-- Utseende for poster-gruppe -->
+    <string name="settings_group_post">Post</string>
+    <string name="setting_font_size">Font size</string>
+    <string name="setting_font_size_default">(default)</string>
+    <string name="setting_font_condensed">Use condensed font</string>
+    <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
+    <string name="setting_post_full_date">Show the full date on posts</string>
+    <string name="setting_post_file_info">Show file info on posts</string>
+    <string name="setting_post_filename">Show filename on posts</string>
+
+    <!-- Oppførsel -->
+    <string name="settings_screen_behavior">Oppførsel</string>
+
+    <!-- Generell oppførselsgruppe -->
+    <string name="settings_group_general">Generelt</string>
+    <string name="setting_auto_refresh_thread">Gjenoppfrisk tråder automatisk</string>
+    <string name="setting_confirm_exit">Bekreft før avslutting</string>
+    <string name="setting_controller_swipeable">Tillat skjermer å dras unna</string>
+    <string name="setting_clear_thread_hides">Opphev trådskjuling</string>
+    <string name="setting_cleared_thread_hides">Opphevet all trådskjuling</string>
+
+    <!-- Oppførselssvar-gruppe -->
+    <string name="settings_group_reply">Svar</string>
+    <string name="setting_post_pin">Bokmerk tråd på post</string>
+    <string name="setting_post_default_name">Forvalgt post-navn</string>
+
+    <!-- Post-oppførselsgruppe -->
+    <string name="setting_text_only">Kun tekst-modus</string>
+    <string name="setting_text_only_description">Skjul bilder i oppslagstavle- og tråd-visning</string>
+    <string name="settings_reveal_text_spoilers">Avslør teksttilsløringer</string>
+    <string name="settings_reveal_text_spoilers_description">Får teksttilsløringer til å framtre som om de var trykket</string>
+    <string name="setting_anonymize">Gjør alle anonyme</string>
+    <string name="setting_anonymize_ids">Hide IDs</string>
+    <string name="setting_show_anonymous_name">Alltid vis \"Anonymous\" navn</string>
+    <string name="setting_buttons_bottom">Svarknapper på bunnen</string>
+    <string name="setting_volume_key_scrolling">Lydstyrketaster ruller innhold</string>
+    <string name="setting_tap_no_rely">Trykk på postnummeret å besvare</string>
+    <string name="setting_open_link_confirmation">Trykk før åpning av lenker</string>
+    <string name="setting_open_link_browser">Alltid åpne lenker i ekstern nettleser</string>
+
+
+    <!-- Gruppe for mellomtjeneroppførsel -->
+    <string name="settings_group_proxy">HTTP-mellomtjener</string>
+    <string name="setting_proxy_enabled">Skru på mellomtjener</string>
+    <string name="setting_proxy_address">Mellomtjeneradresse</string>
+    <string name="setting_proxy_port">Mellomtjenerport</string>
+
+
+    <!-- Media -->
+    <string name="settings_screen_media">Media</string>
+
+    <!-- Media general group -->
+    <string name="settings_group_media">Media</string>
+
+    <string name="setting_save_board_folder">Lagre bilder i oppslagstavlemappe</string>
+    <string name="setting_save_board_folder_description">Opprett mappe for hver oppslagstavle å lagre bilder i</string>
+    <string name="setting_save_original_filename">Lagre opprinnelig filnavn</string>
+    <string name="setting_save_original_filename_description">
+"Lagre bildet med filnavnet siden tildelte.
+Hvis avskrudd, lagre bildet med filnavnet opplasteren tildelte."
+    </string>
+    <string name="setting_video_default_muted">Start videoer forstummet</string>
+    <string name="setting_video_default_muted_description">Hvis en video har lyd, forstum den som forvalg.</string>
+    <string name="setting_video_open_external">Spill av videoer i ekstern avspiller</string>
+    <string name="setting_video_open_external_description">Spill av videoer i eksternt mediaavspillingsprogram</string>
+    <string name="setting_share_url">Del nettadresse til bilde</string>
+    <string name="setting_share_url_description">Del nettadressen til bildet istedenfor selve bildet</string>
+    <string name="settings_reveal_image_spoilers">Avslør bildetilsløringer</string>
+    <string name="settings_reveal_image_spoilers_description">Alltid avslør tilslørte miniatyrbilder og bilder.</string>
+
+    <!-- Mediainnlastingsgruppe -->
+    <string name="settings_group_media_loading">Mediainnlasting</string>
+    <string name="setting_image_auto_load">Last inn bilder automatisk</string>
+
+    <string name="setting_image_auto_load_all">Alltid</string>
+    <string name="setting_image_auto_load_wifi">Kun på Wi-Fi</string>
+    <string name="setting_image_auto_load_none">Aldri</string>
+
+    <string name="setting_video_auto_load">Last inn videoer automatisk</string>
+
+    <string name="setting_video_auto_loop">Automatisk videogjentagelse</string>
+    <string name="setting_video_auto_loop_description">Gjenta videoinnhold automatisk</string>
+
+
+    <!-- Plasseringslagringsinnstillinger -->
+    <string name="save_location_screen">Lagre plassering</string>
+    <string name="save_location_storage_permission_required_title">Lagringstilgang kreves</string>
+    <string name="save_location_storage_permission_required">
+"Tilgang til lagring kreves for å utforske filer.
+
+Gjeninnvilg denne tilgangen i programinnstillingene hvis du har skrudd den av permanent."
+    </string>
+    <string name="setting_folder_pick_ok">Velg</string>
+    <string name="setting_folder_navigate_up">Opp</string>
+
+
+    <!-- Draktinnstillinger -->
+    <string name="setting_theme_explanation">
+"Dra for å endre drakt.
+Trykk på verktøysmenyen for å endre dens farge."
+    </string>
+    <string name="setting_theme_accent">Trykk her for å endre FAB-fargen</string>
+
+    <!-- Utviklerinnstillinger -->
+    <string name="settings_open_logs">Vis logger</string>
+    <string name="settings_logs_screen">Loggføring</string>
+    <string name="settings_logs_copy">Kopier</string>
+    <string name="settings_logs_copied_to_clipboard">Kopiert til utklippstavle</string>
+
+
+    <string name="settings_screen_pass">4chan-pass</string>
+    <string name="setting_pass_token">Tilgangssymbol</string>
+    <string name="setting_pass_pin">PIN</string>
+    <string name="setting_pass_authenticated">Enhet autorisert!</string>
+    <string name="setting_pass_login">Send inn</string>
+    <string name="setting_pass_logout">Logg ut</string>
+    <string name="setting_pass_logging_in">Laster inn&#8230;</string>
+    <string name="setting_pass_error">Tilkoblingsfeil</string>
+    <string name="setting_pass_bottom_description">"
+        <![CDATA[
+        Glemte du innloggingsdetaljene for ditt 4chan-pass?<br>
+        <a href=\"https://www.4chan.org/pass?reset\">Gå hit for å tilbakestille din PIN.</a><br>
+        <br>
+        Har du ikke et 4chan-pass?<br>
+        <a href=\"https://www.4chan.org/pass\">Klikk her for å lære mer.</a>
+        ]]>
+    "</string>
+
+    <string name="settings_screen_theme">Drakter</string>
+</resources>
