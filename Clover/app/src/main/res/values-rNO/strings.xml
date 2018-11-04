@@ -357,7 +357,7 @@ dekoder og skru på
     <string name="settings_screen">Innstillinger</string>
 
     <!-- Hoved "Innstillinger" gruppe -->
-    <string name="settings_screen">Innstillinger</string>
+    <string name="settings_group_settings">Innstillinger</string>
     <string name="settings_watch">Trådoppsyn</string>
     <string name="settings_appearance">Utseende</string>
     <string name="settings_appearance_description">Drakt, oppsett, skrifter, osv.</string>
