@@ -48,46 +48,46 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
         <item quantity="other">%d minutes</item>
     </plurals>
     <plurals name="posts">
-        <item quantity="one">%d post</item>
-        <item quantity="other">%d posts</item>
+        <item quantity="one">%d message</item>
+        <item quantity="other">%d messages</item>
     </plurals>
     <plurals name="reply">
-        <item quantity="one">%d reply</item>
-        <item quantity="other">%d replies</item>
+        <item quantity="one">%d réponse</item>
+        <item quantity="other">%d réponses</item>
     </plurals>
     <plurals name="image">
         <item quantity="one">%d image</item>
         <item quantity="other">%d images</item>
     </plurals>
     <plurals name="board">
-        <item quantity="one">%d board</item>
-        <item quantity="other">%d boards</item>
+        <item quantity="one">%d forum</item>
+        <item quantity="other">%d forums</item>
     </plurals>
     <plurals name="type">
         <item quantity="one">%d type</item>
         <item quantity="other">%d types</item>
     </plurals>
     <plurals name="bookmark">
-        <item quantity="one">%d bookmark</item>
-        <item quantity="other">%d bookmarks</item>
+        <item quantity="one">%d signets</item>
+        <item quantity="other">%d signets</item>
     </plurals>
     <plurals name="filter">
-        <item quantity="one">%d filter</item>
-        <item quantity="other">%d filters</item>
+        <item quantity="one">%d filtré</item>
+        <item quantity="other">%d filtrés</item>
     </plurals>
     <plurals name="site">
         <item quantity="one">%d site</item>
         <item quantity="other">%d sites</item>
     </plurals>
     <string name="card_stats">%1$dR %2$dI</string>
-    <string name="action_reload">Reload</string>
-    <string name="action_pin">Bookmark</string>
-    <string name="action_open_browser">Open in a browser</string>
-    <string name="action_share">Share</string>
-    <string name="action_download_album">Download album</string>
-    <string name="action_search">Search</string>
-    <string name="action_search_image">Image search</string>
-    <string name="action_switch_catalog">Catalog mode</string>
+    <string name="action_reload">Rafraîchir</string>
+    <string name="action_pin">Mettre en favori</string>
+    <string name="action_open_browser">Ouvrir dans le navigateur</string>
+    <string name="action_share">Partager</string>
+    <string name="action_download_album">Télécharger l\'album</string>
+    <string name="action_search">Recherche</string>
+    <string name="action_search_image">Recherche d\'images</string>
+    <string name="action_switch_catalog">Mode catalogue</string>
     <string name="action_switch_board">Board mode</string>
     <string name="action_scroll_to_top">Top</string>
     <string name="action_scroll_to_bottom">Bottom</string>
