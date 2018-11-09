@@ -89,6 +89,9 @@ public class DvachApi extends CommonSite.CommonApi {
                 case "name":
                     builder.name(reader.nextString());
                     break;
+                case "subject":
+                    builder.subject(reader.nextString());
+                    break;
                 case "comment":
                     builder.comment(reader.nextString());
                     break;
