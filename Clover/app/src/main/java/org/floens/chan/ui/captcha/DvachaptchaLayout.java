@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,6 +27,7 @@ import org.floens.chan.utils.Logger;
 import static android.support.constraint.Constraints.TAG;
 import static org.floens.chan.Chan.injector;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
+import static org.floens.chan.utils.AndroidUtils.getAppContext;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class DvachaptchaLayout extends LinearLayout implements AuthenticationLayoutInterface, View.OnClickListener {
@@ -76,6 +78,20 @@ public class DvachaptchaLayout extends LinearLayout implements AuthenticationLay
         theme().sendDrawable.apply(submit);
         setRoundItemBackground(submit);
         submit.setOnClickListener(this);
+
+        input.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                input.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager) getAppContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+            }
+        });
+        input.requestFocus();
     }
 
     @Override
