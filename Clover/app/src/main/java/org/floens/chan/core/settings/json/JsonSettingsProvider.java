@@ -123,6 +123,7 @@ public class JsonSettingsProvider implements SettingProvider {
         if (jsonSetting == null) {
             StringJsonSetting v = new StringJsonSetting();
             v.value = value;
+            v.key = key;
             byKey.put(key, v);
         } else {
             ((StringJsonSetting) jsonSetting).value = value;

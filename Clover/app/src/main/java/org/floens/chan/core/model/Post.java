@@ -270,6 +270,8 @@ public class Post {
 
         public String posterId = "";
         public String moderatorCapcode = "";
+        public int idColor;
+        public boolean isLightColor;
 
         public int filterHighlightedColor;
         public boolean filterStub;
@@ -378,8 +380,21 @@ public class Post {
 
         public Builder posterId(String posterId) {
             this.posterId = posterId;
+            
+            // Stolen from the 4chan extension
+            int hash = this.posterId.hashCode();
+
+            int r = (hash >> 24) & 0xff;
+            int g = (hash >> 16) & 0xff;
+            int b = (hash >> 8) & 0xff;
+
+            //noinspection NumericOverflow
+            this.idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
+            this.isLightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
+
             return this;
         }
+
 
         public Builder moderatorCapcode(String moderatorCapcode) {
             this.moderatorCapcode = moderatorCapcode;

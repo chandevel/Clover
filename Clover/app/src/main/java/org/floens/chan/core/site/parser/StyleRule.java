@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
@@ -54,6 +55,7 @@ public class StyleRule {
 
     private Color color = null;
     private boolean strikeThrough = false;
+    private boolean underLine = false;
     private boolean bold = false;
     private boolean italic = false;
     private boolean monospace = false;
@@ -111,6 +113,12 @@ public class StyleRule {
 
     public StyleRule strikeThrough() {
         strikeThrough = true;
+
+        return this;
+    }
+
+    public StyleRule underLine() {
+        underLine = true;
 
         return this;
     }
@@ -207,6 +215,10 @@ public class StyleRule {
 
         if (strikeThrough) {
             spansToApply.add(new StrikethroughSpan());
+        }
+
+        if (underLine) {
+            spansToApply.add(new UnderlineSpan());
         }
 
         if (bold && italic) {

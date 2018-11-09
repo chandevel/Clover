@@ -5,7 +5,11 @@ import android.support.annotation.Nullable;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.settings.OptionSettingItem;
 import org.floens.chan.core.settings.OptionsSetting;
+import org.floens.chan.core.settings.SettingProvider;
+import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
+import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
@@ -20,7 +24,9 @@ import org.floens.chan.core.site.common.vichan.VichanEndpoints;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.sites.chan4.Chan4;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -66,15 +72,34 @@ public class Dvach extends CommonSite {
     };
 
     static final String CAPTCHA_KEY = "6LeQYz4UAAAAAL8JCk35wHSv6cuEV5PyLhI6IxsM";
+    private static StringSetting nsfwToken;
 
-    private OptionsSetting<Chan4.CaptchaType> captchaType;
+
+    private enum CaptchaType implements OptionSettingItem {
+        V2JS("v2js"),
+        V2NOJS("v2nojs"),
+        V1("v1");
+
+        String name;
+
+        CaptchaType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getKey() {
+            return name;
+        }
+    }
+
+    private static OptionsSetting<Dvach.CaptchaType> captchaType;
 
     @Override
     public void initializeSettings() {
         super.initializeSettings();
         captchaType = new OptionsSetting<>(settingsProvider,
                 "preference_captcha_type",
-                Chan4.CaptchaType.class, Chan4.CaptchaType.V2JS);
+                Dvach.CaptchaType.class, Dvach.CaptchaType.V2JS);
     }
 
     @Override
@@ -83,7 +108,7 @@ public class Dvach extends CommonSite {
                 SiteSetting.forOption(
                         captchaType,
                         "Captcha type",
-                        Arrays.asList("Javascript", "Noscript"))
+                        Arrays.asList("Javascript", "Noscript", "2chaptcha"))
         );
     }
 
@@ -107,12 +132,12 @@ public class Dvach extends CommonSite {
                 "https://2ch.hk") {
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return root.builder().s(arg.get("path")).url();
+                return root.url().newBuilder(arg.get("path")).build();
             }
 
             @Override
             public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-                return root.builder().s(arg.get("thumbnail")).url();
+                return root.url().newBuilder(arg.get("thumbnail")).build();
             }
 
             @Override
@@ -148,14 +173,17 @@ public class Dvach extends CommonSite {
 
             @Override
             public void post(Reply reply, final PostListener postListener) {
-                httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
+                httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply, captchaType.get().getKey()), new HttpCall.HttpCallback<DvachReplyCall>() {
                     @Override
-                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                    public void onHttpSuccess(DvachReplyCall httpPost) {
+                        if (httpPost.loginResponse.success) {
+                            nsfwToken.set(httpPost.loginResponse.token);
+                        }
                         postListener.onPostComplete(httpPost, httpPost.replyResponse);
                     }
 
                     @Override
-                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                    public void onHttpFail(DvachReplyCall httpPost, Exception e) {
                         postListener.onPostError(httpPost, e);
                     }
                 });
@@ -176,6 +204,8 @@ public class Dvach extends CommonSite {
                             return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, "https://2ch.hk/api/captcha/recaptcha/mobile");
                         case V2NOJS:
                             return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, "https://2ch.hk/api/captcha/recaptcha/mobile");
+                        case V1:
+                            return SiteAuthentication.fromDvachaptcha();
                         default:
                             throw new IllegalArgumentException();
                     }
@@ -208,6 +238,15 @@ public class Dvach extends CommonSite {
 
         setApi(new DvachApi(this));
 
-        setParser(new VichanCommentParser());
+        setParser(new DvachCommentParser());
+
+        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+        nsfwToken = new StringSetting(p, "2ch_usercode", "");
+
+    }
+
+
+    public void setParser(CommentParser commentParser) {
+        this.postParser = new DvachPostParser(commentParser);
     }
 }

@@ -99,6 +99,10 @@ public class DvachBoardsRequest extends JsonReaderRequest<List<Board>> {
 
         reader.endObject();
 
+        //hardcoding 2ch maxfile size
+        board.maxFileSize = 20480 * 1024;
+
+
         if (!board.finish()) {
             // Invalid data, ignore
             return null;
