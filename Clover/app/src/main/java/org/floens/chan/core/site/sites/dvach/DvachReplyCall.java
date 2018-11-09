@@ -38,9 +38,12 @@ public class DvachReplyCall extends CommonReplyHttpCall {
     private static final Pattern POST_MESSAGE = Pattern.compile("^\\{\"Error\":null,\"Status\":\"OK\",\"Num\":(\\d+)");
     private static final Pattern THREAD_MESSAGE = Pattern.compile("^\\{\"Error\":null,\"Status\":\"Redirect\",\"Target\":(\\d+)");
     private static final String PROBABLY_BANNED_TEXT = "banned";
+    private String captchaType;
 
-    DvachReplyCall(Site site, Reply reply) {
+
+    DvachReplyCall(Site site, Reply reply, String captchaType) {
         super(site, reply);
+        this.captchaType = captchaType;
     }
 
     @Override
@@ -57,16 +60,21 @@ public class DvachReplyCall extends CommonReplyHttpCall {
             formBuilder.addFormDataPart("subject", reply.subject);
         }
 
+        if (this.captchaType == "v1") {
+            formBuilder.addFormDataPart("captcha_type", "2chaptcha");
+            formBuilder.addFormDataPart("2chaptcha_id", reply.captchaChallenge);
+            formBuilder.addFormDataPart("2chaptcha_value", reply.captchaResponse);
+        } else {
+            if (reply.captchaResponse != null) {
+                formBuilder.addFormDataPart("captcha_type", "recaptcha");
+                formBuilder.addFormDataPart("captcha_key", Dvach.CAPTCHA_KEY);
 
-        if (reply.captchaResponse != null) {
-            formBuilder.addFormDataPart("captcha_type", "recaptcha");
-            formBuilder.addFormDataPart("captcha_key", Dvach.CAPTCHA_KEY);
-
-            if (reply.captchaChallenge != null) {
-                formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
-                formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
-            } else {
-                formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
+                if (reply.captchaChallenge != null) {
+                    formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
+                    formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
+                } else {
+                    formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
+                }
             }
         }
 

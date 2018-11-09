@@ -23,6 +23,7 @@ public class SiteAuthentication {
         CAPTCHA1,
         CAPTCHA2,
         CAPTCHA2_NOJS,
+        DVACHAPTCHA,
         GENERIC_WEBVIEW
     }
 
@@ -35,6 +36,10 @@ public class SiteAuthentication {
         a.siteKey = siteKey;
         a.baseUrl = baseUrl;
         return a;
+    }
+
+    public static SiteAuthentication fromDvachaptcha() {
+        return new SiteAuthentication(Type.DVACHAPTCHA);
     }
 
     public static SiteAuthentication fromCaptcha2(String siteKey, String baseUrl) {

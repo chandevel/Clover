@@ -50,6 +50,7 @@ import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.captcha.CaptchaLayout;
 import org.floens.chan.ui.captcha.CaptchaNojsLayout;
+import org.floens.chan.ui.captcha.DvachaptchaLayout;
 import org.floens.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import org.floens.chan.ui.captcha.LegacyCaptchaLayout;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
@@ -262,6 +263,12 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
                     final LayoutInflater inflater = LayoutInflater.from(getContext());
                     authenticationLayout = (LegacyCaptchaLayout) inflater.inflate(
                             R.layout.layout_captcha_legacy, captchaContainer, false);
+                    break;
+                }
+                case DVACHAPTCHA: {
+                    final LayoutInflater inflater = LayoutInflater.from(getContext());
+                    authenticationLayout = (DvachaptchaLayout) inflater.inflate(
+                            R.layout.layout_2chaptcha, captchaContainer, false);
                     break;
                 }
                 case CAPTCHA2: {
