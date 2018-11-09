@@ -191,7 +191,8 @@ public class DvachApi extends CommonSite.CommonApi {
                     fileName = reader.nextString();
                     break;
                 case "size":
-                    fileSize = reader.nextLong();
+                    //2ch api return size in kB, not B
+                    fileSize = reader.nextLong() * 1024;
                     break;
                 case "width":
                     fileWidth = reader.nextInt();
