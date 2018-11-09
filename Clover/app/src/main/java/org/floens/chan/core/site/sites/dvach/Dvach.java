@@ -24,6 +24,7 @@ import org.floens.chan.core.site.common.vichan.VichanEndpoints;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -241,5 +242,11 @@ public class Dvach extends CommonSite {
 
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
         nsfwToken = new StringSetting(p, "2ch_usercode", "");
+
+    }
+
+
+    public void setParser(CommentParser commentParser) {
+        this.postParser = new DvachPostParser(commentParser);
     }
 }

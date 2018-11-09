@@ -76,7 +76,7 @@ public abstract class CommonSite extends SiteBase {
     private CommonApi api;
     private CommonRequestModifier requestModifier;
 
-    private PostParser postParser;
+    public PostParser postParser;
 
     private List<Board> staticBoards = new ArrayList<>();
 
