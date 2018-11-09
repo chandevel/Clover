@@ -238,7 +238,7 @@ public class Dvach extends CommonSite {
 
         setApi(new DvachApi(this));
 
-        setParser(new VichanCommentParser());
+        setParser(new DvachCommentParser());
 
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
         nsfwToken = new StringSetting(p, "2ch_usercode", "");
