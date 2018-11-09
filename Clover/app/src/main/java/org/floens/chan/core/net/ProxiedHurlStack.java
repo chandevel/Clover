@@ -17,18 +17,37 @@
  */
 package org.floens.chan.core.net;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.toolbox.HurlStack;
 
+import org.apache.http.HttpResponse;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.settings.SettingProvider;
+import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
+import org.floens.chan.core.settings.StringSetting;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.Map;
 
 public class ProxiedHurlStack extends HurlStack {
     public ProxiedHurlStack(String userAgent) {
         super(userAgent, null);
+    }
+    
+    @Override
+    public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders) throws IOException, AuthFailureError {
+        if (request.getUrl().matches("https://2ch.hk/(fur|gg|ga|hc|h|ho|e|fet)/.*$")) {
+            SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+            StringSetting nsfwToken = new StringSetting(p, "2ch_usercode", "");
+            additionalHeaders.put("Cookie", "ageallow=1; usercode_auth=" + nsfwToken.get());
+        }
+
+        return super.performRequest(request, additionalHeaders);
     }
 
     @Override

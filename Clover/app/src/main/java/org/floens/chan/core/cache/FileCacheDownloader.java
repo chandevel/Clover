@@ -24,6 +24,10 @@ import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.settings.SettingProvider;
+import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
+import org.floens.chan.core.settings.StringSetting;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
 import java.io.Closeable;
@@ -225,10 +229,15 @@ public class FileCacheDownloader implements Runnable {
 
     @WorkerThread
     private ResponseBody getBody() throws IOException {
-        Request request = new Request.Builder()
+        Request.Builder rb = new Request.Builder()
                 .url(url)
-                .header("User-Agent", userAgent)
-                .build();
+                .header("User-Agent", userAgent);
+        if (url.matches("https://2ch.hk/(fur|gg|ga|hc|h|ho|e|fet)/.*$")) {
+            SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+            StringSetting nsfwToken = new StringSetting(p, "2ch_usercode", "");
+            rb.addHeader("Cookie", "ageallow=1; usercode_auth=" + nsfwToken.get());
+        }
+        Request request = rb.build();
 
         call = httpClient.newBuilder()
                 .proxy(ChanSettings.getProxy())

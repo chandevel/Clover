@@ -18,13 +18,17 @@
 package org.floens.chan.core.site.sites.dvach;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
+import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
+import java.net.HttpCookie;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +43,7 @@ public class DvachReplyCall extends CommonReplyHttpCall {
     private static final Pattern THREAD_MESSAGE = Pattern.compile("^\\{\"Error\":null,\"Status\":\"Redirect\",\"Target\":(\\d+)");
     private static final String PROBABLY_BANNED_TEXT = "banned";
     private String captchaType;
+    public final LoginResponse loginResponse = new LoginResponse();
 
 
     DvachReplyCall(Site site, Reply reply, String captchaType) {
@@ -59,6 +64,7 @@ public class DvachReplyCall extends CommonReplyHttpCall {
         if (!reply.loadable.isThreadMode() && !TextUtils.isEmpty(reply.subject)) {
             formBuilder.addFormDataPart("subject", reply.subject);
         }
+
 
         if (this.captchaType == "v1") {
             formBuilder.addFormDataPart("captcha_type", "2chaptcha");
@@ -105,5 +111,28 @@ public class DvachReplyCall extends CommonReplyHttpCall {
                 }
             }
         }
+
+        if (response.message().contains("OK")) {
+            List<String> cookies = response.headers("Set-Cookie");
+            String usercode = null;
+            for (String cookie : cookies) {
+                try {
+                    List<HttpCookie> parsedList = HttpCookie.parse(cookie);
+                    for (HttpCookie parsed : parsedList) {
+                        if (parsed.getName().equals("usercode_auth")) {
+                            usercode = parsed.getValue();
+                        }
+                    }
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            if (usercode != null) {
+                loginResponse.token = usercode;
+                loginResponse.success = true;
+                Log.i("Clover", "usercode_auth=:" + usercode);
+            }
+        }
+
     }
 }
+
