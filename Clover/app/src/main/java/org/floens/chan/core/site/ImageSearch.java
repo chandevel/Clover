@@ -96,7 +96,7 @@ public abstract class ImageSearch {
             }
 
             public String getUrl(String imageUrl) {
-                return "https://whatanime.ga/?url=" + imageUrl;
+                return "https://trace.moe/?url=" + imageUrl;
             }
         });
         
