@@ -338,11 +338,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="settings_watch">Отслеживание тредов</string>
     <string name="settings_sites">Сайты</string>
     <string name="settings_appearance">Оформление</string>
-    <string name="settings_appearance_description">Темы, отображение, шрифты...</string>
+    <string name="settings_appearance_description">Темы, отображение, шрифты.</string>
     <string name="settings_behavior">Поведение</string>
-    <string name="settings_behavior_description">Обновление тредов, капча...</string>
+    <string name="settings_behavior_description">Обновление тредов, капча.</string>
     <string name="settings_media">Медиа</string>
-    <string name="settings_media_description">Путь загрузки, автозагрузка...</string>
+    <string name="settings_media_description">Путь загрузки, автозагрузка.</string>
     <string name="settings_filters">Фильтры</string>
     <!-- Thread watcher -->
     <string name="setting_watch_summary_enabled">Отслеживает треды в избранном</string>
