@@ -420,6 +420,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="settings_screen_behavior">Поведение</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">Основные</string>
+    <string name="setting_force_english_locale">Always use English for the language of the app</string>
+    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Автообновление тредов</string>
     <string name="setting_confirm_exit">Подтверждать перед выходом</string>
     <string name="setting_controller_swipeable">Позволять смахивать экраны в сторону</string>
@@ -461,6 +463,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setting_video_default_muted_description">Если у видео есть звук, то он выключается.</string>
     <string name="setting_video_open_external">Использовать внешний проигрыватель</string>
     <string name="setting_video_open_external_description">Запускать видео во внешнем проигрывателе</string>
+    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
+    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Делиться ссылкой на файл</string>
     <string name="setting_share_url_description">Делиться ссылкой на файл заместо него самого</string>
     <string name="settings_reveal_image_spoilers">Раскрыть изображения в спойлере</string>
