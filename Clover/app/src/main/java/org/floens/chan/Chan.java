@@ -34,6 +34,7 @@ import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.SiteService;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.LocaleUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
@@ -89,6 +90,8 @@ public class Chan extends Application implements UserAgentProvider, Application.
     }
 
     public void initialize() {
+        LocaleUtils.overrideLocaleToEnglishIfNeeded(this);
+
         final long startTime = Time.startTiming();
 
         registerActivityLifecycleCallbacks(this);

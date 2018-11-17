@@ -459,6 +459,8 @@ Crash reports do not collect any personally identifiable information."
 
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
+    <string name="setting_force_english_locale">Always use English for the language of the app</string>
+    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Auto refresh threads</string>
     <string name="setting_confirm_exit">Confirm before exit</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>

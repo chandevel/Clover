@@ -90,6 +90,7 @@ public class ChanSettings {
 
     private static Proxy proxy;
 
+    public static final BooleanSetting forceEnglishLocale;
     private static final StringSetting theme;
     public static final OptionsSetting<LayoutMode> layoutMode;
     public static final StringSetting fontSize;
@@ -161,6 +162,8 @@ public class ChanSettings {
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+
+        forceEnglishLocale = new BooleanSetting(p, "preference_force_english_locale", false);
 
         theme = new StringSetting(p, "preference_theme", "yotsuba");
 
