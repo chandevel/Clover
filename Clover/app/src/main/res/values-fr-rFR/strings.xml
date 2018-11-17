@@ -269,7 +269,8 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="video_playback_warning">\"The WebM video failed to play. This might be a problem with the hardware of your phone.
 
 A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"</string>
+Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
+    </string>
     <string name="video_playback_ignore">Don\'t show again</string>
     <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">No new posts</string>
@@ -353,7 +354,8 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="settings_update_check">Check for updates</string>
     <string name="settings_crash_reporting">Report crashes</string>
     <string name="settings_crash_reporting_description">\"Crash reporting creates reports of errors in Clover.
-Crash reports do not collect any personally identifiable information.\"</string>
+Crash reports do not collect any personally identifiable information.\"
+    </string>
     <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
     <string name="settings_about_license">Released under the GNU GPLv3 license</string>
     <string name="settings_about_license_description">Tap to see license</string>
@@ -390,6 +392,8 @@ Crash reports do not collect any personally identifiable information.\"</string>
     <string name="settings_screen_behavior">Behavior</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
+    <string name="setting_force_english_locale">Always use English for the language of the app</string>
+    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Auto refresh threads</string>
     <string name="setting_confirm_exit">Confirm before exit</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
@@ -425,11 +429,14 @@ Crash reports do not collect any personally identifiable information.\"</string>
     <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
     <string name="setting_save_original_filename">Save original filename</string>
     <string name="setting_save_original_filename_description">\"Save the image with the filename the site assigned.
-If disabled, save the image with the filename the uploader assigned.\"</string>
+If disabled, save the image with the filename the uploader assigned.\"
+    </string>
     <string name="setting_video_default_muted">Start videos muted</string>
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
     <string name="setting_video_open_external">Play videos with external player</string>
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
+    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
+    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
@@ -448,12 +455,14 @@ If disabled, save the image with the filename the uploader assigned.\"</string>
     <string name="save_location_storage_permission_required_title">Storage permission required</string>
     <string name="save_location_storage_permission_required">\"Permission to access storage is required for browsing files.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+Re-enable this permission in the app settings if you permanently disabled it.\"
+    </string>
     <string name="setting_folder_pick_ok">Choose</string>
     <string name="setting_folder_navigate_up">Up</string>
     <!-- Theme settings -->
     <string name="setting_theme_explanation">\"Swipe to change the theme.
-Tap the toolbar menu to change its color.\"</string>
+Tap the toolbar menu to change its color.\"
+    </string>
     <string name="setting_theme_accent">Tap here to change the FAB color</string>
     <!-- Developer settings -->
     <string name="settings_open_logs">View logs</string>
@@ -468,14 +477,10 @@ Tap the toolbar menu to change its color.\"</string>
     <string name="setting_pass_logout">Logout</string>
     <string name="setting_pass_logging_in">Loading&#8230;</string>
     <string name="setting_pass_error">Connection error</string>
-    <string name="setting_pass_bottom_description">
-        \"
-        <![CDATA[Forgot your 4chan Pass login details?<br>
+    <string name="setting_pass_bottom_description">\"<![CDATA[Forgot your 4chan Pass login details?<br>
 <a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
 <br>
 Don't have a 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>]]>
-        \"
-    </string>
+<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>]]>    \"</string>
     <string name="settings_screen_theme">Themes</string>
 </resources>
