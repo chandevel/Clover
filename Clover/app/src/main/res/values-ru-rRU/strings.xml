@@ -295,7 +295,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="watch_pause_pins">Перестать следить</string>
     <string name="watch_idle">Нет новых постов</string>
     <plurals name="watch_title">
-        <item quantity="one">Слежу за одним тредом</item>
+        <item quantity="one">Слежу за %d тредом</item>
         <item quantity="few">Слежу за %d тредами</item>
         <item quantity="many">Слежу за %d тредами</item>
         <item quantity="other">Слежу за %d тредами</item>
