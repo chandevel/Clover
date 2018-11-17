@@ -269,7 +269,7 @@ Als het patroon past kan de post verborgen worden of gemarkeerd worden.<br>
     <string name="video_playback_warning">\"De WebM-video kon niet afgespeeld worden. Dit kan een probleem zijn met de hardware van je telefoon.
 
 Als tijdelijke oplossing kan je een externe mediaspeler met een software-decoder gebruiken.
-Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om video\'s af te spelen in een externe mediaspeler.\"</string>
+Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om video\'s af te spelen in een externe mediaspeler.\"    </string>
     <string name="video_playback_ignore">Niet meer tonen</string>
     <string name="watch_pause_pins">Stop met volgen</string>
     <string name="watch_idle">Geen nieuwe posts</string>
@@ -353,7 +353,7 @@ Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om 
     <string name="settings_update_check">Op updates controleren</string>
     <string name="settings_crash_reporting">Crashes rapporteren</string>
     <string name="settings_crash_reporting_description">\"Crashes rapporteren zet crashrapportages aan in Clover.
-Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"</string>
+Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"    </string>
     <string name="settings_crash_reporting_toggle_notice">Instelling zal toegepast worden bij de volgende start.</string>
     <string name="settings_about_license">Onder de GNU GPLv3 vrijgegeven</string>
     <string name="settings_about_license_description">Tik om de licentie te zien</string>
@@ -390,6 +390,8 @@ Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"</str
     <string name="settings_screen_behavior">Gedrag</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">Algemeen</string>
+    <string name="setting_force_english_locale">Always use English for the language of the app</string>
+    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Threads automatisch vernieuwen</string>
     <string name="setting_confirm_exit">Afsluiten bevestigen</string>
     <string name="setting_controller_swipeable">Sta toe dat schermen weggeveegd kunnen worden</string>
@@ -425,11 +427,13 @@ Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"</str
     <string name="setting_save_board_folder_description">Maak een map voor elk board om afbeeldingen in op te slaan</string>
     <string name="setting_save_original_filename">Sla originele bestandsnaam op</string>
     <string name="setting_save_original_filename_description">\"Sla de afbeelding op met de originele bestandsnaam.
-Wanneer uitgeschakeld wordt de afbeelding opgeslagen met de bestandsnaam van de uploader.\"</string>
+Wanneer uitgeschakeld wordt de afbeelding opgeslagen met de bestandsnaam van de uploader.\"    </string>
     <string name="setting_video_default_muted">Start video\'s gedempt</string>
     <string name="setting_video_default_muted_description">Als een video geluid heeft het standaard dempen.</string>
     <string name="setting_video_open_external">Speel video\'s af met een externe mediaspeler</string>
     <string name="setting_video_open_external_description">Speel video\'s af in een externe mediaspeler-app</string>
+    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
+    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Deel URL van afbeelding</string>
     <string name="setting_share_url_description">Deel de URL van de afbeelding in plaats van de afbeelding zelf</string>
     <string name="settings_reveal_image_spoilers">Afbeeldingspoilers onthullen</string>
@@ -448,12 +452,12 @@ Wanneer uitgeschakeld wordt de afbeelding opgeslagen met de bestandsnaam van de 
     <string name="save_location_storage_permission_required_title">Opslagpermissie vereist</string>
     <string name="save_location_storage_permission_required">\"Permissie voor toegang tot de opslag is vereist voor het zien van bestanden.
 
-Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"</string>
+Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"    </string>
     <string name="setting_folder_pick_ok">Kiezen</string>
     <string name="setting_folder_navigate_up">Omhoog</string>
     <!-- Theme settings -->
     <string name="setting_theme_explanation">\"Swipe om het thema te veranderen.
-Tik op het taakbalkmenu om de kleur te veranderen.\"</string>
+Tik op het taakbalkmenu om de kleur te veranderen.\"    </string>
     <string name="setting_theme_accent">Tik hier om de FAB van kleur te veranderen</string>
     <!-- Developer settings -->
     <string name="settings_open_logs">Bekijk logboeken</string>
@@ -468,14 +472,10 @@ Tik op het taakbalkmenu om de kleur te veranderen.\"</string>
     <string name="setting_pass_logout">Uitloggen</string>
     <string name="setting_pass_logging_in">Laden&#8230;</string>
     <string name="setting_pass_error">Verbindingsfout</string>
-    <string name="setting_pass_bottom_description">
-        \"
-        <![CDATA[Ben je je 4chan Pass logindetails vergeten?<br>
+    <string name="setting_pass_bottom_description">\"<![CDATA[Ben je je 4chan Pass logindetails vergeten?<br>
 <a href=\"https://www.4chan.org/pass?reset\">Navigeer hier om je PIN te resetten.</a><br>
 <br>
 Heb je geen 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Navigeer hier om de details te bekijken.</a>]]>
-        \"
-    </string>
+<a href=\"https://www.4chan.org/pass\">Navigeer hier om de details te bekijken.</a>]]>    \"</string>
     <string name="settings_screen_theme">Thema\'s</string>
 </resources>
