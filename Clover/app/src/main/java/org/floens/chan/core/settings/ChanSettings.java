@@ -102,6 +102,7 @@ public class ChanSettings {
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
     public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
     public static final BooleanSetting videoOpenExternal;
+    public static final BooleanSetting videoUseExoplayer;
     public static final BooleanSetting textOnly;
     public static final BooleanSetting videoErrorIgnore;
     public static final OptionsSetting<PostViewMode> boardViewMode;
@@ -180,6 +181,7 @@ public class ChanSettings {
         imageAutoLoadNetwork = new OptionsSetting<>(p, "preference_image_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
         videoAutoLoadNetwork = new OptionsSetting<>(p, "preference_video_auto_load_network", MediaAutoLoadMode.class, MediaAutoLoadMode.WIFI);
         videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
+        videoUseExoplayer = new BooleanSetting(p, "preference_video_exoplayer", true);
         textOnly = new BooleanSetting(p, "preference_text_only", false);
         videoErrorIgnore = new BooleanSetting(p, "preference_video_error_ignore", false);
         boardViewMode = new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);

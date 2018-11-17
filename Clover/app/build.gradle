@@ -139,6 +139,9 @@ dependencies {
     implementation "com.android.support:customtabs:${supportVersion}"
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.0'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.0'
+
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     //noinspection GradleDependency
     implementation 'com.j256.ormlite:ormlite-core:4.48'
