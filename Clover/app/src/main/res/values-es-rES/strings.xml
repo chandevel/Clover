@@ -154,7 +154,7 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="setup_site_boards">Configurar borads</string>
     <string name="setup_site_boards_description">%s añadido</string>
     <string name="setup_site_group_login">Autenticación</string>
-    <string name="setup_site_login">Iniciar sesión</string>
+    <string name="setup_site_login">Iniciar sesión </string>
     <string name="setup_site_login_description_enabled">Conectado</string>
     <string name="setup_site_login_description_disabled">Desactivado</string>
     <string name="setup_board_title">Configurar borads de %s</string>
@@ -269,7 +269,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="video_playback_warning">\"El video WebM no se puro reproducir. Este puede ser un problema con el hardware del teléfono.
 
 Una posible solución es usar un reproductor de tercero con algún decodificador.
-Active \"Reproducir videos con reproductor externo\" En las configuraciones.\"</string>
+Active \"Reproducir videos con reproductor externo\" En las configuraciones.\"    </string>
     <string name="video_playback_ignore">No mostrar de nuevo</string>
     <string name="watch_pause_pins">Dejar de ver</string>
     <string name="watch_idle">No nuevos posts</string>
@@ -353,7 +353,7 @@ Active \"Reproducir videos con reproductor externo\" En las configuraciones.\"</
     <string name="settings_update_check">Buscar actualizaciones</string>
     <string name="settings_crash_reporting">Informe de accidentes</string>
     <string name="settings_crash_reporting_description">\"El reporte de crash crea reportes cuando algo mal pasa en Clover.
-Los reportes de crash no recolectan información personal.\"</string>
+Los reportes de crash no recolectan información personal.\"    </string>
     <string name="settings_crash_reporting_toggle_notice">La configuración se aplicara la próxima vez que la app inicie.</string>
     <string name="settings_about_license">Lanzado bajo la licencia GNU GPLv3</string>
     <string name="settings_about_license_description">Presione para ver licencia</string>
@@ -390,6 +390,8 @@ Los reportes de crash no recolectan información personal.\"</string>
     <string name="settings_screen_behavior">Comportamiento</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
+    <string name="setting_force_english_locale">Always use English for the language of the app</string>
+    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Auto-refrescar hilo</string>
     <string name="setting_confirm_exit">Confirmar antes de salir</string>
     <string name="setting_controller_swipeable">Permitir pantallas deslizables</string>
@@ -425,11 +427,13 @@ Los reportes de crash no recolectan información personal.\"</string>
     <string name="setting_save_board_folder_description">Crear una carpeta para descargar imagenes para cada board</string>
     <string name="setting_save_original_filename">Guardar nombre de archivo original</string>
     <string name="setting_save_original_filename_description">\"Guardar la imágen con el nombre de archivo asignado por el sitio.
-Si esta deshabilitado, guardar imágen con el nombre de archivo original de la subida\"</string>
+Si esta deshabilitado, guardar imágen con el nombre de archivo original de la subida\"    </string>
     <string name="setting_video_default_muted">Inicio videos silenciados</string>
     <string name="setting_video_default_muted_description">Si un video tiene audio, silenceado predeterminado.</string>
     <string name="setting_video_open_external">Reproducir con reproductor externo</string>
     <string name="setting_video_open_external_description">Reproducir en una aplicación de reproductor de medios externos</string>
+    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
+    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Compartir la URL de la imagen</string>
     <string name="setting_share_url_description">Compartir la URL de la imagen en lugar de la propia imagen</string>
     <string name="settings_reveal_image_spoilers">Revelar imágenes spoilers</string>
@@ -448,12 +452,12 @@ Si esta deshabilitado, guardar imágen con el nombre de archivo original de la s
     <string name="save_location_storage_permission_required_title">Permiso de almacenamiento requerido</string>
     <string name="save_location_storage_permission_required">El perimiso para acceder almacenamiento es requerido para navegar archios
 
-Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes</string>
+Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes    </string>
     <string name="setting_folder_pick_ok">Elegir</string>
     <string name="setting_folder_navigate_up">Subir</string>
     <!-- Theme settings -->
     <string name="setting_theme_explanation">\"Para cambiar el tema deslice.
-Toque la barra de menu para cambiar su color\"</string>
+Toque la barra de menu para cambiar su color\"    </string>
     <string name="setting_theme_accent">Presione aqui para cambiar el color de FAB</string>
     <!-- Developer settings -->
     <string name="settings_open_logs">Ver logs</string>
@@ -468,14 +472,10 @@ Toque la barra de menu para cambiar su color\"</string>
     <string name="setting_pass_logout">Cerrar sesión</string>
     <string name="setting_pass_logging_in">Cargando&#8230;</string>
     <string name="setting_pass_error">Error de conexión</string>
-    <string name="setting_pass_bottom_description">
-        \"
-        <![CDATA[Forgot your 4chan Pass login details?<br>
+    <string name="setting_pass_bottom_description">\"<![CDATA[Forgot your 4chan Pass login details?<br>
 <a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
 <br>
 Don't have a 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>]]>
-        \"
-    </string>
+<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>]]>    \"</string>
     <string name="settings_screen_theme">Temas</string>
 </resources>
