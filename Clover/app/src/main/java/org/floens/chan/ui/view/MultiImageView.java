@@ -421,7 +421,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(android.net.Uri.fromFile(file));
 
-            exoPlayer.setRepeatMode(Player.REPEAT_MODE_ALL); //Repeat forever
+            exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
+                    Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(videoSource);
             callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(exoPlayer));
