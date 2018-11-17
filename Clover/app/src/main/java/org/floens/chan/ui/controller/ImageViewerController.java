@@ -185,7 +185,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
-        AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
+        if (ChanSettings.openLinkBrowser.get()) {
+            AndroidUtils.openLink(postImage.imageUrl.toString());
+        } else {
+            AndroidUtils.openLinkInBrowser((Activity) context, postImage.imageUrl.toString());
+        }
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
