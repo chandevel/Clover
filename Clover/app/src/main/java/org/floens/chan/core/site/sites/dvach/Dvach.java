@@ -31,9 +31,9 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-import static android.support.constraint.Constraints.TAG;
-
 public class Dvach extends CommonSite {
+    private static final String TAG = "Dvach";
+
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -42,7 +42,7 @@ public class Dvach extends CommonSite {
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https:/2ch.hk");
+            return HttpUrl.parse("https://2ch.hk");
         }
 
         @Override
