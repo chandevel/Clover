@@ -189,6 +189,10 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     private void onPageSwipedTo(int position) {
+        // Reset volume icon.
+        // If it has audio, we'll know after it is loaded.
+        callback.showVolumeMenuItem(false, true);
+
         PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
@@ -205,9 +209,6 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         callback.showProgress(progress.get(selectedPosition) >= 0f);
         callback.onLoadProgress(progress.get(selectedPosition));
-
-        // If it has audio, we'll know after it is loaded.
-        callback.showVolumeMenuItem(false, true);
     }
 
     // Called from either a page swipe caused a lowres image to the center or an

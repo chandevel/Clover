@@ -182,14 +182,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public void setVolume(boolean muted) {
         final float volume = muted ? 0f : 1f;
-        if (ChanSettings.videoUseExoplayer.get()) {
-            if (exoPlayer != null) {
-                exoPlayer.getAudioComponent().setVolume(volume);
+        if (exoPlayer != null) {
+            Player.AudioComponent audioComponent = exoPlayer.getAudioComponent();
+            if (audioComponent != null) {
+                audioComponent.setVolume(volume);
             }
-        } else {
-            if (mediaPlayer != null) {
-                mediaPlayer.setVolume(volume, volume);
-            }
+        } else if (mediaPlayer != null) {
+            mediaPlayer.setVolume(volume, volume);
         }
     }
 
