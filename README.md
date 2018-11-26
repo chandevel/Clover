@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/clover/localized.svg)](https://crowdin.com/project/clover)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/Floens/Clover.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Floens/Clover/context:java)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/Floens/Clover.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Floens/Clover/alerts)
 
 [Website](http://floens.github.io/Clover/)  
 [APK releases](https://floens.github.io/Clover/#releases) | [Development APK releases](https://floens.github.io/Clover/#dev) | [F-Droid](https://floens.github.io/Clover/#fdroid)  
