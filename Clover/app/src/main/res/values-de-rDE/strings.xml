@@ -103,7 +103,7 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="order_oldest">Älteste</string>
     <string name="order_modified">Neueste Antwort</string>
     <string name="search_hint">Suche</string>
-    <string name="search_results">Found %1$s for \"%2$s\"</string>
+    <string name="search_results">Gefunden Sie %1$s für \"%2$s\"</string>
     <string name="search_empty">Suche Themen, Kommentare, Namen und Dateinamen</string>
     <string name="open_link_confirmation">Diesen Link öffnen?</string>
     <string name="open_thread_confirmation">Diesen Thread öffnen?</string>
@@ -129,17 +129,17 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="thread_archived">Archiviert</string>
     <string name="thread_closed">Geschlossen</string>
     <plurals name="thread_new_posts">
-        <item quantity="one">%d new post</item>
-        <item quantity="other">%d new posts</item>
+        <item quantity="one">%d neu Post</item>
+        <item quantity="other">%d neu Posten</item>
     </plurals>
     <string name="thread_new_posts_goto">Anzeigen</string>
-    <string name="thread_empty_select">Please select a thread</string>
-    <string name="thread_up_down_hint">Scroll to top/bottom</string>
-    <string name="thread_pin_hint">Bookmark this thread</string>
+    <string name="thread_empty_select">Bitte wählen Sie einen Thread aus</string>
+    <string name="thread_up_down_hint">Scrollen Sie nach oben/unten</string>
+    <string name="thread_pin_hint">Lesezeichen für diesen Faden</string>
     <string name="thread_view_archive">Archivieren</string>
-    <string name="thread_empty_setup_title">Nothing to show</string>
-    <string name="thread_empty_setup_body">Add a site to begin browsing</string>
-    <string name="thread_empty_setup_hint">Add a site here</string>
+    <string name="thread_empty_setup_title">Nichts zu zeigen</string>
+    <string name="thread_empty_setup_body">Fügen Sie eine Website hinzu, um mit dem Durchsuchen zu beginnen</string>
+    <string name="thread_empty_setup_hint">Fügen Sie hier eine Website hinzu</string>
     <string name="setup_sites_title">Setup sites</string>
     <string name="setup_sites_empty">No sites added</string>
     <string name="setup_sites_add_hint">Add a site here</string>
