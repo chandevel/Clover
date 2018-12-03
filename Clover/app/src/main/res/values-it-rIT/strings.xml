@@ -36,10 +36,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_install_downloading">Scaricamento aggiornamento</string>
     <string name="update_install_download_failed">Scaricamento fallito</string>
     <string name="update_install_download_move_failed">È stato riscontrato un errore spostando il file nella cartella Download.</string>
-    <string name="update_retry_title">Retry update</string>
+    <string name="update_retry_title">Riprova l\'aggiornamento</string>
     <string name="update_retry">Clover non è stato aggiornato. Premi \"riprova\" per riprovare l\'installazione.</string>
     <string name="update_retry_button">riprova</string>
-    <string name="update_storage_permission_required_title">Storage permission required</string>
+    <string name="update_storage_permission_required_title">Richiesta autorizzazione di archiviazione</string>
     <string name="update_storage_permission_required">\"Permission to access storage is required for installing the update.
 
 Re-enable this permission in the app settings if you permanently disabled it.\"</string>
@@ -105,15 +105,15 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="search_hint">Cerca</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>
     <string name="search_empty">Search subjects, comments, names and filenames</string>
-    <string name="open_link_confirmation">Open this link?</string>
-    <string name="open_thread_confirmation">Open this thread?</string>
-    <string name="open_link_failed">No applications were found to open this link</string>
-    <string name="action_confirm_exit_title">Confirm exit</string>
-    <string name="thumbnail_load_failed_network">Error</string>
-    <string name="image_preview_failed">Failed to show image</string>
-    <string name="image_preview_failed_oom">Failed to show image, out of memory</string>
-    <string name="image_failed_big_image">Failed to show image, deep-zoom loading failed</string>
-    <string name="image_not_found">Image not found</string>
+    <string name="open_link_confirmation">Aprire questo link?</string>
+    <string name="open_thread_confirmation">Aprire questo thread?</string>
+    <string name="open_link_failed">Nessuna applicazione trovata per aprire questo file</string>
+    <string name="action_confirm_exit_title">Conferma uscita</string>
+    <string name="thumbnail_load_failed_network">Errore</string>
+    <string name="image_preview_failed">Impossibile caricare l\'immagine</string>
+    <string name="image_preview_failed_oom">Impossibile caricare l\'immagine, memoria esaurita</string>
+    <string name="image_failed_big_image">Impossibile caricare l\'immagine, caricamento deep-zoom fallito</string>
+    <string name="image_not_found">Immagine non trovata</string>
     <string name="image_open_failed">Failed to open image</string>
     <string name="image_spoiler_filename">Spoiler image</string>
     <string name="thread_boards_search_hint">Search</string>
@@ -153,27 +153,27 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="setup_site_group_general">General</string>
     <string name="setup_site_boards">Setup boards</string>
     <string name="setup_site_boards_description">%s added</string>
-    <string name="setup_site_group_login">Authentication</string>
+    <string name="setup_site_group_login">Accesso</string>
     <string name="setup_site_login">Login</string>
-    <string name="setup_site_login_description_enabled">Logged in</string>
+    <string name="setup_site_login_description_enabled">Loggato</string>
     <string name="setup_site_login_description_disabled">Off</string>
     <string name="setup_board_title">Configure boards of %s</string>
-    <string name="setup_board_empty">No boards added</string>
+    <string name="setup_board_empty">Nessuna board aggiunta</string>
     <string name="setup_board_removed">Removed \"%s\"</string>
     <string name="setup_board_added">%s added</string>
-    <string name="setup_board_select_all">Select all</string>
-    <string name="filter_summary_all_boards">All boards</string>
-    <string name="filter_enabled">Enabled</string>
-    <string name="filter_filter">Filter</string>
-    <string name="filter_action">Action</string>
-    <string name="filter_pattern">Pattern</string>
+    <string name="setup_board_select_all">Seleziona tutto</string>
+    <string name="filter_summary_all_boards">Tutte le board</string>
+    <string name="filter_enabled">Abilitato</string>
+    <string name="filter_filter">Filtro</string>
+    <string name="filter_action">Azione</string>
+    <string name="filter_pattern">Modello</string>
     <string name="filter_match_test">Test the pattern</string>
     <string name="filter_pattern_hint_regex">Pattern</string>
-    <string name="filter_boards">Boards</string>
-    <string name="filter_types">Types</string>
+    <string name="filter_boards">Board</string>
+    <string name="filter_types">Tipi</string>
     <string name="filter_type_string_matching">String matching</string>
     <string name="filter_type_regex_matching">Regex matching</string>
-    <string name="filter_all">all</string>
+    <string name="filter_all">tutti</string>
     <string name="filter_hide">Hide post</string>
     <string name="filter_color">Highlight post</string>
     <string name="filter_remove">Remove post</string>
@@ -181,7 +181,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="filter_preview">Test your filter</string>
     <string name="filter_no_matches">Does not match</string>
     <string name="filter_matches">Matches</string>
-    <string name="filter_color_pick">Pick color</string>
+    <string name="filter_color_pick">Scegliere il colore</string>
     <string name="filter_help_title">Filter help</string>
     <string name="filter_help"><![CDATA[Filters act on a given pattern and a place to search the pattern.<br>
 If the pattern matches then the post can be hidden or highlighted.<br>
@@ -205,21 +205,21 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     3. Regular expressions. <tt>/^>implying/</tt> for example.
 </p>]]></string>
     <string name="filter_tripcode">Tripcode</string>
-    <string name="filter_name">Name</string>
-    <string name="filter_comment">Comment</string>
+    <string name="filter_name">Nome</string>
+    <string name="filter_comment">Commento</string>
     <string name="filter_id">ID</string>
-    <string name="filter_subject">Subject</string>
-    <string name="filter_filename">Filename</string>
-    <string name="board_select_all">Select all</string>
-    <string name="board_select_none">Select none</string>
-    <string name="history_clear">Clear history</string>
-    <string name="history_clear_confirm">Clear history?</string>
-    <string name="history_clear_confirm_button">Clear</string>
+    <string name="filter_subject">Oggetto</string>
+    <string name="filter_filename">Nome file</string>
+    <string name="board_select_all">Seleziona tutto</string>
+    <string name="board_select_none">Deseleziona tutto</string>
+    <string name="history_clear">Cancella cronologia</string>
+    <string name="history_clear_confirm">Eliminare la cronologia?</string>
+    <string name="history_clear_confirm_button">Elimina tutto</string>
     <string name="history_toggle_hint">Enable or disable history</string>
     <string name="history_empty_info">No history</string>
     <string name="saved_reply_clear">Clear posting history</string>
     <string name="saved_reply_clear_confirm">Clear posting history?</string>
-    <string name="saved_reply_clear_confirm_button">Clear</string>
+    <string name="saved_reply_clear_confirm_button">Elimina tutto</string>
     <string name="archive_title">%s archive</string>
     <string name="archive_error">Error loading archive</string>
     <string name="drawer_pinned">Bookmarked threads</string>
@@ -251,10 +251,10 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="reply_file_name">File name</string>
     <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
     <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
-    <string name="reply_file_open_failed">Failed to open file</string>
+    <string name="reply_file_open_failed">Impossibile aprire il file</string>
     <string name="reply_spoiler_image">Spoiler image</string>
-    <string name="reply_no_preview">No preview</string>
-    <string name="reply_submit">Submit</string>
+    <string name="reply_no_preview">Nessuna anteprima</string>
+    <string name="reply_submit">Invia</string>
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
     <string name="reply_success">Post successful</string>
@@ -273,7 +273,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     </string>
     <string name="video_playback_ignore">Don\'t show again</string>
     <string name="watch_pause_pins">Stop watching</string>
-    <string name="watch_idle">No new posts</string>
+    <string name="watch_idle">Nessun nuovo post</string>
     <plurals name="watch_title">
         <item quantity="one">Watching one thread</item>
         <item quantity="other">Watching %d threads</item>
@@ -304,11 +304,11 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="drawer_sites">Setup sites</string>
     <string name="drawer_history">History</string>
     <!-- Main settings -->
-    <string name="settings_screen">Settings</string>
+    <string name="settings_screen">Impostazioni</string>
     <!-- Main "Settings" group -->
-    <string name="settings_group_settings">Settings</string>
+    <string name="settings_group_settings">Impostazioni</string>
     <string name="settings_watch">Thread watcher</string>
-    <string name="settings_sites">Sites</string>
+    <string name="settings_sites">Siti</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
     <string name="settings_behavior">Behavior</string>
