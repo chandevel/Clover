@@ -455,23 +455,21 @@ Aktivieren Sie diese Berechtigung in den App-Einstellungen erneut, wenn Sie sie 
     <string name="setting_folder_pick_ok">Wählen</string>
     <string name="setting_folder_navigate_up">Oben</string>
     <!-- Theme settings -->
-    <string name="setting_theme_explanation">\"Swipe to change the theme.
-Tap the toolbar menu to change its color.\"
-    </string>
-    <string name="setting_theme_accent">Tap here to change the FAB color</string>
+    <string name="setting_theme_explanation">\"Streichen zum Ändern des Designs. Tippen Sie auf das Symbolleisten Menü, um die Farbe zu ändern.\"    </string>
+    <string name="setting_theme_accent">Hier tippen, um die FABfarbe zu ändern</string>
     <!-- Developer settings -->
-    <string name="settings_open_logs">View logs</string>
-    <string name="settings_logs_screen">Logs</string>
-    <string name="settings_logs_copy">Copy</string>
-    <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
+    <string name="settings_open_logs">Protokolle ansehen</string>
+    <string name="settings_logs_screen">Protokolle</string>
+    <string name="settings_logs_copy">Kopieren</string>
+    <string name="settings_logs_copied_to_clipboard">In Zwischenablage kopiert</string>
     <string name="settings_screen_pass">4chan pass</string>
     <string name="setting_pass_token">Token</string>
     <string name="setting_pass_pin">PIN</string>
-    <string name="setting_pass_authenticated">Device authorized!</string>
-    <string name="setting_pass_login">Submit</string>
-    <string name="setting_pass_logout">Logout</string>
-    <string name="setting_pass_logging_in">Loading&#8230;</string>
-    <string name="setting_pass_error">Connection error</string>
+    <string name="setting_pass_authenticated">Gerät autorisiert!</string>
+    <string name="setting_pass_login">Absenden</string>
+    <string name="setting_pass_logout">Abmelden</string>
+    <string name="setting_pass_logging_in">Lädt &#8230;</string>
+    <string name="setting_pass_error">Verbindungsfehler</string>
     <string name="setting_pass_bottom_description">\"<![CDATA[Forgot your 4chan Pass login details?<br>
 <a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
 <br>
