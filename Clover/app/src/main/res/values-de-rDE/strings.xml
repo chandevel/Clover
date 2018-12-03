@@ -224,9 +224,9 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="archive_error">Fehler beim Laden des Archivs</string>
     <string name="drawer_pinned">Markierte Faden</string>
     <string name="drawer_pin_removed">Entfernt \"%1$s\"</string>
-    <string name="drawer_pins_cleared">%1$s cleared</string>
-    <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
-    <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
+    <string name="drawer_pins_cleared">%1$s gelöscht</string>
+    <string name="drawer_pins_non_cleared">Keine Lesezeichen gelöscht.</string>
+    <string name="drawer_pins_non_cleared_try_all">Keine Lesezeichen gelöscht. Fassen, um alle zu entfernen.</string>
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
     <string name="post_filter_tripcode">Filter tripcode</string>
