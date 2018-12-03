@@ -136,7 +136,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="thread_empty_select">Please select a thread</string>
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
-    <string name="thread_view_archive">Archive</string>
+    <string name="thread_view_archive">Archivo</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
     <string name="thread_empty_setup_hint">Add a site here</string>
@@ -146,7 +146,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="setup_sites_add_title">Add site</string>
     <string name="setup_sites_description">Add a site by its URL or name</string>
     <string name="setup_sites_url">URL or name</string>
-    <string name="setup_sites_url_hint">http://example.com</string>
+    <string name="setup_sites_url_hint">http://esempio.com</string>
     <string name="setup_sites_site_description">%s added</string>
     <string name="setup_sites_add_boards_hint">Tap to add boards</string>
     <string name="setup_site_title">Configure %s</string>
@@ -472,15 +472,15 @@ Tap the toolbar menu to change its color.\"
     <string name="settings_screen_pass">4chan pass</string>
     <string name="setting_pass_token">Token</string>
     <string name="setting_pass_pin">PIN</string>
-    <string name="setting_pass_authenticated">Device authorized!</string>
-    <string name="setting_pass_login">Submit</string>
+    <string name="setting_pass_authenticated">Dispositivo autorizzato!</string>
+    <string name="setting_pass_login">Invia</string>
     <string name="setting_pass_logout">Logout</string>
     <string name="setting_pass_logging_in">Loading&#8230;</string>
-    <string name="setting_pass_error">Connection error</string>
+    <string name="setting_pass_error">Errore di connessione</string>
     <string name="setting_pass_bottom_description">\"<![CDATA[Forgot your 4chan Pass login details?<br>
 <a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
 <br>
 Don't have a 4chan Pass?<br>
 <a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>]]>    \"</string>
-    <string name="settings_screen_theme">Themes</string>
+    <string name="settings_screen_theme">Temi</string>
 </resources>
