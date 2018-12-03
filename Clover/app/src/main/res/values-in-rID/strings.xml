@@ -377,8 +377,8 @@ Laporan kerusakan tidak mengumpulkan informasi identitas pribadi apa pun.\"
     <string name="settings_screen_behavior">Tingkah laku</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">Umum</string>
-    <string name="setting_force_english_locale">Always use English for the language of the app</string>
-    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
+    <string name="setting_force_english_locale">Selalu menggunakan bahasa Inggris di aplikasi</string>
+    <string name="setting_force_english_locale_toggle_notice">Bahasa akan diterapkan pada saat aplikasi dibuka kembali.</string>
     <string name="setting_auto_refresh_thread">Segarkan otomatis utas</string>
     <string name="setting_confirm_exit">Konfirmasikan sebelum keluar</string>
     <string name="setting_controller_swipeable">Izinkan layar untuk digesek</string>
@@ -420,8 +420,8 @@ Jika dinonaktifkan, simpan gambar dengan nama file yang diunggah oleh pengunggah
     <string name="setting_video_default_muted_description">Jika video memiliki audio, nonaktifkan secara default.</string>
     <string name="setting_video_open_external">Putar video dengan pemutar eksternal</string>
     <string name="setting_video_open_external_description">Putar video di aplikasi pemutar media eksternal</string>
-    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
+    <string name="setting_video_exoplayer">Aktifkan ExoPlayer baru</string>
+    <string name="setting_video_exoplayer_description">Gunakan ExoPlayer baru untuk pemutar media internal</string>
     <string name="setting_share_url">Bagikan URL ke gambar</string>
     <string name="setting_share_url_description">Bagikan URL ke gambar, bukan gambar itu sendiri</string>
     <string name="settings_reveal_image_spoilers">Mengungkapkan spoiler gambar</string>
