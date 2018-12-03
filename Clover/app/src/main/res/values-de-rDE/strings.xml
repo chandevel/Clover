@@ -269,27 +269,27 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="video_playback_warning">\"Das WebM-Video konnte nicht abgespielt werden. Dies könnte ein Problem mit der Hardware Ihres Telefons sein. 
 
 Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwaredecoder zu verwenden. Aktivieren Sie\" Play videos with external player \"in den Einstellungen, um Videos mit einem externer Spieler. \"    </string>
-    <string name="video_playback_ignore">Don\'t show again</string>
-    <string name="watch_pause_pins">Stop watching</string>
-    <string name="watch_idle">No new posts</string>
+    <string name="video_playback_ignore">Nicht wieder anzeigen</string>
+    <string name="watch_pause_pins">Aufhören zu schauen</string>
+    <string name="watch_idle">Keine neue Posten</string>
     <plurals name="watch_title">
-        <item quantity="one">Watching one thread</item>
-        <item quantity="other">Watching %d threads</item>
+        <item quantity="one">Ein Thread gesehen</item>
+        <item quantity="other">%d Themen ansehen</item>
     </plurals>
     <plurals name="watch_new">
-        <item quantity="one">%d new post</item>
-        <item quantity="other">%d new posts</item>
+        <item quantity="one">%d neu Post</item>
+        <item quantity="other">%d neu Posten</item>
     </plurals>
     <plurals name="watch_new_quotes">
-        <item quantity="one">%d new post quoting you</item>
-        <item quantity="other">%d new posts quoting you</item>
+        <item quantity="one">%d neue Post zitieren Sie</item>
+        <item quantity="other">%d neue Posten zitieren Sie</item>
     </plurals>
     <plurals name="watch_new_quoting">
-        <item quantity="one">%1$d new post, %2$d quoting you</item>
-        <item quantity="other">%1$d new posts, %2$d quoting you</item>
+        <item quantity="one">%1$d neu Post, %2$d zitieren Sie</item>
+        <item quantity="other">%1$d neu Posten, %2$d zitieren Sie</item>
     </plurals>
-    <string name="history_screen">History</string>
-    <string name="filters_screen">Filters</string>
+    <string name="history_screen">Historie</string>
+    <string name="filters_screen">Filter</string>
     <string name="album_download_screen">Bilder auswählen (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Bitte wählen Sie Bilder zum Download aus</string>
     <string name="album_download_confirm">%1$s wird in den Ordner %2$s heruntergeladen</string>
@@ -381,19 +381,19 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="settings_group_post">Post</string>
     <string name="setting_font_size">Font size</string>
     <string name="setting_font_size_default">(default)</string>
-    <string name="setting_font_condensed">Use condensed font</string>
-    <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
-    <string name="setting_post_full_date">Show the full date on posts</string>
-    <string name="setting_post_file_info">Show file info on posts</string>
-    <string name="setting_post_filename">Show filename on posts</string>
+    <string name="setting_font_condensed">Verwenden Sie eine komprimierte Schrift</string>
+    <string name="setting_font_condensed_description">Verwenden Sie eine komprimierte Schrift für die Posten</string>
+    <string name="setting_post_full_date">Zeige das vollständige Datum in den Posten</string>
+    <string name="setting_post_file_info">Dateiinformationen zu Posten anzeigen</string>
+    <string name="setting_post_filename">Dateiinformationen zu Posten anzeigen</string>
     <!-- Behavior -->
-    <string name="settings_screen_behavior">Behavior</string>
+    <string name="settings_screen_behavior">Verhalten</string>
     <!-- Behavior general group -->
-    <string name="settings_group_general">General</string>
-    <string name="setting_force_english_locale">Always use English for the language of the app</string>
-    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
-    <string name="setting_auto_refresh_thread">Auto refresh threads</string>
-    <string name="setting_confirm_exit">Confirm before exit</string>
+    <string name="settings_group_general">Allgemein</string>
+    <string name="setting_force_english_locale">Verwenden Sie immer Englisch für die Sprache der App</string>
+    <string name="setting_force_english_locale_toggle_notice">Die Sprache wird beim nächsten Start der App übernommen.</string>
+    <string name="setting_auto_refresh_thread">Faden automatisch aktualisieren</string>
+    <string name="setting_confirm_exit">Vor dem Beenden bestätigen</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
     <string name="setting_clear_thread_hides">Clear all thread hides</string>
     <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
