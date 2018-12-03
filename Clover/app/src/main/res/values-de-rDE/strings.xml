@@ -40,16 +40,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_retry">Clover wurde noch nicht aktualisiert. Tippe auf \"Wiederholen\" um das Update erneut zu starten.</string>
     <string name="update_retry_button">erneut versuchen</string>
     <string name="update_storage_permission_required_title">Speicherrechte erforderlich</string>
-    <string name="update_storage_permission_required">\"Zum Installieren des Updates ist eine Zugriffsberechtigung für den Speicher erforderlich. 
+    <string name="update_storage_permission_required">\"Speicherzugriff ist für die Installation des Updates erforderlich.
 
-Aktivieren Sie diese Berechtigung in den App-Einstellungen erneut, wenn Sie sie dauerhaft deaktiviert haben.\"</string>
+erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktiviert haben.\"</string>
     <plurals name="minutes">
         <item quantity="one">%d Minute</item>
         <item quantity="other">%d Minuten</item>
     </plurals>
     <plurals name="posts">
-        <item quantity="one">%d Post</item>
-        <item quantity="other">%d Posten</item>
+        <item quantity="one">%d Beitrag</item>
+        <item quantity="other">%d Beiträge</item>
     </plurals>
     <plurals name="reply">
         <item quantity="one">%d Antwort</item>
@@ -61,7 +61,7 @@ Aktivieren Sie diese Berechtigung in den App-Einstellungen erneut, wenn Sie sie 
     </plurals>
     <plurals name="board">
         <item quantity="one">%d Internetboard</item>
-        <item quantity="other">%d Internetboarden</item>
+        <item quantity="other">%d Internetboards</item>
     </plurals>
     <plurals name="type">
         <item quantity="one">%d Typ</item>
@@ -371,14 +371,14 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
     <string name="setting_layout_mode_split">Geteilt-Modus</string>
     <string name="setting_board_grid_span_count">Katalog-Modus Spaltenanzahl</string>
     <string name="setting_board_grid_span_count_default">Auto</string>
-    <string name="setting_board_grid_span_count_item">%1$d columns</string>
-    <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
-    <string name="setting_enable_reply_fab">Enable the reply button</string>
-    <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+    <string name="setting_board_grid_span_count_item">%1$d Spalte</string>
+    <string name="setting_never_hide_toolbar">Verstecken Sie niemals die Symbolleiste</string>
+    <string name="setting_enable_reply_fab">Aktivieren Sie die Antwort-Taste</string>
+    <string name="setting_enable_reply_fab_description">Durch Deaktivieren wird die runde Schaltfläche durch eine Menüoption ersetzt</string>
     <!-- Appearance post group -->
     <string name="settings_group_post">Post</string>
-    <string name="setting_font_size">Font size</string>
-    <string name="setting_font_size_default">(default)</string>
+    <string name="setting_font_size">Schriftgröße</string>
+    <string name="setting_font_size_default">(Standard)</string>
     <string name="setting_font_condensed">Verwenden Sie eine komprimierte Schrift</string>
     <string name="setting_font_condensed_description">Verwenden Sie eine komprimierte Schrift für die Posten</string>
     <string name="setting_post_full_date">Zeige das vollständige Datum in den Posten</string>
@@ -439,22 +439,21 @@ speichern wenn deaktiviert, Sie das Bild mit dem Dateinamen den Uploader zugewie
     <string name="settings_reveal_image_spoilers_description">Zeigen Sie immer Spoiler-Thumbnails und Bilder an.</string>
     <!-- Media loading group -->
     <string name="settings_group_media_loading">Medien laden</string>
-    <string name="setting_image_auto_load">Automatically load images</string>
-    <string name="setting_image_auto_load_all">Always</string>
-    <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
-    <string name="setting_image_auto_load_none">Never</string>
-    <string name="setting_video_auto_load">Automatically load videos</string>
-    <string name="setting_video_auto_loop">Enable automatic video-looping</string>
-    <string name="setting_video_auto_loop_description">Automatically loop video content</string>
+    <string name="setting_image_auto_load">Bilder automatisch vorladen</string>
+    <string name="setting_image_auto_load_all">Immer</string>
+    <string name="setting_image_auto_load_wifi">Nur Wi-Fi</string>
+    <string name="setting_image_auto_load_none">Nie</string>
+    <string name="setting_video_auto_load">Videos automatisch vorladen</string>
+    <string name="setting_video_auto_loop">Aktivieren Sie automatische Videowiederholung</string>
+    <string name="setting_video_auto_loop_description">Video-Inhalt automatisch wiederholen</string>
     <!-- Save location settings -->
-    <string name="save_location_screen">Save location</string>
-    <string name="save_location_storage_permission_required_title">Storage permission required</string>
-    <string name="save_location_storage_permission_required">\"Permission to access storage is required for browsing files.
+    <string name="save_location_screen">Ort speichern</string>
+    <string name="save_location_storage_permission_required_title">Wir benötigen Erlaubnis, auf Ihren Speicher zugreifen</string>
+    <string name="save_location_storage_permission_required">\"Zum Durchsuchen von Dateien müssen wir Zugriff auf Ihren Speicher haben. 
 
-Re-enable this permission in the app settings if you permanently disabled it.\"
-    </string>
-    <string name="setting_folder_pick_ok">Choose</string>
-    <string name="setting_folder_navigate_up">Up</string>
+Aktivieren Sie diese Berechtigung in den App-Einstellungen erneut, wenn Sie sie dauerhaft deaktiviert haben.\"    </string>
+    <string name="setting_folder_pick_ok">Wählen</string>
+    <string name="setting_folder_navigate_up">Oben</string>
     <!-- Theme settings -->
     <string name="setting_theme_explanation">\"Swipe to change the theme.
 Tap the toolbar menu to change its color.\"
