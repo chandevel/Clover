@@ -394,26 +394,26 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="setting_force_english_locale_toggle_notice">Die Sprache wird beim nächsten Start der App übernommen.</string>
     <string name="setting_auto_refresh_thread">Faden automatisch aktualisieren</string>
     <string name="setting_confirm_exit">Vor dem Beenden bestätigen</string>
-    <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
-    <string name="setting_clear_thread_hides">Clear all thread hides</string>
-    <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
+    <string name="setting_controller_swipeable">Bildschirme zulassen weggestrichen werden</string>
+    <string name="setting_clear_thread_hides">Alle versteckten Faden löschen</string>
+    <string name="setting_cleared_thread_hides">Alle versteckten Faden gelöscht</string>
     <!-- Behavior reply group -->
-    <string name="settings_group_reply">Reply</string>
-    <string name="setting_post_pin">Bookmark thread on post</string>
-    <string name="setting_post_default_name">Default post name</string>
+    <string name="settings_group_reply">Antworten</string>
+    <string name="setting_post_pin">Lesezeichen-Faden, sobald Sie gepostet haben</string>
+    <string name="setting_post_default_name">Standardpostname</string>
     <!-- Behavior post group -->
-    <string name="setting_text_only">Text only mode</string>
-    <string name="setting_text_only_description">Hide images when in board and thread view</string>
-    <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
-    <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
-    <string name="setting_anonymize">Make everyone Anonymous</string>
-    <string name="setting_anonymize_ids">Hide IDs</string>
-    <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
-    <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
-    <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
-    <string name="setting_tap_no_rely">Tap the post number to reply</string>
-    <string name="setting_open_link_confirmation">Ask before opening links</string>
-    <string name="setting_open_link_browser">Always open links in external browser</string>
+    <string name="setting_text_only">Nur-Text-Modus</string>
+    <string name="setting_text_only_description">Blenden Sie Bilder in Vorstand und Thread Ansicht aus</string>
+    <string name="settings_reveal_text_spoilers">Text-Spoiler zeigen</string>
+    <string name="settings_reveal_text_spoilers_description">Macht den Spoiler Text angezapft werden angezeigt</string>
+    <string name="setting_anonymize">Damit sich jeder anonym</string>
+    <string name="setting_anonymize_ids">IDs verstecken</string>
+    <string name="setting_show_anonymous_name">Immer \"Anonym\" Namen anzeigen</string>
+    <string name="setting_buttons_bottom">Antwort-Tasten auf der Unterseite</string>
+    <string name="setting_volume_key_scrolling">Lautstärke-Tasten Blättern Sie Inhalt</string>
+    <string name="setting_tap_no_rely">Tippen Sie auf die Post-Nummer um zu antworten</string>
+    <string name="setting_open_link_confirmation">Fragen Sie vor dem Öffnen von links</string>
+    <string name="setting_open_link_browser">Immer Links im externen Browser öffnen</string>
     <!-- Behavior proxy group -->
     <string name="settings_group_proxy">HTTP Proxy</string>
     <string name="setting_proxy_enabled">Enable proxy</string>
