@@ -95,7 +95,7 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="action_rename_pin">Lesezeichen umbenennen</string>
     <string name="action_rename">Umbenennen</string>
     <string name="action_reply">Antworten</string>
-    <string name="open_link_not_matched">Clover kann diesen Link nicht öffnen; Es wird stattdessen in Ihrem Internet-Browser geöffnet.</string>
+    <string name="open_link_not_matched">Clover kann diesen Link nicht öffnen; Es wird stattdessen in Ihrem Browser geöffnet.</string>
     <string name="order_bump">Bump-Reihenfolge</string>
     <string name="order_reply">Anzahl von Antworten</string>
     <string name="order_image">Bildanzahl</string>
@@ -129,13 +129,13 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="thread_archived">Archiviert</string>
     <string name="thread_closed">Geschlossen</string>
     <plurals name="thread_new_posts">
-        <item quantity="one">%d neu Post</item>
-        <item quantity="other">%d neu Posten</item>
+        <item quantity="one">%d Neuer Beitrag</item>
+        <item quantity="other">%d Neuer Beiträge</item>
     </plurals>
     <string name="thread_new_posts_goto">Anzeigen</string>
-    <string name="thread_empty_select">Bitte wählen Sie einen Thread aus</string>
+    <string name="thread_empty_select">Bitte wählen Sie einen Faden aus</string>
     <string name="thread_up_down_hint">Scrollen Sie nach oben/unten</string>
-    <string name="thread_pin_hint">Lesezeichen für diesen Faden</string>
+    <string name="thread_pin_hint">Lesezeichen für diesen Thread</string>
     <string name="thread_view_archive">Archivieren</string>
     <string name="thread_empty_setup_title">Nichts zu zeigen</string>
     <string name="thread_empty_setup_body">Fügen Sie eine Website hinzu, um mit dem Durchsuchen zu beginnen</string>
@@ -169,7 +169,7 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="filter_pattern">Muster</string>
     <string name="filter_match_test">Testen Sie das Muster</string>
     <string name="filter_pattern_hint_regex">Muster</string>
-    <string name="filter_boards">Boards</string>
+    <string name="filter_boards">Internetboards</string>
     <string name="filter_types">Typen</string>
     <string name="filter_type_string_matching">String-matching</string>
     <string name="filter_type_regex_matching">Regex passender</string>
