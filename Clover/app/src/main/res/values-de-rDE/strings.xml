@@ -222,12 +222,12 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="saved_reply_clear_confirm_button">Leeren</string>
     <string name="archive_title">%s Archiv</string>
     <string name="archive_error">Fehler beim Laden des Archivs</string>
-    <string name="drawer_pinned">Markierte Faden</string>
+    <string name="drawer_pinned">Markierte Threads</string>
     <string name="drawer_pin_removed">Entfernt \"%1$s\"</string>
     <string name="drawer_pins_cleared">%1$s gelöscht</string>
     <string name="drawer_pins_non_cleared">Keine Lesezeichen gelöscht.</string>
     <string name="drawer_pins_non_cleared_try_all">Keine Lesezeichen gelöscht. Fassen, um alle zu entfernen.</string>
-    <string name="post_highlight_id">Markieren Identifikation</string>
+    <string name="post_highlight_id">Markieren ID</string>
     <string name="post_highlight_tripcode">Markieren tripcode</string>
     <string name="post_filter_tripcode">Filter tripcode</string>
     <string name="post_text_copied">Text in Zwischenablage kopiert</string>
@@ -236,7 +236,7 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="post_info">Info</string>
     <string name="post_info_title">Post-info</string>
     <string name="post_show_links">Links anzeigen</string>
-    <string name="post_share">Empfehlen</string>
+    <string name="post_share">Teilen</string>
     <string name="post_copy_text">Text kopieren</string>
     <string name="post_report">Melden</string>
     <string name="post_hide">Verstecken</string>
@@ -245,9 +245,9 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="post_more">Mehr…</string>
     <string name="reply_name">Name</string>
     <string name="reply_options">Optionen</string>
-    <string name="reply_subject">Subjekt</string>
+    <string name="reply_subject">Betreff</string>
     <string name="reply_comment_thread">Kommentar antworten</string>
-    <string name="reply_comment_board">Kommentar neu thread</string>
+    <string name="reply_comment_board">Kommentar neu Faden</string>
     <string name="reply_file_name">Dateiname</string>
     <string name="reply_file_too_big">Achtung: Dateigröße zu groß (%1$s / %2$s)</string>
     <string name="reply_webm_too_big">Achtung: WEBM-Dateigröße zu groß (%1$s / %2$s)</string>
@@ -255,8 +255,8 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="reply_spoiler_image">Spoiler-Bild</string>
     <string name="reply_no_preview">Keine Vorschau</string>
     <string name="reply_submit">Absenden</string>
-    <string name="reply_error">Fehler-Buchung</string>
-    <string name="reply_error_message">Fehler-Buchung: %s</string>
+    <string name="reply_error">Postingfehler</string>
+    <string name="reply_error_message">Postingfehler: %s</string>
     <string name="reply_success">Erfolgreiche Post</string>
     <string name="reply_captcha_text">Tippe den Text</string>
     <string name="reply_comment_button_spoiler">[s]</string>
@@ -264,36 +264,36 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="delete_wait">Löschen von Post-&#8230;</string>
     <string name="delete_success">Beitrag wurde entfernt</string>
     <string name="delete_image_only">Nur das Bild löschen</string>
-    <string name="delete_error">Fehler beim Löschen der post</string>
+    <string name="delete_error">Fehler beim Löschen der beitrag</string>
     <string name="video_playback_warning_title">WebM video Fehler</string>
-    <string name="video_playback_warning">\"Das WebM-Video konnte nicht abgespielt werden. Dies könnte ein Problem mit der Hardware Ihres Telefons sein. 
+    <string name="video_playback_warning">\"Das WebM-Video konnte nicht abgespielt werden. Dies könnte ein Problem mit der Hardware Ihres Handys sein. 
 
-Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwaredecoder zu verwenden. Aktivieren Sie\" Play videos with external player \"in den Einstellungen, um Videos mit einem externer Spieler. \"    </string>
+Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwaredecoder zu verwenden. Aktivieren Sie \"Play videos with external player\" in den Einstellungen, um Videos mit einem externer Spieler.\"    </string>
     <string name="video_playback_ignore">Nicht wieder anzeigen</string>
     <string name="watch_pause_pins">Aufhören zu schauen</string>
-    <string name="watch_idle">Keine neue Posten</string>
+    <string name="watch_idle">Keine neue Beiträge</string>
     <plurals name="watch_title">
         <item quantity="one">Ein Thread gesehen</item>
-        <item quantity="other">%d Themen ansehen</item>
+        <item quantity="other">%d Theads ansehen</item>
     </plurals>
     <plurals name="watch_new">
-        <item quantity="one">%d neu Post</item>
-        <item quantity="other">%d neu Posten</item>
+        <item quantity="one">%d neu Beitrag</item>
+        <item quantity="other">%d neu Beiträge</item>
     </plurals>
     <plurals name="watch_new_quotes">
-        <item quantity="one">%d neue Post zitieren Sie</item>
-        <item quantity="other">%d neue Posten zitieren Sie</item>
+        <item quantity="one">%d neue Beitrag zitieren Sie</item>
+        <item quantity="other">%d neue Beiträge zitieren Sie</item>
     </plurals>
     <plurals name="watch_new_quoting">
-        <item quantity="one">%1$d neu Post, %2$d zitieren Sie</item>
-        <item quantity="other">%1$d neu Posten, %2$d zitieren Sie</item>
+        <item quantity="one">%1$d neu Beitrag, %2$d zitieren Sie</item>
+        <item quantity="other">%1$d neu Beiträge, %2$d zitieren Sie</item>
     </plurals>
     <string name="history_screen">Historie</string>
     <string name="filters_screen">Filter</string>
     <string name="album_download_screen">Bilder auswählen (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Bitte wählen Sie Bilder zum Download aus</string>
     <string name="album_download_confirm">%1$s wird in den Ordner %2$s heruntergeladen</string>
-    <string name="report_screen">Bericht %1$s</string>
+    <string name="report_screen">%1$s melden</string>
     <string name="image_save_notification_downloading">Bilder werden heruntergeladen</string>
     <string name="image_save_notification_cancel">Tippen, um abzubrechen</string>
     <string name="image_save_saved">Bild gespeichert</string>
