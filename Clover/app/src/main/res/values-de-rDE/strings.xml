@@ -40,16 +40,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_retry">Clover wurde noch nicht aktualisiert. Tippe auf \"Wiederholen\" um das Update erneut zu starten.</string>
     <string name="update_retry_button">erneut versuchen</string>
     <string name="update_storage_permission_required_title">Speicherrechte erforderlich</string>
-    <string name="update_storage_permission_required">\"Speicherzugriff ist für die Installation des Updates erforderlich.
+    <string name="update_storage_permission_required">\"Zum Installieren des Updates ist eine Zugriffsberechtigung für den Speicher erforderlich. 
 
-erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktiviert haben.\"</string>
+Aktivieren Sie diese Berechtigung in den App-Einstellungen erneut, wenn Sie sie dauerhaft deaktiviert haben.\"</string>
     <plurals name="minutes">
         <item quantity="one">%d Minute</item>
         <item quantity="other">%d Minuten</item>
     </plurals>
     <plurals name="posts">
-        <item quantity="one">%d Beitrag</item>
-        <item quantity="other">%d Beiträge</item>
+        <item quantity="one">%d Post</item>
+        <item quantity="other">%d Posten</item>
     </plurals>
     <plurals name="reply">
         <item quantity="one">%d Antwort</item>
@@ -60,8 +60,8 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
         <item quantity="other">%d Bilder</item>
     </plurals>
     <plurals name="board">
-        <item quantity="one">%d Board</item>
-        <item quantity="other">%d Boards</item>
+        <item quantity="one">%d Internetboard</item>
+        <item quantity="other">%d Internetboarden</item>
     </plurals>
     <plurals name="type">
         <item quantity="one">%d Typ</item>
@@ -88,20 +88,20 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="action_search">Suche</string>
     <string name="action_search_image">Bildsuche</string>
     <string name="action_switch_catalog">Katalog-Modus</string>
-    <string name="action_switch_board">Board-Modus</string>
+    <string name="action_switch_board">Internetboard-Modus</string>
     <string name="action_scroll_to_top">Oben</string>
     <string name="action_scroll_to_bottom">Unten</string>
     <string name="action_sort">Sortieren</string>
     <string name="action_rename_pin">Lesezeichen umbenennen</string>
     <string name="action_rename">Umbenennen</string>
     <string name="action_reply">Antworten</string>
-    <string name="open_link_not_matched">Clover kann diesen Link nicht öffnen; Es wird stattdessen in Ihrem Browser geöffnet.</string>
+    <string name="open_link_not_matched">Clover kann diesen Link nicht öffnen; Es wird stattdessen in Ihrem Internet-Browser geöffnet.</string>
     <string name="order_bump">Bump-Reihenfolge</string>
     <string name="order_reply">Anzahl von Antworten</string>
-    <string name="order_image">Anzahl an Bildern</string>
+    <string name="order_image">Bildanzahl</string>
     <string name="order_newest">Neueste</string>
     <string name="order_oldest">Älteste</string>
-    <string name="order_modified">Neueste Antwort</string>
+    <string name="order_modified">Letzte Antwort</string>
     <string name="search_hint">Suche</string>
     <string name="search_results">Gefunden Sie %1$s für \"%2$s\"</string>
     <string name="search_empty">Suche Themen, Kommentare, Namen und Dateinamen</string>
@@ -319,23 +319,23 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
     <string name="setting_watch_summary_disabled">Aus</string>
     <string name="settings_screen_watch">Fadenwächter Einstellungen</string>
     <string name="settings_group_watch">Einstellungen</string>
-    <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
-    <string name="setting_watch_enable_background">Enable in the background</string>
-    <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
-    <string name="setting_watch_background_timeout">Background update interval</string>
-    <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
-    <string name="setting_watch_notify_mode">Notify about</string>
+    <string name="setting_watch_info">Aktivieren Sie die Fadenwächter, um Lesezeichen für neue Beiträge anzuzeigen.</string>
+    <string name="setting_watch_enable_background">Aktivieren Sie im Hintergrund</string>
+    <string name="setting_watch_enable_background_description">Lesezeichen zu sehen, wenn Clover im Hintergrund platziert wird</string>
+    <string name="setting_watch_background_timeout">Hintergrund-Update-Intervall</string>
+    <string name="setting_watch_background_timeout_description">Das Intervall zwischen den Updates im Hintergrund</string>
+    <string name="setting_watch_notify_mode">Informieren über</string>
     <string-array name="setting_watch_notify_modes">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
+        <item>Alle Posten</item>
+        <item>Nur Posten zitieren Sie</item>
     </string-array>
-    <string name="setting_watch_sound">Notification sound</string>
+    <string name="setting_watch_sound">Benachrichtigungston</string>
     <string-array name="setting_watch_sounds">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
+        <item>Alle Posten</item>
+        <item>Nur Posten zitieren Sie</item>
     </string-array>
-    <string name="setting_watch_peek">Heads-up notification on quotes</string>
-    <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
+    <string name="setting_watch_peek">Heads-up-Benachrichtigung über Zitate</string>
+    <string name="setting_watch_peek_description">Zeigen Sie eine Heads-up-Benachrichtigung wenn zitiert an</string>
     <string name="setting_watch_led">Notification light</string>
     <string-array name="setting_watch_leds">
         <item>None</item>
@@ -440,7 +440,7 @@ speichern wenn deaktiviert, Sie das Bild mit dem Dateinamen den Uploader zugewie
     <string name="settings_reveal_image_spoilers">Enthüllen Bildspoiler</string>
     <string name="settings_reveal_image_spoilers_description">Zeigen Sie immer Spoiler-Thumbnails und Bilder an.</string>
     <!-- Media loading group -->
-    <string name="settings_group_media_loading">Media loading</string>
+    <string name="settings_group_media_loading">Medien laden</string>
     <string name="setting_image_auto_load">Automatically load images</string>
     <string name="setting_image_auto_load_all">Always</string>
     <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
