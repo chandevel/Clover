@@ -217,8 +217,8 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="history_clear_confirm_button">Leeren</string>
     <string name="history_toggle_hint">Historie aktivieren oder deaktivieren</string>
     <string name="history_empty_info">Keine Historie</string>
-    <string name="saved_reply_clear">Klar Posting-Historie</string>
-    <string name="saved_reply_clear_confirm">Klar Posting-Historie?</string>
+    <string name="saved_reply_clear">Posting-Historie löschen</string>
+    <string name="saved_reply_clear_confirm">Posting-Historie löschen?</string>
     <string name="saved_reply_clear_confirm_button">Leeren</string>
     <string name="archive_title">%s Archiv</string>
     <string name="archive_error">Fehler beim Laden des Archivs</string>
