@@ -133,7 +133,7 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
         <item quantity="other">%d Neuer Beiträge</item>
     </plurals>
     <string name="thread_new_posts_goto">Anzeigen</string>
-    <string name="thread_empty_select">Bitte wählen Sie einen Faden aus</string>
+    <string name="thread_empty_select">Bitte wählen Sie einen Thread aus</string>
     <string name="thread_up_down_hint">Scrollen Sie nach oben/unten</string>
     <string name="thread_pin_hint">Lesezeichen für diesen Thread</string>
     <string name="thread_view_archive">Archivieren</string>
@@ -174,9 +174,9 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="filter_type_string_matching">String-matching</string>
     <string name="filter_type_regex_matching">Regex passender</string>
     <string name="filter_all">alle</string>
-    <string name="filter_hide">Post zu verstecken</string>
+    <string name="filter_hide">Beitrag zu verstecken</string>
     <string name="filter_color">Markieren Sie post</string>
-    <string name="filter_remove">Beitrag entfernen</string>
+    <string name="filter_remove">Post entfernen</string>
     <string name="filter_invalid_pattern">Ungültiges Muster</string>
     <string name="filter_preview">Testen Sie Ihre filter</string>
     <string name="filter_no_matches">Stimmt nicht überein</string>
@@ -208,7 +208,7 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="filter_name">Name</string>
     <string name="filter_comment">Kommentar</string>
     <string name="filter_id">ID</string>
-    <string name="filter_subject">Subjekt</string>
+    <string name="filter_subject">Betreff</string>
     <string name="filter_filename">Dateiname</string>
     <string name="board_select_all">Alles auswählen</string>
     <string name="board_select_none">Keine wählen</string>
@@ -247,7 +247,7 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="reply_options">Optionen</string>
     <string name="reply_subject">Betreff</string>
     <string name="reply_comment_thread">Kommentar antworten</string>
-    <string name="reply_comment_board">Kommentar neu Faden</string>
+    <string name="reply_comment_board">Kommentar neu Thread</string>
     <string name="reply_file_name">Dateiname</string>
     <string name="reply_file_too_big">Achtung: Dateigröße zu groß (%1$s / %2$s)</string>
     <string name="reply_webm_too_big">Achtung: WEBM-Dateigröße zu groß (%1$s / %2$s)</string>
