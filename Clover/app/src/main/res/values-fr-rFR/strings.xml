@@ -40,9 +40,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_retry">Clover n\'as pas été mis à jour. Utilisez \"réessayer\" pour une nouvelle tentative.</string>
     <string name="update_retry_button">réessayer</string>
     <string name="update_storage_permission_required_title">L\'autorisation d\'accès à la mémoire interne est nécessaire</string>
-    <string name="update_storage_permission_required">\"Permission to access storage is required for installing the update.
+    <string name="update_storage_permission_required">\"Autorisation pour accéder au stockage est requise pour l’installation de la mise à jour.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+Ré-activer cette autorisation dans les paramètres de votre appareil si vous l\'avez désactive permanement.\"</string>
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
