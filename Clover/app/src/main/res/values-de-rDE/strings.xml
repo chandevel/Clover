@@ -180,7 +180,7 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="filter_invalid_pattern">Ungültiges Muster</string>
     <string name="filter_preview">Testen Sie Ihre filter</string>
     <string name="filter_no_matches">Stimmt nicht überein</string>
-    <string name="filter_matches">Entsprechen</string>
+    <string name="filter_matches">Entspricht</string>
     <string name="filter_color_pick">Wählen Sie Farbe</string>
     <string name="filter_help_title">Filter-Hilfe</string>
     <string name="filter_help"><![CDATA[Filter wirken auf ein bestimmtes Muster und ein Ort, um das Muster zu suchen.<br>
@@ -208,7 +208,7 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="filter_name">Name</string>
     <string name="filter_comment">Kommentar</string>
     <string name="filter_id">ID</string>
-    <string name="filter_subject">Betreff</string>
+    <string name="filter_subject">Subjekt</string>
     <string name="filter_filename">Dateiname</string>
     <string name="board_select_all">Alles auswählen</string>
     <string name="board_select_none">Keine wählen</string>
