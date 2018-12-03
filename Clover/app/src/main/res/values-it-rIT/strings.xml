@@ -258,11 +258,11 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
     <string name="reply_success">Post successful</string>
-    <string name="reply_captcha_text">Type the text</string>
+    <string name="reply_captcha_text">Digita il testo</string>
     <string name="reply_comment_button_spoiler">[s]</string>
     <string name="delete_confirm">Cancellare il tuo post?</string>
     <string name="delete_wait">Deleting post&#8230;</string>
-    <string name="delete_success">Post deleted</string>
+    <string name="delete_success">Post eliminato</string>
     <string name="delete_image_only">Only delete the image</string>
     <string name="delete_error">Error deleting post</string>
     <string name="video_playback_warning_title">WebM video error</string>
@@ -271,7 +271,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
 A workaround is to use an external media player with a software decoder.
 Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
     </string>
-    <string name="video_playback_ignore">Don\'t show again</string>
+    <string name="video_playback_ignore">Non mostrare più</string>
     <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">Nessun nuovo post</string>
     <plurals name="watch_title">
@@ -290,19 +290,19 @@ Enable \"Play videos with external player\" in the settings to play videos with 
         <item quantity="one">%1$d new post, %2$d quoting you</item>
         <item quantity="other">%1$d new posts, %2$d quoting you</item>
     </plurals>
-    <string name="history_screen">History</string>
-    <string name="filters_screen">Filters</string>
+    <string name="history_screen">Cronologia</string>
+    <string name="filters_screen">Filtri</string>
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>
     <string name="album_download_none_checked">Please select images to download</string>
     <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
     <string name="report_screen">Report %1$s</string>
-    <string name="image_save_notification_downloading">Downloading images</string>
-    <string name="image_save_notification_cancel">Tap to cancel</string>
-    <string name="image_save_saved">Image saved</string>
+    <string name="image_save_notification_downloading">Download immagini in corso</string>
+    <string name="image_save_notification_cancel">Tocca per annullare</string>
+    <string name="image_save_saved">Immagine salvata</string>
     <string name="image_save_as">Saved as \"%1$s\"</string>
     <string name="image_save_failed">Saving image failed</string>
     <string name="drawer_sites">Setup sites</string>
-    <string name="drawer_history">History</string>
+    <string name="drawer_history">Cronologia</string>
     <!-- Main settings -->
     <string name="settings_screen">Impostazioni</string>
     <!-- Main "Settings" group -->
@@ -320,7 +320,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
     <string name="setting_watch_summary_disabled">Off</string>
     <string name="settings_screen_watch">Thread watcher settings</string>
-    <string name="settings_group_watch">Settings</string>
+    <string name="settings_group_watch">Impostazioni</string>
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
@@ -328,8 +328,8 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
     <string name="setting_watch_notify_mode">Notify about</string>
     <string-array name="setting_watch_notify_modes">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
+        <item>Tutti i post</item>
+        <item>Solo post che rispondono a te</item>
     </string-array>
     <string name="setting_watch_sound">Suono di notifica</string>
     <string-array name="setting_watch_sounds">
@@ -392,33 +392,33 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="settings_screen_behavior">Behavior</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
-    <string name="setting_force_english_locale">Always use English for the language of the app</string>
-    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
-    <string name="setting_auto_refresh_thread">Auto refresh threads</string>
-    <string name="setting_confirm_exit">Confirm before exit</string>
+    <string name="setting_force_english_locale">Usa sempre inglese come lingua dell\'app</string>
+    <string name="setting_force_english_locale_toggle_notice">La lingua verrà cambiata al prossimo avvio.</string>
+    <string name="setting_auto_refresh_thread">Ricarica automaticamente i thread</string>
+    <string name="setting_confirm_exit">Conferma prima di uscire</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
     <string name="setting_clear_thread_hides">Clear all thread hides</string>
     <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
     <!-- Behavior reply group -->
     <string name="settings_group_reply">Rispondi</string>
     <string name="setting_post_pin">Bookmark thread on post</string>
-    <string name="setting_post_default_name">Default post name</string>
+    <string name="setting_post_default_name">Nome post predefinito</string>
     <!-- Behavior post group -->
-    <string name="setting_text_only">Text only mode</string>
+    <string name="setting_text_only">Modalità solo testo</string>
     <string name="setting_text_only_description">Hide images when in board and thread view</string>
     <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
     <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
-    <string name="setting_anonymize">Make everyone Anonymous</string>
-    <string name="setting_anonymize_ids">Hide IDs</string>
-    <string name="setting_show_anonymous_name">Always show \"Anonymous\" name</string>
+    <string name="setting_anonymize">Rendi tutti \"Anonymous\"</string>
+    <string name="setting_anonymize_ids">Nascondi ID</string>
+    <string name="setting_show_anonymous_name">Mostra sempre il nome \"Anonymous\"</string>
     <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
     <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
     <string name="setting_tap_no_rely">Tap the post number to reply</string>
-    <string name="setting_open_link_confirmation">Ask before opening links</string>
+    <string name="setting_open_link_confirmation">Chiedi prima di aprire link</string>
     <string name="setting_open_link_browser">Always open links in external browser</string>
     <!-- Behavior proxy group -->
-    <string name="settings_group_proxy">HTTP Proxy</string>
-    <string name="setting_proxy_enabled">Enable proxy</string>
+    <string name="settings_group_proxy">Proxy HTTP</string>
+    <string name="setting_proxy_enabled">Abilita il proxy</string>
     <string name="setting_proxy_address">Proxy server address</string>
     <string name="setting_proxy_port">Proxy server port</string>
     <!-- Media -->
