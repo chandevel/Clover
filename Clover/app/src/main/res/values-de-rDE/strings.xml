@@ -415,30 +415,30 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="setting_open_link_confirmation">Fragen Sie vor dem Öffnen von links</string>
     <string name="setting_open_link_browser">Immer Links im externen Browser öffnen</string>
     <!-- Behavior proxy group -->
-    <string name="settings_group_proxy">HTTP Proxy</string>
-    <string name="setting_proxy_enabled">Enable proxy</string>
-    <string name="setting_proxy_address">Proxy server address</string>
-    <string name="setting_proxy_port">Proxy server port</string>
+    <string name="settings_group_proxy">HTTP-Proxy</string>
+    <string name="setting_proxy_enabled">Proxy aktivieren</string>
+    <string name="setting_proxy_address">Proxy-Server-Adresse</string>
+    <string name="setting_proxy_port">Proxy-Server-port</string>
     <!-- Media -->
-    <string name="settings_screen_media">Media</string>
+    <string name="settings_screen_media">Medien</string>
     <!-- Media general group -->
-    <string name="settings_group_media">Media</string>
-    <string name="setting_save_board_folder">Save images in a board folder</string>
-    <string name="setting_save_board_folder_description">Create a folder for each board to store images in</string>
-    <string name="setting_save_original_filename">Save original filename</string>
-    <string name="setting_save_original_filename_description">\"Save the image with the filename the site assigned.
-If disabled, save the image with the filename the uploader assigned.\"
+    <string name="settings_group_media">Medien</string>
+    <string name="setting_save_board_folder">Speichern von Bildern in einem Internetboard-Ordner</string>
+    <string name="setting_save_board_folder_description">Erstellen Sie einen Ordner für jedes Internetboard zum Speichern von Bildern in</string>
+    <string name="setting_save_original_filename">Ursprünglichen Dateinamen speichern</string>
+    <string name="setting_save_original_filename_description">\"Speichern Sie das Bild mit dem Dateinamen die Website zugewiesen.
+speichern wenn deaktiviert, Sie das Bild mit dem Dateinamen den Uploader zugewiesen.\"
     </string>
-    <string name="setting_video_default_muted">Start videos muted</string>
-    <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
-    <string name="setting_video_open_external">Play videos with external player</string>
-    <string name="setting_video_open_external_description">Play videos in an external media player app</string>
-    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
-    <string name="setting_share_url">Share URL to image</string>
-    <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
-    <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
-    <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
+    <string name="setting_video_default_muted">Videos ohne Ton starten</string>
+    <string name="setting_video_default_muted_description">Wenn ein Video Ton enthält, starten Sie es ohne Ton automatisch.</string>
+    <string name="setting_video_open_external">Videos mit Ihrem externen Player abspielen</string>
+    <string name="setting_video_open_external_description">Videos in einer externen Media Player-App abspielen</string>
+    <string name="setting_video_exoplayer">Neu ExoPlayer aktivieren</string>
+    <string name="setting_video_exoplayer_description">Verwenden Sie den neuen ExoPlayer für den internen Media Player</string>
+    <string name="setting_share_url">Teilen Sie die URL des Bildes</string>
+    <string name="setting_share_url_description">Teilen Sie die URL für das Bild anstelle des Bildes selbst</string>
+    <string name="settings_reveal_image_spoilers">Enthüllen Bildspoiler</string>
+    <string name="settings_reveal_image_spoilers_description">Zeigen Sie immer Spoiler-Thumbnails und Bilder an.</string>
     <!-- Media loading group -->
     <string name="settings_group_media_loading">Media loading</string>
     <string name="setting_image_auto_load">Automatically load images</string>
