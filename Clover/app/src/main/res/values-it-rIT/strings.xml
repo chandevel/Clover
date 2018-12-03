@@ -340,14 +340,14 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
     <string name="setting_watch_led">Notification light</string>
     <string-array name="setting_watch_leds">
-        <item>None</item>
-        <item>White</item>
-        <item>Red</item>
-        <item>Yellow</item>
-        <item>Green</item>
-        <item>Cyan</item>
-        <item>Blue</item>
-        <item>Purple</item>
+        <item>Nessuno</item>
+        <item>Bianco</item>
+        <item>Rosso</item>
+        <item>Giallo</item>
+        <item>Verde</item>
+        <item>Azzurro</item>
+        <item>Blu</item>
+        <item>Viola</item>
     </string-array>
     <!-- Main About group -->
     <string name="settings_group_about">About</string>
@@ -400,7 +400,7 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="setting_clear_thread_hides">Clear all thread hides</string>
     <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
     <!-- Behavior reply group -->
-    <string name="settings_group_reply">Reply</string>
+    <string name="settings_group_reply">Rispondi</string>
     <string name="setting_post_pin">Bookmark thread on post</string>
     <string name="setting_post_default_name">Default post name</string>
     <!-- Behavior post group -->
@@ -444,9 +444,9 @@ If disabled, save the image with the filename the uploader assigned.\"
     <!-- Media loading group -->
     <string name="settings_group_media_loading">Media loading</string>
     <string name="setting_image_auto_load">Automatically load images</string>
-    <string name="setting_image_auto_load_all">Always</string>
-    <string name="setting_image_auto_load_wifi">Wi-Fi only</string>
-    <string name="setting_image_auto_load_none">Never</string>
+    <string name="setting_image_auto_load_all">Sempre</string>
+    <string name="setting_image_auto_load_wifi">Solo Wi-Fi</string>
+    <string name="setting_image_auto_load_none">Mai</string>
     <string name="setting_video_auto_load">Automatically load videos</string>
     <string name="setting_video_auto_loop">Enable automatic video-looping</string>
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
