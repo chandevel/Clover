@@ -247,30 +247,28 @@ wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.
     <string name="reply_options">Optionen</string>
     <string name="reply_subject">Subjekt</string>
     <string name="reply_comment_thread">Kommentar antworten</string>
-    <string name="reply_comment_board">Comment new thread</string>
-    <string name="reply_file_name">File name</string>
-    <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
-    <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
+    <string name="reply_comment_board">Kommentar neu thread</string>
+    <string name="reply_file_name">Dateiname</string>
+    <string name="reply_file_too_big">Achtung: Dateigröße zu groß (%1$s / %2$s)</string>
+    <string name="reply_webm_too_big">Achtung: WEBM-Dateigröße zu groß (%1$s / %2$s)</string>
     <string name="reply_file_open_failed">Datei konnte nicht geöffnet werden</string>
     <string name="reply_spoiler_image">Spoiler-Bild</string>
-    <string name="reply_no_preview">No preview</string>
+    <string name="reply_no_preview">Keine Vorschau</string>
     <string name="reply_submit">Absenden</string>
-    <string name="reply_error">Error posting</string>
-    <string name="reply_error_message">Error posting: %s</string>
-    <string name="reply_success">Post successful</string>
-    <string name="reply_captcha_text">Type the text</string>
+    <string name="reply_error">Fehler-Buchung</string>
+    <string name="reply_error_message">Fehler-Buchung: %s</string>
+    <string name="reply_success">Erfolgreiche Post</string>
+    <string name="reply_captcha_text">Tippe den Text</string>
     <string name="reply_comment_button_spoiler">[s]</string>
-    <string name="delete_confirm">Delete your post?</string>
-    <string name="delete_wait">Deleting post&#8230;</string>
+    <string name="delete_confirm">Lösche deinen Post?</string>
+    <string name="delete_wait">Löschen von Post-&#8230;</string>
     <string name="delete_success">Beitrag wurde entfernt</string>
-    <string name="delete_image_only">Only delete the image</string>
-    <string name="delete_error">Error deleting post</string>
-    <string name="video_playback_warning_title">WebM video error</string>
-    <string name="video_playback_warning">\"The WebM video failed to play. This might be a problem with the hardware of your phone.
+    <string name="delete_image_only">Nur das Bild löschen</string>
+    <string name="delete_error">Fehler beim Löschen der post</string>
+    <string name="video_playback_warning_title">WebM video Fehler</string>
+    <string name="video_playback_warning">\"Das WebM-Video konnte nicht abgespielt werden. Dies könnte ein Problem mit der Hardware Ihres Telefons sein. 
 
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
-    </string>
+Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwaredecoder zu verwenden. Aktivieren Sie\" Play videos with external player \"in den Einstellungen, um Videos mit einem externer Spieler. \"    </string>
     <string name="video_playback_ignore">Don\'t show again</string>
     <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">No new posts</string>
