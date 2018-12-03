@@ -183,26 +183,26 @@ erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktivi
     <string name="filter_matches">Entsprechen</string>
     <string name="filter_color_pick">Wählen Sie Farbe</string>
     <string name="filter_help_title">Filter-Hilfe</string>
-    <string name="filter_help"><![CDATA[Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden or highlighted.<br>
+    <string name="filter_help"><![CDATA[Filter wirken auf ein bestimmtes Muster und ein Ort, um das Muster zu suchen.<br>
+wenn das Muster passt kann dann die Post ausgeblendet oder hervorgehoben werden.<br>
 
-<h4>For tripcodes, names and IDs:</h4>
+<h4>für Tripcodes, Namen und IDs:</h4>
 <p>
-    It will match the given pattern exact.<br>
-    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
+    es wird das vorgegebenen Muster exakt übereinstimmen.<br>
+    <tt>! Ep8pui8Vw2</tt> entsprechen den Tripcode <i>! Ep8pui8Vw2</i> aber nicht <i>Ep8pu</i>.
 </p>
 
-<h4>For comments, subjects and filenames:</h4>
+<h4>für Kommentare, Themen und Dateinamen:</h4>
 <p>
-    These filters are pattern based, and have three modes:<br>
+    diese Filter sind Muster basieren, und haben drei Modi:<br>
     <br>
-    1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
-    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i>, <i>foooo</i> but not <i>foobar</i><br>
+    1. Muster <tt>Foo Bar</tt> wird Text überein, die eines der Wörter in sich hat. Es entspricht <i>Foo</i> oder <i>Bar</i>, aber nicht <i>Foobar</i>.
+    platzieren eine * ermöglicht beliebiges Zeichen ausgefüllt werden: <tt>f * o</tt> passen beide <i>Foo</i>, <i>Foooo</i> aber nicht <i>Foobar</i><br>
     <br>
-    2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exactly.
-    <i>foo bar</i> matches but <i>foo</i> does not.<br>
+    2. Unter Angabe Ihrer Muster mit <tt>\ "</tt> wie <tt>\"foo bar\ "</tt> wird den Text genau übereinstimmen. entspricht
+    <i>Foo Bar</i> , <i>Foo</i> jedoch nicht.<br>
     <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example.
+    3. Reguläre Ausdrücke. <tt>/ ^ > impliziert /</tt> zum Beispiel.
 </p>]]></string>
     <string name="filter_tripcode">Tripcode</string>
     <string name="filter_name">Name</string>
@@ -211,12 +211,12 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="filter_subject">Betreff</string>
     <string name="filter_filename">Dateiname</string>
     <string name="board_select_all">Alles auswählen</string>
-    <string name="board_select_none">Select none</string>
-    <string name="history_clear">Clear history</string>
-    <string name="history_clear_confirm">Clear history?</string>
-    <string name="history_clear_confirm_button">Clear</string>
-    <string name="history_toggle_hint">Enable or disable history</string>
-    <string name="history_empty_info">No history</string>
+    <string name="board_select_none">Keine wählen</string>
+    <string name="history_clear">Historie löschen</string>
+    <string name="history_clear_confirm">Historie löschen?</string>
+    <string name="history_clear_confirm_button">Leeren</string>
+    <string name="history_toggle_hint">Historie aktivieren oder deaktivieren</string>
+    <string name="history_empty_info">Keine Historie</string>
     <string name="saved_reply_clear">Clear posting history</string>
     <string name="saved_reply_clear_confirm">Clear posting history?</string>
     <string name="saved_reply_clear_confirm_button">Leeren</string>
@@ -292,26 +292,26 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     </plurals>
     <string name="history_screen">History</string>
     <string name="filters_screen">Filters</string>
-    <string name="album_download_screen">Select images (%1$d / %2$d)</string>
-    <string name="album_download_none_checked">Please select images to download</string>
-    <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
-    <string name="report_screen">Report %1$s</string>
-    <string name="image_save_notification_downloading">Downloading images</string>
-    <string name="image_save_notification_cancel">Tap to cancel</string>
-    <string name="image_save_saved">Image saved</string>
-    <string name="image_save_as">Saved as \"%1$s\"</string>
-    <string name="image_save_failed">Saving image failed</string>
-    <string name="drawer_sites">Setup sites</string>
-    <string name="drawer_history">History</string>
+    <string name="album_download_screen">Bilder auswählen (%1$d / %2$d)</string>
+    <string name="album_download_none_checked">Bitte wählen Sie Bilder zum Download aus</string>
+    <string name="album_download_confirm">%1$s wird in den Ordner %2$s heruntergeladen</string>
+    <string name="report_screen">Bericht %1$s</string>
+    <string name="image_save_notification_downloading">Bilder werden heruntergeladen</string>
+    <string name="image_save_notification_cancel">Tippen, um abzubrechen</string>
+    <string name="image_save_saved">Bild gespeichert</string>
+    <string name="image_save_as">Gespeichert von \"%1$s\"</string>
+    <string name="image_save_failed">Speichern Bildes fehlgeschlagen</string>
+    <string name="drawer_sites">Sites einrichten</string>
+    <string name="drawer_history">Historie</string>
     <!-- Main settings -->
-    <string name="settings_screen">Settings</string>
+    <string name="settings_screen">Einstellungen</string>
     <!-- Main "Settings" group -->
-    <string name="settings_group_settings">Settings</string>
-    <string name="settings_watch">Thread watcher</string>
-    <string name="settings_sites">Sites</string>
-    <string name="settings_appearance">Appearance</string>
-    <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
-    <string name="settings_behavior">Behavior</string>
+    <string name="settings_group_settings">Einstellungen</string>
+    <string name="settings_watch">Fadenwächter</string>
+    <string name="settings_sites">Seiten</string>
+    <string name="settings_appearance">Aussehen</string>
+    <string name="settings_appearance_description">Thema, Layouts, Schriftarten, usw.</string>
+    <string name="settings_behavior">Verhalten</string>
     <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
     <string name="settings_media">Media</string>
     <string name="settings_media_description">Save location, auto loading, etc.</string>
