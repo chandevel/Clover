@@ -336,42 +336,40 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
     </string-array>
     <string name="setting_watch_peek">Heads-up-Benachrichtigung über Zitate</string>
     <string name="setting_watch_peek_description">Zeigen Sie eine Heads-up-Benachrichtigung wenn zitiert an</string>
-    <string name="setting_watch_led">Notification light</string>
+    <string name="setting_watch_led">Benachrichtigungslicht</string>
     <string-array name="setting_watch_leds">
-        <item>None</item>
-        <item>White</item>
-        <item>Red</item>
-        <item>Yellow</item>
-        <item>Green</item>
+        <item>Keine</item>
+        <item>Weiß</item>
+        <item>Rot</item>
+        <item>Gelb</item>
+        <item>Grün</item>
         <item>Cyan</item>
-        <item>Blue</item>
-        <item>Purple</item>
+        <item>Blau</item>
+        <item>Lila</item>
     </string-array>
     <!-- Main About group -->
-    <string name="settings_group_about">About</string>
-    <string name="settings_update_check">Check for updates</string>
-    <string name="settings_crash_reporting">Report crashes</string>
-    <string name="settings_crash_reporting_description">\"Crash reporting creates reports of errors in Clover.
-Crash reports do not collect any personally identifiable information.\"
-    </string>
-    <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
-    <string name="settings_about_license">Released under the GNU GPLv3 license</string>
-    <string name="settings_about_license_description">Tap to see license</string>
-    <string name="settings_about_licenses">Open Source Licenses</string>
-    <string name="settings_about_licenses_description">Legal information about licenses</string>
-    <string name="settings_developer">Developer settings</string>
+    <string name="settings_group_about">Info</string>
+    <string name="settings_update_check">Nach Updates suchen</string>
+    <string name="settings_crash_reporting">Bericht Abstürze</string>
+    <string name="settings_crash_reporting_description">\"Crash-Berichte erstellen Fehlerberichte in Clover. Crash-Berichte sammeln keine personenbezogenen Daten.\"    </string>
+    <string name="settings_crash_reporting_toggle_notice">Die Einstellung wird beim nächsten Start der App übernommen.</string>
+    <string name="settings_about_license">Freigegeben unter der GNU GPLv3-Lizenz</string>
+    <string name="settings_about_license_description">Berühren Sie, um die Lizenz anzeigen</string>
+    <string name="settings_about_licenses">Open-Source-Lizenzen</string>
+    <string name="settings_about_licenses_description">Rechtliche Hinweise zu Lizenzen</string>
+    <string name="settings_developer">Entwickler Einstellungen</string>
     <!-- Appearance -->
-    <string name="settings_screen_appearance">Appearance</string>
-    <string name="settings_group_appearance">Appearance</string>
-    <string name="setting_theme">Theme</string>
+    <string name="settings_screen_appearance">Aussehen</string>
+    <string name="settings_group_appearance">Aussehen</string>
+    <string name="setting_theme">Thema</string>
     <!-- Appearance layout group -->
     <string name="settings_group_layout">Layout</string>
-    <string name="setting_layout_mode">Layout mode</string>
+    <string name="setting_layout_mode">Layout-Modus</string>
     <string name="setting_layout_mode_auto">Auto</string>
-    <string name="setting_layout_mode_phone">Phone layout</string>
-    <string name="setting_layout_mode_slide">Slide mode</string>
-    <string name="setting_layout_mode_split">Split mode</string>
-    <string name="setting_board_grid_span_count">Catalog mode column count</string>
+    <string name="setting_layout_mode_phone">Handy-Layout</string>
+    <string name="setting_layout_mode_slide">Gleiten-Modus</string>
+    <string name="setting_layout_mode_split">Geteilt-Modus</string>
+    <string name="setting_board_grid_span_count">Katalog-Modus Spaltenanzahl</string>
     <string name="setting_board_grid_span_count_default">Auto</string>
     <string name="setting_board_grid_span_count_item">%1$d columns</string>
     <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
