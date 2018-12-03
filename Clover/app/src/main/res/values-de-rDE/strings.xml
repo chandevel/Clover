@@ -470,10 +470,10 @@ Aktivieren Sie diese Berechtigung in den App-Einstellungen erneut, wenn Sie sie 
     <string name="setting_pass_logout">Abmelden</string>
     <string name="setting_pass_logging_in">Lädt &#8230;</string>
     <string name="setting_pass_error">Verbindungsfehler</string>
-    <string name="setting_pass_bottom_description">\"<![CDATA[Forgot your 4chan Pass login details?<br>
-<a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
+    <string name="setting_pass_bottom_description">\"<![CDATA[Haben Sie Ihre 4chan Pass-Zugangsdaten vergessen? <br>
+<a href=\"https://www.4chan.org/pass?reset\">Gehen Sie hier, um Ihre PIN zurückzusetzen.</a><br>
 <br>
-Don't have a 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>]]>    \"</string>
-    <string name="settings_screen_theme">Themes</string>
+Haben Sie kein 4chan pass?<br>
+<a href=\"https://www.4chan.org/pass\">Tippen Sie hier zu mehr lernen.</a>]]>    \"</string>
+    <string name="settings_screen_theme">Themen</string>
 </resources>
