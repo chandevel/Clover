@@ -305,21 +305,21 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
     <string name="settings_screen">Einstellungen</string>
     <!-- Main "Settings" group -->
     <string name="settings_group_settings">Einstellungen</string>
-    <string name="settings_watch">Fadenwächter</string>
+    <string name="settings_watch">Threadwächter</string>
     <string name="settings_sites">Seiten</string>
     <string name="settings_appearance">Aussehen</string>
     <string name="settings_appearance_description">Thema, Layouts, Schriftarten, usw.</string>
     <string name="settings_behavior">Verhalten</string>
-    <string name="settings_behavior_description">Thread-Aktualisierung, Captcha, usw.</string>
+    <string name="settings_behavior_description">Faden-Aktualisierung, Captcha, usw.</string>
     <string name="settings_media">Medien</string>
     <string name="settings_media_description">Speicherort speichern, automatisch laden, usw.</string>
     <string name="settings_filters">Filter</string>
     <!-- Thread watcher -->
-    <string name="setting_watch_summary_enabled">Mit Lesezeichen versehene Threads beobachten</string>
+    <string name="setting_watch_summary_enabled">Mit Lesezeichen versehene Faden beobachten</string>
     <string name="setting_watch_summary_disabled">Aus</string>
-    <string name="settings_screen_watch">Fadenwächter Einstellungen</string>
+    <string name="settings_screen_watch">Threadwächter Einstellungen</string>
     <string name="settings_group_watch">Einstellungen</string>
-    <string name="setting_watch_info">Aktivieren Sie die Fadenwächter, um Lesezeichen für neue Beiträge anzuzeigen.</string>
+    <string name="setting_watch_info">Aktivieren Sie die Threadwächter, um Lesezeichen für neue Beiträge anzuzeigen.</string>
     <string name="setting_watch_enable_background">Aktivieren Sie im Hintergrund</string>
     <string name="setting_watch_enable_background_description">Lesezeichen zu sehen, wenn Clover im Hintergrund platziert wird</string>
     <string name="setting_watch_background_timeout">Hintergrund-Update-Intervall</string>
@@ -331,8 +331,8 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
     </string-array>
     <string name="setting_watch_sound">Benachrichtigungston</string>
     <string-array name="setting_watch_sounds">
-        <item>Alle Posten</item>
-        <item>Nur Posten zitieren Sie</item>
+        <item>Alle Beiträge</item>
+        <item>Nur Beiträge zitieren Sie</item>
     </string-array>
     <string name="setting_watch_peek">Heads-up-Benachrichtigung über Zitate</string>
     <string name="setting_watch_peek_description">Zeigen Sie eine Heads-up-Benachrichtigung wenn zitiert an</string>
@@ -380,36 +380,36 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
     <string name="setting_font_size">Schriftgröße</string>
     <string name="setting_font_size_default">(Standard)</string>
     <string name="setting_font_condensed">Verwenden Sie eine komprimierte Schrift</string>
-    <string name="setting_font_condensed_description">Verwenden Sie eine komprimierte Schrift für die Posten</string>
-    <string name="setting_post_full_date">Zeige das vollständige Datum in den Posten</string>
-    <string name="setting_post_file_info">Dateiinformationen zu Posten anzeigen</string>
-    <string name="setting_post_filename">Dateiinformationen zu Posten anzeigen</string>
+    <string name="setting_font_condensed_description">Verwenden Sie eine komprimierte Schrift für die Beiträge</string>
+    <string name="setting_post_full_date">Zeige das vollständige Datum in den Beiträgen</string>
+    <string name="setting_post_file_info">Dateiinformationen zu Beiträge anzeigen</string>
+    <string name="setting_post_filename">Dateiinformationen zu Beiträge anzeigen</string>
     <!-- Behavior -->
     <string name="settings_screen_behavior">Verhalten</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">Allgemein</string>
     <string name="setting_force_english_locale">Verwenden Sie immer Englisch für die Sprache der App</string>
     <string name="setting_force_english_locale_toggle_notice">Die Sprache wird beim nächsten Start der App übernommen.</string>
-    <string name="setting_auto_refresh_thread">Faden automatisch aktualisieren</string>
+    <string name="setting_auto_refresh_thread">Threads automatisch aktualisieren</string>
     <string name="setting_confirm_exit">Vor dem Beenden bestätigen</string>
     <string name="setting_controller_swipeable">Bildschirme zulassen weggestrichen werden</string>
-    <string name="setting_clear_thread_hides">Alle versteckten Faden löschen</string>
-    <string name="setting_cleared_thread_hides">Alle versteckten Faden gelöscht</string>
+    <string name="setting_clear_thread_hides">Alle versteckten Threads löschen</string>
+    <string name="setting_cleared_thread_hides">Alle versteckten Threads gelöscht</string>
     <!-- Behavior reply group -->
     <string name="settings_group_reply">Antworten</string>
-    <string name="setting_post_pin">Lesezeichen-Faden, sobald Sie gepostet haben</string>
-    <string name="setting_post_default_name">Standardpostname</string>
+    <string name="setting_post_pin">Lesezeichen-Thread, sobald Sie gepostet haben</string>
+    <string name="setting_post_default_name">Standard-Beitragsname</string>
     <!-- Behavior post group -->
     <string name="setting_text_only">Nur-Text-Modus</string>
-    <string name="setting_text_only_description">Blenden Sie Bilder in Vorstand und Thread Ansicht aus</string>
+    <string name="setting_text_only_description">Blenden Sie Bilder in Vorstand und Faden Ansicht aus</string>
     <string name="settings_reveal_text_spoilers">Text-Spoiler zeigen</string>
     <string name="settings_reveal_text_spoilers_description">Macht den Spoiler Text angezapft werden angezeigt</string>
-    <string name="setting_anonymize">Damit sich jeder anonym</string>
+    <string name="setting_anonymize">Damit sich jeder Anonymous</string>
     <string name="setting_anonymize_ids">IDs verstecken</string>
-    <string name="setting_show_anonymous_name">Immer \"Anonym\" Namen anzeigen</string>
+    <string name="setting_show_anonymous_name">Immer \"Anonymous\" Namen anzeigen</string>
     <string name="setting_buttons_bottom">Antwort-Tasten auf der Unterseite</string>
     <string name="setting_volume_key_scrolling">Lautstärke-Tasten Blättern Sie Inhalt</string>
-    <string name="setting_tap_no_rely">Tippen Sie auf die Post-Nummer um zu antworten</string>
+    <string name="setting_tap_no_rely">Tippen Sie auf die Beiträgenummer um zu antworten</string>
     <string name="setting_open_link_confirmation">Fragen Sie vor dem Öffnen von links</string>
     <string name="setting_open_link_browser">Immer Links im externen Browser öffnen</string>
     <!-- Behavior proxy group -->
@@ -468,7 +468,7 @@ Aktivieren Sie diese Berechtigung in den App-Einstellungen erneut, wenn Sie sie 
     <string name="setting_pass_authenticated">Gerät autorisiert!</string>
     <string name="setting_pass_login">Absenden</string>
     <string name="setting_pass_logout">Abmelden</string>
-    <string name="setting_pass_logging_in">Lädt &#8230;</string>
+    <string name="setting_pass_logging_in">Laden &#8230;</string>
     <string name="setting_pass_error">Verbindungsfehler</string>
     <string name="setting_pass_bottom_description">\"<![CDATA[Haben Sie Ihre 4chan Pass-Zugangsdaten vergessen? <br>
 <a href=\"https://www.4chan.org/pass?reset\">Gehen Sie hier, um Ihre PIN zurückzusetzen.</a><br>
