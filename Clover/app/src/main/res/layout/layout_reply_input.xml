@@ -79,6 +79,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:textSize="16sp" />
 
             </LinearLayout>
+            <Button
+                android:id="@+id/sage_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="0dp"
+                android:padding="0dp"
+                android:text="@string/reply_sage_button"
+                android:textAllCaps="false"
+                android:textSize="15dp"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/subject"

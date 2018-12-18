@@ -107,10 +107,13 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (TextUtils.isEmpty(draft.name)) {
             draft.name = ChanSettings.postDefaultName.get();
         }
-
+        if (draft.options.equals("sage")) {
+            callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread_saged : R.string.reply_comment_board_saged));
+        } else {
+            callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+        }
         callback.loadDraftIntoViews(draft);
         callback.updateCommentCount(0, board.maxCommentChars, false);
-        callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
         callback.showCommentCounter(board.maxCommentChars > 0);
 
         if (draft.file != null) {
@@ -152,6 +155,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onMoreClicked() {
         moreOpen = !moreOpen;
         callback.setExpanded(moreOpen);
+        callback.openSageButton(moreOpen);
         callback.openNameOptions(moreOpen);
         if (!loadable.isThreadMode()) {
             callback.openSubject(moreOpen);
@@ -231,10 +235,18 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
             switchPage(Page.INPUT, false);
             closeAll();
+            boolean sage = draft.sage;
             highlightQuotes();
             String name = draft.name;
             draft = new Reply();
             draft.name = name;
+            draft.sage = sage;
+            if(draft.sage) {
+                draft.options = "sage";
+                callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread_saged : R.string.reply_comment_board_saged));
+            } else {
+                callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+            }
             replyManager.putReply(loadable, draft);
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
@@ -295,6 +307,28 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public void commentQuoteClicked() {
         commentInsert(">");
+    }
+
+    public void sageButtonClicked() {
+        /*TODO
+            1. Figure out a way to save a boolean in the database, that corresponds to a visited thread.
+            2. Figure out a way to indicate if that setting is on for a revisted thread.
+         */
+        draft.sage=!draft.sage;
+        sageToggle();
+    }
+
+    public void sageToggle() {
+        if (draft.sage) {
+            draft.options="sage";
+            callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread_saged : R.string.reply_comment_board_saged));
+            callback.loadDraftIntoViews(draft);
+
+        } else {
+            draft.options="";
+            callback.setCommentHint(getString(loadable.isThreadMode() ? R.string.reply_comment_thread : R.string.reply_comment_board));
+            callback.loadDraftIntoViews(draft);
+        }
     }
 
     public void commentSpoilerClicked() {
@@ -383,6 +417,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.setExpanded(false);
         callback.openSubject(false);
         callback.openCommentQuoteButton(false);
+        callback.openSageButton(false);
         callback.openCommentSpoilerButton(false);
         callback.openNameOptions(false);
         callback.openFileName(false);
@@ -490,6 +525,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         void openSubject(boolean open);
 
         void openCommentQuoteButton(boolean open);
+
+        void openSageButton(boolean open);
 
         void openCommentSpoilerButton(boolean open);
 

@@ -92,6 +92,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private LinearLayout nameOptions;
     private ViewGroup commentButtons;
     private Button commentQuoteButton;
+    private Button sageButton;
     private Button commentSpoilerButton;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
@@ -143,6 +144,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
         commentButtons = replyInputLayout.findViewById(R.id.comment_buttons);
         commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
+        sageButton = replyInputLayout.findViewById(R.id.sage_button);
         commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
         comment = replyInputLayout.findViewById(R.id.comment);
         commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
@@ -155,6 +157,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
         // Setup reply layout views
         commentQuoteButton.setOnClickListener(this);
+        sageButton.setOnClickListener(this);
         commentSpoilerButton.setOnClickListener(this);
 
         comment.addTextChangedListener(this);
@@ -242,6 +245,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             }
         } else if (v == commentQuoteButton) {
             presenter.commentQuoteClicked();
+        } else if (v == sageButton) {
+            presenter.sageButtonClicked();
         } else if (v == commentSpoilerButton) {
             presenter.commentSpoilerClicked();
         }
@@ -420,7 +425,10 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     public void openCommentQuoteButton(boolean open) {
         commentQuoteButton.setVisibility(open ? View.VISIBLE : View.GONE);
     }
-
+    @Override
+    public void openSageButton(boolean open){
+        sageButton.setVisibility(open ? View.VISIBLE : View.GONE);
+    }
     @Override
     public void openCommentSpoilerButton(boolean open) {
         commentSpoilerButton.setVisibility(open ? View.VISIBLE : View.GONE);

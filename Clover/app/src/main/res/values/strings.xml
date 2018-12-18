@@ -104,6 +104,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_switch_board">Board mode</string>
     <string name="action_scroll_to_top">Top</string>
     <string name="action_scroll_to_bottom">Bottom</string>
+    <!--<string name="action_scroll_to_user_post">Your post</string> See Clover/app/src/main/java/org/floens/chan/ui/controller/ViewThreadController.java -->
     <string name="action_sort">Sort</string>
     <string name="action_rename_pin">Rename bookmark</string>
     <string name="action_rename">Rename</string>
@@ -287,7 +288,9 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="reply_options">Options</string>
     <string name="reply_subject">Subject</string>
     <string name="reply_comment_thread">Comment reply</string>
+    <string name="reply_comment_thread_saged">(saged)Comment reply</string>
     <string name="reply_comment_board">Comment new thread</string>
+    <string name="reply_comment_board_saged">(saged)Comment new thread</string>
     <string name="reply_file_name">File name</string>
     <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
     <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
@@ -300,6 +303,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="reply_success">Post successful</string>
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote" translatable="false">&gt;</string>
+    <string name="reply_sage_button" translatable="false">sage</string>
     <string name="reply_comment_button_spoiler">[s]</string>
 
     <string name="delete_confirm">Delete your post?</string>

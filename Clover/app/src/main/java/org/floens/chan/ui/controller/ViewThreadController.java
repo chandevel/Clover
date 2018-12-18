@@ -32,6 +32,7 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.layout.ThreadLayout;
 import org.floens.chan.ui.toolbar.NavigationItem;
@@ -90,6 +91,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
+                //.withSubItem(R.string.action_scroll_to_user_post, this::userPost)
                 .build()
                 .build();
 
@@ -137,6 +139,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     private void downClicked(ToolbarMenuSubItem item) {
         threadLayout.getPresenter().scrollTo(-1, false);
     }
+    //TODO: Try and figure out how to get the displayPosition for a saved reply in a thread
+    /*private void userPost(ToolbarMenuSubItem item) {
+        threadLayout.getPresenter().scrollTo(6, false);
+    }*/
 
     @Override
     public void onShow() {
