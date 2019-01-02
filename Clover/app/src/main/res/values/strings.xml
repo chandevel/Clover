@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_none">Clover is up-to-date</string>
     <string name="update_check_failed">Failed to check for updates.</string>
     <string name="update_install">Install</string>
-    <string name="update_install_downloading">Downloading update</string>
+    <string name="update_install_downloading">Downloading update…</string>
     <string name="update_install_download_failed">Download failed</string>
     <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
     <string name="update_retry_title">Retry update</string>
@@ -41,10 +41,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_retry_button">retry</string>
 
     <string name="update_storage_permission_required_title">Storage permission required</string>
-    <string name="update_storage_permission_required">
-"Permission to access storage is required for installing the update.
+    <string name="update_storage_permission_required">Permission to access storage is required for installing the update.
 
-Re-enable this permission in the app settings if you permanently disabled it."</string>
+Re-enable this permission in the app settings if you permanently disabled it.</string>
 
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
@@ -95,7 +94,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="action_reload">Reload</string>
     <string name="action_pin">Bookmark</string>
-    <string name="action_open_browser">Open in a browser</string>
+    <string name="action_open_browser">Open in browser</string>
     <string name="action_share">Share</string>
     <string name="action_download_album">Download album</string>
     <string name="action_search">Search</string>
@@ -120,7 +119,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>
-    <string name="search_empty">Search subjects, comments, names and filenames</string>
+    <string name="search_empty">Search subjects, comments, names, and filenames</string>
 
     <string name="open_link_confirmation">Open this link?</string>
     <string name="open_thread_confirmation">Open this thread?</string>
@@ -144,8 +143,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_load_failed_server">Server error</string>
     <string name="thread_load_failed_not_found">404 not found</string>
     <string name="thread_refresh_bar_inactive">Tap to refresh</string>
-    <string name="thread_refresh_now">Loading</string>
-    <string name="thread_refresh_countdown">Loading in %1$ds</string>
+    <string name="thread_refresh_now">Loading…</string>
+    <string name="thread_refresh_countdown">Loading in %1$ds…</string>
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
@@ -184,7 +183,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setup_site_login_description_enabled">Logged in</string>
     <string name="setup_site_login_description_disabled">Off</string>
 
-    <string name="setup_board_title">Configure boards of %s</string>
+    <string name="setup_board_title">Configure boards for %s</string>
     <string name="setup_board_empty">No boards added</string>
     <string name="setup_board_removed">Removed \"%s\"</string>
     <string name="setup_board_added">%s added</string>
@@ -214,15 +213,15 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_help">
 <![CDATA[
 Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden or highlighted.<br>
+If the pattern matches, the post can be hidden or highlighted.<br>
 
 <h4>For tripcodes, names and IDs:</h4>
 <p>
-    It will match the given pattern exact.<br>
-    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
+    It will match the given pattern exactly.<br>
+    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i>, but not <i>Ep8pu</i>.
 </p>
 
-<h4>For comments, subjects and filenames:</h4>
+<h4>For comments, subjects, and filenames:</h4>
 <p>
     These filters are pattern based, and have three modes:<br>
     <br>
@@ -303,9 +302,9 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="reply_comment_button_spoiler">[s]</string>
 
     <string name="delete_confirm">Delete your post?</string>
-    <string name="delete_wait">Deleting post&#8230;</string>
+    <string name="delete_wait">Deleting post…</string>
     <string name="delete_success">Post deleted</string>
-    <string name="delete_image_only">Only delete the image</string>
+    <string name="delete_image_only">Delete image only</string>
     <string name="delete_error">Error deleting post</string>
 
     <string name="video_playback_warning_title">WebM video error</string>
@@ -350,7 +349,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
 
     <string name="report_screen">Report %1$s</string>
 
-    <string name="image_save_notification_downloading">Downloading images</string>
+    <string name="image_save_notification_downloading">Downloading images…</string>
     <string name="image_save_notification_cancel">Tap to cancel</string>
     <string name="image_save_saved">Image saved</string>
     <string name="image_save_as">Saved as \"%1$s\"</string>
@@ -369,7 +368,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="settings_appearance">Appearance</string>
     <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
     <string name="settings_behavior">Behavior</string>
-    <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
+    <string name="settings_behavior_description">Thread refreshing, captcha, etc.</string>
     <string name="settings_media">Media</string>
     <string name="settings_media_description">Save location, auto loading, etc.</string>
     <string name="settings_filters">Filters</string>
@@ -417,10 +416,10 @@ Enable \"Play videos with external player\" in the settings to play videos with 
 "Crash reporting creates reports of errors in Clover.
 Crash reports do not collect any personally identifiable information."
     </string>
-    <string name="settings_crash_reporting_toggle_notice">Setting will be applied on the next app start.</string>
+    <string name="settings_crash_reporting_toggle_notice">Changed setting will be applied the next time the app is started.</string>
     <string name="settings_about_license">Released under the GNU GPLv3 license</string>
     <string name="settings_about_license_description">Tap to see license</string>
-    <string name="settings_about_licenses">Open Source Licenses</string>
+    <string name="settings_about_licenses">Open-Source Licenses</string>
     <string name="settings_about_licenses_description">Legal information about licenses</string>
     <string name="settings_developer">Developer settings</string>
 
@@ -460,12 +459,12 @@ Crash reports do not collect any personally identifiable information."
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
     <string name="setting_force_english_locale">Always use English for the language of the app</string>
-    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
-    <string name="setting_auto_refresh_thread">Auto refresh threads</string>
-    <string name="setting_confirm_exit">Confirm before exit</string>
+    <string name="setting_force_english_locale_toggle_notice">Language will be applied the next time the app is started.</string>
+    <string name="setting_auto_refresh_thread">Auto-refresh threads</string>
+    <string name="setting_confirm_exit">Confirm before exiting</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
-    <string name="setting_clear_thread_hides">Clear all thread hides</string>
-    <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
+    <string name="setting_clear_thread_hides">Clear all hidden threads</string>
+    <string name="setting_cleared_thread_hides">Cleared all hidden threads</string>
 
     <!-- Behavior reply group -->
     <string name="settings_group_reply">Reply</string>
@@ -473,7 +472,7 @@ Crash reports do not collect any personally identifiable information."
     <string name="setting_post_default_name">Default post name</string>
 
     <!-- Behavior post group -->
-    <string name="setting_text_only">Text only mode</string>
+    <string name="setting_text_only">Text-only mode</string>
     <string name="setting_text_only_description">Hide images when in board and thread view</string>
     <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
     <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
@@ -508,7 +507,7 @@ Crash reports do not collect any personally identifiable information."
 If disabled, save the image with the filename the uploader assigned."
     </string>
     <string name="setting_video_default_muted">Start videos muted</string>
-    <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
+    <string name="setting_video_default_muted_description">If a video has audio, mute it by default</string>
     <string name="setting_video_open_external">Play videos with external player</string>
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
     <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
@@ -516,7 +515,7 @@ If disabled, save the image with the filename the uploader assigned."
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
-    <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images.</string>
+    <string name="settings_reveal_image_spoilers_description">Always reveal spoiler thumbnails and images</string>
 
     <!-- Media loading group -->
     <string name="settings_group_media_loading">Media loading</string>
@@ -528,7 +527,7 @@ If disabled, save the image with the filename the uploader assigned."
 
     <string name="setting_video_auto_load">Automatically load videos</string>
 
-    <string name="setting_video_auto_loop">Enable automatic video-looping</string>
+    <string name="setting_video_auto_loop">Enable automatic video looping</string>
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
 
 
@@ -549,7 +548,7 @@ Re-enable this permission in the app settings if you permanently disabled it."
 "Swipe to change the theme.
 Tap the toolbar menu to change its color."
     </string>
-    <string name="setting_theme_accent">Tap here to change the FAB color</string>
+    <string name="setting_theme_accent">Tap here to change the Floating Action Button color</string>
 
     <!-- Developer settings -->
     <string name="settings_open_logs">View logs</string>
@@ -564,7 +563,7 @@ Tap the toolbar menu to change its color."
     <string name="setting_pass_authenticated">Device authorized!</string>
     <string name="setting_pass_login">Submit</string>
     <string name="setting_pass_logout">Logout</string>
-    <string name="setting_pass_logging_in">Loading&#8230;</string>
+    <string name="setting_pass_logging_in">Loading…</string>
     <string name="setting_pass_error">Connection error</string>
     <string name="setting_pass_bottom_description">"
 <![CDATA[

@@ -286,7 +286,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="reply_captcha_text">Введите текст</string>
   <string name="reply_comment_button_spoiler">[s]</string>
   <string name="delete_confirm">Удалить ваш пост?</string>
-  <string name="delete_wait">Удаление поста&#8230;</string>
+  <string name="delete_wait">Удаление поста…</string>
   <string name="delete_success">Пост удален</string>
   <string name="delete_image_only">Удалить изображение</string>
   <string name="delete_error">Ошибка при удалении поста</string>
@@ -427,6 +427,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="settings_screen_behavior">Поведение</string>
   <!-- Behavior general group -->
   <string name="settings_group_general">Основные</string>
+    <string name="setting_force_english_locale">Всегда используйте английский для языка приложения</string>
+    <string name="setting_force_english_locale_toggle_notice">Язык будет применен при следующем запуске приложения.</string>
   <string name="setting_auto_refresh_thread">Автообновление тредов</string>
   <string name="setting_confirm_exit">Подтверждать перед выходом</string>
   <string name="setting_controller_swipeable">Позволять смахивать экраны в сторону</string>
@@ -469,6 +471,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_video_default_muted_description">Если у видео есть звук, то он выключается.</string>
   <string name="setting_video_open_external">Использовать внешний проигрыватель</string>
   <string name="setting_video_open_external_description">Запускать видео во внешнем проигрывателе</string>
+  <string name="setting_video_exoplayer">Включить новый ExoPlayer</string>
+  <string name="setting_video_exoplayer_description">Используйте новый ExoPlayer для внутреннего медиаплеера</string>
   <string name="setting_share_url">Делиться ссылкой на файл</string>
   <string name="setting_share_url_description">Делиться ссылкой на файл заместо него самого</string>
   <string name="settings_reveal_image_spoilers">Раскрыть изображения в спойлере</string>
@@ -509,7 +513,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="setting_pass_authenticated">Устройство авторизовано!</string>
   <string name="setting_pass_login">Продолжить</string>
   <string name="setting_pass_logout">Выйти</string>
-  <string name="setting_pass_logging_in">Загрузка&#8230;</string>
+  <string name="setting_pass_logging_in">Загрузка…</string>
   <string name="setting_pass_error">Ошибка соединения</string>
   <string name="setting_pass_bottom_description">\"
 <![CDATA[

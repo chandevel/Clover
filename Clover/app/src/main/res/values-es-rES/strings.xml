@@ -38,9 +38,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_retry">Clover no se ha actualizado todavía. Presione \"Reintentar\" para volver a intentar la instalación.</string>
     <string name="update_retry_button">Reintentar</string>
     <string name="update_storage_permission_required_title">Permiso de almacenamiento requerido</string>
-    <string name="update_storage_permission_required">El perimiso para acceder almacenamiento es requerido para instalar la actualización
+    <string name="update_storage_permission_required">El perimiso para acceder almacenamiento es requerido para instalar la actualización.
 
-Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes</string>
+Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes.</string>
     <plurals name="minutes">
         <item quantity="one">%d minuto</item>
         <item quantity="other">%d minuto</item>
@@ -54,7 +54,7 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
         <item quantity="other">%d respuestas</item>
     </plurals>
     <plurals name="image">
-        <item quantity="one">%d imágen</item>
+        <item quantity="one">%d imagen</item>
         <item quantity="other">%d imágenes</item>
     </plurals>
     <plurals name="board">
@@ -144,7 +144,7 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="setup_sites_add_title">Agregar sitio</string>
     <string name="setup_sites_description">Añadir un sitio web por su dirección URL o nombre</string>
     <string name="setup_sites_url">Dirección URL o nombre</string>
-    <string name="setup_sites_url_hint">http://ejemplo.com</string>
+    <string name="setup_sites_url_hint">http://example.com</string>
     <string name="setup_sites_site_description">%s añadido</string>
     <string name="setup_sites_add_boards_hint">Toca para añadir boards</string>
     <string name="setup_site_title">Configurar %s</string>
@@ -152,7 +152,7 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="setup_site_boards">Configurar borads</string>
     <string name="setup_site_boards_description">%s añadido</string>
     <string name="setup_site_group_login">Autenticación</string>
-    <string name="setup_site_login">Iniciar sesión </string>
+    <string name="setup_site_login">Iniciar sesión</string>
     <string name="setup_site_login_description_enabled">Conectado</string>
     <string name="setup_site_login_description_disabled">Desactivado</string>
     <string name="setup_board_title">Configurar borads de %s</string>
@@ -183,26 +183,26 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="filter_help_title">Filtro ayuda</string>
     <string name="filter_help">
 <![CDATA[
-Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden or highlighted.<br>
+Los filtros actúan sobre un patrón dado y un lugar para buscar el patrón.<br>
+Si el patrón coincide, la publicación se puede ocultar o resaltar.<br>
 
-<h4>For tripcodes, names and IDs:</h4>
+<h4>Para códigos de tripulación, nombres e identificaciones:</h4>
 <p>
-    It will match the given pattern exact.<br>
-    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
+    Coincidirá exactamente con el patrón dado.<br>
+    <tt>!Ep8pui8Vw2</tt> coincidirá con el código <i>!Ep8pui8Vw2</i>, pero no <i>Ep8pu</i>.
 </p>
 
-<h4>For comments, subjects and filenames:</h4>
+<h4>Para comentarios, temas, y nombres de archivos:</h4>
 <p>
-    These filters are pattern based, and have three modes:<br>
+    Estos filtros están basados en patrones, y tienen tres modos:<br>
     <br>
-    1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
-    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i>, <i>foooo</i> but not <i>foobar</i><br>
+    1. El patrón <tt>foo bar</tt> coincidirá con el texto que tenga alguna de las palabras. Coincidirá <i>foo</i> o <i>bar</i>, pero no <i>foobar</i>.
+    Colocar un * permite completar cualquier carácter: <tt>f*o</tt> coincidirá con ambos <i>foo</i> y <i>foooo</i>, pero no <i>foobar</i><br>
     <br>
-    2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exactly.
+    2. Cotizando tu patrón con <tt>\"</tt> como <tt>\"foo bar\"</tt> coincidirá exactamente con el texto.
     <i>foo bar</i> matches but <i>foo</i> does not.<br>
     <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example.
+    3. Expresiones regulares. <tt>/^>implying/</tt> por ejemplo.
 </p>
 ]]>
     </string>
@@ -227,7 +227,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="drawer_pinned">Hilos guardados</string>
     <string name="drawer_pin_removed">\"%1$s\" Removido</string>
     <string name="drawer_pins_cleared">%1$s limpiado</string>
-    <string name="drawer_pins_non_cleared">Ningun marcador borrado.</string>
+    <string name="drawer_pins_non_cleared">Ningún marcador borrado.</string>
     <string name="drawer_pins_non_cleared_try_all">Ningún marcador borrado. Mantenga para eliminar todos.</string>
     <string name="post_highlight_id">Destacar ID</string>
     <string name="post_highlight_tripcode">Destacar Tripcode</string>
@@ -263,12 +263,12 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="reply_captcha_text">Escribe el texto</string>
     <string name="reply_comment_button_spoiler">[s]</string>
     <string name="delete_confirm">¿Eliminar esta publicación?</string>
-    <string name="delete_wait">Borrando post&#8230;</string>
+    <string name="delete_wait">Borrando post…</string>
     <string name="delete_success">Publicación eliminada</string>
-    <string name="delete_image_only">Solo borra la imágen</string>
+    <string name="delete_image_only">Solo borra la imagen</string>
     <string name="delete_error">Error al eliminar</string>
     <string name="video_playback_warning_title">Error de video WebM</string>
-    <string name="video_playback_warning">"El video WebM no se puro reproducir.Este puede ser un problema con el hardware del teléfono.
+    <string name="video_playback_warning">"El video WebM no se puro reproducir. Este puede ser un problema con el hardware del teléfono.
 
 Una posible solución es usar un reproductor de tercero con algún decodificador
 Active \"Reproducir videos con reproductor externo\" En las configuraciones"</string>
@@ -297,7 +297,7 @@ Active \"Reproducir videos con reproductor externo\" En las configuraciones"</st
     <string name="album_download_none_checked">Seleccione imágenes para descargar</string>
     <string name="album_download_confirm">%1$s se descargará en la carpeta %2$s</string>
     <string name="report_screen">Reportar a %1$s</string>
-    <string name="image_save_notification_downloading">Descargando imagenes</string>
+    <string name="image_save_notification_downloading">Descargando imágenes</string>
     <string name="image_save_notification_cancel">Pulse para cancelar</string>
     <string name="image_save_saved">Imagen guardada</string>
     <string name="image_save_as">Guardado como %1$s</string>
@@ -393,6 +393,8 @@ Los reportes de crash no recolectan información personal."</string>
     <string name="settings_screen_behavior">Comportamiento</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
+    <string name="setting_force_english_locale">Usa siempre el inglés para el idioma de la aplicación</string>
+    <string name="setting_force_english_locale_toggle_notice">El idioma se aplicará la próxima vez que se inicie la aplicación.</string>
     <string name="setting_auto_refresh_thread">Auto-refrescar hilo</string>
     <string name="setting_confirm_exit">Confirmar antes de salir</string>
     <string name="setting_controller_swipeable">Permitir pantallas deslizables</string>
@@ -425,16 +427,18 @@ Los reportes de crash no recolectan información personal."</string>
     <!-- Media general group -->
     <string name="settings_group_media">Media</string>
     <string name="setting_save_board_folder">Guardar imágenes en una carpeta dedicada al board</string>
-    <string name="setting_save_board_folder_description">Crear una carpeta para descargar imagenes para cada board</string>
+    <string name="setting_save_board_folder_description">Crear una carpeta para descargar imágenes para cada board</string>
     <string name="setting_save_original_filename">Guardar nombre de archivo original</string>
     <string name="setting_save_original_filename_description">
-"Guardar la imágen con el nombre de archivo asignado por el sitio.
-Si esta deshabilitado, guardar imágen con el nombre de archivo original de la subida"
+"Guardar la imagen con el nombre de archivo asignado por el sitio.
+Si esta deshabilitado, guardar imagen con el nombre de archivo original de la subida."
     </string>
     <string name="setting_video_default_muted">Inicio videos silenciados</string>
     <string name="setting_video_default_muted_description">Si un video tiene audio, silenceado predeterminado.</string>
     <string name="setting_video_open_external">Reproducir con reproductor externo</string>
     <string name="setting_video_open_external_description">Reproducir en una aplicación de reproductor de medios externos</string>
+    <string name="setting_video_exoplayer">Habilitar nuevo ExoPlayer</string>
+    <string name="setting_video_exoplayer_description">Usa el nuevo ExoPlayer para el reproductor de medios interno</string>
     <string name="setting_share_url">Compartir la URL de la imagen</string>
     <string name="setting_share_url_description">Compartir la URL de la imagen en lugar de la propia imagen</string>
     <string name="settings_reveal_image_spoilers">Revelar imágenes spoilers</string>
@@ -452,37 +456,37 @@ Si esta deshabilitado, guardar imágen con el nombre de archivo original de la s
     <string name="save_location_screen">Ubicación de guardado</string>
     <string name="save_location_storage_permission_required_title">Permiso de almacenamiento requerido</string>
     <string name="save_location_storage_permission_required">
-El perimiso para acceder almacenamiento es requerido para navegar archios
+El perimiso para acceder almacenamiento es requerido para navegar archios.
 
-Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes    </string>
+Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes.</string>
     <string name="setting_folder_pick_ok">Elegir</string>
     <string name="setting_folder_navigate_up">Subir</string>
     <!-- Theme settings -->
     <string name="setting_theme_explanation">
 "Para cambiar el tema deslice.
-Toque la barra de menu para cambiar su color"
+Toque la barra de menu para cambiar su color."
     </string>
-    <string name="setting_theme_accent">Presione aqui para cambiar el color de FAB</string>
+    <string name="setting_theme_accent">Presione aquí para cambiar el color de FAB</string>
     <!-- Developer settings -->
     <string name="settings_open_logs">Ver logs</string>
     <string name="settings_logs_screen">Registros</string>
     <string name="settings_logs_copy">Copiar</string>
     <string name="settings_logs_copied_to_clipboard">Copiado al portapapeles</string>
-    <string name="settings_screen_pass">4chan pass</string>
+    <string name="settings_screen_pass">Pase de 4chan</string>
     <string name="setting_pass_token">Token</string>
     <string name="setting_pass_pin">PIN</string>
     <string name="setting_pass_authenticated">¡Dispositivo autorizado!</string>
     <string name="setting_pass_login">Enviar</string>
     <string name="setting_pass_logout">Cerrar sesión</string>
-    <string name="setting_pass_logging_in">Cargando&#8230;</string>
+    <string name="setting_pass_logging_in">Cargando…</string>
     <string name="setting_pass_error">Error de conexión</string>
     <string name="setting_pass_bottom_description">"
 <![CDATA[
-Forgot your 4chan Pass login details?<br>
-<a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
+¿Olvidó sus datos de inicio de sesión de pase de 4chan?<br>
+<a href=\"https://www.4chan.org/pass?reset\">Vaya aquí para restablecer su PIN.</a><br>
 <br>
-Don't have a 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>
+¿No tienes un pase de 4chan?<br>
+<a href=\"https://www.4chan.org/pass\">Toca aquí para aprender más.</a>
 ]]>
     "</string>
     <string name="settings_screen_theme">Temas</string>
