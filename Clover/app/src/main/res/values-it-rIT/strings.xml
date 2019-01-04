@@ -176,7 +176,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="filter_all">tutti</string>
     <string name="filter_hide">Nascondi post</string>
     <string name="filter_color">Evidenzia post</string>
-    <string name="filter_remove">Remove post</string>
+    <string name="filter_remove">Elimina post</string>
     <string name="filter_invalid_pattern">Invalid pattern</string>
     <string name="filter_preview">Test your filter</string>
     <string name="filter_no_matches">Non corrisponde</string>
@@ -230,7 +230,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
     <string name="post_filter_tripcode">Filter tripcode</string>
-    <string name="post_text_copied">Text copied to clipboard</string>
+    <string name="post_text_copied">Testo copiato negli appunti</string>
     <string name="post_quote">Cita</string>
     <string name="post_quote_text">Quote text</string>
     <string name="post_info">Informazioni</string>
@@ -301,7 +301,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="image_save_saved">Immagine salvata</string>
     <string name="image_save_as">Saved as \"%1$s\"</string>
     <string name="image_save_failed">Saving image failed</string>
-    <string name="drawer_sites">Setup sites</string>
+    <string name="drawer_sites">Imposta siti</string>
     <string name="drawer_history">Cronologia</string>
     <!-- Main settings -->
     <string name="settings_screen">Impostazioni</string>
@@ -391,7 +391,7 @@ Crash reports do not collect any personally identifiable information.\"
     <!-- Behavior -->
     <string name="settings_screen_behavior">Behavior</string>
     <!-- Behavior general group -->
-    <string name="settings_group_general">General</string>
+    <string name="settings_group_general">Generale</string>
     <string name="setting_force_english_locale">Usa sempre inglese come lingua dell\'app</string>
     <string name="setting_force_english_locale_toggle_notice">La lingua verrà cambiata al prossimo avvio.</string>
     <string name="setting_auto_refresh_thread">Ricarica automaticamente i thread</string>
@@ -457,8 +457,8 @@ If disabled, save the image with the filename the uploader assigned.\"
 
 Re-enable this permission in the app settings if you permanently disabled it.\"
     </string>
-    <string name="setting_folder_pick_ok">Choose</string>
-    <string name="setting_folder_navigate_up">Up</string>
+    <string name="setting_folder_pick_ok">Scegli</string>
+    <string name="setting_folder_navigate_up">Su</string>
     <!-- Theme settings -->
     <string name="setting_theme_explanation">\"Swipe to change the theme.
 Tap the toolbar menu to change its color.\"
