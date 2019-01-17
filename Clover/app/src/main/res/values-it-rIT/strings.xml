@@ -129,12 +129,12 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="thread_archived">Archiviato</string>
     <string name="thread_closed">Chiuso</string>
     <plurals name="thread_new_posts">
-        <item quantity="one">%d new post</item>
-        <item quantity="other">%d new posts</item>
+        <item quantity="one">%d nuovo post</item>
+        <item quantity="other">%d nuovi post</item>
     </plurals>
     <string name="thread_new_posts_goto">Visualizza</string>
     <string name="thread_empty_select">Seleziona un thread</string>
-    <string name="thread_up_down_hint">Scroll to top/bottom</string>
+    <string name="thread_up_down_hint">Scorri in cima/in fondo</string>
     <string name="thread_pin_hint">Aggiungi ai preferiti</string>
     <string name="thread_view_archive">Archivo</string>
     <string name="thread_empty_setup_title">Niente da visualizzare</string>
@@ -147,11 +147,11 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="setup_sites_description">Aggiungi un sito usando il suo URL o il suo nome</string>
     <string name="setup_sites_url">URL o nome</string>
     <string name="setup_sites_url_hint">http://esempio.com</string>
-    <string name="setup_sites_site_description">%s added</string>
-    <string name="setup_sites_add_boards_hint">Tap to add boards</string>
-    <string name="setup_site_title">Configure %s</string>
-    <string name="setup_site_group_general">General</string>
-    <string name="setup_site_boards">Setup boards</string>
+    <string name="setup_sites_site_description">%s aggiunto</string>
+    <string name="setup_sites_add_boards_hint">Tocca per aggiungere boards</string>
+    <string name="setup_site_title">Configura %s</string>
+    <string name="setup_site_group_general">Generale</string>
+    <string name="setup_site_boards">Imposta boards</string>
     <string name="setup_site_boards_description">%s added</string>
     <string name="setup_site_group_login">Accesso</string>
     <string name="setup_site_login">Login</string>
