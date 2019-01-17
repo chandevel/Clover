@@ -44,28 +44,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Re-enable this permission in the app settings if you permanently disabled it.\"</string>
     <plurals name="minutes">
-        <item quantity="one">%d minute</item>
-        <item quantity="other">%d minutes</item>
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minuti</item>
     </plurals>
     <plurals name="posts">
         <item quantity="one">%d post</item>
-        <item quantity="other">%d posts</item>
+        <item quantity="other">%d post</item>
     </plurals>
     <plurals name="reply">
-        <item quantity="one">%d reply</item>
-        <item quantity="other">%d replies</item>
+        <item quantity="one">%d risposta</item>
+        <item quantity="other">%d risposte</item>
     </plurals>
     <plurals name="image">
-        <item quantity="one">%d image</item>
-        <item quantity="other">%d images</item>
+        <item quantity="one">%d immagine</item>
+        <item quantity="other">%d immagini</item>
     </plurals>
     <plurals name="board">
         <item quantity="one">%d board</item>
         <item quantity="other">%d boards</item>
     </plurals>
     <plurals name="type">
-        <item quantity="one">%d type</item>
-        <item quantity="other">%d types</item>
+        <item quantity="one">%d tipo</item>
+        <item quantity="other">%d tipi</item>
     </plurals>
     <plurals name="bookmark">
         <item quantity="one">%d bookmark</item>
