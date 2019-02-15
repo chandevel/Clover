@@ -68,7 +68,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
         <item quantity="other">%d tipi</item>
     </plurals>
     <plurals name="bookmark">
-        <item quantity="one">%d bookmark</item>
+        <item quantity="one">segnalibro %d</item>
         <item quantity="other">%d bookmarks</item>
     </plurals>
     <plurals name="filter">
@@ -266,10 +266,10 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="delete_image_only">Only delete the image</string>
     <string name="delete_error">Errore nella cancellazione del post</string>
     <string name="video_playback_warning_title">WebM video error</string>
-    <string name="video_playback_warning">\"The WebM video failed to play. This might be a problem with the hardware of your phone.
+    <string name="video_playback_warning">\"Il video WebM non è riuscito a partire. Potrebbe essere un problema con l\'hardware del tuo telefono.
 
-A workaround is to use an external media player with a software decoder.
-Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
+Un\'alternativa è utilizzare un lettore multimediale esterno con la decodifica software.
+Abilita \"Riproduci video con un lettore esterno\" nelle impostazioni per riprodurre i video con un lettore esterno.\"
     </string>
     <string name="video_playback_ignore">Non mostrare più</string>
     <string name="watch_pause_pins">Stop watching</string>
@@ -385,7 +385,7 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="setting_font_size_default">(predefinito)</string>
     <string name="setting_font_condensed">Use condensed font</string>
     <string name="setting_font_condensed_description">Use a condensed font for the posts</string>
-    <string name="setting_post_full_date">Show the full date on posts</string>
+    <string name="setting_post_full_date">Mostra la data completa nei post</string>
     <string name="setting_post_file_info">Show file info on posts</string>
     <string name="setting_post_filename">Show filename on posts</string>
     <!-- Behavior -->
@@ -406,7 +406,7 @@ Crash reports do not collect any personally identifiable information.\"
     <!-- Behavior post group -->
     <string name="setting_text_only">Modalità solo testo</string>
     <string name="setting_text_only_description">Hide images when in board and thread view</string>
-    <string name="settings_reveal_text_spoilers">Reveal text spoilers</string>
+    <string name="settings_reveal_text_spoilers">Rivela il testo degli spoilers</string>
     <string name="settings_reveal_text_spoilers_description">Makes the spoiler text appear tapped</string>
     <string name="setting_anonymize">Rendi tutti \"Anonymous\"</string>
     <string name="setting_anonymize_ids">Nascondi ID</string>
