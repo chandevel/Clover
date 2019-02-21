@@ -28,6 +28,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.manager.WatchManager.PinMessages;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.presenter.ThreadPresenter;
@@ -160,15 +161,15 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         loadThread(pin.loadable);
     }
 
-    public void onEvent(WatchManager.PinAddedMessage message) {
+    public void onEvent(PinMessages.PinAddedMessage message) {
         setPinIconState(true);
     }
 
-    public void onEvent(WatchManager.PinRemovedMessage message) {
+    public void onEvent(PinMessages.PinRemovedMessage message) {
         setPinIconState(true);
     }
 
-    public void onEvent(WatchManager.PinChangedMessage message) {
+    public void onEvent(PinMessages.PinChangedMessage message) {
         setPinIconState(false);
         // Update title
         if (message.pin.loadable == loadable) {

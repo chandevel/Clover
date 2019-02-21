@@ -111,6 +111,16 @@ public class FilterEngine {
         }
     }
 
+    public List<Filter> getEnabledPinFilters() {
+        List<Filter> pinFilters = new ArrayList<Filter>();
+        for (Filter f : enabledFilters) {
+            if(f.action == FilterAction.PIN.id) {
+                pinFilters.add(f);
+            }
+        }
+        return pinFilters;
+    }
+
     @AnyThread
     public boolean matchesBoard(Filter filter, Board board) {
         if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
@@ -161,6 +171,41 @@ public class FilterEngine {
         }
 
         if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.posterId, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.SUBJECT.flag) != 0 && matches(filter, FilterType.SUBJECT.isRegex, post.subject, false)) {
+            return true;
+        }
+
+        if (post.images != null) {
+            StringBuilder filename = new StringBuilder();
+            for (PostImage image : post.images) {
+                filename.append(image.filename).append(" ");
+            }
+            if ((filename.length() > 0) && (filter.type & FilterType.FILENAME.flag) != 0 && matches(filter, FilterType.FILENAME.isRegex, filename.toString(), false)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @AnyThread
+    public boolean matches(Filter filter, Post post) {
+        if ((filter.type & FilterType.TRIPCODE.flag) != 0 && matches(filter, FilterType.TRIPCODE.isRegex, post.tripcode, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.NAME.flag) != 0 && matches(filter, FilterType.NAME.isRegex, post.name, false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.COMMENT.flag) != 0 && matches(filter, FilterType.COMMENT.isRegex, post.comment.toString(), false)) {
+            return true;
+        }
+
+        if ((filter.type & FilterType.ID.flag) != 0 && matches(filter, FilterType.ID.isRegex, post.id, false)) {
             return true;
         }
 
