@@ -37,6 +37,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
 import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.manager.WatchManager.PinMessages;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.DrawerAdapter;
@@ -240,18 +241,18 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         drawerAdapter.updateHighlighted(recyclerView);
     }
 
-    public void onEvent(WatchManager.PinAddedMessage message) {
+    public void onEvent(PinMessages.PinAddedMessage message) {
         drawerAdapter.onPinAdded(message.pin);
         drawerLayout.openDrawer(drawer);
         updateBadge();
     }
 
-    public void onEvent(WatchManager.PinRemovedMessage message) {
+    public void onEvent(PinMessages.PinRemovedMessage message) {
         drawerAdapter.onPinRemoved(message.pin);
         updateBadge();
     }
 
-    public void onEvent(WatchManager.PinChangedMessage message) {
+    public void onEvent(PinMessages.PinChangedMessage message) {
         drawerAdapter.onPinChanged(recyclerView, message.pin);
         updateBadge();
     }

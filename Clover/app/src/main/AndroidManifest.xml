@@ -89,13 +89,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:exported="false" />
 
         <receiver
-            android:name=".core.receiver.WatchUpdateReceiver"
+            android:name=".core.manager.WakeManager"
             android:exported="false">
-
-            <intent-filter>
-                <action android:name="org.floens.chan.intent.action.WATCHER_UPDATE" />
-            </intent-filter>
-
         </receiver>
 
         <!-- providers are defined in the flavor specific directories -->
