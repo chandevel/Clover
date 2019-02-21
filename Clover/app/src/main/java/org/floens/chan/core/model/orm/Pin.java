@@ -17,11 +17,13 @@
  */
 package org.floens.chan.core.model.orm;
 
+import android.support.annotation.NonNull;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "pin")
-public class Pin {
+public class Pin implements Comparable<Pin>, Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -74,8 +76,10 @@ public class Pin {
         }
     }
 
-    public Pin copy() {
+    @Override
+    public Pin clone() {
         Pin copy = new Pin();
+        copy.id = id;
         copy.loadable = loadable;
         copy.watching = watching;
         copy.watchLastCount = watchLastCount;
@@ -87,5 +91,12 @@ public class Pin {
         copy.order = order;
         copy.archived = archived;
         return copy;
+    }
+
+    @Override
+    public int compareTo(@NonNull Pin o) {
+        int lhs = this.order;
+        int rhs = o.order;
+        return lhs - rhs;
     }
 }

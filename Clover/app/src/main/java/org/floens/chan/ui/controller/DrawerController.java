@@ -181,7 +181,7 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
 
     @Override
     public void onPinRemoved(Pin pin) {
-        final Pin undoPin = pin.copy();
+        final Pin undoPin = pin.clone();
         watchManager.deletePin(pin);
         Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pin_removed, pin.loadable.title), Snackbar.LENGTH_LONG);
         fixSnackbarText(context, snackbar);

@@ -377,7 +377,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 thread = Loadable.emptyLoadable();
             }
 
-            outState.putParcelable(STATE_KEY, new ChanState(board.copy(), thread.copy()));
+            outState.putParcelable(STATE_KEY, new ChanState(board.clone(), thread.clone()));
         }
     }
 

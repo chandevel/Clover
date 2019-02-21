@@ -30,7 +30,7 @@ import org.floens.chan.core.site.Site;
  * A board is something that can be browsed, it is unique by it's site and code.
  */
 @DatabaseTable(tableName = "board")
-public class Board implements SiteReference {
+public class Board implements SiteReference, Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -213,11 +213,11 @@ public class Board implements SiteReference {
     }
 
     /**
-     * Creates a complete copy of this board.
+     * Clones this board.
      *
      * @return copy of this board.
      */
-    public Board copy() {
+    public Board clone() {
         Board b = new Board();
         b.id = id;
         b.siteId = siteId;
@@ -252,31 +252,35 @@ public class Board implements SiteReference {
         return b;
     }
 
-    public boolean propertiesEqual(Board b) {
-        return name.equals(b.name) &&
-                code.equals(b.code) &&
-                workSafe == b.workSafe &&
-                perPage == b.perPage &&
-                pages == b.pages &&
-                maxFileSize == b.maxFileSize &&
-                maxWebmSize == b.maxWebmSize &&
-                maxCommentChars == b.maxCommentChars &&
-                bumpLimit == b.bumpLimit &&
-                imageLimit == b.imageLimit &&
-                cooldownThreads == b.cooldownThreads &&
-                cooldownReplies == b.cooldownReplies &&
-                cooldownImages == b.cooldownImages &&
-                cooldownRepliesIntra == b.cooldownRepliesIntra &&
-                cooldownImagesIntra == b.cooldownImagesIntra &&
-                spoilers == b.spoilers &&
-                customSpoilers == b.customSpoilers &&
-                userIds == b.userIds &&
-                codeTags == b.codeTags &&
-                preuploadCaptcha == b.preuploadCaptcha &&
-                countryFlags == b.countryFlags &&
-                trollFlags == b.trollFlags &&
-                mathTags == b.mathTags &&
-                ObjectsCompat.equals(description, b.description) &&
-                archive == b.archive;
+    public boolean equals(Object board) {
+        if(board.getClass() == Board.class) {
+            Board b = (Board) board;
+            return name.equals(b.name) &&
+                    code.equals(b.code) &&
+                    workSafe == b.workSafe &&
+                    perPage == b.perPage &&
+                    pages == b.pages &&
+                    maxFileSize == b.maxFileSize &&
+                    maxWebmSize == b.maxWebmSize &&
+                    maxCommentChars == b.maxCommentChars &&
+                    bumpLimit == b.bumpLimit &&
+                    imageLimit == b.imageLimit &&
+                    cooldownThreads == b.cooldownThreads &&
+                    cooldownReplies == b.cooldownReplies &&
+                    cooldownImages == b.cooldownImages &&
+                    cooldownRepliesIntra == b.cooldownRepliesIntra &&
+                    cooldownImagesIntra == b.cooldownImagesIntra &&
+                    spoilers == b.spoilers &&
+                    customSpoilers == b.customSpoilers &&
+                    userIds == b.userIds &&
+                    codeTags == b.codeTags &&
+                    preuploadCaptcha == b.preuploadCaptcha &&
+                    countryFlags == b.countryFlags &&
+                    trollFlags == b.trollFlags &&
+                    mathTags == b.mathTags &&
+                    ObjectsCompat.equals(description, b.description) &&
+                    archive == b.archive;
+        }
+        return false;
     }
 }

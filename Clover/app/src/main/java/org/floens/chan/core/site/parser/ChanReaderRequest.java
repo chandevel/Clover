@@ -85,7 +85,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         inject(this);
 
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
-        loadable = request.loadable.copy();
+        loadable = request.loadable.clone();
         cached = new ArrayList<>(request.cached);
         reader = request.chanReader;
 
@@ -96,7 +96,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
             if (filterEngine.matchesBoard(filter, loadable.board)) {
                 // copy the filter because it will get used on other threads
-                filters.add(filter.copy());
+                filters.add(filter.clone());
             }
         }
 
@@ -183,8 +183,7 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         internalIds = Collections.unmodifiableSet(internalIds);
 
         List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
-        for (int i = 0; i < toParse.size(); i++) {
-            Post.Builder post = toParse.get(i);
+        for (Post.Builder post : toParse) {
             tasks.add(new PostParseCallable(filterEngine,
                     filters,
                     databaseSavedReplyManager,

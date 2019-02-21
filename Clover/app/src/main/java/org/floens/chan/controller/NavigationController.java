@@ -113,7 +113,7 @@ public abstract class NavigationController extends Controller {
             throw new IllegalArgumentException("Cannot transition while another transition is in progress.");
         }
 
-        if (!pushing && childControllers.size() == 0) {
+        if (!pushing && childControllers.isEmpty()) {
             throw new IllegalArgumentException("Cannot pop with no controllers left");
         }
 

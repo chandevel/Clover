@@ -105,7 +105,7 @@ public class DatabaseBoardManager {
             for (Board board : boards) {
                 if (byCodeFromDb.containsKey(board.code)) {
                     Board dbBoard = byCodeFromDb.get(board.code);
-                    if (!dbBoard.propertiesEqual(board)) {
+                    if (!dbBoard.equals(board)) {
                         toUpdate.add(new Pair<>(dbBoard, board));
                     }
                 } else {

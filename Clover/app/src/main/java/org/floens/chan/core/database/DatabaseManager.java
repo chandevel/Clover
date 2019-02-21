@@ -89,7 +89,7 @@ public class DatabaseManager {
         databaseSavedReplyManager = new DatabaseSavedReplyManager(this, helper);
         databaseFilterManager = new DatabaseFilterManager(this, helper);
         databaseBoardManager = new DatabaseBoardManager(this, helper);
-        databaseSiteManager = new DatabaseSiteManager(this, helper);
+        databaseSiteManager = new DatabaseSiteManager(helper);
         databaseHideManager = new DatabaseHideManager(this, helper);
         EventBus.getDefault().register(this);
     }

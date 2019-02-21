@@ -22,7 +22,7 @@ import android.text.TextUtils;
 
 import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
-import org.floens.chan.core.manager.WatchManager;
+import org.floens.chan.core.manager.WakeManager;
 import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.utils.AndroidUtils;
@@ -224,7 +224,7 @@ public class ChanSettings {
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
         watchBackground.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
-        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WatchManager.DEFAULT_BACKGROUND_INTERVAL);
+        watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WakeManager.BACKGROUND_INTERVAL);
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
         watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
