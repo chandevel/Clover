@@ -72,9 +72,7 @@ class PostParseCallable implements Callable<Post> {
     }
 
     private void processPostFilter(Post.Builder post) {
-        int filterSize = filters.size();
-        for (int i = 0; i < filterSize; i++) {
-            Filter filter = filters.get(i);
+        for (Filter filter : filters) {
             if (filterEngine.matches(filter, post)) {
                 FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
                 switch (action) {

@@ -28,11 +28,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class DatabaseSiteManager {
-    private DatabaseManager databaseManager;
     private DatabaseHelper helper;
 
-    public DatabaseSiteManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.databaseManager = databaseManager;
+    public DatabaseSiteManager(DatabaseHelper helper) {
         this.helper = helper;
     }
 

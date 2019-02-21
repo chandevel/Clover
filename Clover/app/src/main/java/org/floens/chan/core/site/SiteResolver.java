@@ -20,7 +20,7 @@ package org.floens.chan.core.site;
 
 import android.support.annotation.Nullable;
 
-import org.floens.chan.core.database.LoadableProvider;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.repository.SiteRepository;
 
@@ -32,12 +32,12 @@ import okhttp3.HttpUrl;
 
 public class SiteResolver {
     private final SiteRepository siteRepository;
-    private final LoadableProvider loadableProvider;
+    private final DatabaseManager databaseManager;
 
     @Inject
-    public SiteResolver(SiteRepository siteRepository, LoadableProvider loadableProvider) {
+    public SiteResolver(SiteRepository siteRepository, DatabaseManager databaseManager) {
         this.siteRepository = siteRepository;
-        this.loadableProvider = loadableProvider;
+        this.databaseManager = databaseManager;
     }
 
     public Site findSiteForUrl(String url) {
@@ -113,7 +113,7 @@ public class SiteResolver {
             if (site.resolvable().respondsTo(httpUrl)) {
                 Loadable resolvedLoadable = site.resolvable().resolveLoadable(site, httpUrl);
                 if (resolvedLoadable != null) {
-                    Loadable resolved = loadableProvider.get(resolvedLoadable);
+                    Loadable resolved = databaseManager.getDatabaseLoadableManager().get(resolvedLoadable);
 
                     if (resolved != null) {
                         return new LoadableResult(resolved);

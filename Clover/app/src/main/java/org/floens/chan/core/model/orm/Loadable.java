@@ -38,7 +38,7 @@ import org.floens.chan.core.site.Site;
  * references the same loadable and that the loadable is properly saved in the database.
  */
 @DatabaseTable(tableName = "loadable")
-public class Loadable implements SiteReference, BoardReference {
+public class Loadable implements SiteReference, BoardReference, Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -267,14 +267,14 @@ public class Loadable implements SiteReference, BoardReference {
         parcel.writeInt(listViewTop);
     }
 
-    public Loadable copy() {
+    public Loadable clone() {
         Loadable copy = new Loadable();
         copy.id = id;
         copy.siteId = siteId;
         copy.site = site;
         copy.mode = mode;
         // TODO: for empty loadables
-        if (board != null) copy.board = board.copy();
+        if (board != null) copy.board = board.clone();
         copy.boardCode = boardCode;
         copy.no = no;
         copy.title = title;

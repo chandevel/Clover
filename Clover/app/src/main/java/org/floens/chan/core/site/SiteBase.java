@@ -21,7 +21,6 @@ package org.floens.chan.core.site;
 import com.android.volley.RequestQueue;
 
 import org.codejargon.feather.Feather;
-import org.floens.chan.core.database.LoadableProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.orm.Board;
@@ -44,7 +43,6 @@ public abstract class SiteBase implements Site {
     protected HttpCallManager httpCallManager;
     protected RequestQueue requestQueue;
     protected BoardManager boardManager;
-    protected LoadableProvider loadableProvider;
 
     private JsonSettings userSettings;
     protected SettingProvider settingsProvider;
@@ -71,7 +69,6 @@ public abstract class SiteBase implements Site {
         httpCallManager = injector.instance(HttpCallManager.class);
         requestQueue = injector.instance(RequestQueue.class);
         boardManager = injector.instance(BoardManager.class);
-        loadableProvider = injector.instance(LoadableProvider.class);
         SiteService siteService = injector.instance(SiteService.class);
 
         settingsProvider = new JsonSettingsProvider(userSettings, () -> {

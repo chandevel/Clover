@@ -23,7 +23,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import org.floens.chan.core.manager.FilterType;
 
 @DatabaseTable(tableName = "filter")
-public class Filter {
+public class Filter implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -67,7 +67,7 @@ public class Filter {
         color = filter.color;
     }
 
-    public Filter copy() {
+    public Filter clone() {
         Filter copy = new Filter();
         copy.enabled = enabled;
         copy.type = type;
