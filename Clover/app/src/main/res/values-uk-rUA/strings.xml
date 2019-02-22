@@ -50,31 +50,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%d хвилин</item>
     </plurals>
     <plurals name="posts">
-        <item quantity="one">%d post</item>
-        <item quantity="few">%d posts</item>
-        <item quantity="many">%d posts</item>
-        <item quantity="other">%d posts</item>
+        <item quantity="one">%d пост</item>
+        <item quantity="few">%d постів</item>
+        <item quantity="many">%d постів</item>
+        <item quantity="other">%d пости</item>
     </plurals>
     <plurals name="reply">
-        <item quantity="one">%d reply</item>
-        <item quantity="few">%d replies</item>
-        <item quantity="many">%d replies</item>
-        <item quantity="other">%d replies</item>
+        <item quantity="one">%d відповідь</item>
+        <item quantity="few">%d відповідей</item>
+        <item quantity="many">%d відповідей</item>
+        <item quantity="other">%d відповіді</item>
     </plurals>
     <plurals name="image">
-        <item quantity="one">%d image</item>
-        <item quantity="few">%d images</item>
-        <item quantity="many">%d images</item>
-        <item quantity="other">%d images</item>
+        <item quantity="one">%d файл</item>
+        <item quantity="few">%d файлів</item>
+        <item quantity="many">%d файлів</item>
+        <item quantity="other">%d файли</item>
     </plurals>
     <plurals name="board">
-        <item quantity="one">%d board</item>
-        <item quantity="few">%d boards</item>
-        <item quantity="many">%d boards</item>
-        <item quantity="other">%d boards</item>
+        <item quantity="one">%d форум</item>
+        <item quantity="few">%d форумів</item>
+        <item quantity="many">%d форумів</item>
+        <item quantity="other">%d форуми</item>
     </plurals>
     <plurals name="type">
-        <item quantity="one">%d type</item>
+        <item quantity="one">%d тип</item>
         <item quantity="few">%d types</item>
         <item quantity="many">%d types</item>
         <item quantity="other">%d types</item>
