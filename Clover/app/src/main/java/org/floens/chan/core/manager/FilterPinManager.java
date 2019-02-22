@@ -46,9 +46,7 @@ import de.greenrobot.event.EventBus;
 @Singleton
 public class FilterPinManager implements WakeManager.Wakeable {
     private static final String TAG = "FilterPinManager";
-
-    //wake manager for background updates, filter engine for filter reading
-    //watch manager for pinning
+    
     private final WakeManager wakeManager;
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
@@ -73,8 +71,6 @@ public class FilterPinManager implements WakeManager.Wakeable {
         }
 
         EventBus.getDefault().register(this);
-
-        populateFilterLoaders();
     }
 
     private void populateFilterLoaders() {
@@ -108,6 +104,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
         if (System.currentTimeMillis() - lastBackgroundUpdateTime < 90 * 1000) { //wait 90 seconds between background updates
             Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
         } else {
+            populateFilterLoaders();
             lastBackgroundUpdateTime = System.currentTimeMillis();
             // load up boards listed as filter pins and check em
             for(ChanThreadLoader loader : filterLoaders) {
