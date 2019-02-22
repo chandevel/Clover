@@ -28,8 +28,8 @@ import android.os.PowerManager.WakeLock;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,51 +48,58 @@ public class WakeManager extends BroadcastReceiver {
 
     private static final String WAKELOCK_TAG = "Clover:WatchManagerUpdateLock";
     private static final long WAKELOCK_MAX_TIME = 60 * 1000;
+    private WakeLock wakeLock;
 
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
+    private boolean scheduled = false;
 
-    private WakeLock wakeLock;
-    private Map<Intent, Wakeable> intentWakeableMap = new HashMap<>();
-    private Map<Intent, PendingIntent> intentPendingIntentMap = new HashMap<>();
-
-    private FilterPinManager filterPinManager;
+    private Set<Wakeable> wakeableSet = new HashSet<>();
+    public final Intent intent = new Intent("org.floens.chan.intent.action.WAKE_MANAGER_UPDATE");
+    private long lastBackgroundUpdateTime;
 
     @Inject
-    public WakeManager(FilterPinManager filterPinManager) {
+    public WakeManager() {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
-        //basically just to ensure a filter pin manager is made so it can register/unregister itself
-        this.filterPinManager = filterPinManager;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        try {
-            intentWakeableMap.get(intent).onWake(context, intent);
-        } catch (NullPointerException e) {
-            Logger.wtf(TAG, "Attempted to call onWake on null object, no wakeable object " +
-                    "mapped to intent or null object mapped to intent");
-            throw e;
+        Logger.d(TAG, "Got message to wake all wakeables");
+        if (System.currentTimeMillis() - lastBackgroundUpdateTime < 90 * 1000) { //wait 90 seconds between background updates
+            Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
+        } else {
+            lastBackgroundUpdateTime = System.currentTimeMillis();
+            for (Wakeable wakeable : wakeableSet) {
+                wakeable.onWake();
+            }
         }
     }
 
     //Register the given intent to be associated with a wakeable, and schedule it to be updated every background interval
-    public void registerWakeable(Intent intent, Wakeable wakeable) {
-        intentWakeableMap.put(intent, wakeable);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
-        intentPendingIntentMap.put(intent, pendingIntent);
-        int interval = ChanSettings.watchBackgroundInterval.get();
-        Logger.d(TAG, "Scheduled for an inexact repeating broadcast receiver with an interval of " + (interval / 1000 / 60) + " minutes");
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent);
+    public void registerWakeable(Wakeable wakeable) {
+        wakeableSet.add(wakeable);
+        //only schedule an alarm if there hasn't been one scheduled yet
+        if(!scheduled) {
+            int interval = ChanSettings.watchBackgroundInterval.get();
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent);
+            scheduled = true;
+            Logger.d(TAG, "Scheduled with an interval of " + (interval / 1000 / 60) + " minutes");
+        }
     }
 
     //Unregister the given intent and cancel background interval scheduling
-    public void unregisterWakeable(Intent intent) {
-        intentWakeableMap.remove(intent);
-        PendingIntent pendingIntent = intentPendingIntentMap.remove(intent);
-        Logger.d(TAG, "Unscheduled the repeating broadcast receiver");
-        alarmManager.cancel(pendingIntent);
+    public void unregisterWakeable(Wakeable wakeable) {
+        wakeableSet.remove(wakeable);
+        //only unschedule an alarm if the last wakeable is removed
+        if(wakeableSet.isEmpty()) {
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
+            alarmManager.cancel(pendingIntent);
+            scheduled = false;
+            Logger.d(TAG, "Unscheduled the repeating broadcast receiver");
+        }
     }
 
     //Want a lock? Request true. If a lock already exists it will be freed before acquiring a new one.
@@ -122,6 +129,6 @@ public class WakeManager extends BroadcastReceiver {
     }
 
     public interface Wakeable {
-        void onWake(Context context, Intent intent);
+        void onWake();
     }
 }

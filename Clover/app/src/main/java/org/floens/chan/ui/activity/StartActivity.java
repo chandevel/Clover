@@ -101,6 +101,9 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Inject
     SiteService siteService;
 
+    @Inject
+    FilterPinManager filterPinManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

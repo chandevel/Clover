@@ -56,9 +56,6 @@ public class FilterPinManager implements WakeManager.Wakeable {
 
     private final Map<ChanThreadLoader, BackgroundLoader> filterLoaders = new HashMap<>();
 
-    private long lastBackgroundUpdateTime;
-    private Intent intent = new Intent("org.floens.chan.intent.action.FILTER_PIN_UPDATE");
-
     @Inject
     public FilterPinManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository) {
         this.wakeManager = wakeManager;
@@ -68,13 +65,14 @@ public class FilterPinManager implements WakeManager.Wakeable {
         this.boardRepository = boardRepository;
 
         if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()){
-            wakeManager.registerWakeable(intent, this);
+            wakeManager.registerWakeable(this);
         }
 
         EventBus.getDefault().register(this);
     }
 
     private void populateFilterLoaders() {
+        Logger.d(TAG, "Populating filter loaders");
         clearFilterLoaders();
         //get our filters that are tagged as "pin"
         List<Filter> activeFilters = filterEngine.getEnabledPinFilters();
@@ -97,6 +95,9 @@ public class FilterPinManager implements WakeManager.Wakeable {
     }
 
     private void clearFilterLoaders() {
+        if(filterLoaders.isEmpty()) {
+            return;
+        }
         for(ChanThreadLoader loader : filterLoaders.keySet()) {
             chanLoaderFactory.release(loader, filterLoaders.get(loader));
         }
@@ -104,16 +105,11 @@ public class FilterPinManager implements WakeManager.Wakeable {
     }
 
     @Override
-    public void onWake(Context context, Intent intent) {
-        if (System.currentTimeMillis() - lastBackgroundUpdateTime < 90 * 1000) { //wait 90 seconds between background updates
-            Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
-        } else {
-            populateFilterLoaders();
-            lastBackgroundUpdateTime = System.currentTimeMillis();
-            // load up boards listed as filter pins and check em
-            for(ChanThreadLoader loader : filterLoaders.keySet()) {
-                loader.requestData();
-            }
+    public void onWake() {
+        Logger.d(TAG, "Inside filterPinManager wake");
+        populateFilterLoaders();
+        for(ChanThreadLoader loader : filterLoaders.keySet()) {
+            loader.requestData();
         }
     }
 
@@ -122,9 +118,11 @@ public class FilterPinManager implements WakeManager.Wakeable {
     public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
         if (settingChanged.setting == ChanSettings.watchBackground || settingChanged.setting == ChanSettings.watchEnabled) {
             if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
-                wakeManager.registerWakeable(intent, this);
+                Logger.d(TAG, "Registering filter pin manager");
+                wakeManager.registerWakeable(this);
             } else {
-                wakeManager.unregisterWakeable(intent);
+                Logger.d(TAG, "Unregistering filter pin manager");
+                wakeManager.unregisterWakeable(this);
             }
         }
     }
@@ -133,6 +131,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread result) {
+            Logger.d("BACKGROUND LOADER", "Got data");
             List<Filter> filters = filterEngine.getEnabledPinFilters();
             for(Filter f : filters) {
                 for(Post p : result.posts) {

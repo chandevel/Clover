@@ -113,9 +113,6 @@ public class WatchManager implements WakeManager.Wakeable {
     private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
-    private long lastBackgroundUpdateTime;
-    private Intent intent = new Intent("org.floens.chan.intent.action.WATCHER_UPDATE");
-
     @Inject
     public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, WakeManager wakeManager) {
         //retain local references to needed managers/factories/pins
@@ -124,7 +121,7 @@ public class WatchManager implements WakeManager.Wakeable {
         this.wakeManager = wakeManager;
 
         if(ChanSettings.watchBackground.get()){
-            wakeManager.registerWakeable(intent, this);
+            wakeManager.registerWakeable(this);
         }
 
         databasePinManager = databaseManager.getDatabasePinManager();
@@ -316,13 +313,9 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     // Called when the broadcast scheduled by the alarm manager was received
-    public void onWake(Context context, Intent intent) {
-        if (System.currentTimeMillis() - lastBackgroundUpdateTime < 90 * 1000) { //wait 90 seconds between background updates
-            Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
-        } else {
-            lastBackgroundUpdateTime = System.currentTimeMillis();
-            update(true);
-        }
+    public void onWake() {
+        Logger.d(TAG, "Inside watchManager wake");
+        update(true);
     }
 
     // Called from the button on the notification
@@ -447,7 +440,7 @@ public class WatchManager implements WakeManager.Wakeable {
                     break;
                 case BACKGROUND:
                     // Stop the scheduled broadcast
-                    wakeManager.unregisterWakeable(intent);
+                    wakeManager.unregisterWakeable(this);
                     break;
             }
 
@@ -461,7 +454,7 @@ public class WatchManager implements WakeManager.Wakeable {
                     break;
                 case BACKGROUND:
                     // Schedule a broadcast receiver on an interval
-                    wakeManager.registerWakeable(intent, this);
+                    wakeManager.registerWakeable(this);
                     break;
             }
         }
