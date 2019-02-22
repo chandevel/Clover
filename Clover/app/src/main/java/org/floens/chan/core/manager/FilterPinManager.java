@@ -32,10 +32,11 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.utils.Logger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -46,14 +47,14 @@ import de.greenrobot.event.EventBus;
 @Singleton
 public class FilterPinManager implements WakeManager.Wakeable {
     private static final String TAG = "FilterPinManager";
-    
+
     private final WakeManager wakeManager;
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
     private final ChanLoaderFactory chanLoaderFactory;
     private final BoardRepository boardRepository;
 
-    private final List<ChanThreadLoader> filterLoaders = new ArrayList<>();
+    private final Map<ChanThreadLoader, BackgroundLoader> filterLoaders = new HashMap<>();
 
     private long lastBackgroundUpdateTime;
     private Intent intent = new Intent("org.floens.chan.intent.action.FILTER_PIN_UPDATE");
@@ -74,7 +75,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
     }
 
     private void populateFilterLoaders() {
-        filterLoaders.clear();
+        clearFilterLoaders();
         //get our filters that are tagged as "pin"
         List<Filter> activeFilters = filterEngine.getEnabledPinFilters();
         //get a set of boards to background load
@@ -89,13 +90,16 @@ public class FilterPinManager implements WakeManager.Wakeable {
                     if(b.code.equals(code)) {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
                         ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(Loadable.forCatalog(b), backgroundLoader);
-                        filterLoaders.add(catalogLoader);
+                        filterLoaders.put(catalogLoader, backgroundLoader);
                     }
             }
         }
     }
 
     private void clearFilterLoaders() {
+        for(ChanThreadLoader loader : filterLoaders.keySet()) {
+            chanLoaderFactory.release(loader, filterLoaders.get(loader));
+        }
         filterLoaders.clear();
     }
 
@@ -107,7 +111,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
             populateFilterLoaders();
             lastBackgroundUpdateTime = System.currentTimeMillis();
             // load up boards listed as filter pins and check em
-            for(ChanThreadLoader loader : filterLoaders) {
+            for(ChanThreadLoader loader : filterLoaders.keySet()) {
                 loader.requestData();
             }
         }
