@@ -225,6 +225,8 @@ public class ChanSettings {
         watchBackground.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
         watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WakeManager.BACKGROUND_INTERVAL);
+        watchBackgroundInterval.addCallback((setting, value) ->
+                EventBus.getDefault().post(new SettingChanged<>(watchBackgroundInterval)));
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
         watchPeek = new BooleanSetting(p, "preference_watch_peek", true);

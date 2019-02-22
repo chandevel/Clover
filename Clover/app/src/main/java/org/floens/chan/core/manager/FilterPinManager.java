@@ -17,9 +17,6 @@
  */
 package org.floens.chan.core.manager;
 
-import android.content.Context;
-import android.content.Intent;
-
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
