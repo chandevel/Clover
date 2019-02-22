@@ -26,6 +26,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.settings.IntegerSetting;
 import org.floens.chan.utils.Logger;
 
 import java.util.HashSet;
@@ -33,6 +34,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
@@ -52,7 +55,6 @@ public class WakeManager extends BroadcastReceiver {
 
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
-    private boolean scheduled = false;
 
     private Set<Wakeable> wakeableSet = new HashSet<>();
     public final Intent intent = new Intent("org.floens.chan.intent.action.WAKE_MANAGER_UPDATE");
@@ -62,6 +64,13 @@ public class WakeManager extends BroadcastReceiver {
     public WakeManager() {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
+
+        EventBus.getDefault().register(this);
+
+        if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
+            Logger.d(TAG, "Starting background alarm");
+            startAlarm();
+        }
     }
 
     @Override
@@ -77,29 +86,40 @@ public class WakeManager extends BroadcastReceiver {
         }
     }
 
-    //Register the given intent to be associated with a wakeable, and schedule it to be updated every background interval
-    public void registerWakeable(Wakeable wakeable) {
-        wakeableSet.add(wakeable);
-        //only schedule an alarm if there hasn't been one scheduled yet
-        if(!scheduled) {
-            int interval = ChanSettings.watchBackgroundInterval.get();
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
-            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent);
-            scheduled = true;
-            Logger.d(TAG, "Scheduled with an interval of " + (interval / 1000 / 60) + " minutes");
+    public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
+        if (settingChanged.setting == ChanSettings.watchBackground || settingChanged.setting == ChanSettings.watchEnabled) {
+            if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
+                Logger.d(TAG, "Starting background alarm");
+                startAlarm();
+            } else {
+                Logger.d(TAG, "Stopping background alarm");
+                stopAlarm();
+            }
+        } else if (settingChanged.setting == ChanSettings.watchBackgroundInterval) {
+            stopAlarm();
+            startAlarm();
         }
     }
 
-    //Unregister the given intent and cancel background interval scheduling
+    public void registerWakeable(Wakeable wakeable) {
+        wakeableSet.add(wakeable);
+    }
+
     public void unregisterWakeable(Wakeable wakeable) {
         wakeableSet.remove(wakeable);
-        //only unschedule an alarm if the last wakeable is removed
-        if(wakeableSet.isEmpty()) {
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
-            alarmManager.cancel(pendingIntent);
-            scheduled = false;
-            Logger.d(TAG, "Unscheduled the repeating broadcast receiver");
-        }
+    }
+
+    private void startAlarm() {
+        int interval = ChanSettings.watchBackgroundInterval.get();
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent);
+        Logger.d(TAG, "Scheduled with an interval of " + (interval / 1000 / 60) + " minutes");
+    }
+
+    private void stopAlarm() {
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
+        alarmManager.cancel(pendingIntent);
+        Logger.d(TAG, "Unscheduled the repeating broadcast receiver");
     }
 
     //Want a lock? Request true. If a lock already exists it will be freed before acquiring a new one.
