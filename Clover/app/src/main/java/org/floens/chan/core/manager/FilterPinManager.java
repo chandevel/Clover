@@ -39,8 +39,6 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.greenrobot.event.EventBus;
-
 @Singleton
 public class FilterPinManager implements WakeManager.Wakeable {
     private static final String TAG = "FilterPinManager";
@@ -61,11 +59,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
         this.chanLoaderFactory = chanLoaderFactory;
         this.boardRepository = boardRepository;
 
-        if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()){
-            wakeManager.registerWakeable(this);
-        }
-
-        EventBus.getDefault().register(this);
+        wakeManager.registerWakeable(this);
     }
 
     private void populateFilterLoaders() {
@@ -107,20 +101,6 @@ public class FilterPinManager implements WakeManager.Wakeable {
         populateFilterLoaders();
         for(ChanThreadLoader loader : filterLoaders.keySet()) {
             loader.requestData();
-        }
-    }
-
-    // Called when either the background watch or watch enable settings are changed
-    // Both must be enabled in order for filter pins to work
-    public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
-        if (settingChanged.setting == ChanSettings.watchBackground || settingChanged.setting == ChanSettings.watchEnabled) {
-            if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
-                Logger.d(TAG, "Registering filter pin manager");
-                wakeManager.registerWakeable(this);
-            } else {
-                Logger.d(TAG, "Unregistering filter pin manager");
-                wakeManager.unregisterWakeable(this);
-            }
         }
     }
 

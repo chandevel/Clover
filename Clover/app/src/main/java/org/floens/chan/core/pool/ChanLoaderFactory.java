@@ -21,6 +21,7 @@ import android.util.LruCache;
 
 import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class ChanLoaderFactory {
-    // private static final String TAG = "ChanLoaderFactory";
+    private static final String TAG = "ChanLoaderFactory";
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;
 
     private Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
@@ -81,6 +82,7 @@ public class ChanLoaderFactory {
             ChanThreadLoader foundChanLoader = threadLoaders.get(loadable);
 
             if (foundChanLoader == null) {
+                Logger.wtf(TAG, "Loader doesn't exist.");
                 throw new IllegalStateException("The released loader does not exist");
             }
 

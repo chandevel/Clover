@@ -19,7 +19,6 @@ package org.floens.chan.core.manager;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
@@ -28,8 +27,8 @@ import android.os.PowerManager.WakeLock;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,25 +37,24 @@ import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
-
 /**
  * Deals with background alarms specifically. No foreground stuff here.
  */
 @Singleton
-public class WakeManager extends BroadcastReceiver {
+public class WakeManager {
     private static final String TAG = "WakeManager";
 
     public static final int BACKGROUND_INTERVAL = 15 * 60 * 1000;
 
-    private static final String WAKELOCK_TAG = "Clover:WatchManagerUpdateLock";
+    private static final String WAKELOCK_TAG = "Clover:WakeManagerUpdateLock";
     private static final long WAKELOCK_MAX_TIME = 60 * 1000;
     private WakeLock wakeLock;
 
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
 
-    private final Set<Wakeable> wakeableSet = new HashSet<>();
-    public static final Intent intent = new Intent("org.floens.chan.intent.action.WAKE_MANAGER_UPDATE");
+    private Set<Wakeable> wakeableSet = new ConcurrentSkipListSet<>();
+    public static final Intent intent = new Intent("org.floens.chan.intent.action.WAKE_ALARM");
     private long lastBackgroundUpdateTime;
 
     @Inject
@@ -66,15 +64,12 @@ public class WakeManager extends BroadcastReceiver {
 
         EventBus.getDefault().register(this);
 
-        if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
-            Logger.d(TAG, "Starting background alarm");
+        if (ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
             startAlarm();
         }
     }
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Logger.d(TAG, "Got message to wake all wakeables");
+    public void onBroadcastReceived() {
         if (System.currentTimeMillis() - lastBackgroundUpdateTime < 90 * 1000) { //wait 90 seconds between background updates
             Logger.w(TAG, "Background update broadcast ignored because it was requested too soon");
         } else {
@@ -87,7 +82,7 @@ public class WakeManager extends BroadcastReceiver {
 
     public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
         if (settingChanged.setting == ChanSettings.watchBackground || settingChanged.setting == ChanSettings.watchEnabled) {
-            if(ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
+            if (ChanSettings.watchBackground.get() && ChanSettings.watchEnabled.get()) {
                 startAlarm();
             } else {
                 stopAlarm();
@@ -110,17 +105,19 @@ public class WakeManager extends BroadcastReceiver {
         int interval = ChanSettings.watchBackgroundInterval.get();
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, pendingIntent);
-        Logger.d(TAG, "Starting background alarm with an interval of " + (interval / 1000 / 60) + " minutes");
+        Logger.d(TAG, "Started background alarm with an interval of " + (interval / 1000 / 60) + " minutes");
     }
 
     private void stopAlarm() {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
         alarmManager.cancel(pendingIntent);
-        Logger.d(TAG, "Stopping background alarm");
+        Logger.d(TAG, "Stopped background alarm");
     }
 
-    //Want a lock? Request true. If a lock already exists it will be freed before acquiring a new one.
-    //Don't need it any more? Request false.
+    /**
+     * Want a wake lock? Request true. If a lock already exists it will be freed before acquiring a new one.
+     * Don't need it any more? Request false.
+     */
     public void manageLock(boolean lock) {
         if (lock) {
             if (wakeLock != null) {
