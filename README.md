@@ -1,7 +1,3 @@
-# [THIS IS FOR ISSUE 362 IN THE MAIN REPOSITORY; IT IS ABOUT ADDING FILTER PINS](https://github.com/Floens/Clover/issues/362)
-
-
-
 # Clover - imageboard browser for Android  
 
 [![Build Status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
