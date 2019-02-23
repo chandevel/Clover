@@ -310,7 +310,6 @@ public class WatchManager implements WakeManager.Wakeable {
 
     // Called when the broadcast scheduled by the alarm manager was received
     public void onWake() {
-        Logger.d(TAG, "Inside watchManager wake");
         update(true);
     }
 
