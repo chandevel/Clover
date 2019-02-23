@@ -17,6 +17,8 @@
  */
 package org.floens.chan.core.manager;
 
+import org.floens.chan.core.database.DatabaseLoadableManager;
+import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
@@ -47,15 +49,17 @@ public class FilterPinManager implements WakeManager.Wakeable {
     private final WatchManager watchManager;
     private final ChanLoaderFactory chanLoaderFactory;
     private final BoardRepository boardRepository;
+    private final DatabaseLoadableManager databaseLoadableManager;
 
     private final Map<ChanThreadLoader, BackgroundLoader> filterLoaders = new HashMap<>();
 
     @Inject
-    public FilterPinManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository) {
+    public FilterPinManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository, DatabaseManager databaseManager) {
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.boardRepository = boardRepository;
+        this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
         wakeManager.registerWakeable(this);
     }
@@ -86,7 +90,9 @@ public class FilterPinManager implements WakeManager.Wakeable {
                 for(String code : boardCodes)
                     if(b.code.equals(code)) {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
-                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(Loadable.forCatalog(b), backgroundLoader);
+                        Loadable boardLoadable = Loadable.forCatalog(b);
+                        boardLoadable = databaseLoadableManager.get(boardLoadable);
+                        ChanThreadLoader catalogLoader = chanLoaderFactory.obtain(boardLoadable, backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
             }
@@ -121,7 +127,9 @@ public class FilterPinManager implements WakeManager.Wakeable {
                 for(Post p : result.posts) {
                     if(filterEngine.matches(f, p) && p.filterPin) {
                         Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no);
-                        watchManager.createPin(pinLoadable);
+                        pinLoadable = databaseLoadableManager.get(pinLoadable);
+                        watchManager.createPin(pinLoadable, p);
+
                     }
                 }
             }
