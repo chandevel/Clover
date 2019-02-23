@@ -89,10 +89,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:exported="false" />
 
         <receiver
-            android:name=".core.manager.WakeManager"
+            android:name=".core.receiver.WakeUpdateReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="org.floens.chan.intent.action.WAKE_MANAGER_UPDATE" />
+                <action android:name="org.floens.chan.intent.action.WAKE_ALARM" />
             </intent-filter>
         </receiver>
 

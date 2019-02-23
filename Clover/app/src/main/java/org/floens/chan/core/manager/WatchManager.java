@@ -120,10 +120,6 @@ public class WatchManager implements WakeManager.Wakeable {
         this.chanLoaderFactory = chanLoaderFactory;
         this.wakeManager = wakeManager;
 
-        if(ChanSettings.watchBackground.get()){
-            wakeManager.registerWakeable(this);
-        }
-
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTask(databasePinManager.getPins());
         Collections.sort(pins);
@@ -439,7 +435,7 @@ public class WatchManager implements WakeManager.Wakeable {
                     handler.removeMessages(MESSAGE_UPDATE);
                     break;
                 case BACKGROUND:
-                    // Stop the scheduled broadcast
+                    // Stop receiving scheduled broadcasts
                     wakeManager.unregisterWakeable(this);
                     break;
             }
@@ -453,7 +449,7 @@ public class WatchManager implements WakeManager.Wakeable {
                     handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
                     break;
                 case BACKGROUND:
-                    // Schedule a broadcast receiver on an interval
+                    // Start receiving scheduled broadcasts
                     wakeManager.registerWakeable(this);
                     break;
             }
