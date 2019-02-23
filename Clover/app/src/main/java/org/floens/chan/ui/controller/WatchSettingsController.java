@@ -104,8 +104,6 @@ public class WatchSettingsController extends SettingsController implements Compo
         enableBackground = settings.add(new BooleanSettingView(this, ChanSettings.watchBackground, R.string.setting_watch_enable_background, R.string.setting_watch_enable_background_description));
 
         int[] timeouts = new int[]{
-                2 * 60 * 1000,
-                5 * 60 * 1000,
                 10 * 60 * 1000,
                 15 * 60 * 1000,
                 30 * 60 * 1000,
