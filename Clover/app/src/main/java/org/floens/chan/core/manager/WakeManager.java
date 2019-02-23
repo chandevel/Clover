@@ -27,8 +27,8 @@ import android.os.PowerManager.WakeLock;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,7 +53,7 @@ public class WakeManager {
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
 
-    private Set<Wakeable> wakeableSet = new ConcurrentSkipListSet<>();
+    private List<Wakeable> wakeableSet = new ArrayList<>();
     public static final Intent intent = new Intent("org.floens.chan.intent.action.WAKE_ALARM");
     private long lastBackgroundUpdateTime;
 
