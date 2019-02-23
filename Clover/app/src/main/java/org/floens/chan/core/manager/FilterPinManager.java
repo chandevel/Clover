@@ -70,6 +70,16 @@ public class FilterPinManager implements WakeManager.Wakeable {
         //get a set of boards to background load
         Set<String> boardCodes = new HashSet<>();
         for(Filter f: activeFilters) {
+            //if the allBoards flag is set for any one filter, add all saved boards to the set
+            if(f.allBoards) {
+                for(BoardRepository.SiteBoards s : boardRepository.getSaved().get()) {
+                    for(Board b : s.boards) {
+                        boardCodes.add(b.code);
+                    }
+                }
+                //shortcut out if any filter has the allBoards flag
+                break;
+            }
             boardCodes.addAll(Arrays.asList(f.boardCodes()));
         }
         //create background loaders for each thing in the board set
@@ -97,7 +107,6 @@ public class FilterPinManager implements WakeManager.Wakeable {
 
     @Override
     public void onWake() {
-        Logger.d(TAG, "Inside filterPinManager wake");
         populateFilterLoaders();
         for(ChanThreadLoader loader : filterLoaders.keySet()) {
             loader.requestData();
