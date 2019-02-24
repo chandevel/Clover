@@ -41,10 +41,13 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import de.greenrobot.event.EventBus;
+
 @Singleton
 public class FilterPinManager implements WakeManager.Wakeable {
     private static final String TAG = "FilterPinManager";
 
+    private final WakeManager wakeManager;
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
     private final ChanLoaderFactory chanLoaderFactory;
@@ -55,13 +58,28 @@ public class FilterPinManager implements WakeManager.Wakeable {
 
     @Inject
     public FilterPinManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository, DatabaseManager databaseManager) {
+        this.wakeManager = wakeManager;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
-        wakeManager.registerWakeable(this);
+        if(ChanSettings.watchFilterPin.get()) {
+            wakeManager.registerWakeable(this);
+        }
+
+        EventBus.getDefault().register(this);
+    }
+
+    public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
+        if(settingChanged.setting == ChanSettings.watchFilterPin) {
+            if(ChanSettings.watchFilterPin.get()) {
+                wakeManager.registerWakeable(this);
+            } else {
+                wakeManager.unregisterWakeable(this);
+            }
+        }
     }
 
     private void populateFilterLoaders() {

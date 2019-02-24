@@ -34,6 +34,7 @@ public class WatchSettingsController extends SettingsController implements Compo
     private CrossfadeView crossfadeView;
 
     private SettingView enableBackground;
+    private SettingView enableFilterPin;
 
     private SettingView backgroundTimeout;
     private SettingView notifyMode;
@@ -74,6 +75,7 @@ public class WatchSettingsController extends SettingsController implements Compo
             setSettingViewVisibility(soundMode, false, false);
             setSettingViewVisibility(peekMode, false, false);
             setSettingViewVisibility(ledMode, false, false);
+            setSettingViewVisibility(enableFilterPin, false, false);
         }
     }
 
@@ -94,6 +96,7 @@ public class WatchSettingsController extends SettingsController implements Compo
             setSettingViewVisibility(soundMode, enabled, true);
             setSettingViewVisibility(peekMode, enabled, true);
             setSettingViewVisibility(ledMode, enabled, true);
+            setSettingViewVisibility(enableFilterPin, enabled, true);
         }
     }
 
@@ -137,6 +140,8 @@ public class WatchSettingsController extends SettingsController implements Compo
         ledMode = settings.add(new ListSettingView<>(this, ChanSettings.watchLed, R.string.setting_watch_led,
                 context.getResources().getStringArray(R.array.setting_watch_leds),
                 new String[]{"-1", "ffffffff", "ffff0000", "ffffff00", "ff00ff00", "ff00ffff", "ff0000ff", "ffff00ff"}));
+
+        enableFilterPin = settings.add(new BooleanSettingView(this, ChanSettings.watchFilterPin, R.string.setting_watch_enable_filter_pin, R.string.setting_watch_enable_filter_pin_description));
 
         groups.add(settings);
     }
