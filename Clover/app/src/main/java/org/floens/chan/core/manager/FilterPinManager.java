@@ -100,7 +100,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
                 //shortcut out if any filter has the allBoards flag
                 break;
             }
-            boardCodes.addAll(Arrays.asList(f.boardCodes()));
+            boardCodes.addAll(Arrays.asList(f.boardCodesNoId()));
         }
         //create background loaders for each thing in the board set
         for(BoardRepository.SiteBoards siteBoard : boardRepository.getSaved().get()) {
