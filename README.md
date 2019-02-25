@@ -1,3 +1,5 @@
+# I'm not updating this branch unless features get added. You can find debug releases in the release tab.
+
 # Clover - imageboard browser for Android  
 
 [![Build Status](https://travis-ci.org/Floens/Clover.svg?branch=dev)](https://travis-ci.org/Floens/Clover)
