@@ -54,7 +54,12 @@ public class FilterPinManager implements WakeManager.Wakeable {
     private final BoardRepository boardRepository;
     private final DatabaseLoadableManager databaseLoadableManager;
 
+    //filterLoaders keeps track of ChanThreadLoaders so they can be cleared correctly each alarm trigger
+    //ignoredPosts keeps track of threads pinned by the filter manager and ignores them for future alarm triggers
+    //this lets you unpin threads that are pinned by the filter pin manager and not have them come back
+    //note that ignoredPosts is currently only saved while the application is running and not in the database
     private final Map<ChanThreadLoader, BackgroundLoader> filterLoaders = new HashMap<>();
+    private final Set<Integer> ignoredPosts = new HashSet<>();
 
     @Inject
     public FilterPinManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository, DatabaseManager databaseManager) {
@@ -140,17 +145,24 @@ public class FilterPinManager implements WakeManager.Wakeable {
         @Override
         public void onChanLoaderData(ChanThread result) {
             Logger.d("BACKGROUND LOADER", "Got data");
+            //Match filters and ignores
             List<Filter> filters = filterEngine.getEnabledPinFilters();
             for(Filter f : filters) {
                 for(Post p : result.posts) {
-                    if(filterEngine.matches(f, p) && p.filterPin) {
+                    if(filterEngine.matches(f, p) && p.filterPin && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no);
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p);
-
+                        ignoredPosts.add(p.no);
                     }
                 }
             }
+            //update ignores for any threads that no longer exist
+            Set<Integer> currentPosts = new HashSet<>();
+            for(Post p : result.posts) {
+                currentPosts.add(p.no);
+            }
+            ignoredPosts.retainAll(currentPosts);
         }
 
         @Override
