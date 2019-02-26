@@ -32,6 +32,7 @@ import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.utils.Logger;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +60,10 @@ public class FilterPinManager implements WakeManager.Wakeable {
     //this lets you unpin threads that are pinned by the filter pin manager and not have them come back
     //note that ignoredPosts is currently only saved while the application is running and not in the database
     private final Map<ChanThreadLoader, BackgroundLoader> filterLoaders = new HashMap<>();
-    private final Set<Integer> ignoredPosts = new HashSet<>();
+    private final Set<Integer> ignoredPosts = Collections.synchronizedSet(new HashSet<>());
+    //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
+    private int numBoardsChecked = 0;
+    private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
 
     @Inject
     public FilterPinManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository, DatabaseManager databaseManager) {
@@ -107,6 +111,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
             }
             boardCodes.addAll(Arrays.asList(f.boardCodesNoId()));
         }
+        numBoardsChecked = boardCodes.size();
         //create background loaders for each thing in the board set
         for(BoardRepository.SiteBoards siteBoard : boardRepository.getSaved().get()) {
             for(Board b : siteBoard.boards) {
@@ -144,7 +149,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
 
         @Override
         public void onChanLoaderData(ChanThread result) {
-            Logger.d("BACKGROUND LOADER", "Got data");
+            Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             List<Filter> filters = filterEngine.getEnabledPinFilters();
             for(Filter f : filters) {
@@ -153,16 +158,25 @@ public class FilterPinManager implements WakeManager.Wakeable {
                         Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no);
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p);
-                        ignoredPosts.add(p.no);
+                        toAdd.add(p.no);
                     }
                 }
             }
-            //update ignores for any threads that no longer exist
-            Set<Integer> currentPosts = new HashSet<>();
-            for(Post p : result.posts) {
-                currentPosts.add(p.no);
+            //add all posts to ignore
+            ignoredPosts.addAll(toAdd);
+            lastCheckedPosts.addAll(result.posts);
+            synchronized (this) {
+                numBoardsChecked--;
+                if(numBoardsChecked <= 0) {
+                    numBoardsChecked = 0;
+                    Set<Integer> lastCheckedPostNumbers = new HashSet<>();
+                    for(Post post : lastCheckedPosts) {
+                        lastCheckedPostNumbers.add(post.no);
+                    }
+                    ignoredPosts.retainAll(lastCheckedPostNumbers);
+                    lastCheckedPosts.clear();
+                }
             }
-            ignoredPosts.retainAll(currentPosts);
         }
 
         @Override
