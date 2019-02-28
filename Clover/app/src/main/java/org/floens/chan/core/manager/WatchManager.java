@@ -769,7 +769,7 @@ public class WatchManager {
              * The thread title will be updated as soon as the site has the thread listed in the thread directory
              * 
              */
-            pin.loadable.title = PostHelper.getTitle(thread.op, pin.loadable);
+            pin.loadable.setTitle(PostHelper.getTitle(thread.op, pin.loadable));
 
             if (pin.thumbnailUrl == null && thread.op != null && thread.op.image() != null) {
                 pin.thumbnailUrl = thread.op.image().getThumbnailUrl().toString();
