@@ -761,6 +761,15 @@ public class WatchManager {
         @Override
         public void onChanLoaderData(ChanThread thread) {
             pin.isError = false;
+            /*
+             * Forcibly update watched thread titles
+             * This solves the issue of when you post a thread and the site doesn't have the thread listed yet,
+             * resulting in the thread title being something like /test/918324919 instead of a proper title
+             *
+             * The thread title will be updated as soon as the site has the thread listed in the thread directory
+             * 
+             */
+            pin.loadable.title = PostHelper.getTitle(thread.op, pin.loadable);
 
             if (pin.thumbnailUrl == null && thread.op != null && thread.op.image() != null) {
                 pin.thumbnailUrl = thread.op.image().getThumbnailUrl().toString();
