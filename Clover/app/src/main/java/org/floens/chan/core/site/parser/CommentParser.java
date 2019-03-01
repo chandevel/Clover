@@ -26,7 +26,6 @@ import android.text.style.UnderlineSpan;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
-import org.floens.chan.core.site.Page;
 import org.floens.chan.ui.span.AbsoluteSizeSpanHashed;
 import org.floens.chan.ui.span.ForegroundColorSpanHashed;
 import org.floens.chan.ui.theme.Theme;
