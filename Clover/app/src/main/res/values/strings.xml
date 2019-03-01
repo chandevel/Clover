@@ -149,6 +149,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
     <string name="thread_closed">Closed</string>
+    <string name="thread_page_no" tools:ignore="MissingTranslation">Page</string>
     <plurals name="thread_new_posts">
         <item quantity="one">%d new post</item>
         <item quantity="other">%d new posts</item>

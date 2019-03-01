@@ -17,14 +17,14 @@
  */
 package org.floens.chan.core.site;
 
-import org.floens.chan.core.model.orm.Board;
-
 import java.util.List;
 
-public class Boards {
-    public final List<Board> boards;
+public class Page {
+    public final int page;
+    public final List<ThreadTime> threads;
 
-    public Boards(List<Board> boards) {
-        this.boards = boards;
+    public Page(int page, List<ThreadTime> threads) {
+        this.page = page;
+        this.threads = threads;
     }
 }
