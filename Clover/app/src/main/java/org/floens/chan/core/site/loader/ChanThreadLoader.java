@@ -27,6 +27,9 @@ import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.Page;
+import org.floens.chan.core.site.Pages;
+import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.parser.ChanReader;
 import org.floens.chan.core.site.parser.ChanReaderRequest;
 import org.floens.chan.ui.helper.PostHelper;
@@ -52,7 +55,7 @@ import static org.floens.chan.Chan.inject;
  * {@link ChanLoaderCallback}.
  * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
  */
-public class ChanThreadLoader implements Response.ErrorListener, Response.Listener<ChanLoaderResponse> {
+public class ChanThreadLoader implements Response.ErrorListener, Response.Listener<ChanLoaderResponse>, SiteActions.PagesListener {
     private static final String TAG = "ChanThreadLoader";
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -71,6 +74,9 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     private int lastPostCount;
     private long lastLoadTime;
     private ScheduledFuture<?> pendingFuture;
+
+    private boolean requestedPages = false;
+    private Pages pages;
 
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link org.floens.chan.core.pool.ChanLoaderFactory}</b>
@@ -245,6 +251,11 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
         volleyRequestQueue.add(request.getVolleyRequest());
 
+        if(!requestedPages) {
+            loadable.site.actions().pages(loadable.board, this);
+            requestedPages = true;
+        }
+
         return request;
     }
 
@@ -338,6 +349,16 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             pendingFuture.cancel(false);
             pendingFuture = null;
         }
+    }
+
+    @Override
+    public void onPagesReceived(Pages pages) {
+        this.pages = pages;
+        requestedPages = false;
+    }
+
+    public Pages getPages() {
+        return pages;
     }
 
     public interface ChanLoaderCallback {

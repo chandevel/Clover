@@ -31,7 +31,6 @@ import javax.inject.Inject;
 
 public class BrowsePresenter implements Observer {
     private final DatabaseManager databaseManager;
-    private final BoardManager boardManager;
     private Callback callback;
 
     private boolean hadBoards = false;
@@ -42,7 +41,6 @@ public class BrowsePresenter implements Observer {
     @Inject
     public BrowsePresenter(DatabaseManager databaseManager, BoardManager boardManager) {
         this.databaseManager = databaseManager;
-        this.boardManager = boardManager;
 
         savedBoardsObservable = boardManager.getSavedBoardsObservable();
 

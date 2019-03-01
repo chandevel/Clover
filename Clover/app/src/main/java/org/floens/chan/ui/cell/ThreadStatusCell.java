@@ -33,6 +33,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.site.Page;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 
@@ -147,6 +148,18 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         String ips = op.getUniqueIps() + "P";
                         finalText = TextUtils.concat(finalText, " / " + ips);
                     }
+
+                    Page p = callback.getPage(op);
+                    SpannableString page;
+                    if(p != null) {
+                        page = new SpannableString(String.valueOf(p.page));
+                        if (p.page > board.pages) {
+                            page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
+                        }
+                    } else {
+                        page = new SpannableString("?");
+                    }
+                    finalText = TextUtils.concat(finalText, " / " + getContext().getString(R.string.thread_page_no) + " " + page);
                 }
             }
 
@@ -205,6 +218,8 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
         boolean isWatching();
 
         ChanThread getChanThread();
+
+        Page getPage(Post op);
 
         void onListStatusClicked();
     }
