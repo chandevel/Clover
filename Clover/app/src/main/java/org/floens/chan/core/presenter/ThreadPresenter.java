@@ -35,8 +35,11 @@ import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Page;
+import org.floens.chan.core.site.Pages;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
+import org.floens.chan.core.site.ThreadTime;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
@@ -621,6 +624,22 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     @Override
     public ChanThread getChanThread() {
         return chanLoader == null ? null : chanLoader.getThread();
+    }
+
+    public Page getPage(Post op) {
+        Pages pages = chanLoader.getPages();
+        if(pages == null) {
+            return null;
+        } else {
+            for (Page page : pages.pages) {
+                for (ThreadTime threadTime : page.threads) {
+                    if (op.no == threadTime.no) {
+                        return page;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override

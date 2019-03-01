@@ -30,6 +30,8 @@ import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
 import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.core.site.Boards;
+import org.floens.chan.core.site.Page;
+import org.floens.chan.core.site.Pages;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.SiteAuthentication;
@@ -254,6 +256,14 @@ public class Chan4 extends SiteBase {
         }
 
         @Override
+        public HttpUrl pages(Board board) {
+            return a.newBuilder()
+                    .addPathSegment(board.code)
+                    .addPathSegment("threads.json")
+                    .build();
+        }
+
+        @Override
         public HttpUrl archive(Board board) {
             return b.newBuilder()
                     .addPathSegment(board.code)
@@ -342,6 +352,16 @@ public class Chan4 extends SiteBase {
                 list.add(new Board(Chan4.this, "Animals & Nature", "an", true, true));
                 Collections.shuffle(list);
                 listener.onBoardsReceived(new Boards(list));
+            }));
+        }
+
+        @Override
+        public void pages(Board board, PagesListener listener) {
+            requestQueue.add(new Chan4PagesRequest(Chan4.this, board, response -> {
+                listener.onPagesReceived(new Pages(response));
+            }, (error) -> {
+                Logger.e(TAG, "Failed to get threads for board " + board.code);
+                listener.onPagesReceived(new Pages(new ArrayList<Page>()));
             }));
         }
 

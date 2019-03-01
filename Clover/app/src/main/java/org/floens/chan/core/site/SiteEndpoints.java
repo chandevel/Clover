@@ -43,6 +43,8 @@ public interface SiteEndpoints {
 
     HttpUrl boards();
 
+    HttpUrl pages(Board board);
+
     HttpUrl archive(Board board);
 
     HttpUrl reply(Loadable thread);

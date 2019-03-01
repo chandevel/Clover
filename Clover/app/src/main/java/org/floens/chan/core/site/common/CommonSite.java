@@ -29,6 +29,7 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.site.Boards;
+import org.floens.chan.core.site.Pages;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.SiteAuthentication;
@@ -525,6 +526,10 @@ public abstract class CommonSite extends SiteBase {
             if (!site.staticBoards.isEmpty()) {
                 boardsListener.onBoardsReceived(new Boards(site.staticBoards));
             }
+        }
+
+        @Override
+        public void pages(Board board, PagesListener pagesListener) {
         }
 
         @Override
