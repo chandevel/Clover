@@ -363,6 +363,11 @@ public class BrowseController extends ThreadController implements
         showThread(threadLoadable, true);
     }
 
+    @Override
+    public void showBoard(Loadable catalogLoadable) {
+        showBoard(catalogLoadable, true);
+    }
+
     // Creates or updates the target ThreadViewController
     // This controller can be in various places depending on the layout
     // We dynamically search for it
@@ -416,5 +421,9 @@ public class BrowseController extends ThreadController implements
             viewThreadController.setLoadable(threadLoadable);
             navigationController.pushController(viewThreadController, animated);
         }
+    }
+
+    public void showBoard(Loadable catalogLoadable, boolean animated) {
+        //TODO load board
     }
 }

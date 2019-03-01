@@ -33,7 +33,7 @@ import org.floens.chan.ui.theme.Theme;
  */
 public class PostLinkable extends ClickableSpan {
     public enum Type {
-        QUOTE, LINK, SPOILER, THREAD
+        QUOTE, LINK, SPOILER, THREAD, BOARD, SEARCH
     }
 
     public final Theme theme;
@@ -62,7 +62,7 @@ public class PostLinkable extends ClickableSpan {
 
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
-        if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD) {
+        if (type == Type.QUOTE || type == Type.LINK || type == Type.THREAD || type == Type.BOARD || type == Type.SEARCH) {
             if (type == Type.QUOTE) {
                 if (value instanceof Integer && ((int) value) == markedNo) {
                     ds.setColor(theme.highlightQuoteColor);
@@ -96,6 +96,16 @@ public class PostLinkable extends ClickableSpan {
             this.board = board;
             this.threadId = threadId;
             this.postId = postId;
+        }
+    }
+
+    public static class SearchLink {
+        public String board;
+        public String search;
+
+        public SearchLink(String board, String search) {
+            this.board = board;
+            this.search = search;
         }
     }
 }

@@ -34,6 +34,7 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
+import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Page;
 import org.floens.chan.core.site.Pages;
@@ -577,6 +578,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
                 threadPresenterCallback.showThread(thread);
             }
+        } else if (linkable.type == PostLinkable.Type.BOARD) {
+            Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager().getBoard(loadable.site, (String) linkable.value));
+            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+
+            threadPresenterCallback.showBoard(catalog);
+        } else if (linkable.type == PostLinkable.Type.SEARCH) {
+            //TODO go to board and search
         }
     }
 
@@ -783,6 +791,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         void clipboardPost(Post post);
 
         void showThread(Loadable threadLoadable);
+
+        void showBoard(Loadable catalogLoadable);
 
         void openLink(String link);
 

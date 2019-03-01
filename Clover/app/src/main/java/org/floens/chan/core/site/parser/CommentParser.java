@@ -26,6 +26,7 @@ import android.text.style.UnderlineSpan;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.site.Page;
 import org.floens.chan.ui.span.AbsoluteSizeSpanHashed;
 import org.floens.chan.ui.span.ForegroundColorSpanHashed;
 import org.floens.chan.ui.theme.Theme;
@@ -50,6 +51,8 @@ public class CommentParser {
 
     private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
+    private Pattern boardLinkPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/");
+    private Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
 
     private Map<String, List<StyleRule>> rules = new HashMap<>();
@@ -233,6 +236,12 @@ public class CommentParser {
 
     public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
         String href = anchor.attr("href");
+        // gets us something like /board/thread/postno#quoteno
+        //hacky fix for 4chan having two domains but the same API
+        if(href.matches("//boards\\.4chan.*?\\.org/(.*?)/thread/(\\d*?)#p(\\d*)")) {
+            href = href.substring(2);
+            href = href.substring(href.indexOf('/'));
+        }
 
         PostLinkable.Type t;
         Object value;
@@ -244,21 +253,38 @@ public class CommentParser {
             int postId = Integer.parseInt(externalMatcher.group(3));
 
             if (board.equals(post.board.code) && callback.isInternal(postId)) {
+                //link to post in same thread with post number (>>post)
                 t = PostLinkable.Type.QUOTE;
                 value = postId;
             } else {
+                //link to post not in same thread with post number (>>post or >>>/board/post)
                 t = PostLinkable.Type.THREAD;
                 value = new PostLinkable.ThreadLink(board, threadId, postId);
             }
         } else {
             Matcher quoteMatcher = quotePattern.matcher(href);
             if (quoteMatcher.matches()) {
+                //link to post backup???
                 t = PostLinkable.Type.QUOTE;
                 value = Integer.parseInt(quoteMatcher.group(1));
             } else {
-                // normal link
-                t = PostLinkable.Type.LINK;
-                value = href;
+                Matcher boardLinkMatcher = boardLinkPattern.matcher(href);
+                Matcher boardSearchMatcher = boardSearchPattern.matcher(href);
+                if(boardLinkMatcher.matches()) {
+                    //board link
+                    t = PostLinkable.Type.BOARD;
+                    value = boardLinkMatcher.group(1);
+                } else if (boardSearchMatcher.matches()) {
+                    //search link
+                    String board = boardSearchMatcher.group(1);
+                    String search = boardSearchMatcher.group(2);
+                    t = PostLinkable.Type.SEARCH;
+                    value = new PostLinkable.SearchLink(board, search);
+                } else {
+                    //normal link
+                    t = PostLinkable.Type.LINK;
+                    value = href;
+                }
             }
         }
 
