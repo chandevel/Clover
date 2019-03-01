@@ -191,6 +191,21 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .show();
     }
 
+    @Override
+    public void showBoard(final Loadable catalogLoadable) {
+        new AlertDialog.Builder(context)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        loadBoard(catalogLoadable);
+                    }
+                })
+                .setTitle(R.string.open_board_confirmation)
+                .setMessage("/" + catalogLoadable.boardCode + "/")
+                .show();
+    }
+
     public void loadThread(Loadable loadable) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (!loadable.equals(presenter.getLoadable())) {
@@ -205,6 +220,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
             showHints();
         }
+    }
+
+    public void loadBoard(Loadable catalogLoadable) {
+        //TODO load board
     }
 
     private void showHints() {
