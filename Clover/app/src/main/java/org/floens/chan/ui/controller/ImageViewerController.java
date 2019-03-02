@@ -134,6 +134,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
         overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+        overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
 
         overflowBuilder.build().build();
 
@@ -206,6 +207,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
         albumDownloadController.setPostImages(presenter.getLoadable(), all);
         navigationController.pushController(albumDownloadController);
+    }
+
+    private void toggleTransparency(ToolbarMenuSubItem item) {
+        ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
     }
 
     @Override
