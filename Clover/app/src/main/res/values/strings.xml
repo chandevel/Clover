@@ -98,6 +98,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_open_browser">Open in a browser</string>
     <string name="action_share">Share</string>
     <string name="action_download_album">Download album</string>
+    <string name="action_transparency_toggle" tools:ignore="MissingTranslation">Toggle opacity</string>
     <string name="action_search">Search</string>
     <string name="action_search_image">Image search</string>
     <string name="action_switch_catalog">Catalog mode</string>
