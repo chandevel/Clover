@@ -37,7 +37,7 @@ public interface SiteActions {
     }
 
     interface PagesListener {
-        void onPagesReceived(Pages pages);
+        void onPagesReceived(Board b, Pages pages);
     }
 
     void post(Reply reply, PostListener postListener);

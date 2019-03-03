@@ -153,7 +153,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     SpannableString page;
                     if (p != null) {
                         page = new SpannableString(String.valueOf(p.page));
-                        if (p.page > board.pages) {
+                        if (p.page >= board.pages) {
                             page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
                         }
                     } else {

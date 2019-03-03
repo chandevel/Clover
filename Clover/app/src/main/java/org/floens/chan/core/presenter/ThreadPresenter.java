@@ -34,7 +34,7 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
-import org.floens.chan.core.repository.BoardRepository;
+import org.floens.chan.core.repository.PageRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Page;
 import org.floens.chan.core.site.Pages;
@@ -85,6 +85,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
     private ChanLoaderFactory chanLoaderFactory;
+    private PageRepository pageRepository;
 
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
@@ -96,10 +97,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     @Inject
     public ThreadPresenter(WatchManager watchManager,
                            DatabaseManager databaseManager,
-                           ChanLoaderFactory chanLoaderFactory) {
+                           ChanLoaderFactory chanLoaderFactory,
+                           PageRepository pageRepository) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
+        this.pageRepository = pageRepository;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -578,13 +581,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
                 threadPresenterCallback.showThread(thread);
             }
-        } else if (linkable.type == PostLinkable.Type.BOARD) {
-            Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager().getBoard(loadable.site, (String) linkable.value));
-            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-
-            threadPresenterCallback.showBoard(catalog);
-        } else if (linkable.type == PostLinkable.Type.SEARCH) {
-            //TODO go to board and search
         }
     }
 
@@ -635,19 +631,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     }
 
     public Page getPage(Post op) {
-        Pages pages = chanLoader.getPages();
-        if (pages == null) {
-            return null;
-        } else {
-            for (Page page : pages.pages) {
-                for (ThreadTime threadTime : page.threads) {
-                    if (op.no == threadTime.no) {
-                        return page;
-                    }
-                }
-            }
-        }
-        return null;
+        return pageRepository.getPage(op);
     }
 
     @Override
@@ -791,8 +775,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         void clipboardPost(Post post);
 
         void showThread(Loadable threadLoadable);
-
-        void showBoard(Loadable catalogLoadable);
 
         void openLink(String link);
 
