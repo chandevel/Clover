@@ -150,16 +150,18 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     }
 
                     Page p = callback.getPage(op);
-                    SpannableString page;
+                    String page = getContext().getString(R.string.thread_page_no) + " ";
+                    SpannableString pageS;
                     if (p != null) {
-                        page = new SpannableString(String.valueOf(p.page));
+                        page = page + String.valueOf(p.page);
+                        pageS = new SpannableString(page);
                         if (p.page >= board.pages) {
-                            page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
+                            pageS.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
                         }
                     } else {
-                        page = new SpannableString("?");
+                        pageS = new SpannableString(page + "?");
                     }
-                    finalText = TextUtils.concat(finalText, " / " + getContext().getString(R.string.thread_page_no) + " " + page);
+                    finalText = TextUtils.concat(finalText, " / " + pageS);
                 }
             }
 
