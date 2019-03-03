@@ -161,7 +161,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     } else {
                         pageS = new SpannableString(page + "?");
                     }
-                    finalText = TextUtils.concat(finalText, " / " + pageS);
+                    finalText = TextUtils.concat(finalText, " / ", pageS);
                 }
             }
 
