@@ -29,6 +29,7 @@ import org.floens.chan.core.site.http.ReplyResponse;
 
 public interface SiteActions {
     void boards(BoardsListener boardsListener);
+
     void pages(Board board, PagesListener pagesListener);
 
     interface BoardsListener {

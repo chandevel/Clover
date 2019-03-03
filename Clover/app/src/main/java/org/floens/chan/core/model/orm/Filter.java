@@ -55,9 +55,9 @@ public class Filter implements Cloneable {
 
     public String[] boardCodesNoId() {
         String[] boards = this.boards.split(",");
-        for(int i = 0; i < boards.length; i++) {
+        for (int i = 0; i < boards.length; i++) {
             String s = boards[i];
-            boards[i] = s.substring(s.indexOf(":")+1);
+            boards[i] = s.substring(s.indexOf(":") + 1);
         }
         return boards;
     }

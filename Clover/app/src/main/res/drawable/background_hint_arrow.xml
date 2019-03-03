@@ -22,10 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:pivotX="-40%"
             android:pivotY="87%"
             android:toDegrees="45">
-            <shape
-                android:shape="rectangle">
-                <solid
-                    android:color="@color/accent" />
+            <shape android:shape="rectangle">
+                <solid android:color="@color/accent" />
             </shape>
         </rotate>
     </item>

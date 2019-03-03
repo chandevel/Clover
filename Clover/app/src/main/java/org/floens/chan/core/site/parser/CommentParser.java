@@ -237,7 +237,7 @@ public class CommentParser {
         String href = anchor.attr("href");
         // gets us something like /board/thread/postno#quoteno
         //hacky fix for 4chan having two domains but the same API
-        if(href.matches("//boards\\.4chan.*?\\.org/(.*?)/thread/(\\d*?)#p(\\d*)")) {
+        if (href.matches("//boards\\.4chan.*?\\.org/(.*?)/thread/(\\d*?)#p(\\d*)")) {
             href = href.substring(2);
             href = href.substring(href.indexOf('/'));
         }
@@ -269,7 +269,7 @@ public class CommentParser {
             } else {
                 Matcher boardLinkMatcher = boardLinkPattern.matcher(href);
                 Matcher boardSearchMatcher = boardSearchPattern.matcher(href);
-                if(boardLinkMatcher.matches()) {
+                if (boardLinkMatcher.matches()) {
                     //board link
                     t = PostLinkable.Type.BOARD;
                     value = boardLinkMatcher.group(1);

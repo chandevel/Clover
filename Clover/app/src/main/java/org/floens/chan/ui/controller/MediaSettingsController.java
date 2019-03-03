@@ -132,9 +132,9 @@ public class MediaSettingsController extends SettingsController {
             setupMediaLoadTypesSetting(loading);
 
             loading.add(new BooleanSettingView(this,
-                ChanSettings.videoAutoLoop,
-                R.string.setting_video_auto_loop,
-                R.string.setting_video_auto_loop_description));
+                    ChanSettings.videoAutoLoop,
+                    R.string.setting_video_auto_loop,
+                    R.string.setting_video_auto_loop_description));
 
             groups.add(loading);
         }

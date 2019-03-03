@@ -636,7 +636,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
     public Page getPage(Post op) {
         Pages pages = chanLoader.getPages();
-        if(pages == null) {
+        if (pages == null) {
             return null;
         } else {
             for (Page page : pages.pages) {

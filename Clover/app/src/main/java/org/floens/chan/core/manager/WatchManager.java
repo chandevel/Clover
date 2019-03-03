@@ -356,7 +356,7 @@ public class WatchManager implements WakeManager.Wakeable {
         return undo;
     }
 
-    public List<Pin> getAllPins(){
+    public List<Pin> getAllPins() {
         return pins;
     }
 
@@ -476,7 +476,7 @@ public class WatchManager implements WakeManager.Wakeable {
     private void update(boolean fromBackground) {
         Logger.d(TAG, "update() from " + (fromBackground ? "background" : "foreground"));
 
-        if(currentInterval == IntervalType.FOREGROUND) {
+        if (currentInterval == IntervalType.FOREGROUND) {
             // reschedule handler message
             handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
         }
@@ -640,7 +640,7 @@ public class WatchManager implements WakeManager.Wakeable {
              * resulting in the thread title being something like /test/918324919 instead of a proper title
              *
              * The thread title will be updated as soon as the site has the thread listed in the thread directory
-             * 
+             *
              */
             pin.loadable.setTitle(PostHelper.getTitle(thread.op, pin.loadable));
 

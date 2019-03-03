@@ -187,8 +187,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     public GifImageView findGifImageView() {
         GifImageView gif = null;
-        for(int i = 0; i < getChildCount(); i++) {
-            if(getChildAt(i) instanceof GifImageView) {
+        for (int i = 0; i < getChildCount(); i++) {
+            if (getChildAt(i) instanceof GifImageView) {
                 gif = (GifImageView) getChildAt(i);
             }
         }
@@ -522,17 +522,17 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
         CustomScaleImageView imageView = findScaleImageView();
         GifImageView gifView = findGifImageView();
-        if(imageView == null && gifView == null) return;
+        if (imageView == null && gifView == null) return;
         boolean isImage = imageView != null && gifView == null;
-        if(backgroundToggle) {
-            if(isImage) {
+        if (backgroundToggle) {
+            if (isImage) {
                 imageView.setTileBackgroundColor(Color.TRANSPARENT);
             } else {
                 gifView.getDrawable().setColorFilter(Color.TRANSPARENT, PorterDuff.Mode.DST_OVER);
             }
             backgroundToggle = false;
         } else {
-            if(isImage) {
+            if (isImage) {
                 imageView.setTileBackgroundColor(BACKGROUND_COLOR);
             } else {
                 gifView.getDrawable().setColorFilter(BACKGROUND_COLOR, PorterDuff.Mode.DST_OVER);

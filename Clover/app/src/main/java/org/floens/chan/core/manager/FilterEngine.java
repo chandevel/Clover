@@ -102,6 +102,7 @@ public class FilterEngine {
     public List<Filter> getEnabledFilters() {
         return enabledFilters;
     }
+
     public List<Filter> getAllFilters() {
         try {
             return databaseFilterManager.getFilters().call();
@@ -114,7 +115,7 @@ public class FilterEngine {
     public List<Filter> getEnabledPinFilters() {
         List<Filter> pinFilters = new ArrayList<Filter>();
         for (Filter f : enabledFilters) {
-            if(f.action == FilterAction.PIN.id) {
+            if (f.action == FilterAction.PIN.id) {
                 pinFilters.add(f);
             }
         }

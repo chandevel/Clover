@@ -253,7 +253,7 @@ public class Board implements SiteReference, Cloneable {
     }
 
     public boolean equals(Object board) {
-        if(board != null && board.getClass() == Board.class) {
+        if (board != null && board.getClass() == Board.class) {
             Board b = (Board) board;
             return name.equals(b.name) &&
                     code.equals(b.code) &&

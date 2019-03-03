@@ -55,9 +55,9 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         List<ThreadTime> threadTimes = null;
 
         reader.beginObject();
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             String nextName = reader.nextName();
-            if(nextName.equals("page")) {
+            if (nextName.equals("page")) {
                 pageNo = reader.nextInt();
             } else if (nextName.equals("threads")) {
                 threadTimes = readThreadTimes(reader);
@@ -74,7 +74,7 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         List<ThreadTime> threadTimes = new ArrayList<>();
 
         reader.beginArray();
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             threadTimes.add(readThreadTime(reader));
         }
         reader.endArray();
@@ -87,7 +87,7 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         long modified = -1;
 
         reader.beginObject();
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             String nextName = reader.nextName();
             if (nextName.equals("no")) {
                 no = reader.nextInt();

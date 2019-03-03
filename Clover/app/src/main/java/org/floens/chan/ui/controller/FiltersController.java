@@ -144,20 +144,20 @@ public class FiltersController extends Controller implements
             //if some filters are enabled, disable them and set the drawable to be a checkmark
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
-            if(enabledFilters.isEmpty()) {
+            if (enabledFilters.isEmpty()) {
                 for (Filter filter : allFilters) {
                     filter.enabled = true;
                     filterEngine.createOrUpdateFilter(filter);
                 }
                 ((FloatingActionButton) v).setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                for(Filter filter : allFilters) {
+                for (Filter filter : allFilters) {
                     filter.enabled = false;
                     filterEngine.createOrUpdateFilter(filter);
                 }
                 ((FloatingActionButton) v).setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                for(Filter filter : enabledFilters) {
+                for (Filter filter : enabledFilters) {
                     filter.enabled = false;
                     filterEngine.createOrUpdateFilter(filter);
                 }
@@ -181,7 +181,7 @@ public class FiltersController extends Controller implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         filterEngine.createOrUpdateFilter(filterLayout.getFilter());
-                        if(filterEngine.getEnabledFilters().isEmpty()) {
+                        if (filterEngine.getEnabledFilters().isEmpty()) {
                             enable.setImageResource(R.drawable.ic_done_white_24dp);
                         } else {
                             enable.setImageResource(R.drawable.ic_clear_white_24dp);

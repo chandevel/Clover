@@ -251,7 +251,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
 
         volleyRequestQueue.add(request.getVolleyRequest());
 
-        if(!requestedPages) {
+        if (!requestedPages) {
             loadable.site.actions().pages(loadable.board, this);
             requestedPages = true;
         }

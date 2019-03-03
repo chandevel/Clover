@@ -74,7 +74,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
-        if(ChanSettings.watchFilterPin.get()) {
+        if (ChanSettings.watchFilterPin.get()) {
             wakeManager.registerWakeable(this);
         }
 
@@ -82,8 +82,8 @@ public class FilterPinManager implements WakeManager.Wakeable {
     }
 
     public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
-        if(settingChanged.setting == ChanSettings.watchFilterPin) {
-            if(ChanSettings.watchFilterPin.get()) {
+        if (settingChanged.setting == ChanSettings.watchFilterPin) {
+            if (ChanSettings.watchFilterPin.get()) {
                 wakeManager.registerWakeable(this);
             } else {
                 wakeManager.unregisterWakeable(this);
@@ -98,11 +98,11 @@ public class FilterPinManager implements WakeManager.Wakeable {
         List<Filter> activeFilters = filterEngine.getEnabledPinFilters();
         //get a set of boards to background load
         Set<String> boardCodes = new HashSet<>();
-        for(Filter f: activeFilters) {
+        for (Filter f : activeFilters) {
             //if the allBoards flag is set for any one filter, add all saved boards to the set
-            if(f.allBoards) {
-                for(BoardRepository.SiteBoards s : boardRepository.getSaved().get()) {
-                    for(Board b : s.boards) {
+            if (f.allBoards) {
+                for (BoardRepository.SiteBoards s : boardRepository.getSaved().get()) {
+                    for (Board b : s.boards) {
                         boardCodes.add(b.code);
                     }
                 }
@@ -113,10 +113,10 @@ public class FilterPinManager implements WakeManager.Wakeable {
         }
         numBoardsChecked = boardCodes.size();
         //create background loaders for each thing in the board set
-        for(BoardRepository.SiteBoards siteBoard : boardRepository.getSaved().get()) {
-            for(Board b : siteBoard.boards) {
-                for(String code : boardCodes)
-                    if(b.code.equals(code)) {
+        for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved().get()) {
+            for (Board b : siteBoard.boards) {
+                for (String code : boardCodes)
+                    if (b.code.equals(code)) {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
                         Loadable boardLoadable = Loadable.forCatalog(b);
                         boardLoadable = databaseLoadableManager.get(boardLoadable);
@@ -128,10 +128,10 @@ public class FilterPinManager implements WakeManager.Wakeable {
     }
 
     private void clearFilterLoaders() {
-        if(filterLoaders.isEmpty()) {
+        if (filterLoaders.isEmpty()) {
             return;
         }
-        for(ChanThreadLoader loader : filterLoaders.keySet()) {
+        for (ChanThreadLoader loader : filterLoaders.keySet()) {
             chanLoaderFactory.release(loader, filterLoaders.get(loader));
         }
         filterLoaders.clear();
@@ -140,7 +140,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
     @Override
     public void onWake() {
         populateFilterLoaders();
-        for(ChanThreadLoader loader : filterLoaders.keySet()) {
+        for (ChanThreadLoader loader : filterLoaders.keySet()) {
             loader.requestData();
         }
     }
@@ -152,9 +152,9 @@ public class FilterPinManager implements WakeManager.Wakeable {
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
             List<Filter> filters = filterEngine.getEnabledPinFilters();
-            for(Filter f : filters) {
-                for(Post p : result.posts) {
-                    if(filterEngine.matches(f, p) && p.filterPin && !ignoredPosts.contains(p.no)) {
+            for (Filter f : filters) {
+                for (Post p : result.posts) {
+                    if (filterEngine.matches(f, p) && p.filterPin && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no);
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p);
@@ -167,10 +167,10 @@ public class FilterPinManager implements WakeManager.Wakeable {
             lastCheckedPosts.addAll(result.posts);
             synchronized (this) {
                 numBoardsChecked--;
-                if(numBoardsChecked <= 0) {
+                if (numBoardsChecked <= 0) {
                     numBoardsChecked = 0;
                     Set<Integer> lastCheckedPostNumbers = new HashSet<>();
-                    for(Post post : lastCheckedPosts) {
+                    for (Post post : lastCheckedPosts) {
                         lastCheckedPostNumbers.add(post.no);
                     }
                     ignoredPosts.retainAll(lastCheckedPostNumbers);
