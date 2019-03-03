@@ -776,6 +776,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void showThread(Loadable threadLoadable);
 
+        void showBoard(Loadable catalogLoadable);
+
         void openLink(String link);
 
         void openReportView(Post post);
