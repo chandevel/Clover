@@ -159,7 +159,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     } else {
                         page = new SpannableString("?");
                     }
-                    finalText = TextUtils.concat(finalText, " / " + getContext().getString(R.string.thread_page_no) + " " + page);
+                    finalText = TextUtils.concat(finalText, " / ", getContext().getString(R.string.thread_page_no), " ", page);
                 }
             }
 
