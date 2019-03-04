@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Contains all data needed to represent a single post.<br>
  * All {@code final} fields are thread-safe.
  */
-public class Post {
+public class Post implements Comparable<Post> {
     public final String boardId;
 
     public final Board board;
@@ -105,6 +105,16 @@ public class Post {
     private int uniqueIps;
     private long lastModified;
     private String title = "";
+
+    public int compareTo(Post p) {
+        if (this.time < p.time) {
+            return 1;
+        } else if (this.time > p.time) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
 
     private Post(Builder builder) {
         board = builder.board;

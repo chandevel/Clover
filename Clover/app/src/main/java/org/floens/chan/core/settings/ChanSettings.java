@@ -139,6 +139,7 @@ public class ChanSettings {
     public static final BooleanSetting watchEnabled;
     public static final BooleanSetting watchCountdown;
     public static final BooleanSetting watchBackground;
+    public static final BooleanSetting watchLastPageNotify;
     public static final IntegerSetting watchBackgroundInterval;
     public static final StringSetting watchNotifyMode;
     public static final StringSetting watchSound;
@@ -224,6 +225,7 @@ public class ChanSettings {
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
         watchBackground.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchBackground)));
+        watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
         watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", WatchManager.DEFAULT_BACKGROUND_INTERVAL);
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");

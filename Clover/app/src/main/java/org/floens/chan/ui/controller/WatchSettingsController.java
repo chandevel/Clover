@@ -36,6 +36,7 @@ public class WatchSettingsController extends SettingsController implements Compo
     private SettingView enableBackground;
 
     private SettingView backgroundTimeout;
+    private SettingView lastPageNotifyMode;
     private SettingView notifyMode;
     private SettingView soundMode;
     private SettingView peekMode;
@@ -70,6 +71,7 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         if (!ChanSettings.watchBackground.get()) {
             setSettingViewVisibility(backgroundTimeout, false, false);
+            setSettingViewVisibility(lastPageNotifyMode, false, false);
             setSettingViewVisibility(notifyMode, false, false);
             setSettingViewVisibility(soundMode, false, false);
             setSettingViewVisibility(peekMode, false, false);
@@ -90,6 +92,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         if (item == enableBackground) {
             boolean enabled = ChanSettings.watchBackground.get();
             setSettingViewVisibility(backgroundTimeout, enabled, true);
+            setSettingViewVisibility(lastPageNotifyMode, enabled, true);
             setSettingViewVisibility(notifyMode, enabled, true);
             setSettingViewVisibility(soundMode, enabled, true);
             setSettingViewVisibility(peekMode, enabled, true);
@@ -123,6 +126,8 @@ public class WatchSettingsController extends SettingsController implements Compo
                 return getString(R.string.setting_watch_background_timeout_description) + "\n\n" + items.get(selected).name;
             }
         });
+
+        lastPageNotifyMode = settings.add(new BooleanSettingView(this, ChanSettings.watchLastPageNotify, R.string.setting_thread_page_limit_notify, R.string.setting_thread_page_limit_notify_description));
 
         notifyMode = settings.add(new ListSettingView<>(this, ChanSettings.watchNotifyMode, R.string.setting_watch_notify_mode,
                 context.getResources().getStringArray(R.array.setting_watch_notify_modes), new String[]{"all", "quotes"}));

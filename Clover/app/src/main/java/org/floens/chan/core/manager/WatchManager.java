@@ -37,9 +37,12 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.pool.ChanLoaderFactory;
+import org.floens.chan.core.repository.PageRepository;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Page;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.ui.helper.PostHelper;
+import org.floens.chan.ui.service.LastPageNotification;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.Logger;
 
@@ -122,6 +125,7 @@ public class WatchManager {
     private final List<Pin> pins;
     private final DatabaseManager databaseManager;
     private final DatabasePinManager databasePinManager;
+    private final PageRepository pageRepository;
 
     private final Handler handler;
 
@@ -134,12 +138,13 @@ public class WatchManager {
     private long lastBackgroundUpdateTime;
 
     @Inject
-    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory) {
+    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, PageRepository pageRepository) {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
 
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
+        this.pageRepository = pageRepository;
 
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTask(databasePinManager.getPins());
@@ -678,6 +683,7 @@ public class WatchManager {
         private final List<Post> quotes = new ArrayList<>();
         private boolean wereNewQuotes = false;
         private boolean wereNewPosts = false;
+        private boolean notified = false;
 
         public PinWatcher(Pin pin) {
             this.pin = pin;
@@ -732,6 +738,20 @@ public class WatchManager {
 
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
+                if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get() && ChanSettings.watchBackground.get() && chanLoader.getThread() != null) {
+                    //check last page stuff, fake a post
+                    Page p = pageRepository.getPage(chanLoader.getThread().op);
+                    if (p == null) {
+                        Logger.w(TAG, "Pages for page not loaded yet, will check for notification next time");
+                    } else if (p.page >= pin.loadable.board.pages && !notified) {
+                        Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
+                        pageNotifyIntent.putExtra("pin_id", pin.id);
+                        getAppContext().startService(pageNotifyIntent);
+                        notified = true;
+                    } else if (p.page < pin.loadable.board.pages) {
+                        notified = false;
+                    }
+                }
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
                     chanLoader.clearTimer();
