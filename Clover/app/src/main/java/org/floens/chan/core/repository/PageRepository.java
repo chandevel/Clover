@@ -47,6 +47,9 @@ public class PageRepository implements SiteActions.PagesListener {
     }
 
     public Page getPage(Post op) {
+        if (op == null) {
+            return null;
+        }
         Pages pages = getPages(op.board);
         if (pages == null) {
             return null;
