@@ -88,6 +88,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:name=".ui.service.SavingNotification"
             android:exported="false" />
 
+        <service
+            android:name=".ui.service.LastPageNotification"
+            android:exported="false" />
+
         <receiver
             android:name=".core.receiver.WakeUpdateReceiver"
             android:exported="false">

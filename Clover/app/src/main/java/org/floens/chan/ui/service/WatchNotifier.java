@@ -48,7 +48,6 @@ import static org.floens.chan.Chan.inject;
 public class WatchNotifier extends Service {
     private static final String TAG = "WatchNotifier";
     private static final int NOTIFICATION_ID = 1;
-    private static final PostAgeComparator POST_AGE_COMPARATOR = new PostAgeComparator();
     private static final int SUBJECT_LENGTH = 6;
     private static final String IMAGE_TEXT = "(img) ";
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
@@ -186,7 +185,7 @@ public class WatchNotifier extends Service {
                 }
             }
 
-            Collections.sort(postsForExpandedLines, POST_AGE_COMPARATOR);
+            Collections.sort(postsForExpandedLines);
             List<CharSequence> expandedLines = new ArrayList<>();
             for (Post postForExpandedLine : postsForExpandedLines) {
                 CharSequence prefix;
@@ -287,18 +286,5 @@ public class WatchNotifier extends Service {
         }
 
         return builder.build();
-    }
-
-    private static class PostAgeComparator implements Comparator<Post> {
-        @Override
-        public int compare(Post lhs, Post rhs) {
-            if (lhs.time < rhs.time) {
-                return 1;
-            } else if (lhs.time > rhs.time) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
     }
 }

@@ -17,15 +17,9 @@
  */
 package org.floens.chan.core.manager;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
-import android.os.PowerManager;
 import android.support.annotation.Nullable;
 
 import org.floens.chan.Chan;
@@ -38,15 +32,17 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.pool.ChanLoaderFactory;
+import org.floens.chan.core.repository.PageRepository;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Page;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.ui.helper.PostHelper;
+import org.floens.chan.ui.service.LastPageNotification;
 import org.floens.chan.ui.service.WatchNotifier;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +55,6 @@ import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
-import static org.floens.chan.Chan.inject;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 /**
@@ -106,6 +101,7 @@ public class WatchManager implements WakeManager.Wakeable {
     private final DatabasePinManager databasePinManager;
     private final ChanLoaderFactory chanLoaderFactory;
     private final WakeManager wakeManager;
+    private final PageRepository pageRepository;
 
     private IntervalType currentInterval = IntervalType.NONE;
 
@@ -114,11 +110,12 @@ public class WatchManager implements WakeManager.Wakeable {
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
     @Inject
-    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, WakeManager wakeManager) {
+    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, WakeManager wakeManager, PageRepository pageRepository) {
         //retain local references to needed managers/factories/pins
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.wakeManager = wakeManager;
+        this.pageRepository = pageRepository;
 
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTask(databasePinManager.getPins());
@@ -557,6 +554,7 @@ public class WatchManager implements WakeManager.Wakeable {
         private final List<Post> quotes = new ArrayList<>();
         private boolean wereNewQuotes = false;
         private boolean wereNewPosts = false;
+        private boolean notified;
 
         public PinWatcher(Pin pin) {
             this.pin = pin;
@@ -605,6 +603,20 @@ public class WatchManager implements WakeManager.Wakeable {
 
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
+                if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get() && ChanSettings.watchBackground.get() && chanLoader.getThread() != null) {
+                    //check last page stuff, fake a post
+                    Page p = pageRepository.getPage(chanLoader.getThread().op);
+                    if (p == null) {
+                        Logger.w(TAG, "Pages for page not loaded yet, will check for notification next time");
+                    } else if (p.page >= pin.loadable.board.pages && !notified) {
+                        Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
+                        pageNotifyIntent.putExtra("pin_id", pin.id);
+                        getAppContext().startService(pageNotifyIntent);
+                        notified = true;
+                    } else if (p.page < pin.loadable.board.pages) {
+                        notified = false;
+                    }
+                }
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
                     chanLoader.clearTimer();

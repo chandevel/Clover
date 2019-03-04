@@ -324,6 +324,34 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                         browseController.showThread(pin.loadable, false);
                     }
                 }
+            } else if (pinId != -2 && mainNavigationController.getTop() instanceof ThreadSlideController) {
+                if(pinId == -1) {
+                    drawerController.onMenuClicked();
+                } else {
+                    Pin pin = watchManager.findPinById(pinId);
+                    if(pin != null) {
+                        List<Controller> controllers = mainNavigationController.childControllers;
+                        for (Controller controller : controllers) {
+                            if (controller instanceof ViewThreadController) {
+                                ((ViewThreadController) controller).loadThread(pin.loadable);
+                                break;
+                            } else if (controller instanceof ThreadSlideController) {
+                                ThreadSlideController slideNav = (ThreadSlideController) controller;
+                                if (slideNav.getRightController() instanceof ViewThreadController) {
+                                    ((ViewThreadController) slideNav.getRightController()).loadThread(pin.loadable);
+                                    slideNav.switchToController(false);
+                                    break;
+                                } else {
+                                    ViewThreadController v = new ViewThreadController(this);
+                                    v.setLoadable(pin.loadable);
+                                    slideNav.setRightController(v);
+                                    slideNav.switchToController(false);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
