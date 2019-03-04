@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -15,8 +16,12 @@ import android.support.v4.app.NotificationManagerCompat;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.orm.Pin;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.BoardActivity;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -67,13 +72,16 @@ public class LastPageNotification extends Service {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, random.nextInt(), intent, PendingIntent.FLAG_ONE_SHOT);
 
+        DateFormat time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_stat_notify_alert)
-                .setContentTitle(getString(R.string.thread_page_limit))
+                .setContentTitle(time.format(new Date()) + " - " + getString(R.string.thread_page_limit))
                 .setContentText(pin.loadable.title)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setTimeoutAfter(10 * 1000 * 60)
+                .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                .setLights(Color.RED, 1000, 1000)
                 .setAutoCancel(true);
 
         return builder.build();
