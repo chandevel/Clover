@@ -37,7 +37,6 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.pool.ChanLoaderFactory;
-import org.floens.chan.core.repository.PageRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Page;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
@@ -125,7 +124,7 @@ public class WatchManager {
     private final List<Pin> pins;
     private final DatabaseManager databaseManager;
     private final DatabasePinManager databasePinManager;
-    private final PageRepository pageRepository;
+    private final PageRequestManager pageRequestManager;
 
     private final Handler handler;
 
@@ -138,13 +137,13 @@ public class WatchManager {
     private long lastBackgroundUpdateTime;
 
     @Inject
-    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, PageRepository pageRepository) {
+    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, PageRequestManager pageRequestManager) {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
 
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
-        this.pageRepository = pageRepository;
+        this.pageRequestManager = pageRequestManager;
 
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTask(databasePinManager.getPins());
@@ -673,7 +672,7 @@ public class WatchManager {
         }
     }
 
-    public class PinWatcher implements ChanThreadLoader.ChanLoaderCallback {
+    public class PinWatcher implements ChanThreadLoader.ChanLoaderCallback, PageRequestManager.PageCallback {
         private static final String TAG = "PinWatcher";
 
         private final Pin pin;
@@ -691,6 +690,7 @@ public class WatchManager {
 
             Logger.d(TAG, "PinWatcher: created for " + pin);
             chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
+            pageRequestManager.addListener(this);
         }
 
         public List<Post> getUnviewedPosts() {
@@ -729,6 +729,7 @@ public class WatchManager {
                 chanLoaderFactory.release(chanLoader, this);
                 chanLoader = null;
             }
+            pageRequestManager.removeListener(this);
         }
 
         private void onViewed() {
@@ -738,19 +739,10 @@ public class WatchManager {
 
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
-                if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get() && ChanSettings.watchBackground.get() && chanLoader.getThread() != null) {
-                    //check last page stuff, fake a post
-                    Page p = pageRepository.getPage(chanLoader.getThread().op);
-                    if (p == null) {
-                        Logger.w(TAG, "Pages for page not loaded yet, will check for notification next time");
-                    } else if (p.page >= pin.loadable.board.pages && !notified) {
-                        Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
-                        pageNotifyIntent.putExtra("pin_id", pin.id);
-                        getAppContext().startService(pageNotifyIntent);
-                        notified = true;
-                    } else if (p.page < pin.loadable.board.pages) {
-                        notified = false;
-                    }
+                //check last page stuff, get the page for the OP and notify in the onPages method
+                Page page = pageRequestManager.getPage(chanLoader.getLoadable());
+                if(page != null) {
+                    doPageNotification(page);
                 }
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
@@ -851,6 +843,28 @@ public class WatchManager {
             }
 
             pinWatcherUpdated(this);
+        }
+
+        @Override
+        public void onPagesReceived() {
+            if (ChanSettings.watchEnabled.get()
+                    && ChanSettings.watchLastPageNotify.get()
+                    && ChanSettings.watchBackground.get()) {
+                //this call will return the proper value now, but if it returns null just skip everything
+                Page p = pageRequestManager.getPage(chanLoader.getLoadable());
+                doPageNotification(p);
+            }
+        }
+
+        private void doPageNotification(Page page) {
+            if (page != null && page.page >= pin.loadable.board.pages && !notified) {
+                Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
+                pageNotifyIntent.putExtra("pin_id", pin.id);
+                getAppContext().startService(pageNotifyIntent);
+                notified = true;
+            } else if (page != null && page.page < pin.loadable.board.pages) {
+                notified = false;
+            }
         }
     }
 }

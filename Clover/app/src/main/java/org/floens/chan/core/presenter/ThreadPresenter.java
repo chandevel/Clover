@@ -34,13 +34,11 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
-import org.floens.chan.core.repository.PageRepository;
+import org.floens.chan.core.manager.PageRequestManager;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Page;
-import org.floens.chan.core.site.Pages;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
-import org.floens.chan.core.site.ThreadTime;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
@@ -85,7 +83,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
     private ChanLoaderFactory chanLoaderFactory;
-    private PageRepository pageRepository;
+    private PageRequestManager pageRequestManager;
 
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
@@ -98,11 +96,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     public ThreadPresenter(WatchManager watchManager,
                            DatabaseManager databaseManager,
                            ChanLoaderFactory chanLoaderFactory,
-                           PageRepository pageRepository) {
+                           PageRequestManager pageRequestManager) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
-        this.pageRepository = pageRepository;
+        this.pageRequestManager = pageRequestManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -631,7 +629,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     }
 
     public Page getPage(Post op) {
-        return pageRepository.getPage(op);
+        return pageRequestManager.getPage(op);
     }
 
     @Override
