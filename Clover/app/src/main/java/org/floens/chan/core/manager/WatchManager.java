@@ -29,12 +29,14 @@ import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.pool.ChanLoaderFactory;
-import org.floens.chan.core.repository.PageRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Page;
+import org.floens.chan.core.site.Pages;
+import org.floens.chan.core.site.ThreadTime;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.LastPageNotification;
@@ -101,7 +103,7 @@ public class WatchManager implements WakeManager.Wakeable {
     private final DatabasePinManager databasePinManager;
     private final ChanLoaderFactory chanLoaderFactory;
     private final WakeManager wakeManager;
-    private final PageRepository pageRepository;
+    private final PageRequestManager pageRequestManager;
 
     private IntervalType currentInterval = IntervalType.NONE;
 
@@ -110,12 +112,12 @@ public class WatchManager implements WakeManager.Wakeable {
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
     @Inject
-    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, WakeManager wakeManager, PageRepository pageRepository) {
+    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory, WakeManager wakeManager, PageRequestManager pageRequestManager) {
         //retain local references to needed managers/factories/pins
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
         this.wakeManager = wakeManager;
-        this.pageRepository = pageRepository;
+        this.pageRequestManager = pageRequestManager;
 
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTask(databasePinManager.getPins());
@@ -544,7 +546,7 @@ public class WatchManager implements WakeManager.Wakeable {
         }
     }
 
-    public class PinWatcher implements ChanThreadLoader.ChanLoaderCallback {
+    public class PinWatcher implements ChanThreadLoader.ChanLoaderCallback, PageRequestManager.PageCallback {
         private static final String TAG = "PinWatcher";
 
         private final Pin pin;
@@ -561,6 +563,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
             Logger.d(TAG, "PinWatcher: created for " + pin);
             chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
+            pageRequestManager.addListener(this);
         }
 
         public List<Post> getUnviewedPosts() {
@@ -599,23 +602,15 @@ public class WatchManager implements WakeManager.Wakeable {
                 chanLoaderFactory.release(chanLoader, this);
                 chanLoader = null;
             }
+            pageRequestManager.removeListener(this);
         }
 
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
-                if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get() && ChanSettings.watchBackground.get() && chanLoader.getThread() != null) {
-                    //check last page stuff, fake a post
-                    Page p = pageRepository.getPage(chanLoader.getThread().op);
-                    if (p == null) {
-                        Logger.w(TAG, "Pages for page not loaded yet, will check for notification next time");
-                    } else if (p.page >= pin.loadable.board.pages && !notified) {
-                        Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
-                        pageNotifyIntent.putExtra("pin_id", pin.id);
-                        getAppContext().startService(pageNotifyIntent);
-                        notified = true;
-                    } else if (p.page < pin.loadable.board.pages) {
-                        notified = false;
-                    }
+                //check last page stuff, get the page for the OP and notify in the onPages method
+                Page page = pageRequestManager.getPage(chanLoader.getLoadable());
+                if(page != null) {
+                    doPageNotification(page);
                 }
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
@@ -725,6 +720,28 @@ public class WatchManager implements WakeManager.Wakeable {
             }
 
             pinWatcherUpdated(this);
+        }
+
+        @Override
+        public void onPagesReceived() {
+            if (ChanSettings.watchEnabled.get()
+                    && ChanSettings.watchLastPageNotify.get()
+                    && ChanSettings.watchBackground.get()) {
+                //this call will return the proper value now, but if it returns null just skip everything
+                Page p = pageRequestManager.getPage(chanLoader.getLoadable());
+                doPageNotification(p);
+            }
+        }
+
+        private void doPageNotification(Page page) {
+            if (page != null && page.page >= pin.loadable.board.pages && !notified) {
+                Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
+                pageNotifyIntent.putExtra("pin_id", pin.id);
+                getAppContext().startService(pageNotifyIntent);
+                notified = true;
+            } else if (page != null && page.page < pin.loadable.board.pages) {
+                notified = false;
+            }
         }
     }
 }
