@@ -609,7 +609,7 @@ public class WatchManager implements WakeManager.Wakeable {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
                 Page page = pageRequestManager.getPage(chanLoader.getLoadable());
-                if(page != null) {
+                if (page != null) {
                     doPageNotification(page);
                 }
                 if (fromBackground) {
@@ -724,23 +724,23 @@ public class WatchManager implements WakeManager.Wakeable {
 
         @Override
         public void onPagesReceived() {
-            if (ChanSettings.watchEnabled.get()
-                    && ChanSettings.watchLastPageNotify.get()
-                    && ChanSettings.watchBackground.get()) {
-                //this call will return the proper value now, but if it returns null just skip everything
-                Page p = pageRequestManager.getPage(chanLoader.getLoadable());
-                doPageNotification(p);
-            }
+            //this call will return the proper value now, but if it returns null just skip everything
+            Page p = pageRequestManager.getPage(chanLoader.getLoadable());
+            doPageNotification(p);
         }
 
         private void doPageNotification(Page page) {
-            if (page != null && page.page >= pin.loadable.board.pages && !notified) {
-                Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
-                pageNotifyIntent.putExtra("pin_id", pin.id);
-                getAppContext().startService(pageNotifyIntent);
-                notified = true;
-            } else if (page != null && page.page < pin.loadable.board.pages) {
-                notified = false;
+            if (ChanSettings.watchEnabled.get()
+                    && ChanSettings.watchLastPageNotify.get()
+                    && ChanSettings.watchBackground.get()) {
+                if (page != null && page.page >= pin.loadable.board.pages && !notified) {
+                    Intent pageNotifyIntent = new Intent(getAppContext(), LastPageNotification.class);
+                    pageNotifyIntent.putExtra("pin_id", pin.id);
+                    getAppContext().startService(pageNotifyIntent);
+                    notified = true;
+                } else if (page != null && page.page < pin.loadable.board.pages) {
+                    notified = false;
+                }
             }
         }
     }
