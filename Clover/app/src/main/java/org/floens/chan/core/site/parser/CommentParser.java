@@ -44,7 +44,7 @@ import static org.floens.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
-    private static final String SAVED_REPLY_SUFFIX = " (You)";
+    public static final String SAVED_REPLY_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
     private static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
 

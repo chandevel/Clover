@@ -83,6 +83,7 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
     <string name="action_reload">Herlaad</string>
     <string name="action_pin">Maak bladwijzer</string>
     <string name="action_open_browser">Openen in een browser</string>
+    <string name="action_show_replies">Toon reacties</string>
     <string name="action_share">Delen</string>
     <string name="action_download_album">Album downloaden</string>
     <string name="action_search">Zoeken</string>

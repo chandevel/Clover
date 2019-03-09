@@ -102,6 +102,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="action_reload">Перезагрузить</string>
   <string name="action_pin">В избранное</string>
   <string name="action_open_browser">Открыть в браузере</string>
+  <string name="action_show_replies">Показать ответы</string>
   <string name="action_share">Поделиться</string>
   <string name="action_download_album">Скачать альбом</string>
   <string name="action_search">Поиск</string>

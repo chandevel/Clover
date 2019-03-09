@@ -43,6 +43,7 @@ import org.floens.chan.utils.AndroidUtils;
 import javax.inject.Inject;
 
 import static org.floens.chan.Chan.inject;
+import static org.floens.chan.core.site.parser.CommentParser.SAVED_REPLY_SUFFIX;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
@@ -90,6 +91,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
                 .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
+                .withSubItem(R.string.action_show_replies, this::showReplies)
                 .build()
                 .build();
 
@@ -136,6 +138,11 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void downClicked(ToolbarMenuSubItem item) {
         threadLayout.getPresenter().scrollTo(-1, false);
+    }
+
+    private void showReplies(ToolbarMenuSubItem item) {
+        searchClicked(item);
+        ((ToolbarNavigationController) navigationController).inputSearch(SAVED_REPLY_SUFFIX);
     }
 
     @Override

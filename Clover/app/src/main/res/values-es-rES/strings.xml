@@ -81,6 +81,7 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="action_reload">Refresar</string>
     <string name="action_pin">Favorito</string>
     <string name="action_open_browser">Abrir en el navegador</string>
+    <string name="action_show_replies">Mostrar respuestas</string>
     <string name="action_share">Compartir</string>
     <string name="action_download_album">Descargar álbum</string>
     <string name="action_search">Buscar</string>

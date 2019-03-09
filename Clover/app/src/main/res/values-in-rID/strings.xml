@@ -73,6 +73,7 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
     <string name="action_reload">Muat ulang</string>
     <string name="action_pin">Bookmark</string>
     <string name="action_open_browser">Buka di browser</string>
+    <string name="action_show_replies">Tampilkan tanggapan</string>
     <string name="action_share">Bagikan</string>
     <string name="action_download_album">Unduh album</string>
     <string name="action_search">Cari</string>
