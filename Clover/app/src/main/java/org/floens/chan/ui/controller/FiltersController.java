@@ -137,32 +137,31 @@ public class FiltersController extends Controller implements
         if (v == add) {
             showFilterDialog(new Filter());
         } else if (v == enable) {
+            FloatingActionButton enableButton = (FloatingActionButton) v;
             //if every filter is disabled, enable all of them and set the drawable to be an x
             //if every filter is enabled, disable all of them and set the drawable to be a checkmark
             //if some filters are enabled, disable them and set the drawable to be a checkmark
             List<Filter> enabledFilters = filterEngine.getEnabledFilters();
             List<Filter> allFilters = filterEngine.getAllFilters();
-            if(enabledFilters.isEmpty()) {
-                for (Filter filter : allFilters) {
-                    filter.enabled = true;
-                    filterEngine.createOrUpdateFilter(filter);
-                }
-                ((FloatingActionButton) v).setImageResource(R.drawable.ic_clear_white_24dp);
+            if (enabledFilters.isEmpty()) {
+                setFilters(allFilters, true);
+                enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
             } else if (enabledFilters.size() == allFilters.size()) {
-                for(Filter filter : allFilters) {
-                    filter.enabled = false;
-                    filterEngine.createOrUpdateFilter(filter);
-                }
-                ((FloatingActionButton) v).setImageResource(R.drawable.ic_done_white_24dp);
+                setFilters(allFilters, false);
+                enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             } else {
-                for(Filter filter : enabledFilters) {
-                    filter.enabled = false;
-                    filterEngine.createOrUpdateFilter(filter);
-                }
-                ((FloatingActionButton) v).setImageResource(R.drawable.ic_done_white_24dp);
+                setFilters(enabledFilters, false);
+                enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
             theme().applyFabColor(enable);
             adapter.load();
+        }
+    }
+
+    private void setFilters(List<Filter> filters, boolean enabled) {
+        for (Filter filter : filters) {
+            filter.enabled = enabled;
+            filterEngine.createOrUpdateFilter(filter);
         }
     }
 
@@ -179,7 +178,7 @@ public class FiltersController extends Controller implements
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         filterEngine.createOrUpdateFilter(filterLayout.getFilter());
-                        if(filterEngine.getEnabledFilters().isEmpty()) {
+                        if (filterEngine.getEnabledFilters().isEmpty()) {
                             enable.setImageResource(R.drawable.ic_done_white_24dp);
                         } else {
                             enable.setImageResource(R.drawable.ic_clear_white_24dp);
