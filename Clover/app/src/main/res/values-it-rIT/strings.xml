@@ -182,7 +182,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="filter_no_matches">Non corrisponde</string>
     <string name="filter_matches">Matches</string>
     <string name="filter_color_pick">Scegliere il colore</string>
-    <string name="filter_help_title">Filter help</string>
+    <string name="filter_help_title">Aiuto filtri</string>
     <string name="filter_help"><![CDATA[Filters act on a given pattern and a place to search the pattern.<br>
 If the pattern matches then the post can be hidden or highlighted.<br>
 
@@ -212,22 +212,22 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="filter_filename">Nome file</string>
     <string name="board_select_all">Seleziona tutto</string>
     <string name="board_select_none">Deseleziona tutto</string>
-    <string name="history_clear">Cancella cronologia</string>
+    <string name="history_clear">Elimina cronologia</string>
     <string name="history_clear_confirm">Eliminare la cronologia?</string>
     <string name="history_clear_confirm_button">Elimina tutto</string>
-    <string name="history_toggle_hint">Enable or disable history</string>
+    <string name="history_toggle_hint">Attiva o disattiva cronologia</string>
     <string name="history_empty_info">Nessuna cronologia</string>
-    <string name="saved_reply_clear">Clear posting history</string>
-    <string name="saved_reply_clear_confirm">Clear posting history?</string>
+    <string name="saved_reply_clear">Elimina cronologia dei post</string>
+    <string name="saved_reply_clear_confirm">Eliminare cronologia dei post?</string>
     <string name="saved_reply_clear_confirm_button">Elimina tutto</string>
     <string name="archive_title">%s archive</string>
     <string name="archive_error">Error loading archive</string>
     <string name="drawer_pinned">Thread preferiti</string>
-    <string name="drawer_pin_removed">Removed \"%1$s\"</string>
-    <string name="drawer_pins_cleared">%1$s cleared</string>
-    <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
-    <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
-    <string name="post_highlight_id">Highlight ID</string>
+    <string name="drawer_pin_removed">Rimosso \"%1$s\"</string>
+    <string name="drawer_pins_cleared">%1$s eliminato</string>
+    <string name="drawer_pins_non_cleared">Nessun preferito eliminato.</string>
+    <string name="drawer_pins_non_cleared_try_all">Nessun preferito eliminato. Tieni premuto per rimuovere tutti.</string>
+    <string name="post_highlight_id">Evidenzia ID</string>
     <string name="post_highlight_tripcode">Evidenzia tripcode</string>
     <string name="post_filter_tripcode">Filtra tripcode</string>
     <string name="post_text_copied">Testo copiato negli appunti</string>
@@ -263,9 +263,9 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="delete_confirm">Cancellare il tuo post?</string>
     <string name="delete_wait">Deleting post&#8230;</string>
     <string name="delete_success">Post eliminato</string>
-    <string name="delete_image_only">Only delete the image</string>
+    <string name="delete_image_only">Elimina solo l\'immagine</string>
     <string name="delete_error">Errore nella cancellazione del post</string>
-    <string name="video_playback_warning_title">WebM video error</string>
+    <string name="video_playback_warning_title">Errore video WebM</string>
     <string name="video_playback_warning">\"Il video WebM non è riuscito a partire. Potrebbe essere un problema con l\'hardware del tuo telefono.
 
 Un\'alternativa è utilizzare un lettore multimediale esterno con la decodifica software.
@@ -279,8 +279,8 @@ Abilita \"Riproduci video con un lettore esterno\" nelle impostazioni per riprod
         <item quantity="other">Watching %d threads</item>
     </plurals>
     <plurals name="watch_new">
-        <item quantity="one">%d new post</item>
-        <item quantity="other">%d new posts</item>
+        <item quantity="one">%d nuovo post</item>
+        <item quantity="other">%d nuovi post</item>
     </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d new post quoting you</item>
