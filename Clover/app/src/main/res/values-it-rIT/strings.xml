@@ -68,16 +68,16 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
         <item quantity="other">%d tipi</item>
     </plurals>
     <plurals name="bookmark">
-        <item quantity="one">segnalibro %d</item>
+        <item quantity="one">%d preferito</item>
         <item quantity="other">%d bookmarks</item>
     </plurals>
     <plurals name="filter">
         <item quantity="one">%d filter</item>
-        <item quantity="other">%d filters</item>
+        <item quantity="other">%d filtri</item>
     </plurals>
     <plurals name="site">
-        <item quantity="one">%d site</item>
-        <item quantity="other">%d sites</item>
+        <item quantity="one">%d sito</item>
+        <item quantity="other">%d siti</item>
     </plurals>
     <string name="card_stats">%1$dR %2$dI</string>
     <string name="action_reload">Ricarica</string>
@@ -103,8 +103,8 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="order_oldest">Meno recenti</string>
     <string name="order_modified">Ultima risposta</string>
     <string name="search_hint">Cerca</string>
-    <string name="search_results">Found %1$s for \"%2$s\"</string>
-    <string name="search_empty">Search subjects, comments, names and filenames</string>
+    <string name="search_results">%1$s trovati per \"%2$s\"</string>
+    <string name="search_empty">Cerca negli oggetti, commenti, nomi e nomi dei file</string>
     <string name="open_link_confirmation">Aprire questo link?</string>
     <string name="open_thread_confirmation">Aprire questo thread?</string>
     <string name="open_link_failed">Nessuna applicazione trovata per aprire questo file</string>
@@ -124,7 +124,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="thread_load_failed_not_found">404 non trovato</string>
     <string name="thread_refresh_bar_inactive">Tocca per aggiornare</string>
     <string name="thread_refresh_now">Caricamento</string>
-    <string name="thread_refresh_countdown">Loading in %1$ds</string>
+    <string name="thread_refresh_countdown">Caricamento tra %1$ds</string>
     <string name="thread_load_failed_retry">Riprova</string>
     <string name="thread_archived">Archiviato</string>
     <string name="thread_closed">Chiuso</string>
@@ -152,15 +152,15 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="setup_site_title">Configura %s</string>
     <string name="setup_site_group_general">Generale</string>
     <string name="setup_site_boards">Imposta boards</string>
-    <string name="setup_site_boards_description">%s added</string>
+    <string name="setup_site_boards_description">%s aggiunto</string>
     <string name="setup_site_group_login">Accesso</string>
     <string name="setup_site_login">Login</string>
     <string name="setup_site_login_description_enabled">Loggato</string>
     <string name="setup_site_login_description_disabled">Off</string>
     <string name="setup_board_title">Configure boards of %s</string>
     <string name="setup_board_empty">Nessuna board aggiunta</string>
-    <string name="setup_board_removed">Removed \"%s\"</string>
-    <string name="setup_board_added">%s added</string>
+    <string name="setup_board_removed">Rimosso \"%s\"</string>
+    <string name="setup_board_added">%s aggiunto</string>
     <string name="setup_board_select_all">Seleziona tutto</string>
     <string name="filter_summary_all_boards">Tutte le board</string>
     <string name="filter_enabled">Abilitato</string>
@@ -216,23 +216,23 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="history_clear_confirm">Eliminare la cronologia?</string>
     <string name="history_clear_confirm_button">Elimina tutto</string>
     <string name="history_toggle_hint">Enable or disable history</string>
-    <string name="history_empty_info">No history</string>
+    <string name="history_empty_info">Nessuna cronologia</string>
     <string name="saved_reply_clear">Clear posting history</string>
     <string name="saved_reply_clear_confirm">Clear posting history?</string>
     <string name="saved_reply_clear_confirm_button">Elimina tutto</string>
     <string name="archive_title">%s archive</string>
     <string name="archive_error">Error loading archive</string>
-    <string name="drawer_pinned">Bookmarked threads</string>
+    <string name="drawer_pinned">Thread preferiti</string>
     <string name="drawer_pin_removed">Removed \"%1$s\"</string>
     <string name="drawer_pins_cleared">%1$s cleared</string>
     <string name="drawer_pins_non_cleared">No bookmarks cleared.</string>
     <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
     <string name="post_highlight_id">Highlight ID</string>
-    <string name="post_highlight_tripcode">Highlight tripcode</string>
-    <string name="post_filter_tripcode">Filter tripcode</string>
+    <string name="post_highlight_tripcode">Evidenzia tripcode</string>
+    <string name="post_filter_tripcode">Filtra tripcode</string>
     <string name="post_text_copied">Testo copiato negli appunti</string>
     <string name="post_quote">Cita</string>
-    <string name="post_quote_text">Quote text</string>
+    <string name="post_quote_text">Cita testo</string>
     <string name="post_info">Informazioni</string>
     <string name="post_info_title">Post info</string>
     <string name="post_show_links">Mostra link</string>
