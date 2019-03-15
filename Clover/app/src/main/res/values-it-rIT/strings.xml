@@ -177,32 +177,32 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="filter_hide">Nascondi post</string>
     <string name="filter_color">Evidenzia post</string>
     <string name="filter_remove">Elimina post</string>
-    <string name="filter_invalid_pattern">Invalid pattern</string>
+    <string name="filter_invalid_pattern">Pattern non valido</string>
     <string name="filter_preview">Test your filter</string>
     <string name="filter_no_matches">Non corrisponde</string>
     <string name="filter_matches">Matches</string>
     <string name="filter_color_pick">Scegliere il colore</string>
     <string name="filter_help_title">Aiuto filtri</string>
-    <string name="filter_help"><![CDATA[Filters act on a given pattern and a place to search the pattern.<br>
-If the pattern matches then the post can be hidden or highlighted.<br>
+    <string name="filter_help"><![CDATA[Un filtro consiste in un pattern e luogo in cui cercare il pattern.<br>
+Se il pattern viene trovato, il post può essere nascosto o evidenziato.<br>
 
-<h4>For tripcodes, names and IDs:</h4>
+<h4>Per tripcode, nomi e ID:</h4>
 <p>
-    It will match the given pattern exact.<br>
-    <tt>!Ep8pui8Vw2</tt> will match the tripcode <i>!Ep8pui8Vw2</i> but not <i>Ep8pu</i>.
+    Il pattern viene cercato nella sua interezza.<br>
+    <tt>!Ep8pui8Vw2</tt> troverà il tripcode <i>!Ep8pui8Vw2</i> ma non <i>Ep8pu</i>.
 </p>
 
-<h4>For comments, subjects and filenames:</h4>
+<h4>Per commenti, oggetti e nomi dei file:</h4>
 <p>
-    These filters are pattern based, and have three modes:<br>
+    Questi filtri sono basati sui pattern e hanno tre modalità:<br>
     <br>
-    1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
-    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i>, <i>foooo</i> but not <i>foobar</i><br>
+    1. Il pattern <tt>foo bar</tt> troverà ogni testo che contiene una o più delle parole specificate. Troverà <i>foo</i> o <i>bar</i>, ma non <i>foobar</i>.
+    Un asterisco (*) permette l'aggiunta di qualunque carattere: <tt>f*o</tt> troverà sia <i>foo</i>, sia <i>foooo</i>, ma non <i>foobar</i><br>
     <br>
-    2. Quoting your pattern with <tt>\"</tt> like <tt>\"foo bar\"</tt> will match the text exactly.
-    <i>foo bar</i> matches but <i>foo</i> does not.<br>
+    2. Mettere il pattern tra virgolette come in <tt>\"foo bar\"</tt> troverà il testo nella sua interezza.
+    <i>foo bar</i> viene trovato, <i>foo</i> no.<br>
     <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example.
+    3. Espressioni regolari (regex). <tt>/^>implying/</tt>, per esempio.
 </p>]]></string>
     <string name="filter_tripcode">Tripcode</string>
     <string name="filter_name">Nome</string>
