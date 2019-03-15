@@ -61,7 +61,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     </plurals>
     <plurals name="board">
         <item quantity="one">%d board</item>
-        <item quantity="other">%d boards</item>
+        <item quantity="other">%d board</item>
     </plurals>
     <plurals name="type">
         <item quantity="one">%d tipo</item>
@@ -157,7 +157,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="setup_site_login">Login</string>
     <string name="setup_site_login_description_enabled">Loggato</string>
     <string name="setup_site_login_description_disabled">Off</string>
-    <string name="setup_board_title">Configure boards of %s</string>
+    <string name="setup_board_title">Configura i board di %s</string>
     <string name="setup_board_empty">Nessuna board aggiunta</string>
     <string name="setup_board_removed">Rimosso \"%s\"</string>
     <string name="setup_board_added">%s aggiunto</string>
@@ -167,7 +167,7 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="filter_filter">Filtro</string>
     <string name="filter_action">Azione</string>
     <string name="filter_pattern">Modello</string>
-    <string name="filter_match_test">Test the pattern</string>
+    <string name="filter_match_test">Prova il pattern</string>
     <string name="filter_pattern_hint_regex">Pattern</string>
     <string name="filter_boards">Board</string>
     <string name="filter_types">Tipi</string>
@@ -368,17 +368,17 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="setting_theme">Tema</string>
     <!-- Appearance layout group -->
     <string name="settings_group_layout">Layout</string>
-    <string name="setting_layout_mode">Layout mode</string>
+    <string name="setting_layout_mode">Modalità layout</string>
     <string name="setting_layout_mode_auto">Automatico</string>
     <string name="setting_layout_mode_phone">Phone layout</string>
     <string name="setting_layout_mode_slide">Slide mode</string>
     <string name="setting_layout_mode_split">Split mode</string>
     <string name="setting_board_grid_span_count">Catalog mode column count</string>
     <string name="setting_board_grid_span_count_default">Automatico</string>
-    <string name="setting_board_grid_span_count_item">%1$d columns</string>
+    <string name="setting_board_grid_span_count_item">%1$d colonne</string>
     <string name="setting_never_hide_toolbar">Non nascondere mai la barra strumenti</string>
     <string name="setting_enable_reply_fab">Abilita il pulsante risposta</string>
-    <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+    <string name="setting_enable_reply_fab_description">Disattivare sostituisce il pulsante rotondo con un\'opzione nel menù</string>
     <!-- Appearance post group -->
     <string name="settings_group_post">Post</string>
     <string name="setting_font_size">Dimensioni carattere</string>
@@ -397,11 +397,11 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="setting_auto_refresh_thread">Ricarica automaticamente i thread</string>
     <string name="setting_confirm_exit">Conferma prima di uscire</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
-    <string name="setting_clear_thread_hides">Clear all thread hides</string>
-    <string name="setting_cleared_thread_hides">Cleared all thread hides</string>
+    <string name="setting_clear_thread_hides">Cancella tutti i thread nascosti</string>
+    <string name="setting_cleared_thread_hides">Thread nascosti cancellati</string>
     <!-- Behavior reply group -->
     <string name="settings_group_reply">Rispondi</string>
-    <string name="setting_post_pin">Bookmark thread on post</string>
+    <string name="setting_post_pin">Aggiungi thread in cui hai postato ai preferiti</string>
     <string name="setting_post_default_name">Nome post predefinito</string>
     <!-- Behavior post group -->
     <string name="setting_text_only">Modalità solo testo</string>
@@ -412,15 +412,15 @@ Crash reports do not collect any personally identifiable information.\"
     <string name="setting_anonymize_ids">Nascondi ID</string>
     <string name="setting_show_anonymous_name">Mostra sempre il nome \"Anonymous\"</string>
     <string name="setting_buttons_bottom">Reply buttons on the bottom</string>
-    <string name="setting_volume_key_scrolling">Volume keys scroll content</string>
-    <string name="setting_tap_no_rely">Tap the post number to reply</string>
+    <string name="setting_volume_key_scrolling">Scrolla contenuto con i tasti del volume</string>
+    <string name="setting_tap_no_rely">Premi il numero del post per rispondere</string>
     <string name="setting_open_link_confirmation">Chiedi prima di aprire link</string>
-    <string name="setting_open_link_browser">Always open links in external browser</string>
+    <string name="setting_open_link_browser">Apri sempre i link nel browser esterno</string>
     <!-- Behavior proxy group -->
     <string name="settings_group_proxy">Proxy HTTP</string>
     <string name="setting_proxy_enabled">Abilita il proxy</string>
-    <string name="setting_proxy_address">Proxy server address</string>
-    <string name="setting_proxy_port">Proxy server port</string>
+    <string name="setting_proxy_address">Indirizzo del server proxy</string>
+    <string name="setting_proxy_port">Porta del server proxy</string>
     <!-- Media -->
     <string name="settings_screen_media">Media</string>
     <!-- Media general group -->
@@ -468,19 +468,19 @@ Tap the toolbar menu to change its color.\"
     <string name="settings_open_logs">View logs</string>
     <string name="settings_logs_screen">Logs</string>
     <string name="settings_logs_copy">Copia</string>
-    <string name="settings_logs_copied_to_clipboard">Copied to clipboard</string>
+    <string name="settings_logs_copied_to_clipboard">Copiato negli appunti</string>
     <string name="settings_screen_pass">4chan pass</string>
     <string name="setting_pass_token">Token</string>
     <string name="setting_pass_pin">PIN</string>
     <string name="setting_pass_authenticated">Dispositivo autorizzato!</string>
     <string name="setting_pass_login">Invia</string>
     <string name="setting_pass_logout">Logout</string>
-    <string name="setting_pass_logging_in">Loading&#8230;</string>
+    <string name="setting_pass_logging_in">Caricamento&#8230;</string>
     <string name="setting_pass_error">Errore di connessione</string>
-    <string name="setting_pass_bottom_description">\"<![CDATA[Forgot your 4chan Pass login details?<br>
-<a href=\"https://www.4chan.org/pass?reset\">Go here to reset your PIN.</a><br>
+    <string name="setting_pass_bottom_description">\"<![CDATA[Hai dimenticato i dati d'accesso del tuo 4chan Pass?<br>
+<a href=\"https://www.4chan.org/pass?reset\">Premi qui per resettare il tuo PIN.</a><br>
 <br>
-Don't have a 4chan Pass?<br>
-<a href=\"https://www.4chan.org/pass\">Tap here to learn more.</a>]]>    \"</string>
+Non hai un 4chan Pass?<br>
+<a href=\"https://www.4chan.org/pass\">Premi qui per sapere di più.</a>]]>    \"</string>
     <string name="settings_screen_theme">Temi</string>
 </resources>
