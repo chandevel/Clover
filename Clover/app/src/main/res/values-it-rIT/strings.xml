@@ -69,10 +69,10 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     </plurals>
     <plurals name="bookmark">
         <item quantity="one">%d preferito</item>
-        <item quantity="other">%d bookmarks</item>
+        <item quantity="other">%d preferiti</item>
     </plurals>
     <plurals name="filter">
-        <item quantity="one">%d filter</item>
+        <item quantity="one">%d filtro</item>
         <item quantity="other">%d filtri</item>
     </plurals>
     <plurals name="site">
@@ -447,7 +447,7 @@ If disabled, save the image with the filename the uploader assigned.\"
     <string name="setting_image_auto_load_all">Sempre</string>
     <string name="setting_image_auto_load_wifi">Solo Wi-Fi</string>
     <string name="setting_image_auto_load_none">Mai</string>
-    <string name="setting_video_auto_load">Automatically load videos</string>
+    <string name="setting_video_auto_load">Riproduci video automaticamente</string>
     <string name="setting_video_auto_loop">Enable automatic video-looping</string>
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
     <!-- Save location settings -->
@@ -465,8 +465,8 @@ Tap the toolbar menu to change its color.\"
     </string>
     <string name="setting_theme_accent">Tap here to change the FAB color</string>
     <!-- Developer settings -->
-    <string name="settings_open_logs">View logs</string>
-    <string name="settings_logs_screen">Logs</string>
+    <string name="settings_open_logs">Visualizza log</string>
+    <string name="settings_logs_screen">Log</string>
     <string name="settings_logs_copy">Copia</string>
     <string name="settings_logs_copied_to_clipboard">Copiato negli appunti</string>
     <string name="settings_screen_pass">4chan pass</string>
