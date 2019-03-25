@@ -25,6 +25,7 @@ import org.floens.chan.core.site.sites.chan8.Chan8;
 import org.floens.chan.core.site.sites.arisuchan.Arisuchan;
 import org.floens.chan.core.site.sites.sushichan.Sushichan;
 import org.floens.chan.core.site.sites.dvach.Dvach;
+import org.floens.chan.core.site.sites.wired_7.Wired_7;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class SiteRegistry {
         URL_HANDLERS.add(Arisuchan.URL_HANDLER);
         URL_HANDLERS.add(Sushichan.URL_HANDLER);
         URL_HANDLERS.add(Dvach.URL_HANDLER);
+		URL_HANDLERS.add(Wired_7.URL_HANDLER);
     }
 
     static {
@@ -56,5 +58,6 @@ public class SiteRegistry {
         SITE_CLASSES.put(3, Arisuchan.class);
         SITE_CLASSES.put(4, Sushichan.class);
         SITE_CLASSES.put(5, Dvach.class);
+		SITE_CLASSES.put(5, Wired_7.class);
     }
 }
