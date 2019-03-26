@@ -35,7 +35,7 @@ import java.util.List;
  * Registry of all sites and url handler we have.
  */
 public class SiteRegistry {
-    private static final List<SiteUrlHandler> URL_HANDLERS = new ArrayList<>();
+    public static final List<SiteUrlHandler> URL_HANDLERS = new ArrayList<>();
     public static final SparseArray<Class<? extends Site>> SITE_CLASSES = new SparseArray<>();
 
     static {
