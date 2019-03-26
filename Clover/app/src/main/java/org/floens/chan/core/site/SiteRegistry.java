@@ -25,6 +25,8 @@ import org.floens.chan.core.site.sites.chan8.Chan8;
 import org.floens.chan.core.site.sites.arisuchan.Arisuchan;
 import org.floens.chan.core.site.sites.sushichan.Sushichan;
 import org.floens.chan.core.site.sites.dvach.Dvach;
+import org.floens.chan.core.site.sites.lolifox.Lolifox;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ import java.util.List;
  * Registry of all sites and url handler we have.
  */
 public class SiteRegistry {
-    public static final List<SiteUrlHandler> URL_HANDLERS = new ArrayList<>();
+    private static final List<SiteUrlHandler> URL_HANDLERS = new ArrayList<>();
     public static final SparseArray<Class<? extends Site>> SITE_CLASSES = new SparseArray<>();
 
     static {
@@ -43,6 +45,7 @@ public class SiteRegistry {
         URL_HANDLERS.add(Arisuchan.URL_HANDLER);
         URL_HANDLERS.add(Sushichan.URL_HANDLER);
         URL_HANDLERS.add(Dvach.URL_HANDLER);
+        URL_HANDLERS.add(Lolifox.URL_HANDLER);
     }
 
     static {
