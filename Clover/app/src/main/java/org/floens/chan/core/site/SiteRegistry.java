@@ -27,7 +27,6 @@ import org.floens.chan.core.site.sites.sushichan.Sushichan;
 import org.floens.chan.core.site.sites.dvach.Dvach;
 import org.floens.chan.core.site.sites.lolifox.Lolifox;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,11 +52,11 @@ public class SiteRegistry {
         // This differs from the Site.id() id, that id is used for site instance linking, this is just to
         // find the correct class to use.
         SITE_CLASSES.put(0, Chan4.class);
-
         SITE_CLASSES.put(1, Chan8.class);
         SITE_CLASSES.put(2, Lainchan.class);
         SITE_CLASSES.put(3, Arisuchan.class);
         SITE_CLASSES.put(4, Sushichan.class);
         SITE_CLASSES.put(5, Dvach.class);
+        SITE_CLASSES.put(6, Lolifox.class);
     }
 }

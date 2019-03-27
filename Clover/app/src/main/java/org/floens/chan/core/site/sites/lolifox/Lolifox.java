@@ -46,7 +46,7 @@ public class Lolifox extends CommonSite {
 
         @Override
         public String[] getNames() {
-            return new String[]{"Lolifox"};
+            return new String[]{"lolifox"};
         }
 
         @Override
@@ -114,8 +114,8 @@ public class Lolifox extends CommonSite {
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://lolifox.org",
-                "https://lolifox.org"));
+                "https://lolifox.org/",
+                "https://lolifox.org/"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
