@@ -24,9 +24,9 @@ import com.android.volley.Response.Listener;
 
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.net.JsonReaderRequest;
-import org.floens.chan.core.site.Page;
+import org.floens.chan.core.site.parser.pageObjects.Page;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.ThreadTime;
+import org.floens.chan.core.site.parser.pageObjects.ThreadNoTimeModPair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
 
     private Page readPageEntry(JsonReader reader) throws Exception {
         int pageNo = -1;
-        List<ThreadTime> threadTimes = null;
+        List<ThreadNoTimeModPair> threadNoTimeModPairs = null;
 
         reader.beginObject();
         while(reader.hasNext()) {
@@ -60,29 +60,29 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
             if(nextName.equals("page")) {
                 pageNo = reader.nextInt();
             } else if (nextName.equals("threads")) {
-                threadTimes = readThreadTimes(reader);
+                threadNoTimeModPairs = readThreadTimes(reader);
             } else {
                 reader.skipValue();
             }
         }
         reader.endObject();
 
-        return new Page(pageNo, threadTimes);
+        return new Page(pageNo, threadNoTimeModPairs);
     }
 
-    private List<ThreadTime> readThreadTimes(JsonReader reader) throws Exception {
-        List<ThreadTime> threadTimes = new ArrayList<>();
+    private List<ThreadNoTimeModPair> readThreadTimes(JsonReader reader) throws Exception {
+        List<ThreadNoTimeModPair> threadNoTimeModPairs = new ArrayList<>();
 
         reader.beginArray();
         while(reader.hasNext()) {
-            threadTimes.add(readThreadTime(reader));
+            threadNoTimeModPairs.add(readThreadTime(reader));
         }
         reader.endArray();
 
-        return threadTimes;
+        return threadNoTimeModPairs;
     }
 
-    private ThreadTime readThreadTime(JsonReader reader) throws Exception {
+    private ThreadNoTimeModPair readThreadTime(JsonReader reader) throws Exception {
         int no = -1;
         long modified = -1;
 
@@ -99,6 +99,6 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         }
         reader.endObject();
 
-        return new ThreadTime(no, modified);
+        return new ThreadNoTimeModPair(no, modified);
     }
 }

@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site;
+package org.floens.chan.core.site.parser.pageObjects;
 
 import java.util.List;
 
-public class Pages {
-    public final List<Page> pages;
+public class Page {
+    public final int page;
+    public final List<ThreadNoTimeModPair> threads;
 
-    public Pages(List<Page> pages) {
-        this.pages = pages;
+    public Page(int page, List<ThreadNoTimeModPair> threads) {
+        this.page = page;
+        this.threads = threads;
     }
 }

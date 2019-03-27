@@ -22,7 +22,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.text.SpannableString;
-import android.text.TextUtils;
+import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.View;
@@ -33,7 +33,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
-import org.floens.chan.core.site.Page;
+import org.floens.chan.core.site.parser.pageObjects.Page;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 
@@ -101,27 +101,25 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             boolean update = false;
 
-            String statusText = "";
+            SpannableStringBuilder builder = new SpannableStringBuilder();
 
             if (chanThread.archived) {
-                statusText += getContext().getString(R.string.thread_archived);
+                builder.append(getContext().getString(R.string.thread_archived));
             } else if (chanThread.closed) {
-                statusText += getContext().getString(R.string.thread_closed);
+                builder.append(getContext().getString(R.string.thread_closed));
             }
 
             if (!chanThread.archived && !chanThread.closed) {
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
-                    statusText += getContext().getString(R.string.thread_refresh_bar_inactive);
+                    builder.append(getContext().getString(R.string.thread_refresh_bar_inactive));
                 } else if (time <= 0) {
-                    statusText += getContext().getString(R.string.thread_refresh_now);
+                    builder.append(getContext().getString(R.string.thread_refresh_now));
                 } else {
-                    statusText += getContext().getString(R.string.thread_refresh_countdown, time);
+                    builder.append(getContext().getString(R.string.thread_refresh_countdown, time));
                 }
                 update = true;
             }
-
-            CharSequence finalText = statusText;
 
             Post op = chanThread.op;
             Board board = op.board;
@@ -142,30 +140,29 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
                     }
 
-                    finalText = TextUtils.concat(statusText, "\n", replies, " / ", images);
+                    builder.append('\n').append(replies).append(" / ").append(images);
 
                     if (op.getUniqueIps() >= 0) {
                         String ips = op.getUniqueIps() + "P";
-                        finalText = TextUtils.concat(finalText, " / " + ips);
+                        builder.append(" / ").append(ips);
                     }
 
+                    builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ');
+
                     Page p = callback.getPage(op);
-                    String page = getContext().getString(R.string.thread_page_no) + " ";
-                    SpannableString pageS;
                     if (p != null) {
-                        page = page + String.valueOf(p.page);
-                        pageS = new SpannableString(page);
+                        SpannableString page = new SpannableString(String.valueOf(p.page));
                         if (p.page >= board.pages) {
-                            pageS.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
+                            page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
                         }
+                        builder.append(page);
                     } else {
-                        pageS = new SpannableString(page + "?");
+                        builder.append('?');
                     }
-                    finalText = TextUtils.concat(finalText, " / ", pageS);
                 }
             }
 
-            text.setText(finalText);
+            text.setText(builder);
 
             return update;
         }
