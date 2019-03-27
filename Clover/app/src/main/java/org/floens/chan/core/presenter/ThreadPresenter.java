@@ -36,7 +36,7 @@ import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.manager.PageRequestManager;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.Page;
+import org.floens.chan.core.site.parser.pageObjects.Page;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.http.DeleteRequest;
@@ -646,6 +646,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     public void requestNewPostLoad() {
         if (loadable != null && loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
+            pageRequestManager.forceUpdateForBoard(loadable.board);
         }
     }
 

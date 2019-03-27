@@ -26,6 +26,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
+import org.floens.chan.core.site.parser.pageObjects.Pages;
 
 public interface SiteActions {
     void boards(BoardsListener boardsListener);
