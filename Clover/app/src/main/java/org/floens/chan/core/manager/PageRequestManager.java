@@ -17,13 +17,16 @@
  */
 package org.floens.chan.core.manager;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.site.Page;
-import org.floens.chan.core.site.Pages;
+import org.floens.chan.core.site.parser.pageObjects.Page;
+import org.floens.chan.core.site.parser.pageObjects.Pages;
 import org.floens.chan.core.site.SiteActions;
-import org.floens.chan.core.site.ThreadTime;
+import org.floens.chan.core.site.parser.pageObjects.ThreadNoTimeModPair;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -40,6 +43,8 @@ import javax.inject.Singleton;
 @Singleton
 public class PageRequestManager implements SiteActions.PagesListener {
     private static final String TAG = "PageRequestManager";
+    private static final int THREE_MINUTES = 3 * 60 * 1000;
+    private static final int THIRTY_SECONDS = 30 * 1000;
 
     private Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());
     private Set<String> savedBoards = Collections.synchronizedSet(new HashSet<>());
@@ -56,34 +61,28 @@ public class PageRequestManager implements SiteActions.PagesListener {
         if (op == null) {
             return null;
         }
-        Pages pages = getPages(op.board);
-        if (pages == null) {
-            return null;
-        } else {
-            for (Page page : pages.pages) {
-                for (ThreadTime threadTime : page.threads) {
-                    if (op.no == threadTime.no) {
-                        return page;
-                    }
-                }
-            }
-        }
-        return null;
+        return findPage(op.board, op.no);
     }
 
     public Page getPage(Loadable opLoadable) {
         if (opLoadable == null) {
             return null;
         }
-        Pages pages = getPages(opLoadable.board);
-        if (pages == null) {
-            return null;
-        } else {
-            for (Page page : pages.pages) {
-                for (ThreadTime threadTime : page.threads) {
-                    if (opLoadable.no == threadTime.no) {
-                        return page;
-                    }
+        return findPage(opLoadable.board, opLoadable.no);
+    }
+
+    public void forceUpdateForBoard(Board b) {
+        Handler mainThread = new Handler(Looper.getMainLooper());
+        mainThread.postDelayed(() -> shouldUpdate(b, true), THIRTY_SECONDS);
+    }
+
+    private Page findPage(Board board, int opNo) {
+        Pages pages = getPages(board);
+        if (pages == null) return null;
+        for (Page page : pages.pages) {
+            for (ThreadNoTimeModPair threadNoTimeModPair : page.threads) {
+                if (opNo == threadNoTimeModPair.no) {
+                    return page;
                 }
             }
         }
@@ -94,20 +93,21 @@ public class PageRequestManager implements SiteActions.PagesListener {
         if (savedBoards.contains(b.code)) {
             //if we have it stored already, return the pages for it
             //also issue a new request if 3 minutes have passed
-            long lastUpdateTime = boardTimeMap.get(b.code);
-            if (lastUpdateTime + 3 * 1000 * 60 > System.currentTimeMillis()) {
-                //this will spam the log if you turn it on
-                //Logger.w(TAG, "Too early to request pages for this board");
-            } else {
-                Logger.d(TAG, "Requesting existing board pages, timeout");
-                requestBoard(b);
-            }
+            shouldUpdate(b, false);
             return boardPagesMap.get(b.code);
         } else {
             //otherwise, get the site for the board and request the pages for it
             Logger.d(TAG, "Requesting new board pages");
             requestBoard(b);
             return null;
+        }
+    }
+
+    private void shouldUpdate(Board b, boolean forceUpdate) {
+        long lastUpdateTime = boardTimeMap.get(b.code);
+        if (lastUpdateTime + THREE_MINUTES <= System.currentTimeMillis() || forceUpdate) {
+            Logger.d(TAG, "Requesting existing board pages, " + (forceUpdate ? "forced update" : "timeout"));
+            requestBoard(b);
         }
     }
 

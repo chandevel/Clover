@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site;
+package org.floens.chan.core.site.parser.pageObjects;
 
-public class ThreadTime {
+public class ThreadNoTimeModPair {
     public final int no;
     public final long modified;
 
-    public ThreadTime(int no, long modified) {
+    public ThreadNoTimeModPair(int no, long modified) {
         this.no = no;
         this.modified = modified;
     }
