@@ -242,7 +242,8 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copiar texto</string>
     <string name="post_report">Reportar</string>
     <string name="post_hide">Ocultar</string>
-    <string name="post_hidden">Hilo Oculto</string>
+    <string name="post_hidden">%1$d mensajes ocultos</string>
+    <string name="thread_hidden">Hilo oculto</string>
     <string name="post_delete">Eliminar</string>
     <string name="post_more">Más…</string>
     <string name="reply_name">Nombre</string>
@@ -486,4 +487,5 @@ Don't have a 4chan Pass?<br>
 ]]>
     "</string>
     <string name="settings_screen_theme">Temas</string>
+    <string name="cant_hide_op_post_from_thread_message">No puedes ocultar una publicación OP de un hilo. Puedes hacerlo desde el catálogo.</string>
 </resources>

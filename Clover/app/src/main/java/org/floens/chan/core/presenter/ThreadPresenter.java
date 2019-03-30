@@ -53,7 +53,9 @@ import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -456,9 +458,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        if (!loadable.isThreadMode()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
-        }
+        menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
 
         if (loadable.getSite().feature(Site.Feature.POST_REPORT)) {
             menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
@@ -550,8 +550,24 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 AndroidUtils.shareLink(url);
                 break;
             }
-            case POST_OPTION_HIDE:
-                threadPresenterCallback.hideThread(post);
+            case POST_OPTION_HIDE: {
+                int currentMode = chanLoader.getThread().loadable.mode;
+
+                if (currentMode == Loadable.Mode.CATALOG) {
+                    // when we are in the catalog we can hide threads
+                    threadPresenterCallback.hideThread(post);
+                } else if (currentMode == Loadable.Mode.THREAD) {
+                    // when we are in a thread we can't hide threads so we should disable this ability
+                    // for an OP post
+                    if (post.isOP) {
+                        threadPresenterCallback.showCantHideOpFromFromThreadMessage();
+                    } else {
+                        //TODO: do the searching on a background thread?
+                        Set<Post> posts = findPostWithReplies(post.no);
+                        threadPresenterCallback.hidePosts(posts);
+                    }
+                }
+            }
         }
     }
 
@@ -731,6 +747,32 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         return null;
     }
 
+    private Set<Post> findPostWithReplies(int id) {
+        Set<Post> postsSet = new HashSet<>();
+        ChanThread thread = chanLoader.getThread();
+        if (thread == null) {
+            return postsSet;
+        }
+
+        findPostWithRepliesRecursive(id, thread, postsSet);
+        return postsSet;
+    }
+
+    /**
+     * Finds a post by it's id and then finds all posts that has replied to this post recursively
+     */
+    private void findPostWithRepliesRecursive(int id, ChanThread thread, Set<Post> postsSet) {
+        for (Post post : thread.posts) {
+            if (post.no == id && !postsSet.contains(post)) {
+                postsSet.add(post);
+
+                for (Integer replyId : post.repliesFrom) {
+                    findPostWithRepliesRecursive(replyId, thread, postsSet);
+                }
+            }
+        }
+    }
+
     private void showPosts() {
         threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
     }
@@ -809,6 +851,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void hideThread(Post post);
 
+        void hidePosts(Set<Post> posts);
+
         void showNewPostsNotification(boolean show, int more);
+
+        void showCantHideOpFromFromThreadMessage();
     }
 }

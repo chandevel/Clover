@@ -163,7 +163,7 @@ public class DatabaseManager {
             o += "Pin rows: " + helper.pinDao.countOf() + "\n";
             o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
             o += "Board rows: " + helper.boardsDao.countOf() + "\n";
-            o += "ThreadHide rows: " + helper.threadHideDao.countOf() + "\n";
+            o += "PostHide rows: " + helper.postHideDao.countOf() + "\n";
             o += "History rows: " + helper.historyDao.countOf() + "\n";
             o += "Filter rows: " + helper.filterDao.countOf() + "\n";
             o += "Site rows: " + helper.siteDao.countOf() + "\n";

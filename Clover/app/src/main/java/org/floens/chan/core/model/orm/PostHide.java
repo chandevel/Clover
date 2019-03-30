@@ -22,8 +22,8 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import org.floens.chan.core.model.Post;
 
-@DatabaseTable(tableName = "threadhide")
-public class ThreadHide {
+@DatabaseTable(tableName = "posthide")
+public class PostHide {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -36,14 +36,21 @@ public class ThreadHide {
     @DatabaseField
     public int no;
 
-    public ThreadHide() {
+    /**
+     * Indicates whether we should hide the whole thread or just a single post (when hiding OP post)
+     * */
+    @DatabaseField(columnName = "whole_thread")
+    public boolean wholeThread;
+
+    public PostHide() {
     }
 
-    public static ThreadHide fromPost(Post post) {
-        ThreadHide hide = new ThreadHide();
+    public static PostHide fromPost(Post post, Boolean wholeThread) {
+        PostHide hide = new PostHide();
         hide.board = post.board.code;
         hide.no = post.no;
         hide.site = post.board.siteId;
+        hide.wholeThread = wholeThread;
         return hide;
     }
 
@@ -52,7 +59,7 @@ public class ThreadHide {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ThreadHide that = (ThreadHide) o;
+        PostHide that = (PostHide) o;
 
         return no == that.no && board.equals(that.board) && site == that.site;
     }
