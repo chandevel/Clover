@@ -267,6 +267,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="post_hide">Скрыть</string>
   <plurals name="post_hidden">
     <item quantity="one">%1$d пост скрыт</item>
+    <item quantity="two">%1$d поста скрыто</item>
     <item quantity="few">%1$d постов скрыто</item>
     <item quantity="many">%1$d постов скрыто</item>
     <item quantity="other">%1$d постов скрыто</item>
