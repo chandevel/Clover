@@ -60,6 +60,16 @@ public class DatabasePinManager {
         };
     }
 
+    public Callable<Void> deletePins(final List<Pin> pins) {
+        return () -> {
+            for (Pin pin : pins) {
+                helper.pinDao.delete(pin);
+            }
+
+            return null;
+        };
+    }
+
     public Callable<Pin> updatePin(final Pin pin) {
         return new Callable<Pin>() {
             @Override

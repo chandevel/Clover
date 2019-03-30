@@ -168,6 +168,10 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         setPinIconState(true);
     }
 
+    public void onEvent(WatchManager.AllPinsRemovedMessage message) {
+        setPinIconState(true);
+    }
+
     public void onEvent(WatchManager.PinChangedMessage message) {
         setPinIconState(false);
         // Update title

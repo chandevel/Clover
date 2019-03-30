@@ -224,6 +224,23 @@ public class WatchManager {
         EventBus.getDefault().post(new PinRemovedMessage(pin));
     }
 
+    public void deletePins(List<Pin> pinList) {
+        for (Pin pin : pinList) {
+            pins.remove(pin);
+            destroyPinWatcher(pin);
+        }
+
+        databaseManager.runTask(databasePinManager.deletePins(pinList));
+
+        // Update the new orders
+        sortListAndApplyOrders();
+        updatePinsInDatabase();
+
+        updateState();
+
+        EventBus.getDefault().post(new AllPinsRemovedMessage());
+    }
+
     public void updatePin(Pin pin) {
         databaseManager.runTask(databasePinManager.updatePin(pin));
 
@@ -381,10 +398,7 @@ public class WatchManager {
             undo.add(pin.copy());
         }
 
-        for (int i = 0; i < toRemove.size(); i++) {
-            Pin pin = toRemove.get(i);
-            deletePin(pin);
-        }
+        deletePins(toRemove);
 
         return undo;
     }
@@ -658,6 +672,10 @@ public class WatchManager {
         public PinRemovedMessage(Pin pin) {
             this.pin = pin;
         }
+    }
+
+    public static class AllPinsRemovedMessage {
+
     }
 
     public static class PinChangedMessage {

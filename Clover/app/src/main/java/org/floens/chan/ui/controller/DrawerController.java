@@ -251,6 +251,11 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         updateBadge();
     }
 
+    public void onEvent(WatchManager.AllPinsRemovedMessage message) {
+        drawerAdapter.onAllPinsRemoved();
+        updateBadge();
+    }
+
     public void onEvent(WatchManager.PinChangedMessage message) {
         drawerAdapter.onPinChanged(recyclerView, message.pin);
         updateBadge();
