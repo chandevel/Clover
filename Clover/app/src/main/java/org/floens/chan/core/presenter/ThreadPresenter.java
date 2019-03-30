@@ -463,10 +463,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
         }
 
-        menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+        if (loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP)) {
+            menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+        }
 
         if (loadable.isThreadMode()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_HIDE_WHOLE_CHAIN, R.string.post_hide_whole_chain));
+            if (!post.isOP && post.repliesFrom.size() > 0) {
+                menu.add(new FloatingMenuItem(POST_OPTION_HIDE_WHOLE_CHAIN, R.string.post_hide_whole_chain));
+            }
 
             if (!TextUtils.isEmpty(post.id)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
