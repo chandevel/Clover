@@ -97,6 +97,10 @@ public class DatabaseHideManager {
 
     public Callable<Void> addThreadHide(PostHide hide) {
         return () -> {
+            if (contains(hide)) {
+                return null;
+            }
+
             helper.postHideDao.createIfNotExists(hide);
 
             return null;
@@ -106,6 +110,10 @@ public class DatabaseHideManager {
     public Callable<Void> addPostsHide(List<PostHide> hideList) {
         return () -> {
             for (PostHide postHide : hideList) {
+                if (contains(postHide)) {
+                    continue;
+                }
+
                 helper.postHideDao.createIfNotExists(postHide);
             }
 
@@ -129,6 +137,19 @@ public class DatabaseHideManager {
 
             return null;
         };
+    }
+
+    private boolean contains(PostHide hide) throws SQLException {
+        PostHide inDb = helper.postHideDao.queryBuilder().where()
+                .eq(PostHide.NO_COLUMN_NAME, hide.no)
+                .and()
+                .eq(PostHide.SITE_COLUMN_NAME, hide.site)
+                .and()
+                .eq(PostHide.BOARD_COLUMN_NAME, hide.board)
+                .queryForFirst();
+
+        //if this thread is already hidden - do nothing
+        return inDb != null;
     }
 
     public Callable<Void> clearAllThreadHides() {
