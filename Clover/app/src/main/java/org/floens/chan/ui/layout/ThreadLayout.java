@@ -497,7 +497,9 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         presenter.refreshUI();
 
-        String formattedString = String.format(getResources().getQuantityString(R.plurals.post_hidden, posts.size()), posts.size());
+        String formattedString = String.format(
+                getResources().getQuantityString(R.plurals.post_hidden, posts.size()), posts.size()
+        );
 
         Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, new OnClickListener() {

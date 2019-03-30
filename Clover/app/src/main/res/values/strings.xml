@@ -279,6 +279,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
+    <string name="post_hide_whole_chain">Hide whole chain</string>
     <plurals name="post_hidden">
         <item quantity="one">%1$d post hidden</item>
         <item quantity="other">%1$d posts hidden</item>

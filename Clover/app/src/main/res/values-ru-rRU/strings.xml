@@ -527,4 +527,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     \"</string>
   <string name="settings_screen_theme">Темы</string>
     <string name="cant_hide_op_post_from_thread_message">Нельзя скрыть ОП пост из треда. Его можно скрыть находясь в каталоге тредов</string>
+  <string name="post_hide_whole_chain">Скрыть всю цепочку</string>
 </resources>

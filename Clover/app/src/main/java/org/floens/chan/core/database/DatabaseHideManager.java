@@ -97,7 +97,7 @@ public class DatabaseHideManager {
 
     public Callable<Void> addThreadHide(PostHide hide) {
         return () -> {
-            helper.postHideDao.create(hide);
+            helper.postHideDao.createIfNotExists(hide);
 
             return null;
         };
@@ -106,7 +106,7 @@ public class DatabaseHideManager {
     public Callable<Void> addPostsHide(List<PostHide> hideList) {
         return () -> {
             for (PostHide postHide : hideList) {
-                helper.postHideDao.create(postHide);
+                helper.postHideDao.createIfNotExists(postHide);
             }
 
             return null;

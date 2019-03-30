@@ -78,6 +78,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     private static final int POST_OPTION_OPEN_BROWSER = 13;
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
+    private static final int POST_OPTION_HIDE_WHOLE_CHAIN = 16;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private WatchManager watchManager;
@@ -458,13 +459,15 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
-
         if (loadable.getSite().feature(Site.Feature.POST_REPORT)) {
             menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
         }
 
+        menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+
         if (loadable.isThreadMode()) {
+            menu.add(new FloatingMenuItem(POST_OPTION_HIDE_WHOLE_CHAIN, R.string.post_hide_whole_chain));
+
             if (!TextUtils.isEmpty(post.id)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
             }
@@ -550,6 +553,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 AndroidUtils.shareLink(url);
                 break;
             }
+            case POST_OPTION_HIDE_WHOLE_CHAIN:
             case POST_OPTION_HIDE: {
                 int currentMode = chanLoader.getThread().loadable.mode;
 
@@ -562,8 +566,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                     if (post.isOP) {
                         threadPresenterCallback.showCantHideOpFromFromThreadMessage();
                     } else {
-                        //TODO: do the searching on a background thread?
-                        Set<Post> posts = findPostWithReplies(post.no);
+                        Set<Post> posts = new HashSet<>();
+
+                        if ((int) id == POST_OPTION_HIDE_WHOLE_CHAIN) {
+                            posts.addAll(findPostWithReplies(post.no));
+                        } else {
+                            posts.add(findPostById(post.no));
+                        }
+
                         threadPresenterCallback.hidePosts(posts);
                     }
                 }
@@ -761,6 +771,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     /**
      * Finds a post by it's id and then finds all posts that has replied to this post recursively
      */
+    //TODO: do the searching on a background thread?
     private void findPostWithRepliesRecursive(int id, ChanThread thread, Set<Post> postsSet) {
         for (Post post : thread.posts) {
             if (post.no == id && !postsSet.contains(post)) {
