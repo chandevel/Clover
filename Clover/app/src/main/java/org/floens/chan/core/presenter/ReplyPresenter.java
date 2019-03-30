@@ -17,7 +17,6 @@
  */
 package org.floens.chan.core.presenter;
 
-import android.net.Uri;
 import android.text.TextUtils;
 
 import org.floens.chan.R;
@@ -39,8 +38,6 @@ import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.helper.ImagePickDelegate;
-import org.floens.chan.utils.IOUtils;
-import org.floens.chan.utils.ImageOrientationUtil;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;
@@ -179,10 +176,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (!pickingFile) {
             if (previewOpen) {
                 callback.openPreview(false, null);
-                //delete temp files
-                if (draft.file.getAbsolutePath().contains("cache/image")) {
-                    draft.file.delete();
-                }
                 draft.file = null;
                 draft.fileName = "";
                 if (moreOpen) {
@@ -235,11 +228,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     loadable.site, loadable.board, replyResponse.postNo, replyResponse.password);
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
                     .saveReply(savedReply));
-
-            //delete temp files
-            if (draft.file.getAbsolutePath().contains("cache/image")) {
-                draft.file.delete();
-            }
 
             switchPage(Page.INPUT, false);
             closeAll();
@@ -374,16 +362,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onFilePicked(String name, File file) {
         pickingFile = false;
+        draft.file = file;
         draft.fileName = name;
-        try {
-            File fixed = ImageOrientationUtil.getFixedFile(file);
-            draft.file = fixed;
-        } catch (Exception e) {
-            Logger.d(TAG, "File picked wasn't fixed");
-            draft.file = file;
-        }
-
-        showPreview(draft.fileName, draft.file);
+        showPreview(name, file);
     }
 
     @Override
