@@ -17,11 +17,18 @@
  */
 package org.floens.chan.utils;
 
+import android.os.Looper;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BackgroundUtils {
+
+    public static boolean isMainThread() {
+        return Thread.currentThread() == Looper.getMainLooper().getThread();
+    }
+
     public static <T> Cancelable runWithExecutor(Executor executor, final Callable<T> background,
                                                  final BackgroundResult<T> result) {
         final AtomicBoolean cancelled = new AtomicBoolean(false);
@@ -54,6 +61,25 @@ public class BackgroundUtils {
                             }
                         });
                     }
+                }
+            }
+        });
+
+        return cancelable;
+    }
+
+    public static Cancelable runWithExecutor(Executor executor, final Runnable background) {
+        final AtomicBoolean cancelled = new AtomicBoolean(false);
+        Cancelable cancelable = () -> cancelled.set(true);
+
+        executor.execute(() -> {
+            if (!cancelled.get()) {
+                try {
+                    background.run();
+                } catch (final Exception e) {
+                    AndroidUtils.runOnUiThread(() -> {
+                        throw new RuntimeException(e);
+                    });
                 }
             }
         });

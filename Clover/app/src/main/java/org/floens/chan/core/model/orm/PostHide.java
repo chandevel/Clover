@@ -20,20 +20,21 @@ package org.floens.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.model.Post;
 
-@DatabaseTable(tableName = "posthide")
+@DatabaseTable(tableName = DatabaseHelper.POST_HIDE_TABLE_NAME)
 public class PostHide {
     @DatabaseField(generatedId = true)
     public int id;
 
-    @DatabaseField(columnName = "site")
+    @DatabaseField(columnName = SITE_COLUMN_NAME)
     public int site;
 
-    @DatabaseField
+    @DatabaseField(columnName = BOARD_COLUMN_NAME)
     public String board;
 
-    @DatabaseField
+    @DatabaseField(columnName = NO_COLUMN_NAME)
     public int no;
 
     /**
@@ -41,6 +42,10 @@ public class PostHide {
      * */
     @DatabaseField(columnName = "whole_thread")
     public boolean wholeThread;
+
+    public static final String SITE_COLUMN_NAME = "site";
+    public static final String BOARD_COLUMN_NAME = "board";
+    public static final String NO_COLUMN_NAME = "no";
 
     public PostHide() {
     }
@@ -68,6 +73,7 @@ public class PostHide {
     public int hashCode() {
         int result = board.hashCode();
         result = 31 * result + no;
+        result = 31 * result + site;
         return result;
     }
 

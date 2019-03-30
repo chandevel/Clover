@@ -26,6 +26,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -55,9 +56,12 @@ import org.floens.chan.ui.view.FastScroller;
 import org.floens.chan.ui.view.FastScrollerHelper;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.BackgroundUtils;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 import static org.floens.chan.utils.AndroidUtils.dp;
@@ -87,6 +91,14 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private int lastPostCount;
 
     private Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    @Nullable
+    private BackgroundUtils.Cancelable cancelable = null;
+
+    /**
+     * Executor for filtering out hidden posts since now it checks for them directly from the DB
+     * */
+    private Executor executor = Executors.newSingleThreadExecutor();
 
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -255,7 +267,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         setFastScroll(true);
 
-        postAdapter.setThread(thread, filter);
+        cancelable = BackgroundUtils.runWithExecutor(executor, () -> {
+            postAdapter.setThread(thread, filter);
+        });
     }
 
     public boolean onBack() {
@@ -423,6 +437,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     public void cleanup() {
+        if (cancelable != null) {
+            cancelable.cancel();
+            cancelable = null;
+        }
+
         postAdapter.cleanup();
         reply.cleanup();
         openReply(false);
