@@ -40,12 +40,13 @@ public class PostHide {
     /**
      * Indicates whether we should hide the whole thread or just a single post (when hiding OP post)
      * */
-    @DatabaseField(columnName = "whole_thread")
+    @DatabaseField(columnName = WHOLE_THREAD_COLUMN_NAME)
     public boolean wholeThread;
 
     public static final String SITE_COLUMN_NAME = "site";
     public static final String BOARD_COLUMN_NAME = "board";
     public static final String NO_COLUMN_NAME = "no";
+    public static final String WHOLE_THREAD_COLUMN_NAME = "whole_thread";
 
     public PostHide() {
     }
