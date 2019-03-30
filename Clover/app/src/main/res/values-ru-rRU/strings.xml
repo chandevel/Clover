@@ -265,8 +265,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="post_copy_text">Скопировать текст</string>
   <string name="post_report">Пожаловаться</string>
   <string name="post_hide">Скрыть</string>
-  <string name="post_hidden">%1$d постов скрыто</string>
-  <string name="thread_hidden">Тред скрыт</string>
+  <plurals name="post_hidden">
+    <item quantity="one">%1$d пост скрыт</item>
+    <item quantity="few">%1$d постов скрыто</item>
+    <item quantity="many">%1$d постов скрыто</item>
+    <item quantity="other">%1$d постов скрыто</item>
+  </plurals>  <string name="thread_hidden">Тред скрыт</string>
   <string name="post_delete">Удалить</string>
   <string name="post_more">Ещё…</string>
   <string name="reply_name">Имя</string>
