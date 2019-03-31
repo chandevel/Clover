@@ -42,8 +42,8 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -234,9 +234,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             presenter.onAttachClicked();
         } else if (v == submit) {
             presenter.onSubmitClicked();
-        }/* else if (v == preview) {
-            // TODO
-        }*/ else if (v == captchaHardReset) {
+        } else if (v == preview) {
+            callback.showImageReencodingWindow();
+        } else if (v == captchaHardReset) {
             if (authenticationLayout != null) {
                 authenticationLayout.hardReset();
             }
@@ -547,5 +547,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         void requestNewPostLoad();
 
         ChanThread getThread();
+
+        void showImageReencodingWindow();
     }
 }

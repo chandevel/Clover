@@ -540,6 +540,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         return showingThread;
     }
 
+    @Override
+    public void showImageReencodingWindow() {
+        threadListLayoutCallback.showImageReencodingWindow();
+    }
+
     public int[] getIndexAndTop() {
         int index = 0;
         int top = 0;
@@ -707,5 +712,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         Toolbar getToolbar();
 
         boolean shouldToolbarCollapse();
+
+        void showImageReencodingWindow();
     }
 }
