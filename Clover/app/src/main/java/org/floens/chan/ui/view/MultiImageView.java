@@ -106,6 +106,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private SimpleExoPlayer exoPlayer;
 
     private boolean backgroundToggle;
+    private int degRot;
 
     public MultiImageView(Context context) {
         this(context, null);
@@ -539,6 +540,22 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             }
             backgroundToggle = true;
         }
+    }
+
+    public void rotateImageCCW() {
+        degRot += 90;
+        degRot = degRot % 360;
+        CustomScaleImageView imageView = findScaleImageView();
+        if(imageView == null) return;
+        imageView.setRotation(-degRot);
+    }
+
+    public void rotateImageCW() {
+        degRot += 90;
+        degRot = degRot % 360;
+        CustomScaleImageView imageView = findScaleImageView();
+        if(imageView == null) return;
+        imageView.setRotation(degRot);
     }
 
     private void cleanupVideo(PlayerView videoView) {

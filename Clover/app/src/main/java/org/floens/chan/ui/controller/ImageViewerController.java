@@ -39,6 +39,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -135,6 +136,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
         overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
+        overflowBuilder.withSubItem(R.string.action_image_rotate_cw,this::rotateImageCW);
+        overflowBuilder.withSubItem(R.string.action_image_rotate_ccw,this::rotateImageCCW);
 
         overflowBuilder.build().build();
 
@@ -211,6 +214,14 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private void toggleTransparency(ToolbarMenuSubItem item) {
         ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
+    }
+
+    private void rotateImageCW(ToolbarMenuSubItem item) {
+        ((ImageViewerAdapter) pager.getAdapter()).rotateImageCW(presenter.getCurrentPostImage());
+    }
+
+    private void rotateImageCCW(ToolbarMenuSubItem item) {
+        ((ImageViewerAdapter) pager.getAdapter()).rotateImageCCW(presenter.getCurrentPostImage());
     }
 
     @Override

@@ -121,6 +121,16 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
         view.toggleTransparency();
     }
 
+    public void rotateImageCCW(PostImage postImage) {
+        MultiImageView view = find(postImage);
+        view.rotateImageCCW();
+    }
+
+    public void rotateImageCW(PostImage postImage) {
+        MultiImageView view = find(postImage);
+        view.rotateImageCW();
+    }
+
     private static class ModeChange {
         public MultiImageView.Mode mode;
         public PostImage postImage;
