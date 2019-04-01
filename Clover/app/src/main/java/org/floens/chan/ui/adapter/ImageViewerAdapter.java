@@ -116,14 +116,9 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
         return null;
     }
 
-    public void rotateImageCCW(PostImage postImage) {
+    public void rotateImage(PostImage postImage, boolean CW) {
         MultiImageView view = find(postImage);
-        view.rotateImageCCW();
-    }
-
-    public void rotateImageCW(PostImage postImage) {
-        MultiImageView view = find(postImage);
-        view.rotateImageCW();
+        view.rotateImage(CW);
     }
 
     private static class ModeChange {

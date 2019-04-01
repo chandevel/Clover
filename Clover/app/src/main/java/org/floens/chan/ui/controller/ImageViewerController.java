@@ -134,8 +134,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
         overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
-        overflowBuilder.withSubItem(R.string.action_image_rotate_cw,this::rotateImageCW);
-        overflowBuilder.withSubItem(R.string.action_image_rotate_ccw,this::rotateImageCCW);
+        overflowBuilder.withSubItem(R.string.action_image_rotate_cw, this::rotateImageCW);
+        overflowBuilder.withSubItem(R.string.action_image_rotate_ccw, this::rotateImageCCW);
 
         overflowBuilder.build().build();
 
@@ -211,11 +211,11 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void rotateImageCW(ToolbarMenuSubItem item) {
-        ((ImageViewerAdapter) pager.getAdapter()).rotateImageCW(presenter.getCurrentPostImage());
+        ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), true);
     }
 
     private void rotateImageCCW(ToolbarMenuSubItem item) {
-        ((ImageViewerAdapter) pager.getAdapter()).rotateImageCCW(presenter.getCurrentPostImage());
+        ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(), false);
     }
 
     @Override

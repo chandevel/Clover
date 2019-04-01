@@ -36,6 +36,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
@@ -101,8 +102,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private boolean videoError = false;
     private MediaPlayer mediaPlayer;
     private SimpleExoPlayer exoPlayer;
-
-    private int degRot;
 
     public MultiImageView(Context context) {
         this(context, null);
@@ -505,20 +504,47 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         mediaPlayer = null;
     }
 
-    public void rotateImageCCW() {
-        degRot += 90;
-        degRot = degRot % 360;
+    public void rotateImage(boolean CW) {
         CustomScaleImageView imageView = findScaleImageView();
-        if(imageView == null) return;
-        imageView.setRotation(-degRot);
-    }
-
-    public void rotateImageCW() {
-        degRot += 90;
-        degRot = degRot % 360;
-        CustomScaleImageView imageView = findScaleImageView();
-        if(imageView == null) return;
-        imageView.setRotation(degRot);
+        if (imageView == null) return;
+        //swap the current scale to the opposite one every 90 degree increment
+        //0 degrees is X scale, 90 is Y, 180 is X, 270 is Y
+        float curScale = imageView.getScale();
+        float scaleX = imageView.getWidth() / (float) imageView.getSWidth();
+        float scaleY = imageView.getHeight() / (float) imageView.getSHeight();
+        imageView.setScaleAndCenter(curScale == scaleX ? scaleY : scaleX, imageView.getCenter());
+        //apply the rotation through orientation rather than rotation, as
+        //orientation is internal to the subsamplingimageview's internal bitmap while rotation is on the entire view
+        switch (imageView.getAppliedOrientation()) {
+            case SubsamplingScaleImageView.ORIENTATION_0:
+                if (CW) {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_90);
+                } else {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_270);
+                }
+                break;
+            case SubsamplingScaleImageView.ORIENTATION_90:
+                if (CW) {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_180);
+                } else {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
+                }
+                break;
+            case SubsamplingScaleImageView.ORIENTATION_180:
+                if (CW) {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_270);
+                } else {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_90);
+                }
+                break;
+            case SubsamplingScaleImageView.ORIENTATION_270:
+                if (CW) {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
+                } else {
+                    imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_180);
+                }
+                break;
+        }
     }
 
     private void cleanupVideo(PlayerView videoView) {
