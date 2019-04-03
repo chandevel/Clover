@@ -122,6 +122,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public void unbindLoadable() {
         bound = false;
+        //delete temp files
+        if (draft.file.getAbsolutePath().contains("cache/image")) {
+            draft.file.delete();
+        }
         draft.file = null;
         draft.fileName = "";
         callback.loadViewsIntoDraft(draft);
