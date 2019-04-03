@@ -43,7 +43,8 @@ public class Reply {
     public String options = "";
     public String subject = "";
     public String comment = "";
-    public int selection;
+    public int selectionStart;
+    public int selectionEnd;
     public boolean spoilerImage = false;
     public String password = "";
 }
