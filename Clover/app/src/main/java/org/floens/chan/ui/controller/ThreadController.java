@@ -182,7 +182,7 @@ public abstract class ThreadController extends Controller implements
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {
         // Just ignore the showImages request when the image is not loaded
-        if (thumbnail.getBitmap() != null) {
+        if (thumbnail.getBitmap() != null && !isAlreadyPresenting()) {
             final ImageViewerNavigationController imageViewerNavigationController = new ImageViewerNavigationController(context);
             presentController(imageViewerNavigationController, false);
             imageViewerNavigationController.showImages(images, index, loadable, this);
