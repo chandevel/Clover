@@ -125,8 +125,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public void unbindLoadable() {
         bound = false;
-        //delete temp files
-        if (draft.file.getAbsolutePath().contains("cache/image")) {
+        //delete temp files, check for nulls because this method gets called a few times
+        if (draft != null && draft.file != null && draft.file.getAbsolutePath().contains("cache/image")) {
             draft.file.delete();
         }
         draft.file = null;
@@ -240,7 +240,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
                     .saveReply(savedReply));
 
-            //delete temp files
+            //delete temp files before making a new draft
             if (draft.file.getAbsolutePath().contains("cache/image")) {
                 draft.file.delete();
             }
@@ -380,10 +380,15 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         pickingFile = false;
         draft.fileName = name;
         try {
-            File fixed = ImageOrientationUtil.getFixedFile(file);
-            draft.file = fixed;
+            if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg")) {
+                Logger.d(TAG, "File is a JPEG, fixing if needed");
+                draft.file = ImageOrientationUtil.getFixedFile(file);
+            } else {
+                Logger.d(TAG, "File picked was not a JPEG, no EXIF data to check, no changes done");
+                draft.file = file;
+            }
         } catch (Exception e) {
-            Logger.d(TAG, "File picked wasn't fixed");
+            Logger.d(TAG, "File picked wasn't fixed due to an exception, defaulting to chosen file");
             draft.file = file;
         }
 
