@@ -17,6 +17,7 @@
  */
 package org.floens.chan.core.presenter;
 
+import android.net.Uri;
 import android.text.TextUtils;
 
 import org.floens.chan.R;
@@ -38,6 +39,8 @@ import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.utils.IOUtils;
+import org.floens.chan.utils.ImageOrientationUtil;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;
@@ -122,8 +125,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public void unbindLoadable() {
         bound = false;
-        //delete temp files
-        if (draft.file.getAbsolutePath().contains("cache/image")) {
+        //delete temp files, check for nulls because this method gets called a few times
+        if (draft != null && draft.file != null && draft.file.getAbsolutePath().contains("cache/image")) {
             draft.file.delete();
         }
         draft.file = null;
@@ -180,6 +183,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         if (!pickingFile) {
             if (previewOpen) {
                 callback.openPreview(false, null);
+                //delete temp files
+                if (draft.file.getAbsolutePath().contains("cache/image")) {
+                    draft.file.delete();
+                }
                 draft.file = null;
                 draft.fileName = "";
                 if (moreOpen) {
@@ -232,6 +239,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     loadable.site, loadable.board, replyResponse.postNo, replyResponse.password);
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager()
                     .saveReply(savedReply));
+
+            //delete temp files before making a new draft
+            if (draft.file.getAbsolutePath().contains("cache/image")) {
+                draft.file.delete();
+            }
 
             switchPage(Page.INPUT, false);
             closeAll();
@@ -317,8 +329,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.loadViewsIntoDraft(draft);
 
         String extraNewline = "";
-        if (draft.selectionStart - 1 >= 0 && draft.selectionStart - 1 < draft.comment.length() &&
-                draft.comment.charAt(draft.selectionStart - 1) != '\n') {
+        if (draft.selection - 1 >= 0 && draft.selection - 1 < draft.comment.length() &&
+                draft.comment.charAt(draft.selection - 1) != '\n') {
             extraNewline = "\n";
         }
 
@@ -353,14 +365,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     private void commentInsert(String insertBefore, String insertAfter) {
         draft.comment = new StringBuilder(draft.comment)
-                .insert(draft.selectionStart, insertBefore)
-                .insert(draft.selectionEnd + insertBefore.length(), insertAfter)
-                .toString();
-        /* Since this method is only used for quote insertion and spoilers,
-        both of which should set the cursor to right after the selected text for more typing,
-        set the selection start to the new end */
-        draft.selectionEnd += insertBefore.length();
-        draft.selectionStart = draft.selectionEnd;
+                .insert(draft.selection, insertBefore + insertAfter).toString();
+        draft.selection += insertBefore.length();
         callback.loadDraftIntoViews(draft);
     }
 
@@ -372,9 +378,21 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onFilePicked(String name, File file) {
         pickingFile = false;
-        draft.file = file;
         draft.fileName = name;
-        showPreview(name, file);
+        try {
+            if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".jpeg")) {
+                Logger.d(TAG, "File is a JPEG, fixing if needed");
+                draft.file = ImageOrientationUtil.getFixedFile(file);
+            } else {
+                Logger.d(TAG, "File picked was not a JPEG, no EXIF data to check, no changes done");
+                draft.file = file;
+            }
+        } catch (Exception e) {
+            Logger.d(TAG, "File picked wasn't fixed due to an exception, defaulting to chosen file");
+            draft.file = file;
+        }
+
+        showPreview(draft.fileName, draft.file);
     }
 
     @Override
@@ -430,10 +448,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     private void highlightQuotes() {
         Matcher matcher = QUOTE_PATTERN.matcher(draft.comment);
 
-        // Find all occurrences of >>\d+ with start and end between selectionStart
+        // Find all occurrences of >>\d+ with start and end between selection
         int no = -1;
         while (matcher.find()) {
-            if (matcher.start() <= draft.selectionStart && matcher.end() >= draft.selectionStart - 1) {
+            if (matcher.start() <= draft.selection && matcher.end() >= draft.selection - 1) {
                 String quote = matcher.group().substring(2);
                 try {
                     no = Integer.parseInt(quote);
