@@ -34,19 +34,20 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ImageReencodingPresenter;
-import org.floens.chan.ui.helper.ImageReencodingHelper;
+import org.floens.chan.ui.helper.ImageOptionsHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
-public class ImageReencodingController extends Controller implements
+public class ImageOptionsController extends Controller implements
         View.OnClickListener,
         CompoundButton.OnCheckedChangeListener,
         ImageReencodingPresenter.ImageReencodingPresenterCallback {
-    private final static String TAG = "ImageReencodingController";
+    private final static String TAG = "ImageOptionsController";
     private static final int TRANSITION_DURATION = 200;
 
     private ImageReencodingPresenter presenter;
-    private ImageReencodingHelper imageReencodingHelper;
+    private ImageOptionsHelper imageReencodingHelper;
+    private ImageOptionsControllerCallbacks callbacks;
 
     private ConstraintLayout viewHolder;
     private AppCompatImageView preview;
@@ -60,10 +61,16 @@ public class ImageReencodingController extends Controller implements
     private Loadable loadable;
     private int statusBarColorPrevious;
 
-    public ImageReencodingController(Context context, ImageReencodingHelper imageReencodingHelper, Loadable loadable) {
+    public ImageOptionsController(
+            Context context,
+            ImageOptionsHelper imageReencodingHelper,
+            ImageOptionsControllerCallbacks callbacks,
+            Loadable loadable
+    ) {
         super(context);
-        this.loadable = loadable;
         this.imageReencodingHelper = imageReencodingHelper;
+        this.callbacks = callbacks;
+        this.loadable = loadable;
 
         presenter = new ImageReencodingPresenter(this, loadable);
     }
@@ -72,16 +79,16 @@ public class ImageReencodingController extends Controller implements
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_image_reencoding);
+        view = inflateRes(R.layout.layout_image_options);
 
         viewHolder = view.findViewById(R.id.reencode_image_view_holder);
-        preview = view.findViewById(R.id.reencode_image_preview);
-        removeMetadata = view.findViewById(R.id.reencode_image_remove_metadata);
-        changeImageChecksum = view.findViewById(R.id.reencode_image_change_image_checksum);
-        removeFilename = view.findViewById(R.id.reencode_image_remove_filename);
-        reencode = view.findViewById(R.id.reencode_image_reencode);
-        cancel = view.findViewById(R.id.reencode_image_cancel);
-        ok = view.findViewById(R.id.reencode_image_ok);
+        preview = view.findViewById(R.id.image_options_preview);
+        removeMetadata = view.findViewById(R.id.image_options_remove_metadata);
+        changeImageChecksum = view.findViewById(R.id.image_options_change_image_checksum);
+        removeFilename = view.findViewById(R.id.image_options_remove_filename);
+        reencode = view.findViewById(R.id.image_options_reencode);
+        cancel = view.findViewById(R.id.image_options_cancel);
+        ok = view.findViewById(R.id.image_options_ok);
 
         removeMetadata.setOnCheckedChangeListener(this);
         removeFilename.setOnCheckedChangeListener(this);
@@ -141,8 +148,7 @@ public class ImageReencodingController extends Controller implements
         } else if (buttonView == removeFilename) {
             presenter.removeFilename(isChecked);
         } else if (buttonView == reencode) {
-            //TODO: change me!!!
-            presenter.reencode(isChecked);
+            callbacks.onReencodeOptionClicked();
         } else {
             Logger.w(TAG, "onCheckedChanged Unknown view clicked");
         }
@@ -199,5 +205,9 @@ public class ImageReencodingController extends Controller implements
 
     private Window getWindow() {
         return ((Activity) context).getWindow();
+    }
+
+    public interface ImageOptionsControllerCallbacks {
+        void onReencodeOptionClicked();
     }
 }

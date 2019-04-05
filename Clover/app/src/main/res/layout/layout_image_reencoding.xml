@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reencode_image_view_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -48,92 +47,160 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="8dp"
             android:clickable="true"
             android:focusable="true"
             android:orientation="vertical">
 
-            <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/reencode_image_preview"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Re-encode image"
+                android:textSize="20sp" />
+
+            <RadioGroup
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:scaleType="centerCrop"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:background="@color/accent" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/reecode_image_reencode_as_is"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="AS IS" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/reecode_image_reencode_as_jpeg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="JPEG" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/reecode_image_reencode_as_png"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PNG" />
+
+            </RadioGroup>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/preview">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
 
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/reencode_image_remove_filename"
+                <TextView
+                    android:id="@+id/reecode_image_current_quality"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Image quality: 100" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Remove filename" />
+                    android:orientation="horizontal">
 
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/reencode_image_change_image_checksum"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Change image checksum" />
-
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/reencode_image_remove_metadata"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Remove metadata" />
-
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/reencode_image_reencode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Re-encode" />
-
-                <android.support.constraint.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <android.support.v7.widget.AppCompatButton
-                        android:id="@+id/reencode_image_cancel"
-                        style="?android:attr/buttonBarButtonStyle"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginRight="8dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/reencode_image_ok"
-                        app:layout_constraintEnd_toStartOf="@+id/reencode_image_ok"
-                        app:layout_constraintTop_toTopOf="@+id/reencode_image_ok"
-                        android:text="Cancel" />
+                        android:layout_gravity="center_vertical"
+                        android:text="1" />
 
-                    <android.support.v7.widget.AppCompatButton
-                        android:id="@+id/reencode_image_ok"
-                        style="?android:attr/buttonBarButtonStyle"
-                        android:layout_width="wrap_content"
+                    <android.support.v7.widget.AppCompatSeekBar
+                        android:id="@+id/reecode_image_quality"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginRight="8dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:text="ok" />
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:min="1"
+                        android:progress="100" />
 
-                </android.support.constraint.ConstraintLayout>
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="100" />
+
+                </LinearLayout>
 
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/reecode_image_current_scale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reduce: 1x" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="1" />
+
+                    <android.support.v7.widget.AppCompatSeekBar
+                        android:id="@+id/reecode_image_scale"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_weight="1"
+                        android:max="10"
+                        android:min="1"
+                        android:progress="1" />
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="10" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp">
+
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/reencode_image_cancel"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:text="Cancel"
+                    app:layout_constraintBottom_toBottomOf="@+id/reencode_image_ok"
+                    app:layout_constraintEnd_toStartOf="@+id/reencode_image_ok"
+                    app:layout_constraintTop_toTopOf="@+id/reencode_image_ok" />
+
+                <android.support.v7.widget.AppCompatButton
+                    android:id="@+id/reencode_image_ok"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:text="ok"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </android.support.constraint.ConstraintLayout>
 
         </LinearLayout>
 

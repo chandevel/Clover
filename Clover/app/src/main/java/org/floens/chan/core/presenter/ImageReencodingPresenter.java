@@ -65,6 +65,7 @@ public class ImageReencodingPresenter {
         }
     }
 
+    //TODO: create layout for tablets
     public void loadImagePreview() {
         Reply reply = replyManager.getReply(loadable);
 
@@ -79,10 +80,9 @@ public class ImageReencodingPresenter {
         });
     }
 
-    public void reencode(boolean isChecked) {
-        if (isChecked) {
-            //TODO: implement an input for Reencode data
-            imageOptions.setReencode(new Reencode(ReencodeType.AS_IS, 70, 30));
+    public void reencode(@Nullable Reencode reencode) {
+        if (reencode != null) {
+            imageOptions.setReencode(reencode);
         } else {
             imageOptions.setReencode(null);
         }
@@ -218,12 +218,12 @@ public class ImageReencodingPresenter {
     public static class Reencode {
         private ReencodeType reencodeType;
         private int reencodeQuality;
-        private int resizeScale;
+        private int reduce;
 
-        public Reencode(ReencodeType reencodeType, int reencodeQuality, int resizeScale) {
+        public Reencode(ReencodeType reencodeType, int reencodeQuality, int reduce) {
             this.reencodeType = reencodeType;
             this.reencodeQuality = reencodeQuality;
-            this.resizeScale = resizeScale;
+            this.reduce = reduce;
         }
 
         public ReencodeType getReencodeType() {
@@ -242,12 +242,12 @@ public class ImageReencodingPresenter {
             this.reencodeQuality = reencodeQuality;
         }
 
-        public int getResizeScale() {
-            return resizeScale;
+        public int getReduce() {
+            return reduce;
         }
 
-        public void setResizeScale(int resizeScale) {
-            this.resizeScale = resizeScale;
+        public void setReduce(int reduce) {
+            this.reduce = reduce;
         }
     }
 

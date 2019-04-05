@@ -17,6 +17,14 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
+    private static final int MIN_QUALITY = 1;
+    private static final int MAX_QUALITY = 100;
+    private static final int MIN_REDUCE = 1;
+    private static final int MAX_REDUCE = 10;
+    private static final String TEMP_FILE_EXTENSION = ".tmp";
+    private static final String TEMP_FILE_NAME = "temp_file_name";
+    private static final String TEMP_FILE_NAME_WITH_CACHE_DIR = "cache/" + TEMP_FILE_NAME;
+
     private static final Random random = new Random();
 
     public static File reencodeBitmapFile(
@@ -29,32 +37,41 @@ public class BitmapUtils {
             return inputBitmapFile;
         }
 
-        int quality = 100;
-        int scale = 100;
+        int quality = MAX_QUALITY;
+        int reduce = MIN_REDUCE;
         ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.AS_IS;
 
-        if (reencode.getReencodeQuality() != 100) {
+        if (reencode.getReencodeQuality() != MAX_QUALITY) {
             quality = reencode.getReencodeQuality();
         }
 
-        if (reencode.getResizeScale() != 100) {
-            scale = reencode.getResizeScale();
+        if (reencode.getReduce() != MIN_REDUCE) {
+            reduce = reencode.getReduce();
         }
 
         if (reencode.getReencodeType() != ImageReencodingPresenter.ReencodeType.AS_IS) {
             reencodeType = reencode.getReencodeType();
         }
 
-        if (quality > 100) {
-            throw new RuntimeException("quality > 100 (" + quality + ")");
+        if (quality < MIN_QUALITY) {
+            quality = MIN_QUALITY;
         }
 
-        if (scale > 100) {
-            throw new RuntimeException("scale > 100 (" + scale + ")");
+        if (quality > MAX_QUALITY) {
+            quality = MAX_QUALITY;
         }
 
-        if (quality == 100
-                && scale == 100
+        if (reduce > MAX_REDUCE) {
+            reduce = MAX_REDUCE;
+        }
+
+        if (reduce < MIN_REDUCE) {
+            reduce = MIN_REDUCE;
+        }
+
+        //all parameters are default - do nothing
+        if (quality == MAX_QUALITY
+                && reduce == MIN_REDUCE
                 && reencodeType == ImageReencodingPresenter.ReencodeType.AS_IS
                 && !removeMetadata
                 && !changeImageChecksum) {
@@ -77,12 +94,15 @@ public class BitmapUtils {
             bitmap = BitmapFactory.decodeFile(inputBitmapFile.getAbsolutePath(), opt);
             Matrix matrix = new Matrix();
 
+            //slightly change one pixel oof the image to change it's checksum
             if (changeImageChecksum) {
                 changeBitmapChecksum(bitmap);
             }
 
-            if (scale != 100) {
-                matrix.setScale(scale / 100.f, scale / 100.0f);
+            //scale image down
+            if (reduce != MIN_REDUCE) {
+                //TODO: test me
+                matrix.setScale((float) reduce / MAX_REDUCE, (float) reduce / MAX_REDUCE);
             }
 
             Bitmap newBitmap = Bitmap.createBitmap(
@@ -129,7 +149,7 @@ public class BitmapUtils {
         File outputDir = getAppContext().getCacheDir();
         deleteOldTempFiles(outputDir.listFiles());
 
-        return File.createTempFile("temp_image_file", ".tmp", outputDir);
+        return File.createTempFile(TEMP_FILE_NAME, TEMP_FILE_EXTENSION, outputDir);
     }
 
     private static void deleteOldTempFiles(File[] files) {
@@ -138,8 +158,10 @@ public class BitmapUtils {
         }
 
         for (File file : files) {
-            if (file.getAbsolutePath().contains("cache/temp_image_file")) {
-                file.delete();
+            if (file.getAbsolutePath().contains(TEMP_FILE_NAME_WITH_CACHE_DIR)) {
+                if (!file.delete()) {
+                    Logger.w(TAG, "Could not delete temp image file: " + file.getAbsolutePath());
+                }
             }
         }
     }
