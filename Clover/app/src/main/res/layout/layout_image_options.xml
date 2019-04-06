@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/reencode_image_view_holder"
+    android:id="@+id/image_options_view_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#88000000"
@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     app:layout_constraintLeft_toLeftOf="parent"
     app:layout_constraintRight_toRightOf="parent"
     app:layout_constraintTop_toTopOf="parent">
-
-    <!-- TODO: strings!!! -->
 
     <android.support.v7.widget.CardView
         android:layout_width="340dp"
@@ -78,7 +76,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Remove filename" />
+                    android:text="@string/image_options_remove_filename" />
 
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/image_options_change_image_checksum"
@@ -86,7 +84,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Change image checksum" />
+                    android:text="@string/image_options_change_image_checksum" />
 
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/image_options_remove_metadata"
@@ -94,7 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Remove metadata" />
+                    android:text="@string/image_options_remove_metadata" />
 
                 <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/image_options_reencode"
@@ -102,7 +100,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
-                    android:text="Re-encode" />
+                    android:text="@string/image_options_re_encode" />
 
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
@@ -118,7 +116,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         app:layout_constraintBottom_toBottomOf="@+id/image_options_ok"
                         app:layout_constraintEnd_toStartOf="@+id/image_options_ok"
                         app:layout_constraintTop_toTopOf="@+id/image_options_ok"
-                        android:text="Cancel" />
+                        android:text="@string/cancel" />
 
                     <android.support.v7.widget.AppCompatButton
                         android:id="@+id/image_options_ok"
@@ -129,7 +127,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_marginRight="8dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        android:text="ok" />
+                        android:text="@string/ok" />
 
                 </android.support.constraint.ConstraintLayout>
 

@@ -37,21 +37,9 @@ public class BitmapUtils {
             return inputBitmapFile;
         }
 
-        int quality = MAX_QUALITY;
-        int reduce = MIN_REDUCE;
-        ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.AS_IS;
-
-        if (reencode.getReencodeQuality() != MAX_QUALITY) {
-            quality = reencode.getReencodeQuality();
-        }
-
-        if (reencode.getReduce() != MIN_REDUCE) {
-            reduce = reencode.getReduce();
-        }
-
-        if (reencode.getReencodeType() != ImageReencodingPresenter.ReencodeType.AS_IS) {
-            reencodeType = reencode.getReencodeType();
-        }
+        int quality = reencode.getReencodeQuality();
+        int reduce = reencode.getReduce();
+        ImageReencodingPresenter.ReencodeType reencodeType = reencode.getReencodeType();
 
         if (quality < MIN_QUALITY) {
             quality = MIN_QUALITY;
@@ -79,7 +67,7 @@ public class BitmapUtils {
         }
 
         Bitmap bitmap = null;
-        Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.JPEG;
+        Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.PNG;
 
         if (reencodeType == ImageReencodingPresenter.ReencodeType.AS_JPEG) {
             compressFormat = Bitmap.CompressFormat.JPEG;
@@ -101,8 +89,8 @@ public class BitmapUtils {
 
             //scale image down
             if (reduce != MIN_REDUCE) {
-                //TODO: test me
-                matrix.setScale((float) reduce / MAX_REDUCE, (float) reduce / MAX_REDUCE);
+                float scale = (float) ((MAX_REDUCE + 1) - reduce) / MAX_REDUCE;
+                matrix.setScale(scale, scale);
             }
 
             Bitmap newBitmap = Bitmap.createBitmap(
@@ -128,7 +116,7 @@ public class BitmapUtils {
             } catch (Throwable error) {
                 if (tempFile != null) {
                     if (!tempFile.delete()) {
-                        Logger.w(TAG, "Could not delete temp file " + tempFile.getAbsolutePath());
+                        Logger.w(TAG, "Could not delete temp image file: " + tempFile.getAbsolutePath());
                     }
                 }
 
@@ -160,7 +148,7 @@ public class BitmapUtils {
         for (File file : files) {
             if (file.getAbsolutePath().contains(TEMP_FILE_NAME_WITH_CACHE_DIR)) {
                 if (!file.delete()) {
-                    Logger.w(TAG, "Could not delete temp image file: " + file.getAbsolutePath());
+                    Logger.w(TAG, "Could not delete old temp image file: " + file.getAbsolutePath());
                 }
             }
         }

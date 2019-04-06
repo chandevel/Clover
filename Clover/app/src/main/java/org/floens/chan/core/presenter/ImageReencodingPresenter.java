@@ -65,11 +65,9 @@ public class ImageReencodingPresenter {
         }
     }
 
-    //TODO: create layout for tablets
     public void loadImagePreview() {
         Reply reply = replyManager.getReply(loadable);
 
-        //TODO: move out constants to resources
         ImageDecoder.decodeFileOnBackgroundThread(reply.file, dp(340), dp(180), (file, bitmap) -> {
             if (bitmap == null) {
                 callback.showCouldNotDecodeBitmapError();
@@ -80,7 +78,7 @@ public class ImageReencodingPresenter {
         });
     }
 
-    public void reencode(@Nullable Reencode reencode) {
+    public void setReencode(@Nullable Reencode reencode) {
         if (reencode != null) {
             imageOptions.setReencode(reencode);
         } else {
@@ -123,8 +121,7 @@ public class ImageReencodingPresenter {
                 && !imageOptions.getRemoveFilename()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencode() == null) {
-            //TODO: change this to unix time?
-            reply.fileName = "reencoded_image";
+            reply.fileName = getNewImageName();
             replyManager.putReply(loadable, reply);
             callback.onImageOptionsApplied();
             return;
@@ -134,8 +131,7 @@ public class ImageReencodingPresenter {
             callback.disableOrEnableButtons(false);
 
             if (imageOptions.getRemoveFilename()) {
-                //TODO: change this to unix time?
-                reply.fileName = "reencoded_image";
+                reply.fileName = getNewImageName();
             }
 
             try {
@@ -164,6 +160,10 @@ public class ImageReencodingPresenter {
         synchronized (this) {
             cancelable = localCancelable;
         }
+    }
+
+    private String getNewImageName() {
+        return String.valueOf(System.currentTimeMillis() / 1000);
     }
 
     public static class ImageOptions {
@@ -254,7 +254,19 @@ public class ImageReencodingPresenter {
     public enum ReencodeType {
         AS_IS,
         AS_PNG,
-        AS_JPEG
+        AS_JPEG;
+
+        public static ReencodeType fromInt(int value) {
+            if (value == AS_IS.ordinal()) {
+                return AS_IS;
+            } else if (value == AS_PNG.ordinal()) {
+                return AS_PNG;
+            } else if (value == AS_JPEG.ordinal()) {
+                return AS_JPEG;
+            }
+
+            throw new RuntimeException("Cannot get ReencodeType from int value: " + value);
+        }
     }
 
     public interface ImageReencodingPresenterCallback {

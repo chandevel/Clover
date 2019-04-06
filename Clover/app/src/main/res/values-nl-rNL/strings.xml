@@ -478,4 +478,18 @@ Heb je geen 4chan Pass?<br>
         "
     </string>
     <string name="settings_screen_theme">Thema\'s</string>
+    <string name="image_quality">Beeldkwaliteit: %1$d</string>
+    <string name="scale_reduce">Verminderen: %1$dx</string>
+    <string name="could_not_decode_image_bitmap">Kan bitmap van afbeelding niet decoderen</string>
+    <string name="could_not_apply_image_options">Nieuwe afbeeldingsopties kunnen niet worden toegepast. Foutbericht is %1$s</string>
+    <string name="image_options_remove_filename">Verwijder bestandsnaam</string>
+    <string name="image_options_change_image_checksum">Verander afbeeldingscontrolesom</string>
+    <string name="image_options_remove_metadata">Verwijder metadata</string>
+    <string name="image_options_re_encode">Re-encode</string>
+    <string name="reencode_image_re_encode_image_text">Afbeelding opnieuw coderen</string>
+    <string name="reencode_image_as_is">ZOALS HET IS</string>
+    <string name="reencode_image_as_jpeg">ALS JPEG</string>
+    <string name="reencode_image_as_png">AS PNG</string>
+    <string name="reencode_image_image_quality_100_default_text">Beeldkwaliteit: 100</string>
+    <string name="reencode_image_reduce_1x_default_text">Verkleinen: 1x</string>
 </resources>

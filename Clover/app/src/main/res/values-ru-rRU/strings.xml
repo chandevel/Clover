@@ -521,4 +521,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]>
     \"</string>
   <string name="settings_screen_theme">Темы</string>
+    <string name="image_quality">Качество изображения: %1$d</string>
+  <string name="scale_reduce">Уменьшить: %1$dx</string>
+  <string name="could_not_decode_image_bitmap">Не удалось декодировать битмап</string>
+  <string name="could_not_apply_image_options">Не удалось применить новые параметры к изображению. Ошибка %1$s</string>
+  <string name="image_options_remove_filename">Удалить название изображения</string>
+  <string name="image_options_change_image_checksum">Изменить чексумму изображения</string>
+  <string name="image_options_remove_metadata">Удалить метадату</string>
+  <string name="image_options_re_encode">Перекодировать</string>
+  <string name="reencode_image_re_encode_image_text">Перекодировать изображение</string>
+  <string name="reencode_image_as_is">КАК ЕСТЬ</string>
+  <string name="reencode_image_as_jpeg">КАК JPEG</string>
+  <string name="reencode_image_as_png">КАК PNG</string>
+  <string name="reencode_image_image_quality_100_default_text">Качество изображения: 100</string>
+  <string name="reencode_image_reduce_1x_default_text">Уменьшить: 1х</string>
 </resources>

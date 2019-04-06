@@ -4,10 +4,13 @@ import android.content.Context;
 
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.presenter.ImageReencodingPresenter;
 import org.floens.chan.ui.controller.ImageOptionsController;
 import org.floens.chan.ui.controller.ImageReencodeOptionsController;
 
-public class ImageOptionsHelper implements ImageOptionsController.ImageOptionsControllerCallbacks {
+public class ImageOptionsHelper implements
+        ImageOptionsController.ImageOptionsControllerCallbacks,
+        ImageReencodeOptionsController.ImageReencodeOptionsCallbacks {
     private Context context;
     private ImageOptionsController imageOptionsController = null;
     private ImageReencodeOptionsController imageReencodeOptionsController = null;
@@ -42,9 +45,27 @@ public class ImageOptionsHelper implements ImageOptionsController.ImageOptionsCo
     @Override
     public void onReencodeOptionClicked() {
         if (imageReencodeOptionsController == null) {
-            imageReencodeOptionsController = new ImageReencodeOptionsController(context);
+            imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this);
             callback.presentController(imageReencodeOptionsController);
         }
+    }
+
+    @Override
+    public void onCanceled() {
+        if (imageOptionsController != null) {
+            imageOptionsController.onReencodingCanceled();
+        }
+
+        pop();
+    }
+
+    @Override
+    public void onOk(ImageReencodingPresenter.Reencode reencode) {
+        if (imageOptionsController != null) {
+            imageOptionsController.onReencodeOptionsSet(reencode);
+        }
+
+        pop();
     }
 
     public interface ImageReencodingHelperCallback {

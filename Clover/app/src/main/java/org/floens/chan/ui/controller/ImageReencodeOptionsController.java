@@ -1,17 +1,74 @@
 package org.floens.chan.ui.controller;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.support.constraint.ConstraintLayout;
+import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatSeekBar;
+import android.view.View;
+import android.view.Window;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
+import org.floens.chan.core.presenter.ImageReencodingPresenter;
+import org.floens.chan.ui.helper.ImageOptionsHelper;
+import org.floens.chan.utils.AndroidUtils;
 
-public class ImageReencodeOptionsController extends Controller {
+public class ImageReencodeOptionsController extends Controller implements
+        View.OnClickListener {
+    private final static String TAG = "ImageReencodeOptionsController";
+    private static final int TRANSITION_DURATION = 200;
+
+    private ImageReencodeOptionsCallbacks callbacks;
+    private ImageOptionsHelper imageReencodingHelper;
 
     private ConstraintLayout viewHolder;
+    private RadioGroup radioGroup;
+    private AppCompatSeekBar quality;
+    private AppCompatSeekBar reduce;
+    private TextView currentImageQuality;
+    private TextView currentImageReduce;
+    private AppCompatButton cancel;
+    private AppCompatButton ok;
 
-    public ImageReencodeOptionsController(Context context) {
+    private int statusBarColorPrevious;
+
+    private SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (seekBar == quality) {
+                currentImageQuality.setText(String.format(context.getString(R.string.image_quality), progress));
+            } else if (seekBar == reduce) {
+                currentImageReduce.setText(String.format(context.getString(R.string.scale_reduce), progress));
+            } else {
+                throw new RuntimeException("Unknown seekBar");
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            //do nothing
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            //do nothing
+        }
+    };
+
+    public ImageReencodeOptionsController(
+            Context context,
+            ImageOptionsHelper imageReencodingHelper,
+            ImageReencodeOptionsCallbacks callbacks
+    ) {
         super(context);
+
+        this.imageReencodingHelper = imageReencodingHelper;
+        this.callbacks = callbacks;
     }
 
     @Override
@@ -21,5 +78,75 @@ public class ImageReencodeOptionsController extends Controller {
         view = inflateRes(R.layout.layout_image_reencoding);
 
         viewHolder = view.findViewById(R.id.reencode_image_view_holder);
+        radioGroup = view.findViewById(R.id.reencode_image_radio_group);
+        quality = view.findViewById(R.id.reecode_image_quality);
+        reduce = view.findViewById(R.id.reecode_image_reduce);
+        currentImageQuality = view.findViewById(R.id.reecode_image_current_quality);
+        currentImageReduce = view.findViewById(R.id.reecode_image_current_reduce);
+        cancel = view.findViewById(R.id.reencode_image_cancel);
+        ok = view.findViewById(R.id.reencode_image_ok);
+
+        viewHolder.setOnClickListener(this);
+        cancel.setOnClickListener(this);
+        ok.setOnClickListener(this);
+
+        quality.setOnSeekBarChangeListener(listener);
+        reduce.setOnSeekBarChangeListener(listener);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            statusBarColorPrevious = getWindow().getStatusBarColor();
+            if (statusBarColorPrevious != 0) {
+                AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            }
+        }
+    }
+
+    @Override
+    public void stopPresenting() {
+        super.stopPresenting();
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (statusBarColorPrevious != 0) {
+                AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
+            }
+        }
+    }
+
+    @Override
+    public boolean onBack() {
+        imageReencodingHelper.pop();
+        return true;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == ok) {
+            callbacks.onOk(getReencode());
+        } else if (v == cancel || v == viewHolder) {
+            callbacks.onCanceled();
+        } else {
+            throw new RuntimeException("onClick Unknown view clicked");
+
+        }
+    }
+
+    private ImageReencodingPresenter.Reencode getReencode() {
+        int index = radioGroup.indexOfChild(radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()));
+        ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.fromInt(index);
+
+        return new ImageReencodingPresenter.Reencode(
+                reencodeType,
+                quality.getProgress(),
+                reduce.getProgress()
+        );
+    }
+
+    private Window getWindow() {
+        return ((Activity) context).getWindow();
+    }
+
+    public interface ImageReencodeOptionsCallbacks {
+        void onCanceled();
+        void onOk(ImageReencodingPresenter.Reencode reencode);
     }
 }

@@ -36,7 +36,6 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ImageReencodingPresenter;
 import org.floens.chan.ui.helper.ImageOptionsHelper;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.Logger;
 
 public class ImageOptionsController extends Controller implements
         View.OnClickListener,
@@ -81,7 +80,7 @@ public class ImageOptionsController extends Controller implements
 
         view = inflateRes(R.layout.layout_image_options);
 
-        viewHolder = view.findViewById(R.id.reencode_image_view_holder);
+        viewHolder = view.findViewById(R.id.image_options_view_holder);
         preview = view.findViewById(R.id.image_options_preview);
         removeMetadata = view.findViewById(R.id.image_options_remove_metadata);
         changeImageChecksum = view.findViewById(R.id.image_options_change_image_checksum);
@@ -135,7 +134,7 @@ public class ImageOptionsController extends Controller implements
         } else if (v == viewHolder) {
             imageReencodingHelper.pop();
         } else {
-            Logger.w(TAG, "onClick Unknown view clicked");
+            throw new RuntimeException("onClick Unknown view clicked");
         }
     }
 
@@ -148,16 +147,30 @@ public class ImageOptionsController extends Controller implements
         } else if (buttonView == removeFilename) {
             presenter.removeFilename(isChecked);
         } else if (buttonView == reencode) {
-            callbacks.onReencodeOptionClicked();
+            //isChecked here means is the current click has made the button checked not the previous state
+            if (!isChecked) {
+                onReencodingCanceled();
+            } else {
+                callbacks.onReencodeOptionClicked();
+            }
         } else {
-            Logger.w(TAG, "onCheckedChanged Unknown view clicked");
+            throw new RuntimeException("onCheckedChanged Unknown view clicked");
         }
     }
 
-    @Override
-    public void showCouldNotDecodeBitmapError() {
-        //TODO: strings
-        showToastMessage("Could not decode image bitmap");
+    public void onReencodingCanceled() {
+        removeMetadata.setChecked(false);
+        removeMetadata.setEnabled(true);
+        reencode.setChecked(false);
+
+        presenter.setReencode(null);
+    }
+
+    public void onReencodeOptionsSet(ImageReencodingPresenter.Reencode reencode) {
+        removeMetadata.setChecked(true);
+        removeMetadata.setEnabled(false);
+
+        presenter.setReencode(reencode);
     }
 
     @Override
@@ -166,8 +179,17 @@ public class ImageOptionsController extends Controller implements
     }
 
     @Override
+    public void showCouldNotDecodeBitmapError() {
+        //called on the background thread!
+
+        AndroidUtils.runOnUiThread(() -> {
+            showToastMessage(context.getString(R.string.could_not_decode_image_bitmap));
+        });
+    }
+
+    @Override
     public void onImageOptionsApplied() {
-        //called on background thread!
+        //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
             imageReencodingHelper.pop();
@@ -176,17 +198,17 @@ public class ImageOptionsController extends Controller implements
 
     @Override
     public void showFailedToReencodeImage(Throwable error) {
-        //called on background thread!
+        //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
-            String text = "Could not apply new image options. Error message = " + error.getMessage();
+            String text = String.format(context.getString(R.string.could_not_apply_image_options), error.getMessage());
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         });
     }
 
     @Override
     public void disableOrEnableButtons(boolean enabled) {
-        //called on background thread!
+        //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
             removeMetadata.setEnabled(enabled);
