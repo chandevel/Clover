@@ -487,7 +487,7 @@ Heb je geen 4chan Pass?<br>
     <string name="image_options_remove_metadata">Verwijder metadata</string>
     <string name="image_options_re_encode">Re-encode</string>
     <string name="reencode_image_re_encode_image_text">Afbeelding opnieuw coderen</string>
-    <string name="reencode_image_as_is">ZOALS HET IS</string>
+    <string name="reencode_image_as_is">ZOALS HET IS (%1$s)</string>
     <string name="reencode_image_as_jpeg">ALS JPEG</string>
     <string name="reencode_image_as_png">AS PNG</string>
     <string name="reencode_image_image_quality_100_default_text">Beeldkwaliteit: 100</string>

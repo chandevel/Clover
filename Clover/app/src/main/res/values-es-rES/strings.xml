@@ -495,7 +495,7 @@ Don't have a 4chan Pass?<br>
     <string name="image_options_remove_metadata">Eliminar metadatos</string>
     <string name="image_options_re_encode">Volver a codificar</string>
     <string name="reencode_image_re_encode_image_text">Volver a codificar la imagen</string>
-    <string name="reencode_image_as_is">COMO ES</string>
+    <string name="reencode_image_as_is">COMO ES (%1$s)</string>
     <string name="reencode_image_as_jpeg">COMO JPEG</string>
     <string name="reencode_image_as_png">COMO PNG</string>
     <string name="reencode_image_image_quality_100_default_text">La calidad de imagen: 100</string>

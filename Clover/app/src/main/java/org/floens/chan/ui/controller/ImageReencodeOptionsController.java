@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.view.View;
 import android.view.Window;
@@ -36,6 +37,9 @@ public class ImageReencodeOptionsController extends Controller implements
     private TextView currentImageReduce;
     private AppCompatButton cancel;
     private AppCompatButton ok;
+    private AppCompatRadioButton reencodeImageAsIs;
+    private AppCompatRadioButton reencodeImageAsJpeg;
+    private AppCompatRadioButton reencodeImageAsPng;
 
     private int statusBarColorPrevious;
 
@@ -87,20 +91,27 @@ public class ImageReencodeOptionsController extends Controller implements
         reduce = view.findViewById(R.id.reecode_image_reduce);
         currentImageQuality = view.findViewById(R.id.reecode_image_current_quality);
         currentImageReduce = view.findViewById(R.id.reecode_image_current_reduce);
+        reencodeImageAsIs = view.findViewById(R.id.reencode_image_as_is);
+        reencodeImageAsJpeg = view.findViewById(R.id.reencode_image_as_jpeg);
+        reencodeImageAsPng = view.findViewById(R.id.reencode_image_as_png);
         cancel = view.findViewById(R.id.reencode_image_cancel);
         ok = view.findViewById(R.id.reencode_image_ok);
 
         viewHolder.setOnClickListener(this);
         cancel.setOnClickListener(this);
         ok.setOnClickListener(this);
+        radioGroup.setOnCheckedChangeListener(this);
 
         quality.setOnSeekBarChangeListener(listener);
         reduce.setOnSeekBarChangeListener(listener);
 
-        radioGroup.setOnCheckedChangeListener(this);
+        setReencodeImageAsIsText();
 
         if (imageFormat == Bitmap.CompressFormat.PNG) {
             quality.setEnabled(false);
+            reencodeImageAsPng.setEnabled(false);
+        } else if (imageFormat == Bitmap.CompressFormat.JPEG) {
+            reencodeImageAsJpeg.setEnabled(false);
         }
 
         if (Build.VERSION.SDK_INT >= 21) {
@@ -109,6 +120,20 @@ public class ImageReencodeOptionsController extends Controller implements
                 AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
             }
         }
+    }
+
+    private void setReencodeImageAsIsText() {
+        String format;
+
+        if (imageFormat == Bitmap.CompressFormat.PNG) {
+            format = "PNG";
+        } else if (imageFormat == Bitmap.CompressFormat.JPEG) {
+            format = "JPEG";
+        } else {
+            format = "Unknown";
+        }
+
+        reencodeImageAsIs.setText(String.format(context.getString(R.string.reencode_image_as_is), format));
     }
 
     @Override

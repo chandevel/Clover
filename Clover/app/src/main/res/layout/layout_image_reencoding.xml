@@ -67,7 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:id="@+id/reencode_image_as_is"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/reencode_image_as_is" />
+                    android:text="AS IS" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/reencode_image_as_jpeg"

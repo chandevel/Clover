@@ -485,7 +485,7 @@ Tidak memiliki 4chan Pass?<br>
     <string name="image_options_remove_metadata">Hapus metadata</string>
     <string name="image_options_re_encode">Enkode ulang</string>
     <string name="reencode_image_re_encode_image_text">Menyandi ulang gambar</string>
-    <string name="reencode_image_as_is">DENGAN ADANYA</string>
+    <string name="reencode_image_as_is">DENGAN ADANYA (%1$s)</string>
     <string name="reencode_image_as_jpeg">SEBAGAI JPEG</string>
     <string name="reencode_image_as_png">SEBAGAI PNG</string>
     <string name="reencode_image_image_quality_100_default_text">Kualitas gambar: 100</string>
