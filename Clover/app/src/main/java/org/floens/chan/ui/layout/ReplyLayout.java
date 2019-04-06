@@ -98,6 +98,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private SelectionListeningEditText comment;
     private TextView commentCounter;
     private CheckBox spoiler;
+    private LinearLayout previewHolder;
     private ImageView preview;
     private TextView previewMessage;
     private ImageView attach;
@@ -150,6 +151,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
         preview = replyInputLayout.findViewById(R.id.preview);
+        previewHolder = replyInputLayout.findViewById(R.id.preview_holder);
         previewMessage = replyInputLayout.findViewById(R.id.preview_message);
         attach = replyInputLayout.findViewById(R.id.attach);
         more = replyInputLayout.findViewById(R.id.more);
@@ -162,7 +164,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
 
-        preview.setOnClickListener(this);
+        previewHolder.setOnClickListener(this);
 
         moreDropdown = new DropdownArrowDrawable(dp(16), dp(16), true,
                 getAttrColor(getContext(), R.attr.dropdown_dark_color),
@@ -236,7 +238,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             presenter.onAttachClicked();
         } else if (v == submit) {
             presenter.onSubmitClicked();
-        } else if (v == preview) {
+        } else if (v == previewHolder) {
             callback.showImageReencodingWindow();
         } else if (v == captchaHardReset) {
             if (authenticationLayout != null) {
@@ -394,7 +396,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
         comment.setMaxLines(expanded ? 500 : 6);
 
-        preview.setLayoutParams(new LinearLayout.LayoutParams(
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 expanded ? dp(150) : dp(100)
         ));
@@ -462,7 +464,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
             ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(400), dp(300), this);
         } else {
             spoiler.setVisibility(View.GONE);
-            preview.setVisibility(View.GONE);
+            previewHolder.setVisibility(View.GONE);
             previewMessage.setVisibility(View.GONE);
         }
     }
@@ -483,7 +485,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     public void onImageBitmap(File file, Bitmap bitmap) {
         if (bitmap != null) {
             preview.setImageBitmap(bitmap);
-            preview.setVisibility(View.VISIBLE);
+            previewHolder.setVisibility(View.VISIBLE);
 
             showReencodeImageHint();
         } else {
