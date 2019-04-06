@@ -193,14 +193,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public void onSubmitClicked() {
-        Reply reply = replyManager.getReply(loadable);
-        File newFile = reply.file;
-        String newFileName = reply.fileName;
-
         callback.loadViewsIntoDraft(draft);
-
-        draft.file = newFile;
-        draft.fileName = newFileName;
 
         draft.loadable = loadable;
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
