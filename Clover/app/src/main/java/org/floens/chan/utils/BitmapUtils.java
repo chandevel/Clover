@@ -33,13 +33,15 @@ public class BitmapUtils {
             boolean changeImageChecksum,
             @Nullable ImageReencodingPresenter.Reencode reencode
     ) throws IOException {
-        if (reencode == null) {
-            return inputBitmapFile;
-        }
+        int quality = MAX_QUALITY;
+        int reduce = MIN_REDUCE;
+        ImageReencodingPresenter.ReencodeType reencodeType = ImageReencodingPresenter.ReencodeType.AS_IS;
 
-        int quality = reencode.getReencodeQuality();
-        int reduce = reencode.getReduce();
-        ImageReencodingPresenter.ReencodeType reencodeType = reencode.getReencodeType();
+        if (reencode != null) {
+            quality = reencode.getReencodeQuality();
+            reduce = reencode.getReduce();
+            reencodeType = reencode.getReencodeType();
+        }
 
         if (quality < MIN_QUALITY) {
             quality = MIN_QUALITY;

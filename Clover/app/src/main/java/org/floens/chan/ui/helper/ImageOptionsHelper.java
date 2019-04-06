@@ -5,6 +5,7 @@ import android.content.Context;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ImageReencodingPresenter;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.controller.ImageOptionsController;
 import org.floens.chan.ui.controller.ImageReencodeOptionsController;
 
@@ -14,17 +15,17 @@ public class ImageOptionsHelper implements
     private Context context;
     private ImageOptionsController imageOptionsController = null;
     private ImageReencodeOptionsController imageReencodeOptionsController = null;
-    private final ImageReencodingHelperCallback callback;
+    private final ImageReencodingHelperCallback callbacks;
 
-    public ImageOptionsHelper(Context context, ImageReencodingHelperCallback callback) {
+    public ImageOptionsHelper(Context context, ImageReencodingHelperCallback callbacks) {
         this.context = context;
-        this.callback = callback;
+        this.callbacks = callbacks;
     }
 
     public void showController(Loadable loadable) {
         if (imageOptionsController == null) {
             imageOptionsController = new ImageOptionsController(context, this, this, loadable);
-            callback.presentController(imageOptionsController);
+            callbacks.presentController(imageOptionsController);
         }
     }
 
@@ -46,8 +47,13 @@ public class ImageOptionsHelper implements
     public void onReencodeOptionClicked() {
         if (imageReencodeOptionsController == null) {
             imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this);
-            callback.presentController(imageReencodeOptionsController);
+            callbacks.presentController(imageReencodeOptionsController);
         }
+    }
+
+    @Override
+    public void onImageOptionsApplied(Reply reply) {
+        callbacks.onImageOptionsApplied(reply);
     }
 
     @Override
@@ -70,5 +76,6 @@ public class ImageOptionsHelper implements
 
     public interface ImageReencodingHelperCallback {
         void presentController(Controller controller);
+        void onImageOptionsApplied(Reply reply);
     }
 }

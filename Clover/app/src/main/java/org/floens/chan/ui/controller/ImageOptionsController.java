@@ -34,6 +34,7 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ImageReencodingPresenter;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.helper.ImageOptionsHelper;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -188,11 +189,12 @@ public class ImageOptionsController extends Controller implements
     }
 
     @Override
-    public void onImageOptionsApplied() {
+    public void onImageOptionsApplied(Reply reply) {
         //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
             imageReencodingHelper.pop();
+            callbacks.onImageOptionsApplied(reply);
         });
     }
 
@@ -231,5 +233,6 @@ public class ImageOptionsController extends Controller implements
 
     public interface ImageOptionsControllerCallbacks {
         void onReencodeOptionClicked();
+        void onImageOptionsApplied(Reply reply);
     }
 }

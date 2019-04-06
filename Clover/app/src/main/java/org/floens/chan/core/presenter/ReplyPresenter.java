@@ -470,6 +470,15 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         }
     }
 
+    /**
+     * Applies the new file and filename if they have been changed. They may change when user
+     * re-encodes the picked image file (they may want to scale it down/remove metadata/change quality etc.)
+     * */
+    public void onImageOptionsApplied(Reply reply) {
+        draft.file = reply.file;
+        draft.fileName = reply.fileName;
+    }
+
     public interface ReplyPresenterCallback {
         void loadViewsIntoDraft(Reply draft);
 

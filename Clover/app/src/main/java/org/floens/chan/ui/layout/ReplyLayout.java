@@ -537,6 +537,14 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         return callback.getThread();
     }
 
+    public void onImageOptionsApplied(Reply reply) {
+        // Update the filename EditText. Otherwise it will change back the image name upon changing
+        // the message comment (because of the textwatcher)
+        fileName.setText(reply.fileName);
+
+        presenter.onImageOptionsApplied(reply);
+    }
+
     public interface ReplyLayoutCallback {
         void highlightPostNo(int no);
 

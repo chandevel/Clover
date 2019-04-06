@@ -44,6 +44,7 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -696,6 +697,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     private void noParty() {
         recyclerView.removeItemDecoration(PARTY);
+    }
+
+    public void onImageOptionsApplied(Reply _reply) {
+        reply.onImageOptionsApplied(_reply);
     }
 
     public interface ThreadListLayoutPresenterCallback {

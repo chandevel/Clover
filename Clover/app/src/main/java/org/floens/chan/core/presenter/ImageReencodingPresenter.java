@@ -42,6 +42,9 @@ public class ImageReencodingPresenter {
     @Inject
     ReplyManager replyManager;
 
+    private static final int DECODED_IMAGE_WIDTH = 340;
+    private static final int DECODED_IMAGE_HEGIHT = 180;
+
     private Executor executor = Executors.newSingleThreadExecutor();
     private ImageReencodingPresenterCallback callback;
     private Loadable loadable;
@@ -68,14 +71,18 @@ public class ImageReencodingPresenter {
     public void loadImagePreview() {
         Reply reply = replyManager.getReply(loadable);
 
-        ImageDecoder.decodeFileOnBackgroundThread(reply.file, dp(340), dp(180), (file, bitmap) -> {
-            if (bitmap == null) {
-                callback.showCouldNotDecodeBitmapError();
-                return;
-            }
+        ImageDecoder.decodeFileOnBackgroundThread(
+                reply.file,
+                dp(DECODED_IMAGE_WIDTH),
+                dp(DECODED_IMAGE_HEGIHT),
+                (file, bitmap) -> {
+                    if (bitmap == null) {
+                        callback.showCouldNotDecodeBitmapError();
+                        return;
+                    }
 
-            callback.showImagePreview(bitmap);
-        });
+                    callback.showImagePreview(bitmap);
+                });
     }
 
     public void setReencode(@Nullable Reencode reencode) {
@@ -109,32 +116,34 @@ public class ImageReencodingPresenter {
             reply = replyManager.getReply(loadable);
         }
 
+        //all options are default - do nothing
         if (!imageOptions.getRemoveFilename()
-                && !imageOptions.getRemoveFilename()
+                && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencode() == null) {
-            callback.onImageOptionsApplied();
+            callback.onImageOptionsApplied(reply);
             return;
         }
 
+        //only the "remove filename" option is selected
         if (imageOptions.getRemoveFilename()
-                && !imageOptions.getRemoveFilename()
+                && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencode() == null) {
             reply.fileName = getNewImageName();
-            replyManager.putReply(loadable, reply);
-            callback.onImageOptionsApplied();
+            callback.onImageOptionsApplied(reply);
             return;
         }
 
+        //one of the options that affects the image is selected (reencode/remove metadata/change checksum)
         BackgroundUtils.Cancelable localCancelable = BackgroundUtils.runWithExecutor(executor, () -> {
-            callback.disableOrEnableButtons(false);
-
-            if (imageOptions.getRemoveFilename()) {
-                reply.fileName = getNewImageName();
-            }
-
             try {
+                callback.disableOrEnableButtons(false);
+
+                if (imageOptions.getRemoveFilename()) {
+                    reply.fileName = getNewImageName();
+                }
+
                 reply.file = BitmapUtils.reencodeBitmapFile(
                         reply.file,
                         imageOptions.removeMetadata,
@@ -145,14 +154,15 @@ public class ImageReencodingPresenter {
                 Logger.e(TAG, "Error while trying to re-encode bitmap file", error);
                 callback.disableOrEnableButtons(true);
                 callback.showFailedToReencodeImage(error);
+                cancelable = null;
                 return;
+            } finally {
+                callback.disableOrEnableButtons(true);
             }
 
-            callback.disableOrEnableButtons(true);
-            callback.onImageOptionsApplied();
+            callback.onImageOptionsApplied(reply);
 
             synchronized (this) {
-                replyManager.putReply(loadable, reply);
                 cancelable = null;
             }
         });
@@ -276,7 +286,7 @@ public class ImageReencodingPresenter {
 
         void disableOrEnableButtons(boolean enabled);
 
-        void onImageOptionsApplied();
+        void onImageOptionsApplied(Reply reply);
 
         void showFailedToReencodeImage(Throwable error);
     }

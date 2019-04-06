@@ -52,6 +52,7 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.helper.ImageOptionsHelper;
 import org.floens.chan.ui.helper.PostPopupHelper;
@@ -607,6 +608,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     @Override
     public void presentController(Controller controller) {
         callback.presentImageReencodingController(controller);
+    }
+
+    @Override
+    public void onImageOptionsApplied(Reply reply) {
+        threadListLayout.onImageOptionsApplied(reply);
     }
 
     public interface ThreadLayoutCallback {
