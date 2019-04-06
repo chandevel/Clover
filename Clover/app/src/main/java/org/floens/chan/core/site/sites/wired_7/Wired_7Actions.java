@@ -15,18 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.core.site.common.vichan;
+package org.floens.chan.core.site.sites.wired_7;
 
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.common.CommonSite;
 import org.floens.chan.core.site.common.MultipartHttpCall;
-import org.floens.chan.core.site.http.DeleteRequest;
-import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.jsoup.Jsoup;
+import org.floens.chan.core.site.common.vichan.VichanActions;
 
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,8 +32,8 @@ import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
 
-public class VichanActions extends CommonSite.CommonActions {
-    public VichanActions(CommonSite commonSite) {
+public class Wired_7Actions extends VichanActions {
+    Wired_7Actions(CommonSite commonSite) {
         super(commonSite);
     }
 
@@ -49,7 +46,7 @@ public class VichanActions extends CommonSite.CommonActions {
         }
 
         // Added with VichanAntispam.
-        // call.parameter("post", "Post");
+        call.parameter("post", "Post");
 
         call.parameter("password", reply.password);
         call.parameter("name", reply.name);
@@ -71,21 +68,6 @@ public class VichanActions extends CommonSite.CommonActions {
     }
 
     @Override
-    public boolean requirePrepare() {
-        return true;
-    }
-
-    @Override
-    public void prepare(MultipartHttpCall call, Reply reply, ReplyResponse replyResponse) {
-        VichanAntispam antispam = new VichanAntispam(
-                HttpUrl.parse(site.resolvable().desktopUrl(reply.loadable, null)));
-        antispam.addDefaultIgnoreFields();
-        for (Map.Entry<String, String> e : antispam.get().entrySet()) {
-            call.parameter(e.getKey(), e.getValue());
-        }
-    }
-
-    @Override
     public void handlePost(ReplyResponse replyResponse, Response response, String result) {
         Matcher auth = Pattern.compile("\"captcha\": ?true").matcher(result);
         Matcher err = errorPattern().matcher(result);
@@ -96,7 +78,7 @@ public class VichanActions extends CommonSite.CommonActions {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
             HttpUrl url = response.request().url();
-            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+).html").matcher(url.encodedPath());
+            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+)(.html)?").matcher(url.encodedPath());
             try {
                 if (m.find()) {
                     replyResponse.threadNo = Integer.parseInt(m.group(1));
@@ -112,36 +94,5 @@ public class VichanActions extends CommonSite.CommonActions {
                 replyResponse.errorMessage = "Error posting: could not find posted thread.";
             }
         }
-    }
-
-    @Override
-    public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall call) {
-        call.parameter("board", deleteRequest.post.board.code);
-        call.parameter("delete", "Delete");
-        call.parameter("delete_" + deleteRequest.post.no, "on");
-        call.parameter("password", deleteRequest.savedReply.password);
-
-        if (deleteRequest.imageOnly) {
-            call.parameter("file", "on");
-        }
-    }
-
-    @Override
-    public void handleDelete(DeleteResponse response, Response httpResponse, String responseBody) {
-        Matcher err = errorPattern().matcher(responseBody);
-        if (err.find()) {
-            response.errorMessage = Jsoup.parse(err.group(1)).body().text();
-        } else {
-            response.deleted = true;
-        }
-    }
-
-    public Pattern errorPattern() {
-        return Pattern.compile("<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>");
-    }
-
-    @Override
-    public SiteAuthentication postAuthenticate() {
-        return SiteAuthentication.fromNone();
     }
 }

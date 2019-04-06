@@ -99,7 +99,7 @@ public class Wired_7 extends CommonSite {
         setEndpoints(new VichanEndpoints(this,
                 "https://wired-7.org",
                 "https://wired-7.org"));
-        setActions(new VichanActions(this));
+        setActions(new Wired_7Actions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
     }
