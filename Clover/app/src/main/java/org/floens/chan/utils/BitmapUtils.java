@@ -22,6 +22,7 @@ public class BitmapUtils {
     private static final int MAX_QUALITY = 100;
     private static final int MIN_REDUCE = 1;
     private static final int MAX_REDUCE = 10;
+    private static final int PIXEL_DIFF = 5;
     private static final String TEMP_FILE_EXTENSION = ".tmp";
     private static final String TEMP_FILE_NAME = "temp_file_name";
     private static final String TEMP_FILE_NAME_WITH_CACHE_DIR = "cache/" + TEMP_FILE_NAME;
@@ -164,13 +165,16 @@ public class BitmapUtils {
         int randomX = Math.abs(random.nextInt()) % bitmap.getWidth();
         int randomY = Math.abs(random.nextInt()) % bitmap.getHeight();
 
+        // one pixel is enough to change the checksum of an image
         int pixel = bitmap.getPixel(randomX, randomY);
 
-        //one pixel is enough to change the checksum of an image
-        if (pixel - 1 >= 0) {
-            --pixel;
+        // NOTE: apparently when re-encoding jpegs, changing a pixel by 1 is sometimes not enough
+        // due to the jpeg's compression algorithm (it may even out this pixel with surrounding
+        // pixels like it wasn't changed at all) so we have to increase the difference a little bit
+        if (pixel - PIXEL_DIFF >= 0) {
+            pixel -= PIXEL_DIFF;
         } else {
-            ++pixel;
+            pixel += PIXEL_DIFF;
         }
 
         bitmap.setPixel(randomX, randomY, pixel);
