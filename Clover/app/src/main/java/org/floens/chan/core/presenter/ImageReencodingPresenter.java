@@ -28,6 +28,7 @@ import org.floens.chan.utils.BitmapUtils;
 import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
 
+import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -83,6 +84,17 @@ public class ImageReencodingPresenter {
 
                     callback.showImagePreview(bitmap);
                 });
+    }
+
+    @Nullable
+    public Bitmap.CompressFormat getImageFormat() {
+        try {
+            Reply reply = replyManager.getReply(loadable);
+            return BitmapUtils.getImageFormat(reply.file);
+        } catch (IOException e) {
+            Logger.e(TAG, "Error while trying to get image format", e);
+            return null;
+        }
     }
 
     public void setReencode(@Nullable Reencode reencode) {
@@ -259,12 +271,16 @@ public class ImageReencodingPresenter {
         public void setReduce(int reduce) {
             this.reduce = reduce;
         }
+
+        public boolean isDefault() {
+            return reencodeType == ReencodeType.AS_IS && reencodeQuality == 100 && reduce == 1;
+        }
     }
 
     public enum ReencodeType {
         AS_IS,
-        AS_PNG,
-        AS_JPEG;
+        AS_JPEG,
+        AS_PNG;
 
         public static ReencodeType fromInt(int value) {
             if (value == AS_IS.ordinal()) {

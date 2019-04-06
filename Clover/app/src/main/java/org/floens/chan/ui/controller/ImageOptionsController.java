@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatCheckBox;
@@ -152,7 +153,7 @@ public class ImageOptionsController extends Controller implements
             if (!isChecked) {
                 onReencodingCanceled();
             } else {
-                callbacks.onReencodeOptionClicked();
+                callbacks.onReencodeOptionClicked(presenter.getImageFormat());
             }
         } else {
             throw new RuntimeException("onCheckedChanged Unknown view clicked");
@@ -232,7 +233,7 @@ public class ImageOptionsController extends Controller implements
     }
 
     public interface ImageOptionsControllerCallbacks {
-        void onReencodeOptionClicked();
+        void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat);
         void onImageOptionsApplied(Reply reply);
     }
 }

@@ -2,6 +2,7 @@ package org.floens.chan.ui.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatButton;
@@ -19,12 +20,13 @@ import org.floens.chan.ui.helper.ImageOptionsHelper;
 import org.floens.chan.utils.AndroidUtils;
 
 public class ImageReencodeOptionsController extends Controller implements
-        View.OnClickListener {
+        View.OnClickListener, RadioGroup.OnCheckedChangeListener {
     private final static String TAG = "ImageReencodeOptionsController";
     private static final int TRANSITION_DURATION = 200;
 
     private ImageReencodeOptionsCallbacks callbacks;
     private ImageOptionsHelper imageReencodingHelper;
+    private Bitmap.CompressFormat imageFormat;
 
     private ConstraintLayout viewHolder;
     private RadioGroup radioGroup;
@@ -63,12 +65,14 @@ public class ImageReencodeOptionsController extends Controller implements
     public ImageReencodeOptionsController(
             Context context,
             ImageOptionsHelper imageReencodingHelper,
-            ImageReencodeOptionsCallbacks callbacks
+            ImageReencodeOptionsCallbacks callbacks,
+            Bitmap.CompressFormat imageFormat
     ) {
         super(context);
 
         this.imageReencodingHelper = imageReencodingHelper;
         this.callbacks = callbacks;
+        this.imageFormat = imageFormat;
     }
 
     @Override
@@ -92,6 +96,12 @@ public class ImageReencodeOptionsController extends Controller implements
 
         quality.setOnSeekBarChangeListener(listener);
         reduce.setOnSeekBarChangeListener(listener);
+
+        radioGroup.setOnCheckedChangeListener(this);
+
+        if (imageFormat == Bitmap.CompressFormat.PNG) {
+            quality.setEnabled(false);
+        }
 
         if (Build.VERSION.SDK_INT >= 21) {
             statusBarColorPrevious = getWindow().getStatusBarColor();
@@ -127,6 +137,23 @@ public class ImageReencodeOptionsController extends Controller implements
         } else {
             throw new RuntimeException("onClick Unknown view clicked");
 
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        int index = group.indexOfChild(group.findViewById(group.getCheckedRadioButtonId()));
+
+        // 0 - AS IS
+        // 1 - AS JPEG
+        // 2 - AS PNG
+
+        // when re-encoding image as png it ignores the compress quality option so we can just
+        // disable the quality seekbar
+        if (index == 2 || (index == 0 && imageFormat == Bitmap.CompressFormat.PNG)) {
+            quality.setEnabled(false);
+        } else {
+            quality.setEnabled(true);
         }
     }
 

@@ -11,6 +11,7 @@ import org.floens.chan.core.presenter.ImageReencodingPresenter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Random;
 
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
@@ -24,6 +25,9 @@ public class BitmapUtils {
     private static final String TEMP_FILE_EXTENSION = ".tmp";
     private static final String TEMP_FILE_NAME = "temp_file_name";
     private static final String TEMP_FILE_NAME_WITH_CACHE_DIR = "cache/" + TEMP_FILE_NAME;
+
+    private static final byte[] PNG_HEADER = new byte[] { -119, 80, 78, 71, 13, 10, 26, 10 };
+    private static final byte[] JPEG_HEADER = new byte[] { -1, -40 };
 
     private static final Random random = new Random();
 
@@ -69,7 +73,7 @@ public class BitmapUtils {
         }
 
         Bitmap bitmap = null;
-        Bitmap.CompressFormat compressFormat = Bitmap.CompressFormat.PNG;
+        Bitmap.CompressFormat compressFormat = getImageFormat(inputBitmapFile);
 
         if (reencodeType == ImageReencodingPresenter.ReencodeType.AS_JPEG) {
             compressFormat = Bitmap.CompressFormat.JPEG;
@@ -91,7 +95,7 @@ public class BitmapUtils {
 
             //scale the image down
             if (reduce != MIN_REDUCE) {
-                float scale = (float) ((MAX_REDUCE + 1) - reduce) / MAX_REDUCE;
+                float scale = 1f / reduce;
                 matrix.setScale(scale, scale);
             }
 
@@ -170,5 +174,46 @@ public class BitmapUtils {
         }
 
         bitmap.setPixel(randomX, randomY, pixel);
+    }
+
+    public static Bitmap.CompressFormat getImageFormat(File file) throws IOException {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+            byte[] header = new byte[16];
+            raf.read(header);
+
+            {
+                boolean isPngHeader = true;
+                int size = Math.min(PNG_HEADER.length, header.length);
+
+                for (int i = 0; i < size; ++i) {
+                    if (header[i] != PNG_HEADER[i]) {
+                        isPngHeader = false;
+                        break;
+                    }
+                }
+
+                if (isPngHeader) {
+                    return Bitmap.CompressFormat.PNG;
+                }
+            }
+
+            {
+                boolean isJpegHeader = true;
+                int size = Math.min(JPEG_HEADER.length, header.length);
+
+                for (int i = 0; i < size; ++i) {
+                    if (header[i] != JPEG_HEADER[i]) {
+                        isJpegHeader = false;
+                        break;
+                    }
+                }
+
+                if (isJpegHeader) {
+                    return Bitmap.CompressFormat.JPEG;
+                }
+            }
+
+            throw new IllegalArgumentException("File " + file.getName() + " is neither PNG nor JPEG");
+        }
     }
 }

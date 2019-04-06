@@ -1,6 +1,8 @@
 package org.floens.chan.ui.helper;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.orm.Loadable;
@@ -44,9 +46,9 @@ public class ImageOptionsHelper implements
     }
 
     @Override
-    public void onReencodeOptionClicked() {
-        if (imageReencodeOptionsController == null) {
-            imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this);
+    public void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat) {
+        if (imageReencodeOptionsController == null && imageFormat != null) {
+            imageReencodeOptionsController = new ImageReencodeOptionsController(context, this, this, imageFormat);
             callbacks.presentController(imageReencodeOptionsController);
         }
     }
@@ -68,7 +70,11 @@ public class ImageOptionsHelper implements
     @Override
     public void onOk(ImageReencodingPresenter.Reencode reencode) {
         if (imageOptionsController != null) {
-            imageOptionsController.onReencodeOptionsSet(reencode);
+            if (reencode.isDefault()) {
+                imageOptionsController.onReencodingCanceled();
+            } else {
+                imageOptionsController.onReencodeOptionsSet(reencode);
+            }
         }
 
         pop();
