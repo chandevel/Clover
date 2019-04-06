@@ -500,4 +500,5 @@ Don't have a 4chan Pass?<br>
     <string name="reencode_image_as_png">COMO PNG</string>
     <string name="reencode_image_image_quality_100_default_text">La calidad de imagen: 100</string>
     <string name="reencode_image_reduce_1x_default_text">Reducir: 1x</string>
+    <string name="click_image_for_extra_options">Haga clic en la imagen para opciones adicionales</string>
 </resources>

@@ -42,6 +42,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.Reply;
@@ -53,6 +54,7 @@ import org.floens.chan.ui.captcha.CaptchaNojsLayout;
 import org.floens.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import org.floens.chan.ui.captcha.LegacyCaptchaLayout;
 import org.floens.chan.ui.drawable.DropdownArrowDrawable;
+import org.floens.chan.ui.helper.HintPopup;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.SelectionListeningEditText;
@@ -482,6 +484,8 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         if (bitmap != null) {
             preview.setImageBitmap(bitmap);
             preview.setVisibility(View.VISIBLE);
+
+            showReencodeImageHint();
         } else {
             openPreviewMessage(true, getString(R.string.reply_no_preview));
         }
@@ -543,6 +547,16 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         fileName.setText(reply.fileName);
 
         presenter.onImageOptionsApplied(reply);
+    }
+
+    private void showReencodeImageHint() {
+        if (!ChanSettings.reencodeHintShown.get()) {
+            String message = getContext().getString(R.string.click_image_for_extra_options);
+            HintPopup hintPopup = HintPopup.show(getContext(), preview, message, dp(-32), dp(16));
+            hintPopup.wiggle();
+
+            ChanSettings.reencodeHintShown.set(true);
+        }
     }
 
     public interface ReplyLayoutCallback {

@@ -136,7 +136,6 @@ public class ImageReencodeOptionsController extends Controller implements
             callbacks.onCanceled();
         } else {
             throw new RuntimeException("onClick Unknown view clicked");
-
         }
     }
 

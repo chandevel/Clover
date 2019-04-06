@@ -591,4 +591,5 @@ Don't have a 4chan Pass?<br>
     <string name="reencode_image_as_png">AS PNG</string>
     <string name="reencode_image_image_quality_100_default_text">Image quality: 100</string>
     <string name="reencode_image_reduce_1x_default_text">Reduce: 1x</string>
+    <string name="click_image_for_extra_options">Click image for extra options</string>
 </resources>

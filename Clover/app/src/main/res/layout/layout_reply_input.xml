@@ -160,12 +160,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:textSize="14sp"
                 android:visibility="gone" />
 
-            <ImageView
-                android:id="@+id/preview"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:scaleType="fitCenter"
-                android:visibility="gone" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"/>
+
+                <ImageView
+                    android:id="@+id/preview"
+                    android:layout_width="128dp"
+                    android:layout_height="100dp"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/preview_message"

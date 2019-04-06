@@ -535,4 +535,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="reencode_image_as_png">КАК PNG</string>
   <string name="reencode_image_image_quality_100_default_text">Качество изображения: 100</string>
   <string name="reencode_image_reduce_1x_default_text">Уменьшить: 1х</string>
+    <string name="click_image_for_extra_options">Кликните картинку для доп. опций</string>
 </resources>
