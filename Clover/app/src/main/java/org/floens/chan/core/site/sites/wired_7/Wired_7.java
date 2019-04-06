@@ -72,6 +72,7 @@ public class Wired_7 extends CommonSite {
         setBoards(
                 Board.fromSiteNameCode(this, "Lewds & +18", "18"),
                 Board.fromSiteNameCode(this, "Random", "b"),
+                Board.fromSiteNameCode(this, "Hentai", "h"),
                 Board.fromSiteNameCode(this, "Humanidad", "hum"),
                 Board.fromSiteNameCode(this, "Internacional/Random", "i"),
                 Board.fromSiteNameCode(this, "Política", "pol"),
@@ -81,7 +82,9 @@ public class Wired_7 extends CommonSite {
                 Board.fromSiteNameCode(this, "Musica & Audio", "mu"),
                 Board.fromSiteNameCode(this, "Tecnología", "tech"),
                 Board.fromSiteNameCode(this, "Videojuegos y Gaming", "v"),
-                Board.fromSiteNameCode(this, "Medios Visuales", "vis")
+                Board.fromSiteNameCode(this, "Medios Visuales", "vis"),
+                Board.fromSiteNameCode(this, "Paranormal", "x"),
+                Board.fromSiteNameCode(this, "Lain", "lain")
         );
 
         setResolvable(URL_HANDLER);

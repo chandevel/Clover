@@ -49,7 +49,7 @@ public class VichanActions extends CommonSite.CommonActions {
         }
 
         // Added with VichanAntispam.
-        // call.parameter("post", "Post");
+        call.parameter("post", "Post");
 
         call.parameter("password", reply.password);
         call.parameter("name", reply.name);
@@ -96,7 +96,7 @@ public class VichanActions extends CommonSite.CommonActions {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
             HttpUrl url = response.request().url();
-            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+).html").matcher(url.encodedPath());
+            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+)(.html)?").matcher(url.encodedPath());
             try {
                 if (m.find()) {
                     replyResponse.threadNo = Integer.parseInt(m.group(1));
