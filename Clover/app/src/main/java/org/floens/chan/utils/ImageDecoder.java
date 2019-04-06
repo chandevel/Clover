@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 
 /**
  * Simple ImageDecoder. Taken from Volley ImageRequest.
@@ -33,17 +32,11 @@ import java.lang.ref.WeakReference;
 public class ImageDecoder {
 
     public static void decodeFileOnBackgroundThread(final File file, final int maxWidth, final int maxHeight, ImageDecoderCallback callback) {
-        //to avoid potential memory leaks
-        final WeakReference<ImageDecoderCallback> weakCallback = new WeakReference<>(callback);
-
         Thread thread = new Thread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
 
             AndroidUtils.runOnUiThread(() -> {
-                ImageDecoderCallback idc = weakCallback.get();
-                if (idc != null) {
-                    idc.onImageBitmap(file, bitmap);
-                }
+                callback.onImageBitmap(file, bitmap);
             });
         });
         thread.start();
