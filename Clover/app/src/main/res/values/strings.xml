@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -583,6 +583,7 @@ Don't have a 4chan Pass?<br>
     <string name="could_not_apply_image_options">Could not apply new image options. Error message is %1$s</string>
     <string name="image_options_remove_filename">Remove filename</string>
     <string name="image_options_change_image_checksum">Change image checksum</string>
+    <string name="image_options_fix_exif" tools:ignore="MissingTranslation">Fix EXIF orientation</string>
     <string name="image_options_remove_metadata">Remove metadata</string>
     <string name="image_options_re_encode">Re-encode</string>
     <string name="reencode_image_re_encode_image_text">Re-encode image</string>

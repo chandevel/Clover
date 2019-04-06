@@ -82,6 +82,7 @@ public class ImageOptionsHelper implements
 
     public interface ImageReencodingHelperCallback {
         void presentController(Controller controller);
+
         void onImageOptionsApplied(Reply reply);
     }
 }
