@@ -84,12 +84,12 @@ public class BitmapUtils {
             bitmap = BitmapFactory.decodeFile(inputBitmapFile.getAbsolutePath(), opt);
             Matrix matrix = new Matrix();
 
-            //slightly change one pixel oof the image to change it's checksum
+            //slightly change one pixel of the image to change it's checksum
             if (changeImageChecksum) {
                 changeBitmapChecksum(bitmap);
             }
 
-            //scale image down
+            //scale the image down
             if (reduce != MIN_REDUCE) {
                 float scale = (float) ((MAX_REDUCE + 1) - reduce) / MAX_REDUCE;
                 matrix.setScale(scale, scale);

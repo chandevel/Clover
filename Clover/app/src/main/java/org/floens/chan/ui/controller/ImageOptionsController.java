@@ -148,7 +148,7 @@ public class ImageOptionsController extends Controller implements
         } else if (buttonView == removeFilename) {
             presenter.removeFilename(isChecked);
         } else if (buttonView == reencode) {
-            //isChecked here means is the current click has made the button checked not the previous state
+            //isChecked here means whether the current click has made the button checked
             if (!isChecked) {
                 onReencodingCanceled();
             } else {
