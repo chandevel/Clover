@@ -175,6 +175,7 @@ public class ImageReencodeOptionsController extends Controller implements
         // when re-encoding image as png it ignores the compress quality option so we can just
         // disable the quality seekbar
         if (index == 2 || (index == 0 && imageFormat == Bitmap.CompressFormat.PNG)) {
+            quality.setProgress(100);
             quality.setEnabled(false);
         } else {
             quality.setEnabled(true);

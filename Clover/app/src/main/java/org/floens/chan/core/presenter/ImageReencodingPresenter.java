@@ -128,6 +128,8 @@ public class ImageReencodingPresenter {
             reply = replyManager.getReply(loadable);
         }
 
+        Logger.d(TAG, "imageOptions: [" + imageOptions.toString() + "]");
+
         //all options are default - do nothing
         if (!imageOptions.getRemoveFilename()
                 && !imageOptions.getRemoveMetadata()
@@ -235,6 +237,14 @@ public class ImageReencodingPresenter {
         public void setChangeImageChecksum(boolean changeImageChecksum) {
             this.changeImageChecksum = changeImageChecksum;
         }
+
+        @Override
+        public String toString() {
+            String reencodeStr = reencode != null ? reencode.toString() : "null";
+
+            return "removeMetadata = " + removeMetadata + ", removeFilename = " + removeFilename +
+                    ", changeImageChecksum = " + changeImageChecksum + reencodeStr;
+        }
     }
 
     public static class Reencode {
@@ -274,6 +284,12 @@ public class ImageReencodingPresenter {
 
         public boolean isDefault() {
             return reencodeType == ReencodeType.AS_IS && reencodeQuality == 100 && reduce == 1;
+        }
+
+        @Override
+        public String toString() {
+            return "reencodeType = " + reencodeType + ", reencodeQuality = " + reencodeQuality +
+                    ", reduce = " + reduce;
         }
     }
 
