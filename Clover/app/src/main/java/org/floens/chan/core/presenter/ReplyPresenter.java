@@ -241,7 +241,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                     .saveReply(savedReply));
 
             //delete temp files before making a new draft
-            if (draft != null && draft.file != null && draft.file.getAbsolutePath().contains("cache/image")) {
+            if (draft.file.getAbsolutePath().contains("cache/image")) {
                 draft.file.delete();
             }
 

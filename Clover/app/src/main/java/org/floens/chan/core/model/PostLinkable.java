@@ -87,10 +87,6 @@ public class PostLinkable extends ClickableSpan {
         }
     }
 
-    public boolean getSpoilerState() {
-        return spoilerVisible;
-    }
-
     public static class ThreadLink {
         public String board;
         public int threadId;
