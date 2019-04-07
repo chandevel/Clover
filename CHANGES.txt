@@ -1,3 +1,6 @@
+New in 3.0.3 (sometime after 3.0.2)
+- This is a dev build. See https://github.com/Adamantcheese/Clover/releases for details.
+
 New in 3.0.2 (2019-03-12)
 - More sites added.
 - New video player.

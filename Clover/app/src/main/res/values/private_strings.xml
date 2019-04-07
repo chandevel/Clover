@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- No need to update the changelog, we can't get it translated in time. -->
-    <string name="changelog_30002" translatable="false">
+    <string name="changelog_30003" translatable="false">
         <![CDATA[
             <h3>Clover was updated</h3>
-            Clover was updated to v3.0.2<br>
+            Clover was updated to v3.0.3<br>
             <br>
             <b>New in this version:</b><br>
-            More sites added.<br>
-            New video player.<br>
-            Translations added.
+            This is a dev build. See https://github.com/Adamantcheese/Clover/releases for details.
         ]]>
     </string>
 

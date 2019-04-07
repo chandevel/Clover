@@ -21,10 +21,10 @@ android {
         minSdkVersion 15
         targetSdkVersion 25
 
-        versionName "v3.0.2"
+        versionName "v3.0.3"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
-        versionCode 30002
+        versionCode 30003
     }
 
     compileOptions {
