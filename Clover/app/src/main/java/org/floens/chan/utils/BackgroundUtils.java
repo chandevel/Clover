@@ -61,6 +61,25 @@ public class BackgroundUtils {
         return cancelable;
     }
 
+    public static Cancelable runWithExecutor(Executor executor, final Runnable background) {
+        final AtomicBoolean cancelled = new AtomicBoolean(false);
+        Cancelable cancelable = () -> cancelled.set(true);
+
+        executor.execute(() -> {
+            if (!cancelled.get()) {
+                try {
+                    background.run();
+                } catch (final Exception e) {
+                    AndroidUtils.runOnUiThread(() -> {
+                        throw new RuntimeException(e);
+                    });
+                }
+            }
+        });
+
+        return cancelable;
+    }
+
     public interface BackgroundResult<T> {
         void onResult(T result);
     }

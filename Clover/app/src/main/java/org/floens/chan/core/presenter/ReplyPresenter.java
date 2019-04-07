@@ -194,11 +194,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     public void onSubmitClicked() {
         callback.loadViewsIntoDraft(draft);
+
         draft.loadable = loadable;
-
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
-
         draft.captchaResponse = null;
+
         if (loadable.site.actions().postRequiresAuthentication()) {
             switchPage(Page.AUTHENTICATION, true);
         } else {
@@ -467,6 +467,16 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         } else {
             callback.openPreviewMessage(false, null);
         }
+    }
+
+    /**
+     * Applies the new file and filename if they have been changed. They may change when user
+     * re-encodes the picked image file (they may want to scale it down/remove metadata/change quality etc.)
+     */
+    public void onImageOptionsApplied(Reply reply) {
+        draft.file = reply.file;
+        draft.fileName = reply.fileName;
+        showPreview(draft.fileName, draft.file);
     }
 
     public interface ReplyPresenterCallback {

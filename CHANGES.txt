@@ -1,3 +1,9 @@
+New in 3.0.2 (2019-03-12)
+- More sites added.
+- New video player.
+- Translations added.
+
+
 New in 3.0.1 (2018-04-29)
 - Bug fixes.
 

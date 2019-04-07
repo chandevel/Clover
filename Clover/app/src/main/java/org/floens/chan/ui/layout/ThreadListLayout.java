@@ -44,6 +44,7 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.sites.chan4.Chan4;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -540,6 +541,11 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         return showingThread;
     }
 
+    @Override
+    public void showImageReencodingWindow() {
+        threadListLayoutCallback.showImageReencodingWindow();
+    }
+
     public int[] getIndexAndTop() {
         int index = 0;
         int top = 0;
@@ -693,6 +699,10 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.removeItemDecoration(PARTY);
     }
 
+    public void onImageOptionsApplied(Reply _reply) {
+        reply.onImageOptionsApplied(_reply);
+    }
+
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 
@@ -707,5 +717,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         Toolbar getToolbar();
 
         boolean shouldToolbarCollapse();
+
+        void showImageReencodingWindow();
     }
 }

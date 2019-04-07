@@ -756,6 +756,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         }
     }
 
+    public void showImageReencodingWindow() {
+        threadPresenterCallback.showImageReencodingWindow(loadable);
+    }
+
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostsFilter filter);
 
@@ -822,5 +826,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         void hideThread(Post post);
 
         void showNewPostsNotification(boolean show, int more);
+
+        void showImageReencodingWindow(Loadable loadable);
     }
 }

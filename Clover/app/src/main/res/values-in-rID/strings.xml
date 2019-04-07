@@ -476,4 +476,19 @@ Tidak memiliki 4chan Pass?<br>
 ]]>
     "</string>
     <string name="settings_screen_theme">Tema</string>
+    <string name="image_quality">Kualitas gambar: %1$d</string>
+    <string name="scale_reduce">Mengurangi: %1$dx</string>
+    <string name="could_not_decode_image_bitmap">Tidak dapat mendekodekan bitmap gambar</string>
+    <string name="could_not_apply_image_options">Tidak dapat menerapkan opsi gambar baru. Pesan kesalahan adalah: %1$s</string>
+    <string name="image_options_remove_filename">Hapus nama file</string>
+    <string name="image_options_change_image_checksum">Ubah checksum gambar</string>
+    <string name="image_options_remove_metadata">Hapus metadata</string>
+    <string name="image_options_re_encode">Enkode ulang</string>
+    <string name="reencode_image_re_encode_image_text">Menyandi ulang gambar</string>
+    <string name="reencode_image_as_is">DENGAN ADANYA (%1$s)</string>
+    <string name="reencode_image_as_jpeg">SEBAGAI JPEG</string>
+    <string name="reencode_image_as_png">SEBAGAI PNG</string>
+    <string name="reencode_image_image_quality_100_default_text">Kualitas gambar: 100</string>
+    <string name="reencode_image_reduce_1x_default_text">Mengurangi: 1x</string>
+    <string name="click_image_for_extra_options">Klik gambar untuk opsi tambahan</string>
 </resources>

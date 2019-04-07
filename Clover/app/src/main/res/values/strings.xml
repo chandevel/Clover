@@ -589,4 +589,20 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+    <string name="image_quality">Image quality: %1$d</string>
+    <string name="scale_reduce">Reduce: %1$dx</string>
+    <string name="could_not_decode_image_bitmap">Could not decode image bitmap</string>
+    <string name="could_not_apply_image_options">Could not apply new image options. Error message is %1$s</string>
+    <string name="image_options_remove_filename">Remove filename</string>
+    <string name="image_options_change_image_checksum">Change image checksum</string>
+    <string name="image_options_fix_exif" tools:ignore="MissingTranslation">Fix EXIF orientation</string>
+    <string name="image_options_remove_metadata">Remove metadata</string>
+    <string name="image_options_re_encode">Re-encode</string>
+    <string name="reencode_image_re_encode_image_text">Re-encode image</string>
+    <string name="reencode_image_as_is">AS IS (%1$s)</string>
+    <string name="reencode_image_as_jpeg">AS JPEG</string>
+    <string name="reencode_image_as_png">AS PNG</string>
+    <string name="reencode_image_image_quality_100_default_text">Image quality: 100</string>
+    <string name="reencode_image_reduce_1x_default_text">Reduce: 1x</string>
+    <string name="click_image_for_extra_options">Click image for extra options</string>
 </resources>
