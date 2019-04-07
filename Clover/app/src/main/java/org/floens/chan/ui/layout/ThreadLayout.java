@@ -93,6 +93,8 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     private ThreadLayoutCallback callback;
 
+    private View progressLayout;
+
     private LoadView loadView;
     private HidingFloatingActionButton replyButton;
     private ThreadListLayout threadListLayout;
@@ -139,6 +141,9 @@ public class ThreadLayout extends CoordinatorLayout implements
                 .inflate(R.layout.layout_thread_error, this, false);
         errorText = errorLayout.findViewById(R.id.text);
         errorRetryButton = errorLayout.findViewById(R.id.button);
+
+        // Inflate thread loading layout
+        progressLayout = layoutInflater.inflate(R.layout.layout_thread_progress, this, false);
 
         // Inflate empty layout
 
@@ -560,7 +565,8 @@ public class ThreadLayout extends CoordinatorLayout implements
                     loadView.setView(inflateEmptyView());
                     break;
                 case LOADING:
-                    View view = loadView.setView(null);
+                    View view = loadView.setView(progressLayout);
+
                     // TODO: cleanup
                     if (refreshedFromSwipe) {
                         refreshedFromSwipe = false;

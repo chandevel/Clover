@@ -19,6 +19,7 @@ package org.floens.chan.core.site.http;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 
 import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.IOUtils;
@@ -35,7 +36,7 @@ import okhttp3.ResponseBody;
 /**
  * Http calls are an abstraction over a normal OkHttp call.
  * <p>These HttpCalls are used for emulating &lt;form&gt; elements used for posting, reporting, deleting, etc.
- * <p>Implement {@link #setup(Request.Builder)} and {@link #process(Response, String)}.
+ * <p>Implement {@link #setup(Request.Builder, ProgressRequestBody.ProgressRequestListener)} and {@link #process(Response, String)}.
  * {@code setup()} is called on the main thread, set up up the request builder here. {@code execute()} is
  * called on a worker thread after the response was executed, do something with the response here.
  */
@@ -48,7 +49,10 @@ public abstract class HttpCall implements Callback {
     private HttpCallback callback;
     private Exception exception;
 
-    public abstract void setup(Request.Builder requestBuilder);
+    public abstract void setup(
+            Request.Builder requestBuilder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    );
 
     public abstract void process(Response response, String result) throws IOException;
 

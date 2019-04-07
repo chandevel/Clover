@@ -149,16 +149,16 @@ public class Dvach extends CommonSite {
             @Override
             public void post(Reply reply, final PostListener postListener) {
                 httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                    @Override
-                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                        postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                    }
+                            @Override
+                            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                                postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                            }
 
-                    @Override
-                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                        postListener.onPostError(httpPost, e);
-                    }
-                });
+                            @Override
+                            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                                postListener.onPostError(httpPost, e);
+                            }
+                        }, postListener::onUploadingProgress);
             }
 
             @Override

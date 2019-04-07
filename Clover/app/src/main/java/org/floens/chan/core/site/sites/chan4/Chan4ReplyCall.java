@@ -17,10 +17,12 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.common.CommonReplyHttpCall;
+import org.floens.chan.core.site.http.ProgressRequestBody;
 import org.floens.chan.core.site.http.Reply;
 
 import okhttp3.MediaType;
@@ -33,7 +35,10 @@ public class Chan4ReplyCall extends CommonReplyHttpCall {
     }
 
     @Override
-    public void addParameters(MultipartBody.Builder formBuilder) {
+    public void addParameters(
+            MultipartBody.Builder formBuilder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
         formBuilder.addFormDataPart("mode", "regist");
         formBuilder.addFormDataPart("pwd", replyResponse.password);
 
@@ -60,13 +65,34 @@ public class Chan4ReplyCall extends CommonReplyHttpCall {
         }
 
         if (reply.file != null) {
-            formBuilder.addFormDataPart("upfile", reply.fileName, RequestBody.create(
-                    MediaType.parse("application/octet-stream"), reply.file
-            ));
+            attachFile(formBuilder, progressListener);
         }
 
         if (reply.spoilerImage) {
             formBuilder.addFormDataPart("spoiler", "on");
         }
+    }
+
+    private void attachFile(
+            MultipartBody.Builder formBuilder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
+        RequestBody requestBody;
+
+        if (progressListener == null) {
+            requestBody = RequestBody.create(
+                    MediaType.parse("application/octet-stream"), reply.file
+            );
+        } else {
+            requestBody = new ProgressRequestBody(RequestBody.create(
+                    MediaType.parse("application/octet-stream"), reply.file
+            ), progressListener);
+
+        }
+
+        formBuilder.addFormDataPart(
+                "upfile",
+                reply.fileName,
+                requestBody);
     }
 }

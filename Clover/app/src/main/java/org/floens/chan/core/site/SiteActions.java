@@ -37,8 +37,9 @@ public interface SiteActions {
     void post(Reply reply, PostListener postListener);
 
     interface PostListener {
-
         void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse);
+
+        void onUploadingProgress(int percent);
 
         void onPostError(HttpCall httpCall, Exception exception);
     }

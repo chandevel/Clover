@@ -42,8 +42,8 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -81,6 +81,10 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private boolean openingName;
 
     private boolean blockSelectionChange = false;
+
+    // Progress view (when sending request to the server)
+    private View progressLayout;
+    private TextView currentProgress;
 
     // Reply views:
     private View replyInputLayout;
@@ -152,6 +156,9 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         attach = replyInputLayout.findViewById(R.id.attach);
         more = replyInputLayout.findViewById(R.id.more);
         submit = replyInputLayout.findViewById(R.id.submit);
+
+        progressLayout = inflater.inflate(R.layout.layout_reply_progress, this, false);
+        currentProgress = progressLayout.findViewById(R.id.current_progress);
 
         // Setup reply layout views
         commentQuoteButton.setOnClickListener(this);
@@ -306,8 +313,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         switch (page) {
             case LOADING:
                 setWrap(true);
-                View progressBar = setView(null);
+                View progressBar = setView(progressLayout);
                 progressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, dp(100)));
+
+                //reset progress to 0 upon uploading start
+                onUploadingProgress(0);
                 break;
             case INPUT:
                 setView(replyInputLayout);
@@ -489,7 +499,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
     @Override
     public void onFilePickLoading() {
-        // TODO
     }
 
     @Override
@@ -535,6 +544,13 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     @Override
     public ChanThread getThread() {
         return callback.getThread();
+    }
+
+    @Override
+    public void onUploadingProgress(int percent) {
+        if (currentProgress != null) {
+            currentProgress.setText(String.format("%d", percent));
+        }
     }
 
     public interface ReplyLayoutCallback {
