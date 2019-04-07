@@ -329,8 +329,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.loadViewsIntoDraft(draft);
 
         String extraNewline = "";
-        if (draft.selectionStart - 1 >= 0 && draft.selectionStart - 1 < draft.comment.length() &&
-                draft.comment.charAt(draft.selectionStart - 1) != '\n') {
+        if (draft.selection - 1 >= 0 && draft.selection - 1 < draft.comment.length() &&
+                draft.comment.charAt(draft.selection - 1) != '\n') {
             extraNewline = "\n";
         }
 
@@ -365,14 +365,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
     private void commentInsert(String insertBefore, String insertAfter) {
         draft.comment = new StringBuilder(draft.comment)
-                .insert(draft.selectionStart, insertBefore)
-                .insert(draft.selectionEnd + insertBefore.length(), insertAfter)
-                .toString();
-        /* Since this method is only used for quote insertion and spoilers,
-        both of which should set the cursor to right after the selected text for more typing,
-        set the selection start to the new end */
-        draft.selectionEnd += insertBefore.length();
-        draft.selectionStart = draft.selectionEnd;
+                .insert(draft.selection, insertBefore + insertAfter).toString();
+        draft.selection += insertBefore.length();
         callback.loadDraftIntoViews(draft);
     }
 
@@ -454,10 +448,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     private void highlightQuotes() {
         Matcher matcher = QUOTE_PATTERN.matcher(draft.comment);
 
-        // Find all occurrences of >>\d+ with start and end between selectionStart
+        // Find all occurrences of >>\d+ with start and end between selection
         int no = -1;
         while (matcher.find()) {
-            if (matcher.start() <= draft.selectionStart && matcher.end() >= draft.selectionStart - 1) {
+            if (matcher.start() <= draft.selection && matcher.end() >= draft.selection - 1) {
                 String quote = matcher.group().substring(2);
                 try {
                     no = Integer.parseInt(quote);
