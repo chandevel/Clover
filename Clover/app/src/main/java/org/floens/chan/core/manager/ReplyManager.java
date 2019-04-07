@@ -58,6 +58,10 @@ public class ReplyManager {
         for (Map.Entry<Loadable, Reply> entry : drafts.entrySet()) {
             if (!entry.getKey().equals(loadable)) {
                 Reply value = entry.getValue();
+                //delete temp files
+                if (value.file.getAbsolutePath().contains("cache/image")) {
+                    value.file.delete();
+                }
                 value.file = null;
                 value.fileName = "";
             }
