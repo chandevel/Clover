@@ -526,5 +526,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         ChanThread getThread();
 
         void focusComment();
+
+        void onUploadingProgress(int percent);
     }
 }

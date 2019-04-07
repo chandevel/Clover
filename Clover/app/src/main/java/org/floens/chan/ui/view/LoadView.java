@@ -173,21 +173,6 @@ public class LoadView extends FrameLayout {
         return newView;
     }
 
-    protected View getViewForNull() {
-        // TODO: figure out why this is needed for the thread list layout view.
-        FrameLayout progressBarContainer = new FrameLayout(getContext());
-        progressBarContainer.setLayoutParams(
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-        View progressBar = new ProgressBar(getContext());
-        progressBar.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-
-        progressBarContainer.addView(progressBar);
-
-        return progressBarContainer;
-    }
-
     protected void removeAndCallListener(View child) {
         removeView(child);
         if (listener != null) {
