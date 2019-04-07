@@ -260,7 +260,7 @@ public class ImageReencodingPresenter {
             String reencodeStr = reencode != null ? reencode.toString() : "null";
 
             return "fixExif = " + fixExif + ", removeMetadata = " + removeMetadata + ", removeFilename = " + removeFilename +
-                    ", changeImageChecksum = " + changeImageChecksum + reencodeStr;
+                    ", changeImageChecksum = " + changeImageChecksum + ", " + reencodeStr;
         }
     }
 
