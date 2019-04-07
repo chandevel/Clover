@@ -52,6 +52,7 @@ public class ImageOptionsController extends Controller implements
 
     private ConstraintLayout viewHolder;
     private AppCompatImageView preview;
+    private AppCompatCheckBox fixExif;
     private AppCompatCheckBox removeMetadata;
     private AppCompatCheckBox removeFilename;
     private AppCompatCheckBox changeImageChecksum;
@@ -59,7 +60,6 @@ public class ImageOptionsController extends Controller implements
     private AppCompatButton cancel;
     private AppCompatButton ok;
 
-    private Loadable loadable;
     private int statusBarColorPrevious;
 
     public ImageOptionsController(
@@ -71,7 +71,6 @@ public class ImageOptionsController extends Controller implements
         super(context);
         this.imageReencodingHelper = imageReencodingHelper;
         this.callbacks = callbacks;
-        this.loadable = loadable;
 
         presenter = new ImageReencodingPresenter(this, loadable);
     }
@@ -84,6 +83,7 @@ public class ImageOptionsController extends Controller implements
 
         viewHolder = view.findViewById(R.id.image_options_view_holder);
         preview = view.findViewById(R.id.image_options_preview);
+        fixExif = view.findViewById(R.id.image_options_fix_exif);
         removeMetadata = view.findViewById(R.id.image_options_remove_metadata);
         changeImageChecksum = view.findViewById(R.id.image_options_change_image_checksum);
         removeFilename = view.findViewById(R.id.image_options_remove_filename);
@@ -91,6 +91,7 @@ public class ImageOptionsController extends Controller implements
         cancel = view.findViewById(R.id.image_options_cancel);
         ok = view.findViewById(R.id.image_options_ok);
 
+        fixExif.setOnCheckedChangeListener(this);
         removeMetadata.setOnCheckedChangeListener(this);
         removeFilename.setOnCheckedChangeListener(this);
         reencode.setOnCheckedChangeListener(this);
@@ -144,6 +145,8 @@ public class ImageOptionsController extends Controller implements
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView == changeImageChecksum) {
             presenter.changeImageChecksum(isChecked);
+        } else if (buttonView == fixExif) {
+            presenter.fixExif(isChecked);
         } else if (buttonView == removeMetadata) {
             presenter.removeMetadata(isChecked);
         } else if (buttonView == removeFilename) {
@@ -214,6 +217,7 @@ public class ImageOptionsController extends Controller implements
         //called on the background thread!
 
         AndroidUtils.runOnUiThread(() -> {
+            fixExif.setEnabled(enabled);
             removeMetadata.setEnabled(enabled);
             removeFilename.setEnabled(enabled);
             changeImageChecksum.setEnabled(enabled);
@@ -234,6 +238,7 @@ public class ImageOptionsController extends Controller implements
 
     public interface ImageOptionsControllerCallbacks {
         void onReencodeOptionClicked(@Nullable Bitmap.CompressFormat imageFormat);
+
         void onImageOptionsApplied(Reply reply);
     }
 }

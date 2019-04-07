@@ -105,6 +105,10 @@ public class ImageReencodingPresenter {
         }
     }
 
+    public void fixExif(boolean isChecked) {
+        imageOptions.setFixExif(isChecked);
+    }
+
     public void removeMetadata(boolean isChecked) {
         imageOptions.setRemoveMetadata(isChecked);
     }
@@ -132,6 +136,7 @@ public class ImageReencodingPresenter {
 
         //all options are default - do nothing
         if (!imageOptions.getRemoveFilename()
+                && !imageOptions.getFixExif()
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencode() == null) {
@@ -141,6 +146,7 @@ public class ImageReencodingPresenter {
 
         //only the "remove filename" option is selected
         if (imageOptions.getRemoveFilename()
+                && !imageOptions.getFixExif()
                 && !imageOptions.getRemoveMetadata()
                 && !imageOptions.getChangeImageChecksum()
                 && imageOptions.getReencode() == null) {
@@ -160,7 +166,8 @@ public class ImageReencodingPresenter {
 
                 reply.file = BitmapUtils.reencodeBitmapFile(
                         reply.file,
-                        imageOptions.removeMetadata,
+                        imageOptions.getFixExif(),
+                        imageOptions.getRemoveMetadata(),
                         imageOptions.getChangeImageChecksum(),
                         imageOptions.getReencode()
                 );
@@ -191,6 +198,7 @@ public class ImageReencodingPresenter {
     }
 
     public static class ImageOptions {
+        private boolean fixExif;
         private boolean removeMetadata;
         private boolean removeFilename;
         private boolean changeImageChecksum;
@@ -199,10 +207,19 @@ public class ImageReencodingPresenter {
         private Reencode reencode;
 
         public ImageOptions() {
+            this.fixExif = false;
             this.removeMetadata = false;
             this.removeFilename = false;
             this.changeImageChecksum = false;
             this.reencode = null;
+        }
+
+        public boolean getFixExif() {
+            return fixExif;
+        }
+
+        public void setFixExif(boolean fixExif) {
+            this.fixExif = fixExif;
         }
 
         public boolean getRemoveMetadata() {
@@ -242,7 +259,7 @@ public class ImageReencodingPresenter {
         public String toString() {
             String reencodeStr = reencode != null ? reencode.toString() : "null";
 
-            return "removeMetadata = " + removeMetadata + ", removeFilename = " + removeFilename +
+            return "fixExif = " + fixExif + ", removeMetadata = " + removeMetadata + ", removeFilename = " + removeFilename +
                     ", changeImageChecksum = " + changeImageChecksum + reencodeStr;
         }
     }

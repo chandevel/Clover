@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.media.ExifInterface;
 
 import org.floens.chan.core.presenter.ImageReencodingPresenter;
 
@@ -27,13 +28,14 @@ public class BitmapUtils {
     private static final String TEMP_FILE_NAME = "temp_file_name";
     private static final String TEMP_FILE_NAME_WITH_CACHE_DIR = "cache/" + TEMP_FILE_NAME;
 
-    private static final byte[] PNG_HEADER = new byte[] { -119, 80, 78, 71, 13, 10, 26, 10 };
-    private static final byte[] JPEG_HEADER = new byte[] { -1, -40 };
+    private static final byte[] PNG_HEADER = new byte[]{-119, 80, 78, 71, 13, 10, 26, 10};
+    private static final byte[] JPEG_HEADER = new byte[]{-1, -40};
 
     private static final Random random = new Random();
 
     public static File reencodeBitmapFile(
             @NonNull File inputBitmapFile,
+            boolean fixExif,
             boolean removeMetadata,
             boolean changeImageChecksum,
             @Nullable ImageReencodingPresenter.Reencode reencode
@@ -68,6 +70,7 @@ public class BitmapUtils {
         if (quality == MAX_QUALITY
                 && reduce == MIN_REDUCE
                 && reencodeType == ImageReencodingPresenter.ReencodeType.AS_IS
+                && !fixExif
                 && !removeMetadata
                 && !changeImageChecksum) {
             return inputBitmapFile;
@@ -98,6 +101,26 @@ public class BitmapUtils {
             if (reduce != MIN_REDUCE) {
                 float scale = 1f / reduce;
                 matrix.setScale(scale, scale);
+            }
+
+            //fix exif
+            if (compressFormat == Bitmap.CompressFormat.JPEG && fixExif) {
+                ExifInterface exif = new ExifInterface(inputBitmapFile.getAbsolutePath());
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        matrix.postRotate(270);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        matrix.postRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matrix.postRotate(90);
+                        break;
+                    default:
+                        matrix.postRotate(0);
+                        break;
+                }
             }
 
             Bitmap newBitmap = Bitmap.createBitmap(

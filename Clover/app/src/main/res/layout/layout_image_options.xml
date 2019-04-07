@@ -87,6 +87,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:text="@string/image_options_change_image_checksum" />
 
                 <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/image_options_fix_exif"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/image_options_fix_exif" />
+
+                <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/image_options_remove_metadata"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
