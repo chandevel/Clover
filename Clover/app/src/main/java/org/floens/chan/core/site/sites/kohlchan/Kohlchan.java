@@ -77,6 +77,7 @@ public class Kohlchan extends CommonSite {
                 Board.fromSiteNameCode(this, "bus", "bus"),
                 Board.fromSiteNameCode(this, "c", "c"),
                 Board.fromSiteNameCode(this, "co", "co"),
+                Board.fromSiteNameCode(this, "cyber", "cyber"),
                 Board.fromSiteNameCode(this, "d", "d"),
                 Board.fromSiteNameCode(this, "danish", "danish"),
                 Board.fromSiteNameCode(this, "e", "e"),
@@ -104,8 +105,7 @@ public class Kohlchan extends CommonSite {
                 Board.fromSiteNameCode(this, "kohl", "kohl"),
                 Board.fromSiteNameCode(this, "km", "km"),
                 Board.fromSiteNameCode(this, "m", "m"),
-                Board.fromSiteNameCode(this, "ru", "ru"),
-                Board.fromSiteNameCode(this, "fefe", "fefe")
+                Board.fromSiteNameCode(this, "ru", "ru")
         );
 
         setResolvable(URL_HANDLER);
