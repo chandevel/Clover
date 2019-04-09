@@ -223,6 +223,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         notifyDataSetChanged();
     }
 
+    public void onAllPinsRemoved() {
+        pins.clear();
+        notifyDataSetChanged();
+    }
+
     public void onPinChanged(RecyclerView recyclerView, Pin pin) {
         PinViewHolder holder = (PinViewHolder) recyclerView.findViewHolderForAdapterPosition(pins.indexOf(pin) + PIN_OFFSET);
         if (holder != null) {
