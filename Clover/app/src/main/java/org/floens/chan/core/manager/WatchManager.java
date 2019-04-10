@@ -202,12 +202,11 @@ public class WatchManager implements WakeManager.Wakeable {
         databaseManager.runTask(databasePinManager.deletePins(pinList));
 
         // Update the new orders
-        sortListAndApplyOrders();
-        updatePinsInDatabase();
-
+        Collections.sort(pins);
+        reorder(pins);
         updateState();
 
-        EventBus.getDefault().post(new AllPinsRemovedMessage());
+        EventBus.getDefault().post(new PinMessages.AllPinsRemovedMessage());
     }
 
     public void updatePin(Pin pin) {
@@ -363,7 +362,7 @@ public class WatchManager implements WakeManager.Wakeable {
         List<Pin> undo = new ArrayList<>(toRemove.size());
         for (int i = 0; i < toRemove.size(); i++) {
             Pin pin = toRemove.get(i);
-            undo.add(pin.copy());
+            undo.add(pin.clone());
         }
 
         deletePins(toRemove);
