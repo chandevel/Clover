@@ -100,11 +100,6 @@ public abstract class ToolbarNavigationController extends NavigationController i
     }
 
     @Override
-    public String getSearchHint(NavigationItem item) {
-        return context.getString(R.string.search_hint);
-    }
-
-    @Override
     public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
         for (Controller controller : childControllers) {
             if (controller.navigation == item) {

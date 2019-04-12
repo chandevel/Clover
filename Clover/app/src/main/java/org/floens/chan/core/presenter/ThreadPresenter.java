@@ -87,10 +87,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
-    private boolean searchOpen = false;
+    private boolean searchOpen;
     private String searchQuery;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
-    private boolean historyAdded = false;
+    private boolean historyAdded;
 
     @Inject
     public ThreadPresenter(WatchManager watchManager,
@@ -421,6 +421,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 searchQuery = null;
                 showPosts();
                 threadPresenterCallback.setSearchStatus(null, false, true);
+                threadPresenterCallback.showSearch(false);
                 highlightPost(post);
                 scrollToPost(post, false);
             } else {

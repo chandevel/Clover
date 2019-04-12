@@ -24,7 +24,7 @@ import org.floens.chan.R;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
 /**
- * The navigation properties for a Controller. Controls common properties that parent controlers
+ * The navigation properties for a Controller. Controls common properties that parent controllers
  * need to know, such as the title of the controller.
  * <p>
  * This is also used to set up the toolbar menu, see {@link #buildMenu()}.
@@ -34,12 +34,12 @@ public class NavigationItem {
     public String subtitle = "";
 
     public boolean hasBack = true;
-    public boolean hasDrawer = false;
-    public boolean handlesToolbarInset = false;
+    public boolean hasDrawer;
+    public boolean handlesToolbarInset;
     public boolean swipeable = true;
 
-    boolean search = false;
-    String searchText;
+    public String searchText;
+    public boolean search;
 
     protected ToolbarMenu menu;
     protected ToolbarMiddleMenu middleMenu;
@@ -66,17 +66,11 @@ public class NavigationItem {
     }
 
     public ToolbarMenuItem findItem(int id) {
-        if (menu != null) {
-            return menu.findItem(id);
-        }
-        return null;
+        return menu == null ? null : menu.findItem(id);
     }
 
     public ToolbarMenuSubItem findSubItem(int id) {
-        if (menu != null) {
-            return menu.findSubItem(id);
-        }
-        return null;
+        return menu == null ? null : menu.findSubItem(id);
     }
 
     public static class MenuBuilder {
