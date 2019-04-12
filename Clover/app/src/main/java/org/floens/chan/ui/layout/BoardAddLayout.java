@@ -74,10 +74,7 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
 
         // View setup
         search.setCallback(this);
-        search.setHint(getString(R.string.search_hint));
-        search.setTextColor(getAttrColor(getContext(), R.attr.text_color_primary));
-        search.setHintColor(getAttrColor(getContext(), R.attr.text_color_hint));
-        search.setClearButtonImage(R.drawable.ic_clear_black_24dp);
+
         checkAllButton.setOnClickListener(this);
         suggestionsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         suggestionsRecycler.setAdapter(suggestionsAdapter);
