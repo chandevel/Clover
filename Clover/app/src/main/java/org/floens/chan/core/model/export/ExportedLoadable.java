@@ -1,0 +1,90 @@
+package org.floens.chan.core.model.export;
+
+import com.google.gson.annotations.SerializedName;
+
+public class ExportedLoadable {
+    @SerializedName("board_code")
+    private String boardCode;
+    @SerializedName("loadable_id")
+    private long loadableId;
+    @SerializedName("last_loaded")
+    private int lastLoaded;
+    @SerializedName("last_viewed")
+    private int lastViewed;
+    @SerializedName("list_view_index")
+    private int listViewIndex;
+    @SerializedName("list_view_top")
+    private int listViewTop;
+    @SerializedName("mode")
+    private int mode;
+    @SerializedName("no")
+    private int no;
+    @SerializedName("site_id")
+    private int siteId;
+    @SerializedName("title")
+    private String title;
+
+    public ExportedLoadable(
+            String boardCode,
+            long loadableId,
+            int lastLoaded,
+            int lastViewed,
+            int listViewIndex,
+            int listViewTop,
+            int mode,
+            int no,
+            int siteId,
+            String title
+    ) {
+        this.boardCode = boardCode;
+        this.loadableId = loadableId;
+        this.lastLoaded = lastLoaded;
+        this.lastViewed = lastViewed;
+        this.listViewIndex = listViewIndex;
+        this.listViewTop = listViewTop;
+        this.mode = mode;
+        this.no = no;
+        this.siteId = siteId;
+        this.title = title;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public long getLoadableId() {
+        return loadableId;
+    }
+
+    public int getLastLoaded() {
+        return lastLoaded;
+    }
+
+    public int getLastViewed() {
+        return lastViewed;
+    }
+
+    public int getListViewIndex() {
+        return listViewIndex;
+    }
+
+    public int getListViewTop() {
+        return listViewTop;
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
+    public int getNo() {
+        return no;
+    }
+
+    public int getSiteId() {
+        return siteId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+}

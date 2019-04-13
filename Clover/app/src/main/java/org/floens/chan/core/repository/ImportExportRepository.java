@@ -4,10 +4,14 @@ import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 
 import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.model.export.ExportedAppSettings;
+import org.floens.chan.core.model.export.ExportedBoard;
+import org.floens.chan.core.model.export.ExportedLoadable;
+import org.floens.chan.core.model.export.ExportedPin;
+import org.floens.chan.core.model.export.ExportedSite;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
@@ -32,7 +36,7 @@ import javax.inject.Inject;
 public class ImportExportRepository {
     private static final String TAG = "ImportExportRepository";
     private static final String EXPORT_FILE_NAME = "exported_pins.json";
-    private static final int CURRENT_EXPORT_SETTINGS_VERSION = 1;
+    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 1;
 
     private DatabaseManager databaseManager;
     private DatabaseHelper databaseHelper;
@@ -54,7 +58,7 @@ public class ImportExportRepository {
             File exportFile = null;
 
             try {
-                AppSettings appSettings = readSettingsFromDatabase();
+                ExportedAppSettings appSettings = readSettingsFromDatabase();
                 if (appSettings.isEmpty()) {
                     callbacks.onNothingToImportExport(ImportExport.Export);
                     return null;
@@ -110,10 +114,10 @@ public class ImportExportRepository {
                     );
                 }
 
-                AppSettings appSettings;
+                ExportedAppSettings appSettings;
 
                 try (FileReader reader = new FileReader(importFile)) {
-                    appSettings = gson.fromJson(reader, AppSettings.class);
+                    appSettings = gson.fromJson(reader, ExportedAppSettings.class);
                 }
 
                 if (appSettings.isEmpty()) {
@@ -143,8 +147,8 @@ public class ImportExportRepository {
         }
     }
 
-    private void writeSettingsToDatabase(@NonNull AppSettings appSettingsParam) throws SQLException {
-        AppSettings appSettings = appSettingsParam;
+    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam) throws SQLException {
+        ExportedAppSettings appSettings = appSettingsParam;
 
         if (appSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
             appSettings = onUpgrade(appSettings.getVersion(), appSettings);
@@ -161,40 +165,40 @@ public class ImportExportRepository {
         databaseHelper.pinDao.deleteBuilder().delete();
         databaseHelper.boardsDao.deleteBuilder().delete();
 
-        for (ExportedBoard exportedBoard : appSettings.exportedBoards) {
+        for (ExportedBoard exportedBoard : appSettings.getExportedBoards()) {
             databaseHelper.boardsDao.createIfNotExists(new Board(
-                    exportedBoard.siteId,
-                    exportedBoard.saved,
-                    exportedBoard.order,
-                    exportedBoard.name,
-                    exportedBoard.code,
-                    exportedBoard.workSafe,
-                    exportedBoard.perPage,
-                    exportedBoard.pages,
-                    exportedBoard.maxFileSize,
-                    exportedBoard.maxWebmSize,
-                    exportedBoard.maxCommentChars,
-                    exportedBoard.bumpLimit,
-                    exportedBoard.imageLimit,
-                    exportedBoard.cooldownThreads,
-                    exportedBoard.cooldownReplies,
-                    exportedBoard.cooldownImages,
-                    exportedBoard.cooldownRepliesIntra,
-                    exportedBoard.cooldownImagesIntra,
-                    exportedBoard.spoilers,
-                    exportedBoard.customSpoilers,
-                    exportedBoard.userIds,
-                    exportedBoard.codeTags,
-                    exportedBoard.preuploadCaptcha,
-                    exportedBoard.countryFlags,
-                    exportedBoard.trollFlags,
-                    exportedBoard.mathTags,
-                    exportedBoard.description,
-                    exportedBoard.archive
+                    exportedBoard.getSiteId(),
+                    exportedBoard.isSaved(),
+                    exportedBoard.getOrder(),
+                    exportedBoard.getName(),
+                    exportedBoard.getCode(),
+                    exportedBoard.isWorkSafe(),
+                    exportedBoard.getPerPage(),
+                    exportedBoard.getPages(),
+                    exportedBoard.getMaxFileSize(),
+                    exportedBoard.getMaxWebmSize(),
+                    exportedBoard.getMaxCommentChars(),
+                    exportedBoard.getBumpLimit(),
+                    exportedBoard.getImageLimit(),
+                    exportedBoard.getCooldownThreads(),
+                    exportedBoard.getCooldownReplies(),
+                    exportedBoard.getCooldownImages(),
+                    exportedBoard.getCooldownRepliesIntra(),
+                    exportedBoard.getCooldownImagesIntra(),
+                    exportedBoard.isSpoilers(),
+                    exportedBoard.getCustomSpoilers(),
+                    exportedBoard.isUserIds(),
+                    exportedBoard.isCodeTags(),
+                    exportedBoard.isPreuploadCaptcha(),
+                    exportedBoard.isCountryFlags(),
+                    exportedBoard.isTrollFlags(),
+                    exportedBoard.isMathTags(),
+                    exportedBoard.getDescription(),
+                    exportedBoard.isArchive()
             ));
         }
 
-        for (ExportedSite exportedSite : appSettings.exportedSites) {
+        for (ExportedSite exportedSite : appSettings.getExportedSites()) {
             SiteModel inserted = databaseHelper.siteDao.createIfNotExists(new SiteModel(
                     exportedSite.getSiteId(),
                     exportedSite.getConfiguration(),
@@ -202,31 +206,31 @@ public class ImportExportRepository {
                     exportedSite.getOrder()
             ));
 
-            for (ExportedPin exportedPin : exportedSite.exportedPins) {
+            for (ExportedPin exportedPin : exportedSite.getExportedPins()) {
                 Loadable loadable = Loadable.importLoadable(
                         inserted.id,
-                        exportedPin.exportedLoadable.mode,
-                        exportedPin.exportedLoadable.boardCode,
-                        exportedPin.exportedLoadable.no,
-                        exportedPin.exportedLoadable.title,
-                        exportedPin.exportedLoadable.listViewIndex,
-                        exportedPin.exportedLoadable.listViewTop,
-                        exportedPin.exportedLoadable.lastViewed,
-                        exportedPin.exportedLoadable.lastLoaded
+                        exportedPin.getExportedLoadable().getMode(),
+                        exportedPin.getExportedLoadable().getBoardCode(),
+                        exportedPin.getExportedLoadable().getNo(),
+                        exportedPin.getExportedLoadable().getTitle(),
+                        exportedPin.getExportedLoadable().getListViewIndex(),
+                        exportedPin.getExportedLoadable().getListViewTop(),
+                        exportedPin.getExportedLoadable().getLastViewed(),
+                        exportedPin.getExportedLoadable().getLastLoaded()
                 );
                 databaseHelper.loadableDao.createIfNotExists(loadable);
 
                 Pin pin = new Pin(
                         loadable,
-                        exportedPin.watching,
-                        exportedPin.watchLastCount,
-                        exportedPin.watchNewCount,
-                        exportedPin.quoteNewCount,
-                        exportedPin.quoteLastCount,
-                        exportedPin.isError,
-                        exportedPin.thumbnailUrl,
-                        exportedPin.order,
-                        exportedPin.archived
+                        exportedPin.isWatching(),
+                        exportedPin.getWatchLastCount(),
+                        exportedPin.getWatchNewCount(),
+                        exportedPin.getQuoteLastCount(),
+                        exportedPin.getQuoteNewCount(),
+                        exportedPin.isError(),
+                        exportedPin.getThumbnailUrl(),
+                        exportedPin.getOrder(),
+                        exportedPin.isArchived()
                 );
                 databaseHelper.pinDao.createIfNotExists(pin);
             }
@@ -235,14 +239,14 @@ public class ImportExportRepository {
         ChanSettings.deserializeFromString(appSettingsParam.getSettings());
     }
 
-    private AppSettings onUpgrade(int version, AppSettings appSettings) {
-        // Transform AppSettings here if necessary
+    private ExportedAppSettings onUpgrade(int version, ExportedAppSettings appSettings) {
+        // Transform ExportedAppSettings here if necessary
         return appSettings;
     }
 
     //TODO: filters, hides
     @NonNull
-    private AppSettings readSettingsFromDatabase() throws java.sql.SQLException {
+    private ExportedAppSettings readSettingsFromDatabase() throws java.sql.SQLException {
         @SuppressLint("UseSparseArrays")
         Map<Integer, SiteModel> sitesMap = new HashMap<>();
         {
@@ -327,7 +331,7 @@ public class ImportExportRepository {
         }
 
         if (exportedSites.isEmpty()) {
-            return new AppSettings(new ArrayList<>(), new ArrayList<>(), "");
+            return new ExportedAppSettings(new ArrayList<>(), new ArrayList<>(), "");
         }
 
         List<ExportedBoard> exportedBoards = new ArrayList<>();
@@ -366,436 +370,7 @@ public class ImportExportRepository {
         }
 
         String settings = ChanSettings.serializeToString();
-        return new AppSettings(exportedSites, exportedBoards, settings);
-    }
-
-    private static class AppSettings {
-        @SerializedName("version")
-        private int version = CURRENT_EXPORT_SETTINGS_VERSION;
-        @SerializedName("exported_sites")
-        private List<ExportedSite> exportedSites;
-        @SerializedName("exported_boards")
-        private List<ExportedBoard> exportedBoards;
-        @SerializedName("settings")
-        private String settings;
-
-        public AppSettings(
-                List<ExportedSite> exportedSites,
-                List<ExportedBoard> exportedBoards,
-                String settings
-        ) {
-            this.exportedSites = exportedSites;
-            this.exportedBoards = exportedBoards;
-            this.settings = settings;
-        }
-
-        public boolean isEmpty() {
-            return exportedSites.isEmpty() && exportedBoards.isEmpty();
-        }
-
-        public List<ExportedSite> getExportedSites() {
-            return exportedSites;
-        }
-
-        public void setExportedSites(List<ExportedSite> exportedSites) {
-            this.exportedSites = exportedSites;
-        }
-
-        public List<ExportedBoard> getExportedBoards() {
-            return exportedBoards;
-        }
-
-        public void setExportedBoards(List<ExportedBoard> exportedBoards) {
-            this.exportedBoards = exportedBoards;
-        }
-
-        public int getVersion() {
-            return version;
-        }
-
-        public String getSettings() {
-            return settings;
-        }
-    }
-
-    private static class ExportedBoard {
-        @SerializedName("site_id")
-        private int siteId;
-        @SerializedName("saved")
-        private boolean saved;
-        @SerializedName("order")
-        private int order;
-        @SerializedName("name")
-        private String name;
-        @SerializedName("code")
-        private String code;
-        @SerializedName("work_safe")
-        private boolean workSafe;
-        @SerializedName("per_page")
-        private int perPage;
-        @SerializedName("pages")
-        private int pages;
-        @SerializedName("max_file_size")
-        private int maxFileSize;
-        @SerializedName("max_webm_size")
-        private int maxWebmSize;
-        @SerializedName("max_comment_chars")
-        private int maxCommentChars;
-        @SerializedName("bump_limit")
-        private int bumpLimit;
-        @SerializedName("image_limit")
-        private int imageLimit;
-        @SerializedName("cooldown_threads")
-        private int cooldownThreads;
-        @SerializedName("cooldown_replies")
-        private int cooldownReplies;
-        @SerializedName("cooldown_images")
-        private int cooldownImages;
-        @SerializedName("cooldown_replies_intra")
-        private int cooldownRepliesIntra;
-        @SerializedName("cooldown_images_intra")
-        private int cooldownImagesIntra;
-        @SerializedName("spoilers")
-        private boolean spoilers;
-        @SerializedName("custom_spoilers")
-        private int customSpoilers;
-        @SerializedName("user_ids")
-        private boolean userIds;
-        @SerializedName("code_tags")
-        private boolean codeTags;
-        @SerializedName("preupload_captcha")
-        private boolean preuploadCaptcha;
-        @SerializedName("country_flags")
-        private boolean countryFlags;
-        @SerializedName("troll_flags")
-        private boolean trollFlags;
-        @SerializedName("math_tags")
-        private boolean mathTags;
-        @SerializedName("description")
-        private String description;
-        @SerializedName("archive")
-        private boolean archive;
-
-        public ExportedBoard(
-                int siteId,
-                boolean saved,
-                int order,
-                String name,
-                String code,
-                boolean workSafe,
-                int perPage,
-                int pages,
-                int maxFileSize,
-                int maxWebmSize,
-                int maxCommentChars,
-                int bumpLimit,
-                int imageLimit,
-                int cooldownThreads,
-                int cooldownReplies,
-                int cooldownImages,
-                int cooldownRepliesIntra,
-                int cooldownImagesIntra,
-                boolean spoilers,
-                int customSpoilers,
-                boolean userIds,
-                boolean codeTags,
-                boolean preuploadCaptcha,
-                boolean countryFlags,
-                boolean trollFlags,
-                boolean mathTags,
-                String description,
-                boolean archive
-        ) {
-            this.siteId = siteId;
-            this.saved = saved;
-            this.order = order;
-            this.name = name;
-            this.code = code;
-            this.workSafe = workSafe;
-            this.perPage = perPage;
-            this.pages = pages;
-            this.maxFileSize = maxFileSize;
-            this.maxWebmSize = maxWebmSize;
-            this.maxCommentChars = maxCommentChars;
-            this.bumpLimit = bumpLimit;
-            this.imageLimit = imageLimit;
-            this.cooldownThreads = cooldownThreads;
-            this.cooldownReplies = cooldownReplies;
-            this.cooldownImages = cooldownImages;
-            this.cooldownRepliesIntra = cooldownRepliesIntra;
-            this.cooldownImagesIntra = cooldownImagesIntra;
-            this.spoilers = spoilers;
-            this.customSpoilers = customSpoilers;
-            this.userIds = userIds;
-            this.codeTags = codeTags;
-            this.preuploadCaptcha = preuploadCaptcha;
-            this.countryFlags = countryFlags;
-            this.trollFlags = trollFlags;
-            this.mathTags = mathTags;
-            this.description = description;
-            this.archive = archive;
-        }
-
-        public int getSiteId() {
-            return siteId;
-        }
-
-        public boolean isSaved() {
-            return saved;
-        }
-
-        public int getOrder() {
-            return order;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public boolean isWorkSafe() {
-            return workSafe;
-        }
-
-        public int getPerPage() {
-            return perPage;
-        }
-
-        public int getPages() {
-            return pages;
-        }
-
-        public int getMaxFileSize() {
-            return maxFileSize;
-        }
-
-        public int getMaxWebmSize() {
-            return maxWebmSize;
-        }
-
-        public int getMaxCommentChars() {
-            return maxCommentChars;
-        }
-
-        public int getBumpLimit() {
-            return bumpLimit;
-        }
-
-        public int getImageLimit() {
-            return imageLimit;
-        }
-
-        public int getCooldownThreads() {
-            return cooldownThreads;
-        }
-
-        public int getCooldownReplies() {
-            return cooldownReplies;
-        }
-
-        public int getCooldownImages() {
-            return cooldownImages;
-        }
-
-        public int getCooldownRepliesIntra() {
-            return cooldownRepliesIntra;
-        }
-
-        public int getCooldownImagesIntra() {
-            return cooldownImagesIntra;
-        }
-
-        public boolean isSpoilers() {
-            return spoilers;
-        }
-
-        public int getCustomSpoilers() {
-            return customSpoilers;
-        }
-
-        public boolean isUserIds() {
-            return userIds;
-        }
-
-        public boolean isCodeTags() {
-            return codeTags;
-        }
-
-        public boolean isPreuploadCaptcha() {
-            return preuploadCaptcha;
-        }
-
-        public boolean isCountryFlags() {
-            return countryFlags;
-        }
-
-        public boolean isTrollFlags() {
-            return trollFlags;
-        }
-
-        public boolean isMathTags() {
-            return mathTags;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public boolean isArchive() {
-            return archive;
-        }
-    }
-
-    private static class ExportedSite {
-        @SerializedName("site_id")
-        private int siteId;
-        @SerializedName("configuration")
-        private String configuration;
-        @SerializedName("order")
-        private int order;
-        @SerializedName("user_settings")
-        private String userSettings;
-        @SerializedName("exported_pins")
-        private List<ExportedPin> exportedPins;
-
-        public ExportedSite(
-                int siteId,
-                String configuration,
-                int order,
-                String userSettings,
-                List<ExportedPin> exportedPins
-        ) {
-            this.siteId = siteId;
-            this.configuration = configuration;
-            this.order = order;
-            this.userSettings = userSettings;
-            this.exportedPins = exportedPins;
-        }
-
-        public int getSiteId() {
-            return siteId;
-        }
-
-        public String getConfiguration() {
-            return configuration;
-        }
-
-        public int getOrder() {
-            return order;
-        }
-
-        public String getUserSettings() {
-            return userSettings;
-        }
-
-        public List<ExportedPin> getExportedPins() {
-            return exportedPins;
-        }
-    }
-
-    private static class ExportedPin {
-        @SerializedName("archived")
-        private boolean archived;
-        @SerializedName("pin_id")
-        private int pinId;
-        @SerializedName("is_error")
-        private boolean isError;
-        @SerializedName("loadable_id")
-        private int loadableId;
-        @SerializedName("order")
-        private int order;
-        @SerializedName("quote_last_count")
-        private int quoteLastCount;
-        @SerializedName("quote_new_count")
-        private int quoteNewCount;
-        @SerializedName("thumbnail_url")
-        private String thumbnailUrl;
-        @SerializedName("watch_last_count")
-        private int watchLastCount;
-        @SerializedName("watch_new_count")
-        private int watchNewCount;
-        @SerializedName("watching")
-        private boolean watching;
-        @SerializedName("exported_loadable")
-        private ExportedLoadable exportedLoadable;
-
-        public ExportedPin(
-                boolean archived,
-                int pinId,
-                boolean isError,
-                int loadableId,
-                int order,
-                int quoteLastCount,
-                int quoteNewCount,
-                String thumbnailUrl,
-                int watchLastCount,
-                int watchNewCount,
-                boolean watching,
-                ExportedLoadable exportedLoadable
-        ) {
-            this.archived = archived;
-            this.pinId = pinId;
-            this.isError = isError;
-            this.loadableId = loadableId;
-            this.order = order;
-            this.quoteLastCount = quoteLastCount;
-            this.quoteNewCount = quoteNewCount;
-            this.thumbnailUrl = thumbnailUrl;
-            this.watchLastCount = watchLastCount;
-            this.watchNewCount = watchNewCount;
-            this.watching = watching;
-            this.exportedLoadable = exportedLoadable;
-        }
-    }
-
-    private static class ExportedLoadable {
-        @SerializedName("board_code")
-        private String boardCode;
-        @SerializedName("loadable_id")
-        private long loadableId;
-        @SerializedName("last_loaded")
-        private int lastLoaded;
-        @SerializedName("last_viewed")
-        private int lastViewed;
-        @SerializedName("list_view_index")
-        private int listViewIndex;
-        @SerializedName("list_view_top")
-        private int listViewTop;
-        @SerializedName("mode")
-        private int mode;
-        @SerializedName("no")
-        private int no;
-        @SerializedName("site_id")
-        private int siteId;
-        @SerializedName("title")
-        private String title;
-
-        public ExportedLoadable(
-                String boardCode,
-                long loadableId,
-                int lastLoaded,
-                int lastViewed,
-                int listViewIndex,
-                int listViewTop,
-                int mode,
-                int no,
-                int siteId,
-                String title
-        ) {
-            this.boardCode = boardCode;
-            this.loadableId = loadableId;
-            this.lastLoaded = lastLoaded;
-            this.lastViewed = lastViewed;
-            this.listViewIndex = listViewIndex;
-            this.listViewTop = listViewTop;
-            this.mode = mode;
-            this.no = no;
-            this.siteId = siteId;
-            this.title = title;
-        }
+        return new ExportedAppSettings(exportedSites, exportedBoards, settings);
     }
 
     public enum ImportExport {
