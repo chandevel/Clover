@@ -68,6 +68,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static org.floens.chan.Chan.inject;
 
 public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
@@ -162,8 +163,12 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         if (!siteService.areSitesSetup()) {
             browseController.showSitesNotSetup();
         } else {
-            browseController.loadWithDefaultBoard();
+            loadWithDefaultBoard();
         }
+    }
+
+    public void loadWithDefaultBoard() {
+        browseController.loadWithDefaultBoard();
     }
 
     private boolean restoreFromUrl() {
@@ -512,5 +517,16 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             }
         }
         return false;
+    }
+
+    // This method is called to apply new imported settings.
+    // It is a hack but it works.
+    public void restartApp() {
+        Intent intent = new Intent(this, BoardActivity.class);
+        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+
+        Runtime.getRuntime().exit(0);
     }
 }

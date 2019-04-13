@@ -3,6 +3,7 @@ package org.floens.chan.core.presenter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.repository.ImportExportRepository;
 
 import java.io.File;
@@ -13,82 +14,90 @@ import static org.floens.chan.Chan.inject;
 
 public class ImportExportSettingsPresenter {
     @Nullable
-    private ExportSettingsCallbacks exportCallbacks;
-
-    @Nullable
-    private ImportSettingsCallbacks importCallbacks;
+    private ImportExportSettingsCallbacks callbacks;
 
     @Inject
     ImportExportRepository importExportRepository;
 
+    @Inject
+    BoardRepository boardRepository;
+
     public ImportExportSettingsPresenter(
-            @NonNull ExportSettingsCallbacks exportCallbacks,
-            @NonNull ImportSettingsCallbacks importCallbacks
+            @NonNull ImportExportSettingsCallbacks callbacks
     ) {
         inject(this);
-        this.exportCallbacks = exportCallbacks;
-        this.importCallbacks = importCallbacks;
+        this.callbacks = callbacks;
     }
 
     public void onDestroy() {
-        this.exportCallbacks = null;
-        this.importCallbacks = null;
+        this.callbacks = null;
     }
 
     public void doExport(File cacheDir) {
-        importExportRepository.exportTo(cacheDir, new ImportExportRepository.ExportCallbacks() {
+        importExportRepository.exportTo(cacheDir, new ImportExportRepository.ImportExportCallbacks() {
             @Override
-            public void onExportedSuccessfully() {
-                if (exportCallbacks != null) {
-                    exportCallbacks.onExportedSuccessfully();
+            public void onSuccess(ImportExportRepository.ImportExport importExport) {
+                //called on background thread
+
+                if (callbacks != null) {
+                    callbacks.onSuccess(importExport);
                 }
             }
 
             @Override
-            public void onNothingToExport() {
-                if (exportCallbacks != null) {
-                    exportCallbacks.onNothingToExport();
+            public void onNothingToImportExport(ImportExportRepository.ImportExport importExport) {
+                //called on background thread
+
+                if (callbacks != null) {
+                    callbacks.showToast("There is nothing to export");
                 }
             }
 
             @Override
-            public void onError(Throwable error) {
-                if (exportCallbacks != null) {
-                    exportCallbacks.onError(error);
+            public void onError(Throwable error, ImportExportRepository.ImportExport importExport) {
+                //called on background thread
+
+                if (callbacks != null) {
+                    callbacks.showToast("Error while trying to export settings = " + error.getMessage());
                 }
             }
         });
     }
 
     public void doImport(File cacheDir) {
-        importExportRepository.importFrom(cacheDir, new ImportExportRepository.ImportCallbacks() {
+        importExportRepository.importFrom(cacheDir, new ImportExportRepository.ImportExportCallbacks() {
             @Override
-            public void onImportedSuccessfully() {
-                if (importCallbacks != null) {
-                    importCallbacks.onImportedSuccessfully();
+            public void onSuccess(ImportExportRepository.ImportExport importExport) {
+                //called on background thread
+
+                if (callbacks != null) {
+                    callbacks.onSuccess(importExport);
                 }
             }
 
             @Override
-            public void onError(Throwable error) {
-                if (importCallbacks != null) {
-                    importCallbacks.onError(error);
+            public void onNothingToImportExport(ImportExportRepository.ImportExport importExport) {
+                //called on background thread
+
+                if (callbacks != null) {
+                    callbacks.showToast("There is nothing to import");
+                }
+            }
+
+            @Override
+            public void onError(Throwable error, ImportExportRepository.ImportExport importExport) {
+                //called on background thread
+
+                if (callbacks != null) {
+                    callbacks.showToast("Error while trying to import settings = " + error.getMessage());
                 }
             }
         });
     }
 
-    public interface ExportSettingsCallbacks {
-        void onExportedSuccessfully();
+    public interface ImportExportSettingsCallbacks {
+        void onSuccess(ImportExportRepository.ImportExport importExport);
 
-        void onNothingToExport();
-
-        void onError(Throwable error);
-    }
-
-    public interface ImportSettingsCallbacks {
-        void onImportedSuccessfully();
-
-        void onError(Throwable error);
+        void showToast(String message);
     }
 }

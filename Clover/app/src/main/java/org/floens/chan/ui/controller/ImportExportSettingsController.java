@@ -1,25 +1,33 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.ImportExportSettingsPresenter;
+import org.floens.chan.core.repository.ImportExportRepository;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
+import org.floens.chan.utils.AndroidUtils;
 
 public class ImportExportSettingsController extends SettingsController implements
-        ImportExportSettingsPresenter.ExportSettingsCallbacks,
-        ImportExportSettingsPresenter.ImportSettingsCallbacks {
+        ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
 
     @Nullable
     private ImportExportSettingsPresenter presenter;
 
-    public ImportExportSettingsController(Context context) {
+    @Nullable
+    private OnExportSuccessCallbacks callbacks;
+
+    public ImportExportSettingsController(Context context, @NonNull OnExportSuccessCallbacks callbacks) {
         super(context);
+
+        this.callbacks = callbacks;
     }
 
     @Override
@@ -28,7 +36,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
         navigation.setTitle(R.string.settings_import_export);
 
-        presenter = new ImportExportSettingsPresenter(this, this);
+        presenter = new ImportExportSettingsPresenter(this);
 
         setupLayout();
         populatePreferences();
@@ -42,6 +50,8 @@ public class ImportExportSettingsController extends SettingsController implement
         if (presenter != null) {
             presenter.onDestroy();
         }
+
+        callbacks = null;
     }
 
     protected void setupLayout() {
@@ -50,11 +60,11 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void populatePreferences() {
-        // Import/export pins group
+        // Import/export settings group
         {
-            SettingsGroup pins = new SettingsGroup("Import/Export pins");
+            SettingsGroup pins = new SettingsGroup("Import/Export settings");
 
-            pins.add(new LinkSettingView(this, "Export pins", "Export pins to a file", v -> {
+            pins.add(new LinkSettingView(this, "Export settings", "Export settings to a file", v -> {
                 //TODO call directory picker to pick a directory where a file with pins will be stored
 
                 if (presenter != null) {
@@ -62,7 +72,7 @@ public class ImportExportSettingsController extends SettingsController implement
                 }
             }));
 
-            pins.add(new LinkSettingView(this, "Import pins", "Import pins from a file", v -> {
+            pins.add(new LinkSettingView(this, "Import settings", "Import settings from a file", v -> {
                 //TODO call file picker to pick a file with pins
 
                 if (presenter != null) {
@@ -79,22 +89,39 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     @Override
-    public void onImportedSuccessfully() {
+    public void onSuccess(ImportExportRepository.ImportExport importExport) {
+        // called on background thread
 
+        if (context instanceof StartActivity) {
+            AndroidUtils.runOnUiThread(() ->{
+                if (importExport == ImportExportRepository.ImportExport.Import) {
+                    ((StartActivity) context).restartApp();
+                } else {
+                    showToast("Exported successfully");
+
+                    if (callbacks != null) {
+                        clearAllChildControllers();
+                        callbacks.onExported();
+                    }
+                }
+            });
+        }
+    }
+
+    private void clearAllChildControllers() {
+        //TODO
     }
 
     @Override
-    public void onExportedSuccessfully() {
+    public void showToast(String message) {
+        // may be called on background thread
 
+        AndroidUtils.runOnUiThread(() -> {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+        });
     }
 
-    @Override
-    public void onNothingToExport() {
-
-    }
-
-    @Override
-    public void onError(Throwable error) {
-
+    public interface OnExportSuccessCallbacks {
+        void onExported();
     }
 }

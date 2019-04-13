@@ -12,6 +12,7 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SiteModel;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;
@@ -48,18 +49,18 @@ public class ImportExportRepository {
         this.gson = gson;
     }
 
-    public void exportTo(File cacheDir, ExportCallbacks callbacks) {
+    public void exportTo(File cacheDir, ImportExportCallbacks callbacks) {
         databaseManager.runTask(() -> {
             File exportFile = null;
 
             try {
-                ExportSettings exportSettings = readSettingsFromDatabase();
-                if (exportSettings.isEmpty()) {
-                    callbacks.onNothingToExport();
+                AppSettings appSettings = readSettingsFromDatabase();
+                if (appSettings.isEmpty()) {
+                    callbacks.onNothingToImportExport(ImportExport.Export);
                     return null;
                 }
 
-                String json = gson.toJson(exportSettings);
+                String json = gson.toJson(appSettings);
 
                 exportFile = new File(cacheDir, EXPORT_FILE_NAME);
                 if (exportFile.exists()) {
@@ -86,19 +87,19 @@ public class ImportExportRepository {
                 }
 
                 Logger.d(TAG, "Exporting done!");
-                callbacks.onExportedSuccessfully();
+                callbacks.onSuccess(ImportExport.Export);
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to export pins", error);
 
                 deleteExportFile(exportFile);
-                callbacks.onError(error);
+                callbacks.onError(error, ImportExport.Export);
             }
 
             return null;
         });
     }
 
-    public void importFrom(File cacheDir, ImportCallbacks callbacks) {
+    public void importFrom(File cacheDir, ImportExportCallbacks callbacks) {
         databaseManager.runTask(() -> {
             try {
                 File importFile = new File(cacheDir, EXPORT_FILE_NAME);
@@ -109,19 +110,25 @@ public class ImportExportRepository {
                     );
                 }
 
-                ExportSettings exportSettings;
+                AppSettings appSettings;
 
                 try (FileReader reader = new FileReader(importFile)) {
-                    exportSettings = gson.fromJson(reader, ExportSettings.class);
+                    appSettings = gson.fromJson(reader, AppSettings.class);
                 }
 
-                writeSettingsToDatabase(exportSettings);
+                if (appSettings.isEmpty()) {
+                    Logger.i(TAG, "There is nothing to import, appSettings is empty");
+                    callbacks.onNothingToImportExport(ImportExport.Import);
+                    return null;
+                }
+
+                writeSettingsToDatabase(appSettings);
 
                 Logger.d(TAG, "Importing done!");
-                callbacks.onImportedSuccessfully();
+                callbacks.onSuccess(ImportExport.Import);
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to import pins", error);
-                callbacks.onError(error);
+                callbacks.onError(error, ImportExport.Import);
             }
 
             return null;
@@ -136,11 +143,17 @@ public class ImportExportRepository {
         }
     }
 
-    private void writeSettingsToDatabase(@NonNull ExportSettings exportSettings) throws SQLException {
-        if (exportSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
-            //TODO: do upgrade
-        } else if (exportSettings.getVersion() > CURRENT_EXPORT_SETTINGS_VERSION) {
-            //TODO: show warning message that downgrade may not work as expected
+    private void writeSettingsToDatabase(@NonNull AppSettings appSettingsParam) throws SQLException {
+        AppSettings appSettings = appSettingsParam;
+
+        if (appSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
+            appSettings = onUpgrade(appSettings.getVersion(), appSettings);
+        } else if (appSettings.getVersion() > CURRENT_EXPORT_SETTINGS_VERSION) {
+            throw new IllegalStateException(
+                    "Cannot import settings with version higher than current (downgrade)! " +
+                            "(Settings version = " + appSettings.getVersion() + ", current version = "
+                            + CURRENT_EXPORT_SETTINGS_VERSION + ")"
+            );
         }
 
         databaseHelper.siteDao.deleteBuilder().delete();
@@ -148,7 +161,7 @@ public class ImportExportRepository {
         databaseHelper.pinDao.deleteBuilder().delete();
         databaseHelper.boardsDao.deleteBuilder().delete();
 
-        for (ExportedBoard exportedBoard : exportSettings.exportedBoards) {
+        for (ExportedBoard exportedBoard : appSettings.exportedBoards) {
             databaseHelper.boardsDao.createIfNotExists(new Board(
                     exportedBoard.siteId,
                     exportedBoard.saved,
@@ -181,7 +194,7 @@ public class ImportExportRepository {
             ));
         }
 
-        for (ExportedSite exportedSite : exportSettings.exportedSites) {
+        for (ExportedSite exportedSite : appSettings.exportedSites) {
             SiteModel inserted = databaseHelper.siteDao.createIfNotExists(new SiteModel(
                     exportedSite.getSiteId(),
                     exportedSite.getConfiguration(),
@@ -218,10 +231,18 @@ public class ImportExportRepository {
                 databaseHelper.pinDao.createIfNotExists(pin);
             }
         }
+
+        ChanSettings.deserializeFromString(appSettingsParam.getSettings());
     }
 
+    private AppSettings onUpgrade(int version, AppSettings appSettings) {
+        // Transform AppSettings here if necessary
+        return appSettings;
+    }
+
+    //TODO: filters, hides
     @NonNull
-    private ExportSettings readSettingsFromDatabase() throws java.sql.SQLException {
+    private AppSettings readSettingsFromDatabase() throws java.sql.SQLException {
         @SuppressLint("UseSparseArrays")
         Map<Integer, SiteModel> sitesMap = new HashMap<>();
         {
@@ -306,7 +327,7 @@ public class ImportExportRepository {
         }
 
         if (exportedSites.isEmpty()) {
-            return new ExportSettings(new ArrayList<>(), new ArrayList<>());
+            return new AppSettings(new ArrayList<>(), new ArrayList<>(), "");
         }
 
         List<ExportedBoard> exportedBoards = new ArrayList<>();
@@ -344,20 +365,28 @@ public class ImportExportRepository {
             ));
         }
 
-        return new ExportSettings(exportedSites, exportedBoards);
+        String settings = ChanSettings.serializeToString();
+        return new AppSettings(exportedSites, exportedBoards, settings);
     }
 
-    private static class ExportSettings {
+    private static class AppSettings {
         @SerializedName("version")
         private int version = CURRENT_EXPORT_SETTINGS_VERSION;
         @SerializedName("exported_sites")
         private List<ExportedSite> exportedSites;
         @SerializedName("exported_boards")
         private List<ExportedBoard> exportedBoards;
+        @SerializedName("settings")
+        private String settings;
 
-        public ExportSettings(List<ExportedSite> exportedSites, List<ExportedBoard> exportedBoards) {
+        public AppSettings(
+                List<ExportedSite> exportedSites,
+                List<ExportedBoard> exportedBoards,
+                String settings
+        ) {
             this.exportedSites = exportedSites;
             this.exportedBoards = exportedBoards;
+            this.settings = settings;
         }
 
         public boolean isEmpty() {
@@ -382,6 +411,10 @@ public class ImportExportRepository {
 
         public int getVersion() {
             return version;
+        }
+
+        public String getSettings() {
+            return settings;
         }
     }
 
@@ -765,17 +798,16 @@ public class ImportExportRepository {
         }
     }
 
-    public interface ExportCallbacks {
-        void onExportedSuccessfully();
-
-        void onNothingToExport();
-
-        void onError(Throwable error);
+    public enum ImportExport {
+        Import,
+        Export
     }
 
-    public interface ImportCallbacks {
-        void onImportedSuccessfully();
+    public interface ImportExportCallbacks {
+        void onSuccess(ImportExport importExport);
 
-        void onError(Throwable error);
+        void onNothingToImportExport(ImportExport importExport);
+
+        void onError(Throwable error, ImportExport importExport);
     }
 }

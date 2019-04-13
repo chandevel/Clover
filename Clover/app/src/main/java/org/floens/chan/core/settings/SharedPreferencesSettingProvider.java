@@ -36,6 +36,10 @@ public class SharedPreferencesSettingProvider implements SettingProvider {
         prefs.edit().putInt(key, value).apply();
     }
 
+    public void putIntSync(String key, int value) {
+        prefs.edit().putInt(key, value).commit();
+    }
+
     @Override
     public long getLong(String key, long def) {
         return prefs.getLong(key, def);
@@ -44,6 +48,10 @@ public class SharedPreferencesSettingProvider implements SettingProvider {
     @Override
     public void putLong(String key, long value) {
         prefs.edit().putLong(key, value).apply();
+    }
+
+    public void putLongSync(String key, long value) {
+        prefs.edit().putLong(key, value).commit();
     }
 
     @Override
@@ -56,6 +64,10 @@ public class SharedPreferencesSettingProvider implements SettingProvider {
         prefs.edit().putBoolean(key, value).apply();
     }
 
+    public void putBooleanSync(String key, boolean value) {
+        prefs.edit().putBoolean(key, value).commit();
+    }
+
     @Override
     public String getString(String key, String def) {
         return prefs.getString(key, def);
@@ -64,5 +76,9 @@ public class SharedPreferencesSettingProvider implements SettingProvider {
     @Override
     public void putString(String key, String value) {
         prefs.edit().putString(key, value).apply();
+    }
+
+    public void putStringSync(String key, String value) {
+        prefs.edit().putString(key, value).commit();
     }
 }
