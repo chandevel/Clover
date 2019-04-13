@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.floens.chan.ui.controller;
+package org.floens.chan.ui.controller.export;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -41,10 +41,13 @@ public class ImportExportSettingsController extends SettingsController implement
     @Nullable
     private OnExportSuccessCallbacks callbacks;
 
+    private LoadingViewController loadingViewController;
+
     public ImportExportSettingsController(Context context, @NonNull OnExportSuccessCallbacks callbacks) {
         super(context);
 
         this.callbacks = callbacks;
+        this.loadingViewController = new LoadingViewController(context);
     }
 
     @Override
@@ -79,28 +82,37 @@ public class ImportExportSettingsController extends SettingsController implement
     private void populatePreferences() {
         // Import/export settings group
         {
-            SettingsGroup pins = new SettingsGroup("Import/Export settings");
+            SettingsGroup group = new SettingsGroup(context.getString(R.string.import_or_export_settings));
 
-            pins.add(new LinkSettingView(this, "Export settings", "Export settings to a file", v -> {
+            group.add(new LinkSettingView(this,
+                    context.getString(R.string.export_settings),
+                    context.getString(R.string.export_settings_to_a_file), v -> {
                 //TODO call directory picker to pick a directory where a file with pins will be stored
+
+                navigationController.presentController(loadingViewController);
 
                 if (presenter != null) {
                     presenter.doExport(context.getCacheDir());
                 }
             }));
 
-            pins.add(new LinkSettingView(this, "Import settings", "Import settings from a file", v -> {
+            group.add(new LinkSettingView(this,
+                    context.getString(R.string.import_settings),
+                    context.getString(R.string.import_settings_from_a_file), v -> {
                 //TODO call file picker to pick a file with pins
+
+                navigationController.presentController(loadingViewController);
 
                 if (presenter != null) {
                     presenter.doImport(context.getCacheDir());
                 }
             }));
 
-            groups.add(pins);
+            groups.add(group);
         }
     }
 
+    //TODO: implement directory picker and file picker
     public ImagePickDelegate getImagePicker() {
         return ((StartActivity) context).getImagePickDelegate();
     }
@@ -110,11 +122,11 @@ public class ImportExportSettingsController extends SettingsController implement
         // called on background thread
 
         if (context instanceof StartActivity) {
-            AndroidUtils.runOnUiThread(() ->{
+            AndroidUtils.runOnUiThread(() -> {
                 if (importExport == ImportExportRepository.ImportExport.Import) {
                     ((StartActivity) context).restartApp();
                 } else {
-                    showToast("Exported successfully");
+                    onFailure("Exported successfully");
 
                     if (callbacks != null) {
                         clearAllChildControllers();
@@ -126,11 +138,13 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void clearAllChildControllers() {
-        //TODO
+        if (loadingViewController.shown) {
+            loadingViewController.stopPresenting();
+        }
     }
 
     @Override
-    public void showToast(String message) {
+    public void onFailure(String message) {
         // may be called on background thread
 
         AndroidUtils.runOnUiThread(() -> {

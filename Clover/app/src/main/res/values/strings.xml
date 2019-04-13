@@ -579,4 +579,9 @@ Don't have a 4chan Pass?<br>
     <string name="settings_screen_theme">Themes</string>
     <string name="settings_import_export" tools:ignore="MissingTranslation">Import/Export</string>
     <string name="settings_import_export_description" tools:ignore="MissingTranslation">Import/Export settings/pins etc</string>
+    <string name="import_or_export_settings" tools:ignore="MissingTranslation">Import/Export settings</string>
+    <string name="export_settings" tools:ignore="MissingTranslation">Export settings</string>
+    <string name="export_settings_to_a_file" tools:ignore="MissingTranslation">Export settings to a file</string>
+    <string name="import_settings" tools:ignore="MissingTranslation">Import settings</string>
+    <string name="import_settings_from_a_file" tools:ignore="MissingTranslation">Import settings from a file</string>
 </resources>

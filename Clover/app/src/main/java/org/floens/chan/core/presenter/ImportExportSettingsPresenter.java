@@ -66,7 +66,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.showToast("There is nothing to export");
+                    callbacks.onFailure("There is nothing to export");
                 }
             }
 
@@ -75,7 +75,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.showToast("Error while trying to export settings = " + error.getMessage());
+                    callbacks.onFailure("Error while trying to export settings = " + error.getMessage());
                 }
             }
         });
@@ -97,7 +97,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.showToast("There is nothing to import");
+                    callbacks.onFailure("There is nothing to import");
                 }
             }
 
@@ -106,7 +106,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.showToast("Error while trying to import settings = " + error.getMessage());
+                    callbacks.onFailure("Error while trying to import settings = " + error.getMessage());
                 }
             }
         });
@@ -115,6 +115,6 @@ public class ImportExportSettingsPresenter {
     public interface ImportExportSettingsCallbacks {
         void onSuccess(ImportExportRepository.ImportExport importExport);
 
-        void showToast(String message);
+        void onFailure(String message);
     }
 }

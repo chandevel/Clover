@@ -185,6 +185,8 @@ public class ImportExportRepository {
         databaseHelper.loadableDao.deleteBuilder().delete();
         databaseHelper.pinDao.deleteBuilder().delete();
         databaseHelper.boardsDao.deleteBuilder().delete();
+        databaseHelper.filterDao.deleteBuilder().delete();
+        databaseHelper.threadHideDao.deleteBuilder().delete();
 
         for (ExportedBoard exportedBoard : appSettings.getExportedBoards()) {
             databaseHelper.boardsDao.createIfNotExists(new Board(
