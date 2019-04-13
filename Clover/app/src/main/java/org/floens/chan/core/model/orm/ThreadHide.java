@@ -39,6 +39,12 @@ public class ThreadHide {
     public ThreadHide() {
     }
 
+    public ThreadHide(int site, String board, int no) {
+        this.site = site;
+        this.board = board;
+        this.no = no;
+    }
+
     public static ThreadHide fromPost(Post post) {
         ThreadHide hide = new ThreadHide();
         hide.board = post.board.code;

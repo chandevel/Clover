@@ -9,13 +9,17 @@ import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.export.ExportedAppSettings;
 import org.floens.chan.core.model.export.ExportedBoard;
+import org.floens.chan.core.model.export.ExportedFilter;
 import org.floens.chan.core.model.export.ExportedLoadable;
 import org.floens.chan.core.model.export.ExportedPin;
+import org.floens.chan.core.model.export.ExportedPostHide;
 import org.floens.chan.core.model.export.ExportedSite;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SiteModel;
+import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;
 
@@ -236,6 +240,26 @@ public class ImportExportRepository {
             }
         }
 
+        for (ExportedFilter exportedFilter : appSettings.getExportedFilters()) {
+            databaseHelper.filterDao.createIfNotExists(new Filter(
+                    exportedFilter.isEnabled(),
+                    exportedFilter.getType(),
+                    exportedFilter.getPattern(),
+                    exportedFilter.isAllBoards(),
+                    exportedFilter.getBoards(),
+                    exportedFilter.getAction(),
+                    exportedFilter.getColor()
+            ));
+        }
+
+        for (ExportedPostHide exportedPostHide : appSettings.getExportedPostHides()) {
+            databaseHelper.threadHideDao.createIfNotExists(new ThreadHide(
+                    exportedPostHide.getSite(),
+                    exportedPostHide.getBoard(),
+                    exportedPostHide.getNo()
+            ));
+        }
+
         ChanSettings.deserializeFromString(appSettingsParam.getSettings());
     }
 
@@ -244,7 +268,6 @@ public class ImportExportRepository {
         return appSettings;
     }
 
-    //TODO: filters, hides
     @NonNull
     private ExportedAppSettings readSettingsFromDatabase() throws java.sql.SQLException {
         @SuppressLint("UseSparseArrays")
@@ -331,7 +354,7 @@ public class ImportExportRepository {
         }
 
         if (exportedSites.isEmpty()) {
-            return new ExportedAppSettings(new ArrayList<>(), new ArrayList<>(), "");
+            return ExportedAppSettings.empty();
         }
 
         List<ExportedBoard> exportedBoards = new ArrayList<>();
@@ -369,8 +392,38 @@ public class ImportExportRepository {
             ));
         }
 
+        List<ExportedFilter> exportedFilters = new ArrayList<>();
+
+        for (Filter filter : databaseHelper.filterDao.queryForAll()) {
+            exportedFilters.add(new ExportedFilter(
+                    filter.enabled,
+                    filter.type,
+                    filter.pattern,
+                    filter.allBoards,
+                    filter.boards,
+                    filter.action,
+                    filter.color
+            ));
+        }
+
+        List<ExportedPostHide> exportedPostHides = new ArrayList<>();
+
+        for (ThreadHide threadHide : databaseHelper.threadHideDao.queryForAll()) {
+            exportedPostHides.add(new ExportedPostHide(
+                    threadHide.site,
+                    threadHide.board,
+                    threadHide.no
+            ));
+        }
+
         String settings = ChanSettings.serializeToString();
-        return new ExportedAppSettings(exportedSites, exportedBoards, settings);
+        return new ExportedAppSettings(
+                exportedSites,
+                exportedBoards,
+                exportedFilters,
+                exportedPostHides,
+                settings
+        );
     }
 
     public enum ImportExport {

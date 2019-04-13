@@ -57,6 +57,20 @@ public class Filter {
         return boards.split(",");
     }
 
+    public Filter() {
+
+    }
+
+    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color) {
+        this.enabled = enabled;
+        this.type = type;
+        this.pattern = pattern;
+        this.allBoards = allBoards;
+        this.boards = boards;
+        this.action = action;
+        this.color = color;
+    }
+
     public void apply(Filter filter) {
         enabled = filter.enabled;
         type = filter.type;
@@ -68,14 +82,14 @@ public class Filter {
     }
 
     public Filter copy() {
-        Filter copy = new Filter();
-        copy.enabled = enabled;
-        copy.type = type;
-        copy.pattern = pattern;
-        copy.allBoards = allBoards;
-        copy.boards = boards;
-        copy.action = action;
-        copy.color = color;
-        return copy;
+        return new Filter(
+                enabled,
+                type,
+                pattern,
+                allBoards,
+                boards,
+                action,
+                color
+        );
     }
 }
