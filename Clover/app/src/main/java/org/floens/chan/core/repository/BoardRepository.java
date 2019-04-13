@@ -32,9 +32,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class BoardRepository implements Observer {
     private static final String TAG = "BoardRepository";
 

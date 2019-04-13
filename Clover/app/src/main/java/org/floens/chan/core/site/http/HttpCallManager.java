@@ -33,7 +33,6 @@ import okhttp3.Request;
 /**
  * Manages the {@link HttpCall} executions.
  */
-@Singleton
 public class HttpCallManager {
     private static final int TIMEOUT = 30000;
 

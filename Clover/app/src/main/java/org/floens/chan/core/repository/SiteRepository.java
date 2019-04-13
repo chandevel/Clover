@@ -3,6 +3,8 @@ package org.floens.chan.core.repository;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import com.google.gson.Gson;
+
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
 import org.floens.chan.core.model.orm.SiteModel;
@@ -19,13 +21,12 @@ import java.util.Map;
 import java.util.Observable;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class SiteRepository {
     private static final String TAG = "SiteRepository";
 
     private DatabaseManager databaseManager;
+    private Gson gson;
 
     private Sites sitesObservable = new Sites();
 
@@ -37,9 +38,11 @@ public class SiteRepository {
     }
 
     @Inject
-    public SiteRepository(DatabaseManager databaseManager) {
-        instance = this;
+    public SiteRepository(DatabaseManager databaseManager, Gson gson) {
         this.databaseManager = databaseManager;
+        this.gson = gson;
+
+        instance = this;
     }
 
     public Sites all() {

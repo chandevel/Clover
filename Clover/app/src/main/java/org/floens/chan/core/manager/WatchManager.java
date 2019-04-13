@@ -76,7 +76,6 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
  * <p/>
  * <p>All pin adding and removing must go through this class to properly update the watchers.
  */
-@Singleton
 public class WatchManager {
     private static final String TAG = "WatchManager";
 

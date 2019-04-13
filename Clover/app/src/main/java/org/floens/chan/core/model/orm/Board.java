@@ -140,6 +140,66 @@ public class Board implements SiteReference {
     public Board() {
     }
 
+    public Board(
+            int siteId,
+            boolean saved,
+            int order,
+            String name,
+            String code,
+            boolean workSafe,
+            int perPage,
+            int pages,
+            int maxFileSize,
+            int maxWebmSize,
+            int maxCommentChars,
+            int bumpLimit,
+            int imageLimit,
+            int cooldownThreads,
+            int cooldownReplies,
+            int cooldownImages,
+            int cooldownRepliesIntra,
+            int cooldownImagesIntra,
+            boolean spoilers,
+            int customSpoilers,
+            boolean userIds,
+            boolean codeTags,
+            boolean preuploadCaptcha,
+            boolean countryFlags,
+            boolean trollFlags,
+            boolean mathTags,
+            String description,
+            boolean archive
+    ) {
+        this.siteId = siteId;
+        this.saved = saved;
+        this.order = order;
+        this.name = name;
+        this.code = code;
+        this.workSafe = workSafe;
+        this.perPage = perPage;
+        this.pages = pages;
+        this.maxFileSize = maxFileSize;
+        this.maxWebmSize = maxWebmSize;
+        this.maxCommentChars = maxCommentChars;
+        this.bumpLimit = bumpLimit;
+        this.imageLimit = imageLimit;
+        this.cooldownThreads = cooldownThreads;
+        this.cooldownReplies = cooldownReplies;
+        this.cooldownImages = cooldownImages;
+        this.cooldownRepliesIntra = cooldownRepliesIntra;
+        this.cooldownImagesIntra = cooldownImagesIntra;
+        this.spoilers = spoilers;
+        this.customSpoilers = customSpoilers;
+        this.userIds = userIds;
+        this.codeTags = codeTags;
+        this.preuploadCaptcha = preuploadCaptcha;
+        this.countryFlags = countryFlags;
+        this.trollFlags = trollFlags;
+        this.mathTags = mathTags;
+        this.description = description;
+        this.archive = archive;
+    }
+
     @Deprecated
     public Board(Site site, String name, String code, boolean saved, boolean workSafe) {
         this.siteId = site.id();

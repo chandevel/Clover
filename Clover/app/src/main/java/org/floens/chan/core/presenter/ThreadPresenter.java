@@ -537,7 +537,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
                 break;
             case POST_OPTION_PIN:
-                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
+                String title = PostHelper.getTitle(post, loadable);
+                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager().get(
+                        Loadable.forThread(loadable.site, post.board, post.no, title)
+                );
                 watchManager.createPin(pinLoadable, post);
                 break;
             case POST_OPTION_OPEN_BROWSER: {

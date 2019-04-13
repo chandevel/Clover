@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -577,4 +577,6 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+    <string name="settings_import_export" tools:ignore="MissingTranslation">Import/Export</string>
+    <string name="settings_import_export_description" tools:ignore="MissingTranslation">Import/Export settings/pins etc</string>
 </resources>

@@ -58,6 +58,30 @@ public class Pin {
     public Pin() {
     }
 
+    public Pin(
+            Loadable loadable,
+            boolean watching,
+            int watchLastCount,
+            int watchNewCount,
+            int quoteLastCount,
+            int quoteNewCount,
+            boolean isError,
+            String thumbnailUrl,
+            int order,
+            boolean archived
+    ) {
+        this.loadable = loadable;
+        this.watching = watching;
+        this.watchLastCount = watchLastCount;
+        this.watchNewCount = watchNewCount;
+        this.quoteLastCount = quoteLastCount;
+        this.quoteNewCount = quoteNewCount;
+        this.isError = isError;
+        this.thumbnailUrl = thumbnailUrl;
+        this.order = order;
+        this.archived = archived;
+    }
+
     public int getNewPostCount() {
         if (watchLastCount < 0 || watchNewCount < 0) {
             return 0;

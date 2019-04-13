@@ -34,7 +34,6 @@ import javax.inject.Singleton;
  * references can be obtained with {@link #obtain(Loadable, ChanThreadLoader.ChanLoaderCallback)}} and released
  * with {@link #release(ChanThreadLoader, ChanThreadLoader.ChanLoaderCallback)}.
  */
-@Singleton
 public class ChanLoaderFactory {
     // private static final String TAG = "ChanLoaderFactory";
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;

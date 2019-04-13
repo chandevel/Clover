@@ -32,7 +32,6 @@ import javax.inject.Singleton;
 /**
  * Manages replies.
  */
-@Singleton
 public class ReplyManager {
     private final Context context;
 

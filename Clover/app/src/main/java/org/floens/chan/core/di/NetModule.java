@@ -8,6 +8,7 @@ import com.android.volley.toolbox.Volley;
 import org.codejargon.feather.Provides;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.net.ProxiedHurlStack;
+import org.floens.chan.core.site.http.HttpCallManager;
 
 import java.io.File;
 
@@ -43,5 +44,11 @@ public class NetModule {
         } else {
             return applicationContext.getCacheDir();
         }
+    }
+
+    @Provides
+    @Singleton
+    public HttpCallManager provideHttpCallManager(UserAgentProvider userAgentProvider) {
+        return new HttpCallManager(userAgentProvider);
     }
 }

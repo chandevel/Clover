@@ -29,7 +29,12 @@ import android.os.StrictMode;
 import org.codejargon.feather.Feather;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.di.AppModule;
+import org.floens.chan.core.di.DatabaseModule;
+import org.floens.chan.core.di.GsonModule;
+import org.floens.chan.core.di.ManagerModule;
 import org.floens.chan.core.di.NetModule;
+import org.floens.chan.core.di.RepositoryModule;
+import org.floens.chan.core.di.SiteModule;
 import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.SiteService;
@@ -132,8 +137,14 @@ public class Chan extends Application implements UserAgentProvider, Application.
     private void initializeGraph() {
         feather = Feather.with(
                 new AppModule(this, this),
-                new NetModule()
+                new DatabaseModule(),
+                new NetModule(),
+                new GsonModule(),
+                new RepositoryModule(),
+                new SiteModule(),
+                new ManagerModule()
         );
+
         feather.injectFields(this);
     }
 
