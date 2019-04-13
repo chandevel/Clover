@@ -328,6 +328,11 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                 }
 
                 @Override
+                public String getSearchHint(NavigationItem item) {
+                    return null;
+                }
+
+                @Override
                 public void onSearchEntered(NavigationItem item, String entered) {
                 }
             });

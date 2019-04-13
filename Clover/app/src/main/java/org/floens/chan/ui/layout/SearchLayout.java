@@ -35,8 +35,6 @@ import org.floens.chan.R;
 import org.floens.chan.utils.AndroidUtils;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
-import static org.floens.chan.utils.AndroidUtils.getAttrColor;
-import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class SearchLayout extends LinearLayout {
     private EditText searchView;
@@ -58,9 +56,8 @@ public class SearchLayout extends LinearLayout {
         searchView = new EditText(getContext());
         searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_ACTION_DONE);
         searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        searchView.setHint(getString(R.string.search_hint));
-        searchView.setHintTextColor(getAttrColor(getContext(), R.attr.text_color_hint));
-        searchView.setTextColor(getAttrColor(getContext(), R.attr.text_color_primary));
+        searchView.setHintTextColor(0x88ffffff);
+        searchView.setTextColor(0xffffffff);
         searchView.setSingleLine(true);
         searchView.setBackgroundResource(0);
         searchView.setPadding(0, 0, 0, 0);
@@ -80,26 +77,44 @@ public class SearchLayout extends LinearLayout {
             public void afterTextChanged(Editable s) {
             }
         });
-        searchView.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                AndroidUtils.hideKeyboard(searchView);
-                callback.onSearchEntered(getText());
-                return true;
+        searchView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    AndroidUtils.hideKeyboard(searchView);
+                    callback.onSearchEntered(searchView.getText().toString());
+                    return true;
+                }
+                return false;
             }
-            return false;
         });
         LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(36), 1);
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
 
         clearButton.setAlpha(0f);
-        clearButton.setImageResource(R.drawable.ic_clear_black_24dp);
+        clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
-        clearButton.setOnClickListener(v -> {
-            searchView.setText("");
-            AndroidUtils.requestKeyboardFocus(searchView);
+        clearButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchView.setText("");
+                AndroidUtils.requestKeyboardFocus(searchView);
+            }
         });
         addView(clearButton, dp(48), LayoutParams.MATCH_PARENT);
+    }
+
+    public void setHintColor(int color) {
+        searchView.setHintTextColor(color);
+    }
+
+    public void setTextColor(int color) {
+        searchView.setTextColor(color);
+    }
+
+    public void setClearButtonImage(int image) {
+        clearButton.setImageResource(image);
     }
 
     public void setText(String text) {
@@ -110,10 +125,8 @@ public class SearchLayout extends LinearLayout {
         return searchView.getText().toString();
     }
 
-    public void setCatalogSearchColors() {
-        searchView.setTextColor(0xffffffff);
-        searchView.setHintTextColor(0x88ffffff);
-        clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
+    public void setHint(String hint) {
+        searchView.setHint(hint);
     }
 
     public void openKeyboard() {

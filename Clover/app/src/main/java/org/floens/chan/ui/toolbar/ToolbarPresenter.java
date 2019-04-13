@@ -33,9 +33,10 @@ public class ToolbarPresenter {
     private Callback callback;
 
     private NavigationItem item;
+    private NavigationItem search;
     private NavigationItem transition;
 
-    public ToolbarPresenter(Callback callback) {
+    void create(Callback callback) {
         this.callback = callback;
     }
 
@@ -51,7 +52,7 @@ public class ToolbarPresenter {
     }
 
     void update(NavigationItem updatedItem) {
-        callback.updateViewForItem(updatedItem);
+        callback.updateViewForItem(updatedItem, updatedItem == item);
     }
 
     void startTransition(NavigationItem newItem, TransitionAnimationStyle animation) {
@@ -88,21 +89,25 @@ public class ToolbarPresenter {
     }
 
     void openSearch() {
-        if (item == null || item.search) return;
+        if (search != null) {
+            return;
+        }
 
         cancelTransitionIfNeeded();
 
-        item.search = true;
-        callback.showForNavigationItem(item, AnimationStyle.FADE);
+        search = new NavigationItem();
+        search.search = true;
+        callback.showForNavigationItem(search, AnimationStyle.FADE);
 
         callback.onSearchVisibilityChanged(item, true);
     }
 
     boolean closeSearch() {
-        if (item == null || !item.search) return false;
+        if (search == null) {
+            return false;
+        }
 
-        item.search = false;
-        item.searchText = null;
+        search = null;
         set(item, AnimationStyle.FADE);
 
         callback.onSearchVisibilityChanged(item, false);
@@ -118,8 +123,9 @@ public class ToolbarPresenter {
     }
 
     private boolean closeSearchIfNeeded() {
-        // Cancel search, but don't unmark it as a search item so that onback will automatically pull up the search window
-        if (item != null && item.search) {
+        // Cancel search
+        if (search != null) {
+            search = null;
             callback.onSearchVisibilityChanged(item, false);
             return true;
         }
@@ -127,12 +133,12 @@ public class ToolbarPresenter {
     }
 
     void searchInput(String input) {
-        if (!item.search) {
+        if (search == null) {
             return;
         }
 
-        item.searchText = input;
-        callback.onSearchInput(item, input);
+        search.searchText = input;
+        callback.onSearchInput(item, search.searchText);
     }
 
     interface Callback {
@@ -148,6 +154,6 @@ public class ToolbarPresenter {
 
         void onSearchInput(NavigationItem item, String input);
 
-        void updateViewForItem(NavigationItem item);
+        void updateViewForItem(NavigationItem item, boolean current);
     }
 }

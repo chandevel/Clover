@@ -146,7 +146,7 @@ public class ToolbarContainer extends FrameLayout {
         itemView.attach();
     }
 
-    public void update(NavigationItem item) {
+    public void update(NavigationItem item, boolean current) {
         // TODO
         View view = viewForItem(item);
         if (view != null) {
@@ -166,7 +166,10 @@ public class ToolbarContainer extends FrameLayout {
 
     public View viewForItem(NavigationItem item) {
         ItemView itemView = itemViewForItem(item);
-        return itemView == null ? null : itemView.view;
+        if (itemView == null) {
+            return null;
+        }
+        return itemView.view;
     }
 
     private ItemView itemViewForItem(NavigationItem item) {
@@ -420,7 +423,7 @@ public class ToolbarContainer extends FrameLayout {
         }
 
         public void attach() {
-            if (item.menu != null && menuView != null) {
+            if (item.menu != null) {
                 menuView.attach(item.menu);
             }
         }
@@ -531,9 +534,8 @@ public class ToolbarContainer extends FrameLayout {
                 searchLayout.setText(item.searchText);
             }
 
-            searchLayout.setCatalogSearchColors();
+            searchLayout.setHint(callback.searchHint(item));
             searchLayout.setPadding(dp(16), searchLayout.getPaddingTop(), searchLayout.getPaddingRight(), searchLayout.getPaddingBottom());
-            searchLayout.openKeyboard();
 
             return searchLayout;
         }
@@ -541,5 +543,7 @@ public class ToolbarContainer extends FrameLayout {
 
     public interface Callback {
         void searchInput(String input);
+
+        String searchHint(NavigationItem item);
     }
 }
