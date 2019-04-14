@@ -43,6 +43,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
+import org.floens.chan.core.presenter.ThreadListPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.sites.chan4.Chan4;
@@ -88,6 +89,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     private int lastPostCount;
 
     private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private ThreadListPresenter presenter;
 
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -98,6 +100,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     public ThreadListLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        presenter = new ThreadListPresenter();
     }
 
     @Override
@@ -256,7 +259,21 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
         setFastScroll(true);
 
-        postAdapter.setThread(thread, filter);
+        /**
+         * We call a blocking function that accesses the database from a background thread but doesn't
+         * throw an exception here. Why, you would ask? Because we can't use callbacks here, otherwise
+         * everything in ThreadPresenter.onChanLoaderData() below showPosts will be executed BEFORE
+         * filtered posts are shown in the RecyclerView. This will break scrolling to the last seen
+         * post as well as introduce some visual posts jiggling. This can be fixed by executing everything
+         * in ThreadPresenter.onChanLoaderData() below showPosts in a callback that is called after
+         * posts are assigned to the adapter. But that's a lot of code and it may break something else.
+         *
+         * This solution works but it will hang the main thread for some time (it shouldn't be for very
+         * long since we have like 300-500 posts in a thread to filter in the database).
+         * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
+         * */
+        List<Post> filteredPosts = presenter.filterOutHiddenPosts(thread, filter);
+        postAdapter.setThread(thread, filteredPosts);
     }
 
     public boolean onBack() {
@@ -703,6 +720,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
 
     public void onImageOptionsApplied(Reply _reply) {
         reply.onImageOptionsApplied(_reply);
+    }
+	
+	/**
+     * Called when ThreadController is being destroyed
+     * */
+    public void destroy() {
+        presenter.destroy();
     }
 
     public interface ThreadListLayoutPresenterCallback {

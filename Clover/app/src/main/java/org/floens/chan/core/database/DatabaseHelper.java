@@ -30,9 +30,9 @@ import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.orm.History;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
+import org.floens.chan.core.model.orm.PostHide;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.model.orm.SiteModel;
-import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.core.site.SiteService;
 import org.floens.chan.utils.Logger;
 
@@ -45,16 +45,18 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 25;
+    private static final int DATABASE_VERSION = 27;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
     public Dao<SavedReply, Integer> savedDao;
     public Dao<Board, Integer> boardsDao;
-    public Dao<ThreadHide, Integer> threadHideDao;
+    public Dao<PostHide, Integer> postHideDao;
     public Dao<History, Integer> historyDao;
     public Dao<Filter, Integer> filterDao;
     public Dao<SiteModel, Integer> siteDao;
+
+    public static final String POST_HIDE_TABLE_NAME = "posthide";
 
     private final Context context;
 
@@ -68,7 +70,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             loadableDao = getDao(Loadable.class);
             savedDao = getDao(SavedReply.class);
             boardsDao = getDao(Board.class);
-            threadHideDao = getDao(ThreadHide.class);
+            postHideDao = getDao(PostHide.class);
             historyDao = getDao(History.class);
             filterDao = getDao(Filter.class);
             siteDao = getDao(SiteModel.class);
@@ -84,7 +86,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Loadable.class);
             TableUtils.createTable(connectionSource, SavedReply.class);
             TableUtils.createTable(connectionSource, Board.class);
-            TableUtils.createTable(connectionSource, ThreadHide.class);
+            TableUtils.createTable(connectionSource, PostHide.class);
             TableUtils.createTable(connectionSource, History.class);
             TableUtils.createTable(connectionSource, Filter.class);
             TableUtils.createTable(connectionSource, SiteModel.class);
@@ -164,7 +166,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 16) {
             try {
-                threadHideDao.executeRawNoArgs("CREATE TABLE `threadhide` (`board` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `no` INTEGER );");
+                postHideDao.executeRawNoArgs("CREATE TABLE `threadhide` (`board` VARCHAR , `id` INTEGER PRIMARY KEY AUTOINCREMENT , `no` INTEGER );");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 16", e);
             }
@@ -254,6 +256,26 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 boardsDao.executeRawNoArgs("CREATE INDEX board_value_idx ON board(value);");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 25", e);
+            }
+        }
+
+        if (oldVersion < 26) {
+            try {
+                postHideDao.executeRawNoArgs("ALTER TABLE threadhide RENAME TO " + POST_HIDE_TABLE_NAME + ";");
+                postHideDao.executeRawNoArgs("ALTER TABLE " + POST_HIDE_TABLE_NAME + " ADD COLUMN whole_thread INTEGER default 0");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 26", e);
+            }
+        }
+
+        if (oldVersion < 27) {
+            try {
+                // Create indexes for PostHides to speed up posts filtering
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_site_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.SITE_COLUMN_NAME + ");");
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_board_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.BOARD_COLUMN_NAME + ");");
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_no_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.NO_COLUMN_NAME + ");");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 27", e);
             }
         }
     }

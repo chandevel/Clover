@@ -29,6 +29,7 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.cell.ThreadStatusCell;
+import org.floens.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private RecyclerView recyclerView;
 
     private final ThreadStatusCell.Callback statusCellCallback;
-    private final List<Post> sourceList = new ArrayList<>();
     private final List<Post> displayList = new ArrayList<>();
     private String error = null;
     private Post highlightedPost;
@@ -175,15 +175,16 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public void setThread(ChanThread thread, PostsFilter filter) {
+    public void setThread(ChanThread thread, List<Post> posts) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be called on the main thread!");
+        }
+
         bound = true;
         showError(null);
 
-        sourceList.clear();
-        sourceList.addAll(thread.posts);
-
         displayList.clear();
-        displayList.addAll(filter.apply(sourceList));
+        displayList.addAll(posts);
 
         lastSeenIndicatorPosition = -1;
         if (thread.loadable.lastViewed >= 0) {

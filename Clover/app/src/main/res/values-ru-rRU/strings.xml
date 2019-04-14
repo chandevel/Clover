@@ -265,9 +265,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <string name="post_copy_text">Скопировать текст</string>
   <string name="post_report">Пожаловаться</string>
   <string name="post_hide">Скрыть</string>
-  <string name="post_hidden">Тред скрыт</string>
+  <string name="post_hide_whole_chain">Скрыть всю цепочку</string>
+  <plurals name="post_hidden">
+    <item quantity="one">%1$d пост скрыт</item>
+	<item quantity="two">%1$d поста скрыто</item>
+    <item quantity="few">%1$d постов скрыто</item>
+    <item quantity="many">%1$d постов скрыто</item>
+    <item quantity="other">%1$d постов скрыто</item>
+  </plurals>  
+  <string name="thread_hidden">Тред скрыт</string>
   <string name="post_delete">Удалить</string>
   <string name="post_more">Ещё…</string>
+  <string name="cant_hide_op_post_from_thread_message">Нельзя скрыть ОП пост из треда. Его можно скрыть находясь в каталоге тредов</string>
+  
   <string name="reply_name">Имя</string>
   <string name="reply_options">Опции</string>
   <string name="reply_subject">Тема</string>
