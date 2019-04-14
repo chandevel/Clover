@@ -17,10 +17,13 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
+import android.support.annotation.Nullable;
+
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.ProgressRequestBody;
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
@@ -43,7 +46,10 @@ public class Chan4DeleteHttpCall extends HttpCall {
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder) {
+    public void setup(
+            Request.Builder requestBuilder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
         formBuilder.add(Integer.toString(deleteRequest.post.no), "delete");
         if (deleteRequest.imageOnly) {

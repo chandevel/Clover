@@ -17,10 +17,13 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
+import android.support.annotation.Nullable;
+
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
+import org.floens.chan.core.site.http.ProgressRequestBody;
 
 import java.io.IOException;
 import java.net.HttpCookie;
@@ -40,7 +43,10 @@ public class Chan4PassHttpCall extends HttpCall {
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder) {
+    public void setup(
+            Request.Builder requestBuilder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
 
         formBuilder.add("act", "do_login");

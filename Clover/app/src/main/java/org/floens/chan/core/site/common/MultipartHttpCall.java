@@ -17,8 +17,11 @@
  */
 package org.floens.chan.core.site.common;
 
+import android.support.annotation.Nullable;
+
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.HttpCall;
+import org.floens.chan.core.site.http.ProgressRequestBody;
 
 import java.io.File;
 
@@ -58,7 +61,10 @@ public abstract class MultipartHttpCall extends HttpCall {
     }
 
     @Override
-    public void setup(Request.Builder requestBuilder) {
+    public void setup(
+            Request.Builder requestBuilder,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
         requestBuilder.url(url);
         String r = url.scheme() + "://" + url.host();
         if (url.port() != 80 && url.port() != 443) {

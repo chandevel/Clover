@@ -18,6 +18,8 @@
 package org.floens.chan.core.site.http;
 
 
+import android.support.annotation.Nullable;
+
 import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteRequestModifier;
@@ -50,13 +52,24 @@ public class HttpCallManager {
                 .build();
     }
 
-    public void makeHttpCall(HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback) {
+    public void makeHttpCall(
+            HttpCall httpCall,
+            HttpCall.HttpCallback<? extends HttpCall> callback
+    ) {
+        makeHttpCall(httpCall, callback, null);
+    }
+
+    public void makeHttpCall(
+            HttpCall httpCall,
+            HttpCall.HttpCallback<? extends HttpCall> callback,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
         httpCall.setCallback(callback);
 
         Request.Builder requestBuilder = new Request.Builder();
 
         Site site = httpCall.site;
-        httpCall.setup(requestBuilder);
+        httpCall.setup(requestBuilder, progressListener);
 
         if (site != null) {
             final SiteRequestModifier siteRequestModifier = site.requestModifier();
