@@ -200,6 +200,22 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
 
+        if (draft.loadable.site.name().equals("4chan")) {
+            //only 4chan seems to have the post delay, this is a hack for that
+            if (ChanSettings.lastReplyTime.get() + 60 * 1000 < System.currentTimeMillis()) {
+                submitOrAuthenticate();
+            } else {
+                long timeLeft = 60L - ((System.currentTimeMillis() - ChanSettings.lastReplyTime.get()) / 1000L);
+                String errorMessage = getAppContext().getString(R.string.reply_error_message_timer, timeLeft);
+                switchPage(Page.INPUT, true);
+                callback.openMessage(true, false, errorMessage, true);
+            }
+        } else {
+            submitOrAuthenticate();
+        }
+    }
+
+    private void submitOrAuthenticate() {
         if (loadable.site.actions().postRequiresAuthentication()) {
             switchPage(Page.AUTHENTICATION, true);
         } else {
@@ -210,6 +226,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
+            ChanSettings.lastReplyTime.set(System.currentTimeMillis());
+
             if (ChanSettings.postPinThread.get()) {
                 if (loadable.isThreadMode()) {
                     ChanThread thread = callback.getThread();
