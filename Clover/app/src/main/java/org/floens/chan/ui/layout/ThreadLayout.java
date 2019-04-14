@@ -49,7 +49,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.orm.Loadable;
-import org.floens.chan.core.model.orm.PostHide;
+import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.http.Reply;
@@ -62,9 +62,7 @@ import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -480,53 +478,18 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @Override
     public void hideThread(Post post) {
-        final PostHide postHide = PostHide.fromPost(post, true);
-
+        final ThreadHide threadHide = ThreadHide.fromPost(post);
         databaseManager.runTask(
-                databaseManager.getDatabaseHideManager().addThreadHide(postHide));
+                databaseManager.getDatabaseHideManager().addThreadHide(threadHide));
 
         presenter.refreshUI();
 
-        Snackbar snackbar = Snackbar.make(this, R.string.thread_hidden, Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(this, R.string.post_hidden, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, new OnClickListener() {
             @Override
             public void onClick(View v) {
                 databaseManager.runTask(
-                        databaseManager.getDatabaseHideManager().removeThreadHide(postHide));
-                presenter.refreshUI();
-            }
-        }).show();
-        fixSnackbarText(getContext(), snackbar);
-    }
-
-    @Override
-    public void hidePosts(Set<Post> posts) {
-        final List<PostHide> hideList = new ArrayList<>();
-
-        for (Post post : posts) {
-            // Do not add the OP post to the hideList since we don't want to hide an OP post
-            // while being in a thread (it just doesn't make any sense)
-            if (!post.isOP) {
-                hideList.add(PostHide.fromPost(post, false));
-            }
-        }
-
-        databaseManager.runTask(
-                databaseManager.getDatabaseHideManager().addPostsHide(hideList)
-        );
-
-        presenter.refreshUI();
-
-        String formattedString = String.format(
-                getResources().getQuantityString(R.plurals.post_hidden, posts.size()), posts.size()
-        );
-
-        Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
-        snackbar.setAction(R.string.undo, new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                databaseManager.runTask(
-                        databaseManager.getDatabaseHideManager().removePostsHide(hideList));
+                        databaseManager.getDatabaseHideManager().removeThreadHide(threadHide));
                 presenter.refreshUI();
             }
         }).show();
@@ -561,12 +524,6 @@ public class ThreadLayout extends CoordinatorLayout implements
     @Override
     public void showImageReencodingWindow(Loadable loadable) {
         imageReencodingHelper.showController(loadable);
-    }
-
-    public void showCantHideOpFromFromThreadMessage() {
-        Snackbar snackbar = Snackbar.make(this, R.string.cant_hide_op_post_from_thread_message, Snackbar.LENGTH_LONG);
-        snackbar.show();
-        fixSnackbarText(getContext(), snackbar);
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

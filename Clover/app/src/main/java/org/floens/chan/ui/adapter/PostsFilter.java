@@ -66,11 +66,9 @@ public class PostsFilter {
      * Creates a copy of {@code original} and applies any sorting or filtering to it.
      *
      * @param original List of {@link Post}s to filter.
-     * @param siteId   to get rid of collisions when figuring out if a post is hidden.
-     * @param board    to get rid of collisions when figuring out if a post is hidden.
      * @return a new filtered List
      */
-    public List<Post> apply(List<Post> original, int siteId, String board) {
+    public List<Post> apply(List<Post> original) {
         List<Post> posts = new ArrayList<>(original);
 
         // Process order
@@ -123,17 +121,17 @@ public class PostsFilter {
             }
         }
 
-        // Process hidden by a filter
+        // Process hidden either by a filter or by thread hiding
         Iterator<Post> i = posts.iterator();
         while (i.hasNext()) {
             Post post = i.next();
-            if (post.filterRemove) {
+            if (post.filterRemove ||
+                    databaseManager.getDatabaseHideManager().isThreadHidden(post)) {
                 i.remove();
             }
         }
 
-        // Process hidden by post/thread hiding
-        return databaseManager.getDatabaseHideManager().filterHiddenPosts(posts, siteId, board);
+        return posts;
     }
 
     public enum Order {

@@ -242,13 +242,7 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copiar texto</string>
     <string name="post_report">Reportar</string>
     <string name="post_hide">Ocultar</string>
-    <string name="post_hide_whole_chain">Ocultar toda la cadena</string>
-    <plurals name="post_hidden">
-        <item quantity="one">%1$d publicación oculta</item>
-        <item quantity="other">%1$d mensajes ocultos</item>
-    </plurals>
-	<string name="cant_hide_op_post_from_thread_message">No puedes ocultar una publicación OP de un hilo. Puedes hacerlo desde el catálogo.</string>
-    <string name="thread_hidden">Hilo oculto</string>
+    <string name="post_hidden">Hilo Oculto</string>
     <string name="post_delete">Eliminar</string>
     <string name="post_more">Más…</string>
     <string name="reply_name">Nombre</string>
@@ -492,7 +486,6 @@ Don't have a 4chan Pass?<br>
 ]]>
     "</string>
     <string name="settings_screen_theme">Temas</string>
-
     <string name="image_quality">La calidad de imagen: %1$d</string>
     <string name="scale_reduce">Reducir: %1$dx</string>
     <string name="could_not_decode_image_bitmap">No se pudo decodificar el mapa de bits de la imagen</string>

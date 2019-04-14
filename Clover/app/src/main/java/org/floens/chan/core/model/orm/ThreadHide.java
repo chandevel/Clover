@@ -20,43 +20,30 @@ package org.floens.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.model.Post;
 
-@DatabaseTable(tableName = DatabaseHelper.POST_HIDE_TABLE_NAME)
-public class PostHide {
+@DatabaseTable(tableName = "threadhide")
+public class ThreadHide {
     @DatabaseField(generatedId = true)
     public int id;
 
-    @DatabaseField(columnName = SITE_COLUMN_NAME)
+    @DatabaseField(columnName = "site")
     public int site;
 
-    @DatabaseField(columnName = BOARD_COLUMN_NAME)
+    @DatabaseField
     public String board;
 
-    @DatabaseField(columnName = NO_COLUMN_NAME)
+    @DatabaseField
     public int no;
 
-    /**
-     * Indicates whether we should hide the whole thread or just a single post (when hiding OP post)
-     * */
-    @DatabaseField(columnName = WHOLE_THREAD_COLUMN_NAME)
-    public boolean wholeThread;
-
-    public static final String SITE_COLUMN_NAME = "site";
-    public static final String BOARD_COLUMN_NAME = "board";
-    public static final String NO_COLUMN_NAME = "no";
-    public static final String WHOLE_THREAD_COLUMN_NAME = "whole_thread";
-
-    public PostHide() {
+    public ThreadHide() {
     }
 
-    public static PostHide fromPost(Post post, Boolean wholeThread) {
-        PostHide hide = new PostHide();
+    public static ThreadHide fromPost(Post post) {
+        ThreadHide hide = new ThreadHide();
         hide.board = post.board.code;
         hide.no = post.no;
         hide.site = post.board.siteId;
-        hide.wholeThread = wholeThread;
         return hide;
     }
 
@@ -65,7 +52,7 @@ public class PostHide {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PostHide that = (PostHide) o;
+        ThreadHide that = (ThreadHide) o;
 
         return no == that.no && board.equals(that.board) && site == that.site;
     }
@@ -74,7 +61,6 @@ public class PostHide {
     public int hashCode() {
         int result = board.hashCode();
         result = 31 * result + no;
-        result = 31 * result + site;
         return result;
     }
 

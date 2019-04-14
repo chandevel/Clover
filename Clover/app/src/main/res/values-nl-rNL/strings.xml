@@ -240,13 +240,7 @@ Als het patroon past kan de post verborgen worden of gemarkeerd worden.<br>
     <string name="post_copy_text">Tekst kopiëren</string>
     <string name="post_report">Rapporteren</string>
     <string name="post_hide">Verbergen</string>
-	<string name="post_hide_whole_chain">Gehele keten verbergen</string>
-    <plurals name="post_hidden">
-        <item quantity="one">%1$d bericht verborgen</item>
-        <item quantity="other">%1$d berichten verborgen</item>
-    </plurals>
-	<string name="cant_hide_op_post_from_thread_message">U kunt een OP-bericht niet verbergen voor een thread. U kunt het vanuit de catalogus doen</string>
-    <string name="thread_hidden">Thread verborgen</string>
+    <string name="post_hidden">Thread verborgen</string>
     <string name="post_delete">Verwijderen</string>
     <string name="post_more">Meer…</string>
     <string name="reply_name">Naam</string>
@@ -484,7 +478,6 @@ Heb je geen 4chan Pass?<br>
         "
     </string>
     <string name="settings_screen_theme">Thema\'s</string>
-
     <string name="image_quality">Beeldkwaliteit: %1$d</string>
     <string name="scale_reduce">Verminderen: %1$dx</string>
     <string name="could_not_decode_image_bitmap">Kan bitmap van afbeelding niet decoderen</string>
