@@ -81,6 +81,10 @@ public class AppearanceSettingsController extends SettingsController {
                     R.string.setting_enable_reply_fab,
                     R.string.setting_enable_reply_fab_description)));
 
+            layout.add(new BooleanSettingView(this,
+                    ChanSettings.enableYouCount,
+                    R.string.setting_enable_you_count, 0));
+
             groups.add(layout);
         }
 

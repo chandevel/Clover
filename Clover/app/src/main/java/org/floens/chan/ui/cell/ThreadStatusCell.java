@@ -33,6 +33,10 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
+import org.floens.chan.core.settings.ChanSettings;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
 
@@ -43,6 +47,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
     private Callback callback;
 
     private boolean running = false;
+    private int lastYouCount;
 
     private TextView text;
     private String error;
@@ -114,6 +119,8 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     statusText += getContext().getString(R.string.thread_refresh_bar_inactive);
                 } else if (time <= 0) {
                     statusText += getContext().getString(R.string.thread_refresh_now);
+                    //only update you count when the thread is loaded
+                    getNumYous(chanThread);
                 } else {
                     statusText += getContext().getString(R.string.thread_refresh_countdown, time);
                 }
@@ -147,6 +154,10 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         String ips = op.getUniqueIps() + "P";
                         finalText = TextUtils.concat(finalText, " / " + ips);
                     }
+
+                    if(ChanSettings.enableYouCount.get()) {
+                        finalText = TextUtils.concat(finalText, " / ", Integer.toString(lastYouCount), " (You)s");
+                    }
                 }
             }
 
@@ -154,6 +165,19 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
             return update;
         }
+    }
+
+    private void getNumYous(ChanThread thread) {
+        Thread t = new Thread(() -> {
+            int ret = 0;
+            Pattern youQuotePattern = Pattern.compile(">>\\d+ \\(You\\)");
+            for(Post p : thread.posts) {
+                Matcher youQuoteMatcher = youQuotePattern.matcher(p.comment.toString());
+                while(youQuoteMatcher.find()) ret++;
+            }
+            lastYouCount = ret;
+        });
+        t.start();
     }
 
     private void schedule() {

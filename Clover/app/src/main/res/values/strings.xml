@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -443,6 +443,7 @@ Crash reports do not collect any personally identifiable information."
     <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
     <string name="setting_enable_reply_fab">Enable the reply button</string>
     <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>
+    <string name="setting_enable_you_count" tools:ignore="MissingTranslation">Enable the (You) counter</string>
 
     <!-- Appearance post group -->
     <string name="settings_group_post">Post</string>
