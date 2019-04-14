@@ -449,17 +449,17 @@ Relatorios de crashes não coletam informações pessoais identificáveis.\"    
     <!-- Save location settings -->
     <string name="save_location_screen">Salvar localização</string>
     <string name="save_location_storage_permission_required_title">É necessária permissão de armazenamento</string>
-    <string name="save_location_storage_permission_required">\"Permission to access storage is required for browsing files.
+    <string name="save_location_storage_permission_required">\"Permissão para acessar o armazenamento é necessária para navegar pelos aquivos.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"
+Reabilite essa permissão nas configurações de app caso tenha desativado-a permanentemente.\"
     </string>
     <string name="setting_folder_pick_ok">Selecionar</string>
     <string name="setting_folder_navigate_up">Para cima</string>
     <!-- Theme settings -->
-    <string name="setting_theme_explanation">\"Swipe to change the theme.
-Tap the toolbar menu to change its color.\"
+    <string name="setting_theme_explanation">\"Deslize para alterar o tema.
+Toque na barra de ferramentas para alterar sua cor.\"
     </string>
-    <string name="setting_theme_accent">Tap here to change the FAB color</string>
+    <string name="setting_theme_accent">Toque aqui para alterar a cor do FAB</string>
     <!-- Developer settings -->
     <string name="settings_open_logs">Ver registros</string>
     <string name="settings_logs_screen">Registros</string>
@@ -468,7 +468,7 @@ Tap the toolbar menu to change its color.\"
     <string name="settings_screen_pass">4chan pass</string>
     <string name="setting_pass_token">Token</string>
     <string name="setting_pass_pin">PIN</string>
-    <string name="setting_pass_authenticated">Device authorized!</string>
+    <string name="setting_pass_authenticated">Dispositivo autorizado!</string>
     <string name="setting_pass_login">Enviar</string>
     <string name="setting_pass_logout">Sair</string>
     <string name="setting_pass_logging_in">Carregando&#8230;</string>
