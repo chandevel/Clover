@@ -285,7 +285,13 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
-    <string name="post_hidden">Thread hidden</string>
+    <string name="post_hide_whole_chain">Hide whole chain</string>
+    <plurals name="post_hidden">
+        <item quantity="one">%1$d post hidden</item>
+        <item quantity="other">%1$d posts hidden</item>
+    </plurals>
+	<string name="cant_hide_op_post_from_thread_message">You can\'t hide an OP post from a thread. You can do it from the catalog</string>
+    <string name="thread_hidden">Thread hidden</string>
     <string name="post_delete">Delete</string>
     <string name="post_more">More…</string>
 
@@ -589,6 +595,7 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+
     <string name="image_quality">Image quality: %1$d</string>
     <string name="scale_reduce">Reduce: %1$dx</string>
     <string name="could_not_decode_image_bitmap">Could not decode image bitmap</string>

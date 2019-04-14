@@ -1,24 +1,26 @@
 package org.floens.chan.core.database;
 
+import android.support.annotation.Nullable;
+
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.orm.ThreadHide;
+import org.floens.chan.core.model.orm.PostHide;
+import org.floens.chan.utils.Logger;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class DatabaseHideManager {
-    private static final long THREAD_HIDE_TRIM_TRIGGER = 250;
-    private static final long THREAD_HIDE_TRIM_COUNT = 50;
+    private static final String TAG = "DatabaseHideManager";
+
+    private static final long POST_HIDE_TRIM_TRIGGER = 25000;
+    private static final long POST_HIDE_TRIM_COUNT = 5000;
 
     private DatabaseManager databaseManager;
     private DatabaseHelper helper;
-
-    private final Map<Integer, List<ThreadHide>> hides = new HashMap<>();
 
     public DatabaseHideManager(DatabaseManager databaseManager, DatabaseHelper helper) {
         this.databaseManager = databaseManager;
@@ -27,90 +29,132 @@ public class DatabaseHideManager {
 
     public Callable<Void> load() {
         return () -> {
-            databaseManager.trimTable(helper.threadHideDao, "threadhide",
-                    THREAD_HIDE_TRIM_TRIGGER, THREAD_HIDE_TRIM_COUNT);
-
-            synchronized (hides) {
-                hides.clear();
-
-                List<ThreadHide> threadHides = helper.threadHideDao.queryForAll();
-                for (ThreadHide hide : threadHides) {
-                    List<ThreadHide> hidesForId = hides.get(hide.no);
-                    if (hidesForId == null) {
-                        hidesForId = new ArrayList<>(1);
-                        hides.put(hide.no, hidesForId);
-                    }
-
-                    hidesForId.add(hide);
-                }
-            }
+            databaseManager.trimTable(helper.postHideDao, DatabaseHelper.POST_HIDE_TABLE_NAME,
+                    POST_HIDE_TRIM_TRIGGER, POST_HIDE_TRIM_COUNT);
 
             return null;
         };
     }
 
     /**
-     * Returns if the given post is hidden. The Post must be a OP of a thread.
-     * <p>
-     * This method is thread-safe, and doesn't need to be called through
-     * {@link DatabaseManager#runTask(Callable)}.
-     *
-     * @param post The Post to check if it is hidden.
-     * @return {@code true} if hidden, {@code false} otherwise.
-     */
-    public boolean isThreadHidden(Post post) {
-        synchronized (hides) {
-            if (hides.containsKey(post.no)) {
-                for (ThreadHide threadHide : hides.get(post.no)) {
-                    if (threadHide.equalsPost(post)) {
-                        return true;
+     * Searches for hidden posts in the PostHide table and then filters out all hidden posts.
+     * */
+    public List<Post> filterHiddenPosts(List<Post> posts, int siteId, String board) {
+        List<Integer> postNoList = new ArrayList<>(posts.size());
+
+        for (Post post : posts) {
+            postNoList.add(post.no);
+        }
+
+        try {
+            // find hidden posts
+            List<PostHide> hiddenPosts = helper.postHideDao.queryBuilder().where()
+                    .in(PostHide.NO_COLUMN_NAME, postNoList)
+                    .and()
+                    .eq(PostHide.SITE_COLUMN_NAME, siteId)
+                    .and()
+                    .eq(PostHide.BOARD_COLUMN_NAME, board)
+                    .query();
+
+            List<Post> resultList = new ArrayList<>();
+
+            // filter out hidden posts
+            for (Post post : posts) {
+                PostHide hiddenPost = findHiddenPost(hiddenPosts, post, siteId, board);
+
+                if (hiddenPost != null) {
+                    if (post.isOP) {
+                        //hide OP post only if the user hid the whole thread
+                        if (!hiddenPost.wholeThread) {
+                            resultList.add(post);
+                        }
                     }
+                } else {
+                    resultList.add(post);
                 }
+            }
+
+            //return posts that are NOT hidden
+            return resultList;
+        } catch (SQLException e) {
+            Logger.e(TAG, "Unknown error while trying to load hidden posts", e);
+
+            // do not filter out anything if could not load hidden posts
+            return posts;
+        }
+    }
+
+    @Nullable
+    private PostHide findHiddenPost(List<PostHide> hiddenPosts, Post post, int siteId, String board) {
+        for (PostHide postHide : hiddenPosts) {
+            if (post.no == postHide.no && siteId == postHide.site && board.equals(postHide.board)) {
+                return postHide;
             }
         }
-        return false;
+
+        return null;
     }
 
-    public Callable<Void> addThreadHide(ThreadHide hide) {
+    public Callable<Void> addThreadHide(PostHide hide) {
         return () -> {
-            helper.threadHideDao.create(hide);
+            if (contains(hide)) {
+                return null;
+            }
 
-            synchronized (hides) {
-                List<ThreadHide> hidesForId = hides.get(hide.no);
-                if (hidesForId == null) {
-                    hidesForId = new ArrayList<>(1);
-                    hides.put(hide.no, hidesForId);
+            helper.postHideDao.createIfNotExists(hide);
+
+            return null;
+        };
+    }
+
+    public Callable<Void> addPostsHide(List<PostHide> hideList) {
+        return () -> {
+            for (PostHide postHide : hideList) {
+                if (contains(postHide)) {
+                    continue;
                 }
 
-                hidesForId.add(hide);
+                helper.postHideDao.createIfNotExists(postHide);
             }
 
             return null;
         };
     }
 
-    public Callable<Void> removeThreadHide(ThreadHide hide) {
+    public Callable<Void> removeThreadHide(PostHide hide) {
         return () -> {
-            helper.threadHideDao.delete(hide);
+            helper.postHideDao.delete(hide);
 
-            synchronized (hides) {
-                List<ThreadHide> hidesForId = hides.get(hide.no);
-                if (hidesForId != null) {
-                    hidesForId.remove(hide);
-                }
+            return null;
+        };
+    }
+
+    public Callable<Void> removePostsHide(List<PostHide> hideList) {
+        return () -> {
+            for (PostHide postHide : hideList) {
+                helper.postHideDao.delete(postHide);
             }
 
             return null;
         };
+    }
+
+    private boolean contains(PostHide hide) throws SQLException {
+        PostHide inDb = helper.postHideDao.queryBuilder().where()
+                .eq(PostHide.NO_COLUMN_NAME, hide.no)
+                .and()
+                .eq(PostHide.SITE_COLUMN_NAME, hide.site)
+                .and()
+                .eq(PostHide.BOARD_COLUMN_NAME, hide.board)
+                .queryForFirst();
+
+        //if this thread is already hidden - do nothing
+        return inDb != null;
     }
 
     public Callable<Void> clearAllThreadHides() {
         return () -> {
-            TableUtils.clearTable(helper.getConnectionSource(), ThreadHide.class);
-
-            synchronized (hides) {
-                hides.clear();
-            }
+            TableUtils.clearTable(helper.getConnectionSource(), PostHide.class);
 
             return null;
         };
