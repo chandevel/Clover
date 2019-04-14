@@ -286,7 +286,7 @@ Ative \"Abrir videos em um player externo\" nas configurações para abrir video
         <item quantity="other">%d novos posts te citando</item>
     </plurals>
     <plurals name="watch_new_quoting">
-        <item quantity="one">%1$d novo post, %2$d te citando</item>
+        <item quantity="one">%1$d novo post, %2$d citando você</item>
         <item quantity="other">%1$d novos posts, %2$d te citando</item>
     </plurals>
     <string name="history_screen">Histórico</string>
@@ -330,18 +330,18 @@ Ative \"Abrir videos em um player externo\" nas configurações para abrir video
         <item>Todos os posts</item>
         <item>Apenas posts citando você</item>
     </string-array>
-    <string name="setting_watch_sound">Notification sound</string>
+    <string name="setting_watch_sound">Som de notificação</string>
     <string-array name="setting_watch_sounds">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
+        <item>Todos os posts</item>
+        <item>Apenas posts citando você</item>
     </string-array>
-    <string name="setting_watch_peek">Heads-up notification on quotes</string>
-    <string name="setting_watch_peek_description">Show a heads-up notification when quoted</string>
-    <string name="setting_watch_led">Notification light</string>
+    <string name="setting_watch_peek">Notificações heads-up em citações</string>
+    <string name="setting_watch_peek_description">Mostrar uma notificação heads-up ao ser citado</string>
+    <string name="setting_watch_led">Luz de notificação</string>
     <string-array name="setting_watch_leds">
-        <item>None</item>
-        <item>White</item>
-        <item>Red</item>
+        <item>Nenhum</item>
+        <item>Branco</item>
+        <item>Vermelho</item>
         <item>Amarelo</item>
         <item>Verde</item>
         <item>Ciano</item>
@@ -390,8 +390,8 @@ Relatorios de crashes não coletam informações pessoais identificáveis.\"    
     <string name="settings_screen_behavior">Comportamento</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">Geral</string>
-    <string name="setting_force_english_locale">Always use English for the language of the app</string>
-    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
+    <string name="setting_force_english_locale">Sempre usar Inglês como idioma do aplicativo</string>
+    <string name="setting_force_english_locale_toggle_notice">O idioma será aplicado na próxima vez que o app for aberto.</string>
     <string name="setting_auto_refresh_thread">Atualizar threads automaticamente</string>
     <string name="setting_confirm_exit">Confirmar antes de sair</string>
     <string name="setting_controller_swipeable">Permitir que páginas sumam ao serem deslizadas</string>
@@ -431,8 +431,8 @@ Relatorios de crashes não coletam informações pessoais identificáveis.\"    
     <string name="setting_video_default_muted_description">Se um vídeo tiver áudio, deixá-lo mudo como padrão.</string>
     <string name="setting_video_open_external">Abrir videos num player externo</string>
     <string name="setting_video_open_external_description">Abrir videos em um aplicativo externo</string>
-    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
+    <string name="setting_video_exoplayer">Ativar o novo ExoPlayer</string>
+    <string name="setting_video_exoplayer_description">Use o novo ExoPlayer como reprodutor interno de mídias</string>
     <string name="setting_share_url">Compartilhar a URL da imagem</string>
     <string name="setting_share_url_description">Compartilhar o URL da imagem ao invés da imagem em si</string>
     <string name="settings_reveal_image_spoilers">Mostrar spoiler em imagens</string>
