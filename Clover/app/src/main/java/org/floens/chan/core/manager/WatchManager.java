@@ -193,6 +193,24 @@ public class WatchManager implements WakeManager.Wakeable {
         EventBus.getDefault().post(new PinMessages.PinRemovedMessage(pin));
     }
 
+    public void deletePins(List<Pin> pinList) {
+        for (Pin pin : pinList) {
+            pins.remove(pin);
+            destroyPinWatcher(pin);
+        }
+
+        databaseManager.runTask(databasePinManager.deletePins(pinList));
+
+        // Update the new orders
+        Collections.sort(pins);
+        reorder(pins);
+        updatePinsInDatabase();
+
+        updateState();
+
+        EventBus.getDefault().post(new PinMessages.AllPinsRemovedMessage());
+    }
+
     public void updatePin(Pin pin) {
         databaseManager.runTask(databasePinManager.updatePin(pin));
 
@@ -346,9 +364,8 @@ public class WatchManager implements WakeManager.Wakeable {
         List<Pin> undo = new ArrayList<>(toRemove.size());
         for (Pin pin : toRemove) {
             undo.add(pin.clone());
-            deletePin(pin);
         }
-
+        deletePins(toRemove);
         return undo;
     }
 
@@ -540,6 +557,10 @@ public class WatchManager implements WakeManager.Wakeable {
             public PinChangedMessage(Pin pin) {
                 this.pin = pin;
             }
+        }
+
+        public static class AllPinsRemovedMessage {
+
         }
     }
 

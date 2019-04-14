@@ -257,6 +257,11 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         updateBadge();
     }
 
+    public void onEvent(PinMessages.AllPinsRemovedMessage message) {
+        drawerAdapter.onAllPinsRemoved();
+        updateBadge();
+    }
+
     public void setDrawerEnabled(boolean enabled) {
         drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
         if (!enabled) {
