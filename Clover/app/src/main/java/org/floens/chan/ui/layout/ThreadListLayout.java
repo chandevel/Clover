@@ -391,12 +391,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         }
 
         if (query != null) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                //hack to make sure search amount is consistent with the cancelable in showPosts
-                //I can't figure out how to sync the threads correctly
-            }
             int size = getDisplayingPosts().size();
             searchStatus.setText(getContext().getString(R.string.search_results,
                     getContext().getResources().getQuantityString(R.plurals.posts, size, size),
