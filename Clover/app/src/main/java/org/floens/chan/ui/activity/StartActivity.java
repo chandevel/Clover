@@ -519,6 +519,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         return false;
     }
 
+    public RuntimePermissionsHelper getPermissionHelper() {
+        return runtimePermissionsHelper;
+    }
+
     // This method is called to apply new imported settings.
     // It is a hack but it works.
     public void restartApp() {

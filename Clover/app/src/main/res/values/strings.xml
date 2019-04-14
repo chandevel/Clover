@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="save">Save</string>
+    <string name="continue_text" tools:ignore="MissingTranslation">Continue</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -46,6 +47,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
 
+    <string name="storage_permission_required_to_export_settings" tools:ignore="MissingTranslation">
+"Permission to access storage is required to export settings.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
+
+    <string name="storage_permission_required_to_import_settings" tools:ignore="MissingTranslation">
+"Permission to access storage is required to import settings.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
@@ -584,4 +594,10 @@ Don't have a 4chan Pass?<br>
     <string name="export_settings_to_a_file" tools:ignore="MissingTranslation">Export settings to a file</string>
     <string name="import_settings" tools:ignore="MissingTranslation">Import settings</string>
     <string name="import_settings_from_a_file" tools:ignore="MissingTranslation">Import settings from a file</string>
+    <string name="import_warning_title" tools:ignore="MissingTranslation">Warning</string>
+    <string name="import_warning_text" tools:ignore="MissingTranslation">You are about to import settings/saved pins/filters/hidden posts from a file. The file must be located at %1$s and have a name %2$s. This will clear all your existing settings/pins/threads and replace them with the ones from the file. The app wil be restarted. \nAre you sure you want to continue?</string>
+    <string name="successfully_exported_text" tools:ignore="MissingTranslation">Exported successfully to %1$s. File path has been copied to the clipboard"</string>
+    <string name="cannot_import_error_text" tools:ignore="MissingTranslation">Cannot import. External storage is not mounted</string>
+    <string name="cannot_export_error_text" tools:ignore="MissingTranslation">Cannot export. External storage is not mounted</string>
+    <string name="could_not_create_dir_for_export_error_text" tools:ignore="MissingTranslation">Could not create directory for export file %1$s probably you won\'t be able to export settings</string>
 </resources>

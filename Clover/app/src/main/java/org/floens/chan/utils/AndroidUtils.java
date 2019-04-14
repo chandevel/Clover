@@ -432,6 +432,10 @@ public class AndroidUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
+    public static boolean isMarshmallow() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+    }
+
     public static void setElevation(View view, float elevation) {
         if (isLollipop()) {
             setElevationLollipop(view, elevation);

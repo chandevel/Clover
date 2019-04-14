@@ -67,7 +67,7 @@ public class ExportedAppSettings {
      * (probably only settings)
      */
     public boolean isEmpty() {
-        return exportedSites.isEmpty() && exportedBoards.isEmpty();
+        return exportedSites.isEmpty() && exportedBoards.isEmpty() && settings.isEmpty();
     }
 
     public List<ExportedSite> getExportedSites() {

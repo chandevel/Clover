@@ -56,7 +56,10 @@ import javax.inject.Inject;
 
 public class ImportExportRepository {
     private static final String TAG = "ImportExportRepository";
-    private static final String EXPORT_FILE_NAME = "exported_pins.json";
+    public static final String EXPORT_FILE_NAME = "exported_clover_settings.json";
+
+    // Don't forget to change this when changing any of the Export models.
+    // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
     public static final int CURRENT_EXPORT_SETTINGS_VERSION = 1;
 
     private DatabaseManager databaseManager;
@@ -74,10 +77,8 @@ public class ImportExportRepository {
         this.gson = gson;
     }
 
-    public void exportTo(File cacheDir, ImportExportCallbacks callbacks) {
+    public void exportTo(File settingsFile, ImportExportCallbacks callbacks) {
         databaseManager.runTask(() -> {
-            File exportFile = null;
-
             try {
                 ExportedAppSettings appSettings = readSettingsFromDatabase();
                 if (appSettings.isEmpty()) {
@@ -87,27 +88,32 @@ public class ImportExportRepository {
 
                 String json = gson.toJson(appSettings);
 
-                exportFile = new File(cacheDir, EXPORT_FILE_NAME);
-                if (exportFile.exists()) {
-                    if (!exportFile.delete()) {
-                        Logger.w(TAG, "Could not delete export file before exporting " + exportFile.getAbsolutePath());
+                if (settingsFile.exists()) {
+                    if (!settingsFile.isFile()) {
+                        throw new IOException(
+                                "Settings file is not a file (???) " + settingsFile.getAbsolutePath()
+                        );
+                    }
+
+                    if (!settingsFile.delete()) {
+                        Logger.w(TAG, "Could not delete export file before exporting " + settingsFile.getAbsolutePath());
                     }
                 }
 
-                if (!exportFile.createNewFile()) {
+                if (!settingsFile.createNewFile()) {
                     throw new IOException(
-                            "Could not create a file for exporting " + exportFile.getAbsolutePath()
+                            "Could not create a file for exporting " + settingsFile.getAbsolutePath()
                     );
                 }
 
-                if (!exportFile.exists() || !exportFile.canWrite()) {
+                if (!settingsFile.exists() || !settingsFile.canWrite()) {
                     throw new IOException(
                             "Something wrong with export file (Can't write or it doesn't exist) "
-                                    + exportFile.getAbsolutePath()
+                                    + settingsFile.getAbsolutePath()
                     );
                 }
 
-                try (RandomAccessFile raf = new RandomAccessFile(exportFile, "rw")) {
+                try (RandomAccessFile raf = new RandomAccessFile(settingsFile, "rw")) {
                     raf.writeBytes(json);
                 }
 
@@ -116,7 +122,7 @@ public class ImportExportRepository {
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to export pins", error);
 
-                deleteExportFile(exportFile);
+                deleteExportFile(settingsFile);
                 callbacks.onError(error, ImportExport.Export);
             }
 
@@ -124,20 +130,25 @@ public class ImportExportRepository {
         });
     }
 
-    public void importFrom(File cacheDir, ImportExportCallbacks callbacks) {
+    public void importFrom(File settingsFile, ImportExportCallbacks callbacks) {
         databaseManager.runTask(() -> {
             try {
-                File importFile = new File(cacheDir, EXPORT_FILE_NAME);
-                if (!importFile.exists() || !importFile.canRead()) {
+                if (!settingsFile.exists()) {
+                    Logger.i(TAG, "There is nothing to import, importFile does not exist " + settingsFile.getAbsolutePath());
+                    callbacks.onNothingToImportExport(ImportExport.Import);
+                    return null;
+                }
+
+                if (!settingsFile.canRead()) {
                     throw new IOException(
                             "Something wrong with import file (Can't read or it doesn't exist) "
-                                    + importFile.getAbsolutePath()
+                                    + settingsFile.getAbsolutePath()
                     );
                 }
 
                 ExportedAppSettings appSettings;
 
-                try (FileReader reader = new FileReader(importFile)) {
+                try (FileReader reader = new FileReader(settingsFile)) {
                     appSettings = gson.fromJson(reader, ExportedAppSettings.class);
                 }
 
@@ -174,11 +185,7 @@ public class ImportExportRepository {
         if (appSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
             appSettings = onUpgrade(appSettings.getVersion(), appSettings);
         } else if (appSettings.getVersion() > CURRENT_EXPORT_SETTINGS_VERSION) {
-            throw new IllegalStateException(
-                    "Cannot import settings with version higher than current (downgrade)! " +
-                            "(Settings version = " + appSettings.getVersion() + ", current version = "
-                            + CURRENT_EXPORT_SETTINGS_VERSION + ")"
-            );
+            appSettings = onDowngrade(appSettings.getVersion(), appSettings);
         }
 
         databaseHelper.siteDao.deleteBuilder().delete();
@@ -283,8 +290,13 @@ public class ImportExportRepository {
     }
 
     private ExportedAppSettings onUpgrade(int version, ExportedAppSettings appSettings) {
-        // Transform ExportedAppSettings here if necessary
+        // Add your ExportAppSettings migrations here
         return appSettings;
+    }
+
+    private ExportedAppSettings onDowngrade(int version, ExportedAppSettings appSettings) {
+        // Add your ExportAppSettings migrations here
+        return ExportedAppSettings.empty();
     }
 
     @NonNull
@@ -370,10 +382,6 @@ public class ImportExportRepository {
             );
 
             exportedSites.add(exportedSite);
-        }
-
-        if (exportedSites.isEmpty()) {
-            return ExportedAppSettings.empty();
         }
 
         List<ExportedBoard> exportedBoards = new ArrayList<>();

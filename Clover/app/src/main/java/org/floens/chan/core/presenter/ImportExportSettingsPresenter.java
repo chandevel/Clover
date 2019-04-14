@@ -50,8 +50,8 @@ public class ImportExportSettingsPresenter {
         this.callbacks = null;
     }
 
-    public void doExport(File cacheDir) {
-        importExportRepository.exportTo(cacheDir, new ImportExportRepository.ImportExportCallbacks() {
+    public void doExport(File settingsFile) {
+        importExportRepository.exportTo(settingsFile, new ImportExportRepository.ImportExportCallbacks() {
             @Override
             public void onSuccess(ImportExportRepository.ImportExport importExport) {
                 //called on background thread
@@ -66,7 +66,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.onFailure("There is nothing to export");
+                    callbacks.onError("There is nothing to export");
                 }
             }
 
@@ -75,14 +75,14 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.onFailure("Error while trying to export settings = " + error.getMessage());
+                    callbacks.onError("Error while trying to export settings = " + error.getMessage());
                 }
             }
         });
     }
 
-    public void doImport(File cacheDir) {
-        importExportRepository.importFrom(cacheDir, new ImportExportRepository.ImportExportCallbacks() {
+    public void doImport(File settingsFile) {
+        importExportRepository.importFrom(settingsFile, new ImportExportRepository.ImportExportCallbacks() {
             @Override
             public void onSuccess(ImportExportRepository.ImportExport importExport) {
                 //called on background thread
@@ -97,7 +97,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.onFailure("There is nothing to import");
+                    callbacks.onError("There is nothing to import");
                 }
             }
 
@@ -106,7 +106,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (callbacks != null) {
-                    callbacks.onFailure("Error while trying to import settings = " + error.getMessage());
+                    callbacks.onError("Error while trying to import settings = " + error.getMessage());
                 }
             }
         });
@@ -115,6 +115,6 @@ public class ImportExportSettingsPresenter {
     public interface ImportExportSettingsCallbacks {
         void onSuccess(ImportExportRepository.ImportExport importExport);
 
-        void onFailure(String message);
+        void onError(String message);
     }
 }
