@@ -45,7 +45,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private RecyclerView recyclerView;
 
     private final ThreadStatusCell.Callback statusCellCallback;
-    private final List<Post> sourceList = new ArrayList<>();
     private final List<Post> displayList = new ArrayList<>();
     private String error = null;
     private Post highlightedPost;
@@ -54,7 +53,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String highlightedPostTripcode;
     private int selectedPost = -1;
     private int lastSeenIndicatorPosition = -1;
-    private volatile boolean bound;
+    private boolean bound;
 
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
@@ -104,11 +103,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (itemViewType) {
             case TYPE_POST:
             case TYPE_POST_STUB:
-                if (!(holder instanceof PostViewHolder)) {
-                    // to avoid "StatusViewHolder cannot be cast to PostViewHolder" exception
-                    return;
-                }
-
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
@@ -181,22 +175,16 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    /**
-     * Must be run on a background thread
-     * */
-    public void setThread(ChanThread thread, PostsFilter filter) {
-        if (BackgroundUtils.isMainThread()) {
-            throw new RuntimeException("Must be called on a background thread!");
+    public void setThread(ChanThread thread, List<Post> posts) {
+        if (!BackgroundUtils.isMainThread()) {
+            throw new RuntimeException("Must be called on the main thread!");
         }
 
         bound = true;
         showError(null);
 
-        sourceList.clear();
-        sourceList.addAll(thread.posts);
-
         displayList.clear();
-        displayList.addAll(filter.apply(sourceList, thread.loadable.site.id(), thread.loadable.board.code));
+        displayList.addAll(posts);
 
         lastSeenIndicatorPosition = -1;
         if (thread.loadable.lastViewed >= 0) {
@@ -211,7 +199,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         // Update all, recyclerview will figure out all the animations
-        recyclerView.post(this::notifyDataSetChanged);
+        notifyDataSetChanged();
     }
 
     public List<Post> getDisplayList() {

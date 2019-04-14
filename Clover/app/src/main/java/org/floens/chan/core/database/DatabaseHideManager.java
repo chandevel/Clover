@@ -38,50 +38,54 @@ public class DatabaseHideManager {
 
     /**
      * Searches for hidden posts in the PostHide table and then filters out all hidden posts.
+     * This function may be called from the main thread without causing an exception but it will
+     * hang the main thread.
      * */
     public List<Post> filterHiddenPosts(List<Post> posts, int siteId, String board) {
-        List<Integer> postNoList = new ArrayList<>(posts.size());
+        return databaseManager.runTask(() -> {
+            List<Integer> postNoList = new ArrayList<>(posts.size());
 
-        for (Post post : posts) {
-            postNoList.add(post.no);
-        }
-
-        try {
-            // find hidden posts
-            List<PostHide> hiddenPosts = helper.postHideDao.queryBuilder().where()
-                    .in(PostHide.NO_COLUMN_NAME, postNoList)
-                    .and()
-                    .eq(PostHide.SITE_COLUMN_NAME, siteId)
-                    .and()
-                    .eq(PostHide.BOARD_COLUMN_NAME, board)
-                    .query();
-
-            List<Post> resultList = new ArrayList<>();
-
-            // filter out hidden posts
             for (Post post : posts) {
-                PostHide hiddenPost = findHiddenPost(hiddenPosts, post, siteId, board);
-
-                if (hiddenPost != null) {
-                    if (post.isOP) {
-                        //hide OP post only if the user hid the whole thread
-                        if (!hiddenPost.wholeThread) {
-                            resultList.add(post);
-                        }
-                    }
-                } else {
-                    resultList.add(post);
-                }
+                postNoList.add(post.no);
             }
 
-            //return posts that are NOT hidden
-            return resultList;
-        } catch (SQLException e) {
-            Logger.e(TAG, "Unknown error while trying to load hidden posts", e);
+            try {
+                // find hidden posts
+                List<PostHide> hiddenPosts = helper.postHideDao.queryBuilder().where()
+                        .in(PostHide.NO_COLUMN_NAME, postNoList)
+                        .and()
+                        .eq(PostHide.SITE_COLUMN_NAME, siteId)
+                        .and()
+                        .eq(PostHide.BOARD_COLUMN_NAME, board)
+                        .query();
 
-            // do not filter out anything if could not load hidden posts
-            return posts;
-        }
+                List<Post> resultList = new ArrayList<>();
+
+                // filter out hidden posts
+                for (Post post : posts) {
+                    PostHide hiddenPost = findHiddenPost(hiddenPosts, post, siteId, board);
+
+                    if (hiddenPost != null) {
+                        if (post.isOP) {
+                            //hide OP post only if the user hid the whole thread
+                            if (!hiddenPost.wholeThread) {
+                                resultList.add(post);
+                            }
+                        }
+                    } else {
+                        resultList.add(post);
+                    }
+                }
+
+                //return posts that are NOT hidden
+                return resultList;
+            } catch (SQLException e) {
+                Logger.e(TAG, "Unknown error while trying to load hidden posts", e);
+
+                // do not filter out anything if could not load hidden posts
+                return posts;
+            }
+        });
     }
 
     @Nullable

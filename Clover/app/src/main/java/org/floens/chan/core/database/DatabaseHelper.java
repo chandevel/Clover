@@ -45,7 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 26;
+    private static final int DATABASE_VERSION = 27;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -265,6 +265,17 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 postHideDao.executeRawNoArgs("ALTER TABLE " + POST_HIDE_TABLE_NAME + " ADD COLUMN whole_thread INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 26", e);
+            }
+        }
+
+        if (oldVersion < 27) {
+            try {
+                // Create indexes for PostHides to speed up posts filtering
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_site_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.SITE_COLUMN_NAME + ");");
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_board_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.BOARD_COLUMN_NAME + ");");
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_no_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.NO_COLUMN_NAME + ");");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 27", e);
             }
         }
     }

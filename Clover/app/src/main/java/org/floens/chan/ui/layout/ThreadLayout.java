@@ -166,6 +166,7 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     public void destroy() {
         presenter.unbindLoadable();
+        threadListLayout.destroy();
     }
 
     @Override
