@@ -119,8 +119,10 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     statusText += getContext().getString(R.string.thread_refresh_bar_inactive);
                 } else if (time <= 0) {
                     statusText += getContext().getString(R.string.thread_refresh_now);
-                    //only update you count when the thread is loaded
-                    getNumYous(chanThread);
+                    //only update you count when the thread is loaded and the setting is on
+                    if (ChanSettings.enableYouCount.get()) {
+                        getNumYous(chanThread);
+                    }
                 } else {
                     statusText += getContext().getString(R.string.thread_refresh_countdown, time);
                 }
@@ -155,7 +157,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                         finalText = TextUtils.concat(finalText, " / " + ips);
                     }
 
-                    if(ChanSettings.enableYouCount.get()) {
+                    if (ChanSettings.enableYouCount.get()) {
                         finalText = TextUtils.concat(finalText, " / ", Integer.toString(lastYouCount), " (You)s");
                     }
                 }
@@ -169,13 +171,15 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
     private void getNumYous(ChanThread thread) {
         Thread t = new Thread(() -> {
-            int ret = 0;
-            Pattern youQuotePattern = Pattern.compile(">>\\d+ \\(You\\)");
-            for(Post p : thread.posts) {
-                Matcher youQuoteMatcher = youQuotePattern.matcher(p.comment.toString());
-                while(youQuoteMatcher.find()) ret++;
+            synchronized (this) {
+                int ret = 0;
+                Pattern youQuotePattern = Pattern.compile(">>\\d+ \\(You\\)");
+                for (Post p : thread.posts) {
+                    Matcher youQuoteMatcher = youQuotePattern.matcher(p.comment.toString());
+                    while (youQuoteMatcher.find()) ret++;
+                }
+                lastYouCount = ret;
             }
-            lastYouCount = ret;
         });
         t.start();
     }
