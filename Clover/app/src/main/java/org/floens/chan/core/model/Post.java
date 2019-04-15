@@ -72,7 +72,7 @@ public class Post {
 
     public final boolean filterRemove;
 
-    public final boolean filterPin;
+    public final boolean filterWatch;
 
     /**
      * This post replies to the these ids.
@@ -146,7 +146,7 @@ public class Post {
         filterHighlightedColor = builder.filterHighlightedColor;
         filterStub = builder.filterStub;
         filterRemove = builder.filterRemove;
-        filterPin = builder.filterPin;
+        filterWatch = builder.filterWatch;
 
         isSavedReply = builder.isSavedReply;
 
@@ -277,7 +277,7 @@ public class Post {
         public int filterHighlightedColor;
         public boolean filterStub;
         public boolean filterRemove;
-        public boolean filterPin;
+        public boolean filterWatch;
 
         public boolean isSavedReply;
 
@@ -399,11 +399,11 @@ public class Post {
             return this;
         }
 
-        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean pin) {
+        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
             filterRemove = remove;
-            filterPin = pin;
+            filterWatch = watch;
             return this;
         }
 

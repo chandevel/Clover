@@ -34,7 +34,7 @@ public class WatchSettingsController extends SettingsController implements Compo
     private CrossfadeView crossfadeView;
 
     private SettingView enableBackground;
-    private SettingView enableFilterPin;
+    private SettingView enableFilterWatch;
 
     private SettingView backgroundTimeout;
     private SettingView notifyMode;
@@ -75,7 +75,7 @@ public class WatchSettingsController extends SettingsController implements Compo
             setSettingViewVisibility(soundMode, false, false);
             setSettingViewVisibility(peekMode, false, false);
             setSettingViewVisibility(ledMode, false, false);
-            setSettingViewVisibility(enableFilterPin, false, false);
+            setSettingViewVisibility(enableFilterWatch, false, false);
         }
     }
 
@@ -96,7 +96,7 @@ public class WatchSettingsController extends SettingsController implements Compo
             setSettingViewVisibility(soundMode, enabled, true);
             setSettingViewVisibility(peekMode, enabled, true);
             setSettingViewVisibility(ledMode, enabled, true);
-            setSettingViewVisibility(enableFilterPin, enabled, true);
+            setSettingViewVisibility(enableFilterWatch, enabled, true);
         }
     }
 
@@ -139,7 +139,7 @@ public class WatchSettingsController extends SettingsController implements Compo
                 context.getResources().getStringArray(R.array.setting_watch_leds),
                 new String[]{"-1", "ffffffff", "ffff0000", "ffffff00", "ff00ff00", "ff00ffff", "ff0000ff", "ffff00ff"}));
 
-        enableFilterPin = settings.add(new BooleanSettingView(this, ChanSettings.watchFilterPin, R.string.setting_watch_enable_filter_pin, R.string.setting_watch_enable_filter_pin_description));
+        enableFilterWatch = settings.add(new BooleanSettingView(this, ChanSettings.watchFilterWatch, R.string.setting_watch_enable_filter_watch, R.string.setting_watch_enable_filter_watch_description));
 
         groups.add(settings);
     }
