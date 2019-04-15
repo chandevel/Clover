@@ -45,8 +45,8 @@ import javax.inject.Singleton;
 import de.greenrobot.event.EventBus;
 
 @Singleton
-public class FilterPinManager implements WakeManager.Wakeable {
-    private static final String TAG = "FilterPinManager";
+public class FilterWatchManager implements WakeManager.Wakeable {
+    private static final String TAG = "FilterWatchManager";
 
     private final WakeManager wakeManager;
     private final FilterEngine filterEngine;
@@ -66,7 +66,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
 
     @Inject
-    public FilterPinManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository, DatabaseManager databaseManager) {
+    public FilterWatchManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository, DatabaseManager databaseManager) {
         this.wakeManager = wakeManager;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
@@ -74,7 +74,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
-        if (ChanSettings.watchFilterPin.get()) {
+        if (ChanSettings.watchFilterWatch.get()) {
             wakeManager.registerWakeable(this);
         }
 
@@ -82,8 +82,8 @@ public class FilterPinManager implements WakeManager.Wakeable {
     }
 
     public void onEvent(ChanSettings.SettingChanged<Boolean> settingChanged) {
-        if (settingChanged.setting == ChanSettings.watchFilterPin) {
-            if (ChanSettings.watchFilterPin.get()) {
+        if (settingChanged.setting == ChanSettings.watchFilterWatch) {
+            if (ChanSettings.watchFilterWatch.get()) {
                 wakeManager.registerWakeable(this);
             } else {
                 wakeManager.unregisterWakeable(this);
@@ -95,7 +95,7 @@ public class FilterPinManager implements WakeManager.Wakeable {
         Logger.d(TAG, "Populating filter loaders");
         clearFilterLoaders();
         //get our filters that are tagged as "pin"
-        List<Filter> activeFilters = filterEngine.getEnabledPinFilters();
+        List<Filter> activeFilters = filterEngine.getEnabledWatchFilters();
         //get a set of boards to background load
         Set<String> boardCodes = new HashSet<>();
         for (Filter f : activeFilters) {
@@ -151,10 +151,10 @@ public class FilterPinManager implements WakeManager.Wakeable {
         public void onChanLoaderData(ChanThread result) {
             Set<Integer> toAdd = new HashSet<>();
             //Match filters and ignores
-            List<Filter> filters = filterEngine.getEnabledPinFilters();
+            List<Filter> filters = filterEngine.getEnabledWatchFilters();
             for (Filter f : filters) {
                 for (Post p : result.posts) {
-                    if (filterEngine.matches(f, p) && p.filterPin && !ignoredPosts.contains(p.no)) {
+                    if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no);
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p);

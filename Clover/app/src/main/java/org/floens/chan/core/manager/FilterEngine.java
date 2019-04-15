@@ -48,7 +48,7 @@ public class FilterEngine {
         HIDE(0),
         COLOR(1),
         REMOVE(2),
-        PIN(3);
+        WATCH(3);
 
         public final int id;
 
@@ -112,14 +112,14 @@ public class FilterEngine {
         }
     }
 
-    public List<Filter> getEnabledPinFilters() {
-        List<Filter> pinFilters = new ArrayList<Filter>();
+    public List<Filter> getEnabledWatchFilters() {
+        List<Filter> watchFilters = new ArrayList<Filter>();
         for (Filter f : enabledFilters) {
-            if (f.action == FilterAction.PIN.id) {
-                pinFilters.add(f);
+            if (f.action == FilterAction.WATCH.id) {
+                watchFilters.add(f);
             }
         }
-        return pinFilters;
+        return watchFilters;
     }
 
     @AnyThread

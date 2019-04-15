@@ -210,7 +210,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="filter_hide">Hide post</string>
     <string name="filter_color">Highlight post</string>
     <string name="filter_remove">Remove post</string>
-    <string name="filter_pin" tools:ignore="MissingTranslation">Pin post</string>
+    <string name="filter_watch" tools:ignore="MissingTranslation">Watch post</string>
     <string name="filter_invalid_pattern">Invalid pattern</string>
     <string name="filter_preview">Test your filter</string>
     <string name="filter_no_matches">Does not match</string>
@@ -398,8 +398,8 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
-    <string name="setting_watch_enable_filter_pin" tools:ignore="MissingTranslation">Enable filter pinning</string>
-    <string name="setting_watch_enable_filter_pin_description" tools:ignore="MissingTranslation">Pin posts that match filters with pinning enabled</string>
+    <string name="setting_watch_enable_filter_watch" tools:ignore="MissingTranslation">Enable filter watching</string>
+    <string name="setting_watch_enable_filter_watch_description" tools:ignore="MissingTranslation">Watch posts that match filters marked as watch post</string>
     <string name="setting_watch_background_timeout">Background update interval</string>
     <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
     <string name="setting_thread_page_limit_notify" tools:ignore="MissingTranslation">Last page notifications</string>
