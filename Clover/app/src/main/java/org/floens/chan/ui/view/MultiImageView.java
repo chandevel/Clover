@@ -424,6 +424,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                     Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(videoSource);
+            onModeLoaded(Mode.MOVIE, exoVideoView);
             callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(exoPlayer));
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
