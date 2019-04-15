@@ -171,7 +171,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
     private void getNumYous(ChanThread thread) {
         Thread t = new Thread(() -> {
-            synchronized (this) {
+            synchronized (thread) {
                 int ret = 0;
                 Pattern youQuotePattern = Pattern.compile(">>\\d+ \\(You\\)");
                 for (Post p : thread.posts) {
