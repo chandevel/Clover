@@ -133,6 +133,7 @@ public class ChanSettings {
     public static final BooleanSetting neverHideToolbar;
     public static final BooleanSetting controllerSwipeable;
     public static final BooleanSetting saveBoardFolder;
+    public static final BooleanSetting saveThreadFolder;
     public static final BooleanSetting videoDefaultMuted;
     public static final BooleanSetting videoAutoLoop;
 
@@ -214,6 +215,7 @@ public class ChanSettings {
         neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
         controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
         saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
+        saveThreadFolder = new BooleanSetting(p, "preference_save_subthread", false);
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
         videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
 
