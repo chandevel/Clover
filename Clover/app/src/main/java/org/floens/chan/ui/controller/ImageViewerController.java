@@ -237,9 +237,24 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             ImageSaveTask task = new ImageSaveTask(postImage);
             task.setShare(share);
             if (ChanSettings.saveBoardFolder.get()) {
-                task.setSubFolder(presenter.getLoadable().site.name() +
-                        File.separator +
-                        presenter.getLoadable().boardCode);
+                String subFolderName =
+                        presenter.getLoadable().site.name() +
+                                File.separator +
+                                presenter.getLoadable().boardCode;
+                if (ChanSettings.saveThreadFolder.get()) {
+                    //save to op no appended with the first 50 characters of the subject
+                    //should be unique and perfectly understandable title wise
+                    subFolderName = subFolderName +
+                            File.separator +
+                            presenter.getLoadable().no +
+                            "_" +
+                            presenter.getLoadable().title
+                                    .toLowerCase()
+                                    .replaceAll(" ", "_")
+                                    .replaceAll("[^a-z0-9_]", "")
+                                    .substring(0, 50);
+                }
+                task.setSubFolder(subFolderName);
             }
             ImageSaver.getInstance().startDownloadTask(context, task);
         }
