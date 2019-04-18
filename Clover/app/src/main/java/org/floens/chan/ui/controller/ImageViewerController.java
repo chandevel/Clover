@@ -247,12 +247,13 @@ public class ImageViewerController extends Controller implements ImageViewerPres
                     subFolderName = subFolderName +
                             File.separator +
                             presenter.getLoadable().no +
-                            "_" +
-                            presenter.getLoadable().title
+                            "_";
+                            String tempTitle = presenter.getLoadable().title
                                     .toLowerCase()
                                     .replaceAll(" ", "_")
-                                    .replaceAll("[^a-z0-9_]", "")
-                                    .substring(0, 50);
+                                    .replaceAll("[^a-z0-9_]", "");
+                            tempTitle = tempTitle.substring(0, Math.min(tempTitle.length(), 50));
+                            subFolderName = subFolderName + tempTitle;
                 }
                 task.setSubFolder(subFolderName);
             }
