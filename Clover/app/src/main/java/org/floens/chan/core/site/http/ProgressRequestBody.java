@@ -72,9 +72,15 @@ public class ProgressRequestBody extends RequestBody {
         @Override
         public void write(Buffer source, long byteCount) throws IOException {
             super.write(source, byteCount);
-            bytesWritten += byteCount;
 
+            if (bytesWritten == 0) {
+                // so we can know that the uploading has just started
+                listener.onRequestProgress(0);
+            }
+
+            bytesWritten += byteCount;
             int percent = (int) (maxPercent * bytesWritten / contentLength());
+            
             if (percent - lastPercent >= percentStep) {
                 lastPercent = percent;
                 listener.onRequestProgress(percent);

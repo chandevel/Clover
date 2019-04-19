@@ -60,6 +60,7 @@ import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.ImageDecoder;
 
 import java.io.File;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -317,7 +318,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
                 progressBar.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, dp(100)));
 
                 //reset progress to 0 upon uploading start
-                onUploadingProgress(0);
+                currentProgress.setVisibility(View.INVISIBLE);
                 break;
             case INPUT:
                 setView(replyInputLayout);
@@ -550,7 +551,11 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     @Override
     public void onUploadingProgress(int percent) {
         if (currentProgress != null) {
-            currentProgress.setText(String.format("%d", percent));
+            if (percent <= 0) {
+                currentProgress.setVisibility(View.VISIBLE);
+            }
+
+            currentProgress.setText(String.format(Locale.getDefault(), "%d", percent));
         }
     }
 
