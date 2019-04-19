@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteIcon;
@@ -15,12 +16,16 @@ import org.floens.chan.core.site.common.vichan.VichanCommentParser;
 import org.floens.chan.core.site.common.vichan.VichanEndpoints;
 import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.utils.Logger;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
 
 public class Chan8 extends CommonSite {
+    private static final String TAG = "Chan8";
+
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
@@ -92,6 +97,11 @@ public class Chan8 extends CommonSite {
 
                 return root.builder().s("file_store").s("thumb").s(arg.get("tim") + "." + ext).url();
             }
+
+            @Override
+            public HttpUrl boards() {
+                return root.builder().s("boards.json").url();
+            }
         });
 
         setActions(new VichanActions(this) {
@@ -125,10 +135,28 @@ public class Chan8 extends CommonSite {
             public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
                 super.delete(deleteRequest, deleteListener);
             }
+
+            @Override
+            public void boards(final BoardsListener listener) {
+                requestQueue.add(new Chan8BoardsRequest(Chan8.this, response -> {
+                    Boards boards = new Boards(response);
+                    listener.onBoardsReceived(boards);
+                    boardManager.updateAvailableBoardsForSite(Chan8.this, boards.boards);
+                }, (error) -> {
+                    Logger.e(TAG, "Failed to get boards from server", error);
+                    listener.onBoardsReceived(new Boards(new ArrayList<>()));
+                }));
+            }
         });
 
         setApi(new VichanApi(this));
 
         setParser(new VichanCommentParser());
+    }
+
+    @Override
+    public BoardsType boardsType() {
+        // yes, boards.json
+        return BoardsType.DYNAMIC;
     }
 }
