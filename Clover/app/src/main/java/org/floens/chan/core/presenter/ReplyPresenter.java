@@ -28,6 +28,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.SavedReply;
+import org.floens.chan.core.repository.LastReplyRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
@@ -69,6 +70,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     private ReplyManager replyManager;
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
+    private LastReplyRepository lastReplyRepository;
 
     private boolean bound = false;
     private Loadable loadable;
@@ -84,10 +86,12 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Inject
     public ReplyPresenter(ReplyManager replyManager,
                           WatchManager watchManager,
-                          DatabaseManager databaseManager) {
+                          DatabaseManager databaseManager,
+                          LastReplyRepository lastReplyRepository) {
         this.replyManager = replyManager;
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
+        this.lastReplyRepository = lastReplyRepository;
     }
 
     public void create(ReplyPresenterCallback callback) {
@@ -202,10 +206,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         if (draft.loadable.site.name().equals("4chan")) {
             //only 4chan seems to have the post delay, this is a hack for that
-            if (ChanSettings.lastReplyTime.get() + 60 * 1000 < System.currentTimeMillis()) {
+            if (lastReplyRepository.canPost(draft.loadable.site, draft.loadable.board)) {
                 submitOrAuthenticate();
             } else {
-                long timeLeft = 60L - ((System.currentTimeMillis() - ChanSettings.lastReplyTime.get()) / 1000L);
+                long lastPostTime = lastReplyRepository.getLastReply(draft.loadable.site, draft.loadable.board);
+                long timeLeft = 60L - ((System.currentTimeMillis() - lastPostTime) / 1000L);
                 String errorMessage = getAppContext().getString(R.string.reply_error_message_timer, timeLeft);
                 switchPage(Page.INPUT, true);
                 callback.openMessage(true, false, errorMessage, true);
@@ -226,7 +231,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     @Override
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
-            ChanSettings.lastReplyTime.set(System.currentTimeMillis());
+            lastReplyRepository.putLastReply(draft.loadable.site, draft.loadable.board);
 
             if (ChanSettings.postPinThread.get()) {
                 if (loadable.isThreadMode()) {
