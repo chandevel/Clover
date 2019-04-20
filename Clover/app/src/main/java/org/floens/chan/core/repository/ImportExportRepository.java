@@ -120,7 +120,7 @@ public class ImportExportRepository {
                 Logger.d(TAG, "Exporting done!");
                 callbacks.onSuccess(ImportExport.Export);
             } catch (Throwable error) {
-                Logger.e(TAG, "Error while trying to export pins", error);
+                Logger.e(TAG, "Error while trying to export settings", error);
 
                 deleteExportFile(settingsFile);
                 callbacks.onError(error, ImportExport.Export);
@@ -163,7 +163,7 @@ public class ImportExportRepository {
                 Logger.d(TAG, "Importing done!");
                 callbacks.onSuccess(ImportExport.Import);
             } catch (Throwable error) {
-                Logger.e(TAG, "Error while trying to import pins", error);
+                Logger.e(TAG, "Error while trying to import settings", error);
                 callbacks.onError(error, ImportExport.Import);
             }
 
@@ -179,13 +179,19 @@ public class ImportExportRepository {
         }
     }
 
-    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam) throws SQLException, IOException {
+    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam)
+            throws SQLException, IOException, DowngradeNotSupportedException {
         ExportedAppSettings appSettings = appSettingsParam;
 
         if (appSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
             appSettings = onUpgrade(appSettings.getVersion(), appSettings);
         } else if (appSettings.getVersion() > CURRENT_EXPORT_SETTINGS_VERSION) {
-            appSettings = onDowngrade(appSettings.getVersion(), appSettings);
+            // we don't support settings downgrade so just notify the user about it
+            throw new DowngradeNotSupportedException(
+                    "You are attempting to import settings with version " +
+                    "higher than the current app's settings version (downgrade). " +
+                    "This is not supported so nothing will be imported."
+            );
         }
 
         databaseHelper.siteDao.deleteBuilder().delete();
@@ -292,11 +298,6 @@ public class ImportExportRepository {
     private ExportedAppSettings onUpgrade(int version, ExportedAppSettings appSettings) {
         // Add your ExportAppSettings migrations here
         return appSettings;
-    }
-
-    private ExportedAppSettings onDowngrade(int version, ExportedAppSettings appSettings) {
-        // Add your ExportAppSettings migrations here
-        return ExportedAppSettings.empty();
     }
 
     @NonNull
@@ -465,5 +466,11 @@ public class ImportExportRepository {
         void onNothingToImportExport(ImportExport importExport);
 
         void onError(Throwable error, ImportExport importExport);
+    }
+
+    public static class DowngradeNotSupportedException extends Exception {
+        public DowngradeNotSupportedException(String message) {
+            super(message);
+        }
     }
 }

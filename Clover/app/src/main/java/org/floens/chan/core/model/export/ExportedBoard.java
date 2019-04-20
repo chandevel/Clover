@@ -17,6 +17,9 @@
  */
 package org.floens.chan.core.model.export;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class ExportedBoard {
@@ -27,8 +30,10 @@ public class ExportedBoard {
     @SerializedName("order")
     private int order;
     @SerializedName("name")
+    @Nullable
     private String name;
     @SerializedName("code")
+    @Nullable
     private String code;
     @SerializedName("work_safe")
     private boolean workSafe;
@@ -73,6 +78,7 @@ public class ExportedBoard {
     @SerializedName("math_tags")
     private boolean mathTags;
     @SerializedName("description")
+    @Nullable
     private String description;
     @SerializedName("archive")
     private boolean archive;
@@ -81,7 +87,9 @@ public class ExportedBoard {
             int siteId,
             boolean saved,
             int order,
+            @NonNull
             String name,
+            @NonNull
             String code,
             boolean workSafe,
             int perPage,
@@ -104,6 +112,7 @@ public class ExportedBoard {
             boolean countryFlags,
             boolean trollFlags,
             boolean mathTags,
+            @NonNull
             String description,
             boolean archive
     ) {
@@ -149,10 +158,12 @@ public class ExportedBoard {
         return order;
     }
 
+    @Nullable
     public String getName() {
         return name;
     }
 
+    @Nullable
     public String getCode() {
         return code;
     }
@@ -241,6 +252,7 @@ public class ExportedBoard {
         return mathTags;
     }
 
+    @Nullable
     public String getDescription() {
         return description;
     }

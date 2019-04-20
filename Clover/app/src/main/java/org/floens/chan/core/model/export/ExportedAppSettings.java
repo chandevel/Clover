@@ -17,6 +17,9 @@
  */
 package org.floens.chan.core.model.export;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -36,6 +39,7 @@ public class ExportedAppSettings {
     @SerializedName("exported_post_hides")
     private List<ExportedPostHide> exportedPostHides;
     @SerializedName("exported_settings")
+    @Nullable
     private String settings;
 
     public ExportedAppSettings(
@@ -43,6 +47,7 @@ public class ExportedAppSettings {
             List<ExportedBoard> exportedBoards,
             List<ExportedFilter> exportedFilters,
             List<ExportedPostHide> exportedPostHides,
+            @NonNull
             String settings
     ) {
         this.exportedSites = exportedSites;
@@ -67,7 +72,7 @@ public class ExportedAppSettings {
      * (probably only settings)
      */
     public boolean isEmpty() {
-        return exportedSites.isEmpty() && exportedBoards.isEmpty() && settings.isEmpty();
+        return exportedSites.isEmpty() && exportedBoards.isEmpty() && (settings == null || settings.isEmpty());
     }
 
     public List<ExportedSite> getExportedSites() {
@@ -90,6 +95,7 @@ public class ExportedAppSettings {
         return version;
     }
 
+    @Nullable
     public String getSettings() {
         return settings;
     }

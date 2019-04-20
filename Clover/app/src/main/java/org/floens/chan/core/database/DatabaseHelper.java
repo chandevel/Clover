@@ -97,6 +97,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
+    /**
+     * When modifying the database columns do no forget to change the {@link org.floens.chan.core.model.export.ExportedAppSettings} as well
+     * and add your handler in {@link org.floens.chan.core.repository.ImportExportRepository} onUpgrade method
+     * */
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         Logger.i(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);

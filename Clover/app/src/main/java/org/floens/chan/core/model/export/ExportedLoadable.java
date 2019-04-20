@@ -17,6 +17,9 @@
  */
 package org.floens.chan.core.model.export;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class ExportedLoadable {
@@ -39,6 +42,7 @@ public class ExportedLoadable {
     @SerializedName("site_id")
     private int siteId;
     @SerializedName("title")
+    @Nullable
     private String title;
 
     public ExportedLoadable(
@@ -51,6 +55,7 @@ public class ExportedLoadable {
             int mode,
             int no,
             int siteId,
+            @NonNull
             String title
     ) {
         this.boardCode = boardCode;
@@ -101,6 +106,7 @@ public class ExportedLoadable {
         return siteId;
     }
 
+    @Nullable
     public String getTitle() {
         return title;
     }

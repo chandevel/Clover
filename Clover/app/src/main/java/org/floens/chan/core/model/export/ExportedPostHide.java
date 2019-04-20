@@ -17,12 +17,16 @@
  */
 package org.floens.chan.core.model.export;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class ExportedPostHide {
     @SerializedName("site")
     private int site;
     @SerializedName("board")
+    @Nullable
     private String board;
     @SerializedName("no")
     private int no;
@@ -30,7 +34,7 @@ public class ExportedPostHide {
     //TODO: add "wholeThread" field when this task
     // https://github.com/Floens/Clover/pull/654/files#diff-5e9a09d29a1b99ff8a11eea249800b96R44 is merged
 
-    public ExportedPostHide(int site, String board, int no) {
+    public ExportedPostHide(int site, @NonNull String board, int no) {
         this.site = site;
         this.board = board;
         this.no = no;
@@ -40,6 +44,7 @@ public class ExportedPostHide {
         return site;
     }
 
+    @Nullable
     public String getBoard() {
         return board;
     }

@@ -17,21 +17,24 @@
  */
 package org.floens.chan.core.model.export;
 
-import com.google.gson.annotations.SerializedName;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import org.floens.chan.core.manager.FilterType;
+import com.google.gson.annotations.SerializedName;
 
 public class ExportedFilter {
     @SerializedName("enabled")
-    private boolean enabled = true;
+    private boolean enabled;
     @SerializedName("type")
-    private int type = FilterType.SUBJECT.flag | FilterType.COMMENT.flag;
+    private int type;
     @SerializedName("pattern")
+    @Nullable
     private String pattern;
     @SerializedName("all_boards")
-    private boolean allBoards = true;
+    private boolean allBoards;
     @SerializedName("boards")
-    private String boards = "";
+    @Nullable
+    private String boards;
     @SerializedName("action")
     private int action;
     @SerializedName("color")
@@ -40,8 +43,10 @@ public class ExportedFilter {
     public ExportedFilter(
             boolean enabled,
             int type,
+            @NonNull
             String pattern,
             boolean allBoards,
+            @NonNull
             String boards,
             int action,
             int color
@@ -63,6 +68,7 @@ public class ExportedFilter {
         return type;
     }
 
+    @Nullable
     public String getPattern() {
         return pattern;
     }
@@ -71,6 +77,7 @@ public class ExportedFilter {
         return allBoards;
     }
 
+    @Nullable
     public String getBoards() {
         return boards;
     }

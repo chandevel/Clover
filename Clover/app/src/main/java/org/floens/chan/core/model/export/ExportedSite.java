@@ -17,6 +17,9 @@
  */
 package org.floens.chan.core.model.export;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -25,18 +28,22 @@ public class ExportedSite {
     @SerializedName("site_id")
     private int siteId;
     @SerializedName("configuration")
+    @Nullable
     private String configuration;
     @SerializedName("order")
     private int order;
     @SerializedName("user_settings")
+    @Nullable
     private String userSettings;
     @SerializedName("exported_pins")
     private List<ExportedPin> exportedPins;
 
     public ExportedSite(
             int siteId,
+            @NonNull
             String configuration,
             int order,
+            @NonNull
             String userSettings,
             List<ExportedPin> exportedPins
     ) {
@@ -51,6 +58,7 @@ public class ExportedSite {
         return siteId;
     }
 
+    @Nullable
     public String getConfiguration() {
         return configuration;
     }
@@ -59,6 +67,7 @@ public class ExportedSite {
         return order;
     }
 
+    @Nullable
     public String getUserSettings() {
         return userSettings;
     }

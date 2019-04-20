@@ -17,6 +17,9 @@
  */
 package org.floens.chan.core.model.export;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class ExportedPin {
@@ -35,6 +38,7 @@ public class ExportedPin {
     @SerializedName("quote_new_count")
     private int quoteNewCount;
     @SerializedName("thumbnail_url")
+    @Nullable
     private String thumbnailUrl;
     @SerializedName("watch_last_count")
     private int watchLastCount;
@@ -43,6 +47,7 @@ public class ExportedPin {
     @SerializedName("watching")
     private boolean watching;
     @SerializedName("exported_loadable")
+    @Nullable
     private ExportedLoadable exportedLoadable;
 
     public ExportedPin(
@@ -53,10 +58,12 @@ public class ExportedPin {
             int order,
             int quoteLastCount,
             int quoteNewCount,
+            @NonNull
             String thumbnailUrl,
             int watchLastCount,
             int watchNewCount,
             boolean watching,
+            @NonNull
             ExportedLoadable exportedLoadable
     ) {
         this.archived = archived;
@@ -101,6 +108,7 @@ public class ExportedPin {
         return quoteNewCount;
     }
 
+    @Nullable
     public String getThumbnailUrl() {
         return thumbnailUrl;
     }
@@ -117,6 +125,7 @@ public class ExportedPin {
         return watching;
     }
 
+    @Nullable
     public ExportedLoadable getExportedLoadable() {
         return exportedLoadable;
     }
