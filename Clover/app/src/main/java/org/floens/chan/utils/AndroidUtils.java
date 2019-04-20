@@ -56,6 +56,7 @@ import android.widget.Toast;
 
 import org.floens.chan.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -227,6 +228,10 @@ public class AndroidUtils {
 
     public static int getDimen(Context context, int dimen) {
         return context.getResources().getDimensionPixelSize(dimen);
+    }
+
+    public static File getAppDir() {
+        return getAppContext().getFilesDir().getParentFile();
     }
 
     public static int dp(float dp) {

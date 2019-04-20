@@ -179,7 +179,7 @@ public class ImportExportRepository {
         }
     }
 
-    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam) throws SQLException {
+    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam) throws SQLException, IOException {
         ExportedAppSettings appSettings = appSettingsParam;
 
         if (appSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
@@ -300,7 +300,7 @@ public class ImportExportRepository {
     }
 
     @NonNull
-    private ExportedAppSettings readSettingsFromDatabase() throws java.sql.SQLException {
+    private ExportedAppSettings readSettingsFromDatabase() throws java.sql.SQLException, IOException {
         @SuppressLint("UseSparseArrays")
         Map<Integer, SiteModel> sitesMap = new HashMap<>();
         {
@@ -444,6 +444,7 @@ public class ImportExportRepository {
         }
 
         String settings = ChanSettings.serializeToString();
+
         return new ExportedAppSettings(
                 exportedSites,
                 exportedBoards,

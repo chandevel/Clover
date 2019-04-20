@@ -28,16 +28,15 @@ import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.util.ArrayList;
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
 public class ChanSettings {
-    private static final String SETTINGS_SEPARATOR = "@@";
-
     public enum MediaAutoLoadMode implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
         ALL("all"),
@@ -93,6 +92,7 @@ public class ChanSettings {
     }
 
     private static Proxy proxy;
+    private static final String sharedPrefsFile = "shared_prefs/org.floens.chan_preferences.xml";
 
     public static final BooleanSetting forceEnglishLocale;
     private static final StringSetting theme;
@@ -164,8 +164,6 @@ public class ChanSettings {
     public static final LongSetting updateCheckInterval;
 
     public static final BooleanSetting crashReporting;
-
-    private static final List<Setting<?>> allSettings = new ArrayList<>();
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -257,72 +255,6 @@ public class ChanSettings {
 
         crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
 
-        /**
-         *  DO NOT CHANGE THE ORDER!!!
-         *  JUST ADD NEW SETTINGS AT THE END!!!
-         */
-
-        // To make serializing/deserializing more convenient
-        allSettings.add(forceEnglishLocale);
-        allSettings.add(theme);
-        allSettings.add(layoutMode);
-        allSettings.add(fontSize);
-        allSettings.add(fontCondensed);
-        allSettings.add(openLinkConfirmation);
-        allSettings.add(openLinkBrowser);
-        allSettings.add(autoRefreshThread);
-        allSettings.add(imageAutoLoadNetwork);
-        allSettings.add(videoAutoLoadNetwork);
-        allSettings.add(videoOpenExternal);
-        allSettings.add(videoUseExoplayer);
-        allSettings.add(textOnly);
-        allSettings.add(videoErrorIgnore);
-        allSettings.add(boardViewMode);
-        allSettings.add(boardGridSpanCount);
-        allSettings.add(boardOrder);
-        allSettings.add(postDefaultName);
-        allSettings.add(postPinThread);
-        allSettings.add(developer);
-        allSettings.add(saveLocation);
-        allSettings.add(saveOriginalFilename);
-        allSettings.add(shareUrl);
-        allSettings.add(enableReplyFab);
-        allSettings.add(anonymize);
-        allSettings.add(anonymizeIds);
-        allSettings.add(showAnonymousName);
-        allSettings.add(revealImageSpoilers);
-        allSettings.add(revealTextSpoilers);
-        allSettings.add(repliesButtonsBottom);
-        allSettings.add(confirmExit);
-        allSettings.add(tapNoReply);
-        allSettings.add(volumeKeysScrolling);
-        allSettings.add(postFullDate);
-        allSettings.add(postFileInfo);
-        allSettings.add(postFilename);
-        allSettings.add(neverHideToolbar);
-        allSettings.add(controllerSwipeable);
-        allSettings.add(saveBoardFolder);
-        allSettings.add(videoDefaultMuted);
-        allSettings.add(videoAutoLoop);
-        allSettings.add(watchEnabled);
-        allSettings.add(watchCountdown);
-        allSettings.add(watchBackground);
-        allSettings.add(watchBackgroundInterval);
-        allSettings.add(watchNotifyMode);
-        allSettings.add(watchSound);
-        allSettings.add(watchPeek);
-        allSettings.add(watchLed);
-        allSettings.add(historyEnabled);
-        allSettings.add(previousVersion);
-        allSettings.add(proxyEnabled);
-        allSettings.add(proxyAddress);
-        allSettings.add(proxyPort);
-        allSettings.add(historyOpenCounter);
-        allSettings.add(threadOpenCounter);
-        allSettings.add(updateCheckTime);
-        allSettings.add(updateCheckInterval);
-        allSettings.add(crashReporting);
-
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"
         // preference_board_editor_filler default false
@@ -386,145 +318,51 @@ public class ChanSettings {
     }
 
     /**
-     * Reads setting from the shared preferences to a string.
+     * Reads setting from the shared preferences file to a string.
      * Called on the Database thread.
      * */
-    public static String serializeToString() {
-        StringBuilder sb = new StringBuilder(512);
-        SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
+    public static String serializeToString() throws IOException {
+        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 
-        for (Setting<?> setting : allSettings) {
-            if (setting instanceof BooleanSetting) {
-                boolean value = p.getBoolean(setting.key, ((BooleanSetting) setting).def);
+        if (!file.exists()) {
+            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+        }
 
-                sb.append("(");
-                sb.append(setting.key);
-                sb.append(":");
-                sb.append(value);
-                sb.append(")");
-                sb.append(SETTINGS_SEPARATOR);
-            } else if (setting instanceof IntegerSetting) {
-                int value = p.getInt(setting.key, ((IntegerSetting) setting).def);
+        if (!file.canRead()) {
+            throw new IOException("Cannot read from shared preferences file! (" + file.getAbsolutePath() + ")");
+        }
 
-                sb.append("(");
-                sb.append(setting.key);
-                sb.append(":");
-                sb.append(value);
-                sb.append(")");
-                sb.append(SETTINGS_SEPARATOR);
-            } else if (setting instanceof LongSetting) {
-                long value = p.getLong(setting.key, ((LongSetting) setting).def);
+        byte[] buffer = new byte[(int) file.length()];
 
-                sb.append("(");
-                sb.append(setting.key);
-                sb.append(":");
-                sb.append(value);
-                sb.append(")");
-                sb.append(SETTINGS_SEPARATOR);
-            } else if (setting instanceof StringSetting) {
-                String value = p.getString(setting.key, ((StringSetting) setting).def);
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            int readAmount = inputStream.read(buffer);
 
-                sb.append("(");
-                sb.append(setting.key);
-                sb.append(":");
-                sb.append(value);
-                sb.append(")");
-                sb.append(SETTINGS_SEPARATOR);
-            } else if (setting instanceof OptionsSetting<?>) {
-                String value = serializeOptionSetting(p, (OptionsSetting<?>) setting);
-
-                sb.append("(");
-                sb.append(setting.key);
-                sb.append(":");
-                sb.append(value);
-                sb.append(")");
-                sb.append(SETTINGS_SEPARATOR);
+            if (readAmount != file.length()) {
+                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", " + file.length());
             }
         }
 
-        if (sb.length() > 2) {
-            return sb.deleteCharAt(sb.length() - SETTINGS_SEPARATOR.length()).toString();
-        }
-
-        return sb.toString();
+        return new String(buffer);
     }
 
     /**
-     * Convenient method for reading Enum settings from the shared preferences
-     * */
-    private static <T extends Enum & OptionSettingItem> String serializeOptionSetting(
-            SettingProvider settingProvider,
-            OptionsSetting<T> setting
-    ) {
-        for (T item : setting.getItems()) {
-            if (item.name().equals(setting.get().name())) {
-                return settingProvider.getString(setting.getKey(), setting.getDefault().name());
-            }
-        }
-
-        throw new IllegalStateException("Could not find setting value for OptionsSetting");
-    }
-
-    /**
-     * Reads settings from string and writes them to the shared preferences.
+     * Reads settings from string and writes them to the shared preferences file.
      * Called on the Database thread.
      */
-    public static void deserializeFromString(String settings) {
-        String[] settingsArray = settings.split(SETTINGS_SEPARATOR);
-        if (settingsArray.length == 0) {
-            return;
+    public static void deserializeFromString(String settings) throws IOException {
+        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
+
+        if (!file.exists()) {
+            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
         }
 
-        int size = Math.min(settingsArray.length, allSettings.size());
-        SharedPreferencesSettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
-
-        for (int i = 0; i < size; ++i) {
-            Setting<?> setting = allSettings.get(i);
-            String rawSetting = settingsArray[i];
-
-            // just skip a setting if it's not expected to be here
-            if (rawSetting.contains(setting.key)) {
-                String[] keyValue = rawSetting.substring(1, rawSetting.length() - 1).split(":");
-                if (keyValue.length != 2) {
-                    return;
-                }
-
-                String value = keyValue[1];
-
-                // We need to commit to shared prefs to avoid memory caching because there won't be
-                // enough time for shared prefs to dump changes to disk since we restart the app
-                // right away after this operation completes
-
-                //TODO: figure out whether it's possible to use apply and then use commit once
-                // in the end to write changes to the disk
-                if (setting instanceof BooleanSetting) {
-                    p.putBooleanSync(setting.key, Boolean.valueOf(value));
-                } else if (setting instanceof IntegerSetting) {
-                    p.putIntSync(setting.key, Integer.valueOf(value));
-                } else if (setting instanceof LongSetting) {
-                    p.putLongSync(setting.key, Long.valueOf(value));
-                } else if (setting instanceof StringSetting) {
-                    p.putStringSync(setting.key, value);
-                } else if (setting instanceof OptionsSetting<?>) {
-                    deserializeOptionSetting(p, (OptionsSetting<?>) setting, value);
-                }
-            }
+        if (!file.canWrite()) {
+            throw new IOException("Cannot write to shared preferences file! (" + file.getAbsolutePath() + ")");
         }
-    }
 
-    /**
-     * Convenient method for writing Enum settings to the shared preferences
-     * */
-    private static <T extends Enum & OptionSettingItem> void deserializeOptionSetting(
-            SharedPreferencesSettingProvider settingProvider,
-            OptionsSetting<T> setting,
-            String value
-    ) {
-        for (T item : setting.getItems()) {
-            if (item.getKey().equals(value)) {
-                settingProvider.putStringSync(setting.key, item.getKey());
-                return;
-            }
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            outputStream.write(settings.getBytes());
+            outputStream.flush();
         }
     }
 
