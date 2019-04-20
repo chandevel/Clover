@@ -44,10 +44,10 @@ public class PostUtils {
 
     /**
      * For every already hidden post checks whether there is a post that replies to this hidden post.
-     * Collects all hidden posts with their replies recursively.
+     * Collects all hidden posts with their replies.
      * This function is VERY slow so it must be executed on the background thread
      * */
-    public static List<PostHide> recursivelyFindRepliesToHiddenPosts(
+    public static List<PostHide> findHiddenPostsWithReplies(
             List<PostHide> hiddenPostsFirstIteration,
             List<Post> posts
     ) {
@@ -62,7 +62,7 @@ public class PostUtils {
             postsFastLookupMap.put(post.no, post);
         }
 
-        List<PostHide> newHiddenPosts = recursiveDescend(
+        List<PostHide> newHiddenPosts = search(
                 hiddenPostsFastLookupMap,
                 postsFastLookupMap,
                 posts);
@@ -78,7 +78,7 @@ public class PostUtils {
         return resultList;
     }
 
-    private static List<PostHide> recursiveDescend(
+    private static List<PostHide> search(
             SparseArray<PostHide> hiddenPostsFastLookupMap,
             SparseArray<Post> postsFastLookupMap,
             List<Post> posts

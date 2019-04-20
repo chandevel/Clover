@@ -53,7 +53,7 @@ public class DatabaseHideManager {
             // find first iteration hidden posts among posts hidden in the database and posts hidden by filters
             List<PostHide> hiddenPostsFirstIteration = getHiddenPosts(siteId, board, posts, postNoList);
 
-            List<PostHide> hiddenPosts = PostUtils.recursivelyFindRepliesToHiddenPosts(
+            List<PostHide> hiddenPosts = PostUtils.findHiddenPostsWithReplies(
                     hiddenPostsFirstIteration,
                     posts
             );

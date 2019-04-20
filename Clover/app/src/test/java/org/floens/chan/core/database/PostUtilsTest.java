@@ -3,6 +3,7 @@ package org.floens.chan.core.database;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.PostHide;
+import org.floens.chan.utils.PostUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class PostUtilsTest {
      * */
 
     @Test
-    public void test_should_recursively_find_posts_that_reply_to_already_hidden_posts() {
+    public void test_should_find_posts_that_reply_to_already_hidden_posts() {
         List<PostHide> firstGenerationHiddenPosts = new ArrayList<>();
         List<Post> posts = new ArrayList<>();
         Board board = new Board("test", "123");
@@ -87,7 +88,7 @@ public class PostUtilsTest {
         firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(0), false, false));
         firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(7), false, false));
 
-        List<PostHide> updated = org.floens.chan.utils.PostUtils.recursivelyFindRepliesToHiddenPosts(
+        List<PostHide> updated = PostUtils.findHiddenPostsWithReplies(
                 firstGenerationHiddenPosts,
                 posts);
 
