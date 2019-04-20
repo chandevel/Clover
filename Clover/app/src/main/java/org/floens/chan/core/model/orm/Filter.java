@@ -20,9 +20,10 @@ package org.floens.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.manager.FilterType;
 
-@DatabaseTable(tableName = "filter")
+@DatabaseTable(tableName = DatabaseHelper.FILTER_TABLE_NAME)
 public class Filter {
     @DatabaseField(generatedId = true)
     public int id;
@@ -49,6 +50,12 @@ public class Filter {
     @DatabaseField(canBeNull = false)
     public int color;
 
+    @DatabaseField(canBeNull = false)
+    public boolean applyToReplies;
+
+    public static final String APPLY_TO_REPLIES_COLUMN = "apply_to_replies";
+
+
     public boolean hasFilter(FilterType filterType) {
         return (type & filterType.flag) != 0;
     }
@@ -65,6 +72,7 @@ public class Filter {
         boards = filter.boards;
         action = filter.action;
         color = filter.color;
+        applyToReplies = filter.applyToReplies;
     }
 
     public Filter copy() {
@@ -76,6 +84,7 @@ public class Filter {
         copy.boards = boards;
         copy.action = action;
         copy.color = color;
+        copy.applyToReplies = applyToReplies;
         return copy;
     }
 }

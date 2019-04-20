@@ -50,6 +50,7 @@ import org.floens.chan.ui.layout.ThreadListLayout;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
+import org.floens.chan.utils.PostUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,7 +79,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     private static final int POST_OPTION_OPEN_BROWSER = 13;
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
-    private static final int POST_OPTION_HIDE_WHOLE_CHAIN = 16;
+    private static final int POST_OPTION_REMOVE = 16;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private WatchManager watchManager;
@@ -465,13 +466,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         if (loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP)) {
             menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+            menu.add(new FloatingMenuItem(POST_OPTION_REMOVE, R.string.post_remove));
         }
 
         if (loadable.isThreadMode()) {
-            if (!post.isOP && post.repliesFrom.size() > 0) {
-                menu.add(new FloatingMenuItem(POST_OPTION_HIDE_WHOLE_CHAIN, R.string.post_hide_whole_chain));
-            }
-
             if (!TextUtils.isEmpty(post.id)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
             }
@@ -557,28 +555,20 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 AndroidUtils.shareLink(url);
                 break;
             }
-            case POST_OPTION_HIDE_WHOLE_CHAIN:
+            case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE: {
+                boolean hide = ((Integer) id) == POST_OPTION_HIDE;
                 int currentMode = chanLoader.getThread().loadable.mode;
 
                 if (currentMode == Loadable.Mode.CATALOG) {
-                    // when we are in the catalog we can hide threads
                     threadPresenterCallback.hideThread(post);
-                } else if (currentMode == Loadable.Mode.THREAD) {
-                    // when we are in a thread we can't hide threads so we should disable this ability
-                    // for an OP post
-                    if (post.isOP) {
-                        threadPresenterCallback.showCantHideOpFromFromThreadMessage();
+                } else {
+                    if (post.repliesFrom.isEmpty()) {
+                        // no replies to this post so no point in showing the dialog
+                        hideOrRemovePosts(hide, false, post);
                     } else {
-                        Set<Post> posts = new HashSet<>();
-
-                        if ((int) id == POST_OPTION_HIDE_WHOLE_CHAIN) {
-                            posts.addAll(findPostWithReplies(post.no));
-                        } else {
-                            posts.add(findPostById(post.no));
-                        }
-
-                        threadPresenterCallback.hidePosts(posts);
+                        // show a dialog to the user with options to hide/remove the whole chain of posts
+                        threadPresenterCallback.showHideOrRemoveWholeChainDialog(hide, post);
                     }
                 }
             }
@@ -761,33 +751,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         return null;
     }
 
-    private Set<Post> findPostWithReplies(int id) {
-        Set<Post> postsSet = new HashSet<>();
-        ChanThread thread = chanLoader.getThread();
-        if (thread == null) {
-            return postsSet;
-        }
-
-        findPostWithRepliesRecursive(id, thread, postsSet);
-        return postsSet;
-    }
-
-    /**
-     * Finds a post by it's id and then finds all posts that has replied to this post recursively
-     */
-    //TODO: do the searching on a background thread?
-    private void findPostWithRepliesRecursive(int id, ChanThread thread, Set<Post> postsSet) {
-        for (Post post : thread.posts) {
-            if (post.no == id && !postsSet.contains(post)) {
-                postsSet.add(post);
-
-                for (Integer replyId : post.repliesFrom) {
-                    findPostWithRepliesRecursive(replyId, thread, postsSet);
-                }
-            }
-        }
-    }
-
     private void showPosts() {
         threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
     }
@@ -801,6 +764,18 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             history.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
             databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
+    }
+
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post) {
+        Set<Post> posts = new HashSet<>();
+
+        if (wholeChain) {
+            posts.addAll(PostUtils.findPostWithReplies(post.no, chanLoader.getThread()));
+        } else {
+            posts.add(findPostById(post.no));
+        }
+
+        threadPresenterCallback.hideOrRemovePosts(hide, posts);
     }
 
     public interface ThreadPresenterCallback {
@@ -866,10 +841,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void hideThread(Post post);
 
-        void hidePosts(Set<Post> posts);
-
         void showNewPostsNotification(boolean show, int more);
 
         void showCantHideOpFromFromThreadMessage();
+
+        void showHideOrRemoveWholeChainDialog(boolean hide, Post post);
+
+        void hideOrRemovePosts(boolean hide, Set<Post> posts);
     }
 }

@@ -60,6 +60,8 @@ public class Post {
 
     public final String id;
 
+    public final int opId;
+
     public final String capcode;
 
     public final List<PostHttpIcon> httpIcons;
@@ -71,6 +73,8 @@ public class Post {
     public final boolean filterStub;
 
     public final boolean filterRemove;
+
+    public final boolean filterReplies;
 
     /**
      * This post replies to the these ids.
@@ -139,11 +143,13 @@ public class Post {
         }
 
         id = builder.posterId;
+        opId = builder.opId;
         capcode = builder.moderatorCapcode;
 
         filterHighlightedColor = builder.filterHighlightedColor;
         filterStub = builder.filterStub;
         filterRemove = builder.filterRemove;
+        filterReplies = builder.filterReplies;
 
         isSavedReply = builder.isSavedReply;
 
@@ -274,6 +280,7 @@ public class Post {
         public int filterHighlightedColor;
         public boolean filterStub;
         public boolean filterRemove;
+        public boolean filterReplies;
 
         public boolean isSavedReply;
 
@@ -395,10 +402,16 @@ public class Post {
             return this;
         }
 
-        public Builder filter(int highlightedColor, boolean stub, boolean remove) {
+        public Builder httpIcons(List<PostHttpIcon> httpIcons) {
+            this.httpIcons = httpIcons;
+            return this;
+        }
+
+        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean filterReplies) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
             filterRemove = remove;
+            this.filterReplies = filterReplies;
             return this;
         }
 
@@ -418,8 +431,18 @@ public class Post {
             return this;
         }
 
+        public Builder linkables(List<PostLinkable> linkables) {
+            this.linkables = linkables;
+            return this;
+        }
+
         public Builder addReplyTo(int postId) {
             repliesToIds.add(postId);
+            return this;
+        }
+
+        public Builder repliesTo(Set<Integer> repliesToIds) {
+            this.repliesToIds = repliesToIds;
             return this;
         }
 

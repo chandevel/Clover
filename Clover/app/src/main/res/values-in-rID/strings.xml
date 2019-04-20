@@ -479,6 +479,4 @@ Tidak memiliki 4chan Pass?<br>
 ]]>
     "</string>
     <string name="settings_screen_theme">Tema</string>
-    <string name="cant_hide_op_post_from_thread_message">Anda tidak dapat menyembunyikan pos OP dari utas. Anda dapat melakukannya dari katalog</string>
-    <string name="post_hide_whole_chain">Sembunyikan seluruh rantai</string>
 </resources>

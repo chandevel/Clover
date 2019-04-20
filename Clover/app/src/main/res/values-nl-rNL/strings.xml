@@ -482,6 +482,4 @@ Heb je geen 4chan Pass?<br>
         "
     </string>
     <string name="settings_screen_theme">Thema\'s</string>
-    <string name="cant_hide_op_post_from_thread_message">U kunt een OP-bericht niet verbergen voor een thread. U kunt het vanuit de catalogus doen</string>
-    <string name="post_hide_whole_chain">Gehele keten verbergen</string>
 </resources>

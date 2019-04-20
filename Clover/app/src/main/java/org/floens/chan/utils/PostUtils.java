@@ -1,0 +1,127 @@
+package org.floens.chan.utils;
+
+import android.util.SparseArray;
+
+import org.floens.chan.core.model.ChanThread;
+import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.PostHide;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class PostUtils {
+
+    private PostUtils() {
+    }
+
+    public static Set<Post> findPostWithReplies(int id, ChanThread thread) {
+        Set<Post> postsSet = new HashSet<>();
+        if (thread == null) {
+            return postsSet;
+        }
+
+        findPostWithRepliesRecursive(id, thread, postsSet);
+        return postsSet;
+    }
+
+    /**
+     * Finds a post by it's id and then finds all posts that has replied to this post recursively
+     */
+    //TODO: do the searching on a background thread?
+    private static void findPostWithRepliesRecursive(int id, ChanThread thread, Set<Post> postsSet) {
+        for (Post post : thread.posts) {
+            if (post.no == id && !postsSet.contains(post)) {
+                postsSet.add(post);
+
+                for (Integer replyId : post.repliesFrom) {
+                    findPostWithRepliesRecursive(replyId, thread, postsSet);
+                }
+            }
+        }
+    }
+
+    /**
+     * For every already hidden post checks whether there is a post that replies to this hidden post.
+     * Collects all hidden posts with their replies recursively.
+     * This function is VERY slow so it must be executed on the background thread
+     * */
+    public static List<PostHide> recursivelyFindRepliesToHiddenPosts(
+            List<PostHide> hiddenPostsFirstIteration,
+            List<Post> posts
+    ) {
+        SparseArray<PostHide> hiddenPostsFastLookupMap = new SparseArray<>();
+        SparseArray<Post> postsFastLookupMap = new SparseArray<>();
+
+        for (PostHide postHide : hiddenPostsFirstIteration) {
+            hiddenPostsFastLookupMap.put(postHide.no, postHide);
+        }
+
+        for (Post post : posts) {
+            postsFastLookupMap.put(post.no, post);
+        }
+
+        List<PostHide> newHiddenPosts = recursiveDescend(
+                hiddenPostsFastLookupMap,
+                postsFastLookupMap,
+                posts);
+
+        if (newHiddenPosts.isEmpty()) {
+            return hiddenPostsFirstIteration;
+        }
+
+        List<PostHide> resultList = new ArrayList<>(hiddenPostsFirstIteration.size());
+        resultList.addAll(hiddenPostsFirstIteration);
+        resultList.addAll(newHiddenPosts);
+
+        return resultList;
+    }
+
+    private static List<PostHide> recursiveDescend(
+            SparseArray<PostHide> hiddenPostsFastLookupMap,
+            SparseArray<Post> postsFastLookupMap,
+            List<Post> posts
+    ) {
+        Set<PostHide> newHiddenPosts = new HashSet<>();
+
+        for (Post post : posts) {
+            // skip if already hidden
+            if (hiddenPostsFastLookupMap.get(post.no) != null) {
+                continue;
+            }
+
+            // enumerate all replies for every post
+            for (Integer replyTo : post.repliesTo) {
+                Post repliedToPost = postsFastLookupMap.get(replyTo);
+                // skip if OP or if has a flag to not hide replies to this post
+                if (repliedToPost != null && (repliedToPost.isOP || !repliedToPost.filterReplies)) {
+                    continue;
+                }
+
+                // if a reply references already hidden post
+                if (hiddenPostsFastLookupMap.get(replyTo) != null) {
+                    PostHide toInheritBaseInfoFrom = hiddenPostsFastLookupMap.get(replyTo);
+
+                    PostHide postHide = new PostHide();
+                    postHide.hide = toInheritBaseInfoFrom.hide;
+                    postHide.site = toInheritBaseInfoFrom.site;
+                    postHide.board = toInheritBaseInfoFrom.board;
+                    postHide.no = post.no;
+
+                    //always false because there may be only one OP
+                    postHide.wholeThread = false;
+
+                    hiddenPostsFastLookupMap.put(post.no, postHide);
+                    newHiddenPosts.add(postHide);
+
+                    // posts is hidden no need to check the remaining replies
+                    break;
+                }
+            }
+        }
+
+        return new ArrayList<>(newHiddenPosts);
+    }
+
+}

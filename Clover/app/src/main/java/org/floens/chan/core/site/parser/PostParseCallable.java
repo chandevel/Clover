@@ -72,20 +72,29 @@ class PostParseCallable implements Callable<Post> {
     }
 
     private void processPostFilter(Post.Builder post) {
+        if (post.op) {
+            // TODO: this may make thread hiding not possible
+            // we don't want to do anything with the OP
+            return;
+        }
+
         int filterSize = filters.size();
         for (int i = 0; i < filterSize; i++) {
             Filter filter = filters.get(i);
             if (filterEngine.matches(filter, post)) {
                 FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
+
+                // TODO: store filter id in the post so we can figure out what exactly we want to do
+                // with this post (hide/remove/highlight) later on when filtering
                 switch (action) {
                     case COLOR:
-                        post.filter(filter.color, false, false);
+                        post.filter(filter.color, false, false, filter.applyToReplies);
                         break;
                     case HIDE:
-                        post.filter(0, true, false);
+                        post.filter(0, true, false, filter.applyToReplies);
                         break;
                     case REMOVE:
-                        post.filter(0, false, true);
+                        post.filter(0, false, true, filter.applyToReplies);
                         break;
                 }
             }

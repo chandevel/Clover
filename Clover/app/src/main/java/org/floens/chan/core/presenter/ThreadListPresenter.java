@@ -21,8 +21,4 @@ public class ThreadListPresenter {
                 thread.loadable.board.code
         );
     }
-
-    public void destroy() {
-
-    }
 }

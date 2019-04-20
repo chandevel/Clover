@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -279,10 +279,10 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
-    <string name="post_hide_whole_chain">Hide whole chain</string>
+    <string name="post_remove" tools:ignore="MissingTranslation">Remove</string>
     <plurals name="post_hidden">
-        <item quantity="one">%1$d post hidden</item>
-        <item quantity="other">%1$d posts hidden</item>
+        <item quantity="one">%1$d post removed</item>
+        <item quantity="other">%1$d posts removed</item>
     </plurals>
     <string name="thread_hidden">Thread hidden</string>
     <string name="post_delete">Delete</string>
@@ -582,5 +582,6 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
-    <string name="cant_hide_op_post_from_thread_message">You can\'t hide an OP post from a thread. You can do it from the catalog</string>
+    <string name="cant_hide_op_post_from_thread_message" tools:ignore="MissingTranslation">You can\'t hide an OP post from a thread. You can do it from the catalog</string>
+    <string name="apply_to_replies" tools:ignore="MissingTranslation">Apply to replies</string>
 </resources>

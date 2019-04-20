@@ -125,6 +125,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </LinearLayout>
 
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/apply_to_replies_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/apply_to_replies"
+        android:textColor="?attr/text_color_secondary"
+        android:textSize="16sp" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

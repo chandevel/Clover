@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,17 +124,15 @@ public class PostsFilter {
             }
         }
 
-        // Process hidden by a filter
-        Iterator<Post> i = posts.iterator();
-        while (i.hasNext()) {
-            Post post = i.next();
-            if (post.filterRemove) {
-                i.remove();
-            }
+        long start = Time.startTiming();
+
+        try {
+            // Process hidden by filter and post/thread hiding
+            return databaseManager.getDatabaseHideManager().filterHiddenPosts(posts, siteId, board);
+        } finally {
+            Time.endTiming("posts filtering", start);
         }
 
-        // Process hidden by post/thread hiding
-        return databaseManager.getDatabaseHideManager().filterHiddenPosts(posts, siteId, board);
     }
 
     public enum Order {

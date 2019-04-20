@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
@@ -76,6 +77,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private TextView actionText;
     private LinearLayout colorContainer;
     private View colorPreview;
+    private AppCompatCheckBox applyToReplies;
 
     @Inject
     BoardManager boardManager;
@@ -146,6 +148,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
+        applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
 
         typeText.setOnClickListener(this);
         typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
@@ -179,6 +182,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
+        filter.applyToReplies = applyToReplies.isChecked();
 
         return filter;
     }
@@ -365,6 +369,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updateCheckboxes() {
         enabled.setChecked(filter.enabled);
+        applyToReplies.setChecked(filter.applyToReplies);
     }
 
     private void updateFilterAction() {

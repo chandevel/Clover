@@ -39,25 +39,33 @@ public class PostHide {
 
     /**
      * Indicates whether we should hide the whole thread or just a single post (when hiding OP post)
-     * */
+     */
     @DatabaseField(columnName = WHOLE_THREAD_COLUMN_NAME)
     public boolean wholeThread;
+
+    /**
+     * Indicates whether we should just hide (grey out) or completely remove this post
+     */
+    @DatabaseField(columnName = HIDE_COLUMN)
+    public boolean hide;
 
     public static final String SITE_COLUMN_NAME = "site";
     public static final String BOARD_COLUMN_NAME = "board";
     public static final String NO_COLUMN_NAME = "no";
     public static final String WHOLE_THREAD_COLUMN_NAME = "whole_thread";
+    public static final String HIDE_COLUMN = "hide";
 
     public PostHide() {
     }
 
-    public static PostHide fromPost(Post post, Boolean wholeThread) {
-        PostHide hide = new PostHide();
-        hide.board = post.board.code;
-        hide.no = post.no;
-        hide.site = post.board.siteId;
-        hide.wholeThread = wholeThread;
-        return hide;
+    public static PostHide fromPost(Post post, Boolean wholeThread, Boolean hide) {
+        PostHide postHide = new PostHide();
+        postHide.board = post.board.code;
+        postHide.no = post.no;
+        postHide.site = post.board.siteId;
+        postHide.wholeThread = wholeThread;
+        postHide.hide = hide;
+        return postHide;
     }
 
     @Override

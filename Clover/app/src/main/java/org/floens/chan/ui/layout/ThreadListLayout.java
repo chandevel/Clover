@@ -710,13 +710,6 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
         recyclerView.removeItemDecoration(PARTY);
     }
 
-    /**
-     * Called when ThreadController is being destroyed
-     * */
-    public void destroy() {
-        presenter.destroy();
-    }
-
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 
