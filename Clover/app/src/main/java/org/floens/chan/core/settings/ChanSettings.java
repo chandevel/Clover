@@ -161,8 +161,6 @@ public class ChanSettings {
 
     public static final BooleanSetting crashReporting;
 
-    public static final LongSetting lastReplyTime;
-
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -252,8 +250,6 @@ public class ChanSettings {
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
         crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
-
-        lastReplyTime = new LongSetting(p, "last_reply_time", 0L);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"
