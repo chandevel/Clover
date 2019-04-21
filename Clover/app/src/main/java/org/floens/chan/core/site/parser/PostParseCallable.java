@@ -78,8 +78,6 @@ class PostParseCallable implements Callable<Post> {
             if (filterEngine.matches(filter, post)) {
                 FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(filter.action);
 
-                // TODO: store filter id in the post so we can figure out what exactly we want to do
-                // with this post (hide/remove/highlight) later on when filtering
                 switch (action) {
                     case COLOR:
                         post.filter(filter.color, false, false, filter.applyToReplies);
