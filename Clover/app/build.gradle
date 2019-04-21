@@ -13,13 +13,13 @@ def getCommitHash = { ->
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     // update the travis config when changing this
     buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 28
 
         versionName "v3.0.2"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
@@ -127,7 +127,7 @@ android {
 }
 
 dependencies {
-    def supportVersion = '27.1.1'
+    def supportVersion = '28.0.0'
 
     implementation "com.android.support:support-v13:${supportVersion}"
     implementation "com.android.support:appcompat-v7:${supportVersion}"
