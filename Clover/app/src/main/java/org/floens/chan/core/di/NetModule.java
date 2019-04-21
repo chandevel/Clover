@@ -14,20 +14,14 @@ import java.io.File;
 import javax.inject.Singleton;
 
 public class NetModule {
-    private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
     private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
     private static final String FILE_CACHE_NAME = "filecache";
 
     @Provides
     @Singleton
     public RequestQueue provideRequestQueue(Context applicationContext, UserAgentProvider userAgentProvider) {
-        File cacheDir = getCacheDir(applicationContext);
-
         String userAgent = userAgentProvider.getUserAgent();
-        return Volley.newRequestQueue(applicationContext,
-                userAgent,
-                new ProxiedHurlStack(userAgent),
-                new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
+        return Volley.newRequestQueue(applicationContext, new ProxiedHurlStack(userAgent));
     }
 
     @Provides

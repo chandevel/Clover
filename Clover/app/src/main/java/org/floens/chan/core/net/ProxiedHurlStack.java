@@ -27,18 +27,32 @@ import java.net.Proxy;
 import java.net.URL;
 
 public class ProxiedHurlStack extends HurlStack {
+    private final String userAgent;
+
     public ProxiedHurlStack(String userAgent) {
-        super(userAgent, null);
+        super();
+        this.userAgent = userAgent;
     }
 
     @Override
     protected HttpURLConnection createConnection(URL url) throws IOException {
         // Start the connection by specifying a proxy server
         Proxy proxy = ChanSettings.getProxy();
+        HttpURLConnection connection;
         if (proxy != null) {
-            return (HttpURLConnection) url.openConnection(proxy);
+            connection = (HttpURLConnection) url.openConnection(proxy);
         } else {
-            return (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
         }
+
+        // Use the same workaround as described in Volley's HurlStack:
+        // Workaround for the M release HttpURLConnection not observing the
+        // HttpURLConnection.setFollowRedirects() property.
+        // https://code.google.com/p/android/issues/detail?id=194495
+        connection.setInstanceFollowRedirects(HttpURLConnection.getFollowRedirects());
+
+        connection.setRequestProperty("User-Agent", userAgent);
+
+        return connection;
     }
 }
