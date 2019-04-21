@@ -250,6 +250,34 @@ public class Post {
         return images.isEmpty() ? null : images.get(0);
     }
 
+    @MainThread
+    public boolean hasFilterParameters() {
+        return filterRemove || filterHighlightedColor != 0 || filterReplies || filterStub;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * no;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        return this.no == ((Post) other).no;
+    }
+
+    @Override
+    public String toString() {
+        return "[no = " + no + ", comment = " + comment + "]";
+    }
+
     public static final class Builder {
         public Board board;
         public int id = -1;

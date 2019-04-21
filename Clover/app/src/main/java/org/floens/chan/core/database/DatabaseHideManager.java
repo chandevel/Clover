@@ -1,17 +1,22 @@
 package org.floens.chan.core.database;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.Nullable;
 
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.PostHide;
+import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.PostUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -40,45 +45,53 @@ public class DatabaseHideManager {
 
     /**
      * Searches for hidden posts in the PostHide table then checks whether there are posts with a reply
-     * to already hidden posts and if there are hides them as well. This process is recursive.
+     * to already hidden posts and if there are hides them as well.
      */
     public List<Post> filterHiddenPosts(List<Post> posts, int siteId, String board) {
         return databaseManager.runTask(() -> {
             List<Integer> postNoList = new ArrayList<>(posts.size());
-
             for (Post post : posts) {
                 postNoList.add(post.no);
             }
 
-            // find first iteration hidden posts among posts hidden in the database and posts hidden by filters
-            List<PostHide> hiddenPostsFirstIteration = getHiddenPosts(siteId, board, posts, postNoList);
-
-            List<PostHide> hiddenPosts = PostUtils.findHiddenPostsWithReplies(
-                    hiddenPostsFirstIteration,
-                    posts
-            );
-
-            for (PostHide newHiddenPost : hiddenPosts) {
-                helper.postHideDao.createIfNotExists(newHiddenPost);
+            @SuppressLint("UseSparseArrays")
+            Map<Integer, Post> postsFastLookupMap = new LinkedHashMap<>();
+            for (Post post : posts) {
+                postsFastLookupMap.put(post.no, post);
             }
+
+            applyFiltersToReplies(posts, postsFastLookupMap);
+
+            Map<Integer, PostHide> hiddenPostsFastLookupMap = getHiddenPosts(
+                    siteId,
+                    board,
+                    postNoList);
+
+            // find replies to hidden posts and add them to the PostHide table in the database
+            // and to the hiddenPostsFastLookupMap
+            hideRepliesToAlreadyHiddenPosts(postsFastLookupMap, hiddenPostsFastLookupMap);
 
             List<Post> resultList = new ArrayList<>();
 
             // filter out hidden posts
-            for (Post post : posts) {
+            for (Post post : postsFastLookupMap.values()) {
                 if (post.filterRemove) {
-                    // this post is already filtered by the filtering system
+                    // this post is already filtered by some custom filter
                     continue;
                 }
 
-                PostHide hiddenPost = findHiddenPost(hiddenPosts, post, siteId, board);
-
+                PostHide hiddenPost = findHiddenPost(hiddenPostsFastLookupMap, post, siteId, board);
                 if (hiddenPost != null) {
                     if (hiddenPost.hide) {
                         // hide post
 
-                        // rebuild the whole post but with filter stub
-                        Post newPost = rebuildPostWithCustomStub(post);
+                        Post newPost = rebuildPostWithInheritedFilter(
+                                post,
+                                0,
+                                true,
+                                false,
+                                hiddenPost.hideRepliesToThisPost);
+
                         resultList.add(newPost);
                     } else {
                         // remove post
@@ -101,12 +114,77 @@ public class DatabaseHideManager {
         });
     }
 
-    private List<PostHide> getHiddenPosts(
+    private void hideRepliesToAlreadyHiddenPosts(
+            Map<Integer, Post> postsFastLookupMap,
+            Map<Integer, PostHide> hiddenPostsFastLookupMap
+    ) throws SQLException {
+
+        List<PostHide> newHiddenPosts = new ArrayList<>();
+
+        for (Post post : postsFastLookupMap.values()) {
+            if (hiddenPostsFastLookupMap.containsKey(post.no)) {
+                continue;
+            }
+
+            for (Integer replyNo : post.repliesTo) {
+                if (hiddenPostsFastLookupMap.containsKey(replyNo)) {
+                    PostHide parentHiddenPost = hiddenPostsFastLookupMap.get(replyNo);
+                    Post parentPost = postsFastLookupMap.get(replyNo);
+
+                    if (!parentPost.filterReplies || !parentHiddenPost.hideRepliesToThisPost) {
+                        continue;
+                    }
+
+                    PostHide newHiddenPost = new PostHide();
+                    newHiddenPost.no = post.no;
+                    newHiddenPost.site = parentHiddenPost.site;
+                    newHiddenPost.board = parentHiddenPost.board;
+                    newHiddenPost.wholeThread = false;
+                    newHiddenPost.hideRepliesToThisPost = parentHiddenPost.hideRepliesToThisPost;
+                    newHiddenPost.hide = parentHiddenPost.hide;
+
+                    hiddenPostsFastLookupMap.put(newHiddenPost.no, newHiddenPost);
+                    newHiddenPosts.add(newHiddenPost);
+
+                    //post is already hidden no need to check other replies
+                    break;
+                }
+            }
+        }
+
+        if (newHiddenPosts.isEmpty()) {
+            return;
+        }
+
+        for (PostHide postHide : newHiddenPosts) {
+            helper.postHideDao.createIfNotExists(postHide);
+        }
+    }
+
+    private void applyFiltersToReplies(List<Post> posts, Map<Integer, Post> postsFastLookupMap) {
+        for (Post post : posts) {
+            if (post.isOP) {
+                // skip the OP
+                continue;
+            }
+
+            if (post.hasFilterParameters()) {
+                if (post.filterRemove && post.filterStub) {
+                    // wtf?
+                    Logger.w(TAG, "Post has both filterRemove and filterStub flags");
+                    continue;
+                }
+
+                applyPostFilterActionToChildPosts(post, postsFastLookupMap);
+            }
+        }
+    }
+
+    private Map<Integer, PostHide> getHiddenPosts(
             int siteId,
             String board,
-            List<Post> posts,
-            List<Integer> postNoList
-    ) throws SQLException {
+            List<Integer> postNoList) throws SQLException {
+
         Set<PostHide> hiddenInDatabase = new HashSet<>(helper.postHideDao.queryBuilder().where()
                 .in(PostHide.NO_COLUMN_NAME, postNoList)
                 .and()
@@ -115,63 +193,130 @@ public class DatabaseHideManager {
                 .eq(PostHide.BOARD_COLUMN_NAME, board)
                 .query());
 
-        for (Post post : posts) {
-            if (post.isOP) {
+        @SuppressLint("UseSparseArrays")
+        Map<Integer, PostHide> hiddenMap = new HashMap<>();
+
+        for (PostHide postHide : hiddenInDatabase) {
+            hiddenMap.put(postHide.no, postHide);
+        }
+
+        return hiddenMap;
+    }
+
+    /**
+     * Takes filter parameters from the post and assigns them to all posts in the current reply chain.
+     * If some post already has another filter's parameters - does not overwrite them.
+     * Returns a chain of hidden posts.
+     * */
+    private void applyPostFilterActionToChildPosts(Post parentPost, Map<Integer, Post> postsFastLookupMap) {
+        if (postsFastLookupMap.isEmpty()) {
+            return;
+        }
+
+        if (!parentPost.filterReplies) {
+            // do nothing with replies if filtering is disabled for replies
+            return;
+        }
+
+        // find all replies to the post recursively
+        Set<Post> postWithAllReplies = PostUtils.findPostWithReplies(
+                parentPost.no,
+                new ArrayList<>(postsFastLookupMap.values()));
+
+        Set<Integer> postNoWithAllReplies = new HashSet<>(postWithAllReplies.size());
+
+        for (Post p : postWithAllReplies) {
+            postNoWithAllReplies.add(p.no);
+        }
+
+        for (Integer no : postNoWithAllReplies) {
+            if (no == parentPost.no) {
+                // do nothing with the parent post
                 continue;
             }
 
-            if (post.filterRemove || post.filterHighlightedColor != 0 || post.filterReplies || post.filterStub) {
-                PostHide postHide = new PostHide();
-                postHide.no = post.no;
-                postHide.site = siteId;
-                postHide.board = board;
-                postHide.wholeThread = false;
-                postHide.hide = true;
+            Post childPost = postsFastLookupMap.get(no);
+            if (childPost == null) {
+                // cross-thread post
+                continue;
+            }
 
-                hiddenInDatabase.add(postHide);
+            // do not overwrite filter parameters from another filter
+            if (!childPost.hasFilterParameters()) {
+                Post newPost = rebuildPostWithInheritedFilter(
+                        childPost,
+                        parentPost.filterHighlightedColor,
+                        parentPost.filterStub,
+                        parentPost.filterRemove,
+                        true);
+
+                // assign the filter parameters to the child post
+                postsFastLookupMap.put(no, newPost);
+
+                postWithAllReplies.remove(childPost);
+                postWithAllReplies.add(newPost);
             }
         }
-
-        return new ArrayList<>(hiddenInDatabase);
     }
 
-    private Post rebuildPostWithCustomStub(Post post) {
+
+    /**
+     * Rebuilds a child post with custom filter parameters
+     * */
+    private Post rebuildPostWithInheritedFilter(
+            Post childPost,
+            int filterHighlightedColor,
+            boolean filterStub,
+            boolean filterRemove,
+            boolean filterReplies
+    ) {
         return new Post.Builder()
-                .board(post.board)
-                .posterId(post.id)
-                .opId(post.opId)
-                .id(post.no)
-                .op(post.isOP)
-                .replies(post.getReplies())
-                .images(post.getImagesCount())
-                .uniqueIps(post.getUniqueIps())
-                .sticky(post.isSticky())
-                .archived(post.isArchived())
-                .lastModified(post.getLastModified())
-                .closed(post.isClosed())
-                .subject(post.subject)
-                .name(post.name)
-                .comment(post.comment.toString())
-                .tripcode(post.tripcode)
-                .setUnixTimestampSeconds(post.time)
-                .images(post.images)
-                .moderatorCapcode(post.capcode)
-                .httpIcons(post.httpIcons)
-                // reset filterHighlightedColor and filterRemove to false because we will be using filterStub
-                .filter(0, true, false, post.filterReplies)
-                .isSavedReply(post.isSavedReply)
-                .spans(post.subjectSpan, post.nameTripcodeIdCapcodeSpan)
-                .linkables(post.linkables)
-                .repliesTo(post.repliesTo)
+                .board(childPost.board)
+                .posterId(childPost.id)
+                .opId(childPost.opId)
+                .id(childPost.no)
+                .op(childPost.isOP)
+                .replies(childPost.getReplies())
+                .images(childPost.getImagesCount())
+                .uniqueIps(childPost.getUniqueIps())
+                .sticky(childPost.isSticky())
+                .archived(childPost.isArchived())
+                .lastModified(childPost.getLastModified())
+                .closed(childPost.isClosed())
+                .subject(childPost.subject)
+                .name(childPost.name)
+                .comment(childPost.comment.toString())
+                .tripcode(childPost.tripcode)
+                .setUnixTimestampSeconds(childPost.time)
+                .images(childPost.images)
+                .moderatorCapcode(childPost.capcode)
+                .httpIcons(childPost.httpIcons)
+                .filter(filterHighlightedColor, filterStub, filterRemove, filterReplies)
+                .isSavedReply(childPost.isSavedReply)
+                .spans(childPost.subjectSpan, childPost.nameTripcodeIdCapcodeSpan)
+                .linkables(childPost.linkables)
+                .repliesTo(childPost.repliesTo)
                 .build();
     }
 
     @Nullable
-    private PostHide findHiddenPost(List<PostHide> hiddenPosts, Post post, int siteId, String board) {
-        for (PostHide postHide : hiddenPosts) {
-            if (post.no == postHide.no && siteId == postHide.site && board.equals(postHide.board)) {
-                return postHide;
-            }
+    private PostHide findHiddenPost(
+            Map<Integer, PostHide> hiddenPostsFastLookupMap,
+            Post post,
+            int siteId,
+            String board
+    ) {
+        if (hiddenPostsFastLookupMap.isEmpty()) {
+            return null;
+        }
+
+        PostHide potentiallyHiddenPost = hiddenPostsFastLookupMap.get(post.no);
+        if (potentiallyHiddenPost == null) {
+            return null;
+        }
+
+        if (potentiallyHiddenPost.site == siteId && potentiallyHiddenPost.board.equals(board)) {
+            return potentiallyHiddenPost;
         }
 
         return null;

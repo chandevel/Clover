@@ -758,7 +758,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         Set<Post> posts = new HashSet<>();
 
         if (wholeChain) {
-            posts.addAll(PostUtils.findPostWithReplies(post.no, chanLoader.getThread()));
+            ChanThread thread = chanLoader.getThread();
+            if (thread != null) {
+                posts.addAll(PostUtils.findPostWithReplies(post.no, thread.posts));
+            }
         } else {
             posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
         }

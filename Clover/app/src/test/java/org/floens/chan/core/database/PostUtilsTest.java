@@ -1,5 +1,7 @@
 package org.floens.chan.core.database;
 
+import android.annotation.SuppressLint;
+
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.PostHide;
@@ -8,8 +10,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -88,9 +92,15 @@ public class PostUtilsTest {
         firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(0), false, false, true));
         firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(7), false, false, true));
 
+        @SuppressLint("UseSparseArrays")
+        Map<Integer, Post> postsFastLookupMap = new HashMap<>();
+        for (Post post : posts) {
+            postsFastLookupMap.put(post.no, post);
+        }
+
         List<PostHide> updated = PostUtils.findHiddenPostsWithReplies(
                 firstGenerationHiddenPosts,
-                posts);
+                postsFastLookupMap);
 
         updated.sort((o1, o2) -> Integer.compare(o1.no, o2.no));
 

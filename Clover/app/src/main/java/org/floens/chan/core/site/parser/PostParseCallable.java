@@ -72,12 +72,6 @@ class PostParseCallable implements Callable<Post> {
     }
 
     private void processPostFilter(Post.Builder post) {
-        if (post.op) {
-            // TODO: this may make thread hiding not possible
-            // we don't want to do anything with the OP
-            return;
-        }
-
         int filterSize = filters.size();
         for (int i = 0; i < filterSize; i++) {
             Filter filter = filters.get(i);
