@@ -71,9 +71,6 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String fileName = filterName(name + "." + postImage.extension);
         task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName), false));
 
-//        task.setMakeBitmap(true);
-        task.setShowToast(true);
-
         if (!hasPermission(context)) {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the task.
@@ -139,13 +136,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             doneTasks = 0;
         }
         updateNotification();
-
-        if (task.isMakeBitmap()) {
-            showImageSaved(task);
-        }
-        if (task.isShowToast()) {
-            showToast(task, success);
-        }
+        showToast(task, success);
     }
 
     public void onEvent(SavingNotification.SavingCancelRequestMessage message) {
@@ -188,20 +179,6 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
             service.putExtra(SavingNotification.TOTAL_TASKS_KEY, totalTasks);
             getAppContext().startService(service);
         }
-    }
-
-    private void showImageSaved(ImageSaveTask task) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext());
-        builder.setSmallIcon(R.drawable.ic_stat_notify);
-        builder.setContentTitle(getString(R.string.image_save_saved));
-        String savedAs = getAppContext().getString(R.string.image_save_as, task.getDestination().getName());
-        builder.setContentText(savedAs);
-        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
-        builder.setStyle(new NotificationCompat.BigPictureStyle()
-                .bigPicture(task.getBitmap())
-                .setSummaryText(savedAs));
-
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     private void showToast(ImageSaveTask task, boolean success) {

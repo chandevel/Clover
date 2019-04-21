@@ -50,9 +50,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     private ImageSaveTaskCallback callback;
     private File destination;
     private boolean share;
-    private boolean makeBitmap;
-    private Bitmap bitmap;
-    private boolean showToast;
     private String subFolder;
 
     private boolean success = false;
@@ -88,26 +85,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     public void setShare(boolean share) {
         this.share = share;
-    }
-
-    public void setMakeBitmap(boolean makeBitmap) {
-        this.makeBitmap = makeBitmap;
-    }
-
-    public boolean isMakeBitmap() {
-        return makeBitmap;
-    }
-
-    public Bitmap getBitmap() {
-        return bitmap;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
-    public boolean isShowToast() {
-        return showToast;
     }
 
     @Override
@@ -163,10 +140,10 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private void onDestination() {
         success = true;
-        scanDestination();
-        if (makeBitmap) {
-            bitmap = ImageDecoder.decodeFile(destination, dp(512), dp(256));
-        }
+        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, (path, uri) -> {
+            // Runs on a binder thread
+            AndroidUtils.runOnUiThread(() -> afterScan(uri));
+        });
     }
 
     private boolean copyToDestination(File source) {
@@ -190,21 +167,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         }
 
         return result;
-    }
-
-    private void scanDestination() {
-        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-            @Override
-            public void onScanCompleted(String path, final Uri uri) {
-                // Runs on a binder thread
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        afterScan(uri);
-                    }
-                });
-            }
-        });
     }
 
     private void afterScan(final Uri uri) {
