@@ -571,6 +571,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                         threadPresenterCallback.showHideOrRemoveWholeChainDialog(hide, post);
                     }
                 }
+
+                break;
             }
         }
     }

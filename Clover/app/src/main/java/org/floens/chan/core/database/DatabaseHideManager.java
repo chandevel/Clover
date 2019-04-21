@@ -3,6 +3,7 @@ package org.floens.chan.core.database;
 import android.annotation.SuppressLint;
 import android.support.annotation.Nullable;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Post;
@@ -359,7 +360,16 @@ public class DatabaseHideManager {
     public Callable<Void> removePostsHide(List<PostHide> hideList) {
         return () -> {
             for (PostHide postHide : hideList) {
-                helper.postHideDao.delete(postHide);
+                DeleteBuilder<PostHide, Integer> deleteBuilder = helper.postHideDao.deleteBuilder();
+
+                deleteBuilder.where()
+                        .eq(PostHide.NO_COLUMN_NAME, postHide.no)
+                        .and()
+                        .eq(PostHide.SITE_COLUMN_NAME, postHide.site)
+                        .and()
+                        .eq(PostHide.BOARD_COLUMN_NAME, postHide.board);
+
+                deleteBuilder.delete();
             }
 
             return null;
