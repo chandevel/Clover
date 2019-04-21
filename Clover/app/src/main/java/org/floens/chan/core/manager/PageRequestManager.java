@@ -23,9 +23,9 @@ import android.os.Looper;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.parser.pageObjects.Page;
 import org.floens.chan.core.site.parser.pageObjects.Pages;
-import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.parser.pageObjects.ThreadNoTimeModPair;
 import org.floens.chan.utils.Logger;
 

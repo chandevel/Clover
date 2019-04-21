@@ -81,7 +81,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private boolean newCaptcha;
 
     private AuthenticationLayoutInterface authenticationLayout;
-    private boolean openingName;
 
     private boolean blockSelectionChange = false;
 
@@ -97,7 +96,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     private EditText options;
     private EditText fileName;
     private LinearLayout nameOptions;
-    private ViewGroup commentButtons;
     private Button commentQuoteButton;
     private Button commentSpoilerButton;
     private SelectionListeningEditText comment;
@@ -149,7 +147,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
-        commentButtons = replyInputLayout.findViewById(R.id.comment_buttons);
+        ViewGroup commentButtons = replyInputLayout.findViewById(R.id.comment_buttons);
         commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
         commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
         comment = replyInputLayout.findViewById(R.id.comment);
@@ -423,7 +421,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
 
     @Override
     public void openNameOptions(boolean open) {
-        openingName = open;
         nameOptions.setVisibility(open ? View.VISIBLE : View.GONE);
     }
 

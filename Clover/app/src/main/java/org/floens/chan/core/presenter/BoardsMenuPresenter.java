@@ -33,7 +33,6 @@ import java.util.Observer;
 import javax.inject.Inject;
 
 public class BoardsMenuPresenter implements Observer {
-    private Callback callback;
     private BoardRepository.SitesBoards allBoards;
 
     private Items items;
@@ -47,7 +46,6 @@ public class BoardsMenuPresenter implements Observer {
     }
 
     public void create(Callback callback, Board selectedBoard) {
-        this.callback = callback;
 
         this.allBoards.addObserver(this);
 

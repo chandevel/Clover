@@ -26,7 +26,6 @@ import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.http.ProgressRequestBody;
 import org.jsoup.Jsoup;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +62,7 @@ public class Chan4DeleteHttpCall extends HttpCall {
     }
 
     @Override
-    public void process(Response response, String result) throws IOException {
+    public void process(Response response, String result) {
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
             deleteResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().ownText();

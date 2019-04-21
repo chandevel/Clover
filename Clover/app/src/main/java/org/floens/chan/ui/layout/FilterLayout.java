@@ -19,7 +19,6 @@ package org.floens.chan.ui.layout;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -205,21 +204,18 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
             new AlertDialog.Builder(getContext())
                     .setView(selectLayout)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            List<SelectLayout.SelectItem<FilterType>> items = selectLayout.getItems();
-                            int flags = 0;
-                            for (SelectLayout.SelectItem<FilterType> item : items) {
-                                if (item.checked) {
-                                    flags |= item.item.flag;
-                                }
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+                        List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
+                        int flags = 0;
+                        for (SelectLayout.SelectItem<FilterType> item : items12) {
+                            if (item.checked) {
+                                flags |= item.item.flag;
                             }
-
-                            filter.type = flags;
-                            updateFilterType();
-                            updatePatternPreview();
                         }
+
+                        filter.type = flags;
+                        updateFilterType();
+                        updatePatternPreview();
                     })
                     .show();
         } else if (v == boardsSelector) {
@@ -247,27 +243,24 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
             new AlertDialog.Builder(getContext())
                     .setView(selectLayout)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            List<SelectLayout.SelectItem<Board>> items = selectLayout.getItems();
-                            boolean all = selectLayout.areAllChecked();
-                            List<Board> boardList = new ArrayList<>(items.size());
-                            if (!all) {
-                                for (SelectLayout.SelectItem<Board> item : items) {
-                                    if (item.checked) {
-                                        boardList.add(item.item);
-                                    }
-                                }
-                                if (boardList.isEmpty()) {
-                                    all = true;
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+                        List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
+                        boolean all = selectLayout.areAllChecked();
+                        List<Board> boardList = new ArrayList<>(items1.size());
+                        if (!all) {
+                            for (SelectLayout.SelectItem<Board> item : items1) {
+                                if (item.checked) {
+                                    boardList.add(item.item);
                                 }
                             }
-
-                            filterEngine.saveBoardsToFilter(boardList, all, filter);
-
-                            updateBoardsSummary();
+                            if (boardList.isEmpty()) {
+                                all = true;
+                            }
                         }
+
+                        filterEngine.saveBoardsToFilter(boardList, all, filter);
+
+                        updateBoardsSummary();
                     })
                     .show();
         } else if (v == actionText) {
@@ -327,12 +320,9 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
                     .setTitle(R.string.filter_color_pick)
                     .setView(colorPickerView)
                     .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            filter.color = colorPickerView.getColor();
-                            updateFilterAction();
-                        }
+                    .setPositiveButton(R.string.ok, (dialog1, which) -> {
+                        filter.color = colorPickerView.getColor();
+                        updateFilterAction();
                     })
                     .show();
             dialog.getWindow().setLayout(dp(300), dp(300));

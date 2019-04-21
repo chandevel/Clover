@@ -19,9 +19,8 @@ package org.floens.chan.ui.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
-public class SelectionListeningEditText extends EditText {
+public class SelectionListeningEditText extends android.support.v7.widget.AppCompatEditText {
     private SelectionChangedListener listener;
 
     public SelectionListeningEditText(Context context) {

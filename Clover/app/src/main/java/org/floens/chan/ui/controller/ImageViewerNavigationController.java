@@ -21,14 +21,12 @@ import android.content.Context;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.PostImage;
-import org.floens.chan.ui.toolbar.Toolbar;
+import org.floens.chan.core.model.orm.Loadable;
 
 import java.util.List;
 
 public class ImageViewerNavigationController extends ToolbarNavigationController {
-    private ImageViewerController imageViewerController;
 
     public ImageViewerNavigationController(Context context) {
         super(context);
@@ -55,7 +53,7 @@ public class ImageViewerNavigationController extends ToolbarNavigationController
     public void showImages(final List<PostImage> images, final int index, final Loadable loadable,
                            ImageViewerController.ImageViewerCallback imageViewerCallback,
                            ImageViewerController.GoPostCallback goPostCallback) {
-        imageViewerController = new ImageViewerController(context, toolbar);
+        ImageViewerController imageViewerController = new ImageViewerController(context, toolbar);
         imageViewerController.setGoPostCallback(goPostCallback);
         pushController(imageViewerController, false);
         imageViewerController.setImageViewerCallback(imageViewerCallback);

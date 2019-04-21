@@ -116,7 +116,6 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         canvas.save();
         final int left;
         final int right;
-        //noinspection AndroidLintNewApi - NewApi lint fails to handle overrides.
         // Clover changed: still apply insets even when it's not set to clipPadding, plus don't
         // clip the top and bottom.
         left = parent.getPaddingLeft();
@@ -139,7 +138,6 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
         canvas.save();
         final int top;
         final int bottom;
-        //noinspection AndroidLintNewApi - NewApi lint fails to handle overrides.
         if (parent.getClipToPadding()) {
             top = parent.getPaddingTop();
             bottom = parent.getHeight() - parent.getPaddingBottom();

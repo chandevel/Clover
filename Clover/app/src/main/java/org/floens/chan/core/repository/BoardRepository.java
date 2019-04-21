@@ -39,7 +39,6 @@ public class BoardRepository implements Observer {
     private final DatabaseManager databaseManager;
     private final DatabaseBoardManager databaseBoardManager;
 
-    private final SiteRepository siteRepository;
     private final SiteRepository.Sites allSites;
 
     private SitesBoards allBoards = new SitesBoards();
@@ -50,9 +49,7 @@ public class BoardRepository implements Observer {
         this.databaseManager = databaseManager;
         databaseBoardManager = databaseManager.getDatabaseBoardManager();
 
-        this.siteRepository = siteRepository;
-
-        allSites = this.siteRepository.all();
+        allSites = siteRepository.all();
     }
 
     public void initialize() {

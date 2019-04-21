@@ -27,7 +27,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class Chan4ArchiveRequest extends HtmlReaderRequest<Archive> {
     }
 
     @Override
-    public Archive readDocument(Document document) throws IOException {
+    public Archive readDocument(Document document) {
         List<Archive.ArchiveItem> items = new ArrayList<>();
 
         Element table = document.getElementById("arc-list");

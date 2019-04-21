@@ -56,7 +56,7 @@ public class Lainchan extends CommonSite {
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode).addPathSegment("res")
-                        .addPathSegment(String.valueOf(loadable.no) + ".html")
+                        .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
                 return getUrl().toString();

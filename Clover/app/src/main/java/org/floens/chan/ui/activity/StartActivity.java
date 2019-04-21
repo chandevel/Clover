@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -491,12 +490,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.action_confirm_exit_title)
                         .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.exit, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                StartActivity.super.onBackPressed();
-                            }
-                        })
+                        .setPositiveButton(R.string.exit, (dialog, which) -> StartActivity.super.onBackPressed())
                         .show();
             } else {
                 super.onBackPressed();

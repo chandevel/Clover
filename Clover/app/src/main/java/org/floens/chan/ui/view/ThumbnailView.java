@@ -117,7 +117,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         this.rounding = rounding;
     }
 
-    @SuppressWarnings({"deprecation", "ConstantConditions"})
+    @SuppressWarnings({"ConstantConditions"})
     @Override
     public void setClickable(boolean clickable) {
         super.setClickable(clickable);
@@ -243,7 +243,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
             canvas.clipRect(outputRect);
 
             if (circular) {
-                canvas.drawRoundRect(outputRect, width / 2, height / 2, paint);
+                canvas.drawRoundRect(outputRect, width / 2f, height / 2f, paint);
             } else {
                 canvas.drawRoundRect(outputRect, rounding, rounding, paint);
             }

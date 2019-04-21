@@ -51,29 +51,26 @@ public class DatabaseLoadableManager {
      * whose list indexes or titles have changed.
      */
     public Callable<Void> flush() {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                List<Loadable> toFlush = new ArrayList<>();
-                for (Loadable loadable : cachedLoadables.values()) {
-                    if (loadable.dirty) {
-                        loadable.dirty = false;
-                        toFlush.add(loadable);
-                    }
+        return () -> {
+            List<Loadable> toFlush = new ArrayList<>();
+            for (Loadable loadable : cachedLoadables.values()) {
+                if (loadable.dirty) {
+                    loadable.dirty = false;
+                    toFlush.add(loadable);
                 }
-
-                if (!toFlush.isEmpty()) {
-                    Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s)");
-                    long start = Time.startTiming();
-                    for (int i = 0; i < toFlush.size(); i++) {
-                        Loadable loadable = toFlush.get(i);
-                        helper.loadableDao.update(loadable);
-                    }
-                    Time.endTiming("Loadable flushing", start);
-                }
-
-                return null;
             }
+
+            if (!toFlush.isEmpty()) {
+                Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s)");
+                long start = Time.startTiming();
+                for (int i = 0; i < toFlush.size(); i++) {
+                    Loadable loadable = toFlush.get(i);
+                    helper.loadableDao.update(loadable);
+                }
+                Time.endTiming("Loadable flushing", start);
+            }
+
+            return null;
         };
     }
 
@@ -135,43 +132,40 @@ public class DatabaseLoadableManager {
             throw new IllegalArgumentException("getLoadable can only be used for thread loadables");
         }
 
-        return new Callable<Loadable>() {
-            @Override
-            public Loadable call() throws Exception {
-                Loadable cachedLoadable = cachedLoadables.get(loadable);
-                if (cachedLoadable != null) {
-                    Logger.v(TAG, "Cached loadable found");
-                    return cachedLoadable;
-                } else {
-                    QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
-                    List<Loadable> results = builder.where()
-                            .eq("site", loadable.siteId).and()
-                            .eq("mode", loadable.mode)
-                            .and().eq("board", loadable.boardCode)
-                            .and().eq("no", loadable.no)
-                            .query();
+        return () -> {
+            Loadable cachedLoadable = cachedLoadables.get(loadable);
+            if (cachedLoadable != null) {
+                Logger.v(TAG, "Cached loadable found");
+                return cachedLoadable;
+            } else {
+                QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
+                List<Loadable> results = builder.where()
+                        .eq("site", loadable.siteId).and()
+                        .eq("mode", loadable.mode)
+                        .and().eq("board", loadable.boardCode)
+                        .and().eq("no", loadable.no)
+                        .query();
 
-                    if (results.size() > 1) {
-                        Log.w(TAG, "Multiple loadables found for where Loadable.equals() would return true");
-                        for (Loadable result : results) {
-                            Log.w(TAG, result.toString());
-                        }
+                if (results.size() > 1) {
+                    Log.w(TAG, "Multiple loadables found for where Loadable.equals() would return true");
+                    for (Loadable result : results) {
+                        Log.w(TAG, result.toString());
                     }
-
-                    Loadable result = results.isEmpty() ? null : results.get(0);
-                    if (result == null) {
-                        Log.d(TAG, "Creating loadable");
-                        helper.loadableDao.create(loadable);
-                        result = loadable;
-                    } else {
-                        Log.d(TAG, "Loadable found in db");
-                        result.site = SiteRepository.forId(result.siteId);
-                        result.board = result.site.board(result.boardCode);
-                    }
-
-                    cachedLoadables.put(result, result);
-                    return result;
                 }
+
+                Loadable result = results.isEmpty() ? null : results.get(0);
+                if (result == null) {
+                    Log.d(TAG, "Creating loadable");
+                    helper.loadableDao.create(loadable);
+                    result = loadable;
+                } else {
+                    Log.d(TAG, "Loadable found in db");
+                    result.site = SiteRepository.forId(result.siteId);
+                    result.board = result.site.board(result.boardCode);
+                }
+
+                cachedLoadables.put(result, result);
+                return result;
             }
         };
     }

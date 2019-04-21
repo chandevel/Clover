@@ -19,7 +19,6 @@ package org.floens.chan.ui.controller;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -185,12 +184,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void showThread(final Loadable threadLoadable) {
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, final int which) {
-                        loadThread(threadLoadable);
-                    }
-                })
+                .setPositiveButton(R.string.ok, (dialog, which) -> loadThread(threadLoadable))
                 .setTitle(R.string.open_thread_confirmation)
                 .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no)
                 .show();
@@ -200,12 +194,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     public void showBoard(final Loadable catalogLoadable) {
         new AlertDialog.Builder(context)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        loadBoard(catalogLoadable);
-                    }
-                })
+                .setPositiveButton(R.string.ok, (dialog, which) -> loadBoard(catalogLoadable))
                 .setTitle(R.string.open_board_confirmation)
                 .setMessage("/" + catalogLoadable.boardCode + "/")
                 .show();

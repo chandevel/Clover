@@ -23,11 +23,9 @@ import java.util.concurrent.Callable;
 public class DatabaseBoardManager {
     private static final String TAG = "DatabaseBoardManager";
 
-    private DatabaseManager databaseManager;
     private DatabaseHelper helper;
 
     public DatabaseBoardManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.databaseManager = databaseManager;
         this.helper = helper;
     }
 
@@ -226,8 +224,6 @@ public class DatabaseBoardManager {
             }
 
             Time.endTiming("getboards process", start);
-            start = Time.startTiming();
-
             return res;
         };
     }

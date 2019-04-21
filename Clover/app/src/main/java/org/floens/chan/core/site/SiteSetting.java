@@ -36,15 +36,15 @@ public class SiteSetting {
 
     public List<String> optionNames;
 
-    private SiteSetting(String name, Type type, Setting<?> setting) {
+    private SiteSetting(String name, Setting<?> setting) {
         this.name = name;
-        this.type = type;
+        this.type = Type.OPTIONS;
         this.setting = setting;
     }
 
     public static SiteSetting forOption(OptionsSetting<?> options, String name,
                                         List<String> optionNames) {
-        SiteSetting setting = new SiteSetting(name, Type.OPTIONS, options);
+        SiteSetting setting = new SiteSetting(name, options);
         setting.optionNames = optionNames;
         return setting;
     }

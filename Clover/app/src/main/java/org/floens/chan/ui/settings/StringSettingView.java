@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.settings;
 
-import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.WindowManager;
@@ -69,12 +68,9 @@ public class StringSettingView extends SettingView implements View.OnClickListen
         container.addView(editText, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         AlertDialog dialog = new AlertDialog.Builder(v.getContext())
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface d, int which) {
-                        setting.set(editText.getText().toString());
-                        settingsController.onPreferenceChange(StringSettingView.this);
-                    }
+                .setPositiveButton(R.string.ok, (d, which) -> {
+                    setting.set(editText.getText().toString());
+                    settingsController.onPreferenceChange(StringSettingView.this);
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .setTitle(dialogTitle)

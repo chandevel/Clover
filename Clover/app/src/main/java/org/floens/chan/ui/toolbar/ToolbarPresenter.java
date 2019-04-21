@@ -54,7 +54,7 @@ public class ToolbarPresenter {
         callback.updateViewForItem(updatedItem);
     }
 
-    void startTransition(NavigationItem newItem, TransitionAnimationStyle animation) {
+    void startTransition(NavigationItem newItem) {
         cancelTransitionIfNeeded();
         if (closeSearchIfNeeded()) {
             callback.showForNavigationItem(item, AnimationStyle.NONE);
@@ -62,7 +62,7 @@ public class ToolbarPresenter {
 
         transition = newItem;
 
-        callback.containerStartTransition(transition, animation);
+        callback.containerStartTransition(transition, TransitionAnimationStyle.POP);
     }
 
     void stopTransition(boolean didComplete) {

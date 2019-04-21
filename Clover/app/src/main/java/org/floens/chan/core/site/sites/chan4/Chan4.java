@@ -30,8 +30,6 @@ import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.SharedPreferencesSettingProvider;
 import org.floens.chan.core.settings.StringSetting;
 import org.floens.chan.core.site.Boards;
-import org.floens.chan.core.site.parser.pageObjects.Page;
-import org.floens.chan.core.site.parser.pageObjects.Pages;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
 import org.floens.chan.core.site.SiteAuthentication;
@@ -49,6 +47,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.core.site.parser.pageObjects.Pages;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -314,7 +313,6 @@ public class Chan4 extends SiteBase {
             }
         }
 
-        @SuppressWarnings("deprecation")
         @Override
         public void modifyWebView(WebView webView) {
             final HttpUrl sys = new HttpUrl.Builder()
@@ -340,9 +338,7 @@ public class Chan4 extends SiteBase {
     private SiteActions actions = new SiteActions() {
         @Override
         public void boards(final BoardsListener listener) {
-            requestQueue.add(new Chan4BoardsRequest(Chan4.this, response -> {
-                listener.onBoardsReceived(new Boards(response));
-            }, (error) -> {
+            requestQueue.add(new Chan4BoardsRequest(Chan4.this, response -> listener.onBoardsReceived(new Boards(response)), (error) -> {
                 Logger.e(TAG, "Failed to get boards from server", error);
 
                 // API fail, provide some default boards
@@ -358,11 +354,9 @@ public class Chan4 extends SiteBase {
 
         @Override
         public void pages(Board board, PagesListener listener) {
-            requestQueue.add(new Chan4PagesRequest(Chan4.this, board, response -> {
-                listener.onPagesReceived(board, new Pages(response));
-            }, (error) -> {
+            requestQueue.add(new Chan4PagesRequest(Chan4.this, board, response -> listener.onPagesReceived(board, new Pages(response)), (error) -> {
                 Logger.e(TAG, "Failed to get threads for board " + board.code);
-                listener.onPagesReceived(board, new Pages(new ArrayList<Page>()));
+                listener.onPagesReceived(board, new Pages(new ArrayList<>()));
             }));
         }
 
@@ -507,7 +501,7 @@ public class Chan4 extends SiteBase {
 
     @Override
     public List<SiteSetting> settings() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 SiteSetting.forOption(
                         captchaType,
                         "Captcha type",

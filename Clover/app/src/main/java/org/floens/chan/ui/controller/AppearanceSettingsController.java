@@ -168,6 +168,6 @@ public class AppearanceSettingsController extends SettingsController {
         requiresUiRefresh.add(post.add(new ListSettingView<>(this,
                 ChanSettings.fontSize,
                 R.string.setting_font_size,
-                fontSizes.toArray(new ListSettingView.Item[fontSizes.size()]))));
+                fontSizes.toArray(new ListSettingView.Item[0]))));
     }
 }

@@ -230,7 +230,7 @@ public class FutabaChanReader implements ChanReader {
             Map<String, String> args = makeArgument("tim", fileId,
                     "ext", fileExt);
             PostImage image = new PostImage.Builder()
-                    .originalName(String.valueOf(fileId))
+                    .originalName(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
@@ -336,7 +336,7 @@ public class FutabaChanReader implements ChanReader {
             Map<String, String> args = makeArgument("tim", fileId,
                     "ext", fileExt);
             return new PostImage.Builder()
-                    .originalName(String.valueOf(fileId))
+                    .originalName(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

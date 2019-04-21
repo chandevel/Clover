@@ -163,12 +163,10 @@ public class Theme {
         public void apply(ImageView imageView) {
             imageView.setImageResource(drawable);
             // Use the int one!
-            //noinspection deprecation
             imageView.setAlpha(intAlpha);
         }
 
         public Drawable makeDrawable(Context context) {
-            //noinspection deprecation
             Drawable d = context.getResources().getDrawable(drawable).mutate();
             d.setAlpha(intAlpha);
             return d;

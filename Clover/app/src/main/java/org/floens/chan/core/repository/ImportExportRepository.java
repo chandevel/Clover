@@ -35,8 +35,8 @@ import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Filter;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
-import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.model.orm.PostHide;
+import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;
 

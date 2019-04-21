@@ -151,9 +151,7 @@ public class MainSettingsController extends SettingsController implements Settin
             general.add(new LinkSettingView(this,
                     R.string.settings_import_export,
                     R.string.settings_import_export_description,
-                    v -> navigationController.pushController(new ImportExportSettingsController(context, () -> {
-                                navigationController.popController();
-                            })
+                    v -> navigationController.pushController(new ImportExportSettingsController(context, () -> navigationController.popController())
                     )));
 
             filtersSetting = (LinkSettingView) general.add(new LinkSettingView(this,
@@ -218,22 +216,19 @@ public class MainSettingsController extends SettingsController implements Settin
                     }
 
                     final String finalAboutLink = aboutLink;
-                    View.OnClickListener clickListener = new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (finalAboutLink != null) {
-                                if (finalAboutLink.contains("__EMAIL__")) {
-                                    String[] email = finalAboutLink.split("__EMAIL__");
-                                    Intent intent = new Intent(Intent.ACTION_SENDTO);
-                                    intent.setData(Uri.parse("mailto:"));
-                                    intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email[0]});
-                                    String subject = email[1];
-                                    subject = subject.replace("__VERSION__", version);
-                                    intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-                                    AndroidUtils.openIntent(intent);
-                                } else {
-                                    AndroidUtils.openLink(finalAboutLink);
-                                }
+                    View.OnClickListener clickListener = v -> {
+                        if (finalAboutLink != null) {
+                            if (finalAboutLink.contains("__EMAIL__")) {
+                                String[] email = finalAboutLink.split("__EMAIL__");
+                                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                                intent.setData(Uri.parse("mailto:"));
+                                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email[0]});
+                                String subject = email[1];
+                                subject = subject.replace("__VERSION__", version);
+                                intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+                                AndroidUtils.openIntent(intent);
+                            } else {
+                                AndroidUtils.openLink(finalAboutLink);
                             }
                         }
                     };

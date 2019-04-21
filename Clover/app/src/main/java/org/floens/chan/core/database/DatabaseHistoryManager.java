@@ -43,28 +43,22 @@ public class DatabaseHistoryManager {
     }
 
     public Callable<Void> load() {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                databaseManager.trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
+        return () -> {
+            databaseManager.trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
 
-                return null;
-            }
+            return null;
         };
     }
 
     public Callable<List<History>> getHistory() {
-        return new Callable<List<History>>() {
-            @Override
-            public List<History> call() throws Exception {
-                QueryBuilder<History, Integer> historyQuery = helper.historyDao.queryBuilder();
-                List<History> date = historyQuery.orderBy("date", false).query();
-                for (int i = 0; i < date.size(); i++) {
-                    History history = date.get(i);
-                    history.loadable = databaseLoadableManager.refreshForeign(history.loadable);
-                }
-                return date;
+        return () -> {
+            QueryBuilder<History, Integer> historyQuery = helper.historyDao.queryBuilder();
+            List<History> date = historyQuery.orderBy("date", false).query();
+            for (int i = 0; i < date.size(); i++) {
+                History history = date.get(i);
+                history.loadable = databaseLoadableManager.refreshForeign(history.loadable);
             }
+            return date;
         };
     }
 
@@ -77,46 +71,37 @@ public class DatabaseHistoryManager {
             throw new IllegalArgumentException("History loadable is not yet in the db");
         }
 
-        return new Callable<History>() {
-            @Override
-            public History call() throws Exception {
-                QueryBuilder<History, Integer> builder = helper.historyDao.queryBuilder();
-                List<History> existingHistories = builder.where().eq("loadable_id", history.loadable.id).query();
-                History existingHistoryForLoadable = existingHistories.isEmpty() ? null : existingHistories.get(0);
+        return () -> {
+            QueryBuilder<History, Integer> builder = helper.historyDao.queryBuilder();
+            List<History> existingHistories = builder.where().eq("loadable_id", history.loadable.id).query();
+            History existingHistoryForLoadable = existingHistories.isEmpty() ? null : existingHistories.get(0);
 
-                if (existingHistoryForLoadable != null) {
-                    existingHistoryForLoadable.date = Time.get();
-                    helper.historyDao.update(existingHistoryForLoadable);
-                } else {
-                    history.date = Time.get();
-                    helper.historyDao.create(history);
-                }
-
-                return history;
+            if (existingHistoryForLoadable != null) {
+                existingHistoryForLoadable.date = Time.get();
+                helper.historyDao.update(existingHistoryForLoadable);
+            } else {
+                history.date = Time.get();
+                helper.historyDao.create(history);
             }
+
+            return history;
         };
     }
 
     public Callable<Void> removeHistory(final History history) {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                helper.historyDao.delete(history);
-                return null;
-            }
+        return () -> {
+            helper.historyDao.delete(history);
+            return null;
         };
     }
 
     public Callable<Void> clearHistory() {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                long start = Time.startTiming();
-                TableUtils.clearTable(helper.getConnectionSource(), History.class);
-                Time.endTiming("Clear history table", start);
+        return () -> {
+            long start = Time.startTiming();
+            TableUtils.clearTable(helper.getConnectionSource(), History.class);
+            Time.endTiming("Clear history table", start);
 
-                return null;
-            }
+            return null;
         };
     }
 }

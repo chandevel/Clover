@@ -54,7 +54,7 @@ public abstract class HttpCall implements Callback {
             @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     );
 
-    public abstract void process(Response response, String result) throws IOException;
+    public abstract void process(Response response, String result);
 
     public HttpCall(Site site) {
         this.site = site;

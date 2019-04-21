@@ -122,11 +122,8 @@ public class CommentParser {
             }
         }
 
-        switch (tag) {
-            default:
-                // Unknown tag, return the text;
-                return text;
-        }
+        // Unknown tag, return the text;
+        return text;
     }
 
     private CharSequence appendBreakIfNotLastSibling(CharSequence text, Element element) {
@@ -228,7 +225,7 @@ public class CommentParser {
         }
 
         // Overrides the text (possibly) parsed by child nodes.
-        return span(TextUtils.concat(parts.toArray(new CharSequence[parts.size()])),
+        return span(TextUtils.concat(parts.toArray(new CharSequence[0])),
                 new ForegroundColorSpanHashed(theme.inlineQuoteColor),
                 new AbsoluteSizeSpanHashed(sp(12f)));
     }

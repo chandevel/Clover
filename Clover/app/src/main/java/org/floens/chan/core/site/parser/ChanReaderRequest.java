@@ -161,10 +161,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     private List<Post> parsePosts(ChanReaderProcessingQueue queue) throws InterruptedException, ExecutionException {
         long parsePosts = Time.startTiming();
 
-        List<Post> total = new ArrayList<>();
-
         List<Post> cached = queue.getToReuse();
-        total.addAll(cached);
+        List<Post> total = new ArrayList<>(cached);
 
         List<Post.Builder> toParse = queue.getToParse();
 
@@ -210,8 +208,8 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         return total;
     }
 
-    private ChanLoaderResponse processPosts(Post.Builder op, List<Post> allPost) throws Exception {
-        ChanLoaderResponse response = new ChanLoaderResponse(op, new ArrayList<Post>(allPost.size()));
+    private ChanLoaderResponse processPosts(Post.Builder op, List<Post> allPost) {
+        ChanLoaderResponse response = new ChanLoaderResponse(op, new ArrayList<>(allPost.size()));
 
         List<Post> cachedPosts = new ArrayList<>();
         List<Post> newPosts = new ArrayList<>();

@@ -24,8 +24,8 @@ import com.android.volley.Response.Listener;
 
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.net.JsonReaderRequest;
-import org.floens.chan.core.site.parser.pageObjects.Page;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.parser.pageObjects.Page;
 import org.floens.chan.core.site.parser.pageObjects.ThreadNoTimeModPair;
 
 import java.util.ArrayList;

@@ -70,9 +70,7 @@ public class ToolbarMenuView extends LinearLayout {
         for (ToolbarMenuItem item : menu.items) {
             ImageView imageView = new ImageView(getContext());
 
-            imageView.setOnClickListener((v) -> {
-                handleClick(item);
-            });
+            imageView.setOnClickListener((v) -> handleClick(item));
             imageView.setFocusable(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
 

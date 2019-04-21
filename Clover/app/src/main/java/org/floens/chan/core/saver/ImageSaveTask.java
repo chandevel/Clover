@@ -18,17 +18,15 @@
 package org.floens.chan.core.saver;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 
-import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;
+import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
-import org.floens.chan.utils.ImageDecoder;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;
@@ -37,7 +35,6 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import static org.floens.chan.Chan.inject;
-import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 public class ImageSaveTask extends FileCacheListener implements Runnable {

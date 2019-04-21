@@ -273,13 +273,11 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
     private void animateIn() {
         setAlpha(0f);
         setTranslationY(-dp(ANIMATE_IN_TRANSLATION_Y_DP));
-        post(() -> {
-            animate()
-                    .alpha(1f)
-                    .translationY(0f)
-                    .setInterpolator(new DecelerateInterpolator(2f))
-                    .setDuration(250).start();
-        });
+        post(() -> animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setInterpolator(new DecelerateInterpolator(2f))
+                .setDuration(250).start());
     }
 
     private void animateOut(Runnable done) {

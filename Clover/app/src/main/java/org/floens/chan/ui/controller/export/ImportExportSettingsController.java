@@ -158,13 +158,11 @@ public class ImportExportSettingsController extends SettingsController implement
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.clover_directory_may_not_exist_title))
                 .setMessage(context.getString(R.string.clover_directory_may_not_exist_message))
-                .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> {
-                    getPermissionHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
-                        if (granted) {
-                            onPermissionGrantedForDirectoryCreation();
-                        }
-                    });
-                })
+                .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> getPermissionHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
+                    if (granted) {
+                        onPermissionGrantedForDirectoryCreation();
+                    }
+                }))
                 .setNegativeButton(context.getString(R.string.do_not), null)
                 .create();
 

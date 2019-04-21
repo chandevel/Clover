@@ -20,7 +20,6 @@ package org.floens.chan.ui.captcha;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.JavascriptInterface;
@@ -31,11 +30,10 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.ui.view.FixedRatioThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
@@ -77,16 +75,13 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
         image.setRatio(300f / 57f);
         image.setOnClickListener(this);
         input = findViewById(R.id.input);
-        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    AndroidUtils.hideKeyboard(input);
-                    submitCaptcha();
-                    return true;
-                }
-                return false;
+        input.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                AndroidUtils.hideKeyboard(input);
+                submitCaptcha();
+                return true;
             }
+            return false;
         });
         submit = findViewById(R.id.submit);
         theme().sendDrawable.apply(submit);
@@ -161,12 +156,7 @@ public class LegacyCaptchaLayout extends LinearLayout implements AuthenticationL
 
         @JavascriptInterface
         public void onCaptchaLoaded(final String imageUrl, final String challenge) {
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.onCaptchaLoaded(imageUrl, challenge);
-                }
-            });
+            AndroidUtils.runOnUiThread(() -> layout.onCaptchaLoaded(imageUrl, challenge));
         }
     }
 }

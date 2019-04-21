@@ -34,19 +34,12 @@ import android.widget.TextView;
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.BoardSetupPresenter;
 
-import static org.floens.chan.utils.AndroidUtils.getAttrColor;
-import static org.floens.chan.utils.AndroidUtils.getString;
-
 public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
     private BoardSetupPresenter presenter;
 
     private SuggestionsAdapter suggestionsAdapter;
 
-    private SearchLayout search;
     private Button checkAllButton;
-    private RecyclerView suggestionsRecycler;
-
-    private AlertDialog dialog;
 
     public BoardAddLayout(Context context) {
         this(context, null);
@@ -65,8 +58,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         super.onFinishInflate();
 
         // View binding
-        search = findViewById(R.id.search);
-        suggestionsRecycler = findViewById(R.id.suggestions);
+        SearchLayout search = findViewById(R.id.search);
+        RecyclerView suggestionsRecycler = findViewById(R.id.suggestions);
         checkAllButton = findViewById(R.id.select_all);
 
         // Adapters
@@ -116,7 +109,6 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
     }
 
     public void setDialog(AlertDialog dialog) {
-        this.dialog = dialog;
     }
 
     private void onSuggestionClicked(BoardSetupPresenter.BoardSuggestion suggestion) {

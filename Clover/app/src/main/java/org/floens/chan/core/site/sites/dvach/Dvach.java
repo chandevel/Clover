@@ -57,7 +57,7 @@ public class Dvach extends CommonSite {
             } else if (loadable.isThreadMode()) {
                 return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode).addPathSegment("res")
-                        .addPathSegment(String.valueOf(loadable.no) + ".html")
+                        .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
                 return getUrl().toString();
@@ -79,7 +79,7 @@ public class Dvach extends CommonSite {
 
     @Override
     public List<SiteSetting> settings() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 SiteSetting.forOption(
                         captchaType,
                         "Captcha type",
@@ -189,9 +189,7 @@ public class Dvach extends CommonSite {
 
             @Override
             public void boards(final BoardsListener listener) {
-                requestQueue.add(new DvachBoardsRequest(Dvach.this, response -> {
-                    listener.onBoardsReceived(new Boards(response));
-                }, (error) -> {
+                requestQueue.add(new DvachBoardsRequest(Dvach.this, response -> listener.onBoardsReceived(new Boards(response)), (error) -> {
                     Logger.e(TAG, "Failed to get boards from server", error);
 
                     // API fail, provide some default boards

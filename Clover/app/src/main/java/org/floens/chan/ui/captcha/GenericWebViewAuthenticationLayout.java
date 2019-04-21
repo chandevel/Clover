@@ -26,8 +26,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.utils.AndroidUtils;
 
 public class GenericWebViewAuthenticationLayout extends WebView implements AuthenticationLayoutInterface {
@@ -36,7 +36,6 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
     private final Handler handler = new Handler();
     private boolean attachedToWindow = false;
 
-    private Site site;
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
     private boolean resettingFromFoundText = false;
@@ -58,7 +57,6 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback) {
-        this.site = site;
         this.callback = callback;
 
         authentication = site.actions().postAuthenticate();

@@ -25,7 +25,6 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.ProgressRequestBody;
 
-import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class Chan4PassHttpCall extends HttpCall {
     }
 
     @Override
-    public void process(Response response, String result) throws IOException {
+    public void process(Response response, String result) {
         boolean authSuccess = false;
         if (result.contains("Success! Your device is now authorized")) {
             authSuccess = true;

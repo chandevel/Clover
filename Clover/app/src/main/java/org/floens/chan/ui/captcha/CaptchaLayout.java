@@ -30,8 +30,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
@@ -141,32 +141,17 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         @JavascriptInterface
         public void onCaptchaLoaded() {
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.onCaptchaLoaded();
-                }
-            });
+            AndroidUtils.runOnUiThread(layout::onCaptchaLoaded);
         }
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.onCaptchaEntered(null, response);
-                }
-            });
+            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(null, response));
         }
 
         @JavascriptInterface
         public void onCaptchaEnteredv1(final String challenge, final String response) {
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.onCaptchaEntered(challenge, response);
-                }
-            });
+            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(challenge, response));
         }
     }
 }

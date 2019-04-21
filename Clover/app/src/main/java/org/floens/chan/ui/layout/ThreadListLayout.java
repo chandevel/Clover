@@ -168,7 +168,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             spanCount = gridCountSetting;
             compactMode = (getMeasuredWidth() / spanCount) < dp(120);
         } else {
-            spanCount = Math.max(1, Math.round(getMeasuredWidth() / cardWidth));
+            spanCount = Math.max(1, Math.round((float) getMeasuredWidth() / cardWidth));
             compactMode = false;
         }
 
@@ -491,12 +491,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.scrollToPosition(bottom);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, new AndroidUtils.OnMeasuredCallback() {
-                    @Override
-                    public boolean onMeasured(View view) {
-                        itemAnimator.endAnimations();
-                        return true;
-                    }
+                AndroidUtils.waitForLayout(recyclerView, view -> {
+                    itemAnimator.endAnimations();
+                    return true;
                 });
             }
         } else {
@@ -513,12 +510,9 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
                 recyclerView.scrollToPosition(scrollPosition);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                AndroidUtils.waitForLayout(recyclerView, new AndroidUtils.OnMeasuredCallback() {
-                    @Override
-                    public boolean onMeasured(View view) {
-                        itemAnimator.endAnimations();
-                        return true;
-                    }
+                AndroidUtils.waitForLayout(recyclerView, view -> {
+                    itemAnimator.endAnimations();
+                    return true;
                 });
             }
         }

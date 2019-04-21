@@ -72,12 +72,7 @@ public class PostRepliesController extends Controller {
         view = inflateRes(R.layout.layout_post_replies_container);
 
         // Clicking outside the popup view
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                postPopupHelper.pop();
-            }
-        });
+        view.setOnClickListener(v -> postPopupHelper.pop());
 
         loadView = view.findViewById(R.id.loadview);
 
@@ -150,20 +145,10 @@ public class PostRepliesController extends Controller {
         listView.setDividerHeight(0);
 
         View repliesBack = dataView.findViewById(R.id.replies_back);
-        repliesBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                postPopupHelper.pop();
-            }
-        });
+        repliesBack.setOnClickListener(v -> postPopupHelper.pop());
 
         View repliesClose = dataView.findViewById(R.id.replies_close);
-        repliesClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                postPopupHelper.popAll();
-            }
-        });
+        repliesClose.setOnClickListener(v -> postPopupHelper.popAll());
 
         Drawable backDrawable = theme().backDrawable.makeDrawable(context);
         Drawable doneDrawable = theme().doneDrawable.makeDrawable(context);

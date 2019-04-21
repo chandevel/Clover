@@ -26,7 +26,6 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -150,7 +149,7 @@ public class AndroidUtils {
                 if (filteredIntents.size() > 0) {
                     // Create a chooser for the last app in the list, and add the rest with EXTRA_INITIAL_INTENTS that get placed above
                     Intent chooser = Intent.createChooser(filteredIntents.remove(filteredIntents.size() - 1), null);
-                    chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[filteredIntents.size()]));
+                    chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, filteredIntents.toArray(new Intent[0]));
                     openIntent(chooser);
                 } else {
                     openIntentFailed();
@@ -264,12 +263,7 @@ public class AndroidUtils {
 
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
         view.requestFocus();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                requestKeyboardFocus(view);
-            }
-        });
+        dialog.setOnShowListener(dialog1 -> requestKeyboardFocus(view));
     }
 
     public static void requestKeyboardFocus(final View view) {
@@ -472,19 +466,16 @@ public class AndroidUtils {
 
     public static void animateStatusBar(Window window, boolean in, final int originalColor, int duration) {
         ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);
-        statusBar.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if (Build.VERSION.SDK_INT >= 21) { // Make lint happy
-                    float progress = (float) animation.getAnimatedValue();
-                    if (progress == 0f) {
-                        window.setStatusBarColor(originalColor);
-                    } else {
-                        int r = (int) ((1f - progress) * Color.red(originalColor));
-                        int g = (int) ((1f - progress) * Color.green(originalColor));
-                        int b = (int) ((1f - progress) * Color.blue(originalColor));
-                        window.setStatusBarColor(Color.argb(255, r, g, b));
-                    }
+        statusBar.addUpdateListener(animation -> {
+            if (Build.VERSION.SDK_INT >= 21) { // Make lint happy
+                float progress = (float) animation.getAnimatedValue();
+                if (progress == 0f) {
+                    window.setStatusBarColor(originalColor);
+                } else {
+                    int r = (int) ((1f - progress) * Color.red(originalColor));
+                    int g = (int) ((1f - progress) * Color.green(originalColor));
+                    int b = (int) ((1f - progress) * Color.blue(originalColor));
+                    window.setStatusBarColor(Color.argb(255, r, g, b));
                 }
             }
         });

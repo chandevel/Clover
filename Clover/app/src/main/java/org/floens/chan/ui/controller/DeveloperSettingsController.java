@@ -18,7 +18,6 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -56,23 +55,15 @@ public class DeveloperSettingsController extends Controller {
         wrapper.setOrientation(LinearLayout.VERTICAL);
 
         Button logsButton = new Button(context);
-        logsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                navigationController.pushController(new LogsController(context));
-            }
-        });
+        logsButton.setOnClickListener(v -> navigationController.pushController(new LogsController(context)));
         logsButton.setText(R.string.settings_open_logs);
 
         wrapper.addView(logsButton);
 
         Button crashButton = new Button(context);
 
-        crashButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                throw new RuntimeException("Debug crash");
-            }
+        crashButton.setOnClickListener(v -> {
+            throw new RuntimeException("Debug crash");
         });
         crashButton.setText("Crash the app");
 
@@ -85,12 +76,9 @@ public class DeveloperSettingsController extends Controller {
         setDbSummary();
 
         Button resetDbButton = new Button(context);
-        resetDbButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                databaseManager.reset();
-                System.exit(0);
-            }
+        resetDbButton.setOnClickListener(v -> {
+            databaseManager.reset();
+            System.exit(0);
         });
         resetDbButton.setText("Delete database");
         wrapper.addView(resetDbButton);

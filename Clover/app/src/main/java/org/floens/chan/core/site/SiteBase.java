@@ -71,9 +71,7 @@ public abstract class SiteBase implements Site {
         boardManager = injector.instance(BoardManager.class);
         SiteService siteService = injector.instance(SiteService.class);
 
-        settingsProvider = new JsonSettingsProvider(userSettings, () -> {
-            siteService.updateUserSettings(this, userSettings);
-        });
+        settingsProvider = new JsonSettingsProvider(userSettings, () -> siteService.updateUserSettings(this, userSettings));
 
         initializeSettings();
 

@@ -59,7 +59,6 @@ public class FilesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 .inflate(R.layout.cell_file, parent, false));
     }
 
-    @SuppressWarnings({"ConstantConditions", "deprecation"})
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int itemViewType = getItemViewType(position);

@@ -48,7 +48,6 @@ import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.parser.PostParser;
 import org.floens.chan.ui.helper.PostHelper;
 
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -430,7 +429,7 @@ public abstract class CommonSite extends SiteBase {
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override
-                public void process(Response response, String result) throws IOException {
+                public void process(Response response, String result) {
                     handlePost(replyResponse, response, result);
                 }
             };
@@ -495,7 +494,7 @@ public abstract class CommonSite extends SiteBase {
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override
-                public void process(Response response, String result) throws IOException {
+                public void process(Response response, String result) {
                     handleDelete(deleteResponse, response, result);
                 }
             };

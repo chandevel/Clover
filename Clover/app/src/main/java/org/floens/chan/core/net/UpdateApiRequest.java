@@ -124,13 +124,10 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                         if (reader.nextName().equals(forFlavor)) {
                             reader.beginObject();
                             while (reader.hasNext()) {
-                                switch (reader.nextName()) {
-                                    case "url":
-                                        message.apkUrl = HttpUrl.parse(reader.nextString());
-                                        break;
-                                    default:
-                                        reader.skipValue();
-                                        break;
+                                if ("url".equals(reader.nextName())) {
+                                    message.apkUrl = HttpUrl.parse(reader.nextString());
+                                } else {
+                                    reader.skipValue();
                                 }
                             }
                             reader.endObject();

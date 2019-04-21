@@ -193,7 +193,7 @@ public class DefaultPostParser implements PostParser {
                 }
             }
 
-            total = TextUtils.concat(texts.toArray(new CharSequence[texts.size()]));
+            total = TextUtils.concat(texts.toArray(new CharSequence[0]));
         } catch (Exception e) {
             Logger.e(TAG, "Error parsing comment html", e);
         }
@@ -228,7 +228,7 @@ public class DefaultPostParser implements PostParser {
 //            }
 
             CharSequence allInnerText = TextUtils.concat(
-                    texts.toArray(new CharSequence[texts.size()]));
+                    texts.toArray(new CharSequence[0]));
 
             CharSequence result = commentParser.handleTag(
                     callback,

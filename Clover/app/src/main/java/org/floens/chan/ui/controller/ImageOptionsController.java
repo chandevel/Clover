@@ -187,9 +187,7 @@ public class ImageOptionsController extends Controller implements
     public void showCouldNotDecodeBitmapError() {
         //called on the background thread!
 
-        AndroidUtils.runOnUiThread(() -> {
-            showToastMessage(context.getString(R.string.could_not_decode_image_bitmap));
-        });
+        AndroidUtils.runOnUiThread(() -> showToastMessage(context.getString(R.string.could_not_decode_image_bitmap)));
     }
 
     @Override

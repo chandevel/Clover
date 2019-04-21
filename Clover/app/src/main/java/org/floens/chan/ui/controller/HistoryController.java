@@ -70,7 +70,6 @@ public class HistoryController extends Controller implements
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private CrossfadeView crossfade;
-    private RecyclerView recyclerView;
     private HistoryAdapter adapter;
 
     public HistoryController(Context context) {
@@ -102,7 +101,7 @@ public class HistoryController extends Controller implements
 
         view = inflateRes(R.layout.controller_history);
         crossfade = view.findViewById(R.id.crossfade);
-        recyclerView = view.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 

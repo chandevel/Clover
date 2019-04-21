@@ -33,7 +33,6 @@ import okhttp3.HttpUrl;
 
 public class ReportController extends Controller {
     private Post post;
-    private SiteRequestModifier siteRequestModifier;
 
     public ReportController(Context context, Post post) {
         super(context);
@@ -51,7 +50,7 @@ public class ReportController extends Controller {
 
         WebView webView = new WebView(context);
 
-        siteRequestModifier = site.requestModifier();
+        SiteRequestModifier siteRequestModifier = site.requestModifier();
         if (siteRequestModifier != null) {
             siteRequestModifier.modifyWebView(webView);
         }

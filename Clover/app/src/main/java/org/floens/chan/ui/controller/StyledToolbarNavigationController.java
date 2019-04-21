@@ -25,7 +25,6 @@ import org.floens.chan.controller.ControllerTransition;
 import org.floens.chan.controller.ui.NavigationControllerContainerLayout;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.ThemeHelper;
-import org.floens.chan.ui.toolbar.Toolbar;
 
 public class StyledToolbarNavigationController extends ToolbarNavigationController {
     public StyledToolbarNavigationController(Context context) {

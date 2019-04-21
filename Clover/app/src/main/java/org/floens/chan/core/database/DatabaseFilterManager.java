@@ -25,51 +25,35 @@ import java.util.concurrent.Callable;
 public class DatabaseFilterManager {
     private static final String TAG = "DatabaseFilterManager";
 
-    private DatabaseManager databaseManager;
     private DatabaseHelper helper;
 
     public DatabaseFilterManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.databaseManager = databaseManager;
         this.helper = helper;
     }
 
     public Callable<Filter> createFilter(final Filter filter) {
-        return new Callable<Filter>() {
-            @Override
-            public Filter call() throws Exception {
-                helper.filterDao.create(filter);
-                return filter;
-            }
+        return () -> {
+            helper.filterDao.create(filter);
+            return filter;
         };
     }
 
     public Callable<Void> deleteFilter(final Filter filter) {
-        return new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                helper.filterDao.delete(filter);
-                return null;
-            }
+        return () -> {
+            helper.filterDao.delete(filter);
+            return null;
         };
     }
 
     public Callable<Filter> updateFilter(final Filter filter) {
-        return new Callable<Filter>() {
-            @Override
-            public Filter call() throws Exception {
-                helper.filterDao.update(filter);
-                return filter;
-            }
+        return () -> {
+            helper.filterDao.update(filter);
+            return filter;
         };
     }
 
     public Callable<List<Filter>> getFilters() {
-        return new Callable<List<Filter>>() {
-            @Override
-            public List<Filter> call() throws Exception {
-                return helper.filterDao.queryForAll();
-            }
-        };
+        return () -> helper.filterDao.queryForAll();
     }
 
     public Callable<Long> getCount() {

@@ -201,18 +201,10 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         int watchTimeout = WATCH_TIMEOUTS[currentTimeout];
         Logger.d(TAG, "Scheduled reload in " + watchTimeout + "s");
 
-        pendingFuture = executor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                AndroidUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        pendingFuture = null;
-                        requestMoreData();
-                    }
-                });
-            }
-        }, watchTimeout, TimeUnit.SECONDS);
+        pendingFuture = executor.schedule(() -> AndroidUtils.runOnUiThread(() -> {
+            pendingFuture = null;
+            requestMoreData();
+        }), watchTimeout, TimeUnit.SECONDS);
     }
 
     public void clearTimer() {
@@ -235,7 +227,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
     private ChanLoaderRequest getData() {
         Logger.d(TAG, "Requested " + loadable.boardCode + ", " + loadable.no);
 
-        List<Post> cached = thread == null ? new ArrayList<Post>() : thread.posts;
+        List<Post> cached = thread == null ? new ArrayList<>() : thread.posts;
 
         ChanReader chanReader = loadable.getSite().chanReader();
 
@@ -258,7 +250,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         }
 
         if (thread == null) {
-            thread = new ChanThread(loadable, new ArrayList<Post>());
+            thread = new ChanThread(loadable, new ArrayList<>());
         }
 
         thread.posts.clear();

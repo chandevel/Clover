@@ -223,7 +223,7 @@ public class Toolbar extends LinearLayout implements
     }
 
     public void beginTransition(NavigationItem newItem) {
-        presenter.startTransition(newItem, ToolbarPresenter.TransitionAnimationStyle.POP);
+        presenter.startTransition(newItem);
     }
 
     public void transitionProgress(float progress) {

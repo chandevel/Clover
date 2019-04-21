@@ -523,9 +523,7 @@ public class ToolbarContainer extends FrameLayout {
         private LinearLayout createSearchLayout(NavigationItem item) {
             SearchLayout searchLayout = new SearchLayout(getContext());
 
-            searchLayout.setCallback(input -> {
-                callback.searchInput(input);
-            });
+            searchLayout.setCallback(input -> callback.searchInput(input));
 
             if (item.searchText != null) {
                 searchLayout.setText(item.searchText);

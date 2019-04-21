@@ -11,12 +11,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.orm.Pin;
-import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.BoardActivity;
 
 import java.text.DateFormat;
@@ -27,7 +25,6 @@ import java.util.Random;
 import javax.inject.Inject;
 
 import static org.floens.chan.Chan.inject;
-import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 public class LastPageNotification extends Service {
     //random notification ID's, so one notification per thread

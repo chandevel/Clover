@@ -40,7 +40,6 @@ public class PostImageThumbnailView extends ThumbnailView {
         this(context, attrs, 0);
     }
 
-    @SuppressWarnings("deprecation")
     public PostImageThumbnailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 

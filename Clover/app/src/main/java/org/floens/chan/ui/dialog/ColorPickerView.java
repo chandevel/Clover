@@ -69,17 +69,15 @@ public class ColorPickerView extends View {
         float x = event.getX() - getWidth() / 2f;
         float y = event.getY() - getHeight() / 2f;
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-                float angle = (float) Math.atan2(y, x);
-                // need to turn angle [-PI ... PI] into unit [0....1]
-                float unit = (float) (angle / (2.0 * Math.PI));
-                if (unit < 0.0) {
-                    unit += 1.0;
-                }
-                centerPaint.setColor(interpColor(COLORS, unit));
-                invalidate();
-                break;
+        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            float angle = (float) Math.atan2(y, x);
+            // need to turn angle [-PI ... PI] into unit [0....1]
+            float unit = (float) (angle / (2.0 * Math.PI));
+            if (unit < 0.0) {
+                unit += 1.0;
+            }
+            centerPaint.setColor(interpColor(unit));
+            invalidate();
         }
         return true;
     }
@@ -92,21 +90,21 @@ public class ColorPickerView extends View {
         canvas.drawCircle(0, 0, centerRadius, centerPaint);
     }
 
-    private int interpColor(int colors[], float unit) {
+    private int interpColor(float unit) {
         if (unit <= 0) {
-            return colors[0];
+            return ColorPickerView.COLORS[0];
         }
         if (unit >= 1) {
-            return colors[colors.length - 1];
+            return ColorPickerView.COLORS[ColorPickerView.COLORS.length - 1];
         }
 
-        float p = unit * (colors.length - 1);
+        float p = unit * (ColorPickerView.COLORS.length - 1);
         int i = (int) p;
         p -= i;
 
         // now p is just the fractional part [0...1) and i is the index
-        int c0 = colors[i];
-        int c1 = colors[i + 1];
+        int c0 = ColorPickerView.COLORS[i];
+        int c1 = ColorPickerView.COLORS[i + 1];
         int a = ave(Color.alpha(c0), Color.alpha(c1), p);
         int r = ave(Color.red(c0), Color.red(c1), p);
         int g = ave(Color.green(c0), Color.green(c1), p);

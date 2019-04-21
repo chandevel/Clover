@@ -18,7 +18,6 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,7 +49,6 @@ import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
-import static org.floens.chan.utils.AndroidUtils.getAppContext;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
@@ -63,7 +61,6 @@ public class FiltersController extends Controller implements
     @Inject
     FilterEngine filterEngine;
 
-    private RecyclerView recyclerView;
     private FloatingActionButton add;
     private FloatingActionButton enable;
     private FilterAdapter adapter;
@@ -117,7 +114,7 @@ public class FiltersController extends Controller implements
 
         view = inflateRes(R.layout.controller_filters);
 
-        recyclerView = view.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
@@ -176,28 +173,20 @@ public class FiltersController extends Controller implements
 
         final AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setView(filterLayout)
-                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        filterEngine.createOrUpdateFilter(filterLayout.getFilter());
-                        if (filterEngine.getEnabledFilters().isEmpty()) {
-                            enable.setImageResource(R.drawable.ic_done_white_24dp);
-                        } else {
-                            enable.setImageResource(R.drawable.ic_clear_white_24dp);
-                        }
-                        theme().applyFabColor(enable);
-                        EventBus.getDefault().post(new RefreshUIMessage("filters"));
-                        adapter.load();
+                .setPositiveButton(R.string.save, (dialog, which) -> {
+                    filterEngine.createOrUpdateFilter(filterLayout.getFilter());
+                    if (filterEngine.getEnabledFilters().isEmpty()) {
+                        enable.setImageResource(R.drawable.ic_done_white_24dp);
+                    } else {
+                        enable.setImageResource(R.drawable.ic_clear_white_24dp);
                     }
+                    theme().applyFabColor(enable);
+                    EventBus.getDefault().post(new RefreshUIMessage("filters"));
+                    adapter.load();
                 })
                 .show();
 
-        filterLayout.setCallback(new FilterLayout.FilterLayoutCallback() {
-            @Override
-            public void setSaveButtonEnabled(boolean enabled) {
-                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled);
-            }
-        });
+        filterLayout.setCallback(enabled -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled));
 
         filterLayout.setFilter(filter);
     }

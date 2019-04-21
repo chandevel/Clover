@@ -46,10 +46,7 @@ public class LastReplyRepository {
     }
 
     public boolean canPost(Site s, Board b) {
-        if(getLastReply(s, b) + 60 * 1000 < System.currentTimeMillis()) {
-            return true;
-        }
-        return false;
+        return getLastReply(s, b) + 60 * 1000 < System.currentTimeMillis();
     }
 
     private class SiteBoard {

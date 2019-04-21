@@ -58,5 +58,5 @@ public abstract class HtmlReaderRequest<T> extends Request<T> {
         }
     }
 
-    public abstract T readDocument(Document document) throws IOException;
+    public abstract T readDocument(Document document);
 }

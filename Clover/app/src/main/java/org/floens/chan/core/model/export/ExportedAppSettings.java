@@ -28,8 +28,6 @@ import java.util.List;
 import static org.floens.chan.core.repository.ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION;
 
 public class ExportedAppSettings {
-    @SerializedName("version")
-    private int version = CURRENT_EXPORT_SETTINGS_VERSION;
     @SerializedName("exported_sites")
     private List<ExportedSite> exportedSites;
     @SerializedName("exported_boards")
@@ -92,7 +90,7 @@ public class ExportedAppSettings {
     }
 
     public int getVersion() {
-        return version;
+        return CURRENT_EXPORT_SETTINGS_VERSION;
     }
 
     @Nullable

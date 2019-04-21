@@ -21,7 +21,6 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
 import org.floens.chan.R;
@@ -50,7 +49,6 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
     private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
     private static final ImageSaver instance = new ImageSaver();
-    private NotificationManager notificationManager;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private int doneTasks = 0;
     private int totalTasks = 0;
@@ -62,27 +60,24 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     private ImageSaver() {
         EventBus.getDefault().register(this);
-        notificationManager = (NotificationManager) getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public void startDownloadTask(Context context, final ImageSaveTask task) {
         PostImage postImage = task.getPostImage();
         String name = ChanSettings.saveOriginalFilename.get() ? postImage.originalName : postImage.filename;
         String fileName = filterName(name + "." + postImage.extension);
-        task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName), false));
+        task.setDestination(findUnusedFileName(new File(getSaveLocation(task), fileName)));
 
         if (!hasPermission(context)) {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the task.
-            requestPermission(context, new RuntimePermissionsHelper.Callback() {
-                @Override
-                public void onRuntimePermissionResult(boolean granted) {
-                    if (granted) {
-                        startTask(task);
-                        updateNotification();
-                    } else {
-                        showToast(null, false);
-                    }
+            requestPermission(context, granted -> {
+                if (granted) {
+                    startTask(task);
+                    updateNotification();
+                } else {
+                    showToast(null, false);
                 }
             });
         } else {
@@ -95,14 +90,11 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         if (!hasPermission(context)) {
             // This does not request the permission when another request is pending.
             // This is ok and will drop the tasks.
-            requestPermission(context, new RuntimePermissionsHelper.Callback() {
-                @Override
-                public void onRuntimePermissionResult(boolean granted) {
-                    if (granted) {
-                        startBundledTaskInternal(subFolder, tasks);
-                    } else {
-                        showToast(null, false);
-                    }
+            requestPermission(context, granted -> {
+                if (granted) {
+                    startBundledTaskInternal(subFolder, tasks);
+                } else {
+                    showToast(null, false);
                 }
             });
             return false;
@@ -203,11 +195,11 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         return name;
     }
 
-    private File findUnusedFileName(File start, boolean directory) {
+    private File findUnusedFileName(File start) {
         String base;
         String extension;
 
-        if (directory) {
+        if (false) {
             base = start.getAbsolutePath();
             extension = null;
         } else {
@@ -222,7 +214,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         }
 
         File test;
-        if (directory) {
+        if (false) {
             test = new File(base);
         } else {
             test = new File(base + extension);
@@ -231,7 +223,7 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         int index = 0;
         int tries = 0;
         while (test.exists() && tries++ < MAX_RENAME_TRIES) {
-            if (directory) {
+            if (false) {
                 test = new File(base + "_" + index);
             } else {
                 test = new File(base + "_" + index + extension);

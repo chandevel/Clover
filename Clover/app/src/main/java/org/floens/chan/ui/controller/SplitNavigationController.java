@@ -38,7 +38,6 @@ public class SplitNavigationController extends Controller implements DoubleNavig
 
     private FrameLayout leftControllerView;
     private FrameLayout rightControllerView;
-    private View dividerView;
     private ViewGroup emptyView;
 
     private PopupController popup;
@@ -59,7 +58,7 @@ public class SplitNavigationController extends Controller implements DoubleNavig
 
         leftControllerView = new FrameLayout(context);
 
-        dividerView = new View(context);
+        View dividerView = new View(context);
         dividerView.setBackgroundColor(getAttrColor(context, R.attr.divider_split_color));
 
         rightControllerView = new FrameLayout(context);

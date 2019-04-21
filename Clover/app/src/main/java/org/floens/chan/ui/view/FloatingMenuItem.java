@@ -22,7 +22,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class FloatingMenuItem {
     private Object id;
     private String text;
-    private boolean enabled = true;
+    private boolean enabled;
 
     public FloatingMenuItem(Object id, int text) {
         this(id, getString(text));

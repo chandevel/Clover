@@ -52,7 +52,6 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
 
     private CrossfadeView crossfadeView;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView archiveRecyclerview;
     private View progress;
     private View errorView;
 
@@ -88,7 +87,7 @@ public class ArchiveController extends Controller implements ArchivePresenter.Ca
         // View binding
         crossfadeView = view.findViewById(R.id.crossfade);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
-        archiveRecyclerview = view.findViewById(R.id.recycler_view);
+        RecyclerView archiveRecyclerview = view.findViewById(R.id.recycler_view);
         progress = view.findViewById(R.id.progress);
         errorView = view.findViewById(R.id.error_text);
 

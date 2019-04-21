@@ -30,8 +30,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -155,10 +155,8 @@ public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutIn
                 if (body == null) throw new IOException();
                 String responseHtml = body.string();
 
-                post(() -> {
-                    loadDataWithBaseURL(recaptchaUrl,
-                            responseHtml, "text/html", "UTF-8", null);
-                });
+                post(() -> loadDataWithBaseURL(recaptchaUrl,
+                        responseHtml, "text/html", "UTF-8", null));
             }
         });
     }
@@ -180,12 +178,7 @@ public class CaptchaNojsLayout extends WebView implements AuthenticationLayoutIn
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.onCaptchaEntered(response);
-                }
-            });
+            AndroidUtils.runOnUiThread(() -> layout.onCaptchaEntered(response));
         }
     }
 }

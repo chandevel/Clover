@@ -138,12 +138,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
     private final ValueAnimator mShowHideAnimator = ValueAnimator.ofFloat(0, 1);
     @AnimationState
     private int mAnimationState = ANIMATION_STATE_OUT;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide(HIDE_DURATION_MS);
-        }
-    };
+    private final Runnable mHideRunnable = () -> hide(HIDE_DURATION_MS);
     private final OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -469,11 +464,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
             } else {
                 handled = false;
             }
-        } else if (mState == STATE_DRAGGING) {
-            handled = true;
-        } else {
-            handled = false;
-        }
+        } else handled = mState == STATE_DRAGGING;
         return handled;
     }
 

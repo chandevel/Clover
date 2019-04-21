@@ -172,7 +172,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                     changeViewsOnInTransitionEnd = true;
                 }
                 // Transition ended or not, request loading the other side views to lowres
-                for (PostImage other : getOther(selectedPosition, false)) {
+                for (PostImage other : getOther(selectedPosition)) {
                     callback.setImageMode(other, MultiImageView.Mode.LOWRES);
                 }
                 onLowResInCenter();
@@ -197,7 +197,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
 
-        for (PostImage other : getOther(position, false)) {
+        for (PostImage other : getOther(position)) {
             callback.setImageMode(other, MultiImageView.Mode.LOWRES);
         }
 
@@ -364,12 +364,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             return false;
         } else if (networkType == ChanSettings.MediaAutoLoadMode.WIFI) {
             return isConnected(ConnectivityManager.TYPE_WIFI);
-        } else if (networkType == ChanSettings.MediaAutoLoadMode.ALL) {
-            return true;
-        }
+        } else return networkType == ChanSettings.MediaAutoLoadMode.ALL;
 
         // Not connected or unrecognized
-        return false;
     }
 
     private void setTitle(PostImage postImage, int position) {
@@ -377,12 +374,12 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 postImage.spoiler && callback.getImageMode(postImage) == MultiImageView.Mode.LOWRES);
     }
 
-    private List<PostImage> getOther(int position, boolean all) {
+    private List<PostImage> getOther(int position) {
         List<PostImage> other = new ArrayList<>(3);
         if (position - 1 >= 0) {
             other.add(images.get(position - 1));
         }
-        if (all) {
+        if (false) {
             other.add(images.get(position));
         }
         if (position + 1 < images.size()) {

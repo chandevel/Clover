@@ -38,7 +38,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 
@@ -232,12 +231,12 @@ public class DatabaseManager {
                 }
 
                 @Override
-                public T get() throws InterruptedException, ExecutionException {
+                public T get() {
                     return result;
                 }
 
                 @Override
-                public T get(long timeout, @NonNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                public T get(long timeout, @NonNull TimeUnit unit) {
                     return result;
                 }
             };

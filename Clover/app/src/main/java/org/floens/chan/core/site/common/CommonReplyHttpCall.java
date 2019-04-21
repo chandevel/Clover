@@ -26,7 +26,6 @@ import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.jsoup.Jsoup;
 
-import java.io.IOException;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,7 +69,7 @@ public abstract class CommonReplyHttpCall extends HttpCall {
     }
 
     @Override
-    public void process(Response response, String result) throws IOException {
+    public void process(Response response, String result) {
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
             replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();

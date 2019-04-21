@@ -20,15 +20,12 @@ package org.floens.chan.core.settings;
 public class OptionsSetting<T extends Enum & OptionSettingItem> extends Setting<T> {
     private boolean hasCached = false;
 
-    private Class<T> clazz;
-
     private T cached;
     private T[] items;
 
     public OptionsSetting(SettingProvider settingProvider, String key, Class<T> clazz, T def) {
         super(settingProvider, key, def);
 
-        this.clazz = clazz;
         this.items = clazz.getEnumConstants();
     }
 

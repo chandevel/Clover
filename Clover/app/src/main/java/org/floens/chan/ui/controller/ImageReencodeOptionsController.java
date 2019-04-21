@@ -38,8 +38,6 @@ public class ImageReencodeOptionsController extends Controller implements
     private AppCompatButton cancel;
     private AppCompatButton ok;
     private AppCompatRadioButton reencodeImageAsIs;
-    private AppCompatRadioButton reencodeImageAsJpeg;
-    private AppCompatRadioButton reencodeImageAsPng;
 
     private int statusBarColorPrevious;
 
@@ -92,8 +90,8 @@ public class ImageReencodeOptionsController extends Controller implements
         currentImageQuality = view.findViewById(R.id.reecode_image_current_quality);
         currentImageReduce = view.findViewById(R.id.reecode_image_current_reduce);
         reencodeImageAsIs = view.findViewById(R.id.reencode_image_as_is);
-        reencodeImageAsJpeg = view.findViewById(R.id.reencode_image_as_jpeg);
-        reencodeImageAsPng = view.findViewById(R.id.reencode_image_as_png);
+        AppCompatRadioButton reencodeImageAsJpeg = view.findViewById(R.id.reencode_image_as_jpeg);
+        AppCompatRadioButton reencodeImageAsPng = view.findViewById(R.id.reencode_image_as_png);
         cancel = view.findViewById(R.id.reencode_image_cancel);
         ok = view.findViewById(R.id.reencode_image_ok);
 

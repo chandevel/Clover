@@ -136,12 +136,7 @@ public abstract class NavigationController extends Controller {
             controllerTransition.to = to;
             blockingInput = true;
             this.controllerTransition = controllerTransition;
-            controllerTransition.setCallback(new ControllerTransition.Callback() {
-                @Override
-                public void onControllerTransitionCompleted(ControllerTransition transition) {
-                    finishTransition(from, pushing);
-                }
-            });
+            controllerTransition.setCallback(transition -> finishTransition(from, pushing));
             controllerTransition.perform();
         } else {
             finishTransition(from, pushing);

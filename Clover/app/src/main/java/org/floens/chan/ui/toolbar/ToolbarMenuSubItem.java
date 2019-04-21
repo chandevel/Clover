@@ -26,7 +26,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class ToolbarMenuSubItem {
     public int id;
     public String text;
-    public boolean enabled = true;
+    public boolean enabled;
     public ClickCallback clicked;
 
     public ToolbarMenuSubItem(int id, int text, ClickCallback clicked) {

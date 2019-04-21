@@ -52,7 +52,7 @@ class PostParseCallable implements Callable<Post> {
     }
 
     @Override
-    public Post call() throws Exception {
+    public Post call() {
         // Process the filters before finish, because parsing the html is dependent on filter matches
         processPostFilter(post);
 

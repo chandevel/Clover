@@ -30,12 +30,7 @@ import java.util.List;
 public class FileWatcher {
     private static final String TAG = "FileWatcher";
 
-    private static final Comparator<FileItem> FILE_COMPARATOR = new Comparator<FileItem>() {
-        @Override
-        public int compare(FileItem a, FileItem b) {
-            return a.file.getName().compareToIgnoreCase(b.file.getName());
-        }
-    };
+    private static final Comparator<FileItem> FILE_COMPARATOR = (a, b) -> a.file.getName().compareToIgnoreCase(b.file.getName());
 
     private final FileWatcherCallback callback;
     boolean initialized = false;
@@ -66,7 +61,7 @@ public class FileWatcher {
 
     public void navigateUp() {
         File parentFile = currentPath.getParentFile();
-        if (parentFile != null && StorageHelper.canNavigate(parentFile)) {
+        if (StorageHelper.canNavigate(parentFile)) {
             navigateTo(parentFile);
         }
     }

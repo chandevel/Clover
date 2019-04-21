@@ -32,35 +32,21 @@ public class BackgroundUtils {
     public static <T> Cancelable runWithExecutor(Executor executor, final Callable<T> background,
                                                  final BackgroundResult<T> result) {
         final AtomicBoolean cancelled = new AtomicBoolean(false);
-        Cancelable cancelable = new Cancelable() {
-            @Override
-            public void cancel() {
-                cancelled.set(true);
-            }
-        };
+        Cancelable cancelable = () -> cancelled.set(true);
 
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (!cancelled.get()) {
-                    try {
-                        final T res = background.call();
-                        AndroidUtils.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!cancelled.get()) {
-                                    result.onResult(res);
-                                }
-                            }
-                        });
-                    } catch (final Exception e) {
-                        AndroidUtils.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    }
+        executor.execute(() -> {
+            if (!cancelled.get()) {
+                try {
+                    final T res = background.call();
+                    AndroidUtils.runOnUiThread(() -> {
+                        if (!cancelled.get()) {
+                            result.onResult(res);
+                        }
+                    });
+                } catch (final Exception e) {
+                    AndroidUtils.runOnUiThread(() -> {
+                        throw new RuntimeException(e);
+                    });
                 }
             }
         });

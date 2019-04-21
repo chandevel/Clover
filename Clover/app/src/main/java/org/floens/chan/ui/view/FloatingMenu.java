@@ -168,34 +168,28 @@ public class FloatingMenu {
         }
 
         if (manageItems) {
-            popupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    if (position >= 0 && position < items.size()) {
-                        FloatingMenuItem item = items.get(position);
-                        if (item.isEnabled()) {
-                            callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
-                            popupWindow.dismiss();
-                        }
-                    } else {
-                        callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
+            popupWindow.setOnItemClickListener((parent, view, position, id) -> {
+                if (position >= 0 && position < items.size()) {
+                    FloatingMenuItem item = items.get(position);
+                    if (item.isEnabled()) {
+                        callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
+                        popupWindow.dismiss();
                     }
+                } else {
+                    callback.onFloatingMenuItemClicked(FloatingMenu.this, null);
                 }
             });
         } else {
             popupWindow.setOnItemClickListener(itemClickListener);
         }
 
-        globalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (popupWindow == null) {
-                    Logger.w("FloatingMenu", "popupWindow null in layout listener");
-                } else {
-                    if (popupWindow.isShowing()) {
-                        // Recalculate anchor position
-                        popupWindow.show();
-                    }
+        globalLayoutListener = () -> {
+            if (popupWindow == null) {
+                Logger.w("FloatingMenu", "popupWindow null in layout listener");
+            } else {
+                if (popupWindow.isShowing()) {
+                    // Recalculate anchor position
+                    popupWindow.show();
                 }
             }
         };

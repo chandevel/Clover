@@ -100,7 +100,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private FileCacheDownloader videoRequest;
 
     private VideoView videoView;
-    private PlayerView exoVideoView;
     private boolean videoError = false;
     private MediaPlayer mediaPlayer;
     private SimpleExoPlayer exoPlayer;
@@ -144,25 +143,22 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 //            Logger.test("Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
             this.mode = newMode;
 
-            AndroidUtils.waitForMeasure(this, new AndroidUtils.OnMeasuredCallback() {
-                @Override
-                public boolean onMeasured(View view) {
-                    switch (newMode) {
-                        case LOWRES:
-                            setThumbnail(postImage.getThumbnailUrl().toString());
-                            break;
-                        case BIGIMAGE:
-                            setBigImage(postImage.imageUrl.toString());
-                            break;
-                        case GIF:
-                            setGif(postImage.imageUrl.toString());
-                            break;
-                        case MOVIE:
-                            setVideo(postImage.imageUrl.toString());
-                            break;
-                    }
-                    return true;
+            AndroidUtils.waitForMeasure(this, view -> {
+                switch (newMode) {
+                    case LOWRES:
+                        setThumbnail(postImage.getThumbnailUrl().toString());
+                        break;
+                    case BIGIMAGE:
+                        setBigImage(postImage.imageUrl.toString());
+                        break;
+                    case GIF:
+                        setGif(postImage.imageUrl.toString());
+                        break;
+                    case MOVIE:
+                        setVideo(postImage.imageUrl.toString());
+                        break;
                 }
+                return true;
             });
         }
     }
@@ -427,7 +423,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
             onModeLoaded(Mode.MOVIE, videoView);
         } else if (ChanSettings.videoUseExoplayer.get()) {
-            exoVideoView = new PlayerView(getContext());
+            PlayerView exoVideoView = new PlayerView(getContext());
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
             exoVideoView.setPlayer(exoPlayer);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),

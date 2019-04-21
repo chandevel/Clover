@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class SelectLayout<T> extends LinearLayout implements SearchLayout.SearchLayoutCallback, View.OnClickListener {
-    private SearchLayout searchLayout;
     private RecyclerView recyclerView;
     private Button checkAllButton;
 
@@ -67,7 +66,7 @@ public class SelectLayout<T> extends LinearLayout implements SearchLayout.Search
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        searchLayout = findViewById(R.id.search_layout);
+        SearchLayout searchLayout = findViewById(R.id.search_layout);
         searchLayout.setCallback(this);
 
         checkAllButton = findViewById(R.id.select_all);

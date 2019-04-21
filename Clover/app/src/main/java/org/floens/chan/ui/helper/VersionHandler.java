@@ -95,7 +95,7 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
             handleUpdate(previous);
 
             if (previous != 0) {
-                showMessage(CURRENT_VERSION);
+                showMessage();
             }
 
             ChanSettings.previousVersion.set(CURRENT_VERSION);
@@ -147,18 +147,8 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
 
         final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setMessage(text)
-                .setNegativeButton(R.string.update_later, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        updatePostponed(message);
-                    }
-                })
-                .setPositiveButton(R.string.update_install, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        updateInstallRequested(message);
-                    }
-                })
+                .setNegativeButton(R.string.update_later, (dialog12, which) -> updatePostponed(message))
+                .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(message))
                 .create();
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
@@ -168,23 +158,15 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
     }
 
     private void updateInstallRequested(final UpdateApiRequest.UpdateApiMessage message) {
-        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, new RuntimePermissionsHelper.Callback() {
-            @Override
-            public void onRuntimePermissionResult(boolean granted) {
-                if (granted) {
-                    createDownloadProgressDialog();
-                    updateManager.doUpdate(new UpdateManager.Update(message.apkUrl));
-                } else {
-                    runtimePermissionsHelper.showPermissionRequiredDialog(context,
-                            context.getString(R.string.update_storage_permission_required_title),
-                            context.getString(R.string.update_storage_permission_required),
-                            new RuntimePermissionsHelper.PermissionRequiredDialogCallback() {
-                                @Override
-                                public void retryPermissionRequest() {
-                                    updateInstallRequested(message);
-                                }
-                            });
-                }
+        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
+            if (granted) {
+                createDownloadProgressDialog();
+                updateManager.doUpdate(new UpdateManager.Update(message.apkUrl));
+            } else {
+                runtimePermissionsHelper.showPermissionRequiredDialog(context,
+                        context.getString(R.string.update_storage_permission_required_title),
+                        context.getString(R.string.update_storage_permission_required),
+                        () -> updateInstallRequested(message));
             }
         });
     }
@@ -239,17 +221,12 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
                 .setTitle(R.string.update_retry_title)
                 .setMessage(R.string.update_retry)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.update_retry_button, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        updateManager.retry(install);
-                    }
-                })
+                .setPositiveButton(R.string.update_retry_button, (dialog, which) -> updateManager.retry(install))
                 .show();
     }
 
-    private void showMessage(int version) {
-        int resource = context.getResources().getIdentifier("changelog_" + version, "string", context.getPackageName());
+    private void showMessage() {
+        int resource = context.getResources().getIdentifier("changelog_" + VersionHandler.CURRENT_VERSION, "string", context.getPackageName());
         if (resource != 0) {
             CharSequence message = Html.fromHtml(context.getString(resource));
 
@@ -262,12 +239,9 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
 
             final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             button.setEnabled(false);
-            AndroidUtils.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    dialog.setCanceledOnTouchOutside(true);
-                    button.setEnabled(true);
-                }
+            AndroidUtils.runOnUiThread(() -> {
+                dialog.setCanceledOnTouchOutside(true);
+                button.setEnabled(true);
             }, 1500);
         }
     }

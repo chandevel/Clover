@@ -55,7 +55,6 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private PostCellInterface.PostCellCallback callback;
     private boolean compact = false;
 
-    private FixedRatioLinearLayout content;
     private PostImageThumbnailView thumbnailView;
     private TextView title;
     private FastTextView comment;
@@ -79,7 +78,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        content = findViewById(R.id.card_content);
+        FixedRatioLinearLayout content = findViewById(R.id.card_content);
         content.setRatio(9f / 18f);
         thumbnailView = findViewById(R.id.thumbnail);
         thumbnailView.setRatio(16f / 13f);

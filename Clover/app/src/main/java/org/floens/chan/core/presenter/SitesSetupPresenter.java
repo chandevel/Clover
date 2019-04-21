@@ -19,8 +19,8 @@ package org.floens.chan.core.presenter;
 
 
 import org.floens.chan.core.manager.BoardManager;
-import org.floens.chan.core.site.Site;
 import org.floens.chan.core.repository.SiteRepository;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteService;
 
 import java.util.ArrayList;

@@ -20,7 +20,6 @@ package org.floens.chan.ui.controller;
 import android.content.Context;
 import android.widget.FrameLayout;
 
-import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.ControllerTransition;
 import org.floens.chan.controller.NavigationController;
