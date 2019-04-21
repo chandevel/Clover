@@ -115,6 +115,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>())
                         .build()
         );
@@ -125,6 +126,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test1")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>())
                         .build()
         );
@@ -135,6 +137,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test2")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>())
                         .build()
         );
@@ -145,6 +148,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(1, 2)))
                         .build()
         );
@@ -155,6 +159,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(2, 3, 4)))
                         .build()
         );
@@ -165,6 +170,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(1, 4, 5)))
                         .build()
         );
@@ -175,6 +181,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(1, 4, 5, 6)))
                         .build()
         );
@@ -185,6 +192,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>())
                         .build()
         );
@@ -195,6 +203,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(1, 8)))
                         .build()
         );
@@ -205,6 +214,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(1)))
                         .build()
         );
@@ -215,6 +225,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(9)))
                         .build()
         );
@@ -225,6 +236,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(10, 11)))
                         .build()
         );
@@ -235,6 +247,7 @@ public class PostUtilsTest {
                         .opId(1)
                         .setUnixTimestampSeconds(1111L)
                         .comment("test3")
+                        .filter(0, true, false, true)
                         .repliesTo(new HashSet<>(Arrays.asList(2, 3)))
                         .build()
         );

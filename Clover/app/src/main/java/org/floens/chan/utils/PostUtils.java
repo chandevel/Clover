@@ -1,14 +1,16 @@
 package org.floens.chan.utils;
 
-import android.util.SparseArray;
+import android.annotation.SuppressLint;
 
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.PostHide;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class PostUtils {
@@ -51,8 +53,10 @@ public class PostUtils {
             List<PostHide> hiddenPostsFirstIteration,
             List<Post> posts
     ) {
-        SparseArray<PostHide> hiddenPostsFastLookupMap = new SparseArray<>();
-        SparseArray<Post> postsFastLookupMap = new SparseArray<>();
+        @SuppressLint("UseSparseArrays")
+        Map<Integer, PostHide> hiddenPostsFastLookupMap = new HashMap<>();
+        @SuppressLint("UseSparseArrays")
+        Map<Integer, Post> postsFastLookupMap = new HashMap<>();
 
         for (PostHide postHide : hiddenPostsFirstIteration) {
             hiddenPostsFastLookupMap.put(postHide.no, postHide);
@@ -79,8 +83,8 @@ public class PostUtils {
     }
 
     private static List<PostHide> search(
-            SparseArray<PostHide> hiddenPostsFastLookupMap,
-            SparseArray<Post> postsFastLookupMap,
+            Map<Integer, PostHide> hiddenPostsFastLookupMap,
+            Map<Integer, Post> postsFastLookupMap,
             List<Post> posts
     ) {
         Set<PostHide> newHiddenPosts = new HashSet<>();
