@@ -85,8 +85,8 @@ public class PostUtilsTest {
         Board board = new Board("test", "123");
 
         createPosts(posts, board);
-        firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(0), false, false));
-        firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(7), false, false));
+        firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(0), false, false, true));
+        firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(7), false, false, true));
 
         List<PostHide> updated = PostUtils.findHiddenPostsWithReplies(
                 firstGenerationHiddenPosts,

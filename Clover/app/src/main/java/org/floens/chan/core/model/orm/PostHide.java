@@ -49,22 +49,27 @@ public class PostHide {
     @DatabaseField(columnName = HIDE_COLUMN)
     public boolean hide;
 
+    @DatabaseField(columnName = HIDE_REPLIES_TO_THIS_POST_COLUMN)
+    public boolean hideRepliesToThisPost;
+
     public static final String SITE_COLUMN_NAME = "site";
     public static final String BOARD_COLUMN_NAME = "board";
     public static final String NO_COLUMN_NAME = "no";
     public static final String WHOLE_THREAD_COLUMN_NAME = "whole_thread";
     public static final String HIDE_COLUMN = "hide";
+    public static final String HIDE_REPLIES_TO_THIS_POST_COLUMN = "hide_replies_to_this_post";
 
     public PostHide() {
     }
 
-    public static PostHide fromPost(Post post, Boolean wholeThread, Boolean hide) {
+    public static PostHide fromPost(Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost) {
         PostHide postHide = new PostHide();
         postHide.board = post.board.code;
         postHide.no = post.no;
         postHide.site = post.board.siteId;
         postHide.wholeThread = wholeThread;
         postHide.hide = hide;
+        postHide.hideRepliesToThisPost = hideRepliesToThisPost;
         return postHide;
     }
 

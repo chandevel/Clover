@@ -18,6 +18,17 @@ public class PostUtils {
     private PostUtils() {
     }
 
+    public static Post findPostById(int id, ChanThread thread) {
+        if (thread != null) {
+            for (Post post : thread.posts) {
+                if (post.no == id) {
+                    return post;
+                }
+            }
+        }
+        return null;
+    }
+
     public static Set<Post> findPostWithReplies(int id, ChanThread thread) {
         Set<Post> postsSet = new HashSet<>();
         if (thread == null) {
@@ -98,30 +109,32 @@ public class PostUtils {
             // enumerate all replies for every post
             for (Integer replyTo : post.repliesTo) {
                 Post repliedToPost = postsFastLookupMap.get(replyTo);
-                // skip if OP or if has a flag to not hide replies to this post
-                if (repliedToPost != null && (repliedToPost.isOP || !repliedToPost.filterReplies)) {
+                if (repliedToPost == null) {
+                    // probably a cross-thread post
                     continue;
                 }
 
-                // if a reply references already hidden post
-                if (hiddenPostsFastLookupMap.get(replyTo) != null) {
-                    PostHide toInheritBaseInfoFrom = hiddenPostsFastLookupMap.get(replyTo);
-
-                    PostHide postHide = new PostHide();
-                    postHide.hide = toInheritBaseInfoFrom.hide;
-                    postHide.site = toInheritBaseInfoFrom.site;
-                    postHide.board = toInheritBaseInfoFrom.board;
-                    postHide.no = post.no;
-
-                    //always false because there may be only one OP
-                    postHide.wholeThread = false;
-
-                    hiddenPostsFastLookupMap.put(post.no, postHide);
-                    newHiddenPosts.add(postHide);
-
-                    // posts is hidden no need to check the remaining replies
-                    break;
+                PostHide toInheritBaseInfoFrom = hiddenPostsFastLookupMap.get(replyTo);
+                if (repliedToPost.isOP || toInheritBaseInfoFrom == null || !toInheritBaseInfoFrom.hideRepliesToThisPost) {
+                    // skip if OP or if has a flag to not hide replies to this post
+                    continue;
                 }
+
+                PostHide postHide = new PostHide();
+                postHide.hide = toInheritBaseInfoFrom.hide;
+                postHide.site = toInheritBaseInfoFrom.site;
+                postHide.board = toInheritBaseInfoFrom.board;
+                postHide.hideRepliesToThisPost = toInheritBaseInfoFrom.hideRepliesToThisPost;
+                postHide.no = post.no;
+
+                //always false because there may be only one OP
+                postHide.wholeThread = false;
+
+                hiddenPostsFastLookupMap.put(post.no, postHide);
+                newHiddenPosts.add(postHide);
+
+                // posts is hidden no need to check the remaining replies
+                break;
             }
         }
 

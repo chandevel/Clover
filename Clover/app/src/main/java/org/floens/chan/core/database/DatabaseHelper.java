@@ -283,6 +283,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (oldVersion < 28) {
             try {
                 postHideDao.executeRawNoArgs("ALTER TABLE " + POST_HIDE_TABLE_NAME + " ADD COLUMN " + PostHide.HIDE_COLUMN + " INTEGER default 0");
+                postHideDao.executeRawNoArgs("ALTER TABLE " + POST_HIDE_TABLE_NAME + " ADD COLUMN " + PostHide.HIDE_REPLIES_TO_THIS_POST_COLUMN + " INTEGER default 0");
                 filterDao.executeRawNoArgs("ALTER TABLE " + FILTER_TABLE_NAME + " ADD COLUMN " + Filter.APPLY_TO_REPLIES_COLUMN + " INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 28", e);

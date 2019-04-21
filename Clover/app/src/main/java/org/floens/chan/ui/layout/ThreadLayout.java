@@ -459,10 +459,10 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void hideThread(Post post) {
-        // FIXME
-        // for now we don't support the thread hiding while in catalog mode (it can only be removed completely)
-        final PostHide postHide = PostHide.fromPost(post, true, false);
+    public void hideThread(Post post, boolean hide) {
+        // hideRepliesToThisPost is false here because we don't have posts in the catalog mode so there
+        // is no point in hiding replies to a thread
+        final PostHide postHide = PostHide.fromPost(post, true, hide, false);
 
         databaseManager.runTask(
                 databaseManager.getDatabaseHideManager().addThreadHide(postHide));
@@ -482,14 +482,14 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void hideOrRemovePosts(boolean hide, Set<Post> posts) {
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts) {
         final List<PostHide> hideList = new ArrayList<>();
 
         for (Post post : posts) {
             // Do not add the OP post to the hideList since we don't want to hide an OP post
             // while being in a thread (it just doesn't make any sense)
             if (!post.isOP) {
-                hideList.add(PostHide.fromPost(post, false, hide));
+                hideList.add(PostHide.fromPost(post, false, hide, wholeChain));
             }
         }
 

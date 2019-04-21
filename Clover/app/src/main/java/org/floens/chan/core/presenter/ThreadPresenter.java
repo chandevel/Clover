@@ -293,7 +293,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         }
 
         if (loadable.markedNo >= 0) {
-            Post markedPost = findPostById(loadable.markedNo);
+            Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
                 highlightPost(markedPost);
                 scrollToPost(markedPost, false);
@@ -331,7 +331,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     }
 
     public void onNewPostsViewClicked() {
-        Post post = findPostById(loadable.lastViewed);
+        Post post = PostUtils.findPostById(loadable.lastViewed, chanLoader.getThread());
         if (post != null) {
             scrollToPost(post, true);
         } else {
@@ -561,7 +561,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 int currentMode = chanLoader.getThread().loadable.mode;
 
                 if (currentMode == Loadable.Mode.CATALOG) {
-                    threadPresenterCallback.hideThread(post);
+                    threadPresenterCallback.hideThread(post, hide);
                 } else {
                     if (post.repliesFrom.isEmpty()) {
                         // no replies to this post so no point in showing the dialog
@@ -578,7 +578,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     @Override
     public void onPostLinkableClicked(Post post, PostLinkable linkable) {
         if (linkable.type == PostLinkable.Type.QUOTE) {
-            Post linked = findPostById((int) linkable.value);
+            Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
             if (linked != null) {
                 threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
             }
@@ -612,7 +612,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         List<Post> posts = new ArrayList<>();
         synchronized (post.repliesFrom) {
             for (int no : post.repliesFrom) {
-                Post replyPost = findPostById(no);
+                Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
                 if (replyPost != null) {
                     posts.add(replyPost);
                 }
@@ -739,18 +739,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         threadPresenterCallback.showPostInfo(text.toString());
     }
 
-    private Post findPostById(int id) {
-        ChanThread thread = chanLoader.getThread();
-        if (thread != null) {
-            for (Post post : thread.posts) {
-                if (post.no == id) {
-                    return post;
-                }
-            }
-        }
-        return null;
-    }
-
     private void showPosts() {
         threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
     }
@@ -772,10 +760,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         if (wholeChain) {
             posts.addAll(PostUtils.findPostWithReplies(post.no, chanLoader.getThread()));
         } else {
-            posts.add(findPostById(post.no));
+            posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
         }
 
-        threadPresenterCallback.hideOrRemovePosts(hide, posts);
+        threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts);
     }
 
     public interface ThreadPresenterCallback {
@@ -839,7 +827,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void hideDeleting(String message);
 
-        void hideThread(Post post);
+        void hideThread(Post post, boolean hide);
 
         void showNewPostsNotification(boolean show, int more);
 
@@ -847,6 +835,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void showHideOrRemoveWholeChainDialog(boolean hide, Post post);
 
-        void hideOrRemovePosts(boolean hide, Set<Post> posts);
+        void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts);
     }
 }
