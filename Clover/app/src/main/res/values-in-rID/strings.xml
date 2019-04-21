@@ -233,10 +233,6 @@ Jika polanya cocok maka pos dapat disembunyikan atau disorot.<br>
     <string name="post_copy_text">Salin Teks</string>
     <string name="post_report">Laporkan</string>
     <string name="post_hide">Sembunyikan</string>
-    <plurals name="post_hidden">
-        <item quantity="other">%1$d pos tersembunyi</item>
-    </plurals>
-    <string name="thread_hidden">Thread tersembunyi</string>
     <string name="post_delete">Hapus</string>
     <string name="post_more">Lagi…</string>
     <string name="reply_name">Nama</string>

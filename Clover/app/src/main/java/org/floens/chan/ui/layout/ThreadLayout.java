@@ -469,7 +469,15 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         presenter.refreshUI();
 
-        Snackbar snackbar = Snackbar.make(this, R.string.thread_hidden, Snackbar.LENGTH_LONG);
+        int snackbarStringId;
+
+        if (hide) {
+            snackbarStringId = R.string.thread_hidden;
+        } else {
+            snackbarStringId = R.string.thread_removed;
+        }
+
+        Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -499,9 +507,16 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         presenter.refreshUI();
 
-        String formattedString = String.format(
-                getResources().getQuantityString(R.plurals.post_hidden, posts.size()), posts.size()
-        );
+        String formattedString;
+        if (hide) {
+            formattedString = String.format(
+                    getResources().getQuantityString(R.plurals.post_hidden, posts.size()), posts.size()
+            );
+        } else {
+            formattedString = String.format(
+                    getResources().getQuantityString(R.plurals.post_removed, posts.size()), posts.size()
+            );
+        }
 
         Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, v -> {
