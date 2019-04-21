@@ -91,6 +91,31 @@ public class Loadable implements SiteReference, BoardReference, Cloneable {
     protected Loadable() {
     }
 
+    public static Loadable importLoadable(
+            int siteId,
+            int mode,
+            String boardCode,
+            int no,
+            String title,
+            int listViewIndex,
+            int listViewTop,
+            int lastViewed,
+            int lastLoaded
+    ) {
+        Loadable loadable = new Loadable();
+        loadable.siteId = siteId;
+        loadable.mode = mode;
+        loadable.boardCode = boardCode;
+        loadable.no = no;
+        loadable.title = title;
+        loadable.listViewIndex = listViewIndex;
+        loadable.listViewTop = listViewTop;
+        loadable.lastViewed = lastViewed;
+        loadable.lastLoaded = lastLoaded;
+
+        return loadable;
+    }
+
     public static Loadable emptyLoadable() {
         return new Loadable();
     }
@@ -103,10 +128,6 @@ public class Loadable implements SiteReference, BoardReference, Cloneable {
         loadable.boardCode = board.code;
         loadable.mode = Mode.CATALOG;
         return loadable;
-    }
-
-    public static Loadable forThread(Site site, Board board, int no) {
-        return Loadable.forThread(site, board, no, "");
     }
 
     public static Loadable forThread(Site site, Board board, int no, String title) {

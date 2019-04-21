@@ -29,6 +29,7 @@ import org.floens.chan.R;
 import org.floens.chan.core.presenter.SettingsPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.activity.StartActivity;
+import org.floens.chan.ui.controller.export.ImportExportSettingsController;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
 import org.floens.chan.ui.settings.SettingView;
@@ -146,6 +147,14 @@ public class MainSettingsController extends SettingsController implements Settin
                     R.string.settings_media, R.string.settings_media_description,
                     v -> navigationController.pushController(
                             new MediaSettingsController(context))));
+
+            general.add(new LinkSettingView(this,
+                    R.string.settings_import_export,
+                    R.string.settings_import_export_description,
+                    v -> navigationController.pushController(new ImportExportSettingsController(context, () -> {
+                                navigationController.popController();
+                            })
+                    )));
 
             filtersSetting = (LinkSettingView) general.add(new LinkSettingView(this,
                     R.string.settings_filters, 0,

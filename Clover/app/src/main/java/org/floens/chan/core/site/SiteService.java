@@ -25,9 +25,7 @@ import org.floens.chan.core.settings.json.JsonSettings;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class SiteService {
     private static boolean addSiteForLegacy = false;
 

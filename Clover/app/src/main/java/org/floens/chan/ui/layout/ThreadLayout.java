@@ -72,6 +72,7 @@ import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getString;
+import static org.floens.chan.utils.AndroidUtils.isMarshmallow;
 
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
@@ -653,7 +654,16 @@ public class ThreadLayout extends CoordinatorLayout implements
 
     @SuppressLint("InflateParams")
     private View inflateEmptyView() {
-        return LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
+        TextView tv = view.findViewById(R.id.feature);
+
+        if (isMarshmallow()) {
+            // This unicode symbol crashes app on APIs below 23
+            // https://github.com/Floens/Clover/issues/677
+            tv.setText(R.string.thread_empty_setup_feature);
+        }
+
+        return view;
     }
 
     @Override

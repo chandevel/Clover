@@ -50,7 +50,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
@@ -71,8 +70,9 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
  * <p/>
  * <p>All pin adding and removing must go through this class to properly update the watchers.
  */
-@Singleton
 public class WatchManager implements WakeManager.Wakeable {
+    private static final String TAG = "WatchManager";
+
     enum IntervalType {
         /**
          * A timer that uses a {@link Handler} that calls {@link #update(boolean)} every {@value #FOREGROUND_INTERVAL}ms.
@@ -89,8 +89,6 @@ public class WatchManager implements WakeManager.Wakeable {
          */
         NONE
     }
-
-    private static final String TAG = "WatchManager";
 
     private Handler handler;
     private static final long FOREGROUND_INTERVAL = 15 * 1000;

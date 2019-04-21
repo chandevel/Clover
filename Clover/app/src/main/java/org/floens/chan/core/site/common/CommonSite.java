@@ -46,6 +46,7 @@ import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.core.site.parser.ChanReader;
 import org.floens.chan.core.site.parser.CommentParser;
 import org.floens.chan.core.site.parser.PostParser;
+import org.floens.chan.ui.helper.PostHelper;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -285,7 +286,7 @@ public abstract class CommonSite extends SiteBase {
                     if (b == null) {
                         return null;
                     }
-                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)));
+                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)), PostHelper.getTitle(null, null));
 
                     if (isEmpty(url.fragment())) {
                         l.markedNo = Integer.parseInt(url.fragment());

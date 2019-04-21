@@ -49,6 +49,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.parser.ChanReader;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -129,7 +130,7 @@ public class Chan4 extends SiteBase {
                         }
 
                         if (no >= 0) {
-                            Loadable loadable = Loadable.forThread(site, board, no);
+                            Loadable loadable = Loadable.forThread(site, board, no, PostHelper.getTitle(null, null));
                             if (post >= 0) {
                                 loadable.markedNo = post;
                             }

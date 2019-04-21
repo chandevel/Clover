@@ -19,9 +19,7 @@ import java.util.Map;
 import java.util.Observable;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class SiteRepository {
     private static final String TAG = "SiteRepository";
 

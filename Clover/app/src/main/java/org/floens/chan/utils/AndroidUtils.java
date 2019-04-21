@@ -56,6 +56,7 @@ import android.widget.Toast;
 
 import org.floens.chan.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -227,6 +228,10 @@ public class AndroidUtils {
 
     public static int getDimen(Context context, int dimen) {
         return context.getResources().getDimensionPixelSize(dimen);
+    }
+
+    public static File getAppDir() {
+        return getAppContext().getFilesDir().getParentFile();
     }
 
     public static int dp(float dp) {
@@ -428,8 +433,16 @@ public class AndroidUtils {
         view.setBackground(getAttrDrawable(view.getContext(), android.R.attr.selectableItemBackgroundBorderless));
     }
 
+    public static boolean isApi16() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
+
     public static boolean isLollipop() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+    }
+
+    public static boolean isMarshmallow() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
     public static void setElevation(View view, float elevation) {

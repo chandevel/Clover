@@ -28,6 +28,9 @@ import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.utils.AndroidUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
@@ -89,6 +92,7 @@ public class ChanSettings {
     }
 
     private static Proxy proxy;
+    private static final String sharedPrefsFile = "shared_prefs/org.floens.chan_preferences.xml";
 
     public static final BooleanSetting forceEnglishLocale;
     private static final StringSetting theme;
@@ -324,6 +328,55 @@ public class ChanSettings {
             proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(proxyAddress.get(), proxyPort.get()));
         } else {
             proxy = null;
+        }
+    }
+
+    /**
+     * Reads setting from the shared preferences file to a string.
+     * Called on the Database thread.
+     * */
+    public static String serializeToString() throws IOException {
+        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
+
+        if (!file.exists()) {
+            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+        }
+
+        if (!file.canRead()) {
+            throw new IOException("Cannot read from shared preferences file! (" + file.getAbsolutePath() + ")");
+        }
+
+        byte[] buffer = new byte[(int) file.length()];
+
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            int readAmount = inputStream.read(buffer);
+
+            if (readAmount != file.length()) {
+                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", " + file.length());
+            }
+        }
+
+        return new String(buffer);
+    }
+
+    /**
+     * Reads settings from string and writes them to the shared preferences file.
+     * Called on the Database thread.
+     */
+    public static void deserializeFromString(String settings) throws IOException {
+        File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
+
+        if (!file.exists()) {
+            throw new IOException("Shared preferences file does not exist! (" + file.getAbsolutePath() + ")");
+        }
+
+        if (!file.canWrite()) {
+            throw new IOException("Cannot write to shared preferences file! (" + file.getAbsolutePath() + ")");
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            outputStream.write(settings.getBytes());
+            outputStream.flush();
         }
     }
 

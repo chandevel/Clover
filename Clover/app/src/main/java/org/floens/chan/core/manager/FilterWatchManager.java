@@ -29,6 +29,7 @@ import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.Logger;
 
 import java.util.Arrays;
@@ -155,7 +156,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
             for (Filter f : filters) {
                 for (Post p : result.posts) {
                     if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
-                        Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no);
+                        Loadable pinLoadable = Loadable.forThread(result.loadable.site, p.board, p.no, PostHelper.getTitle(p, result.loadable));
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
                         watchManager.createPin(pinLoadable, p);
                         toAdd.add(p.no);

@@ -24,8 +24,6 @@ import org.floens.chan.core.site.Site;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  * <p>Keeps track of {@link Board}s in the system.
  * <p>There are a few types of sites, those who provide a list of all boards known,
@@ -38,7 +36,6 @@ import javax.inject.Singleton;
  * <p>All boards have a {@link Board#saved} flag indicating if it should be visible in the user's
  * favorite board list, along with a {@link Board#order} in which they appear.
  */
-@Singleton
 public class BoardManager {
     private static final String TAG = "BoardManager";
 

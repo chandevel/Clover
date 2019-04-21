@@ -25,6 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>
     <string name="save">Save</string>
+    <string name="continue_text" tools:ignore="MissingTranslation">Continue</string>
+    <string name="create" tools:ignore="MissingTranslation">Create</string>
+    <string name="do_not" tools:ignore="MissingTranslation">Do not</string>
 
     <string name="permission_app_settings">App settings</string>
     <string name="permission_grant">Grant</string>
@@ -46,6 +49,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
 
+    <string name="storage_permission_required_to_export_settings" tools:ignore="MissingTranslation">
+"Permission to access storage is required to export settings.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
+
+    <string name="storage_permission_required_to_import_settings" tools:ignore="MissingTranslation">
+"Permission to access storage is required to import settings.
+
+Re-enable this permission in the app settings if you permanently disabled it."</string>
     <plurals name="minutes">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
@@ -285,15 +297,15 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
-    <string name="post_hide_whole_chain">Hide whole chain</string>
+    <string name="post_hide_whole_chain" tools:ignore="MissingTranslation">Hide whole chain</string>
     <plurals name="post_hidden">
         <item quantity="one">%1$d post hidden</item>
         <item quantity="other">%1$d posts hidden</item>
     </plurals>
-    <string name="thread_hidden">Thread hidden</string>
+    <string name="thread_hidden" tools:ignore="MissingTranslation">Thread hidden</string>
     <string name="post_delete">Delete</string>
     <string name="post_more">More…</string>
-	<string name="cant_hide_op_post_from_thread_message">You can\'t hide an OP post from a thread. You can do it from the catalog</string>
+    <string name="cant_hide_op_post_from_thread_message" tools:ignore="MissingTranslation">You can\'t hide an OP post from a thread. You can do it from the catalog</string>
 
     <string name="reply_name">Name</string>
     <string name="reply_options">Options</string>
@@ -479,8 +491,8 @@ Crash reports do not collect any personally identifiable information."
 
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
-    <string name="setting_force_english_locale">Always use English for the language of the app</string>
-    <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
+    <string name="setting_force_english_locale" tools:ignore="MissingTranslation">Always use English for the language of the app</string>
+    <string name="setting_force_english_locale_toggle_notice" tools:ignore="MissingTranslation">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Auto refresh threads</string>
     <string name="setting_confirm_exit">Confirm before exit</string>
     <string name="setting_controller_swipeable">Allow screens to be swiped away</string>
@@ -522,8 +534,8 @@ Crash reports do not collect any personally identifiable information."
 
     <string name="setting_save_board_folder">Save images in board folders</string>
     <string name="setting_save_board_folder_description">Create a folder for each board when saving</string>
-    <string name="setting_save_thread_folder">Save images in thread folders</string>
-    <string name="setting_save_thread_folder_description">Create a folder for each thread when saving</string>
+    <string name="setting_save_thread_folder" tools:ignore="MissingTranslation">Save images in thread folders</string>
+    <string name="setting_save_thread_folder_description" tools:ignore="MissingTranslation">Create a folder for each thread when saving</string>
     <string name="setting_save_original_filename">Save original filename</string>
     <string name="setting_save_original_filename_description">
 "Save the image with the filename the site assigned.
@@ -533,8 +545,8 @@ If disabled, save the image with the filename the uploader assigned."
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default.</string>
     <string name="setting_video_open_external">Play videos with external player</string>
     <string name="setting_video_open_external_description">Play videos in an external media player app</string>
-    <string name="setting_video_exoplayer">Enable new ExoPlayer</string>
-    <string name="setting_video_exoplayer_description">Use the new ExoPlayer for internal media player</string>
+    <string name="setting_video_exoplayer" tools:ignore="MissingTranslation">Enable new ExoPlayer</string>
+    <string name="setting_video_exoplayer_description" tools:ignore="MissingTranslation">Use the new ExoPlayer for internal media player</string>
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
     <string name="settings_reveal_image_spoilers">Reveal image spoilers</string>
@@ -599,20 +611,37 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
-    <string name="image_quality">Image quality: %1$d</string>
-    <string name="scale_reduce">Reduce: %1$dx</string>
-    <string name="could_not_decode_image_bitmap">Could not decode image bitmap</string>
-    <string name="could_not_apply_image_options">Could not apply new image options. Error message is %1$s</string>
-    <string name="image_options_remove_filename">Remove filename</string>
-    <string name="image_options_change_image_checksum">Change image checksum</string>
+    <string name="image_quality" tools:ignore="MissingTranslation">Image quality: %1$d</string>
+    <string name="scale_reduce" tools:ignore="MissingTranslation">Reduce: %1$dx</string>
+    <string name="could_not_decode_image_bitmap" tools:ignore="MissingTranslation">Could not decode image bitmap</string>
+    <string name="could_not_apply_image_options" tools:ignore="MissingTranslation">Could not apply new image options. Error message is %1$s</string>
+    <string name="image_options_remove_filename" tools:ignore="MissingTranslation">Remove filename</string>
+    <string name="image_options_change_image_checksum" tools:ignore="MissingTranslation">Change image checksum</string>
     <string name="image_options_fix_exif" tools:ignore="MissingTranslation">Fix EXIF orientation</string>
-    <string name="image_options_remove_metadata">Remove metadata</string>
-    <string name="image_options_re_encode">Re-encode</string>
-    <string name="reencode_image_re_encode_image_text">Re-encode image</string>
-    <string name="reencode_image_as_is">AS IS (%1$s)</string>
-    <string name="reencode_image_as_jpeg">AS JPEG</string>
-    <string name="reencode_image_as_png">AS PNG</string>
-    <string name="reencode_image_image_quality_100_default_text">Image quality: 100</string>
-    <string name="reencode_image_reduce_1x_default_text">Reduce: 1x</string>
-    <string name="click_image_for_extra_options">Click image for extra options</string>
+    <string name="image_options_remove_metadata" tools:ignore="MissingTranslation">Remove metadata</string>
+    <string name="image_options_re_encode" tools:ignore="MissingTranslation">Re-encode</string>
+    <string name="reencode_image_re_encode_image_text" tools:ignore="MissingTranslation">Re-encode image</string>
+    <string name="reencode_image_as_is" tools:ignore="MissingTranslation">AS IS (%1$s)</string>
+    <string name="reencode_image_as_jpeg" tools:ignore="MissingTranslation">AS JPEG</string>
+    <string name="reencode_image_as_png" tools:ignore="MissingTranslation">AS PNG</string>
+    <string name="reencode_image_image_quality_100_default_text" tools:ignore="MissingTranslation">Image quality: 100</string>
+    <string name="reencode_image_reduce_1x_default_text" tools:ignore="MissingTranslation">Reduce: 1x</string>
+    <string name="click_image_for_extra_options" tools:ignore="MissingTranslation">Click image for extra options</string>
+
+    <string name="settings_import_export" tools:ignore="MissingTranslation">Import/Export</string>
+    <string name="settings_import_export_description" tools:ignore="MissingTranslation">Import/Export settings/pins etc</string>
+    <string name="import_or_export_settings" tools:ignore="MissingTranslation">Import/Export settings</string>
+    <string name="export_settings" tools:ignore="MissingTranslation">Export settings</string>
+    <string name="export_settings_to_a_file" tools:ignore="MissingTranslation">Export settings to a file</string>
+    <string name="import_settings" tools:ignore="MissingTranslation">Import settings</string>
+    <string name="import_settings_from_a_file" tools:ignore="MissingTranslation">Import settings from a file</string>
+    <string name="import_warning_title" tools:ignore="MissingTranslation">Warning</string>
+    <string name="import_warning_text" tools:ignore="MissingTranslation">You are about to import settings/saved pins/filters/hidden posts from a file. The file must be located at \"%1$s\" and have a name \"%2$s\". This will clear all your existing settings/pins/threads and replace them with the ones from the file. You MAY LOOSE some of your settings/pins/hidden threads if your are trying to import a file from with different app version (Upgrade or downgrade). The app will be restarted. \nAre you sure you want to continue?</string>
+    <string name="successfully_exported_text" tools:ignore="MissingTranslation">Exported successfully to \"%1$s\". File path has been copied to the clipboard"</string>
+    <string name="error_external_storage_is_not_mounted" tools:ignore="MissingTranslation">External storage is not mounted</string>
+    <string name="could_not_create_dir_for_export_error_text" tools:ignore="MissingTranslation">Could not create directory for export file %1$s probably you won\'t be able to export settings</string>
+    <string name="clover_directory_may_not_exist_message" tools:ignore="MissingTranslation">Clover directory where a file with all the settings will be saved to may not exist yet. It can be created automatically but this action requires WRITE_STORAGE permission. You may create that folder by yourself if you choose so. Do you want to check whether the directory exists and create it automatically?</string>
+    <string name="clover_directory_may_not_exist_title" tools:ignore="MissingTranslation">Clover directory may not exist</string>
+    <string name="default_clover_directory_created" tools:ignore="MissingTranslation">Default clover directory has been created</string>
+    <string name="default_clover_directory_already_exists" tools:ignore="MissingTranslation">Default Clover directory already exists</string>
 </resources>

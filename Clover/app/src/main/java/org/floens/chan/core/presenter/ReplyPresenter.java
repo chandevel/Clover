@@ -39,6 +39,7 @@ import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
 import org.floens.chan.ui.helper.ImagePickDelegate;
+import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -242,7 +243,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 } else {
                     Loadable postedLoadable = databaseManager.getDatabaseLoadableManager()
                             .get(Loadable.forThread(loadable.site, loadable.board,
-                                    replyResponse.postNo));
+                                    replyResponse.postNo, PostHelper.getTitle(null, loadable)));
 
                     watchManager.createPin(postedLoadable);
                 }
@@ -265,7 +266,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
             if (bound && !loadable.isThreadMode()) {
                 callback.showThread(databaseManager.getDatabaseLoadableManager().get(
-                        Loadable.forThread(loadable.site, loadable.board, replyResponse.postNo)));
+                        Loadable.forThread(loadable.site, loadable.board, replyResponse.postNo, PostHelper.getTitle(null, loadable))));
             }
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION, true);

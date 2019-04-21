@@ -41,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
@@ -53,7 +52,6 @@ import de.greenrobot.event.EventBus;
  * You often want the sync flavour for queries that return data, it waits for the task to be finished on the other thread.<br>
  * Use the async versions when you don't care when the query is done.
  */
-@Singleton
 public class DatabaseManager {
     private static final String TAG = "DatabaseManager";
 
@@ -71,13 +69,13 @@ public class DatabaseManager {
     private final DatabaseHideManager databaseHideManager;
 
     @Inject
-    public DatabaseManager(Context context) {
+    public DatabaseManager(Context context, DatabaseHelper databaseHelper) {
+        this.helper = databaseHelper;
+
         backgroundExecutor = new ThreadPoolExecutor(
                 1, 1,
                 1000L, TimeUnit.DAYS,
                 new LinkedBlockingQueue<>());
-
-        helper = new DatabaseHelper(context);
 
         // Immediately trigger onUpgrade if necessary.
         SQLiteDatabase writableDatabase = helper.getWritableDatabase();

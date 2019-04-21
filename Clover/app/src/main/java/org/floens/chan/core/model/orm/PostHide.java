@@ -48,7 +48,12 @@ public class PostHide {
     public static final String NO_COLUMN_NAME = "no";
     public static final String WHOLE_THREAD_COLUMN_NAME = "whole_thread";
 
-    public PostHide() {
+    private PostHide(){}
+
+    public PostHide(int siteId, String boardCode, int no) {
+        site = siteId;
+        board = boardCode;
+        this.no = no;
     }
 
     public static PostHide fromPost(Post post, Boolean wholeThread) {

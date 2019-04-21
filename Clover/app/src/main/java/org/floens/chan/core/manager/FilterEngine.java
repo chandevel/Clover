@@ -38,9 +38,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class FilterEngine {
     private static final String TAG = "FilterEngine";
 

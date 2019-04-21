@@ -22,6 +22,7 @@ import org.floens.chan.core.model.Archive;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.SiteActions;
+import org.floens.chan.ui.helper.PostHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class ArchivePresenter implements SiteActions.ArchiveListener {
 
     public void onItemClicked(Archive.ArchiveItem item) {
         Loadable loadable = databaseManager.getDatabaseLoadableManager()
-                .get(Loadable.forThread(board.site, board, item.id));
+                .get(Loadable.forThread(board.site, board, item.id, PostHelper.getTitle(null, null)));
 
         callback.openThread(loadable);
     }

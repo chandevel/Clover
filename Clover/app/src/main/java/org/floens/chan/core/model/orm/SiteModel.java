@@ -20,36 +20,21 @@ package org.floens.chan.core.model.orm;
 import android.util.Pair;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import org.floens.chan.core.model.json.site.SiteConfig;
-import org.floens.chan.core.settings.json.BooleanJsonSetting;
-import org.floens.chan.core.settings.json.IntegerJsonSetting;
-import org.floens.chan.core.settings.json.JsonSetting;
 import org.floens.chan.core.settings.json.JsonSettings;
-import org.floens.chan.core.settings.json.LongJsonSetting;
-import org.floens.chan.core.settings.json.RuntimeTypeAdapterFactory;
-import org.floens.chan.core.settings.json.StringJsonSetting;
 import org.floens.chan.utils.Logger;
+
+import javax.inject.Inject;
+
+import static org.floens.chan.Chan.inject;
 
 @DatabaseTable(tableName = "site")
 public class SiteModel {
-    private static final Gson gson;
-
-    static {
-        RuntimeTypeAdapterFactory<JsonSetting> userSettingAdapter =
-                RuntimeTypeAdapterFactory.of(JsonSetting.class, "type")
-                        .registerSubtype(StringJsonSetting.class, "string")
-                        .registerSubtype(IntegerJsonSetting.class, "integer")
-                        .registerSubtype(LongJsonSetting.class, "long")
-                        .registerSubtype(BooleanJsonSetting.class, "boolean");
-
-        gson = new GsonBuilder()
-                .registerTypeAdapterFactory(userSettingAdapter)
-                .create();
-    }
+    @Inject
+    Gson gson;
 
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public int id;
@@ -63,7 +48,15 @@ public class SiteModel {
     @DatabaseField
     public int order;
 
+    public SiteModel(int id, String configuration, String userSettings, int order) {
+        this.id = id;
+        this.configuration = configuration;
+        this.userSettings = userSettings;
+        this.order = order;
+    }
+
     public SiteModel() {
+        inject(this);
     }
 
     public void storeConfig(SiteConfig config) {
