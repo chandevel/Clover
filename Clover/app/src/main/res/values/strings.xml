@@ -584,4 +584,10 @@ Don't have a 4chan Pass?<br>
     <string name="settings_screen_theme">Themes</string>
     <string name="cant_hide_op_post_from_thread_message" tools:ignore="MissingTranslation">You can\'t hide an OP post from a thread. You can do it from the catalog</string>
     <string name="apply_to_replies" tools:ignore="MissingTranslation">Apply to replies</string>
+    <string name="thread_layout_hide_whole_chain" tools:ignore="MissingTranslation">Hide whole chain</string>
+    <string name="thread_layout_remove_whole_chain" tools:ignore="MissingTranslation">Remove whole chain</string>
+    <string name="thread_layout_hide_post" tools:ignore="MissingTranslation">Hide post</string>
+    <string name="thread_layout_remove_post" tools:ignore="MissingTranslation">Remove post</string>
+    <string name="thread_layout_hide_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to hide the whole reply chain as well?</string>
+    <string name="thread_layout_remove_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to remove whole reply chain as well?</string>
 </resources>

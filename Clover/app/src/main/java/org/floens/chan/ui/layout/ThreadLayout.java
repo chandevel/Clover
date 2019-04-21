@@ -636,14 +636,14 @@ public class ThreadLayout extends CoordinatorLayout implements
     @Override
     public void showHideOrRemoveWholeChainDialog(boolean hide, Post post) {
         String positiveButtonText = hide
-                ? "Hide the whole chain"
-                : "Remove the whole chain";
+                ? getContext().getString(R.string.thread_layout_hide_whole_chain)
+                : getContext().getString(R.string.thread_layout_remove_whole_chain);
         String negativeButtonText = hide
-                ? "Hide this post"
-                : "Remove this post";
+                ? getContext().getString(R.string.thread_layout_hide_post)
+                : getContext().getString(R.string.thread_layout_remove_post);
         String message = hide
-                ? "Would you like to hide the whole reply chain as well?"
-                : "Would you like to remove whole reply chain as well?";
+                ? getContext().getString(R.string.thread_layout_hide_whole_chain_as_well)
+                : getContext().getString(R.string.thread_layout_remove_whole_chain_as_well);
 
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setMessage(message)
