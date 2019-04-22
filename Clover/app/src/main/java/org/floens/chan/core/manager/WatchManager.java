@@ -565,7 +565,7 @@ public class WatchManager {
 
             threadWatchNotifications.showForWatchers(pinWatchers);
         } else {
-            threadWatchNotifications.hide();
+            threadWatchNotifications.hideAll();
         }
     }
 

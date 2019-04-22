@@ -22,8 +22,8 @@ import javax.inject.Singleton;
 
 @Singleton
 public class ThreadWatchNotifications extends NotificationHelper {
-    private static final String CHANNEL_ID_WATCH_NORMAL = "watch:normal";
-    private static final String CHANNEL_ID_WATCH_MENTION = "watch:mention";
+    public static final String CHANNEL_ID_WATCH_NORMAL = "watch:normal";
+    public static final String CHANNEL_ID_WATCH_MENTION = "watch:mention";
     private static final int NOTIFICATION_ID_WATCH_NORMAL = 0x10000;
     private static final int NOTIFICATION_ID_WATCH_NORMAL_MASK = 0xffff;
     private static final int NOTIFICATION_ID_WATCH_MENTION = 0x20000;
@@ -39,20 +39,18 @@ public class ThreadWatchNotifications extends NotificationHelper {
     }
 
     public void showForWatchers(List<WatchManager.PinWatcher> pinWatchers) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            showPinSummaries(pinWatchers);
-        } else {
-            // legacy notification
-        }
+        showPinSummaries(pinWatchers);
     }
 
-    public void hide() {
-
+    public void hideAll() {
+        notificationManager.cancelAll();
     }
 
     @TargetApi(Build.VERSION_CODES.O)
     private void showPinSummaries(List<WatchManager.PinWatcher> pinWatchers) {
-        ensureChannels();
+        if (isOreo()) {
+            ensureChannels();
+        }
 
         for (WatchManager.PinWatcher pinWatcher : pinWatchers) {
             if (!pinWatcher.requiresNotificationUpdate()) {
@@ -60,62 +58,70 @@ public class ThreadWatchNotifications extends NotificationHelper {
             }
 
             // Normal thread posts.
+            int normalId = NOTIFICATION_ID_WATCH_NORMAL +
+                    (pinWatcher.getPinId() & NOTIFICATION_ID_WATCH_NORMAL_MASK);
             if (!pinWatcher.getUnviewedPosts().isEmpty()) {
                 NotificationCompat.Builder builder =
-                        new NotificationCompat.Builder(applicationContext,
-                                CHANNEL_ID_WATCH_NORMAL);
-
-                NotificationCompat.MessagingStyle messagingStyle =
-                        new NotificationCompat.MessagingStyle("");
-
-                builder.setSmallIcon(R.drawable.ic_stat_notify);
-                if (pinWatcher.getThumbnailBitmap() != null) {
-                    builder.setLargeIcon(pinWatcher.getThumbnailBitmap());
-                }
-
-                String subTitle = "(" + pinWatcher.getUnviewedPosts().size() + ")";
-                messagingStyle.setConversationTitle(pinWatcher.getTitle() + " " + subTitle);
-                messagingStyle.setGroupConversation(true);
-                addPostsToMessagingStyle(messagingStyle, pinWatcher.getUnviewedPosts());
-                builder.setStyle(messagingStyle);
-
-                setNotificationIntent(builder);
-
-                int id = NOTIFICATION_ID_WATCH_NORMAL +
-                        (pinWatcher.getPinId() & NOTIFICATION_ID_WATCH_NORMAL_MASK);
-                notificationManager.notify(id, builder.build());
+                        buildMessagingStyleNotification(pinWatcher, pinWatcher.getUnviewedPosts(),
+                                false, CHANNEL_ID_WATCH_NORMAL);
+                notificationManager.notify(normalId, builder.build());
+            } else {
+                notificationManager.cancel(normalId);
             }
 
             // Posts that mention you.
+            int mentionId = NOTIFICATION_ID_WATCH_MENTION +
+                    (pinWatcher.getPinId() & NOTIFICATION_ID_WATCH_MENTION_MASK);
             if (!pinWatcher.getUnviewedQuotes().isEmpty()) {
                 NotificationCompat.Builder builder =
-                        new NotificationCompat.Builder(applicationContext,
-                                CHANNEL_ID_WATCH_MENTION);
+                        buildMessagingStyleNotification(pinWatcher, pinWatcher.getUnviewedQuotes(),
+                                true, CHANNEL_ID_WATCH_MENTION);
 
-                NotificationCompat.MessagingStyle messagingStyle =
-                        new NotificationCompat.MessagingStyle("");
-
-                builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
-                builder.setSubText("Mentions");
-                if (pinWatcher.getThumbnailBitmap() != null) {
-                    builder.setLargeIcon(pinWatcher.getThumbnailBitmap());
-                }
-
-                String subTitle = "(" + pinWatcher.getUnviewedQuotes().size() + " mentions)";
-                messagingStyle.setConversationTitle(pinWatcher.getTitle() + " " + subTitle);
-                messagingStyle.setGroupConversation(true);
-                addPostsToMessagingStyle(messagingStyle, pinWatcher.getUnviewedQuotes());
-                builder.setStyle(messagingStyle);
-
-                setNotificationIntent(builder);
-
-                int id = NOTIFICATION_ID_WATCH_MENTION +
-                        (pinWatcher.getPinId() & NOTIFICATION_ID_WATCH_MENTION_MASK);
-                notificationManager.notify(id, builder.build());
+                notificationManager.notify(mentionId, builder.build());
+            } else {
+                notificationManager.cancel(mentionId);
             }
 
             pinWatcher.hadNotificationUpdate();
         }
+    }
+
+    private NotificationCompat.Builder buildMessagingStyleNotification(
+            WatchManager.PinWatcher pinWatcher, List<Post> posts, boolean mentions,
+            String channelId) {
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(applicationContext, channelId);
+
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle("");
+
+        builder.setSmallIcon(!mentions ?
+                R.drawable.ic_stat_notify : R.drawable.ic_stat_notify_alert);
+        if (mentions) {
+            builder.setSubText("Mentions");
+        }
+        if (pinWatcher.getThumbnailBitmap() != null) {
+            builder.setLargeIcon(pinWatcher.getThumbnailBitmap());
+        }
+        if (mentions && !isOreo()) {
+            builder.setDefaults(NotificationCompat.DEFAULT_SOUND |
+                    NotificationCompat.DEFAULT_VIBRATE);
+        }
+
+        String subTitle;
+        if (!mentions) {
+            subTitle = "(" + posts.size() + ")";
+        } else {
+            subTitle = "(" + posts.size() + " mentions)";
+        }
+        messagingStyle.setConversationTitle(pinWatcher.getTitle() + " " + subTitle);
+        messagingStyle.setGroupConversation(true);
+        addPostsToMessagingStyle(messagingStyle, posts);
+        builder.setStyle(messagingStyle);
+
+        setNotificationIntent(builder);
+
+        return builder;
     }
 
     private void addPostsToMessagingStyle(NotificationCompat.MessagingStyle messagingStyle,
@@ -145,7 +151,6 @@ public class ThreadWatchNotifications extends NotificationHelper {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
     private void setNotificationIntent(NotificationCompat.Builder builder) {
         Intent intent = new Intent(applicationContext, BoardActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
@@ -162,7 +167,7 @@ public class ThreadWatchNotifications extends NotificationHelper {
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    private void ensureChannels() {
+    public void ensureChannels() {
         NotificationChannel normalChannel = new NotificationChannel(
                 CHANNEL_ID_WATCH_NORMAL, "Thread updates",
                 NotificationManager.IMPORTANCE_DEFAULT);
@@ -176,5 +181,9 @@ public class ThreadWatchNotifications extends NotificationHelper {
         mentionChannel.enableVibration(true);
         mentionChannel.enableLights(true);
         notificationManager.createNotificationChannel(mentionChannel);
+    }
+
+    private boolean isOreo() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 }

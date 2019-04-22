@@ -408,6 +408,8 @@ Enable \"Play videos with external player\" in the settings to play videos with 
         <item>Blue</item>
         <item>Purple</item>
     </string-array>
+    <string name="setting_watch_channel_normal">Notification settings for thread updates</string>
+    <string name="setting_watch_channel_mention">Notification settings for thread mentions</string>
 
     <!-- Main About group -->
     <string name="settings_group_about">About</string>
