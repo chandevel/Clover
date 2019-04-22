@@ -21,11 +21,16 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
+
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
@@ -40,7 +45,7 @@ import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.ui.helper.PostHelper;
-import org.floens.chan.ui.service.WatchNotifier;
+import org.floens.chan.ui.notification.ThreadWatchNotifications;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -59,6 +64,7 @@ import javax.inject.Singleton;
 import de.greenrobot.event.EventBus;
 
 import static org.floens.chan.Chan.inject;
+import static org.floens.chan.Chan.injector;
 import static org.floens.chan.utils.AndroidUtils.getAppContext;
 
 /**
@@ -103,7 +109,7 @@ public class WatchManager {
     private static final int MESSAGE_UPDATE = 1;
     private static final int REQUEST_CODE_WATCH_UPDATE = 2;
     private static final String WATCHER_UPDATE_ACTION = "org.floens.chan.intent.action.WATCHER_UPDATE";
-    private static final String WAKELOCK_TAG = "WatchManagerUpdateLock";
+    private static final String WAKELOCK_TAG = "org.floens.chan:watch_manager_update_lock";
     private static final long WAKELOCK_MAX_TIME = 60 * 1000;
     private static final long BACKGROUND_UPDATE_MIN_DELAY = 90 * 1000;
 
@@ -133,13 +139,18 @@ public class WatchManager {
     private PowerManager.WakeLock wakeLock;
     private long lastBackgroundUpdateTime;
 
+    private ThreadWatchNotifications threadWatchNotifications;
+
     @Inject
-    public WatchManager(DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory) {
-        alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
-        powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
+    public WatchManager(Context applicationContext,
+                        DatabaseManager databaseManager, ChanLoaderFactory chanLoaderFactory,
+                        ThreadWatchNotifications threadWatchNotifications) {
+        alarmManager = (AlarmManager) applicationContext.getSystemService(Context.ALARM_SERVICE);
+        powerManager = (PowerManager) applicationContext.getSystemService(Context.POWER_SERVICE);
 
         this.databaseManager = databaseManager;
         this.chanLoaderFactory = chanLoaderFactory;
+        this.threadWatchNotifications = threadWatchNotifications;
 
         databasePinManager = databaseManager.getDatabasePinManager();
         pins = databaseManager.runTask(databasePinManager.getPins());
@@ -543,10 +554,18 @@ public class WatchManager {
 
         // Update notification state
         if (watchEnabled && backgroundEnabled) {
-            // Also calls onStartCommand, which updates the notification with new info
-            getAppContext().startService(new Intent(getAppContext(), WatchNotifier.class));
+            // Show/update notification
+            List<PinWatcher> pinWatchers = new ArrayList<>();
+            for (Pin watchingPin : getWatchingPins()) {
+                PinWatcher pinWatcher = getPinWatcher(watchingPin);
+                if (pinWatcher != null && !watchingPin.isError) {
+                    pinWatchers.add(pinWatcher);
+                }
+            }
+
+            threadWatchNotifications.showForWatchers(pinWatchers);
         } else {
-            getAppContext().stopService(new Intent(getAppContext(), WatchNotifier.class));
+            threadWatchNotifications.hide();
         }
     }
 
@@ -668,8 +687,11 @@ public class WatchManager {
         }
     }
 
-    public class PinWatcher implements ChanThreadLoader.ChanLoaderCallback {
+    public class PinWatcher implements ChanThreadLoader.ChanLoaderCallback, ImageLoader.ImageListener {
         private static final String TAG = "PinWatcher";
+
+        // Width and height of the bitmap for the notification image.
+        private static final int THUMBNAIL_SIZE = 128;
 
         private final Pin pin;
         private ChanThreadLoader chanLoader;
@@ -679,12 +701,38 @@ public class WatchManager {
         private boolean wereNewQuotes = false;
         private boolean wereNewPosts = false;
 
+        private boolean requireNotificationUpdate = true;
+
+        private Bitmap thumbnailBitmap = null;
+        private ImageLoader.ImageContainer thumbnailContainer;
+
         public PinWatcher(Pin pin) {
             this.pin = pin;
             inject(this);
 
             Logger.d(TAG, "PinWatcher: created for " + pin);
             chanLoader = chanLoaderFactory.obtain(pin.loadable, this);
+        }
+
+        public int getPinId() {
+            return pin.id;
+        }
+
+        public String getTitle() {
+            return pin.loadable.title;
+        }
+
+        public boolean requiresNotificationUpdate() {
+            return requireNotificationUpdate;
+        }
+
+        public void hadNotificationUpdate() {
+            requireNotificationUpdate = false;
+        }
+
+        @Nullable
+        public Bitmap getThumbnailBitmap() {
+            return thumbnailBitmap;
         }
 
         public List<Post> getUnviewedPosts() {
@@ -728,10 +776,13 @@ public class WatchManager {
         private void onViewed() {
             wereNewPosts = false;
             wereNewQuotes = false;
+            requireNotificationUpdate = true;
         }
 
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
+                loadThumbnailBitmapIfNeeded();
+
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
                     chanLoader.clearTimer();
@@ -774,20 +825,20 @@ public class WatchManager {
             quotes.clear();
 
             // Get list of saved replies from this thread
-            List<Post> savedReplies = new ArrayList<>();
+            Set<Integer> savedReplies = new HashSet<>();
             for (Post item : thread.posts) {
-                // saved.title = pin.loadable.title;
-
                 if (item.isSavedReply) {
-                    savedReplies.add(item);
+                    savedReplies.add(item.no);
                 }
             }
 
             // Now get a list of posts that have a quote to a saved reply
+            out:
             for (Post post : thread.posts) {
-                for (Post saved : savedReplies) {
-                    if (post.repliesTo.contains(saved.no)) {
+                for (Integer no : post.repliesTo) {
+                    if (savedReplies.contains(no)) {
                         quotes.add(post);
+                        continue out;
                     }
                 }
             }
@@ -801,6 +852,7 @@ public class WatchManager {
             if (isFirstLoad) {
                 pin.watchLastCount = posts.size();
                 pin.quoteLastCount = quotes.size();
+                requireNotificationUpdate = true;
             }
 
             pin.watchNewCount = posts.size();
@@ -810,11 +862,13 @@ public class WatchManager {
                 // There were new posts after processing
                 if (pin.watchNewCount > lastWatchNewCount) {
                     wereNewPosts = true;
+                    requireNotificationUpdate = true;
                 }
 
                 // There were new quotes after processing
                 if (pin.quoteNewCount > lastQuoteNewCount) {
                     wereNewQuotes = true;
+                    requireNotificationUpdate = true;
                 }
             }
 
@@ -828,9 +882,33 @@ public class WatchManager {
             if (thread.archived || thread.closed) {
                 pin.archived = true;
                 pin.watching = false;
+                requireNotificationUpdate = true;
             }
 
             pinWatcherUpdated(this);
+
+            loadThumbnailBitmapIfNeeded();
+        }
+
+        private void loadThumbnailBitmapIfNeeded() {
+            if (TextUtils.isEmpty(pin.thumbnailUrl) || thumbnailContainer != null) {
+                return;
+            }
+
+            thumbnailContainer = injector().instance(ImageLoader.class)
+                    .get(pin.thumbnailUrl, this,
+                            THUMBNAIL_SIZE, THUMBNAIL_SIZE);
+        }
+
+        @Override
+        public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+            if (response.getBitmap() != null) {
+                thumbnailBitmap = response.getBitmap();
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
         }
     }
 }
