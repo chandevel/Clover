@@ -26,6 +26,7 @@ import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostHttpIcon;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.orm.Board;
@@ -51,10 +52,8 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -706,11 +705,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             text.append("\n");
         }
 
-        // TODO(multi-site) get this from the timestamp
-        Date date = new Date () ;
-        date.setTime((long)post.time*1000);
-        text.append(new StringBuilder("Date: " + date.toString()));
-//        text += "Date: " + post.date;
+        text.append("Posted: ").append(PostHelper.getLocalDate(post));
 
         if (!TextUtils.isEmpty(post.id)) {
             text.append("\nId: ").append(post.id);
@@ -720,9 +715,18 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             text.append("\nTripcode: ").append(post.tripcode);
         }
 
-        /*if (!TextUtils.isEmpty(post.countryName)) {
-            text += "\nCountry: " + post.country + ", " + post.countryName;
-        }*/
+        if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
+            for(PostHttpIcon icon : post.httpIcons) {
+                if(icon.url.toString().contains("troll")) {
+                    text.append("\nTroll Country: ").append(icon.name);
+                } else if (icon.url.toString().contains("country")) {
+                    text.append("\nCountry: ").append(icon.name);
+                } else {
+                    //only other icon type created is since4pass
+                    text.append("\n4chan Pass Year: ").append(icon.name);
+                }
+            }
+        }
 
         if (!TextUtils.isEmpty(post.capcode)) {
             text.append("\nCapcode: ").append(post.capcode);
