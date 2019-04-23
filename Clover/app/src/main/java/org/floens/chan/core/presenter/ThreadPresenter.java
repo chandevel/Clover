@@ -27,6 +27,7 @@ import org.floens.chan.core.manager.PageRequestManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostHttpIcon;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.orm.Board;
@@ -492,9 +493,16 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
         }
 
+        if(ChanSettings.accessibleInfo.get()){
+            //Accessible info enabled
+            menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        } else {
+            extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+        }
+
         menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
 
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+
         extraMenu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
@@ -740,8 +748,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             text.append("\n");
         }
 
-        // TODO(multi-site) get this from the timestamp
-//        text += "Date: " + post.date;
+        text.append("Posted: ").append(PostHelper.getLocalDate(post));
 
         if (!TextUtils.isEmpty(post.id)) {
             text.append("\nId: ").append(post.id);
@@ -751,9 +758,18 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             text.append("\nTripcode: ").append(post.tripcode);
         }
 
-        /*if (!TextUtils.isEmpty(post.countryName)) {
-            text += "\nCountry: " + post.country + ", " + post.countryName;
-        }*/
+        if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
+            for(PostHttpIcon icon : post.httpIcons) {
+                if(icon.url.toString().contains("troll")) {
+                    text.append("\nTroll Country: ").append(icon.name);
+                } else if (icon.url.toString().contains("country")) {
+                    text.append("\nCountry: ").append(icon.name);
+                } else {
+                    //only other icon type created is since4pass
+                    text.append("\n4chan Pass Year: ").append(icon.name);
+                }
+            }
+        }
 
         if (!TextUtils.isEmpty(post.capcode)) {
             text.append("\nCapcode: ").append(post.capcode);

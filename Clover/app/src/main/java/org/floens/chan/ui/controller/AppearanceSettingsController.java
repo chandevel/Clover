@@ -85,6 +85,11 @@ public class AppearanceSettingsController extends SettingsController {
                     ChanSettings.enableYouCount,
                     R.string.setting_enable_you_count, 0));
 
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.accessibleInfo,
+                    "Enable accessible post info",
+                    "Enabling places info in the first post option menu")));
+
             groups.add(layout);
         }
 
