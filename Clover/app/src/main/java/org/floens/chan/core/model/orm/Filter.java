@@ -50,7 +50,7 @@ public class Filter implements Cloneable {
     @DatabaseField(canBeNull = false)
     public int color;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = "apply_to_replies", canBeNull = false)
     public boolean applyToReplies;
 
     public boolean hasFilter(FilterType filterType) {

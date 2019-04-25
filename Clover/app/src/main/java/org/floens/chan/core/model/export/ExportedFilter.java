@@ -45,11 +45,9 @@ public class ExportedFilter {
     public ExportedFilter(
             boolean enabled,
             int type,
-            @NonNull
-                    String pattern,
+            @NonNull String pattern,
             boolean allBoards,
-            @NonNull
-                    String boards,
+            @NonNull String boards,
             int action,
             int color,
             boolean applyToReplies
