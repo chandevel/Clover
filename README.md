@@ -1,4 +1,4 @@
-# I'm not updating this branch unless features get added. You can find debug releases in the release tab.
+# This branch will only contain additional bugfixes as of 4/25/2019. No new features will be added.
 
 # Clover - imageboard browser for Android  
 
