@@ -42,7 +42,17 @@ public class PostHide {
     @DatabaseField(columnName = "whole_thread")
     public boolean wholeThread;
 
-    private PostHide() {
+    /**
+     * Indicates whether we should just hide (grey out) or completely remove this post
+     */
+    @DatabaseField(columnName = "hide")
+    public boolean hide;
+
+    @DatabaseField(columnName = "hide_replies_to_this_post")
+    public boolean hideRepliesToThisPost;
+
+    @Deprecated
+    public PostHide() {
     }
 
     public PostHide(int siteId, String boardCode, int no) {
@@ -51,13 +61,15 @@ public class PostHide {
         this.no = no;
     }
 
-    public static PostHide fromPost(Post post, Boolean wholeThread) {
-        PostHide hide = new PostHide();
-        hide.board = post.board.code;
-        hide.no = post.no;
-        hide.site = post.board.siteId;
-        hide.wholeThread = wholeThread;
-        return hide;
+    public static PostHide fromPost(Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost) {
+        PostHide postHide = new PostHide();
+        postHide.board = post.board.code;
+        postHide.no = post.no;
+        postHide.site = post.board.siteId;
+        postHide.wholeThread = wholeThread;
+        postHide.hide = hide;
+        postHide.hideRepliesToThisPost = hideRepliesToThisPost;
+        return postHide;
     }
 
     @Override

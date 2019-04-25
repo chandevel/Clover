@@ -20,6 +20,7 @@ package org.floens.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.manager.FilterType;
 
 @DatabaseTable(tableName = "filter")
@@ -49,6 +50,9 @@ public class Filter implements Cloneable {
     @DatabaseField(canBeNull = false)
     public int color;
 
+    @DatabaseField(canBeNull = false)
+    public boolean applyToReplies;
+
     public boolean hasFilter(FilterType filterType) {
         return (type & filterType.flag) != 0;
     }
@@ -66,7 +70,7 @@ public class Filter implements Cloneable {
 
     }
 
-    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color) {
+    public Filter(boolean enabled, int type, String pattern, boolean allBoards, String boards, int action, int color, boolean applyToReplies) {
         this.enabled = enabled;
         this.type = type;
         this.pattern = pattern;
@@ -74,6 +78,7 @@ public class Filter implements Cloneable {
         this.boards = boards;
         this.action = action;
         this.color = color;
+        this.applyToReplies = applyToReplies;
     }
 
     public void apply(Filter filter) {
@@ -84,6 +89,7 @@ public class Filter implements Cloneable {
         boards = filter.boards;
         action = filter.action;
         color = filter.color;
+        applyToReplies = filter.applyToReplies;
     }
 
     public Filter clone() {
@@ -94,7 +100,8 @@ public class Filter implements Cloneable {
                 allBoards,
                 boards,
                 action,
-                color
+                color,
+                applyToReplies
         );
     }
 }

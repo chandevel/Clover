@@ -39,17 +39,20 @@ public class ExportedFilter {
     private int action;
     @SerializedName("color")
     private int color;
+    @SerializedName("apply_to_replies")
+    private boolean applyToReplies;
 
     public ExportedFilter(
             boolean enabled,
             int type,
             @NonNull
-            String pattern,
+                    String pattern,
             boolean allBoards,
             @NonNull
-            String boards,
+                    String boards,
             int action,
-            int color
+            int color,
+            boolean applyToReplies
     ) {
         this.enabled = enabled;
         this.type = type;
@@ -58,6 +61,7 @@ public class ExportedFilter {
         this.boards = boards;
         this.action = action;
         this.color = color;
+        this.applyToReplies = applyToReplies;
     }
 
     public boolean isEnabled() {
@@ -88,5 +92,9 @@ public class ExportedFilter {
 
     public int getColor() {
         return color;
+    }
+
+    public boolean getApplyToReplies() {
+        return applyToReplies;
     }
 }

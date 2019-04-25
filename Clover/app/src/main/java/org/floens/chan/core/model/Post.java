@@ -60,6 +60,8 @@ public class Post implements Comparable<Post> {
 
     public final String id;
 
+    public final int opId;
+
     public final String capcode;
 
     public final List<PostHttpIcon> httpIcons;
@@ -73,6 +75,8 @@ public class Post implements Comparable<Post> {
     public final boolean filterRemove;
 
     public final boolean filterWatch;
+
+    public final boolean filterReplies;
 
     /**
      * This post replies to the these ids.
@@ -151,12 +155,14 @@ public class Post implements Comparable<Post> {
         }
 
         id = builder.posterId;
+        opId = builder.opId;
         capcode = builder.moderatorCapcode;
 
         filterHighlightedColor = builder.filterHighlightedColor;
         filterStub = builder.filterStub;
         filterRemove = builder.filterRemove;
         filterWatch = builder.filterWatch;
+        filterReplies = builder.filterReplies;
 
         isSavedReply = builder.isSavedReply;
 
@@ -257,6 +263,34 @@ public class Post implements Comparable<Post> {
         return images.isEmpty() ? null : images.get(0);
     }
 
+    @MainThread
+    public boolean hasFilterParameters() {
+        return filterRemove || filterHighlightedColor != 0 || filterReplies || filterStub;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * no;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        return this.no == ((Post) other).no;
+    }
+
+    @Override
+    public String toString() {
+        return "[no = " + no + ", comment = " + comment + "]";
+    }
+
     public static final class Builder {
         public Board board;
         public int id = -1;
@@ -288,6 +322,7 @@ public class Post implements Comparable<Post> {
         public boolean filterStub;
         public boolean filterRemove;
         public boolean filterWatch;
+        public boolean filterReplies;
 
         public boolean isSavedReply;
 
@@ -409,11 +444,17 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
-        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch) {
+        public Builder setHttpIcons(List<PostHttpIcon> httpIcons) {
+            this.httpIcons = httpIcons;
+            return this;
+        }
+
+        public Builder filter(int highlightedColor, boolean stub, boolean remove, boolean watch, boolean filterReplies) {
             filterHighlightedColor = highlightedColor;
             filterStub = stub;
             filterRemove = remove;
             filterWatch = watch;
+            this.filterReplies = filterReplies;
             return this;
         }
 
@@ -433,8 +474,18 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
+        public Builder linkables(List<PostLinkable> linkables) {
+            this.linkables = linkables;
+            return this;
+        }
+
         public Builder addReplyTo(int postId) {
             repliesToIds.add(postId);
+            return this;
+        }
+
+        public Builder repliesTo(Set<Integer> repliesToIds) {
+            this.repliesToIds = repliesToIds;
             return this;
         }
 

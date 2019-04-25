@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
@@ -75,6 +76,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private TextView actionText;
     private LinearLayout colorContainer;
     private View colorPreview;
+    private AppCompatCheckBox applyToReplies;
 
     @Inject
     BoardManager boardManager;
@@ -145,6 +147,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
         colorContainer = findViewById(R.id.color_container);
         colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
+        applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
 
         typeText.setOnClickListener(this);
         typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(dp(12), dp(12), true,
@@ -178,6 +181,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     public Filter getFilter() {
         filter.enabled = enabled.isChecked();
+        filter.applyToReplies = applyToReplies.isChecked();
 
         return filter;
     }
@@ -355,6 +359,10 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updateCheckboxes() {
         enabled.setChecked(filter.enabled);
+        applyToReplies.setChecked(filter.applyToReplies);
+        if(filter.action == FilterEngine.FilterAction.WATCH.id) {
+            applyToReplies.setEnabled(false);
+        }
     }
 
     private void updateFilterAction() {
@@ -365,6 +373,15 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             filter.color = 0xffff0000;
         }
         colorPreview.setBackgroundColor(filter.color);
+        if(filter.action != FilterEngine.FilterAction.WATCH.id) {
+            applyToReplies.setEnabled(true);
+        } else {
+            applyToReplies.setEnabled(false);
+            if(applyToReplies.isChecked()) {
+                applyToReplies.toggle();
+                filter.applyToReplies = false;
+            }
+        }
     }
 
     private void updateFilterType() {

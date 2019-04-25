@@ -47,7 +47,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 27;
+    private static final int DATABASE_VERSION = 28;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -100,7 +100,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     /**
      * When modifying the database columns do no forget to change the {@link org.floens.chan.core.model.export.ExportedAppSettings} as well
      * and add your handler in {@link org.floens.chan.core.repository.ImportExportRepository} onUpgrade method
-     * */
+     */
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         Logger.i(TAG, "Upgrading database from " + oldVersion + " to " + newVersion);
@@ -281,6 +281,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 postHideDao.executeRawNoArgs("CREATE INDEX posthide_no_idx ON posthide(no);");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 27", e);
+            }
+        }
+
+        if (oldVersion < 28) {
+            try {
+                postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN hide INTEGER default 0");
+                postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN hide_replies_to_this_post INTEGER default 0");
+                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN apply_to_replies INTEGER default 0");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 28", e);
             }
         }
     }

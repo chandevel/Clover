@@ -297,15 +297,19 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copy text</string>
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
-    <string name="post_hide_whole_chain" tools:ignore="MissingTranslation">Hide whole chain</string>
+    <string name="post_remove" tools:ignore="MissingTranslation">Remove</string>
     <plurals name="post_hidden">
         <item quantity="one">%1$d post hidden</item>
         <item quantity="other">%1$d posts hidden</item>
     </plurals>
+    <plurals name="post_removed">
+        <item quantity="one">%1$d post removed</item>
+        <item quantity="other">%1$d posts removed</item>
+    </plurals>
     <string name="thread_hidden" tools:ignore="MissingTranslation">Thread hidden</string>
+    <string name="thread_removed" tools:ignore="MissingTranslation">Thread removed</string>
     <string name="post_delete">Delete</string>
     <string name="post_more">More…</string>
-    <string name="cant_hide_op_post_from_thread_message" tools:ignore="MissingTranslation">You can\'t hide an OP post from a thread. You can do it from the catalog</string>
 
     <string name="reply_name">Name</string>
     <string name="reply_options">Options</string>
@@ -644,4 +648,12 @@ Don't have a 4chan Pass?<br>
     <string name="clover_directory_may_not_exist_title" tools:ignore="MissingTranslation">Clover directory may not exist</string>
     <string name="default_clover_directory_created" tools:ignore="MissingTranslation">Default clover directory has been created</string>
     <string name="default_clover_directory_already_exists" tools:ignore="MissingTranslation">Default Clover directory already exists</string>
+
+    <string name="apply_to_replies" tools:ignore="MissingTranslation">Apply to replies</string>
+    <string name="thread_layout_hide_whole_chain" tools:ignore="MissingTranslation">Hide whole chain</string>
+    <string name="thread_layout_remove_whole_chain" tools:ignore="MissingTranslation">Remove whole chain</string>
+    <string name="thread_layout_hide_post" tools:ignore="MissingTranslation">Hide post</string>
+    <string name="thread_layout_remove_post" tools:ignore="MissingTranslation">Remove post</string>
+    <string name="thread_layout_hide_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to hide the whole reply chain as well?</string>
+    <string name="thread_layout_remove_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to remove whole reply chain as well?</string>
 </resources>

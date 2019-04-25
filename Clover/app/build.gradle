@@ -158,4 +158,5 @@ dependencies {
     implementation 'org.codejargon.feather:feather:1.0'
 
     releaseImplementation 'ch.acra:acra-http:5.1.3'
+    testImplementation 'junit:junit:4.12'
 }

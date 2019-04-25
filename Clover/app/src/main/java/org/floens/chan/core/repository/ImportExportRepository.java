@@ -280,7 +280,8 @@ public class ImportExportRepository {
                     exportedFilter.isAllBoards(),
                     exportedFilter.getBoards(),
                     exportedFilter.getAction(),
-                    exportedFilter.getColor()
+                    exportedFilter.getColor(),
+                    exportedFilter.getApplyToReplies()
             ));
         }
 
@@ -430,7 +431,8 @@ public class ImportExportRepository {
                     filter.allBoards,
                     filter.boards,
                     filter.action,
-                    filter.color
+                    filter.color,
+                    filter.applyToReplies
             ));
         }
 
