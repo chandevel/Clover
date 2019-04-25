@@ -23,6 +23,7 @@ import org.codejargon.feather.Provides;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.manager.FilterEngine;
+import org.floens.chan.core.manager.FilterWatchManager;
 import org.floens.chan.core.manager.PageRequestManager;
 import org.floens.chan.core.manager.ReplyManager;
 import org.floens.chan.core.manager.WakeManager;
@@ -72,5 +73,30 @@ public class ManagerModule {
             PageRequestManager pageRequestManager
     ) {
         return new WatchManager(databaseManager, chanLoaderFactory, wakeManager, pageRequestManager);
+    }
+
+    @Provides
+    @Singleton
+    public WakeManager provideWakeManager() {
+        return new WakeManager();
+    }
+
+    @Provides
+    @Singleton
+    public FilterWatchManager provideFilterWatchManager(
+            WakeManager wakeManager,
+            FilterEngine filterEngine,
+            WatchManager watchManager,
+            ChanLoaderFactory chanLoaderFactory,
+            BoardRepository boardRepository,
+            DatabaseManager databaseManager
+    ) {
+        return new FilterWatchManager(wakeManager, filterEngine, watchManager, chanLoaderFactory, boardRepository, databaseManager);
+    }
+
+    @Provides
+    @Singleton
+    public PageRequestManager providePageRequestManager() {
+        return new PageRequestManager();
     }
 }

@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
@@ -40,7 +39,6 @@ import static org.floens.chan.utils.AndroidUtils.getAppContext;
 /**
  * Deals with background alarms specifically. No foreground stuff here.
  */
-@Singleton
 public class WakeManager {
     private static final String TAG = "WakeManager";
 

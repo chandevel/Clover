@@ -41,11 +41,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import de.greenrobot.event.EventBus;
 
-@Singleton
 public class FilterWatchManager implements WakeManager.Wakeable {
     private static final String TAG = "FilterWatchManager";
 
@@ -67,7 +65,12 @@ public class FilterWatchManager implements WakeManager.Wakeable {
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
 
     @Inject
-    public FilterWatchManager(WakeManager wakeManager, FilterEngine filterEngine, WatchManager watchManager, ChanLoaderFactory chanLoaderFactory, BoardRepository boardRepository, DatabaseManager databaseManager) {
+    public FilterWatchManager(WakeManager wakeManager,
+                              FilterEngine filterEngine,
+                              WatchManager watchManager,
+                              ChanLoaderFactory chanLoaderFactory,
+                              BoardRepository boardRepository,
+                              DatabaseManager databaseManager) {
         this.wakeManager = wakeManager;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;

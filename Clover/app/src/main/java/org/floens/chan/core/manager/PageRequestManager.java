@@ -38,9 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-@Singleton
 public class PageRequestManager implements SiteActions.PagesListener {
     private static final String TAG = "PageRequestManager";
     private static final int THREE_MINUTES = 3 * 60 * 1000;
