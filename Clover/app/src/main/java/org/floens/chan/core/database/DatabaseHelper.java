@@ -58,8 +58,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public Dao<Filter, Integer> filterDao;
     public Dao<SiteModel, Integer> siteDao;
 
-    public static final String POST_HIDE_TABLE_NAME = "posthide";
-
     private final Context context;
 
     @Inject
@@ -268,8 +266,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
         if (oldVersion < 26) {
             try {
-                postHideDao.executeRawNoArgs("ALTER TABLE threadhide RENAME TO " + POST_HIDE_TABLE_NAME + ";");
-                postHideDao.executeRawNoArgs("ALTER TABLE " + POST_HIDE_TABLE_NAME + " ADD COLUMN whole_thread INTEGER default 0");
+                postHideDao.executeRawNoArgs("ALTER TABLE threadhide RENAME TO posthide;");
+                postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN whole_thread INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 26", e);
             }
@@ -278,9 +276,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         if (oldVersion < 27) {
             try {
                 // Create indexes for PostHides to speed up posts filtering
-                postHideDao.executeRawNoArgs("CREATE INDEX posthide_site_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.SITE_COLUMN_NAME + ");");
-                postHideDao.executeRawNoArgs("CREATE INDEX posthide_board_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.BOARD_COLUMN_NAME + ");");
-                postHideDao.executeRawNoArgs("CREATE INDEX posthide_no_idx ON " + DatabaseHelper.POST_HIDE_TABLE_NAME + "(" + PostHide.NO_COLUMN_NAME + ");");
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_site_idx ON posthide(site);");
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_board_idx ON posthide(board);");
+                postHideDao.executeRawNoArgs("CREATE INDEX posthide_no_idx ON posthide(no);");
             } catch (SQLException e) {
                 Logger.e(TAG, "Error upgrading to version 27", e);
             }

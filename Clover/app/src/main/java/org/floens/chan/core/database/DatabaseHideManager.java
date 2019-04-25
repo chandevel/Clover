@@ -29,7 +29,7 @@ public class DatabaseHideManager {
 
     public Callable<Void> load() {
         return () -> {
-            databaseManager.trimTable(helper.postHideDao, DatabaseHelper.POST_HIDE_TABLE_NAME,
+            databaseManager.trimTable(helper.postHideDao, "posthide",
                     POST_HIDE_TRIM_TRIGGER, POST_HIDE_TRIM_COUNT);
 
             return null;
@@ -52,11 +52,11 @@ public class DatabaseHideManager {
             try {
                 // find hidden posts
                 List<PostHide> hiddenPosts = helper.postHideDao.queryBuilder().where()
-                        .in(PostHide.NO_COLUMN_NAME, postNoList)
+                        .in("no", postNoList)
                         .and()
-                        .eq(PostHide.SITE_COLUMN_NAME, siteId)
+                        .eq("site", siteId)
                         .and()
-                        .eq(PostHide.BOARD_COLUMN_NAME, board)
+                        .eq("board", board)
                         .query();
 
                 List<Post> resultList = new ArrayList<>();
@@ -145,11 +145,11 @@ public class DatabaseHideManager {
 
     private boolean contains(PostHide hide) throws SQLException {
         PostHide inDb = helper.postHideDao.queryBuilder().where()
-                .eq(PostHide.NO_COLUMN_NAME, hide.no)
+                .eq("no", hide.no)
                 .and()
-                .eq(PostHide.SITE_COLUMN_NAME, hide.site)
+                .eq("site", hide.site)
                 .and()
-                .eq(PostHide.BOARD_COLUMN_NAME, hide.board)
+                .eq("board", hide.board)
                 .queryForFirst();
 
         //if this thread is already hidden - do nothing
