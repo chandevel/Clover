@@ -76,18 +76,18 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
             if (view == null) {
                 Logger.w(TAG, "finishUpdate setMode view still not found");
             } else {
-                view.setMode(change.mode);
+                view.setMode(change.mode, change.center);
             }
         }
         pendingModeChanges.clear();
     }
 
-    public void setMode(final PostImage postImage, MultiImageView.Mode mode) {
+    public void setMode(final PostImage postImage, MultiImageView.Mode mode, boolean center) {
         MultiImageView view = find(postImage);
         if (view == null) {
-            pendingModeChanges.add(new ModeChange(mode, postImage));
+            pendingModeChanges.add(new ModeChange(mode, postImage, center));
         } else {
-            view.setMode(mode);
+            view.setMode(mode, center);
         }
     }
 
@@ -119,10 +119,12 @@ public class ImageViewerAdapter extends ViewPagerAdapter {
     private static class ModeChange {
         public MultiImageView.Mode mode;
         public PostImage postImage;
+        public boolean center;
 
-        private ModeChange(MultiImageView.Mode mode, PostImage postImage) {
+        private ModeChange(MultiImageView.Mode mode, PostImage postImage, boolean center) {
             this.mode = mode;
             this.postImage = postImage;
+            this.center = center;
         }
     }
 }
