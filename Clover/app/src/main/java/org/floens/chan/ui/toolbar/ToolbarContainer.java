@@ -139,9 +139,7 @@ public class ToolbarContainer extends FrameLayout {
             }
         }
 
-        if (animation == ToolbarPresenter.AnimationStyle.NONE) {
-            setArrowProgress(1f, !currentView.item.hasArrow());
-        }
+        setArrowProgress(1f, !currentView.item.hasArrow());
 
         itemView.attach();
     }
