@@ -13,6 +13,7 @@ import org.floens.chan.utils.PostUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -86,7 +87,7 @@ public class DatabaseHideManager {
                     if (hiddenPost.hide) {
                         // hide post
 
-                        Post newPost = rebuildPostWithInheritedFilter(
+                        Post newPost = rebuildPostWithCustomFilter(
                                 post,
                                 0,
                                 true,
@@ -244,7 +245,7 @@ public class DatabaseHideManager {
 
             // do not overwrite filter parameters from another filter
             if (!childPost.hasFilterParameters()) {
-                Post newPost = rebuildPostWithInheritedFilter(
+                Post newPost = rebuildPostWithCustomFilter(
                         childPost,
                         parentPost.filterHighlightedColor,
                         parentPost.filterStub,
@@ -264,7 +265,7 @@ public class DatabaseHideManager {
     /**
      * Rebuilds a child post with custom filter parameters
      * */
-    private Post rebuildPostWithInheritedFilter(
+    private Post rebuildPostWithCustomFilter(
             Post childPost,
             int filterHighlightedColor,
             boolean filterStub,
@@ -350,11 +351,7 @@ public class DatabaseHideManager {
     }
 
     public Callable<Void> removeThreadHide(PostHide hide) {
-        return () -> {
-            helper.postHideDao.delete(hide);
-
-            return null;
-        };
+        return removePostsHide(Collections.singletonList(hide));
     }
 
     public Callable<Void> removePostsHide(List<PostHide> hideList) {

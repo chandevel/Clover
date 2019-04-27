@@ -50,7 +50,7 @@ public class Filter {
     @DatabaseField(canBeNull = false)
     public int color;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = APPLY_TO_REPLIES_COLUMN, canBeNull = false)
     public boolean applyToReplies;
 
     public static final String APPLY_TO_REPLIES_COLUMN = "apply_to_replies";
