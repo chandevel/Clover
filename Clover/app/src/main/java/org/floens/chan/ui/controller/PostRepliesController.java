@@ -17,24 +17,17 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.animation.LinearInterpolator;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ThreadPresenter;
@@ -48,13 +41,10 @@ import java.util.List;
 
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 
-public class PostRepliesController extends Controller {
-    private static final int TRANSITION_DURATION = 200;
-
+public class PostRepliesController extends BaseFloatingController {
     private PostPopupHelper postPopupHelper;
     private ThreadPresenter presenter;
 
-    private int statusBarColorPrevious;
     private boolean first = true;
 
     private LoadView loadView;
@@ -71,8 +61,6 @@ public class PostRepliesController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_post_replies_container);
-
         // Clicking outside the popup view
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,23 +70,11 @@ public class PostRepliesController extends Controller {
         });
 
         loadView = view.findViewById(R.id.loadview);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            statusBarColorPrevious = getWindow().getStatusBarColor();
-            if (statusBarColorPrevious != 0) {
-                animateStatusBar(true, statusBarColorPrevious);
-            }
-        }
     }
 
     @Override
-    public void stopPresenting() {
-        super.stopPresenting();
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (statusBarColorPrevious != 0) {
-                animateStatusBar(false, statusBarColorPrevious);
-            }
-        }
+    protected int getLayoutId() {
+        return R.layout.layout_post_replies_container;
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
@@ -236,31 +212,5 @@ public class PostRepliesController extends Controller {
     public boolean onBack() {
         postPopupHelper.pop();
         return true;
-    }
-
-    private void animateStatusBar(boolean in, final int originalColor) {
-        ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);
-        statusBar.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if (Build.VERSION.SDK_INT >= 21) { // Make lint happy
-                    float progress = (float) animation.getAnimatedValue();
-                    if (progress == 0f) {
-                        getWindow().setStatusBarColor(originalColor);
-                    } else {
-                        int r = (int) ((1f - progress) * Color.red(originalColor));
-                        int g = (int) ((1f - progress) * Color.green(originalColor));
-                        int b = (int) ((1f - progress) * Color.blue(originalColor));
-                        getWindow().setStatusBarColor(Color.argb(255, r, g, b));
-                    }
-                }
-            }
-        });
-        statusBar.setDuration(TRANSITION_DURATION).setInterpolator(new LinearInterpolator());
-        statusBar.start();
-    }
-
-    private Window getWindow() {
-        return ((Activity) context).getWindow();
     }
 }

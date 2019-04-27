@@ -265,6 +265,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // to avoid crashes when trying to downgrade the database
+        reset();
+    }
+
     public void reset() {
         Logger.i(TAG, "Resetting database!");
 
