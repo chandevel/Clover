@@ -283,6 +283,11 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         makeSubmitCall();
     }
 
+    @Override
+    public void onFallbackToV1CaptchaView() {
+        callback.onFallbackToV1CaptchaView();
+    }
+
     public void onCommentTextChanged(CharSequence text) {
         int length = text.toString().getBytes(UTF_8).length;
         callback.updateCommentCount(length, board.maxCommentChars, length > board.maxCommentChars);
@@ -396,8 +401,13 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         switchPage(Page.LOADING, true);
     }
 
-    private void switchPage(Page page, boolean animate) {
-        if (this.page != page) {
+    public void switchPage(Page page, boolean animate) {
+        // by default try to use the new nojs captcha view
+        switchPage(page, animate, true);
+    }
+
+    public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha) {
+        if (!useV2NoJsCaptcha || this.page != page) {
             this.page = page;
             switch (page) {
                 case LOADING:
@@ -470,8 +480,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void setPage(Page page, boolean animate);
 
-        void initializeAuthentication(Site site, SiteAuthentication authentication,
-                                      AuthenticationLayoutCallback callback);
+        void initializeAuthentication(Site site,
+                                      SiteAuthentication authentication,
+                                      AuthenticationLayoutCallback callback,
+                                      boolean useV2NoJsCaptcha);
 
         void resetAuthentication();
 
@@ -518,5 +530,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         ChanThread getThread();
 
         void focusComment();
+
+        void onFallbackToV1CaptchaView();
+
+        void destroyCurrentAuthentication();
     }
 }
