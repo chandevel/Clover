@@ -394,6 +394,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.openSpoiler(false, false);
         callback.openPreview(false, null);
         callback.openPreviewMessage(false, null);
+        callback.destroyCurrentAuthentication();
     }
 
     private void makeSubmitCall() {
@@ -419,7 +420,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 case AUTHENTICATION:
                     SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
 
-                    callback.initializeAuthentication(loadable.site, authentication, this);
+                    // cleanup resources tied to the new captcha layout/presenter
+                    callback.destroyCurrentAuthentication();
+                    callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha);
                     callback.setPage(Page.AUTHENTICATION, true);
 
                     break;
