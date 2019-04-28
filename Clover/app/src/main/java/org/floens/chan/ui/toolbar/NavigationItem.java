@@ -79,7 +79,7 @@ public class NavigationItem {
 
         public MenuBuilder(NavigationItem navigationItem) {
             this.navigationItem = navigationItem;
-            menu = new ToolbarMenu(null);
+            menu = new ToolbarMenu();
         }
 
         public MenuBuilder withItem(int drawable, ToolbarMenuItem.ClickCallback clicked) {

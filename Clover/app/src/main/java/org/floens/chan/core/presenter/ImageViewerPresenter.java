@@ -276,7 +276,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
-    public void onTap(MultiImageView multiImageView) {
+    public void onTap() {
         // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
@@ -336,7 +336,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     @Override
     public void onVideoError(MultiImageView multiImageView) {
-        callback.onVideoError(multiImageView);
+        callback.onVideoError();
     }
 
     @Override
@@ -410,7 +410,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
         void onLoadProgress(float progress);
 
-        void onVideoError(MultiImageView multiImageView);
+        void onVideoError();
 
         void showVolumeMenuItem(boolean show, boolean muted);
     }

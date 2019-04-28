@@ -126,7 +126,7 @@ public class PostRepliesController extends Controller {
         return displayingData.posts;
     }
 
-    public void scrollTo(int displayPosition, boolean smooth) {
+    public void scrollTo(int displayPosition) {
         listView.smoothScrollToPosition(displayPosition);
     }
 
@@ -178,8 +178,7 @@ public class PostRepliesController extends Controller {
 
                 final Post p = getItem(position);
                 boolean showDivider = position < getCount() - 1;
-                postCell.setPost(null,
-                        p,
+                postCell.setPost(p,
                         presenter,
                         false,
                         false,

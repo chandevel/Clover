@@ -167,10 +167,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return mode;
     }
 
-    public void setCallback(Callback callback) {
-        this.callback = callback;
-    }
-
     public CustomScaleImageView findScaleImageView() {
         CustomScaleImageView bigImage = null;
         for (int i = 0; i < getChildCount(); i++) {
@@ -205,7 +201,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     @Override
     public void onClick(View v) {
-        callback.onTap(this);
+        callback.onTap();
     }
 
     @Override
@@ -286,10 +282,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             }
 
             @Override
-            public void onCancel() {
-            }
-
-            @Override
             public void onEnd() {
                 bigImageRequest = null;
                 callback.showProgress(MultiImageView.this, false);
@@ -332,10 +324,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 } else {
                     onError();
                 }
-            }
-
-            @Override
-            public void onCancel() {
             }
 
             @Override
@@ -401,10 +389,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 } else {
                     onError();
                 }
-            }
-
-            @Override
-            public void onCancel() {
             }
 
             @Override
@@ -679,7 +663,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     public interface Callback {
-        void onTap(MultiImageView multiImageView);
+        void onTap();
 
         void showProgress(MultiImageView multiImageView, boolean progress);
 

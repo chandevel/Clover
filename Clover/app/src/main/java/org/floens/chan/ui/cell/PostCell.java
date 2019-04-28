@@ -111,7 +111,6 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     private boolean ignoreNextOnClick;
 
     private boolean bound = false;
-    private Theme theme;
     private Post post;
     private PostCellCallback callback;
     private boolean selectable;
@@ -254,12 +253,11 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         super.onAttachedToWindow();
 
         if (post != null && !bound) {
-            bindPost(theme, post);
+            bindPost(ThemeHelper.theme(), post);
         }
     }
 
-    public void setPost(Theme theme,
-                        final Post post,
+    public void setPost(final Post post,
                         PostCellInterface.PostCellCallback callback,
                         boolean selectable,
                         boolean highlighted,
@@ -277,16 +275,11 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             return;
         }
 
-        if (theme == null) {
-            theme = ThemeHelper.theme();
-        }
-
         if (this.post != null && bound) {
             unbindPost(this.post);
             this.post = null;
         }
 
-        this.theme = theme;
         this.post = post;
         this.callback = callback;
         this.selectable = selectable;
@@ -295,7 +288,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         this.markedNo = markedNo;
         this.showDivider = showDivider;
 
-        bindPost(theme, post);
+        bindPost(ThemeHelper.theme(), post);
     }
 
     public Post getPost() {
@@ -567,7 +560,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
                 v.setPostImage(image, size, size);
                 v.setClickable(true);
-                v.setOnClickListener(v2 -> callback.onThumbnailClicked(post, image, v));
+                v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 v.setRounding(dp(2));
 
                 relativeLayoutContainer.addView(v, p);

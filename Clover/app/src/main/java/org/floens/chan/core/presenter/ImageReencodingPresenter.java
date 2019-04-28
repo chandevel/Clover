@@ -76,7 +76,7 @@ public class ImageReencodingPresenter {
                 reply.file,
                 dp(DECODED_IMAGE_WIDTH),
                 dp(DECODED_IMAGE_HEGIHT),
-                (file, bitmap) -> {
+                (bitmap) -> {
                     if (bitmap == null) {
                         callback.showCouldNotDecodeBitmapError();
                         return;

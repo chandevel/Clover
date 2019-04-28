@@ -117,8 +117,6 @@ public class ImagePickDelegate implements Runnable {
                     fileName = DEFAULT_FILE_NAME;
                 }
 
-                callback.onFilePickLoading();
-
                 new Thread(this).start();
                 ok = true;
             } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -186,8 +184,6 @@ public class ImagePickDelegate implements Runnable {
     }
 
     public interface ImagePickCallback {
-        void onFilePickLoading();
-
         void onFilePicked(String fileName, File file);
 
         void onFilePickError(boolean cancelled);

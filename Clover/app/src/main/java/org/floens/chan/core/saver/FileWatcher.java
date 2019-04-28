@@ -19,7 +19,6 @@ package org.floens.chan.core.saver;
 
 import android.os.Environment;
 import android.os.FileObserver;
-import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,12 +32,11 @@ public class FileWatcher {
     private static final Comparator<FileItem> FILE_COMPARATOR = (a, b) -> a.file.getName().compareToIgnoreCase(b.file.getName());
 
     private final FileWatcherCallback callback;
-    boolean initialized = false;
     private File startingPath;
 
     private File currentPath;
 
-    private AFileObserver fileObserver;
+    private FileObserver fileObserver;
 
     public FileWatcher(FileWatcherCallback callback, File startingPath) {
         this.callback = callback;
@@ -46,8 +44,6 @@ public class FileWatcher {
     }
 
     public void initialize() {
-        initialized = true;
-
         if (!StorageHelper.canNavigate(startingPath)) {
             startingPath = Environment.getExternalStorageDirectory();
         }
@@ -104,21 +100,6 @@ public class FileWatcher {
         boolean canNavigateUp = StorageHelper.canNavigate(currentPath.getParentFile());
 
         callback.onFiles(new FileItems(currentPath, items, canNavigateUp));
-    }
-
-    private class AFileObserver extends FileObserver {
-        public AFileObserver(String path) {
-            super(path);
-        }
-
-        public AFileObserver(String path, int mask) {
-            super(path, mask);
-        }
-
-        @Override
-        public void onEvent(int event, String path) {
-            Log.d(TAG, "onEvent() called with: " + "event = [" + event + "], path = [" + path + "]");
-        }
     }
 
     public interface FileWatcherCallback {

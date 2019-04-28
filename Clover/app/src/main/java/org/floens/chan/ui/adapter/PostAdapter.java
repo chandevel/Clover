@@ -53,7 +53,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private String highlightedPostTripcode;
     private int selectedPost = -1;
     private int lastSeenIndicatorPosition = -1;
-    private boolean bound;
 
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
@@ -107,8 +106,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 Post post = displayList.get(getPostPosition(position));
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
                         post.tripcode.equals(highlightedPostTripcode);
-                postViewHolder.postView.setPost(null,
-                        post,
+                postViewHolder.postView.setPost(post,
                         postCellCallback,
                         true,
                         highlight,
@@ -179,8 +177,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (!BackgroundUtils.isMainThread()) {
             throw new RuntimeException("Must be called on the main thread!");
         }
-
-        bound = true;
         showError(null);
 
         displayList.clear();
@@ -214,7 +210,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         selectedPost = -1;
         lastSeenIndicatorPosition = -1;
         error = null;
-        bound = false;
     }
 
     public void showError(String error) {

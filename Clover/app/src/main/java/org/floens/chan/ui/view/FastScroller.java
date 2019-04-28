@@ -453,7 +453,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                     mDragState = DRAG_X;
                     mHorizontalDragX = (int) ev.getX();
                     mHorizontalDragThumbWidth = mHorizontalThumbWidth;
-                } else if (insideVerticalThumb) {
+                } else {
                     mDragState = DRAG_Y;
                     mVerticalDragY = (int) ev.getY();
                     mVerticalDragThumbHeight = mVerticalThumbHeight;
@@ -482,7 +482,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                     mDragState = DRAG_X;
                     mHorizontalDragX = (int) me.getX();
                     mHorizontalDragThumbWidth = mHorizontalThumbWidth;
-                } else if (insideVerticalThumb) {
+                } else {
                     mDragState = DRAG_Y;
                     mVerticalDragY = (int) me.getY();
                     mVerticalDragThumbHeight = mVerticalThumbHeight;

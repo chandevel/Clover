@@ -48,8 +48,6 @@ import static org.floens.chan.Chan.inject;
 public class ArchiveController extends Controller implements ArchivePresenter.Callback,
         ToolbarNavigationController.ToolbarSearchCallback,
         SwipeRefreshLayout.OnRefreshListener {
-    private static final int SEARCH_ID = 1;
-
     private CrossfadeView crossfadeView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View progress;

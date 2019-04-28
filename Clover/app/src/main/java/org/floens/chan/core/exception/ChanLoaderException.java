@@ -35,21 +35,6 @@ public class ChanLoaderException extends Exception {
         this.volleyError = volleyError;
     }
 
-    public ChanLoaderException() {
-    }
-
-    public ChanLoaderException(String message) {
-        super(message);
-    }
-
-    public ChanLoaderException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ChanLoaderException(Throwable cause) {
-        super(cause);
-    }
-
     public boolean isNotFound() {
         return volleyError instanceof ServerError && isServerErrorNotFound((ServerError) volleyError);
     }

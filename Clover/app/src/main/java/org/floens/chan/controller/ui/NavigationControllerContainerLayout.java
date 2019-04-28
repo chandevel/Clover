@@ -101,7 +101,6 @@ public class NavigationControllerContainerLayout extends FrameLayout {
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
         slopPixels = viewConfiguration.getScaledTouchSlop();
         minimalMovedPixels = dp(3);
-        int flingPixels = viewConfiguration.getScaledMinimumFlingVelocity();
         maxFlingPixels = viewConfiguration.getScaledMaximumFlingVelocity();
 
         scroller = new Scroller(getContext());

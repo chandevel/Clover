@@ -187,10 +187,6 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
         }
     }
 
-    public boolean isLoading() {
-        return request != null;
-    }
-
     public Loadable getLoadable() {
         return loadable;
     }

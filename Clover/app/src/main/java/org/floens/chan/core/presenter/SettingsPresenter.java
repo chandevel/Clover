@@ -36,10 +36,6 @@ public class SettingsPresenter {
         this.callback = callback;
     }
 
-    public void destroy() {
-
-    }
-
     public void show() {
         long siteCount = databaseManager.runTask(
                 databaseManager.getDatabaseSiteManager().getCount());

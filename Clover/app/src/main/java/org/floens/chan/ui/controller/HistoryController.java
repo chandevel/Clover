@@ -35,7 +35,6 @@ import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseHistoryManager;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabaseSavedReplyManager;
-import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.History;
 import org.floens.chan.core.settings.ChanSettings;
@@ -58,13 +57,8 @@ import static org.floens.chan.utils.AndroidUtils.dp;
 public class HistoryController extends Controller implements
         CompoundButton.OnCheckedChangeListener,
         ToolbarNavigationController.ToolbarSearchCallback {
-    private static final int SEARCH_ID = 1;
-
     @Inject
     DatabaseManager databaseManager;
-
-    @Inject
-    BoardManager boardManager;
 
     private DatabaseHistoryManager databaseHistoryManager;
     private DatabaseSavedReplyManager databaseSavedReplyManager;

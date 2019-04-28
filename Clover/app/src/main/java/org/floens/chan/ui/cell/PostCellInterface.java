@@ -22,15 +22,13 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
 public interface PostCellInterface {
-    void setPost(Theme theme,
-                 Post post,
+    void setPost(Post post,
                  PostCellCallback callback,
                  boolean selectable,
                  boolean highlighted,
@@ -49,7 +47,7 @@ public interface PostCellInterface {
 
         void onPostClicked(Post post);
 
-        void onThumbnailClicked(Post post, PostImage image, ThumbnailView thumbnail);
+        void onThumbnailClicked(PostImage image, ThumbnailView thumbnail);
 
         void onShowPostReplies(Post post);
 

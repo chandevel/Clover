@@ -53,20 +53,20 @@ public class StyleRule {
     private List<Action> actions = new ArrayList<>();
 
     private Color color = null;
-    private boolean strikeThrough = false;
-    private boolean bold = false;
-    private boolean italic = false;
-    private boolean monospace = false;
+    private boolean strikeThrough;
+    private boolean bold;
+    private boolean italic;
+    private boolean monospace;
     private int size = 0;
 
     private PostLinkable.Type link = null;
 
-    private boolean nullify = false;
-    private boolean linkify = false;
+    private boolean nullify;
+    private boolean linkify;
 
     private String justText = null;
 
-    private boolean blockElement = false;
+    private boolean blockElement;
 
     public StyleRule tag(String tag) {
         this.tag = tag;
@@ -93,73 +93,56 @@ public class StyleRule {
 
     public StyleRule action(Action action) {
         actions.add(action);
-
         return this;
     }
 
     public StyleRule color(Color color) {
         this.color = color;
-
         return this;
     }
 
     public StyleRule link(PostLinkable.Type link) {
         this.link = link;
-
         return this;
     }
 
     public StyleRule strikeThrough() {
         strikeThrough = true;
-
         return this;
     }
 
     public StyleRule bold() {
         bold = true;
-
         return this;
     }
 
     public StyleRule italic() {
         italic = true;
-
         return this;
     }
 
     public StyleRule monospace() {
         monospace = true;
-
         return this;
     }
 
     public StyleRule size(int size) {
         this.size = size;
-
         return this;
     }
 
     public StyleRule nullify() {
         nullify = true;
-
         return this;
     }
 
     public StyleRule linkify() {
         linkify = true;
-
         return this;
     }
 
     public StyleRule just(String justText) {
         this.justText = justText;
-
-        return this;
-    }
-
-    public StyleRule blockElement(boolean blockElement) {
-        this.blockElement = blockElement;
-
         return this;
     }
 

@@ -37,8 +37,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.inject.Inject;
-
 public class PageRequestManager implements SiteActions.PagesListener {
     private static final String TAG = "PageRequestManager";
     private static final int THREE_MINUTES = 3 * 60 * 1000;
@@ -50,10 +48,6 @@ public class PageRequestManager implements SiteActions.PagesListener {
     private ConcurrentMap<String, Long> boardTimeMap = new ConcurrentHashMap<>();
 
     private List<PageCallback> callbackList = new ArrayList<>();
-
-    @Inject
-    public PageRequestManager() {
-    }
 
     public Page getPage(Post op) {
         if (op == null) {

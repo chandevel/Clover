@@ -108,7 +108,7 @@ public class Chan4 extends SiteBase {
                     if (parts.size() < 3) {
                         // Board mode
                         return Loadable.forCatalog(board);
-                    } else if (parts.size() >= 3) {
+                    } else {
                         // Thread mode
                         int no = -1;
                         try {
@@ -227,7 +227,7 @@ public class Chan4 extends SiteBase {
         }
 
         @Override
-        public HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg) {
+        public HttpUrl icon(String icon, Map<String, String> arg) {
             HttpUrl.Builder b = s.newBuilder().addPathSegment("image");
 
             switch (icon) {

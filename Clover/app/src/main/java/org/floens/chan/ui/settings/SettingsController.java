@@ -124,7 +124,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
         }
     }
 
-    protected void setSettingViewVisibility(SettingView settingView, boolean visible, boolean animated) {
+    protected void setSettingViewVisibility(SettingView settingView, boolean visible) {
         settingView.view.setVisibility(visible ? View.VISIBLE : View.GONE);
 
         if (settingView.divider != null) {

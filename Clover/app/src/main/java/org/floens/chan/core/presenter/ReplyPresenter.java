@@ -393,11 +393,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     @Override
-    public void onFilePickLoading() {
-        callback.onFilePickLoading();
-    }
-
-    @Override
     public void onFilePicked(String name, File file) {
         pickingFile = false;
         draft.file = file;
@@ -552,8 +547,6 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         void openPreviewMessage(boolean show, String message);
 
         void openSpoiler(boolean show, boolean checked);
-
-        void onFilePickLoading();
 
         void onFilePickError();
 

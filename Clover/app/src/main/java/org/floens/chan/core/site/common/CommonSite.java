@@ -171,10 +171,6 @@ public abstract class CommonSite extends SiteBase {
         postParser = new DefaultPostParser(commentParser);
     }
 
-    public void setRequestModifier(CommonRequestModifier requestModifier) {
-        this.requestModifier = requestModifier;
-    }
-
     /*
      * Site implementation:
      */
@@ -348,7 +344,7 @@ public abstract class CommonSite extends SiteBase {
         }
 
         @Override
-        public HttpUrl icon(Post.Builder post, String icon, Map<String, String> arg) {
+        public HttpUrl icon(String icon, Map<String, String> arg) {
             return null;
         }
 

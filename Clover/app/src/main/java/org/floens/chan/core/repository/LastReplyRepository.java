@@ -23,18 +23,10 @@ import org.floens.chan.core.site.Site;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-@Singleton
 public class LastReplyRepository {
     private static final String TAG = "LastReplyRepository";
 
     private Map<SiteBoard, Long> lastReplyMap = new HashMap<>();
-
-    @Inject
-    public LastReplyRepository() {
-    }
 
     public void putLastReply(Site s, Board b) {
         lastReplyMap.put(new SiteBoard(s, b), System.currentTimeMillis());

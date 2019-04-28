@@ -24,6 +24,7 @@ import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.repository.ImportExportRepository;
+import org.floens.chan.core.repository.LastReplyRepository;
 import org.floens.chan.core.repository.SiteRepository;
 
 import javax.inject.Singleton;
@@ -57,4 +58,9 @@ public class RepositoryModule {
         return new BoardRepository(databaseManager, siteRepository);
     }
 
+    @Provides
+    @Singleton
+    public LastReplyRepository provideLastReplyRepository() {
+        return new LastReplyRepository();
+    }
 }

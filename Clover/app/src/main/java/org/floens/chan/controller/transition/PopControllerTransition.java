@@ -28,10 +28,6 @@ import android.view.animation.DecelerateInterpolator;
 import org.floens.chan.controller.ControllerTransition;
 
 public class PopControllerTransition extends ControllerTransition {
-    public PopControllerTransition() {
-        viewOver = false;
-    }
-
     @Override
     public void perform() {
         Animator toAlpha = ObjectAnimator.ofFloat(to.view, View.ALPHA, to.view.getAlpha(), 1f);

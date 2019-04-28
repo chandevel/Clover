@@ -57,11 +57,6 @@ public class CrossfadeView extends FrameLayout {
         }
     }
 
-    public void toggle(boolean animated) {
-        viewOneSelected = !viewOneSelected;
-        doToggle(animated);
-    }
-
     private void doToggle(boolean animated) {
         inited = true;
         if (animated) {

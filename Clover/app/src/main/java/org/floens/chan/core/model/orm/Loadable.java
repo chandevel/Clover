@@ -23,9 +23,7 @@ import android.text.TextUtils;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.floens.chan.core.model.BoardReference;
 import org.floens.chan.core.model.Post;
-import org.floens.chan.core.model.SiteReference;
 import org.floens.chan.core.site.Site;
 
 /**
@@ -38,7 +36,7 @@ import org.floens.chan.core.site.Site;
  * references the same loadable and that the loadable is properly saved in the database.
  */
 @DatabaseTable(tableName = "loadable")
-public class Loadable implements SiteReference, BoardReference, Cloneable {
+public class Loadable implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -142,12 +140,10 @@ public class Loadable implements SiteReference, BoardReference, Cloneable {
         return loadable;
     }
 
-    @Override
     public Site getSite() {
         return site;
     }
 
-    @Override
     public Board getBoard() {
         return board;
     }

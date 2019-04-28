@@ -90,7 +90,7 @@ public class AlbumViewController extends Controller implements
     }
 
     @Override
-    public ThumbnailView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage) {
+    public ThumbnailView getPreviewImageTransitionView(PostImage postImage) {
         ThumbnailView thumbnail = null;
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             View view = recyclerView.getChildAt(i);
@@ -103,14 +103,6 @@ public class AlbumViewController extends Controller implements
             }
         }
         return thumbnail;
-    }
-
-    @Override
-    public void onPreviewCreate(ImageViewerController imageViewerController) {
-    }
-
-    @Override
-    public void onPreviewDestroy(ImageViewerController imageViewerController) {
     }
 
     @Override

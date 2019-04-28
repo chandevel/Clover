@@ -144,7 +144,6 @@ public class ChanSettings {
     public static final BooleanSetting videoAutoLoop;
 
     public static final BooleanSetting watchEnabled;
-    public static final BooleanSetting watchCountdown;
     public static final BooleanSetting watchBackground;
     public static final BooleanSetting watchFilterWatch;
     public static final BooleanSetting watchLastPageNotify;
@@ -233,7 +232,6 @@ public class ChanSettings {
         watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
         watchEnabled.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchEnabled)));
-        watchCountdown = new BooleanSetting(p, "preference_watch_countdown", false);
         watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
         watchBackground.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(watchBackground)));

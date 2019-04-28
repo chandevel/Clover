@@ -17,8 +17,6 @@
  */
 package org.floens.chan.ui.toolbar;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +24,6 @@ public class ToolbarMenu {
     public static final int OVERFLOW_ID = 1000;
 
     public final List<ToolbarMenuItem> items = new ArrayList<>();
-
-    public ToolbarMenu(@Deprecated Context context) {
-    }
 
     public ToolbarMenuItem addItem(ToolbarMenuItem item) {
         items.add(item);

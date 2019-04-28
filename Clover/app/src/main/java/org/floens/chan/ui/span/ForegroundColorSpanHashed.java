@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.span;
 
-import android.os.Parcel;
 import android.text.style.ForegroundColorSpan;
 
 /**
@@ -26,10 +25,6 @@ import android.text.style.ForegroundColorSpan;
 public class ForegroundColorSpanHashed extends ForegroundColorSpan {
     public ForegroundColorSpanHashed(int color) {
         super(color);
-    }
-
-    public ForegroundColorSpanHashed(Parcel src) {
-        super(src);
     }
 
     @Override

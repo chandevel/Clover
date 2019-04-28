@@ -74,7 +74,6 @@ public class AndroidUtils {
 
     @SuppressLint("StaticFieldLeak")
     private static Application application;
-    private static ConnectivityManager connectivityManager;
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -85,9 +84,6 @@ public class AndroidUtils {
             ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
             ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
             ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
-
-            connectivityManager = (ConnectivityManager)
-                    application.getSystemService(Context.CONNECTIVITY_SERVICE);
         }
     }
 
@@ -105,14 +101,6 @@ public class AndroidUtils {
 
     public static SharedPreferences getPreferences() {
         return PreferenceManager.getDefaultSharedPreferences(application);
-    }
-
-    public static SharedPreferences getPreferences(Application application) {
-        return PreferenceManager.getDefaultSharedPreferences(application);
-    }
-
-    public static SharedPreferences getPreferences(String name) {
-        return application.getSharedPreferences(name, Context.MODE_PRIVATE);
     }
 
     /**
@@ -295,14 +283,6 @@ public class AndroidUtils {
         return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
-    public static CharSequence ellipsize(CharSequence text, int max) {
-        if (text.length() <= max) {
-            return text;
-        } else {
-            return text.subSequence(0, max) + "\u2026";
-        }
-    }
-
     public interface OnMeasuredCallback {
         /**
          * Called when the layout is done.
@@ -439,27 +419,14 @@ public class AndroidUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
-    public static void setElevation(View view, float elevation) {
-        if (isLollipop()) {
-            setElevationLollipop(view, elevation);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void setElevationLollipop(View view, float elevation) {
-        view.setElevation(elevation);
-    }
-
     public static void fixSnackbarText(Context context, Snackbar snackbar) {
         ((TextView) snackbar.getView().findViewById(R.id.snackbar_text)).setTextColor(0xffffffff);
         snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
     }
 
-    public static ConnectivityManager getConnectivityManager() {
-        return connectivityManager;
-    }
-
     public static boolean isConnected(int type) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                application.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
     }

@@ -31,8 +31,6 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.ui.theme.Theme;
-import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
@@ -47,7 +45,6 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     private static final int TITLE_MAX_LENGTH = 100;
 
     private boolean bound;
-    private Theme theme;
     private Post post;
     private ChanSettings.PostViewMode postViewMode;
     private boolean showDivider;
@@ -131,7 +128,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         super.onDetachedFromWindow();
 
         if (post != null && bound) {
-            unbindPost(post);
+            unbindPost();
         }
     }
 
@@ -140,11 +137,11 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         super.onAttachedToWindow();
 
         if (post != null && !bound) {
-            bindPost(theme, post);
+            bindPost(post);
         }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
+    public void setPost(final Post post, PostCellInterface.PostCellCallback callback,
                         boolean selectable, boolean highlighted, boolean selected, int markedNo,
                         boolean showDivider, ChanSettings.PostViewMode postViewMode,
                         boolean compact) {
@@ -152,22 +149,17 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
             return;
         }
 
-        if (theme == null) {
-            theme = ThemeHelper.theme();
-        }
-
         if (this.post != null && bound) {
-            unbindPost(this.post);
+            unbindPost();
             this.post = null;
         }
 
-        this.theme = theme;
         this.post = post;
         this.callback = callback;
         this.postViewMode = postViewMode;
         this.showDivider = showDivider;
 
-        bindPost(theme, post);
+        bindPost(post);
     }
 
     public Post getPost() {
@@ -184,7 +176,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
         return false;
     }
 
-    private void bindPost(Theme theme, Post post) {
+    private void bindPost(Post post) {
         bound = true;
 
         if (!TextUtils.isEmpty(post.subjectSpan)) {
@@ -203,7 +195,7 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
                 (showDivider ? VISIBLE : GONE));
     }
 
-    private void unbindPost(Post post) {
+    private void unbindPost() {
         bound = false;
     }
 }

@@ -40,7 +40,6 @@ public class ToolbarMenuItem {
     private static final String TAG = "ToolbarMenuItem";
 
     public Object id;
-    public int order;
 
     public boolean overflowStyle = false;
 
@@ -124,9 +123,6 @@ public class ToolbarMenuItem {
         this.drawable = drawable;
     }
 
-    public void setSubMenu(FloatingMenu subMenu) {
-    }
-
     public void showSubmenu() {
         if (view == null) {
             Logger.w(TAG, "Item not attached, can't show submenu");
@@ -156,10 +152,6 @@ public class ToolbarMenuItem {
 
     public Object getId() {
         return id;
-    }
-
-    public int getOrder() {
-        return order;
     }
 
     public void performClick() {

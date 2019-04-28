@@ -71,13 +71,13 @@ public class WatchSettingsController extends SettingsController implements Compo
         buildPreferences();
 
         if (!ChanSettings.watchBackground.get()) {
-            setSettingViewVisibility(backgroundTimeout, false, false);
-            setSettingViewVisibility(lastPageNotifyMode, false, false);
-            setSettingViewVisibility(notifyMode, false, false);
-            setSettingViewVisibility(soundMode, false, false);
-            setSettingViewVisibility(peekMode, false, false);
-            setSettingViewVisibility(ledMode, false, false);
-            setSettingViewVisibility(enableFilterWatch, false, false);
+            setSettingViewVisibility(backgroundTimeout, false);
+            setSettingViewVisibility(lastPageNotifyMode, false);
+            setSettingViewVisibility(notifyMode, false);
+            setSettingViewVisibility(soundMode, false);
+            setSettingViewVisibility(peekMode, false);
+            setSettingViewVisibility(ledMode, false);
+            setSettingViewVisibility(enableFilterWatch, false);
         }
     }
 
@@ -93,13 +93,13 @@ public class WatchSettingsController extends SettingsController implements Compo
 
         if (item == enableBackground) {
             boolean enabled = ChanSettings.watchBackground.get();
-            setSettingViewVisibility(backgroundTimeout, enabled, true);
-            setSettingViewVisibility(lastPageNotifyMode, enabled, true);
-            setSettingViewVisibility(notifyMode, enabled, true);
-            setSettingViewVisibility(soundMode, enabled, true);
-            setSettingViewVisibility(peekMode, enabled, true);
-            setSettingViewVisibility(ledMode, enabled, true);
-            setSettingViewVisibility(enableFilterWatch, enabled, true);
+            setSettingViewVisibility(backgroundTimeout, enabled);
+            setSettingViewVisibility(lastPageNotifyMode, enabled);
+            setSettingViewVisibility(notifyMode, enabled);
+            setSettingViewVisibility(soundMode, enabled);
+            setSettingViewVisibility(peekMode, enabled);
+            setSettingViewVisibility(ledMode, enabled);
+            setSettingViewVisibility(enableFilterWatch, enabled);
         }
     }
 

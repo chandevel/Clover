@@ -30,7 +30,6 @@ import org.floens.chan.utils.AndroidUtils;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getDimen;
-import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class AlbumViewCell extends FrameLayout {
     private PostImage postImage;
@@ -62,7 +61,6 @@ public class AlbumViewCell extends FrameLayout {
         int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
         thumbnailView.setPostImage(postImage, thumbnailSize, thumbnailSize);
 
-        String filename = postImage.spoiler ? getString(R.string.image_spoiler_filename) : postImage.filename + "." + postImage.extension;
         String details = postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight +
                 " " + AndroidUtils.getReadableFileSize(postImage.size, false);
         text.setText(details);

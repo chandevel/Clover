@@ -24,8 +24,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import java.util.Collections;
-
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
@@ -64,8 +62,6 @@ public class ToolbarMenuView extends LinearLayout {
 
     private void setupMenuViews() {
         removeAllViews();
-
-        Collections.sort(menu.items, (a, b) -> a.order - b.order);
 
         for (ToolbarMenuItem item : menu.items) {
             ImageView imageView = new ImageView(getContext());

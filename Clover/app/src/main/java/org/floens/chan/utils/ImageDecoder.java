@@ -35,13 +35,13 @@ public class ImageDecoder {
         Thread thread = new Thread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
 
-            AndroidUtils.runOnUiThread(() -> callback.onImageBitmap(file, bitmap));
+            AndroidUtils.runOnUiThread(() -> callback.onImageBitmap(bitmap));
         });
         thread.start();
     }
 
     public interface ImageDecoderCallback {
-        void onImageBitmap(File file, Bitmap bitmap);
+        void onImageBitmap(Bitmap bitmap);
     }
 
     public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {

@@ -243,13 +243,13 @@ public class VichanApi extends CommonSite.CommonApi {
         }
 
         if (countryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon(builder, "country",
+            HttpUrl countryUrl = endpoints.icon("country",
                     makeArgument("country_code", countryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
         }
 
         if (trollCountryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon(builder, "troll_country",
+            HttpUrl countryUrl = endpoints.icon("troll_country",
                     makeArgument("troll_country_code", trollCountryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
         }

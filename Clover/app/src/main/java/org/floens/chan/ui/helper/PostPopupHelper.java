@@ -80,7 +80,7 @@ public class PostPopupHelper {
     }
 
     public void scrollTo(int displayPosition, boolean smooth) {
-        presentingController.scrollTo(displayPosition, smooth);
+        presentingController.scrollTo(displayPosition);
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

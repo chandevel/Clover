@@ -151,12 +151,10 @@ public class Theme {
 
     public static class ThemeDrawable {
         public int drawable;
-        public float alpha;
         public int intAlpha;
 
         public ThemeDrawable(int drawable, float alpha) {
             this.drawable = drawable;
-            this.alpha = alpha;
             intAlpha = Math.round(alpha * 0xff);
         }
 

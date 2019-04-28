@@ -17,7 +17,6 @@
  */
 package org.floens.chan.ui.span;
 
-import android.os.Parcel;
 import android.text.style.AbsoluteSizeSpan;
 
 /**
@@ -26,14 +25,6 @@ import android.text.style.AbsoluteSizeSpan;
 public class AbsoluteSizeSpanHashed extends AbsoluteSizeSpan {
     public AbsoluteSizeSpanHashed(int size) {
         super(size);
-    }
-
-    public AbsoluteSizeSpanHashed(int size, boolean dip) {
-        super(size, dip);
-    }
-
-    public AbsoluteSizeSpanHashed(Parcel src) {
-        super(src);
     }
 
     @Override

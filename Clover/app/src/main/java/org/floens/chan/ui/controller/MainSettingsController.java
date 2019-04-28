@@ -78,13 +78,6 @@ public class MainSettingsController extends SettingsController implements Settin
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        presenter.destroy();
-    }
-
-    @Override
     public void onShow() {
         super.onShow();
 

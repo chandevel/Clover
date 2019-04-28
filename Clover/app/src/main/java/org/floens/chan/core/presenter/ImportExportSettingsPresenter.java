@@ -20,7 +20,6 @@ package org.floens.chan.core.presenter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.repository.ImportExportRepository;
 
 import java.io.File;
@@ -35,9 +34,6 @@ public class ImportExportSettingsPresenter {
 
     @Inject
     ImportExportRepository importExportRepository;
-
-    @Inject
-    BoardRepository boardRepository;
 
     public ImportExportSettingsPresenter(
             @NonNull ImportExportSettingsCallbacks callbacks

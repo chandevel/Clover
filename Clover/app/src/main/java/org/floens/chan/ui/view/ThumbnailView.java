@@ -145,10 +145,6 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
     }
 
-    public void setFadeTime(int fadeTime) {
-        this.fadeTime = fadeTime;
-    }
-
     public Bitmap getBitmap() {
         return bitmap;
     }

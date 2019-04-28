@@ -147,14 +147,11 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
 
         final AlertDialog dialog = new AlertDialog.Builder(context)
                 .setMessage(text)
-                .setNegativeButton(R.string.update_later, (dialog12, which) -> updatePostponed(message))
+                .setNegativeButton(R.string.update_later, (dialog12, which) -> dialog12.dismiss())
                 .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(message))
                 .create();
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
-    }
-
-    private void updatePostponed(UpdateApiRequest.UpdateApiMessage message) {
     }
 
     private void updateInstallRequested(final UpdateApiRequest.UpdateApiMessage message) {

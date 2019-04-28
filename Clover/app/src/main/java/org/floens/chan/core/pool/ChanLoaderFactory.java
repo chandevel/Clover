@@ -26,8 +26,6 @@ import org.floens.chan.utils.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 /**
  * ChanLoaderFactory is a factory for ChanLoaders. ChanLoaders for threads are cached.
  * <p>Each reference to a loader is a {@link ChanThreadLoader.ChanLoaderCallback}, these
@@ -40,10 +38,6 @@ public class ChanLoaderFactory {
 
     private Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
     private LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
-
-    @Inject
-    public ChanLoaderFactory() {
-    }
 
     public ChanThreadLoader obtain(Loadable loadable, ChanThreadLoader.ChanLoaderCallback listener) {
         ChanThreadLoader chanLoader;

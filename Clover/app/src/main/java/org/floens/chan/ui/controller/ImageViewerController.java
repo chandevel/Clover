@@ -328,7 +328,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         loadingBar.setProgress(progress);
     }
 
-    public void onVideoError(MultiImageView multiImageView) {
+    public void onVideoError() {
         if (ChanSettings.videoErrorIgnore.get()) {
             Toast.makeText(context, R.string.image_open_failed, Toast.LENGTH_SHORT).show();
         } else {
@@ -410,11 +410,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         startAnimation.setDuration(TRANSITION_DURATION);
         startAnimation.setInterpolator(new DecelerateInterpolator(3f));
         startAnimation.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                imageViewerCallback.onPreviewCreate(ImageViewerController.this);
-            }
-
             @Override
             public void onAnimationEnd(Animator animation) {
                 startAnimation = null;
@@ -510,8 +505,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     private void previewOutAnimationEnded() {
         setBackgroundAlpha(0f);
-
-        imageViewerCallback.onPreviewDestroy(this);
         navigationController.stopPresenting(false);
     }
 
@@ -562,7 +555,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private ThumbnailView getTransitionImageView(PostImage postImage) {
-        return imageViewerCallback.getPreviewImageTransitionView(this, postImage);
+        return imageViewerCallback.getPreviewImageTransitionView(postImage);
     }
 
     private Window getWindow() {
@@ -570,11 +563,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     public interface ImageViewerCallback {
-        ThumbnailView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage);
-
-        void onPreviewCreate(ImageViewerController imageViewerController);
-
-        void onPreviewDestroy(ImageViewerController imageViewerController);
+        ThumbnailView getPreviewImageTransitionView(PostImage postImage);
 
         void scrollToImage(PostImage postImage);
     }

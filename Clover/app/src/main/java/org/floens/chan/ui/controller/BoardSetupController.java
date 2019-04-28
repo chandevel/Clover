@@ -60,8 +60,6 @@ import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 
 public class BoardSetupController extends Controller implements View.OnClickListener, BoardSetupPresenter.Callback {
-    private static final int DONE_ID = 1;
-
     @Inject
     BoardSetupPresenter presenter;
 
@@ -171,8 +169,6 @@ public class BoardSetupController extends Controller implements View.OnClickList
                 .setPositiveButton(R.string.add, (dialog1, which) -> boardAddLayout.onPositiveClicked())
                 .setNegativeButton(R.string.cancel, null)
                 .create();
-
-        boardAddLayout.setDialog(dialog);
 
         Window window = dialog.getWindow();
         assert window != null;

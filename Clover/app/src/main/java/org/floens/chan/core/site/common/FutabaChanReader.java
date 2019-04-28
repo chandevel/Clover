@@ -31,10 +31,6 @@ public class FutabaChanReader implements ChanReader {
         this.postParser = new DefaultPostParser(commentParser);
     }
 
-    public FutabaChanReader(PostParser postParser) {
-        this.postParser = postParser;
-    }
-
     @Override
     public PostParser getParser() {
         return postParser;
@@ -269,19 +265,19 @@ public class FutabaChanReader implements ChanReader {
 
         if (countryCode != null && countryName != null) {
             Map<String, String> arg = new HashMap<>(1);
-            HttpUrl countryUrl = endpoints.icon(builder, "country",
+            HttpUrl countryUrl = endpoints.icon("country",
                     makeArgument("country_code", countryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
         }
 
         if (trollCountryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon(builder, "troll_country",
+            HttpUrl countryUrl = endpoints.icon("troll_country",
                     makeArgument("troll_country_code", trollCountryCode));
             builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName));
         }
 
         if (since4pass != 0) {
-            HttpUrl iconUrl = endpoints.icon(builder, "since4pass", null);
+            HttpUrl iconUrl = endpoints.icon("since4pass", null);
             builder.addHttpIcon(new PostHttpIcon(iconUrl, String.valueOf(since4pass)));
         }
 

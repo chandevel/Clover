@@ -126,14 +126,6 @@ public class CommentParser {
         return text;
     }
 
-    private CharSequence appendBreakIfNotLastSibling(CharSequence text, Element element) {
-        if (element.nextSibling() != null) {
-            return TextUtils.concat(text, "\n");
-        } else {
-            return text;
-        }
-    }
-
     private CharSequence handleAnchor(Theme theme,
                                       PostParser.Callback callback,
                                       Post.Builder post,

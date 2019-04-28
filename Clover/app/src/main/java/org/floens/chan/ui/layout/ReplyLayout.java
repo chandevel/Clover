@@ -78,7 +78,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     ReplyPresenter presenter;
 
     private ReplyLayoutCallback callback;
-    private boolean newCaptcha;
 
     private AuthenticationLayoutInterface authenticationLayout;
 
@@ -491,7 +490,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     }
 
     @Override
-    public void onImageBitmap(File file, Bitmap bitmap) {
+    public void onImageBitmap(Bitmap bitmap) {
         if (bitmap != null) {
             preview.setImageBitmap(bitmap);
             previewHolder.setVisibility(View.VISIBLE);
@@ -500,11 +499,6 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         } else {
             openPreviewMessage(true, getString(R.string.reply_no_preview));
         }
-    }
-
-    @Override
-    public void onFilePickLoading() {
-        // TODO
     }
 
     @Override
@@ -518,7 +512,7 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
     }
 
     @Override
-    public void onSelectionChanged(int selStart, int selEnd) {
+    public void onSelectionChanged() {
         if (!blockSelectionChange) {
             presenter.onSelectionChanged();
         }

@@ -20,14 +20,11 @@ package org.floens.chan.ui.controller;
 import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -40,7 +37,6 @@ import org.floens.chan.core.manager.WatchManager.PinMessages;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.adapter.DrawerAdapter;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
@@ -51,7 +47,6 @@ import de.greenrobot.event.EventBus;
 import static org.floens.chan.Chan.inject;
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 import static org.floens.chan.utils.AndroidUtils.ROBOTO_MEDIUM;
-import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.fixSnackbarText;
 
 public class DrawerController extends Controller implements DrawerAdapter.Callback, View.OnClickListener {
@@ -182,34 +177,6 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         fixSnackbarText(context, snackbar);
         snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
         snackbar.show();
-    }
-
-    @Override
-    public void onPinLongClicked(final Pin pin) {
-        LinearLayout wrap = new LinearLayout(context);
-        wrap.setPadding(dp(16), dp(16), dp(16), 0);
-        final EditText text = new EditText(context);
-        text.setSingleLine();
-        text.setText(pin.loadable.title);
-        wrap.addView(text, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        AlertDialog dialog = new AlertDialog.Builder(context)
-                .setPositiveButton(R.string.action_rename, (dialog1, which) -> {
-                    String value = text.getText().toString();
-
-                    if (!TextUtils.isEmpty(value)) {
-                        pin.loadable.title = value;
-                        watchManager.updatePin(pin);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .setTitle(R.string.action_rename_pin)
-                .setView(wrap)
-                .create();
-
-        AndroidUtils.requestKeyboardFocus(dialog, text);
-
-        dialog.show();
     }
 
     @Override

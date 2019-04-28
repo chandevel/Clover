@@ -479,13 +479,10 @@ public class ThreadLayout extends CoordinatorLayout implements
         int snackbarStringId = hide ? R.string.thread_hidden : R.string.thread_removed;
 
         Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
-        snackbar.setAction(R.string.undo, new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                databaseManager.runTask(
-                        databaseManager.getDatabaseHideManager().removeThreadHide(postHide));
-                presenter.refreshUI();
-            }
+        snackbar.setAction(R.string.undo, v -> {
+            databaseManager.runTask(
+                    databaseManager.getDatabaseHideManager().removeThreadHide(postHide));
+            presenter.refreshUI();
         }).show();
         fixSnackbarText(getContext(), snackbar);
     }
@@ -561,10 +558,6 @@ public class ThreadLayout extends CoordinatorLayout implements
         } else {
             return threadListLayout.getThumbnail(postImage);
         }
-    }
-
-    public boolean postRepliesOpen() {
-        return postPopupHelper.isOpen();
     }
 
     public void openReply(boolean open) {
@@ -675,12 +668,8 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setMessage(message)
-                .setPositiveButton(positiveButtonText, (dialog, which) -> {
-                    presenter.hideOrRemovePosts(hide, true, post);
-                })
-                .setNegativeButton(negativeButtonText, (dialog, which) -> {
-                    presenter.hideOrRemovePosts(hide, false, post);
-                })
+                .setPositiveButton(positiveButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post))
+                .setNegativeButton(negativeButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post))
                 .create();
 
         alertDialog.show();

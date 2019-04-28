@@ -195,18 +195,8 @@ public abstract class ThreadController extends Controller implements
     }
 
     @Override
-    public ThumbnailView getPreviewImageTransitionView(ImageViewerController imageViewerController, PostImage postImage) {
+    public ThumbnailView getPreviewImageTransitionView(PostImage postImage) {
         return threadLayout.getThumbnail(postImage);
-    }
-
-    public void onPreviewCreate(ImageViewerController imageViewerController) {
-//        presentingImageView.setVisibility(View.INVISIBLE);
-    }
-
-    @Override
-    public void onPreviewDestroy(ImageViewerController imageViewerController) {
-//        presentingImageView.setVisibility(View.VISIBLE);
-//        presentingImageView = null;
     }
 
     @Override

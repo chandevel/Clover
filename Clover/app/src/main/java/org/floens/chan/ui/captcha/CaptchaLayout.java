@@ -121,9 +121,6 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
         loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
     }
 
-    private void onCaptchaLoaded() {
-    }
-
     private void onCaptchaEntered(String challenge, String response) {
         if (TextUtils.isEmpty(response)) {
             reset();
@@ -137,11 +134,6 @@ public class CaptchaLayout extends WebView implements AuthenticationLayoutInterf
 
         public CaptchaInterface(CaptchaLayout layout) {
             this.layout = layout;
-        }
-
-        @JavascriptInterface
-        public void onCaptchaLoaded() {
-            AndroidUtils.runOnUiThread(layout::onCaptchaLoaded);
         }
 
         @JavascriptInterface

@@ -33,7 +33,6 @@ import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.layout.FixedRatioLinearLayout;
 import org.floens.chan.ui.text.FastTextView;
-import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.ui.view.FloatingMenu;
 import org.floens.chan.ui.view.FloatingMenuItem;
@@ -50,7 +49,6 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     private static final int COMMENT_MAX_LENGTH = 200;
 
     private boolean bound;
-    private Theme theme;
     private Post post;
     private PostCellInterface.PostCellCallback callback;
     private boolean compact = false;
@@ -126,7 +124,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     @Override
     public void onClick(View v) {
         if (v == thumbnailView) {
-            callback.onThumbnailClicked(post, post.image(), thumbnailView);
+            callback.onThumbnailClicked(post.image(), thumbnailView);
         } else if (v == this) {
             callback.onPostClicked(post);
         }
@@ -137,7 +135,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         super.onDetachedFromWindow();
 
         if (post != null && bound) {
-            unbindPost(post);
+            bound = false;
         }
     }
 
@@ -146,11 +144,11 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         super.onAttachedToWindow();
 
         if (post != null && !bound) {
-            bindPost(theme, post);
+            bindPost(post);
         }
     }
 
-    public void setPost(Theme theme, final Post post, PostCellInterface.PostCellCallback callback,
+    public void setPost(final Post post, PostCellInterface.PostCellCallback callback,
                         boolean selectable, boolean highlighted, boolean selected, int markedNo,
                         boolean showDivider, ChanSettings.PostViewMode postViewMode,
                         boolean compact) {
@@ -158,20 +156,15 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
             return;
         }
 
-        if (theme == null) {
-            theme = ThemeHelper.theme();
-        }
-
         if (this.post != null && bound) {
-            unbindPost(this.post);
+            bound = false;
             this.post = null;
         }
 
-        this.theme = theme;
         this.post = post;
         this.callback = callback;
 
-        bindPost(theme, post);
+        bindPost(post);
 
         if (this.compact != compact) {
             this.compact = compact;
@@ -193,7 +186,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         return false;
     }
 
-    private void bindPost(Theme theme, Post post) {
+    private void bindPost(Post post) {
         bound = true;
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
@@ -227,13 +220,9 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         }
 
         comment.setText(commentText);
-        comment.setTextColor(theme.textPrimary);
+        comment.setTextColor(ThemeHelper.theme().textPrimary);
 
         replies.setText(getResources().getString(R.string.card_stats, post.getReplies(), post.getImagesCount()));
-    }
-
-    private void unbindPost(Post post) {
-        bound = false;
     }
 
     private void setCompact(boolean compact) {

@@ -22,8 +22,6 @@ public abstract class ControllerTransition {
 
     public Controller from;
     public Controller to;
-    public boolean destroyFrom;
-    public boolean viewOver = true;
 
     public abstract void perform();
 

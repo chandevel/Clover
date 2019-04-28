@@ -44,11 +44,11 @@ public class SelectionListeningEditText extends android.support.v7.widget.AppCom
         super.onSelectionChanged(selStart, selEnd);
 
         if (listener != null) {
-            listener.onSelectionChanged(selStart, selEnd);
+            listener.onSelectionChanged();
         }
     }
 
     public interface SelectionChangedListener {
-        void onSelectionChanged(int selStart, int selEnd);
+        void onSelectionChanged();
     }
 }

@@ -23,14 +23,13 @@ import android.text.TextUtils;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.floens.chan.core.model.SiteReference;
 import org.floens.chan.core.site.Site;
 
 /**
  * A board is something that can be browsed, it is unique by it's site and code.
  */
 @DatabaseTable(tableName = "board")
-public class Board implements SiteReference, Cloneable {
+public class Board implements Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -235,7 +234,6 @@ public class Board implements SiteReference, Cloneable {
         return !TextUtils.isEmpty(name) && !TextUtils.isEmpty(code) && perPage >= 0 && pages >= 0;
     }
 
-    @Override
     public Site getSite() {
         return site;
     }

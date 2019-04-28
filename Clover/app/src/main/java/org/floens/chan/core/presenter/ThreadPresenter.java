@@ -435,7 +435,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     }
 
     @Override
-    public void onThumbnailClicked(Post post, PostImage postImage, ThumbnailView thumbnail) {
+    public void onThumbnailClicked(PostImage postImage, ThumbnailView thumbnail) {
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();

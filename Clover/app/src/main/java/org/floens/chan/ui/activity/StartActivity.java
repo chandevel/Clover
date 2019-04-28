@@ -101,6 +101,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     @Inject
     SiteService siteService;
 
+    @SuppressWarnings("unused")
+    //Used to instantiate an instance of the filter watch manager, which automatically ties itself to the wake manager
     @Inject
     FilterWatchManager filterWatchManager;
 

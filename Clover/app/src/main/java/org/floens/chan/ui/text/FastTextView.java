@@ -129,7 +129,7 @@ public class FastTextView extends View {
         boolean handled = false;
 
         if (movementMethod != null && text instanceof Spanned && layout != null && isEnabled()) {
-            handled |= movementMethod.onTouchEvent(this, (Spanned) text, event);
+            handled = movementMethod.onTouchEvent(this, (Spanned) text, event);
         }
 
         return handled || super.onTouchEvent(event);

@@ -60,10 +60,6 @@ public class VichanAntispam {
                 "file_url1", "file_url2", "file_url3"));
     }
 
-    public void ignoreField(String name) {
-        fieldsToIgnore.add(name);
-    }
-
     public Map<String, String> get() {
         Map<String, String> res = new HashMap<>();
 

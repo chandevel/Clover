@@ -147,11 +147,5 @@ public class ListSettingView<T> extends SettingView implements FloatingMenu.Floa
             this.key = key;
             enabled = true;
         }
-
-        public Item(String name, T key, boolean enabled) {
-            this.name = name;
-            this.key = key;
-            this.enabled = enabled;
-        }
     }
 }

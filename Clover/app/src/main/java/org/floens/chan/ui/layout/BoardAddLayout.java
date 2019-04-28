@@ -18,7 +18,6 @@
 package org.floens.chan.ui.layout;
 
 import android.content.Context;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -106,9 +105,6 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
 
     public void setPresenter(BoardSetupPresenter presenter) {
         this.presenter = presenter;
-    }
-
-    public void setDialog(AlertDialog dialog) {
     }
 
     private void onSuggestionClicked(BoardSetupPresenter.BoardSuggestion suggestion) {

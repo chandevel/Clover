@@ -18,7 +18,6 @@
 package org.floens.chan.core.saver;
 
 import android.Manifest;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
@@ -44,7 +43,6 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
     private static final String TAG = "ImageSaver";
     private static final int MAX_RENAME_TRIES = 500;
-    private static final int NOTIFICATION_ID = 3;
     private static final int MAX_NAME_LENGTH = 50;
     private static final Pattern REPEATED_UNDERSCORES_PATTERN = Pattern.compile("_+");
     private static final Pattern SAFE_CHARACTERS_PATTERN = Pattern.compile("[^a-zA-Z0-9._]");
@@ -60,7 +58,6 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
 
     private ImageSaver() {
         EventBus.getDefault().register(this);
-        NotificationManager notificationManager = (NotificationManager) getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public void startDownloadTask(Context context, final ImageSaveTask task) {
@@ -199,35 +196,22 @@ public class ImageSaver implements ImageSaveTask.ImageSaveTaskCallback {
         String base;
         String extension;
 
-        if (false) {
-            base = start.getAbsolutePath();
-            extension = null;
+        String[] splitted = start.getAbsolutePath().split("\\.(?=[^\\.]+$)");
+        if (splitted.length == 2) {
+            base = splitted[0];
+            extension = "." + splitted[1];
         } else {
-            String[] splitted = start.getAbsolutePath().split("\\.(?=[^\\.]+$)");
-            if (splitted.length == 2) {
-                base = splitted[0];
-                extension = "." + splitted[1];
-            } else {
-                base = splitted[0];
-                extension = ".";
-            }
+            base = splitted[0];
+            extension = ".";
         }
 
         File test;
-        if (false) {
-            test = new File(base);
-        } else {
-            test = new File(base + extension);
-        }
+        test = new File(base + extension);
 
         int index = 0;
         int tries = 0;
         while (test.exists() && tries++ < MAX_RENAME_TRIES) {
-            if (false) {
-                test = new File(base + "_" + index);
-            } else {
-                test = new File(base + "_" + index + extension);
-            }
+            test = new File(base + "_" + index + extension);
             index++;
         }
 

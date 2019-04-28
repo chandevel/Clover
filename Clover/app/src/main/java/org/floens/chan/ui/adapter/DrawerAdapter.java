@@ -17,13 +17,13 @@
  */
 package org.floens.chan.ui.adapter;
 
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -128,7 +128,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE_LINK:
                 return new LinkHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_link, parent, false));
             case TYPE_BOARD_INPUT:
-                return new BoardInputHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false));
+                return new RecyclerView.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_browse_input, parent, false)) {};
             case TYPE_DIVIDER:
                 return new DividerHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_divider, parent, false));
         }
@@ -242,7 +242,11 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private void updatePinViewHolder(PinViewHolder holder, Pin pin) {
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
-            text = TextUtils.concat(PostHelper.addIcon(PostHelper.archivedIcon, sp(14 + 2)), text);
+            BitmapDrawable archivedIcon = new BitmapDrawable(
+                    AndroidUtils.getRes(),
+                    BitmapFactory.decodeResource(AndroidUtils.getRes(),
+                            R.drawable.archived_icon));
+            text = PostHelper.addIcon(text, archivedIcon, sp(16));
         }
 
         holder.textView.setText(text);
@@ -374,15 +378,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private class BoardInputHolder extends RecyclerView.ViewHolder {
-        private EditText input;
-
-        private BoardInputHolder(View itemView) {
-            super(itemView);
-            input = itemView.findViewById(R.id.input);
-        }
-    }
-
     private class DividerHolder extends RecyclerView.ViewHolder {
         private boolean withBackground = false;
         private View divider;
@@ -412,8 +407,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         void onHeaderClicked(HeaderHolder holder, HeaderAction headerAction);
 
         void onPinRemoved(Pin pin);
-
-        void onPinLongClicked(Pin pin);
 
         void openSites();
 

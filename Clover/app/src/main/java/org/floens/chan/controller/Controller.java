@@ -264,11 +264,7 @@ public abstract class Controller {
 
         view.setLayoutParams(params);
 
-        if (true) {
-            parentView.addView(view, view.getLayoutParams());
-        } else {
-            parentView.addView(view, 0, view.getLayoutParams());
-        }
+        parentView.addView(view, view.getLayoutParams());
     }
 
     public interface ControllerPredicate {

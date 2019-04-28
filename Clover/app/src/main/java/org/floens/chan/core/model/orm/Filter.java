@@ -20,7 +20,6 @@ package org.floens.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import org.floens.chan.core.database.DatabaseHelper;
 import org.floens.chan.core.manager.FilterType;
 
 @DatabaseTable(tableName = "filter")
