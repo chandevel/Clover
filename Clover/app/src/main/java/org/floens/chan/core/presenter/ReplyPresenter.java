@@ -279,6 +279,8 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout, String challenge, String response) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
+
+        // should this be called here?
         authenticationLayout.reset();
         makeSubmitCall();
     }

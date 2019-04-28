@@ -455,7 +455,7 @@ public class AndroidUtils {
         return networkInfo != null && networkInfo.isConnected();
     }
 
-    public static void animateViewScale(View view, boolean zoomOut) {
+    public static void animateViewScale(View view, boolean zoomOut, int duration) {
         ScaleAnimation scaleAnimation;
         final float normalScale = 1.0f;
         final float zoomOutScale = 0.8f;
@@ -482,7 +482,7 @@ public class AndroidUtils {
                     0.5f);
         }
 
-        scaleAnimation.setDuration(50);
+        scaleAnimation.setDuration(duration);
         scaleAnimation.setFillAfter(true);
         scaleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
 

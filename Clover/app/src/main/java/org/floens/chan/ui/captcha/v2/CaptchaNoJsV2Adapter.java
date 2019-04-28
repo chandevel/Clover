@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CaptchaNoJsV2Adapter extends BaseAdapter {
+    private static final int ANIMATION_DURATION = 50;
+
     private LayoutInflater inflater;
     private int imageSize = 0;
 
@@ -65,7 +67,7 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
                 imageList.get(position).toggleChecked();
                 boolean isChecked = imageList.get(position).isChecked;
 
-                AndroidUtils.animateViewScale(imageView, isChecked);
+                AndroidUtils.animateViewScale(imageView, isChecked, ANIMATION_DURATION);
                 blueCheckmark.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             });
 
