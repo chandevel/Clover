@@ -119,8 +119,6 @@ public class Pin implements Comparable<Pin>, Cloneable {
 
     @Override
     public int compareTo(@NonNull Pin o) {
-        int lhs = this.order;
-        int rhs = o.order;
-        return lhs - rhs;
+        return this.order - o.order;
     }
 }

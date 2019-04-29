@@ -206,7 +206,7 @@ public class WatchManager implements WakeManager.Wakeable {
 
         updateState();
 
-        EventBus.getDefault().post(new PinMessages.AllPinsRemovedMessage());
+        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
     }
 
     public void updatePin(Pin pin) {
@@ -307,17 +307,13 @@ public class WatchManager implements WakeManager.Wakeable {
     // Called when the user changes the watch enabled preference
     private void onWatchEnabledChanged(boolean watchEnabled) {
         updateState(watchEnabled, ChanSettings.watchBackground.get());
-        for (Pin pin : pins) {
-            EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
-        }
+        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
     }
 
     // Called when the user changes the watch background enabled preference
     private void onBackgroundWatchingChanged(boolean backgroundEnabled) {
         updateState(isTimerEnabled(), backgroundEnabled);
-        for (Pin pin : pins) {
-            EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
-        }
+        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
     }
 
     // Called when the broadcast scheduled by the alarm manager was received
@@ -334,27 +330,22 @@ public class WatchManager implements WakeManager.Wakeable {
         updateState();
         updatePinsInDatabase();
 
-        for (Pin pin : pins) {
-            EventBus.getDefault().post(new PinMessages.PinChangedMessage(pin));
-        }
+        EventBus.getDefault().post(new PinMessages.PinsChangedMessage(pins));
     }
 
     // Clear all non watching pins or all pins
     // Returns a list of pins that can later be given to addAll to undo the clearing
     public List<Pin> clearPins(boolean all) {
         List<Pin> toRemove = new ArrayList<>();
-        for (Pin pin : pins) {
-            if (all) {
-                toRemove.add(pin);
-            } else {
-                if (ChanSettings.watchEnabled.get()) {
-                    if (!pin.watching) {
-                        toRemove.add(pin);
-                    }
-                } else {
-                    if (pin.archived || pin.isError) {
-                        toRemove.add(pin);
-                    }
+        if(all) {
+            toRemove.addAll(pins);
+        } else {
+            for (Pin pin : pins) {
+                //if we're watching and a pin isn't being watched, it's a candidate for clearing
+                //if the pin is archived or errored out, it's a candidate for clearing
+                if ((ChanSettings.watchEnabled.get() && !pin.watching)
+                        || (pin.archived || pin.isError)) {
+                    toRemove.add(pin);
                 }
             }
         }
@@ -557,8 +548,12 @@ public class WatchManager implements WakeManager.Wakeable {
             }
         }
 
-        public static class AllPinsRemovedMessage {
+        public static class PinsChangedMessage {
+            public List<Pin> pins;
 
+            public PinsChangedMessage(List<Pin> pins) {
+                this.pins = pins;
+            }
         }
     }
 

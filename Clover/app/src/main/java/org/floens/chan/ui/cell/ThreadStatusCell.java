@@ -122,7 +122,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
                     builder.append(getContext().getString(R.string.thread_refresh_now));
                     //only update you count when the thread is loaded and the setting is on
                     if (ChanSettings.enableYouCount.get()) {
-                        getNumYous(chanThread);
+                        lastYouCount = getNumYous(chanThread);
                     }
                 } else {
                     builder.append(getContext().getString(R.string.thread_refresh_countdown, time));
@@ -183,19 +183,14 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
         }
     }
 
-    private void getNumYous(ChanThread thread) {
-        Thread t = new Thread(() -> {
-            synchronized (thread) {
-                int ret = 0;
-                Pattern youQuotePattern = Pattern.compile(">>\\d+ \\(You\\)");
-                for (Post p : thread.posts) {
-                    Matcher youQuoteMatcher = youQuotePattern.matcher(p.comment.toString());
-                    while (youQuoteMatcher.find()) ret++;
-                }
-                lastYouCount = ret;
-            }
-        });
-        t.start();
+    private int getNumYous(ChanThread thread) {
+        int ret = 0;
+        Pattern youQuotePattern = Pattern.compile(">>\\d+ \\(You\\)");
+        for (Post p : thread.posts) {
+            Matcher youQuoteMatcher = youQuotePattern.matcher(p.comment.toString());
+            while (youQuoteMatcher.find()) ret++;
+        }
+        return ret;
     }
 
     private void schedule() {

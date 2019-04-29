@@ -64,8 +64,6 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int TYPE_BOARD_INPUT = 3;
     private static final int TYPE_DIVIDER = 4;
 
-    private static final Comparator<Pin> SORT_PINS = (lhs, rhs) -> lhs.order - rhs.order;
-
     @Inject
     WatchManager watchManager;
 
@@ -202,24 +200,19 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onPinsChanged(List<Pin> pins) {
         this.pins.clear();
         this.pins.addAll(pins);
-        Collections.sort(pins, SORT_PINS);
+        Collections.sort(pins);
         notifyDataSetChanged();
     }
 
     public void onPinAdded(Pin pin) {
         pins.add(pin);
-        Collections.sort(pins, SORT_PINS);
+        Collections.sort(pins);
         notifyDataSetChanged();
     }
 
     public void onPinRemoved(Pin pin) {
         pins.remove(pin);
-        Collections.sort(pins, SORT_PINS);
-        notifyDataSetChanged();
-    }
-
-    public void onAllPinsRemoved() {
-        pins.clear();
+        Collections.sort(pins);
         notifyDataSetChanged();
     }
 
@@ -347,9 +340,9 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             text.setTypeface(ROBOTO_MEDIUM);
             clear = itemView.findViewById(R.id.clear);
             setRoundItemBackground(clear);
-            clear.setOnClickListener(v -> callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR));
+            clear.setOnClickListener(v -> callback.onHeaderClicked(HeaderAction.CLEAR));
             clear.setOnLongClickListener(v -> {
-                callback.onHeaderClicked(HeaderHolder.this, HeaderAction.CLEAR_ALL);
+                callback.onHeaderClicked(HeaderAction.CLEAR_ALL);
                 return true;
             });
         }
@@ -404,7 +397,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         void onWatchCountClicked(Pin pin);
 
-        void onHeaderClicked(HeaderHolder holder, HeaderAction headerAction);
+        void onHeaderClicked(HeaderAction headerAction);
 
         void onPinRemoved(Pin pin);
 

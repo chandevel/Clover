@@ -149,13 +149,12 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     }
 
     @Override
-    public void onHeaderClicked(DrawerAdapter.HeaderHolder holder, DrawerAdapter.HeaderAction headerAction) {
+    public void onHeaderClicked(DrawerAdapter.HeaderAction headerAction) {
         if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
             boolean all = headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
             final List<Pin> pins = watchManager.clearPins(all);
             if (!pins.isEmpty()) {
                 String text = context.getResources().getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
-                //noinspection WrongConstant
                 Snackbar snackbar = Snackbar.make(drawerLayout, context.getString(R.string.drawer_pins_cleared, text), 4000);
                 fixSnackbarText(context, snackbar);
                 snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
@@ -210,8 +209,8 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
         updateBadge();
     }
 
-    public void onEvent(PinMessages.AllPinsRemovedMessage message) {
-        drawerAdapter.onAllPinsRemoved();
+    public void onEvent(PinMessages.PinsChangedMessage message) {
+        drawerAdapter.onPinsChanged(message.pins);
         updateBadge();
     }
 
