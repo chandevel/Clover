@@ -272,22 +272,22 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
                     break;
                 }
                 case CAPTCHA2_NOJS:
-                    if (!useV2NoJsCaptcha) {
-                        // default webview-based captcha view
-                        authenticationLayout = new CaptchaNojsLayoutV1(getContext());
-                    } else {
+                    if (useV2NoJsCaptcha) {
                         // new captcha window without webview
                         authenticationLayout = new CaptchaNoJsLayoutV2(getContext());
+                    } else {
+                        // default webview-based captcha view
+                        authenticationLayout = new CaptchaNojsLayoutV1(getContext());
                     }
 
                     ImageView resetButton = captchaContainer.findViewById(R.id.reset);
                     if (resetButton != null) {
-                        if (!useV2NoJsCaptcha) {
-                            // restore the button's visibility when using old v1 captcha view
-                            resetButton.setVisibility(View.VISIBLE);
-                        } else {
+                        if (useV2NoJsCaptcha) {
                             // we don't need the default reset button because we have our own
                             resetButton.setVisibility(View.GONE);
+                        } else {
+                            // restore the button's visibility when using old v1 captcha view
+                            resetButton.setVisibility(View.VISIBLE);
                         }
                     }
 

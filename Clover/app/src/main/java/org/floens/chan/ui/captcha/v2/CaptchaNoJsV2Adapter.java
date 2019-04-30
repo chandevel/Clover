@@ -58,7 +58,7 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.layout_captcha_challenge_image, parent, false);
 
             AppCompatImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
-            AppCompatImageView blueCheckmark = convertView.findViewById(R.id.captcha_challenge_blue_checkmark);
+            ConstraintLayout blueCheckmarkHolder = convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
 
             ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(imageSize, imageSize);
             imageView.setLayoutParams(layoutParams);
@@ -68,7 +68,7 @@ public class CaptchaNoJsV2Adapter extends BaseAdapter {
                 boolean isChecked = imageList.get(position).isChecked;
 
                 AndroidUtils.animateViewScale(imageView, isChecked, ANIMATION_DURATION);
-                blueCheckmark.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                blueCheckmarkHolder.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             });
 
             if (position >= 0 && position <= imageList.size()) {

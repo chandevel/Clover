@@ -383,6 +383,15 @@ public class CaptchaNoJsHtmlParser {
             }
 
             return resultImages;
+        } catch (Throwable error) {
+            for (Bitmap bitmap : resultImages) {
+                if (!bitmap.isRecycled()) {
+                    bitmap.recycle();
+                }
+            }
+
+            resultImages.clear();
+            throw error;
         } finally {
             if (originalBitmap != null) {
                 originalBitmap.recycle();

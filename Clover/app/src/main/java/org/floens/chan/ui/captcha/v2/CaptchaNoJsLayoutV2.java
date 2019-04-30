@@ -103,6 +103,8 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         captchaVerifyButton.setOnClickListener(this);
         useOldCaptchaButton.setOnClickListener(this);
         reloadCaptchaButton.setOnClickListener(this);
+
+        captchaVerifyButton.setEnabled(false);
     }
 
     @Override
@@ -153,6 +155,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         // called on a background thread
 
         AndroidUtils.runOnUiThread(() -> {
+            captchaVerifyButton.setEnabled(true);
             renderCaptchaWindow(captchaInfo);
         });
     }
@@ -162,6 +165,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         // called on a background thread
 
         AndroidUtils.runOnUiThread(() -> {
+            captchaVerifyButton.setEnabled(true);
             callback.onAuthenticationComplete(this, null, verificationToken);
         });
     }
@@ -176,6 +180,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             String message = error.getMessage();
             showToast(message);
 
+            captchaVerifyButton.setEnabled(true);
             callback.onFallbackToV1CaptchaView();
         });
     }
@@ -224,6 +229,8 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
 
             adapter.setImageSize(imageSize);
             adapter.setImages(captchaInfo.challengeImages);
+
+            captchaVerifyButton.setEnabled(true);
         } catch (Throwable error) {
             if (callback != null) {
                 callback.onFallbackToV1CaptchaView();
@@ -250,10 +257,10 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         List<Integer> selectedIds = adapter.getCheckedImageIds();
 
         try {
-
             CaptchaNoJsPresenterV2.VerifyError verifyError = presenter.verify(selectedIds);
             switch (verifyError) {
                 case Ok:
+                    captchaVerifyButton.setEnabled(false);
                     break;
                 case NoImagesSelected:
                     showToast(getContext().getString(R.string.captcha_layout_v2_you_have_to_select_at_least_one_image));

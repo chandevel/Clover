@@ -54,10 +54,10 @@ public class CaptchaNoJsPresenterV2 {
 
     // this should be updated once in 3 months IIRC
     private static final String googleCookies =
-                    "SID=NwcOCOnxA7PVDPUY_InSzz6saQ93BmWzg7N2276OPwUvtwXkLpfqbs1tYNkxNP0xC_Awmg.; " +
-                    "HSID=AoZX0-3xQ7lN9EMEm; " +
-                    "SSID=AWwVsHei8i4VlX3H4; " +
-                    "NID=182=ikM1ZwJ0tMSqCiJc8gdretZpOHCnUSsZ2oM7I681KmnkL0DKFOBmFU6zlmTMC_mDnPhBB5mQxsaB0ipTICW9WyCa9nLUbo1Bx-H9jFmOLNhr1E5EezqlyFZcBKEyZgjFYmaY79_5jHMa4uE6v_Vb8HR1Uk9CXbNfw_yIPEsZXZ0t0CURkV-CdxdOIiZ4BAy0oE6w60GJ9kLpOWWSeNZ_lBcn0PkWRj6vmRH6kKrl2exOKnk";
+                    "SID=gjaHjfFJPAN5HO3MVVZpjHFKa_249dsfjHa9klsiaflsd99.asHqjsM2lAS; " +
+                    "HSID=j7m0aFJ82lPF7Hd9d; " +
+                    "SSID=nJKpa81jOskq7Jsps; " +
+                    "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
 
     // TODO: inject this in the future when https://github.com/Floens/Clover/pull/678 is merged
     private final OkHttpClient okHttpClient = new OkHttpClient();
@@ -127,6 +127,7 @@ public class CaptchaNoJsPresenterV2 {
                 public void onFailure(Call call, IOException e) {
                     if (callbacks != null) {
                         try {
+                            prevCaptchaInfo = null;
                             callbacks.onCaptchaInfoParseError(e);
                         } finally {
                             verificationInProgress.set(false);
@@ -187,6 +188,7 @@ public class CaptchaNoJsPresenterV2 {
                 public void onFailure(Call call, IOException e) {
                     if (callbacks != null) {
                         try {
+                            prevCaptchaInfo = null;
                             callbacks.onCaptchaInfoParseError(e);
                         } finally {
                             captchaRequestInProgress.set(false);
@@ -295,6 +297,10 @@ public class CaptchaNoJsPresenterV2 {
 
                 if (callbacks != null) {
                     callbacks.onCaptchaInfoParsed(captchaInfo);
+                } else {
+                    // Return null when callbacks are null to reset prevCaptchaInfo so that we won't
+                    // get stuck without captchaInfo and disabled buttons forever
+                    return null;
                 }
 
                 return captchaInfo;
