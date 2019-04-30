@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import org.floens.chan.R;
@@ -55,7 +56,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     private AppCompatButton useOldCaptchaButton;
     private AppCompatButton reloadCaptchaButton;
     private ConstraintLayout buttonsHolder;
-    private ConstraintLayout background;
+    private ScrollView background;
 
     private CaptchaNoJsV2Adapter adapter;
     private CaptchaNoJsPresenterV2 presenter;
