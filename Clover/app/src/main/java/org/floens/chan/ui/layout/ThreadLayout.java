@@ -52,8 +52,10 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.PostHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.helper.PostPopupHelper;
+import org.floens.chan.ui.helper.RemovedPostsHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.HidingFloatingActionButton;
 import org.floens.chan.ui.view.LoadView;
@@ -78,6 +80,7 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class ThreadLayout extends CoordinatorLayout implements
         ThreadPresenter.ThreadPresenterCallback,
         PostPopupHelper.PostPopupHelperCallback,
+        RemovedPostsHelper.RemovedPostsCallbacks,
         View.OnClickListener,
         ThreadListLayout.ThreadListLayoutCallback {
     private enum Visible {
@@ -103,6 +106,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     private TextView errorText;
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
+    private RemovedPostsHelper removedPostsHelper;
     private Visible visible;
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
@@ -148,6 +152,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         // View setup
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
+        removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
         errorText.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
         errorRetryButton.setOnClickListener(this);
 
@@ -537,6 +542,39 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
+    public void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo) {
+        removedPostsHelper.showPosts(threadPosts, threadNo);
+    }
+
+    @Override
+    public void onRestoreRemovedPostsClicked(
+            int threadNo,
+            Site site,
+            String boardCode,
+            List<Integer> selectedPosts) {
+
+        List<PostHide> postsToRestore = new ArrayList<>();
+
+        for (Integer postNo : selectedPosts) {
+            postsToRestore.add(PostHide.unhidePost(site.id(), boardCode, postNo));
+        }
+
+        databaseManager.runTask(
+                databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore)
+        );
+
+        presenter.refreshUI();
+
+        Snackbar snackbar = Snackbar.make(
+                this,
+                getContext().getString(R.string.restored_n_posts, postsToRestore.size()),
+                Snackbar.LENGTH_LONG);
+
+        snackbar.show();
+        fixSnackbarText(getContext(), snackbar);
+    }
+
+    @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
             if (!threadListLayout.scrolledToBottom()) {
@@ -658,6 +696,24 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
+    public void presentRemovedPostsController(Controller controller) {
+        callback.presenterRemovedPostsController(controller);
+    }
+
+    @Override
+    public void noRemovedPostsFoundForThisThread() {
+        // called on background thread
+
+        AndroidUtils.runOnUiThread(() -> {
+            Toast.makeText(
+                    getContext(),
+                    getContext().getString(R.string.no_removed_posts_for_current_thread),
+                    Toast.LENGTH_SHORT
+            ).show();
+        });
+    }
+
+    @Override
     public void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo) {
         String positiveButtonText = hide
                 ? getContext().getString(R.string.thread_layout_hide_whole_chain)
@@ -692,6 +748,8 @@ public class ThreadLayout extends CoordinatorLayout implements
         void onShowPosts();
 
         void presentRepliesController(Controller controller);
+
+        void presenterRemovedPostsController(Controller controller);
 
         void openReportController(Post post);
 

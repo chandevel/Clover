@@ -17,6 +17,7 @@
  */
 package org.floens.chan.utils;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -32,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -46,6 +48,8 @@ import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -451,5 +455,31 @@ public class AndroidUtils {
     public static boolean isConnected(int type) {
         NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
+    }
+
+    public static String getTAG() {
+        return TAG;
+    }
+
+    public static void animateStatusBar(Window window, boolean in, final int originalColor, int duration) {
+        ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);
+        statusBar.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                if (Build.VERSION.SDK_INT >= 21) { // Make lint happy
+                    float progress = (float) animation.getAnimatedValue();
+                    if (progress == 0f) {
+                        window.setStatusBarColor(originalColor);
+                    } else {
+                        int r = (int) ((1f - progress) * Color.red(originalColor));
+                        int g = (int) ((1f - progress) * Color.green(originalColor));
+                        int b = (int) ((1f - progress) * Color.blue(originalColor));
+                        window.setStatusBarColor(Color.argb(255, r, g, b));
+                    }
+                }
+            }
+        });
+        statusBar.setDuration(duration).setInterpolator(new LinearInterpolator());
+        statusBar.start();
     }
 }

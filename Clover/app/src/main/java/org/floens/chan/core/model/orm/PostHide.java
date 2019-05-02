@@ -101,6 +101,16 @@ public class PostHide {
         return postHide;
     }
 
+    public static PostHide unhidePost(int siteId, String boardCode, int postNo) {
+        PostHide postHide = new PostHide();
+
+        postHide.site = siteId;
+        postHide.board = boardCode;
+        postHide.no = postNo;
+
+        return postHide;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

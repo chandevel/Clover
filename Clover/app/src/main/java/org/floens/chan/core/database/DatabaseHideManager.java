@@ -393,4 +393,12 @@ public class DatabaseHideManager {
             return null;
         };
     }
+
+    public List<PostHide> getRemovedPostsWithThreadNo(int threadNo) throws SQLException {
+        return helper.postHideDao.queryBuilder().where()
+                .eq(PostHide.THREAD_NO, threadNo)
+                .and()
+                .eq(PostHide.HIDE_COLUMN, false)
+                .query();
+    }
 }
