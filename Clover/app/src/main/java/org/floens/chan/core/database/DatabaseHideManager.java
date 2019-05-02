@@ -350,7 +350,7 @@ public class DatabaseHideManager {
         };
     }
 
-    public Callable<Void> removeThreadHide(PostHide hide) {
+    public Callable<Void> removePostHide(PostHide hide) {
         return removePostsHide(Collections.singletonList(hide));
     }
 

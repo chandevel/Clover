@@ -84,7 +84,8 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 PostCellInterface postCell = (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
                 return new PostViewHolder(postCell);
             case TYPE_POST_STUB:
-                return new PostViewHolder((PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post_stub, parent, false));
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post_stub, parent, false);
+                return new PostViewHolder((PostCellInterface) view);
             case TYPE_LAST_SEEN:
                 return new LastSeenViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_post_last_seen, parent, false));
             case TYPE_STATUS:
@@ -105,8 +106,10 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_POST_STUB:
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
+
                 boolean highlight = post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo ||
                         post.tripcode.equals(highlightedPostTripcode);
+
                 postViewHolder.postView.setPost(null,
                         post,
                         postCellCallback,
@@ -118,6 +121,11 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         postViewMode,
                         compact);
 
+                if (itemViewType == TYPE_POST_STUB) {
+                    ((View)postViewHolder.postView).setOnClickListener(v -> {
+                        postAdapterCallback.onUnhidePostClick(post);
+                    });
+                }
                 break;
             case TYPE_STATUS:
                 ((StatusViewHolder) holder).threadStatusCell.update();
@@ -329,5 +337,6 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface PostAdapterCallback {
         Loadable getLoadable();
+        void onUnhidePostClick(Post post);
     }
 }

@@ -459,10 +459,10 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void hideThread(Post post, boolean hide) {
+    public void hideThread(Post post, int threadNo, boolean hide) {
         // hideRepliesToThisPost is false here because we don't have posts in the catalog mode so there
         // is no point in hiding replies to a thread
-        final PostHide postHide = PostHide.fromPost(post, true, hide, false);
+        final PostHide postHide = PostHide.hidePost(post, threadNo, true, hide, false);
 
         databaseManager.runTask(
                 databaseManager.getDatabaseHideManager().addThreadHide(postHide));
@@ -482,7 +482,7 @@ public class ThreadLayout extends CoordinatorLayout implements
             @Override
             public void onClick(View v) {
                 databaseManager.runTask(
-                        databaseManager.getDatabaseHideManager().removeThreadHide(postHide));
+                        databaseManager.getDatabaseHideManager().removePostHide(postHide));
                 presenter.refreshUI();
             }
         }).show();
@@ -490,14 +490,14 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts) {
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts, int threadNo) {
         final List<PostHide> hideList = new ArrayList<>();
 
         for (Post post : posts) {
             // Do not add the OP post to the hideList since we don't want to hide an OP post
             // while being in a thread (it just doesn't make any sense)
             if (!post.isOP) {
-                hideList.add(PostHide.fromPost(post, false, hide, wholeChain));
+                hideList.add(PostHide.hidePost(post, threadNo, false, hide, wholeChain));
             }
         }
 
@@ -525,6 +525,15 @@ public class ThreadLayout extends CoordinatorLayout implements
             presenter.refreshUI();
         }).show();
         fixSnackbarText(getContext(), snackbar);
+    }
+
+    @Override
+    public void unhideOrUnremovePost(Post post) {
+        databaseManager.runTask(
+                databaseManager.getDatabaseHideManager().removePostHide(PostHide.unhidePost(post))
+        );
+
+        presenter.refreshUI();
     }
 
     @Override
@@ -649,7 +658,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void showHideOrRemoveWholeChainDialog(boolean hide, Post post) {
+    public void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo) {
         String positiveButtonText = hide
                 ? getContext().getString(R.string.thread_layout_hide_whole_chain)
                 : getContext().getString(R.string.thread_layout_remove_whole_chain);
@@ -663,10 +672,10 @@ public class ThreadLayout extends CoordinatorLayout implements
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setMessage(message)
                 .setPositiveButton(positiveButtonText, (dialog, which) -> {
-                    presenter.hideOrRemovePosts(hide, true, post);
+                    presenter.hideOrRemovePosts(hide, true, post, threadNo);
                 })
                 .setNegativeButton(negativeButtonText, (dialog, which) -> {
-                    presenter.hideOrRemovePosts(hide, false, post);
+                    presenter.hideOrRemovePosts(hide, false, post, threadNo);
                 })
                 .create();
 

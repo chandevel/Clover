@@ -561,14 +561,14 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 int currentMode = chanLoader.getThread().loadable.mode;
 
                 if (currentMode == Loadable.Mode.CATALOG) {
-                    threadPresenterCallback.hideThread(post, hide);
+                    threadPresenterCallback.hideThread(post, post.no, hide);
                 } else {
                     if (post.repliesFrom.isEmpty()) {
                         // no replies to this post so no point in showing the dialog
-                        hideOrRemovePosts(hide, false, post);
+                        hideOrRemovePosts(hide, false, post, chanLoader.getThread().op.no);
                     } else {
                         // show a dialog to the user with options to hide/remove the whole chain of posts
-                        threadPresenterCallback.showHideOrRemoveWholeChainDialog(hide, post);
+                        threadPresenterCallback.showHideOrRemoveWholeChainDialog(hide, post, chanLoader.getThread().op.no);
                     }
                 }
 
@@ -660,6 +660,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         if (loadable != null && loadable.isThreadMode()) {
             chanLoader.requestMoreDataAndResetTimer();
         }
+    }
+
+    @Override
+    public void onUnhidePostClick(Post post) {
+        threadPresenterCallback.unhideOrUnremovePost(post);
     }
 
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
@@ -756,7 +761,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         }
     }
 
-    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post) {
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post, int threadNo) {
         Set<Post> posts = new HashSet<>();
 
         if (wholeChain) {
@@ -768,7 +773,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
         }
 
-        threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts);
+        threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts, threadNo);
     }
 
     public interface ThreadPresenterCallback {
@@ -832,14 +837,16 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void hideDeleting(String message);
 
-        void hideThread(Post post, boolean hide);
+        void hideThread(Post post, int threadNo, boolean hide);
 
         void showNewPostsNotification(boolean show, int more);
 
         void showCantHideOpFromFromThreadMessage();
 
-        void showHideOrRemoveWholeChainDialog(boolean hide, Post post);
+        void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo);
 
-        void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts);
+        void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts, int threadNo);
+
+        void unhideOrUnremovePost(Post post);
     }
 }

@@ -21,6 +21,10 @@ public class PostUtilsTest {
 
     /**
      * +---------------------+
+     * | no = 0              | <- OP
+     * | repliesTo = ...     |
+     * +---------------------+
+     * +---------------------+
      * | no = 1              | <- hidden
      * | repliesTo = ...     |
      * +---------------------+
@@ -89,8 +93,8 @@ public class PostUtilsTest {
         Board board = new Board("test", "123");
 
         createPosts(posts, board);
-        firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(0), false, false, true));
-        firstGenerationHiddenPosts.add(PostHide.fromPost(posts.get(7), false, false, true));
+        firstGenerationHiddenPosts.add(PostHide.hidePost(posts.get(0), 0, false, false, true));
+        firstGenerationHiddenPosts.add(PostHide.hidePost(posts.get(7), 0, false, false, true));
 
         @SuppressLint("UseSparseArrays")
         Map<Integer, Post> postsFastLookupMap = new HashMap<>();
