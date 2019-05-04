@@ -239,7 +239,7 @@ public class DrawerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     AndroidUtils.getRes(),
                     BitmapFactory.decodeResource(AndroidUtils.getRes(),
                             R.drawable.archived_icon));
-            text = PostHelper.addIcon(text, archivedIcon, sp(16));
+            text = PostHelper.prependIcon(text, archivedIcon, sp(16));
         }
 
         holder.textView.setText(text);

@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class PostHelper {
-    public static CharSequence addIcon(CharSequence total, BitmapDrawable bitmapDrawable, int height) {
+    public static CharSequence prependIcon(CharSequence total, BitmapDrawable bitmapDrawable, int height) {
         SpannableString string = new SpannableString("  ");
         ImageSpan imageSpan = new ImageSpan(bitmapDrawable);
 
@@ -42,7 +42,7 @@ public class PostHelper {
         if (total == null) {
             return string;
         } else {
-            return TextUtils.concat(total, string);
+            return TextUtils.concat(string, " ", total);
         }
     }
 

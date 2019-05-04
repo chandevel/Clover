@@ -81,6 +81,18 @@ public class BoardHelper {
         for (Pair<Board, Integer> ratio : ratios) {
             result.add(ratio.first);
         }
+
+        Board exact = null;
+        for(Board b : result) {
+            if(b.code.equalsIgnoreCase(query)) {
+                exact = b;
+                result.remove(b);
+                break;
+            }
+        }
+        if(exact != null) {
+            result.add(0, exact);
+        }
         return result;
     }
 

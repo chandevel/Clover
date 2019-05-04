@@ -553,6 +553,8 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 SavedReply savedReply = SavedReply.fromSiteBoardNoPassword(
                         post.board.site, post.board, post.no, "");
                 databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+                //force reload for reply highlighting
+                requestData();
                 break;
             case POST_OPTION_PIN:
                 String title = PostHelper.getTitle(post, loadable);
