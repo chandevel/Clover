@@ -68,11 +68,16 @@ public class BoardHelper {
 
     public static List<Board> search(List<Board> from, final String query) {
         List<Pair<Board, Integer>> ratios = new ArrayList<>();
+        Board exact = null;
         for (Board board : from) {
             int ratio = getTokenSortRatio(board, query);
 
             if (ratio > 2) {
                 ratios.add(new Pair<>(board, ratio));
+            }
+
+            if (board.code.equalsIgnoreCase(query) && exact == null) {
+                exact = board;
             }
         }
 
@@ -88,17 +93,12 @@ public class BoardHelper {
             result.add(ratio.first);
         }
 
-        Board exact = null;
-        for(Board b : result) {
-            if(b.code.equalsIgnoreCase(query)) {
-                exact = b;
-                result.remove(b);
-                break;
-            }
-        }
-        if(exact != null) {
+        //exact board code matches go to the top of the list (useful for 8chan)
+        if (exact != null) {
+            result.remove(exact);
             result.add(0, exact);
         }
+
         return result;
     }
 
