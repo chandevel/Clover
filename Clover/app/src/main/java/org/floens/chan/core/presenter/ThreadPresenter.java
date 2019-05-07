@@ -614,6 +614,13 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
                 threadPresenterCallback.showThread(thread);
             }
+        } else if (linkable.type == PostLinkable.Type.BOARD) {
+            Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager().getBoard(loadable.site, (String) linkable.value));
+            Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
+
+            threadPresenterCallback.showBoard(catalog);
+        } else if (linkable.type == PostLinkable.Type.SEARCH) {
+            //TODO go to board and search
         }
     }
 

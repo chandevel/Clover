@@ -3,6 +3,7 @@ package org.floens.chan.core.site.sites.chan8;
 import android.support.annotation.Nullable;
 
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
@@ -140,6 +141,9 @@ public class Chan8 extends CommonSite {
             public void boards(final BoardsListener listener) {
                 requestQueue.add(new Chan8BoardsRequest(Chan8.this, response -> {
                     Boards boards = new Boards(response);
+                    //sudo is a hidden board
+                    Board sudo = Board.fromSiteNameCode(Chan8.this, "8chan Tech Support", "sudo");
+                    boards.boards.add(sudo);
                     listener.onBoardsReceived(boards);
                     boardManager.updateAvailableBoardsForSite(Chan8.this, boards.boards);
                 }, (error) -> {

@@ -51,6 +51,7 @@ public class CommentParser {
     private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
     private Pattern boardLinkPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/");
+    private Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
     private Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
     private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
 
@@ -224,7 +225,7 @@ public class CommentParser {
 
     public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
         String href = anchor.attr("href");
-        // gets us something like /board/thread/postno#quoteno
+        //gets us something like /board/ or /thread/postno#quoteno
         //hacky fix for 4chan having two domains but the same API
         if (href.matches("//boards\\.4chan.*?\\.org/(.*?)/thread/(\\d*?)#p(\\d*)")) {
             href = href.substring(2);
@@ -257,11 +258,12 @@ public class CommentParser {
                 value = Integer.parseInt(quoteMatcher.group(1));
             } else {
                 Matcher boardLinkMatcher = boardLinkPattern.matcher(href);
+                Matcher boardLinkMatcher8Chan = boardLinkPattern8Chan.matcher(href);
                 Matcher boardSearchMatcher = boardSearchPattern.matcher(href);
-                if (boardLinkMatcher.matches()) {
+                if (boardLinkMatcher.matches() || boardLinkMatcher8Chan.matches()) {
                     //board link
                     t = PostLinkable.Type.BOARD;
-                    value = boardLinkMatcher.group(1);
+                    value = boardLinkMatcher.matches() ? boardLinkMatcher.group(1) : boardLinkMatcher8Chan.group(1);
                 } else if (boardSearchMatcher.matches()) {
                     //search link
                     String board = boardSearchMatcher.group(1);
