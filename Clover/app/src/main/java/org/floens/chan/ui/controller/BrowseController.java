@@ -365,7 +365,9 @@ public class BrowseController extends ThreadController implements
 
     @Override
     public void showBoard(Loadable catalogLoadable) {
-        showBoard(catalogLoadable, true);
+        //we don't actually need to do anything here because you can't tap board links in the browse controller
+        //set the board just in case?
+        setBoard(catalogLoadable.board);
     }
 
     // Creates or updates the target ThreadViewController
@@ -421,9 +423,5 @@ public class BrowseController extends ThreadController implements
             viewThreadController.setLoadable(threadLoadable);
             navigationController.pushController(viewThreadController, animated);
         }
-    }
-
-    public void showBoard(Loadable catalogLoadable, boolean animated) {
-        //TODO load board
     }
 }

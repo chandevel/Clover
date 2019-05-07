@@ -34,7 +34,6 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.pool.ChanLoaderFactory;
-import org.floens.chan.core.repository.BoardRepository;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteActions;
