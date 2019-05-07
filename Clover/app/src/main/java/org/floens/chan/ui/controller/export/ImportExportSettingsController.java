@@ -118,12 +118,9 @@ public class ImportExportSettingsController extends SettingsController implement
         }
 
         getPermissionHelper().requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
-            if (granted) {
+            if (granted && presenter != null) {
                 navigationController.presentController(loadingViewController);
-
-                if (presenter != null) {
-                    presenter.doExport(settingsFile);
-                }
+                presenter.doExport(settingsFile);
             } else {
                 getPermissionHelper().showPermissionRequiredDialog(context,
                         context.getString(R.string.update_storage_permission_required_title),
@@ -234,9 +231,8 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     private void onStartImportButtonClicked() {
-        navigationController.presentController(loadingViewController);
-
         if (presenter != null) {
+            navigationController.presentController(loadingViewController);
             presenter.doImport(settingsFile);
         }
     }

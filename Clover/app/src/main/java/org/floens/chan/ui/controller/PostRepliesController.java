@@ -17,21 +17,17 @@
  */
 package org.floens.chan.ui.controller;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import org.floens.chan.R;
-import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ThreadPresenter;
@@ -40,19 +36,15 @@ import org.floens.chan.ui.cell.PostCellInterface;
 import org.floens.chan.ui.helper.PostPopupHelper;
 import org.floens.chan.ui.view.LoadView;
 import org.floens.chan.ui.view.ThumbnailView;
-import org.floens.chan.utils.AndroidUtils;
 
 import java.util.List;
 
 import static org.floens.chan.ui.theme.ThemeHelper.theme;
 
-public class PostRepliesController extends Controller {
-    private static final int TRANSITION_DURATION = 200;
-
+public class PostRepliesController extends BaseFloatingController {
     private PostPopupHelper postPopupHelper;
     private ThreadPresenter presenter;
 
-    private int statusBarColorPrevious;
     private boolean first = true;
 
     private LoadView loadView;
@@ -69,29 +61,15 @@ public class PostRepliesController extends Controller {
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_post_replies_container);
-
         // Clicking outside the popup view
         view.setOnClickListener(v -> postPopupHelper.pop());
 
         loadView = view.findViewById(R.id.loadview);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            statusBarColorPrevious = getWindow().getStatusBarColor();
-            if (statusBarColorPrevious != 0) {
-                AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
-            }
-        }
     }
 
     @Override
-    public void stopPresenting() {
-        super.stopPresenting();
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (statusBarColorPrevious != 0) {
-                AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
-            }
-        }
+    protected int getLayoutId() {
+        return R.layout.layout_post_replies_container;
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
@@ -218,9 +196,5 @@ public class PostRepliesController extends Controller {
     public boolean onBack() {
         postPopupHelper.pop();
         return true;
-    }
-
-    private Window getWindow() {
-        return ((Activity) context).getWindow();
     }
 }
