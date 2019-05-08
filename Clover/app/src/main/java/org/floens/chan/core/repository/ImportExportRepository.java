@@ -187,9 +187,8 @@ public class ImportExportRepository {
             appSettings = onUpgrade(appSettings.getVersion(), appSettings);
         } else if (appSettings.getVersion() > CURRENT_EXPORT_SETTINGS_VERSION) {
             // we don't support settings downgrade so just notify the user about it
-            throw new DowngradeNotSupportedException(
-                    "You are attempting to import settings with version " +
-                    "higher than the current app's settings version (downgrade). " +
+            throw new DowngradeNotSupportedException("You are attempting to import settings with " +
+                    "version higher than the current app's settings version (downgrade). " +
                     "This is not supported so nothing will be imported."
             );
         }
@@ -442,7 +441,11 @@ public class ImportExportRepository {
             exportedPostHides.add(new ExportedPostHide(
                     threadHide.site,
                     threadHide.board,
-                    threadHide.no
+                    threadHide.no,
+                    threadHide.wholeThread,
+                    threadHide.hide,
+                    threadHide.hideRepliesToThisPost,
+                    threadHide.threadNo
             ));
         }
 

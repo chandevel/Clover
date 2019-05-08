@@ -311,8 +311,15 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     public void onAuthenticationComplete(AuthenticationLayoutInterface authenticationLayout, String challenge, String response) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
+
+        // should this be called here?
         authenticationLayout.reset();
         makeSubmitCall();
+    }
+
+    @Override
+    public void onFallbackToV1CaptchaView() {
+        callback.onFallbackToV1CaptchaView();
     }
 
     public void onCommentTextChanged(CharSequence text) {
@@ -422,6 +429,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         callback.openSpoiler(false, false);
         callback.openPreview(false, null);
         callback.openPreviewMessage(false, null);
+        callback.destroyCurrentAuthentication();
     }
 
     private void makeSubmitCall() {
@@ -429,8 +437,13 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         switchPage(Page.LOADING, true);
     }
 
-    private void switchPage(Page page, boolean animate) {
-        if (this.page != page) {
+    public void switchPage(Page page, boolean animate) {
+        // by default try to use the new nojs captcha view
+        switchPage(page, animate, true);
+    }
+
+    public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha) {
+        if (!useV2NoJsCaptcha || this.page != page) {
             this.page = page;
             switch (page) {
                 case LOADING:
@@ -442,7 +455,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
                 case AUTHENTICATION:
                     SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
 
-                    callback.initializeAuthentication(loadable.site, authentication, this);
+                    // cleanup resources tied to the new captcha layout/presenter
+                    callback.destroyCurrentAuthentication();
+                    callback.initializeAuthentication(loadable.site, authentication, this, useV2NoJsCaptcha);
                     callback.setPage(Page.AUTHENTICATION, true);
 
                     break;
@@ -513,8 +528,10 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
 
         void setPage(Page page, boolean animate);
 
-        void initializeAuthentication(Site site, SiteAuthentication authentication,
-                                      AuthenticationLayoutCallback callback);
+        void initializeAuthentication(Site site,
+                                      SiteAuthentication authentication,
+                                      AuthenticationLayoutCallback callback,
+                                      boolean useV2NoJsCaptcha);
 
         void resetAuthentication();
 
@@ -561,5 +578,9 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         void focusComment();
 
         void onUploadingProgress(int percent);
+
+        void onFallbackToV1CaptchaView();
+
+        void destroyCurrentAuthentication();
     }
 }

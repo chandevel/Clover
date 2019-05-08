@@ -30,14 +30,23 @@ public class ExportedPostHide {
     private String board;
     @SerializedName("no")
     private int no;
+    @SerializedName("wholeThread")
+    private boolean wholeThread;
+    @SerializedName("hide")
+    private boolean hide;
+    @SerializedName("hideRepliesToThisPost")
+    private boolean hideRepliesToThisPost;
+    @SerializedName("threadNo")
+    private int threadNo;
 
-    //TODO: add "wholeThread" field when this task
-    // https://github.com/Floens/Clover/pull/654/files#diff-5e9a09d29a1b99ff8a11eea249800b96R44 is merged
-
-    public ExportedPostHide(int site, @NonNull String board, int no) {
+    public ExportedPostHide(int site, @NonNull String board, int no, boolean wholeThread, boolean hide, boolean hideRepliesToThisPost, int threadNo) {
         this.site = site;
         this.board = board;
         this.no = no;
+        this.wholeThread = wholeThread;
+        this.hide = hide;
+        this.hideRepliesToThisPost = hideRepliesToThisPost;
+        this.threadNo = threadNo;
     }
 
     public int getSite() {
@@ -51,5 +60,21 @@ public class ExportedPostHide {
 
     public int getNo() {
         return no;
+    }
+
+    public boolean getWholeThread() {
+        return wholeThread;
+    }
+
+    public boolean getHide() {
+        return hide;
+    }
+
+    public boolean getHideRepliesToThisPost() {
+        return hideRepliesToThisPost;
+    }
+
+    public int getThreadNo() {
+        return threadNo;
     }
 }
