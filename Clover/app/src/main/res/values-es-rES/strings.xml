@@ -242,11 +242,6 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <string name="post_copy_text">Copiar texto</string>
     <string name="post_report">Reportar</string>
     <string name="post_hide">Ocultar</string>
-    <plurals name="post_hidden">
-        <item quantity="one">%1$d publicación oculta</item>
-        <item quantity="other">%1$d mensajes ocultos</item>
-    </plurals>
-    <string name="thread_hidden">Hilo oculto</string>
     <string name="post_delete">Eliminar</string>
     <string name="post_more">Más…</string>
 

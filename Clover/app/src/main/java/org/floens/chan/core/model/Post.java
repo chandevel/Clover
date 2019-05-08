@@ -270,7 +270,9 @@ public class Post implements Comparable<Post> {
 
     @Override
     public int hashCode() {
-        return 31 * no;
+        return 31 * no +
+                31 * board.code.hashCode() +
+                31 * board.siteId;
     }
 
     @Override
@@ -279,16 +281,27 @@ public class Post implements Comparable<Post> {
             return false;
         }
 
+        if (other == this) {
+            return true;
+        }
+
         if (this.getClass() != other.getClass()) {
             return false;
         }
 
-        return this.no == ((Post) other).no;
+        Post otherPost = (Post) other;
+
+        return this.no == otherPost.no
+                && this.board.code.equals(otherPost.board.code)
+                && this.board.siteId == otherPost.board.siteId;
     }
 
     @Override
     public String toString() {
-        return "[no = " + no + ", comment = " + comment + "]";
+        return "[no = " + no +
+                ", boardCode = " + board.code +
+                ", siteId = " + board.siteId +
+                ", comment = " + comment + "]";
     }
 
     public static final class Builder {

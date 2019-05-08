@@ -201,10 +201,10 @@ public class Board implements Cloneable {
 
     /**
      * UNSAFE TO USE!!! FOR TESTS ONLY!!!
-     *
+     * <p>
      * Site class accesses Android's context so it cannot be used in Unit tests.
      * That's why this constructor was added.
-     * */
+     */
     @Deprecated
     public Board(String name, String code) {
         this.name = name;

@@ -48,8 +48,18 @@ public class PostHide {
     @DatabaseField(columnName = "hide")
     public boolean hide;
 
+    /**
+     * Indicates whether we also should hide/remove all the current and future replies to this post
+     */
     @DatabaseField(columnName = "hide_replies_to_this_post")
     public boolean hideRepliesToThisPost;
+
+    /**
+     * Thread where this post is hidden. It's being used to show the user all posts the posts that he
+     * has hid/removed in a thread (so he can unhide some of them)
+     */
+    @DatabaseField(columnName = "thread_no")
+    public int threadNo;
 
     @Deprecated
     public PostHide() {
@@ -61,14 +71,41 @@ public class PostHide {
         this.no = no;
     }
 
-    public static PostHide fromPost(Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost) {
+    public static PostHide hidePost(
+            Post post,
+            int threadNo,
+            Boolean wholeThread,
+            Boolean hide,
+            Boolean hideRepliesToThisPost
+    ) {
         PostHide postHide = new PostHide();
         postHide.board = post.board.code;
         postHide.no = post.no;
+        postHide.threadNo = threadNo;
         postHide.site = post.board.siteId;
         postHide.wholeThread = wholeThread;
         postHide.hide = hide;
         postHide.hideRepliesToThisPost = hideRepliesToThisPost;
+        return postHide;
+    }
+
+    public static PostHide unhidePost(Post post) {
+        PostHide postHide = new PostHide();
+
+        postHide.board = post.board.code;
+        postHide.no = post.no;
+        postHide.site = post.board.siteId;
+
+        return postHide;
+    }
+
+    public static PostHide unhidePost(int siteId, String boardCode, int postNo) {
+        PostHide postHide = new PostHide();
+
+        postHide.site = siteId;
+        postHide.board = boardCode;
+        postHide.no = postNo;
+
         return postHide;
     }
 

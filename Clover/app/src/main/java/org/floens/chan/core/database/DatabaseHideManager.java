@@ -13,6 +13,7 @@ import org.floens.chan.utils.PostUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -85,7 +86,7 @@ public class DatabaseHideManager {
                 if (hiddenPost != null) {
                     if (hiddenPost.hide) {
                         // hide post
-                        Post newPost = rebuildPostWithInheritedFilter(
+                        Post newPost = rebuildPostWithCustomFilter(
                                 post,
                                 0,
                                 true,
@@ -208,11 +209,7 @@ public class DatabaseHideManager {
      * Returns a chain of hidden posts.
      */
     private void applyPostFilterActionToChildPosts(Post parentPost, Map<Integer, Post> postsFastLookupMap) {
-        if (postsFastLookupMap.isEmpty()) {
-            return;
-        }
-
-        if (!parentPost.filterReplies) {
+        if (postsFastLookupMap.isEmpty() || !parentPost.filterReplies) {
             // do nothing with replies if filtering is disabled for replies
             return;
         }
@@ -242,7 +239,7 @@ public class DatabaseHideManager {
 
             // do not overwrite filter parameters from another filter
             if (!childPost.hasFilterParameters()) {
-                Post newPost = rebuildPostWithInheritedFilter(
+                Post newPost = rebuildPostWithCustomFilter(
                         childPost,
                         parentPost.filterHighlightedColor,
                         parentPost.filterStub,
@@ -263,7 +260,7 @@ public class DatabaseHideManager {
     /**
      * Rebuilds a child post with custom filter parameters
      */
-    private Post rebuildPostWithInheritedFilter(
+    private Post rebuildPostWithCustomFilter(
             Post childPost,
             int filterHighlightedColor,
             boolean filterStub,
@@ -312,11 +309,7 @@ public class DatabaseHideManager {
         }
 
         PostHide potentiallyHiddenPost = hiddenPostsFastLookupMap.get(post.no);
-        if (potentiallyHiddenPost == null) {
-            return null;
-        }
-
-        if (potentiallyHiddenPost.site == siteId && potentiallyHiddenPost.board.equals(board)) {
+        if (potentiallyHiddenPost != null && potentiallyHiddenPost.site == siteId && potentiallyHiddenPost.board.equals(board)) {
             return potentiallyHiddenPost;
         }
 
@@ -349,12 +342,8 @@ public class DatabaseHideManager {
         };
     }
 
-    public Callable<Void> removeThreadHide(PostHide hide) {
-        return () -> {
-            helper.postHideDao.delete(hide);
-
-            return null;
-        };
+    public Callable<Void> removePostHide(PostHide hide) {
+        return removePostsHide(Collections.singletonList(hide));
     }
 
     public Callable<Void> removePostsHide(List<PostHide> hideList) {
@@ -395,5 +384,13 @@ public class DatabaseHideManager {
 
             return null;
         };
+    }
+
+    public List<PostHide> getRemovedPostsWithThreadNo(int threadNo) throws SQLException {
+        return helper.postHideDao.queryBuilder().where()
+                .eq("thread_no", threadNo)
+                .and()
+                .eq("hide", false)
+                .query();
     }
 }

@@ -51,10 +51,12 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.PostHide;
 import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.helper.ImageOptionsHelper;
 import org.floens.chan.ui.helper.PostPopupHelper;
+import org.floens.chan.ui.helper.RemovedPostsHelper;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.HidingFloatingActionButton;
 import org.floens.chan.ui.view.LoadView;
@@ -81,6 +83,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         ThreadPresenter.ThreadPresenterCallback,
         PostPopupHelper.PostPopupHelperCallback,
         ImageOptionsHelper.ImageReencodingHelperCallback,
+        RemovedPostsHelper.RemovedPostsCallbacks,
         View.OnClickListener,
         ThreadListLayout.ThreadListLayoutCallback {
     private enum Visible {
@@ -109,6 +112,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
     private ImageOptionsHelper imageReencodingHelper;
+    private RemovedPostsHelper removedPostsHelper;
     private Visible visible;
     private ProgressDialog deletingDialog;
     private boolean refreshedFromSwipe;
@@ -158,6 +162,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
         imageReencodingHelper = new ImageOptionsHelper(getContext(), this);
+        removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
         errorText.setTypeface(AndroidUtils.ROBOTO_MEDIUM);
         errorRetryButton.setOnClickListener(this);
 
@@ -466,10 +471,10 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void hideThread(Post post, boolean hide) {
+    public void hideThread(Post post, int threadNo, boolean hide) {
         // hideRepliesToThisPost is false here because we don't have posts in the catalog mode so there
         // is no point in hiding replies to a thread
-        final PostHide postHide = PostHide.fromPost(post, true, hide, false);
+        final PostHide postHide = PostHide.hidePost(post, threadNo, true, hide, false);
 
         databaseManager.runTask(
                 databaseManager.getDatabaseHideManager().addThreadHide(postHide));
@@ -481,21 +486,21 @@ public class ThreadLayout extends CoordinatorLayout implements
         Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
         snackbar.setAction(R.string.undo, v -> {
             databaseManager.runTask(
-                    databaseManager.getDatabaseHideManager().removeThreadHide(postHide));
+                    databaseManager.getDatabaseHideManager().removePostHide(postHide));
             presenter.refreshUI();
         }).show();
         fixSnackbarText(getContext(), snackbar);
     }
 
     @Override
-    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts) {
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts, int threadNo) {
         final List<PostHide> hideList = new ArrayList<>();
 
         for (Post post : posts) {
             // Do not add the OP post to the hideList since we don't want to hide an OP post
             // while being in a thread (it just doesn't make any sense)
             if (!post.isOP) {
-                hideList.add(PostHide.fromPost(post, false, hide, wholeChain));
+                hideList.add(PostHide.hidePost(post, threadNo, false, hide, wholeChain));
             }
         }
 
@@ -522,6 +527,48 @@ public class ThreadLayout extends CoordinatorLayout implements
                     databaseManager.getDatabaseHideManager().removePostsHide(hideList));
             presenter.refreshUI();
         }).show();
+        fixSnackbarText(getContext(), snackbar);
+    }
+
+    @Override
+    public void unhideOrUnremovePost(Post post) {
+        databaseManager.runTask(
+                databaseManager.getDatabaseHideManager().removePostHide(PostHide.unhidePost(post))
+        );
+
+        presenter.refreshUI();
+    }
+
+    @Override
+    public void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo) {
+        removedPostsHelper.showPosts(threadPosts, threadNo);
+    }
+
+    @Override
+    public void onRestoreRemovedPostsClicked(
+            int threadNo,
+            Site site,
+            String boardCode,
+            List<Integer> selectedPosts) {
+
+        List<PostHide> postsToRestore = new ArrayList<>();
+
+        for (Integer postNo : selectedPosts) {
+            postsToRestore.add(PostHide.unhidePost(site.id(), boardCode, postNo));
+        }
+
+        databaseManager.runTask(
+                databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore)
+        );
+
+        presenter.refreshUI();
+
+        Snackbar snackbar = Snackbar.make(
+                this,
+                getContext().getString(R.string.restored_n_posts, postsToRestore.size()),
+                Snackbar.LENGTH_LONG);
+
+        snackbar.show();
         fixSnackbarText(getContext(), snackbar);
     }
 
@@ -655,7 +702,25 @@ public class ThreadLayout extends CoordinatorLayout implements
         threadListLayout.onImageOptionsApplied(reply);
     }
 
-    public void showHideOrRemoveWholeChainDialog(boolean hide, Post post) {
+    public void presentRemovedPostsController(Controller controller) {
+        callback.presenterRemovedPostsController(controller);
+    }
+
+    @Override
+    public void noRemovedPostsFoundForThisThread() {
+        // called on background thread
+
+        AndroidUtils.runOnUiThread(() -> {
+            Toast.makeText(
+                    getContext(),
+                    getContext().getString(R.string.no_removed_posts_for_current_thread),
+                    Toast.LENGTH_SHORT
+            ).show();
+        });
+    }
+
+    @Override
+    public void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo) {
         String positiveButtonText = hide
                 ? getContext().getString(R.string.thread_layout_hide_whole_chain)
                 : getContext().getString(R.string.thread_layout_remove_whole_chain);
@@ -668,8 +733,12 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setMessage(message)
-                .setPositiveButton(positiveButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post))
-                .setNegativeButton(negativeButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post))
+                .setPositiveButton(positiveButtonText, (dialog, which) -> {
+                    presenter.hideOrRemovePosts(hide, true, post, threadNo);
+                })
+                .setNegativeButton(negativeButtonText, (dialog, which) -> {
+                    presenter.hideOrRemovePosts(hide, false, post, threadNo);
+                })
                 .create();
 
         alertDialog.show();
@@ -689,6 +758,8 @@ public class ThreadLayout extends CoordinatorLayout implements
         void presentRepliesController(Controller controller);
 
         void presentImageReencodingController(Controller controller);
+
+        void presenterRemovedPostsController(Controller controller);
 
         void openReportController(Post post);
 

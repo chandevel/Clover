@@ -360,7 +360,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private void updateCheckboxes() {
         enabled.setChecked(filter.enabled);
         applyToReplies.setChecked(filter.applyToReplies);
-        if(filter.action == FilterEngine.FilterAction.WATCH.id) {
+        if (filter.action == FilterEngine.FilterAction.WATCH.id) {
             applyToReplies.setEnabled(false);
         }
     }
@@ -373,11 +373,11 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
             filter.color = 0xffff0000;
         }
         colorPreview.setBackgroundColor(filter.color);
-        if(filter.action != FilterEngine.FilterAction.WATCH.id) {
+        if (filter.action != FilterEngine.FilterAction.WATCH.id) {
             applyToReplies.setEnabled(true);
         } else {
             applyToReplies.setEnabled(false);
-            if(applyToReplies.isChecked()) {
+            if (applyToReplies.isChecked()) {
                 applyToReplies.toggle();
                 filter.applyToReplies = false;
             }

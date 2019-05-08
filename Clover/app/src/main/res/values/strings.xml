@@ -655,4 +655,9 @@ Don't have a 4chan Pass?<br>
     <string name="thread_layout_remove_post" tools:ignore="MissingTranslation">Remove post</string>
     <string name="thread_layout_hide_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to hide the whole reply chain as well?</string>
     <string name="thread_layout_remove_whole_chain_as_well" tools:ignore="MissingTranslation">Would you like to remove whole reply chain as well?</string>
+    <string name="view_removed_posts" tools:ignore="MissingTranslation">View removed posts</string>
+    <string name="restore_posts" tools:ignore="MissingTranslation">Restore posts</string>
+    <string name="restored_n_posts" tools:ignore="MissingTranslation">Restored %1$d posts</string>
+    <string name="no_removed_posts_for_current_thread" tools:ignore="MissingTranslation">No removed posts found for the current thread</string>
+    <string name="select_all" tools:ignore="MissingTranslation">Select all</string>
 </resources>

@@ -83,6 +83,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     private static final int POST_OPTION_FILTER_TRIPCODE = 14;
     private static final int POST_OPTION_EXTRA = 15;
     private static final int POST_OPTION_REMOVE = 16;
+    private static final int POST_OPTION_REMOVED_POSTS = 17;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private WatchManager watchManager;
@@ -475,6 +476,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             menu.add(new FloatingMenuItem(POST_OPTION_REMOVE, R.string.post_remove));
         }
 
+        if (loadable.isThreadMode() && post.isOP) {
+            menu.add(new FloatingMenuItem(POST_OPTION_REMOVED_POSTS, R.string.view_removed_posts));
+        }
+
         if (loadable.isThreadMode()) {
             if (!TextUtils.isEmpty(post.id)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
@@ -563,33 +568,36 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 );
                 watchManager.createPin(pinLoadable, post);
                 break;
-            case POST_OPTION_OPEN_BROWSER: {
-                String url = loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post);
-                AndroidUtils.openLink(url);
+            case POST_OPTION_OPEN_BROWSER:
+                AndroidUtils.openLink(loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post));
                 break;
-            }
-            case POST_OPTION_SHARE: {
-                String url = loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post);
-                AndroidUtils.shareLink(url);
+            case POST_OPTION_SHARE:
+                AndroidUtils.shareLink(loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post));
                 break;
-            }
             case POST_OPTION_REMOVE:
-            case POST_OPTION_HIDE: {
+            case POST_OPTION_HIDE:
                 boolean hide = ((Integer) id) == POST_OPTION_HIDE;
-                int currentMode = chanLoader.getThread().loadable.mode;
 
-                if (currentMode == Loadable.Mode.CATALOG) {
-                    threadPresenterCallback.hideThread(post, hide);
+                if (chanLoader.getThread().loadable.mode == Loadable.Mode.CATALOG) {
+                    threadPresenterCallback.hideThread(post, post.no, hide);
                 } else {
                     if (post.repliesFrom.isEmpty()) {
                         // no replies to this post so no point in showing the dialog
-                        hideOrRemovePosts(hide, false, post);
+                        hideOrRemovePosts(hide, false, post, chanLoader.getThread().op.no);
                     } else {
                         // show a dialog to the user with options to hide/remove the whole chain of posts
-                        threadPresenterCallback.showHideOrRemoveWholeChainDialog(hide, post);
+                        threadPresenterCallback.showHideOrRemoveWholeChainDialog(hide, post, chanLoader.getThread().op.no);
                     }
                 }
+                break;
+            case POST_OPTION_REMOVED_POSTS: {
+                if (chanLoader.getThread().loadable.mode != Loadable.Mode.THREAD) {
+                    return;
+                }
 
+                threadPresenterCallback.viewRemovedPostsForTheThread(
+                        chanLoader.getThread().posts,
+                        chanLoader.getThread().op.no);
                 break;
             }
         }
@@ -690,6 +698,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             chanLoader.requestMoreDataAndResetTimer();
             pageRequestManager.forceUpdateForBoard(loadable.board);
         }
+    }
+
+    @Override
+    public void onUnhidePostClick(Post post) {
+        threadPresenterCallback.unhideOrUnremovePost(post);
     }
 
     public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
@@ -798,7 +811,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         threadPresenterCallback.showImageReencodingWindow(loadable);
     }
 
-    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post) {
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post, int threadNo) {
         Set<Post> posts = new HashSet<>();
 
         if (wholeChain) {
@@ -810,7 +823,15 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             posts.add(PostUtils.findPostById(post.no, chanLoader.getThread()));
         }
 
-        threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts);
+        threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts, threadNo);
+    }
+
+    public void onRestoreRemovedPostsClicked(List<Integer> selectedPosts) {
+        int threadNo = chanLoader.getThread().op.no;
+        Site site = chanLoader.getThread().loadable.site;
+        String boardCode = chanLoader.getThread().loadable.boardCode;
+
+        threadPresenterCallback.onRestoreRemovedPostsClicked(threadNo, site, boardCode, selectedPosts);
     }
 
     public interface ThreadPresenterCallback {
@@ -876,14 +897,20 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void hideDeleting(String message);
 
-        void hideThread(Post post, boolean hide);
+        void hideThread(Post post, int threadNo, boolean hide);
 
         void showNewPostsNotification(boolean show, int more);
 
         void showImageReencodingWindow(Loadable loadable);
 
-        void showHideOrRemoveWholeChainDialog(boolean hide, Post post);
+        void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo);
 
-        void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts);
+        void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts, int threadNo);
+
+        void unhideOrUnremovePost(Post post);
+
+        void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
+
+        void onRestoreRemovedPostsClicked(int threadNo, Site site, String boardCode, List<Integer> selectedPosts);
     }
 }

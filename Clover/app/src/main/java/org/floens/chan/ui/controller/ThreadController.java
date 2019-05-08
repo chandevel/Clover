@@ -176,6 +176,11 @@ public abstract class ThreadController extends Controller implements
     }
 
     @Override
+    public void presenterRemovedPostsController(Controller controller) {
+        presentController(controller);
+    }
+
+    @Override
     public void openReportController(final Post post) {
         navigationController.pushController(new ReportController(context, post));
     }
