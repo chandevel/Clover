@@ -60,7 +60,7 @@ public class ImportExportRepository {
 
     // Don't forget to change this when changing any of the Export models.
     // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 1;
+    public static final int CURRENT_EXPORT_SETTINGS_VERSION = 2;
 
     private DatabaseManager databaseManager;
     private DatabaseHelper databaseHelper;
@@ -296,7 +296,10 @@ public class ImportExportRepository {
     }
 
     private ExportedAppSettings onUpgrade(int version, ExportedAppSettings appSettings) {
-        // Add your ExportAppSettings migrations here
+        if (version < 2) {
+            //clear the post hides for this version, threadNo field was added
+            appSettings.setExportedPostHides(new ArrayList<>());
+        }
         return appSettings;
     }
 

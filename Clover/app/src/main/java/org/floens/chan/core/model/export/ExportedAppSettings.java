@@ -97,4 +97,24 @@ public class ExportedAppSettings {
     public String getSettings() {
         return settings;
     }
+
+    public void setExportedSites(List<ExportedSite> exportedSites) {
+        this.exportedSites = exportedSites;
+    }
+
+    public void setExportedBoards(List<ExportedBoard> exportedBoards) {
+        this.exportedBoards = exportedBoards;
+    }
+
+    public void setExportedFilters(List<ExportedFilter> exportedFilters) {
+        this.exportedFilters = exportedFilters;
+    }
+
+    public void setExportedPostHides(List<ExportedPostHide> exportedPostHides) {
+        this.exportedPostHides = exportedPostHides;
+    }
+
+    public void setSettings(String settings) {
+        throw new UnsupportedOperationException("Settings are only allowed to be set with the constructor, and must be from ChanSettings.serializeToString().");
+    }
 }
