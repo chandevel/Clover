@@ -122,6 +122,14 @@ public class AlbumViewController extends Controller implements
             if (doubleNav.getRightController() instanceof ThreadController) {
                 threadController = (ThreadController) doubleNav.getRightController();
             }
+        } else if (previousSiblingController == null) {
+            //split nav has no "sibling" to look at, so we go WAY back to find the view thread controller
+            SplitNavigationController splitNav = (SplitNavigationController) this.parentController.parentController.presentedByController;
+            threadController = (ThreadController) splitNav.rightController.childControllers.get(0);
+            threadController.selectPostImage(postImage);
+            //clear the popup here because split nav is weirdly laid out in the stack
+            splitNav.popController();
+            return threadController;
         }
 
         if (threadController != null) {
