@@ -221,6 +221,9 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
 
         FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
+        if(post.isOP) {
+            menu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
+        }
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
