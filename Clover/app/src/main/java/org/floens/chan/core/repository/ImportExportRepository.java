@@ -297,7 +297,7 @@ public class ImportExportRepository {
 
     private ExportedAppSettings onUpgrade(int version, ExportedAppSettings appSettings) {
         if (version < 2) {
-            //clear the post hides for this version, threadNo field was added
+            //clear the post hides for version 1, threadNo field was added
             appSettings.setExportedPostHides(new ArrayList<>());
         }
         return appSettings;

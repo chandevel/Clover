@@ -1,8 +1,6 @@
 package org.floens.chan.ui.controller;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -13,7 +11,6 @@ import android.support.v7.widget.AppCompatTextView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -22,11 +19,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
 import org.floens.chan.R;
-import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.ui.helper.RemovedPostsHelper;
-import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.BackgroundUtils;
 import org.floens.chan.utils.Logger;
 
@@ -39,10 +34,8 @@ import javax.inject.Inject;
 
 import static org.floens.chan.Chan.inject;
 
-// TODO: extend from BaseFloatingController.java when https://github.com/Floens/Clover/pull/678 is merged
-public class RemovedPostsController extends Controller implements View.OnClickListener {
+public class RemovedPostsController extends BaseFloatingController implements View.OnClickListener {
     private static final String TAG = "RemovedPostsController";
-    private static final int TRANSITION_DURATION = 200;
 
     @Inject
     ImageLoader imageLoader;
@@ -56,7 +49,6 @@ public class RemovedPostsController extends Controller implements View.OnClickLi
 
     @Nullable
     private RemovedPostAdapter adapter;
-    private int statusBarColorPrevious;
 
     public RemovedPostsController(
             Context context,
@@ -71,8 +63,6 @@ public class RemovedPostsController extends Controller implements View.OnClickLi
     public void onCreate() {
         super.onCreate();
 
-        view = inflateRes(R.layout.layout_removed_posts);
-
         viewHolder = view.findViewById(R.id.removed_posts_view_holder);
         restorePostsButton = view.findViewById(R.id.removed_posts_restore_posts);
         selectAllButton = view.findViewById(R.id.removed_posts_select_all);
@@ -81,24 +71,11 @@ public class RemovedPostsController extends Controller implements View.OnClickLi
         viewHolder.setOnClickListener(this);
         restorePostsButton.setOnClickListener(this);
         selectAllButton.setOnClickListener(this);
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            statusBarColorPrevious = getWindow().getStatusBarColor();
-            if (statusBarColorPrevious != 0) {
-                AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
-            }
-        }
     }
 
     @Override
-    public void stopPresenting() {
-        super.stopPresenting();
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (statusBarColorPrevious != 0) {
-                AndroidUtils.animateStatusBar(getWindow(), false, statusBarColorPrevious, TRANSITION_DURATION);
-            }
-        }
+    protected int getLayoutId() {
+        return R.layout.layout_removed_posts;
     }
 
     @Override
@@ -129,10 +106,6 @@ public class RemovedPostsController extends Controller implements View.OnClickLi
         }
 
         adapter.setRemovedPosts(removedPostsArray);
-    }
-
-    private Window getWindow() {
-        return ((Activity) context).getWindow();
     }
 
     @Override
