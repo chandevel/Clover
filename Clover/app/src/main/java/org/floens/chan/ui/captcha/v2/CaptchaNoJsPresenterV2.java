@@ -108,7 +108,7 @@ public class CaptchaNoJsPresenterV2 {
 
         if (executor.isShutdown()) {
             verificationInProgress.set(false);
-            Logger.d(TAG, "Cannot verify, executor is already shutdown");
+            Logger.d(TAG, "Cannot verify, executor has been shut down");
             return VerifyError.AlreadyShutdown;
         }
 
@@ -175,11 +175,13 @@ public class CaptchaNoJsPresenterV2 {
      * */
     public void refreshCookies() {
         if (!refreshCookiesRequestInProgress.compareAndSet(false, true)) {
+            Logger.d(TAG, "Google cookie request is already in progress");
             return;
         }
 
         if (executor.isShutdown()) {
             refreshCookiesRequestInProgress.set(false);
+            Logger.d(TAG, "Cannot request google cookie, executor has been shut down");
             return;
         }
 
@@ -219,7 +221,7 @@ public class CaptchaNoJsPresenterV2 {
 
             if (executor.isShutdown()) {
                 captchaRequestInProgress.set(false);
-                Logger.d(TAG, "Cannot request captcha info, executor is already shutdown");
+                Logger.d(TAG, "Cannot request captcha info, executor has been shut down");
                 return RequestCaptchaInfoError.AlreadyShutdown;
             }
 
