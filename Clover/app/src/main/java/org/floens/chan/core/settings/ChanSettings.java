@@ -20,7 +20,6 @@ package org.floens.chan.core.settings;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WakeManager;
 import org.floens.chan.core.update.UpdateManager;
@@ -167,7 +166,6 @@ public class ChanSettings {
     public static final LongSetting updateCheckTime;
     public static final LongSetting updateCheckInterval;
 
-    public static final BooleanSetting crashReporting;
     public static final BooleanSetting reencodeHintShown;
 
     static {
@@ -207,7 +205,7 @@ public class ChanSettings {
                 EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);
         shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
-        accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info",false);
+        accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
         enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
         enableYouCount = new BooleanSetting(p, "preference_enable_you_count", false);
         anonymize = new BooleanSetting(p, "preference_anonymize", false);
@@ -266,26 +264,7 @@ public class ChanSettings {
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
-        crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
-
-        // Old (but possibly still in some users phone)
-        // preference_board_view_mode default "list"
-        // preference_board_editor_filler default false
-        // preference_pass_enabled default false
-        // preference_autoplay false
-        // preference_watch_background_timeout "60" the old timeout background setting in minutes
-        // preference_network_https true
-        // counter_settings_open
-        // counter_reply_open
-    }
-
-    public static boolean isCrashReportingAvailable() {
-        return !BuildConfig.CRASH_REPORT_ENDPOINT.isEmpty();
-    }
-
-    public static boolean isCrashReportingEnabled() {
-        return isCrashReportingAvailable() && crashReporting.get();
     }
 
     public static ThemeColor getThemeAndColor() {
@@ -334,7 +313,7 @@ public class ChanSettings {
     /**
      * Reads setting from the shared preferences file to a string.
      * Called on the Database thread.
-     * */
+     */
     public static String serializeToString() throws IOException {
         File file = new File(AndroidUtils.getAppDir(), sharedPrefsFile);
 

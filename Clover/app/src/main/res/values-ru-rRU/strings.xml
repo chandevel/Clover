@@ -383,12 +383,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Main About group -->
     <string name="settings_group_about">О программе</string>
     <string name="settings_update_check">Проверить обновления</string>
-    <string name="settings_crash_reporting">Слать отчеты об ошибках</string>
-    <string name="settings_crash_reporting_description">
-\"Ошибки в работе Clover собираются в отчет и отправляются разработчику.
-Данные отчеты не собирают личную информацию о пользователе.\"
-    </string>
-    <string name="settings_crash_reporting_toggle_notice">Настройка будет применена при следующем запуске приложения.</string>
     <string name="settings_about_license">Выпущен под лицензией GNU GPLv3</string>
     <string name="settings_about_license_description">Нажмите, чтобы увидеть лицензию</string>
     <string name="settings_about_licenses">Open Source лицензии</string>

@@ -353,11 +353,6 @@ Active \"Reproducir videos con reproductor externo\" En las configuraciones"</st
     <!-- Main About group -->
     <string name="settings_group_about">Acerca de</string>
     <string name="settings_update_check">Buscar actualizaciones</string>
-    <string name="settings_crash_reporting">Informe de accidentes</string>
-    <string name="settings_crash_reporting_description">
-"El reporte de crash crea reportes cuando algo mal pasa en Clover.
-Los reportes de crash no recolectan información personal."</string>
-    <string name="settings_crash_reporting_toggle_notice">La configuración se aplicara la próxima vez que la app inicie.</string>
     <string name="settings_about_license">Lanzado bajo la licencia GNU GPLv3</string>
     <string name="settings_about_license_description">Presione para ver licencia</string>
     <string name="settings_about_licenses">Licencias de código abierto</string>

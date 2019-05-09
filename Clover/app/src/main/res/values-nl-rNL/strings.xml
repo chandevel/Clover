@@ -349,10 +349,6 @@ Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om 
     <!-- Main About group -->
     <string name="settings_group_about">Over deze app</string>
     <string name="settings_update_check">Op updates controleren</string>
-    <string name="settings_crash_reporting">Crashes rapporteren</string>
-    <string name="settings_crash_reporting_description">"Crashes rapporteren zet crashrapportages aan in Clover.
-Crashrapportages verzamelen geen persoonlijk identificeerbare informatie."</string>
-    <string name="settings_crash_reporting_toggle_notice">Instelling zal toegepast worden bij de volgende start.</string>
     <string name="settings_about_license">Onder de GNU GPLv3 vrijgegeven</string>
     <string name="settings_about_license_description">Tik om de licentie te zien</string>
     <string name="settings_about_licenses">Open Source-licenties</string>
