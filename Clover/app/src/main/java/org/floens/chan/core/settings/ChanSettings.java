@@ -162,6 +162,7 @@ public class ChanSettings {
     public static final BooleanSetting crashReporting;
     public static final BooleanSetting useNewCaptchaWindow;
     public static final BooleanSetting useRealGoogleCookies;
+    public static final StringSetting googleCookie;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -254,6 +255,7 @@ public class ChanSettings {
         crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
         useRealGoogleCookies = new BooleanSetting(p, "use_real_google_cookies", false);
+        googleCookie = new StringSetting(p, "google_cookie", "");
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

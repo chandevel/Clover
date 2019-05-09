@@ -36,6 +36,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import org.floens.chan.R;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -55,6 +56,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     private AppCompatButton captchaVerifyButton;
     private AppCompatButton useOldCaptchaButton;
     private AppCompatButton reloadCaptchaButton;
+    private AppCompatButton refreshCookiesButton;
     private ConstraintLayout buttonsHolder;
     private ScrollView background;
 
@@ -90,6 +92,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         captchaVerifyButton = view.findViewById(R.id.captcha_layout_v2_verify_button);
         useOldCaptchaButton = view.findViewById(R.id.captcha_layout_v2_use_old_captcha_button);
         reloadCaptchaButton = view.findViewById(R.id.captcha_layout_v2_reload_button);
+        refreshCookiesButton = view.findViewById(R.id.captcha_layout_v2_refresh_cookies);
         buttonsHolder = view.findViewById(R.id.captcha_layout_v2_buttons_holder);
         background = view.findViewById(R.id.captcha_layout_v2_background);
 
@@ -100,10 +103,16 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         captchaVerifyButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
         useOldCaptchaButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
         reloadCaptchaButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
+        refreshCookiesButton.setTextColor(AndroidUtils.getAttrColor(getContext(), R.attr.text_color_primary));
 
         captchaVerifyButton.setOnClickListener(this);
         useOldCaptchaButton.setOnClickListener(this);
         reloadCaptchaButton.setOnClickListener(this);
+
+        if (ChanSettings.useRealGoogleCookies.get()) {
+            refreshCookiesButton.setVisibility(View.VISIBLE);
+            refreshCookiesButton.setOnClickListener(this);
+        }
 
         captchaVerifyButton.setEnabled(false);
     }
@@ -148,6 +157,9 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
                 showToast(getContext().getString(
                         R.string.captcha_layout_v2_captcha_request_is_already_in_progress));
                 break;
+            case AlreadyShutdown:
+                // do nothing
+                break;
         }
     }
 
@@ -172,9 +184,34 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     }
 
     @Override
+    public void onGoogleCookiesRefreshed() {
+        // called on a background thread
+
+        AndroidUtils.runOnUiThread(() -> {
+            showToast("Google cookies successfully refreshed");
+
+            // refresh the captcha as well
+            reset();
+        });
+    }
+
+    // Called when we could not get google cookies
+    @Override
+    public void onGetGoogleCookieError(boolean shouldFallback, Throwable error) {
+        // called on a background thread
+
+        handleError(shouldFallback, error);
+    }
+
+    // Called when we got response from re-captcha but could not parse some part of it
+    @Override
     public void onCaptchaInfoParseError(Throwable error) {
         // called on a background thread
 
+        handleError(true, error);
+    }
+
+    private void handleError(boolean shouldFallback, Throwable error) {
         AndroidUtils.runOnUiThread(() -> {
             Logger.e(TAG, "CaptchaV2 error", error);
 
@@ -182,7 +219,10 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             showToast(message);
 
             captchaVerifyButton.setEnabled(true);
-            callback.onFallbackToV1CaptchaView();
+
+            if (shouldFallback) {
+                callback.onFallbackToV1CaptchaView();
+            }
         });
     }
 
@@ -200,6 +240,8 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
             callback.onFallbackToV1CaptchaView();
         } else if (v == reloadCaptchaButton) {
             reset();
+        } else if (v == refreshCookiesButton) {
+            presenter.refreshCookies();
         }
     }
 
@@ -268,6 +310,9 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
                     break;
                 case AlreadyInProgress:
                     showToast(getContext().getString(R.string.captcha_layout_v2_verification_already_in_progress));
+                    break;
+                case AlreadyShutdown:
+                    // do nothing
                     break;
             }
         } catch (Throwable error) {

@@ -37,6 +37,7 @@ import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
 import org.floens.chan.ui.captcha.AuthenticationLayoutInterface;
+import org.floens.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.utils.Logger;
 
@@ -280,8 +281,13 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
 
-        // should this be called here?
-        authenticationLayout.reset();
+        // we don't need this to be called for new captcha window.
+        // Otherwise "Request captcha request is already in progress" message will be shown
+        if (!(authenticationLayout instanceof CaptchaNoJsLayoutV2)) {
+            // should this be called here?
+            authenticationLayout.reset();
+        }
+
         makeSubmitCall();
     }
 
@@ -405,8 +411,7 @@ public class ReplyPresenter implements AuthenticationLayoutCallback, ImagePickDe
     }
 
     public void switchPage(Page page, boolean animate) {
-        // by default try to use the new nojs captcha view
-        switchPage(page, animate, true);
+        switchPage(page, animate, ChanSettings.useNewCaptchaWindow.get());
     }
 
     public void switchPage(Page page, boolean animate, boolean useV2NoJsCaptcha) {

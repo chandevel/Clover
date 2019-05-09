@@ -64,6 +64,9 @@ public class BehaviourSettingsController extends SettingsController {
             // when user disables the new captcha window also disable the usage of the google cookies
             if (!ChanSettings.useNewCaptchaWindow.get()) {
                 ChanSettings.useRealGoogleCookies.set(false);
+
+                // reset the old google cookie as well
+                ChanSettings.googleCookie.set("");
             }
 
             rebuildPreferences();

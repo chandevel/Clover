@@ -582,7 +582,7 @@ Don't have a 4chan Pass?<br>
     <string name="settings_captcha_group" tools:ignore="MissingTranslation">Captcha</string>
     <string name="settings_use_new_captcha_window" tools:ignore="MissingTranslation">Use new captcha window for no-js captcha</string>
     <string name="settings_use_real_google_cookies" tools:ignore="MissingTranslation">Use real google cookies instead of hardcoded ones</string>
-    <string name="settings_use_real_google_cookies_description" tools:ignore="MissingTranslation">By using the real google cookies a GET request to the google.com will be executed to get the google cookies (SID, HSID, SSID, NID) which will be stored on the device and used for captcha authentication. Why would you need them? Because the hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (once in a month). But it will also be possible to update them manually</string>
+    <string name="settings_use_real_google_cookies_description" tools:ignore="MissingTranslation">When the real google cookies a GET request to the google.com will be executed to get the google cookies (NID) which will be used for captcha authentication. Why would you need them? Because the hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (when posting the first time after the app start). But it will also be possible to update them manually if necessary (for example, when the old ones give too many challenges in a row).</string>
 
     <string name="captcha_layout_v2_verify_button_text" tools:ignore="MissingTranslation">Verify</string>
     <string name="captcha_layout_v2_reload" tools:ignore="MissingTranslation">Reload</string>
@@ -591,4 +591,5 @@ Don't have a 4chan Pass?<br>
     <string name="captcha_layout_v2_verification_already_in_progress" tools:ignore="MissingTranslation">Verification is already in progress</string>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress" tools:ignore="MissingTranslation">Captcha request is already in progress</string>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast" tools:ignore="MissingTranslation">You are requesting captcha too fast</string>
+    <string name="captcha_layout_v2_refresh_cookies" tools:ignore="MissingTranslation">Refresh cookies</string>
 </resources>
