@@ -52,7 +52,6 @@ public class CaptchaNoJsPresenterV2 {
     private static final int SUCCESS_STATUS_CODE = 200;
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
 
-    // this should be updated once in 3 months IIRC
     private static final String googleCookies =
                     "SID=gjaHjfFJPAN5HO3MVVZpjHFKa_249dsfjHa9klsiaflsd99.asHqjsM2lAS; " +
                     "HSID=j7m0aFJ82lPF7Hd9d; " +

@@ -577,6 +577,13 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+
+    <!-- Captcha settings -->
+    <string name="settings_captcha_group" tools:ignore="MissingTranslation">Captcha</string>
+    <string name="settings_use_new_captcha_window" tools:ignore="MissingTranslation">Use new captcha window for no-js captcha</string>
+    <string name="settings_use_real_google_cookies" tools:ignore="MissingTranslation">Use real google cookies instead of hardcoded ones</string>
+    <string name="settings_use_real_google_cookies_description" tools:ignore="MissingTranslation">By using the real google cookies a GET request to the google.com will be executed to get the google cookies (SID, HSID, SSID, NID) which will be stored on the device and used for captcha authentication. Why would you need them? Because the hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated automatically (once in a month). But it will also be possible to update them manually</string>
+
     <string name="captcha_layout_v2_verify_button_text" tools:ignore="MissingTranslation">Verify</string>
     <string name="captcha_layout_v2_reload" tools:ignore="MissingTranslation">Reload</string>
     <string name="captcha_layout_v2_use_old_captcha" tools:ignore="MissingTranslation">Use old captcha</string>
