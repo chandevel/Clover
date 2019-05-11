@@ -655,6 +655,12 @@ Don't have a 4chan Pass?<br>
     <string name="no_removed_posts_for_current_thread" tools:ignore="MissingTranslation">No removed posts found for the current thread</string>
     <string name="select_all" tools:ignore="MissingTranslation">Select all</string>
 
+    <!-- Captcha settings -->
+    <string name="settings_captcha_group" tools:ignore="MissingTranslation">Captcha</string>
+    <string name="settings_use_new_captcha_window" tools:ignore="MissingTranslation">Use new captcha window for no-js captcha</string>
+    <string name="settings_use_real_google_cookies" tools:ignore="MissingTranslation">Use real google cookies instead of hardcoded ones</string>
+    <string name="settings_use_real_google_cookies_description" tools:ignore="MissingTranslation">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication. The hardcoded ones sometimes will make you re-enter the captcha dozens of times. Those cookies will be updated when posting the first time after app start. You may update them manually if you want.</string>
+
     <string name="captcha_layout_v2_verify_button_text" tools:ignore="MissingTranslation">Verify</string>
     <string name="captcha_layout_v2_reload" tools:ignore="MissingTranslation">Reload</string>
     <string name="captcha_layout_v2_use_old_captcha" tools:ignore="MissingTranslation">Use old captcha</string>
@@ -662,4 +668,5 @@ Don't have a 4chan Pass?<br>
     <string name="captcha_layout_v2_verification_already_in_progress" tools:ignore="MissingTranslation">Verification is already in progress</string>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress" tools:ignore="MissingTranslation">Captcha request is already in progress</string>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast" tools:ignore="MissingTranslation">You are requesting captcha too fast</string>
+    <string name="captcha_layout_v2_refresh_cookies" tools:ignore="MissingTranslation">Refresh cookies</string>
 </resources>

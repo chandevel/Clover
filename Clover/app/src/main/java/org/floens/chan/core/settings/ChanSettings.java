@@ -168,6 +168,11 @@ public class ChanSettings {
 
     public static final BooleanSetting reencodeHintShown;
 
+    public static final BooleanSetting crashReporting;
+    public static final BooleanSetting useNewCaptchaWindow;
+    public static final BooleanSetting useRealGoogleCookies;
+    public static final StringSetting googleCookie;
+
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
 
@@ -265,6 +270,11 @@ public class ChanSettings {
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
+
+        crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
+        useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
+        useRealGoogleCookies = new BooleanSetting(p, "use_real_google_cookies", false);
+        googleCookie = new StringSetting(p, "google_cookie", "");
     }
 
     public static ThemeColor getThemeAndColor() {
