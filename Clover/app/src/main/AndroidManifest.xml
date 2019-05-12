@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:name=".ChanApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Clover"
         android:theme="@style/Chan.Theme">
 
         <!--Dual Window support for Samsung and LG-->
@@ -57,7 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <activity
             android:name=".ui.activity.BoardActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name">
+            android:label="Clover">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

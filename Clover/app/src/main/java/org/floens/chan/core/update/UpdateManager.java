@@ -146,15 +146,11 @@ public class UpdateManager {
             if (message.code <= BuildConfig.VERSION_CODE) {
                 Logger.d(TAG, "No newer version available (" +
                         BuildConfig.VERSION_CODE + " >= " + message.code + ").");
-                // Our code is newer than the message
                 return false;
             } else {
                 return true;
             }
-        } else if (message.hash != null) {
-            return !message.hash.equals(BuildConfig.BUILD_HASH);
         } else {
-            Logger.w(TAG, "No code or hash found");
             return false;
         }
     }

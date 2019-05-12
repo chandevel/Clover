@@ -1,20 +1,7 @@
 apply plugin: 'com.android.application'
 
-/**
- * Gets the version name from the latest Git tag
- */
-def getCommitHash = { ->
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'rev-parse', '--short=8', 'HEAD'
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
-
 android {
     compileSdkVersion 28
-    // update the travis config when changing this
     buildToolsVersion '28.0.3'
 
     defaultConfig {
@@ -25,6 +12,7 @@ android {
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
         versionCode 30003
+        applicationId "org.floens.chan"
     }
 
     compileOptions {
@@ -46,8 +34,6 @@ android {
     keyAlias=alias
     keyPass=pass
     */
-
-    def hash = getCommitHash();
 
     File f = file('keys.properties')
     boolean doSign = f.exists();
@@ -79,29 +65,11 @@ android {
         // the flavor name is appended to the name in the settings.
         "default" {
             dimension "default"
-            applicationId "org.floens.chan"
-            resValue "string", "app_name", "Clover"
-            resValue "string", "app_flavor_name", ""
-            buildConfigField "String", "BUILD_HASH", "\"$hash\""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/api/update\""
-        }
-
-        dev {
-            dimension "default"
-            applicationId "org.floens.chan.dev"
-            resValue "string", "app_name", "Clover dev"
-            resValue "string", "app_flavor_name", ""
-            buildConfigField "String", "BUILD_HASH", "\"$hash\""
-            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/api/update_dev\""
-            versionNameSuffix "-" + hash
         }
 
         fdroid {
             dimension "default"
-            applicationId "org.floens.chan"
-            resValue "string", "app_name", "Clover"
-            resValue "string", "app_flavor_name", "F-Droid"
-            buildConfigField "String", "BUILD_HASH", "\"$hash\""
             buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
         }
     }

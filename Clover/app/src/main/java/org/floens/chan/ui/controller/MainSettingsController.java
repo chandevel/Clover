@@ -229,9 +229,8 @@ public class MainSettingsController extends SettingsController implements Settin
         } catch (PackageManager.NameNotFoundException ignored) {
         }
 
-        String userVersion = version + " " + getString(R.string.app_flavor_name);
         about.add(new LinkSettingView(this,
-                getString(R.string.app_name), userVersion,
+                "Clover", version,
                 v -> {
                     if ((++clickCount) % 5 == 0) {
                         boolean developer = !ChanSettings.developer.get();

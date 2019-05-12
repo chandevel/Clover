@@ -190,8 +190,8 @@ public class Chan extends Application implements UserAgentProvider, Application.
         } catch (PackageManager.NameNotFoundException e) {
             Logger.e(TAG, "Error getting app version", e);
         }
-        version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
-        return getString(R.string.app_name) + "/" + version;
+        version = version.toLowerCase().replace(" ", "_");
+        return "Clover/" + version;
     }
 
     @Override

@@ -40,35 +40,6 @@ import java.io.File;
 public class VersionHandler implements UpdateManager.UpdateCallback {
     private static final String TAG = "VersionHandler";
 
-    /*
-     * Manifest version code, manifest version name, this version mapping:
-     *
-     * 28 = v1.1.2
-     * 32 = v1.1.3
-     * 36 = v1.2.0
-     * 39 = v1.2.1
-     * 40 = v1.2.2
-     * 41 = v1.2.3
-     * 42 = v1.2.4
-     * 43 = v1.2.5
-     * 44 = v1.2.6
-     * 46 = v1.2.7
-     * 47 = v1.2.8
-     * 48 = v1.2.9
-     * 49 = v1.2.10
-     * 50 = v1.2.11
-     * 51 = v2.0.0 = 1
-     * 52 = v2.1.0 = 2
-     * 53 = v2.1.1 = 2
-     * 54 = v2.1.2 = 2
-     * 55 = v2.1.3 = 2
-     * 56 = v2.2.0 = 3
-     * Since v2.3.0, this has been aligned with the versionCode as defined in build.gradle
-     * It is of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch.
-     * 20300 = v2.3.0 = 20300
-     */
-    private static final int CURRENT_VERSION = BuildConfig.VERSION_CODE;
-
     /**
      * Context to show dialogs to.
      */
@@ -91,14 +62,14 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
      */
     public void run() {
         int previous = ChanSettings.previousVersion.get();
-        if (previous < CURRENT_VERSION) {
+        if (previous < BuildConfig.VERSION_CODE) {
             handleUpdate(previous);
 
             if (previous != 0) {
                 showMessage();
             }
 
-            ChanSettings.previousVersion.set(CURRENT_VERSION);
+            ChanSettings.previousVersion.set(BuildConfig.VERSION_CODE);
 
             // Don't process the updater because a dialog is now already showing.
             return;
@@ -223,7 +194,7 @@ public class VersionHandler implements UpdateManager.UpdateCallback {
     }
 
     private void showMessage() {
-        int resource = context.getResources().getIdentifier("changelog_" + VersionHandler.CURRENT_VERSION, "string", context.getPackageName());
+        int resource = context.getResources().getIdentifier("changelog_" + BuildConfig.VERSION_CODE, "string", context.getPackageName());
         if (resource != 0) {
             CharSequence message = Html.fromHtml(context.getString(resource));
 

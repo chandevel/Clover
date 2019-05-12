@@ -497,7 +497,6 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         }
 
         if (ChanSettings.accessibleInfo.get()) {
-            //Accessible info enabled
             menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
         } else {
             extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
@@ -505,15 +504,11 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
 
-
         extraMenu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
         extraMenu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
-
-        if (ChanSettings.developer.get()) {
-            extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, "Save"));
-        }
+        extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE, R.string.save));
 
         return POST_OPTION_EXTRA;
     }
