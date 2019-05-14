@@ -24,7 +24,6 @@ import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,10 +134,8 @@ public class BoardRepository implements Observer {
     }
 
     private void updateObservablesSync() {
-        long start = Time.startTiming();
         updateWith(databaseManager.runTask(
                 databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll())));
-        Time.endTiming("BoardRepository.updateObservablesSync", start);
     }
 
     private void updateObservablesAsync() {

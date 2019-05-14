@@ -72,7 +72,6 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.PostImageThumbnailView;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.Time;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -221,7 +220,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
 
         FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
-        if(post.isOP) {
+        if (post.isOP) {
             menu.setPopupWidth(FloatingMenu.POPUP_WIDTH_ANCHOR);
         }
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
@@ -371,7 +370,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
             c.locale = previousLocale;
             Resources.getSystem().updateConfiguration(c, null);*/
-            time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
+            time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0);
         }
 
         String noText = "No." + post.no;

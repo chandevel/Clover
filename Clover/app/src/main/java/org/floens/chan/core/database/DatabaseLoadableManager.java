@@ -24,7 +24,6 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.repository.SiteRepository;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -62,12 +61,10 @@ public class DatabaseLoadableManager {
 
             if (!toFlush.isEmpty()) {
                 Logger.d(TAG, "Flushing " + toFlush.size() + " loadable(s)");
-                long start = Time.startTiming();
                 for (int i = 0; i < toFlush.size(); i++) {
                     Loadable loadable = toFlush.get(i);
                     helper.loadableDao.update(loadable);
                 }
-                Time.endTiming("Loadable flushing", start);
             }
 
             return null;
@@ -90,10 +87,7 @@ public class DatabaseLoadableManager {
 
         // We only cache THREAD loadables in the db
         if (loadable.isThreadMode()) {
-            long start = Time.startTiming();
-            Loadable result = databaseManager.runTask(getLoadable(loadable));
-            Time.endTiming("get loadable from db " + loadable.boardCode, start);
-            return result;
+            return databaseManager.runTask(getLoadable(loadable));
         } else {
             return loadable;
         }

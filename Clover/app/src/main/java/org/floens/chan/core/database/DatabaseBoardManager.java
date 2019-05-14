@@ -11,7 +11,6 @@ import com.j256.ormlite.stmt.UpdateBuilder;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,8 +88,6 @@ public class DatabaseBoardManager {
 
     public Callable<Boolean> createAll(final Site site, final List<Board> boards) {
         return () -> {
-            long start = Time.startTiming();
-
             List<Board> allFromDb = helper.boardsDao.queryForEq("site", site.id());
             Map<String, Board> byCodeFromDb = new HashMap<>();
             for (Board board : allFromDb) {
@@ -127,23 +124,6 @@ public class DatabaseBoardManager {
                 }
             }
 
-            /*for (Board board : boards) {
-                QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
-                q.where().eq("site", board.getSite().id())
-                        .and().eq("value", board.code);
-                Board existing = q.queryForFirst();
-                if (existing != null) {
-                    existing.updateExcludingUserFields(board);
-                    helper.boardsDao.update(existing);
-                    board.updateExcludingUserFields(existing);
-                } else {
-                    helper.boardsDao.create(board);
-                }
-            }*/
-
-            Time.endTiming("createAll boards " +
-                    toCreate.size() + ", " + toUpdate.size(), start);
-
             return !toCreate.isEmpty() || !toUpdate.isEmpty();
         };
     }
@@ -166,8 +146,6 @@ public class DatabaseBoardManager {
     @SuppressLint("UseSparseArrays")
     public Callable<List<Pair<Site, List<Board>>>> getBoardsForAllSitesOrdered(List<Site> sites) {
         return () -> {
-            long start = Time.startTiming();
-
             // Query the orders of the sites.
             QueryBuilder<SiteModel, Integer> q = helper.siteDao.queryBuilder();
             q.selectColumns("id", "order");
@@ -176,9 +154,6 @@ public class DatabaseBoardManager {
             for (SiteModel siteModel : modelsWithOrder) {
                 ordering.put(siteModel.id, siteModel.order);
             }
-
-            Time.endTiming("getboards sites", start);
-            start = Time.startTiming();
 
             List<Site> sitesOrdered = new ArrayList<>(sites);
             // Sort the given sites array with these orders.
@@ -193,9 +168,6 @@ public class DatabaseBoardManager {
             List<Board> allBoards = helper.boardsDao.queryBuilder()
                     .where().in("site", siteIds)
                     .query();
-
-            Time.endTiming("getboards boards", start);
-            start = Time.startTiming();
 
             // Map the boards from siteId to a list of boards.
             Map<Integer, Site> sitesById = new HashMap<>();
@@ -222,8 +194,6 @@ public class DatabaseBoardManager {
                 Collections.sort(siteBoards, (lhs, rhs) -> lhs.order - rhs.order);
                 res.add(new Pair<>(site, siteBoards));
             }
-
-            Time.endTiming("getboards process", start);
             return res;
         };
     }

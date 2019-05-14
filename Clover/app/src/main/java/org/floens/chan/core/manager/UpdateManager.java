@@ -44,7 +44,6 @@ import org.floens.chan.ui.helper.RuntimePermissionsHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,7 +113,7 @@ public class UpdateManager {
         if (!manual) {
             long lastUpdateTime = ChanSettings.updateCheckTime.get();
             long interval = 1000 * 60 * 60 * 24 * 5; //5 days
-            long now = Time.get();
+            long now = System.currentTimeMillis();
             long delta = (lastUpdateTime + interval) - now;
             if (delta > 0) {
                 return;

@@ -58,7 +58,6 @@ import org.floens.chan.ui.view.FloatingMenuItem;
 import org.floens.chan.ui.view.ThumbnailView;
 import org.floens.chan.ui.view.ViewPagerAdapter;
 import org.floens.chan.utils.AndroidUtils;
-import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -271,7 +270,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
                     .board(dummyBoard)
                     .id(123456789)
                     .opId(1)
-                    .setUnixTimestampSeconds((Time.get() - (30 * 60 * 1000)) / 1000)
+                    .setUnixTimestampSeconds((System.currentTimeMillis() - (30 * 60 * 1000)) / 1000)
                     .subject("Lorem ipsum")
                     .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>" +
                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>" +

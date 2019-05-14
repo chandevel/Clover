@@ -20,7 +20,6 @@ package org.floens.chan.core.cache;
 import android.support.annotation.MainThread;
 
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -125,7 +124,7 @@ public class FileCache implements FileCacheDownloader.Callback {
 
     private void handleFileImmediatelyAvailable(FileCacheListener listener, File file) {
         // TODO: setLastModified doesn't seem to work on Android...
-        if (!file.setLastModified(Time.get())) {
+        if (!file.setLastModified(System.currentTimeMillis())) {
             Logger.e(TAG, "Could not set last modified time on file");
         }
         listener.onSuccess(file);

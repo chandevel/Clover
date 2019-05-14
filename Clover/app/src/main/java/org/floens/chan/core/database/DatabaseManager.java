@@ -28,7 +28,6 @@ import com.j256.ormlite.misc.TransactionManager;
 
 import org.floens.chan.Chan;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
@@ -183,9 +182,7 @@ public class DatabaseManager {
         try {
             long count = dao.countOf();
             if (count > trigger) {
-                long start = Time.startTiming();
                 dao.executeRaw("DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)", String.valueOf(trim));
-                Time.endTiming("Trimmed " + table + " from " + count + " to " + dao.countOf() + " rows", start);
             }
         } catch (SQLException e) {
             Logger.e(TAG, "Error trimming table " + table, e);

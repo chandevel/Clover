@@ -39,7 +39,6 @@ import org.floens.chan.core.site.SiteService;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.LocaleUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import javax.inject.Inject;
 
@@ -91,8 +90,6 @@ public class Chan extends Application implements UserAgentProvider, Application.
         super.onCreate();
         LocaleUtils.overrideLocaleToEnglishIfNeeded(this);
 
-        final long startTime = Time.startTiming();
-
         registerActivityLifecycleCallbacks(this);
 
         initializeGraph();
@@ -100,8 +97,6 @@ public class Chan extends Application implements UserAgentProvider, Application.
         siteService.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
-
-        Time.endTiming("Initializing application", startTime);
 
         // Start watching for slow disk reads and writes after the heavy initializing is done
         if (BuildConfig.DEBUG) {

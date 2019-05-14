@@ -21,7 +21,6 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.orm.History;
-import org.floens.chan.utils.Time;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -77,10 +76,10 @@ public class DatabaseHistoryManager {
             History existingHistoryForLoadable = existingHistories.isEmpty() ? null : existingHistories.get(0);
 
             if (existingHistoryForLoadable != null) {
-                existingHistoryForLoadable.date = Time.get();
+                existingHistoryForLoadable.date = System.currentTimeMillis();
                 helper.historyDao.update(existingHistoryForLoadable);
             } else {
-                history.date = Time.get();
+                history.date = System.currentTimeMillis();
                 helper.historyDao.create(history);
             }
 
@@ -97,10 +96,7 @@ public class DatabaseHistoryManager {
 
     public Callable<Void> clearHistory() {
         return () -> {
-            long start = Time.startTiming();
             TableUtils.clearTable(helper.getConnectionSource(), History.class);
-            Time.endTiming("Clear history table", start);
-
             return null;
         };
     }

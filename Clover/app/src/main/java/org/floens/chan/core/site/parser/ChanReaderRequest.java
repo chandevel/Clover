@@ -28,7 +28,6 @@ import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.net.JsonReaderRequest;
 import org.floens.chan.core.site.loader.ChanLoaderRequestParams;
 import org.floens.chan.core.site.loader.ChanLoaderResponse;
-import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,9 +54,6 @@ import static org.floens.chan.Chan.inject;
  * changed on the main thread.
  */
 public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
-    private static final String TAG = "ChanReaderRequest";
-    private static final boolean LOG_TIMING = false;
-
     private static final int THREAD_COUNT;
     private static final ExecutorService EXECUTOR;
 
@@ -78,7 +74,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private List<Filter> filters;
-    private long startLoad;
 
     public ChanReaderRequest(ChanLoaderRequestParams request) {
         super(getChanUrl(request.loadable).toString(), request.listener, request.errorListener);
@@ -99,8 +94,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                 filters.add(filter.clone());
             }
         }
-
-        startLoad = Time.startTiming();
 
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
     }
@@ -133,12 +126,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
 
     @Override
     public ChanLoaderResponse readJson(JsonReader reader) throws Exception {
-        if (LOG_TIMING) {
-            Time.endTiming("Network", startLoad);
-        }
-
-        long load = Time.startTiming();
-
         ChanReaderProcessingQueue processing = new ChanReaderProcessingQueue(cached, loadable);
 
         if (loadable.isThreadMode()) {
@@ -149,18 +136,12 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
             throw new IllegalArgumentException("Unknown mode");
         }
 
-        if (LOG_TIMING) {
-            Time.endTiming("Load json", load);
-        }
-
         List<Post> list = parsePosts(processing);
         return processPosts(processing.getOp(), list);
     }
 
     // Concurrently parses the new posts with an executor
     private List<Post> parsePosts(ChanReaderProcessingQueue queue) throws InterruptedException, ExecutionException {
-        long parsePosts = Time.startTiming();
-
         List<Post> cached = queue.getToReuse();
         List<Post> total = new ArrayList<>(cached);
 
@@ -199,10 +180,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                     total.add(parsedPost);
                 }
             }
-
-            if (LOG_TIMING) {
-                Time.endTiming("Parse posts with " + THREAD_COUNT + " threads", parsePosts);
-            }
         }
 
         return total;
@@ -214,7 +191,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
         List<Post> cachedPosts = new ArrayList<>();
         List<Post> newPosts = new ArrayList<>();
         if (cached.size() > 0) {
-            long deleteCheck = Time.startTiming();
             // Add all posts that were parsed before
             cachedPosts.addAll(cached);
 
@@ -237,10 +213,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                     cachedPost.deleted.set(!serverPostsByNo.containsKey(cachedPost.no));
                 }
             }
-            if (LOG_TIMING) {
-                Time.endTiming("Delete check", deleteCheck);
-            }
-            long newCheck = Time.startTiming();
 
             // If there's a post in the list from the server, that's not in the cached list, add it.
             for (int i = 0; i < allPost.size(); i++) {
@@ -248,9 +220,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                 if (!cachedPostsByNo.containsKey(serverPost.no)) {
                     newPosts.add(serverPost);
                 }
-            }
-            if (LOG_TIMING) {
-                Time.endTiming("New check", newCheck);
             }
         } else {
             newPosts.addAll(allPost);
@@ -270,7 +239,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
             // Maps post no's to a list of no's that that post received replies from
             Map<Integer, List<Integer>> replies = new HashMap<>();
 
-            long collectReplies = Time.startTiming();
             for (int i = 0; i < allPosts.size(); i++) {
                 Post sourcePost = allPosts.get(i);
 
@@ -283,10 +251,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                     value.add(sourcePost.no);
                 }
             }
-            if (LOG_TIMING) {
-                Time.endTiming("Collect replies", collectReplies);
-            }
-            long mapReplies = Time.startTiming();
 
             for (Map.Entry<Integer, List<Integer>> entry : replies.entrySet()) {
                 int key = entry.getKey();
@@ -300,10 +264,6 @@ public class ChanReaderRequest extends JsonReaderRequest<ChanLoaderResponse> {
                         subject.repliesFrom.addAll(value);
                     }
                 }
-            }
-
-            if (LOG_TIMING) {
-                Time.endTiming("Map replies", mapReplies);
             }
         }
 

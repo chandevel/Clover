@@ -32,7 +32,6 @@ import org.floens.chan.core.site.parser.ChanReaderRequest;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
-import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +215,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             return 0L;
         } else {
             long waitTime = WATCH_TIMEOUTS[Math.max(0, currentTimeout)] * 1000L;
-            return lastLoadTime + waitTime - Time.get();
+            return lastLoadTime + waitTime - System.currentTimeMillis();
         }
     }
 
@@ -262,7 +261,7 @@ public class ChanThreadLoader implements Response.ErrorListener, Response.Listen
             post.setTitle(loadable.title);
         }
 
-        lastLoadTime = Time.get();
+        lastLoadTime = System.currentTimeMillis();
 
         int postCount = thread.posts.size();
         if (postCount > lastPostCount) {

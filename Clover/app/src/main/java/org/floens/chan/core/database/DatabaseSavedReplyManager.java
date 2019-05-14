@@ -25,7 +25,6 @@ import com.j256.ormlite.table.TableUtils;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.repository.SiteRepository;
-import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,13 +108,10 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> clearSavedReplies() {
         return () -> {
-            long start = Time.startTiming();
             TableUtils.clearTable(helper.getConnectionSource(), SavedReply.class);
             synchronized (savedRepliesByNo) {
                 savedRepliesByNo.clear();
             }
-            Time.endTiming("Clear saved replies", start);
-
             return null;
         };
     }

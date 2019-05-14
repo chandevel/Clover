@@ -28,7 +28,6 @@ import org.floens.chan.core.settings.SettingProvider;
 import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.settings.json.JsonSettingsProvider;
 import org.floens.chan.core.site.http.HttpCallManager;
-import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,8 +62,6 @@ public abstract class SiteBase implements Site {
 
     @Override
     public void postInitialize() {
-        long start = Time.startTiming();
-
         Feather injector = injector();
         httpCallManager = injector.instance(HttpCallManager.class);
         requestQueue = injector.instance(RequestQueue.class);
@@ -78,8 +75,6 @@ public abstract class SiteBase implements Site {
         if (boardsType().canList) {
             actions().boards(boards -> boardManager.updateAvailableBoardsForSite(this, boards.boards));
         }
-
-        Time.endTiming("initialized " + name(), start);
     }
 
     @Override
