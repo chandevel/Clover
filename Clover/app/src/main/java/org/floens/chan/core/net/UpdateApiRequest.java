@@ -20,11 +20,9 @@ package org.floens.chan.core.net;
 import android.util.JsonReader;
 
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import org.floens.chan.BuildConfig;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,33 +42,38 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case "tag_name":
-                    String version = reader.nextString();
-                    Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d+?)\\.(\\d+?)");
-                    Matcher versionMatcher = versionPattern.matcher(version);
-                    versionMatcher.matches();
-                    response.versionCode = Integer.parseInt(versionMatcher.group(1))
-                            + (Integer.parseInt(versionMatcher.group(2)) * 100)
-                            + (Integer.parseInt(versionMatcher.group(3)) * 10000);
-                    break;
-                case "created_at":
-                    response.publishedDateTime = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("Z")));
+                    try {
+                        String version = reader.nextString();
+                        Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d+?)\\.(\\d+?)");
+                        Matcher versionMatcher = versionPattern.matcher(version);
+                        versionMatcher.matches();
+                        response.versionCode = Integer.parseInt(versionMatcher.group(1))
+                                + (Integer.parseInt(versionMatcher.group(2)) * 100)
+                                + (Integer.parseInt(versionMatcher.group(3)) * 10000);
+                    } catch (Exception e) {
+                        throw new VolleyError("Tag name wasn't of the form v(major).(minor).(patch)!");
+                    }
                     break;
                 case "assets":
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        if (response.apkURL == null) {
-                            reader.beginObject();
-                            while (reader.hasNext()) {
-                                if ("browser_download_url".equals(reader.nextName())) {
-                                    response.apkURL = HttpUrl.parse(reader.nextString());
-                                } else {
-                                    reader.skipValue();
+                    try {
+                        reader.beginArray();
+                        while (reader.hasNext()) {
+                            if (response.apkURL == null) {
+                                reader.beginObject();
+                                while (reader.hasNext()) {
+                                    if ("browser_download_url".equals(reader.nextName())) {
+                                        response.apkURL = HttpUrl.parse(reader.nextString());
+                                    } else {
+                                        reader.skipValue();
+                                    }
                                 }
+                                reader.endObject();
+                            } else {
+                                reader.skipValue();
                             }
-                            reader.endObject();
-                        } else {
-                            reader.skipValue();
                         }
+                    } catch (Exception e) {
+                        throw new VolleyError("No APK URL!");
                     }
                     reader.endArray();
                     break;
@@ -83,12 +86,16 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
             }
         }
         reader.endObject();
+        if (response.versionCode == 0
+                || response.apkURL == null
+                || response.body == null) {
+            throw new VolleyError("Update API response is incomplete, issue with github release listing!");
+        }
         return response;
     }
 
     public static class UpdateApiResponse {
         public int versionCode;
-        public LocalDateTime publishedDateTime;
         public HttpUrl apkURL;
         public String body;
     }

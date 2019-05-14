@@ -100,7 +100,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
     implementation 'org.codejargon.feather:feather:1.0'
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
 
     testImplementation 'junit:junit:4.12'
 }

@@ -33,8 +33,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.jakewharton.threetenabp.AndroidThreeTen;
-
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.controller.NavigationController;
@@ -149,8 +147,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         }
 
         setupFromStateOrFreshLaunch(savedInstanceState);
-
-        AndroidThreeTen.init(this);
+        
         updateManager.autoUpdateCheck();
     }
 
