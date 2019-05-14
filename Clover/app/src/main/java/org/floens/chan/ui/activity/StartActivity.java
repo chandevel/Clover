@@ -48,7 +48,7 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteResolver;
 import org.floens.chan.core.site.SiteService;
-import org.floens.chan.core.update.UpdateManager;
+import org.floens.chan.core.manager.UpdateManager;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
