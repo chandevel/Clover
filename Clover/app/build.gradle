@@ -44,6 +44,8 @@ android {
             keyAlias=alias
             keyPass=pass
             */
+            // This code exists specifically so you don't have to use the "Generate Signed APK" function in Android Studio
+            // Just select your build variant (debug/release) and do build -> APK
             File f = file('keys.properties')
             if (f.exists()) {
                 Properties props = new Properties()

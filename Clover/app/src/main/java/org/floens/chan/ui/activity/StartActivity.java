@@ -147,7 +147,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         }
 
         setupFromStateOrFreshLaunch(savedInstanceState);
-        
+
         updateManager.autoUpdateCheck();
     }
 
