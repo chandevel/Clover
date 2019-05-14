@@ -33,7 +33,7 @@ import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.pool.ChanLoaderFactory;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
-import org.floens.chan.core.site.parser.pageObjects.Page;
+import org.floens.chan.core.site.sites.chan4.Chan4PagesRequest;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.ui.service.LastPageNotification;
 import org.floens.chan.ui.service.WatchNotifier;
@@ -618,7 +618,7 @@ public class WatchManager implements WakeManager.Wakeable {
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
-                Page page = pageRequestManager.getPage(chanLoader.getLoadable());
+                Chan4PagesRequest.Page page = pageRequestManager.getPage(chanLoader.getLoadable());
                 if (page != null) {
                     doPageNotification(page);
                 }
@@ -735,11 +735,11 @@ public class WatchManager implements WakeManager.Wakeable {
         @Override
         public void onPagesReceived() {
             //this call will return the proper value now, but if it returns null just skip everything
-            Page p = pageRequestManager.getPage(chanLoader.getLoadable());
+            Chan4PagesRequest.Page p = pageRequestManager.getPage(chanLoader.getLoadable());
             doPageNotification(p);
         }
 
-        private void doPageNotification(Page page) {
+        private void doPageNotification(Chan4PagesRequest.Page page) {
             if (ChanSettings.watchEnabled.get()
                     && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {

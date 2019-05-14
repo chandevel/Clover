@@ -47,7 +47,6 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.parser.ChanReader;
-import org.floens.chan.core.site.parser.pageObjects.Pages;
 import org.floens.chan.ui.helper.PostHelper;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
@@ -354,9 +353,9 @@ public class Chan4 extends SiteBase {
 
         @Override
         public void pages(Board board, PagesListener listener) {
-            requestQueue.add(new Chan4PagesRequest(Chan4.this, board, response -> listener.onPagesReceived(board, new Pages(response)), (error) -> {
+            requestQueue.add(new Chan4PagesRequest(Chan4.this, board, response -> listener.onPagesReceived(board, new Chan4PagesRequest.Pages(response)), (error) -> {
                 Logger.e(TAG, "Failed to get threads for board " + board.code);
-                listener.onPagesReceived(board, new Pages(new ArrayList<>()));
+                listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
             }));
         }
 

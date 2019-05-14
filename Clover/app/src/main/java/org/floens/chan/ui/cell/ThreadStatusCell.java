@@ -34,7 +34,7 @@ import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.settings.ChanSettings;
-import org.floens.chan.core.site.parser.pageObjects.Page;
+import org.floens.chan.core.site.sites.chan4.Chan4PagesRequest;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -158,7 +158,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
                     builder.append(" / ").append(getContext().getString(R.string.thread_page_no)).append(' ');
 
-                    Page p = callback.getPage(op);
+                    Chan4PagesRequest.Page p = callback.getPage(op);
                     if (p != null) {
                         SpannableString page = new SpannableString(String.valueOf(p.page));
                         if (p.page >= board.pages) {
@@ -243,7 +243,7 @@ public class ThreadStatusCell extends LinearLayout implements View.OnClickListen
 
         ChanThread getChanThread();
 
-        Page getPage(Post op);
+        Chan4PagesRequest.Page getPage(Post op);
 
         void onListStatusClicked();
     }

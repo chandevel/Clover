@@ -20,8 +20,6 @@ package org.floens.chan.core.saver;
 import java.io.File;
 
 public class StorageHelper {
-    private static final String TAG = "StorageHelper";
-
     public static boolean canNavigate(File file) {
         return file != null && !isDirectoryBlacklisted(file) && file.exists()
                 && file.isDirectory() && file.canRead();

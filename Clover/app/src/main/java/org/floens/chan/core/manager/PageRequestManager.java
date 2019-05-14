@@ -24,9 +24,7 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.site.SiteActions;
-import org.floens.chan.core.site.parser.pageObjects.Page;
-import org.floens.chan.core.site.parser.pageObjects.Pages;
-import org.floens.chan.core.site.parser.pageObjects.ThreadNoTimeModPair;
+import org.floens.chan.core.site.sites.chan4.Chan4PagesRequest;
 import org.floens.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -44,19 +42,19 @@ public class PageRequestManager implements SiteActions.PagesListener {
 
     private Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());
     private Set<String> savedBoards = Collections.synchronizedSet(new HashSet<>());
-    private ConcurrentMap<String, Pages> boardPagesMap = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, Chan4PagesRequest.Pages> boardPagesMap = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Long> boardTimeMap = new ConcurrentHashMap<>();
 
     private List<PageCallback> callbackList = new ArrayList<>();
 
-    public Page getPage(Post op) {
+    public Chan4PagesRequest.Page getPage(Post op) {
         if (op == null) {
             return null;
         }
         return findPage(op.board, op.no);
     }
 
-    public Page getPage(Loadable opLoadable) {
+    public Chan4PagesRequest.Page getPage(Loadable opLoadable) {
         if (opLoadable == null) {
             return null;
         }
@@ -68,11 +66,11 @@ public class PageRequestManager implements SiteActions.PagesListener {
         mainThread.postDelayed(() -> shouldUpdate(b, true), THIRTY_SECONDS);
     }
 
-    private Page findPage(Board board, int opNo) {
-        Pages pages = getPages(board);
+    private Chan4PagesRequest.Page findPage(Board board, int opNo) {
+        Chan4PagesRequest.Pages pages = getPages(board);
         if (pages == null) return null;
-        for (Page page : pages.pages) {
-            for (ThreadNoTimeModPair threadNoTimeModPair : page.threads) {
+        for (Chan4PagesRequest.Page page : pages.pages) {
+            for (Chan4PagesRequest.ThreadNoTimeModPair threadNoTimeModPair : page.threads) {
                 if (opNo == threadNoTimeModPair.no) {
                     return page;
                 }
@@ -81,7 +79,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
         return null;
     }
 
-    private Pages getPages(Board b) {
+    private Chan4PagesRequest.Pages getPages(Board b) {
         if (savedBoards.contains(b.code)) {
             //if we have it stored already, return the pages for it
             //also issue a new request if 3 minutes have passed
@@ -127,7 +125,7 @@ public class PageRequestManager implements SiteActions.PagesListener {
     }
 
     @Override
-    public void onPagesReceived(Board b, Pages pages) {
+    public void onPagesReceived(Board b, Chan4PagesRequest.Pages pages) {
         Logger.d(TAG, "Got pages for " + b.site.name() + " /" + b.code + "/");
         savedBoards.add(b.code);
         requestedBoards.remove(b.code);

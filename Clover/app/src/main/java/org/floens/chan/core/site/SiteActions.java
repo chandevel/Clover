@@ -26,7 +26,7 @@ import org.floens.chan.core.site.http.LoginRequest;
 import org.floens.chan.core.site.http.LoginResponse;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.core.site.http.ReplyResponse;
-import org.floens.chan.core.site.parser.pageObjects.Pages;
+import org.floens.chan.core.site.sites.chan4.Chan4PagesRequest;
 
 public interface SiteActions {
     void boards(BoardsListener boardsListener);
@@ -38,7 +38,7 @@ public interface SiteActions {
     }
 
     interface PagesListener {
-        void onPagesReceived(Board b, Pages pages);
+        void onPagesReceived(Board b, Chan4PagesRequest.Pages pages);
     }
 
     void post(Reply reply, PostListener postListener);

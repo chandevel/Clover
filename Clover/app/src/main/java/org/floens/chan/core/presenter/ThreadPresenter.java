@@ -42,7 +42,7 @@ import org.floens.chan.core.site.http.DeleteRequest;
 import org.floens.chan.core.site.http.DeleteResponse;
 import org.floens.chan.core.site.http.HttpCall;
 import org.floens.chan.core.site.loader.ChanThreadLoader;
-import org.floens.chan.core.site.parser.pageObjects.Page;
+import org.floens.chan.core.site.sites.chan4.Chan4PagesRequest;
 import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCellInterface;
@@ -672,7 +672,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         return chanLoader == null ? null : chanLoader.getThread();
     }
 
-    public Page getPage(Post op) {
+    public Chan4PagesRequest.Page getPage(Post op) {
         return pageRequestManager.getPage(op);
     }
 

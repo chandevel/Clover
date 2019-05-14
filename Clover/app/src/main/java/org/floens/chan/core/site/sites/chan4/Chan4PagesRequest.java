@@ -25,14 +25,11 @@ import com.android.volley.Response.Listener;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.net.JsonReaderRequest;
 import org.floens.chan.core.site.Site;
-import org.floens.chan.core.site.parser.pageObjects.Page;
-import org.floens.chan.core.site.parser.pageObjects.ThreadNoTimeModPair;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
-
+public class Chan4PagesRequest extends JsonReaderRequest<List<Chan4PagesRequest.Page>> {
     public Chan4PagesRequest(Site site, Board board, Listener<List<Page>> listener, ErrorListener errorListener) {
         super(site.endpoints().pages(board).toString(), listener, errorListener);
     }
@@ -55,9 +52,9 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         List<ThreadNoTimeModPair> threadNoTimeModPairs = null;
 
         reader.beginObject();
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             String nextName = reader.nextName();
-            if(nextName.equals("page")) {
+            if (nextName.equals("page")) {
                 pageNo = reader.nextInt();
             } else if (nextName.equals("threads")) {
                 threadNoTimeModPairs = readThreadTimes(reader);
@@ -74,7 +71,7 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         List<ThreadNoTimeModPair> threadNoTimeModPairs = new ArrayList<>();
 
         reader.beginArray();
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             threadNoTimeModPairs.add(readThreadTime(reader));
         }
         reader.endArray();
@@ -87,7 +84,7 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         long modified = -1;
 
         reader.beginObject();
-        while(reader.hasNext()) {
+        while (reader.hasNext()) {
             String nextName = reader.nextName();
             if (nextName.equals("no")) {
                 no = reader.nextInt();
@@ -100,5 +97,33 @@ public class Chan4PagesRequest extends JsonReaderRequest<List<Page>> {
         reader.endObject();
 
         return new ThreadNoTimeModPair(no, modified);
+    }
+
+    public static class Pages {
+        public final List<Page> pages;
+
+        public Pages(List<Page> pages) {
+            this.pages = pages;
+        }
+    }
+
+    public class Page {
+        public final int page;
+        public final List<ThreadNoTimeModPair> threads;
+
+        public Page(int page, List<ThreadNoTimeModPair> threads) {
+            this.page = page;
+            this.threads = threads;
+        }
+    }
+
+    public class ThreadNoTimeModPair {
+        public final int no;
+        public final long modified;
+
+        public ThreadNoTimeModPair(int no, long modified) {
+            this.no = no;
+            this.modified = modified;
+        }
     }
 }
