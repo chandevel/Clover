@@ -20,7 +20,7 @@ package org.floens.chan.core.site.http;
 
 import android.support.annotation.Nullable;
 
-import org.floens.chan.core.di.UserAgentProvider;
+import org.floens.chan.core.di.NetModule;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteRequestModifier;
 
@@ -37,12 +37,10 @@ import okhttp3.Request;
 public class HttpCallManager {
     private static final int TIMEOUT = 30000;
 
-    private UserAgentProvider userAgentProvider;
     private OkHttpClient client;
 
     @Inject
-    public HttpCallManager(UserAgentProvider userAgentProvider) {
-        this.userAgentProvider = userAgentProvider;
+    public HttpCallManager() {
         client = new OkHttpClient.Builder()
                 .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
@@ -76,7 +74,7 @@ public class HttpCallManager {
             }
         }
 
-        requestBuilder.header("User-Agent", userAgentProvider.getUserAgent());
+        requestBuilder.header("User-Agent", NetModule.USER_AGENT);
         Request request = requestBuilder.build();
 
         client.newCall(request).enqueue(httpCall);

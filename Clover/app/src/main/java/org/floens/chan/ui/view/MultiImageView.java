@@ -55,7 +55,7 @@ import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;
 import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.cache.FileCacheProvider;
-import org.floens.chan.core.di.UserAgentProvider;
+import org.floens.chan.core.di.NetModule;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.AndroidUtils;
@@ -83,9 +83,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
     @Inject
     ImageLoader imageLoader;
-
-    @Inject
-    UserAgentProvider userAgent;
 
     private ImageView playView;
 
@@ -225,7 +222,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             @Override
             public void onErrorResponse(VolleyError error) {
                 thumbnailRequest = null;
-                if(center) {
+                if (center) {
                     onError();
                 }
             }
@@ -413,7 +410,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
             exoVideoView.setPlayer(exoPlayer);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
-                    Util.getUserAgent(getContext(), userAgent.getUserAgent()));
+                    Util.getUserAgent(getContext(), NetModule.USER_AGENT));
             MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(android.net.Uri.fromFile(file));
 
@@ -523,6 +520,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             backgroundToggle = true;
         }
     }
+
     public void rotateImage(boolean CW) {
         CustomScaleImageView imageView = findScaleImageView();
         if (imageView == null) return;

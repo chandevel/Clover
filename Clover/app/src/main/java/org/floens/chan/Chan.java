@@ -33,7 +33,6 @@ import org.floens.chan.core.di.ManagerModule;
 import org.floens.chan.core.di.NetModule;
 import org.floens.chan.core.di.RepositoryModule;
 import org.floens.chan.core.di.SiteModule;
-import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.SiteService;
 import org.floens.chan.utils.AndroidUtils;
@@ -44,7 +43,7 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-public class Chan extends Application implements UserAgentProvider, Application.ActivityLifecycleCallbacks {
+public class Chan extends Application implements Application.ActivityLifecycleCallbacks {
     @SuppressLint("StaticFieldLeak")
     private static Chan instance;
 
@@ -118,7 +117,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
     private void initializeGraph() {
         feather = Feather.with(
-                new AppModule(this, this),
+                new AppModule(this),
                 new DatabaseModule(),
                 new NetModule(),
                 new GsonModule(),
@@ -128,11 +127,6 @@ public class Chan extends Application implements UserAgentProvider, Application.
         );
 
         feather.injectFields(this);
-    }
-
-    @Override
-    public String getUserAgent() {
-        return "Clover/" + BuildConfig.VERSION_NAME;
     }
 
     private void activityEnteredForeground() {

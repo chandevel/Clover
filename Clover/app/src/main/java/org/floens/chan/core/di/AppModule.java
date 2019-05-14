@@ -29,23 +29,15 @@ import javax.inject.Singleton;
 
 public class AppModule {
     private Context applicationContext;
-    private UserAgentProvider userAgentProvider;
 
-    public AppModule(Context applicationContext, UserAgentProvider userAgentProvider) {
+    public AppModule(Context applicationContext) {
         this.applicationContext = applicationContext;
-        this.userAgentProvider = userAgentProvider;
     }
 
     @Provides
     @Singleton
     public Context provideApplicationContext() {
         return applicationContext;
-    }
-
-    @Provides
-    @Singleton
-    public UserAgentProvider provideUserAgentProvider() {
-        return userAgentProvider;
     }
 
     @Provides

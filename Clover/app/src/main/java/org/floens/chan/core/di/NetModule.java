@@ -23,6 +23,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 import org.codejargon.feather.Provides;
+import org.floens.chan.BuildConfig;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.net.ProxiedHurlStack;
 import org.floens.chan.core.site.http.HttpCallManager;
@@ -35,23 +36,22 @@ public class NetModule {
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
     private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
     private static final String FILE_CACHE_NAME = "filecache";
+    public static final String USER_AGENT = "Clover/" + BuildConfig.VERSION_NAME;
 
     @Provides
     @Singleton
-    public RequestQueue provideRequestQueue(Context applicationContext, UserAgentProvider userAgentProvider) {
+    public RequestQueue provideRequestQueue(Context applicationContext) {
         File cacheDir = getCacheDir(applicationContext);
-
-        String userAgent = userAgentProvider.getUserAgent();
         return Volley.newRequestQueue(applicationContext,
-                userAgent,
-                new ProxiedHurlStack(userAgent),
+                USER_AGENT,
+                new ProxiedHurlStack(USER_AGENT),
                 new File(cacheDir, Volley.DEFAULT_CACHE_DIR), VOLLEY_CACHE_SIZE);
     }
 
     @Provides
     @Singleton
-    public FileCache provideFileCache(Context applicationContext, UserAgentProvider userAgentProvider) {
-        return new FileCache(new File(getCacheDir(applicationContext), FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, userAgentProvider.getUserAgent());
+    public FileCache provideFileCache(Context applicationContext) {
+        return new FileCache(new File(getCacheDir(applicationContext), FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, USER_AGENT);
     }
 
     private File getCacheDir(Context applicationContext) {
@@ -65,7 +65,7 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public HttpCallManager provideHttpCallManager(UserAgentProvider userAgentProvider) {
-        return new HttpCallManager(userAgentProvider);
+    public HttpCallManager provideHttpCallManager() {
+        return new HttpCallManager();
     }
 }
