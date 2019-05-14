@@ -17,115 +17,52 @@
  */
 package org.floens.chan.core.net;
 
-
 import android.util.JsonReader;
 
 import com.android.volley.Response;
 
 import org.floens.chan.BuildConfig;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.DateTimeFormatter;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
 public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateApiResponse> {
-    public static final String TYPE_UPDATE = "update";
-
-    private static final int API_VERSION = 1;
-
-    private String forFlavor;
-
     public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener,
                             Response.ErrorListener errorListener) {
         super(BuildConfig.UPDATE_API_ENDPOINT, listener, errorListener);
-        forFlavor = BuildConfig.FLAVOR;
     }
 
     @Override
     public UpdateApiResponse readJson(JsonReader reader) throws Exception {
-        reader.beginObject();
-
         UpdateApiResponse response = new UpdateApiResponse();
-
-        int apiVersion;
-        out:
+        reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
-                case "api_version":
-                    apiVersion = reader.nextInt();
-
-                    if (apiVersion > API_VERSION) {
-                        response.newerApiVersion = true;
-
-                        while (reader.hasNext()) reader.skipValue();
-
-                        break out;
-                    }
-
+                case "tag_name":
+                    String version = reader.nextString();
+                    Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d+?)\\.(\\d+?)");
+                    Matcher versionMatcher = versionPattern.matcher(version);
+                    versionMatcher.matches();
+                    response.versionCode = Integer.parseInt(versionMatcher.group(1))
+                            + (Integer.parseInt(versionMatcher.group(2)) * 100)
+                            + (Integer.parseInt(versionMatcher.group(3)) * 10000);
                     break;
-                case "messages":
+                case "created_at":
+                    response.publishedDateTime = LocalDateTime.parse(reader.nextString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("Z")));
+                    break;
+                case "assets":
                     reader.beginArray();
                     while (reader.hasNext()) {
-                        response.messages.add(readMessage(reader));
-                    }
-                    reader.endArray();
-                    break;
-                case "check_interval":
-                    response.checkIntervalMs = reader.nextLong();
-                    break;
-                default:
-                    reader.skipValue();
-                    break;
-            }
-        }
-
-        reader.endObject();
-
-        return response;
-    }
-
-    private UpdateApiMessage readMessage(JsonReader reader) throws IOException {
-        reader.beginObject();
-
-        UpdateApiMessage message = new UpdateApiMessage();
-
-        while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case "type":
-                    message.type = reader.nextString();
-                    break;
-                case "code":
-                    message.code = reader.nextInt();
-                    break;
-                case "hash":
-                    message.hash = reader.nextString();
-                    break;
-                case "date":
-                    DateFormat format = new SimpleDateFormat(
-                            "yyyy-MM-dd'T'HH:mm:ss", Locale.US);
-                    try {
-                        message.date = format.parse(reader.nextString());
-                    } catch (ParseException ignore) {
-                    }
-                    break;
-                case "message_html":
-                    message.messageHtml = reader.nextString();
-                    break;
-                case "apk":
-                    reader.beginObject();
-                    while (reader.hasNext()) {
-                        if (reader.nextName().equals(forFlavor)) {
+                        if (response.apkURL == null) {
                             reader.beginObject();
                             while (reader.hasNext()) {
-                                if ("url".equals(reader.nextName())) {
-                                    message.apkUrl = HttpUrl.parse(reader.nextString());
+                                if ("browser_download_url".equals(reader.nextName())) {
+                                    response.apkURL = HttpUrl.parse(reader.nextString());
                                 } else {
                                     reader.skipValue();
                                 }
@@ -135,31 +72,24 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                             reader.skipValue();
                         }
                     }
-                    reader.endObject();
+                    reader.endArray();
+                    break;
+                case "body":
+                    response.body = reader.nextString().replace("\r\n", "<br>");
                     break;
                 default:
                     reader.skipValue();
                     break;
             }
         }
-
         reader.endObject();
-
-        return message;
+        return response;
     }
 
     public static class UpdateApiResponse {
-        public boolean newerApiVersion;
-        public List<UpdateApiMessage> messages = new ArrayList<>();
-        public long checkIntervalMs;
-    }
-
-    public static class UpdateApiMessage {
-        public String type;
-        public int code;
-        public String hash;
-        public Date date;
-        public String messageHtml;
-        public HttpUrl apkUrl;
+        public int versionCode;
+        public LocalDateTime publishedDateTime;
+        public HttpUrl apkURL;
+        public String body;
     }
 }

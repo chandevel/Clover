@@ -43,5 +43,4 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
-
-Clover/dig/
+Clover/app/keystore.jks

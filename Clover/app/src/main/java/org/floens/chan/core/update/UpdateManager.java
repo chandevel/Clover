@@ -18,19 +18,30 @@
 package org.floens.chan.core.update;
 
 
+import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.text.TextUtils;
+import android.support.v7.app.AlertDialog;
+import android.text.Html;
+import android.text.Spanned;
+import android.widget.Button;
 
 import com.android.volley.RequestQueue;
 
 import org.floens.chan.BuildConfig;
+import org.floens.chan.R;
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.net.UpdateApiRequest;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.activity.StartActivity;
+import org.floens.chan.ui.helper.RuntimePermissionsHelper;
+import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.IOUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
@@ -40,8 +51,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import okhttp3.HttpUrl;
-
 import static org.floens.chan.Chan.inject;
 
 /**
@@ -50,11 +59,7 @@ import static org.floens.chan.Chan.inject;
  * screen is launched after downloading.
  */
 public class UpdateManager {
-    public static final long DEFAULT_UPDATE_CHECK_INTERVAL_MS = 1000 * 60 * 60 * 24 * 5; // 5 days
-
     private static final String TAG = "UpdateManager";
-
-    private static final String DOWNLOAD_FILE = "Clover_update.apk";
 
     @Inject
     RequestQueue volleyRequestQueue;
@@ -62,21 +67,53 @@ public class UpdateManager {
     @Inject
     FileCache fileCache;
 
-    private UpdateCallback callback;
+    private ProgressDialog updateDownloadDialog;
+    private Context context;
 
-    public UpdateManager(UpdateCallback callback) {
+    public UpdateManager(Context context) {
         inject(this);
-        this.callback = callback;
+        this.context = context;
     }
 
-    public boolean isUpdatingAvailable() {
-        return !TextUtils.isEmpty(BuildConfig.UPDATE_API_ENDPOINT);
+    /**
+     * Runs every time onCreate is called on the StartActivity.
+     */
+    public void autoUpdateCheck() {
+        if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE
+                && ChanSettings.previousVersion.get() != 0) {
+            Spanned text = Html.fromHtml("<h3>Clover was updated</h3>Clover was updated to " + BuildConfig.VERSION_NAME);
+            final AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setMessage(text)
+                    .setPositiveButton(R.string.ok, null)
+                    .create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+
+            final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            button.setEnabled(false);
+            AndroidUtils.runOnUiThread(() -> {
+                dialog.setCanceledOnTouchOutside(true);
+                button.setEnabled(true);
+            }, 1500);
+
+            // Also set the new app version to not show this message again
+            ChanSettings.previousVersion.set(BuildConfig.VERSION_CODE);
+
+            // Don't process the updater because a dialog is now already showing.
+            return;
+        }
+
+        runUpdateApi(false);
     }
 
-    public void runUpdateApi(final boolean manual) {
+    public void manualUpdateCheck() {
+        runUpdateApi(true);
+    }
+
+    private void runUpdateApi(final boolean manual) {
         if (!manual) {
             long lastUpdateTime = ChanSettings.updateCheckTime.get();
-            long interval = ChanSettings.updateCheckInterval.get();
+            long interval = 1000 * 60 * 60 * 24 * 5; //5 days
             long now = Time.get();
             long delta = (lastUpdateTime + interval) - now;
             if (delta > 0) {
@@ -89,128 +126,105 @@ public class UpdateManager {
         Logger.d(TAG, "Calling update API");
         volleyRequestQueue.add(new UpdateApiRequest(response -> {
             if (!processUpdateApiResponse(response) && manual) {
-                callback.onManualCheckNone();
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.update_none)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
             }
         }, error -> {
             Logger.e(TAG, "Failed to process API call for updating", error);
 
             if (manual) {
-                callback.onManualCheckFailed();
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.update_check_failed)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
             }
         }));
     }
 
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
-        if (response.newerApiVersion) {
-            Logger.e(TAG, "API endpoint reports a higher API version than we support, " +
-                    "aborting update check.");
-
-            // ignore
-            return false;
+        Spanned text = Html.fromHtml("<h2>Clover update ready</h2>A new Clover version is available.<br><br>Changelog:<br>" + response.body);
+        if (response.versionCode > BuildConfig.VERSION_CODE) {
+            AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setMessage(text)
+                    .setNegativeButton(R.string.update_later, null)
+                    .setPositiveButton(R.string.update_install, (dialog1, which) -> updateInstallRequested(response))
+                    .create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+            return true;
         }
-
-        if (response.checkIntervalMs != 0) {
-            ChanSettings.updateCheckInterval.set(response.checkIntervalMs);
-        }
-
-        for (UpdateApiRequest.UpdateApiMessage message : response.messages) {
-            if (processUpdateMessage(message)) {
-                return true;
-            }
-        }
-
         return false;
-    }
-
-    private boolean processUpdateMessage(UpdateApiRequest.UpdateApiMessage message) {
-        if (isMessageRelevantForThisVersion(message)) {
-            if (message.type.equals(UpdateApiRequest.TYPE_UPDATE)) {
-                if (message.apkUrl == null) {
-                    Logger.i(TAG, "Update available but none for this build flavor.");
-                    // Not for this flavor, discard.
-                    return false;
-                }
-
-                Logger.i(TAG, "Update available (" + message.code + ") with url \"" +
-                        message.apkUrl + "\".");
-                callback.showUpdateAvailableDialog(message);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean isMessageRelevantForThisVersion(UpdateApiRequest.UpdateApiMessage message) {
-        if (message.code != 0) {
-            if (message.code <= BuildConfig.VERSION_CODE) {
-                Logger.d(TAG, "No newer version available (" +
-                        BuildConfig.VERSION_CODE + " >= " + message.code + ").");
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
     }
 
     /**
      * Install the APK file specified in {@code update}. This methods needs the storage permission.
      *
-     * @param update update with apk details.
+     * @param response that contains the APK file URL
      */
-    public void doUpdate(Update update) {
-        fileCache.downloadFile(update.apkUrl.toString(), new FileCacheListener() {
+    public void doUpdate(UpdateApiRequest.UpdateApiResponse response) {
+        fileCache.downloadFile(response.apkURL.toString(), new FileCacheListener() {
             @Override
             public void onProgress(long downloaded, long total) {
-                callback.onUpdateDownloadProgress(downloaded, total);
+                updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded / (double) total)));
             }
 
             @Override
             public void onSuccess(File file) {
-                callback.onUpdateDownloadSuccess();
-                copyToPublicDirectory(file);
+                updateDownloadDialog.dismiss();
+                updateDownloadDialog = null;
+                File copy = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS),
+                        "Clover.apk");
+                try {
+                    IOUtils.copyFile(file, copy);
+                } catch (IOException e) {
+                    Logger.e(TAG, "requestApkInstall", e);
+                    new AlertDialog.Builder(context)
+                            .setTitle(R.string.update_install_download_move_failed)
+                            .setPositiveButton(R.string.ok, null)
+                            .show();
+                    return;
+                }
+                installApk(copy);
             }
 
             @Override
             public void onFail(boolean notFound) {
-                callback.onUpdateDownloadFailed();
+                updateDownloadDialog.dismiss();
+                updateDownloadDialog = null;
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.update_install_download_failed)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
             }
 
             @Override
             public void onCancel() {
-                callback.onUpdateDownloadFailed();
+                updateDownloadDialog.dismiss();
+                updateDownloadDialog = null;
+                new AlertDialog.Builder(context)
+                        .setTitle(R.string.update_install_download_failed)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
             }
         });
     }
 
-    public void retry(Install install) {
-        installApk(install);
-    }
-
-    private void copyToPublicDirectory(File cacheFile) {
-        File out = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS),
-                DOWNLOAD_FILE);
-        try {
-            IOUtils.copyFile(cacheFile, out);
-        } catch (IOException e) {
-            Logger.e(TAG, "requestApkInstall", e);
-            callback.onUpdateDownloadMoveFailed();
-            return;
-        }
-        installApk(new Install(out));
-    }
-
-    private void installApk(Install install) {
+    private void installApk(File apk) {
         // First open the dialog that asks to retry and calls this method again.
-        callback.openUpdateRetryDialog(install);
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.update_retry_title)
+                .setMessage(R.string.update_retry)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.update_retry_button, (dialog, which) -> installApk(apk))
+                .show();
 
         // Then launch the APK install intent.
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setDataAndType(Uri.fromFile(install.installFile),
+        Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(Uri.fromFile(apk),
                 "application/vnd.android.package-archive");
 
         // The installer wants a content scheme from android N and up,
@@ -219,44 +233,29 @@ public class UpdateManager {
         StrictMode.VmPolicy vmPolicy = StrictMode.getVmPolicy();
         StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
 
-        callback.onUpdateOpenInstallScreen(intent);
+        AndroidUtils.openIntent(intent);
 
         StrictMode.setVmPolicy(vmPolicy);
     }
 
-    public static class Update {
-        private HttpUrl apkUrl;
-
-        public Update(HttpUrl apkUrl) {
-            this.apkUrl = apkUrl;
-        }
-    }
-
-    public static class Install {
-        private File installFile;
-
-        public Install(File installFile) {
-            this.installFile = installFile;
-        }
-    }
-
-    public interface UpdateCallback {
-        void onManualCheckNone();
-
-        void onManualCheckFailed();
-
-        void showUpdateAvailableDialog(UpdateApiRequest.UpdateApiMessage message);
-
-        void onUpdateDownloadProgress(long downloaded, long total);
-
-        void onUpdateDownloadSuccess();
-
-        void onUpdateDownloadFailed();
-
-        void onUpdateDownloadMoveFailed();
-
-        void onUpdateOpenInstallScreen(Intent intent);
-
-        void openUpdateRetryDialog(Install install);
+    private void updateInstallRequested(final UpdateApiRequest.UpdateApiResponse response) {
+        RuntimePermissionsHelper runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
+        runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
+            if (granted) {
+                updateDownloadDialog = new ProgressDialog(context);
+                updateDownloadDialog.setCancelable(false);
+                updateDownloadDialog.setTitle(R.string.update_install_downloading);
+                updateDownloadDialog.setMax(10000);
+                updateDownloadDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                updateDownloadDialog.setProgressNumberFormat("");
+                updateDownloadDialog.show();
+                doUpdate(response);
+            } else {
+                runtimePermissionsHelper.showPermissionRequiredDialog(context,
+                        context.getString(R.string.update_storage_permission_required_title),
+                        context.getString(R.string.update_storage_permission_required),
+                        () -> updateInstallRequested(response));
+            }
+        });
     }
 }

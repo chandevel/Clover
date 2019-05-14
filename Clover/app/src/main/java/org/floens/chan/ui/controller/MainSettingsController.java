@@ -18,13 +18,10 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
+import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SettingsPresenter;
 import org.floens.chan.core.settings.ChanSettings;
@@ -46,7 +43,6 @@ public class MainSettingsController extends SettingsController implements Settin
     private SettingsPresenter presenter;
 
     private LinkSettingView watchLink;
-    private int clickCount;
     private SettingView developerView;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
@@ -149,11 +145,22 @@ public class MainSettingsController extends SettingsController implements Settin
     private void setupAboutGroup() {
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
-        final String version = setupVersionSetting(about);
+        about.add(new LinkSettingView(this,
+                "Clover", BuildConfig.VERSION_NAME,
+                v -> {
+                    ChanSettings.developer.toggle();
+                    Toast.makeText(context, (ChanSettings.developer.get() ? "Enabled" : "Disabled") +
+                            " developer options", Toast.LENGTH_LONG).show();
+                    developerView.view.setVisibility(ChanSettings.developer.get() ? View.VISIBLE : View.GONE);
+                }));
 
-        setupUpdateSetting(about);
+        about.add(new LinkSettingView(this,
+                R.string.settings_update_check, 0,
+                v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()));
 
-        setupExtraAboutSettings(about, version);
+        about.add(new LinkSettingView(this,
+                "Find Clover on GitHub", "View the source code, give feedback, submit bug reports",
+                v -> AndroidUtils.openLink("https://github.com/Adamantcheese/Clover")));
 
         about.add(new LinkSettingView(this,
                 R.string.settings_about_license, R.string.settings_about_license_description,
@@ -175,83 +182,5 @@ public class MainSettingsController extends SettingsController implements Settin
                         new DeveloperSettingsController(context))));
 
         groups.add(about);
-    }
-
-    private void setupExtraAboutSettings(SettingsGroup about, String version) {
-        int extraAbouts = context.getResources()
-                .getIdentifier("extra_abouts", "array", context.getPackageName());
-
-        if (extraAbouts != 0) {
-            String[] abouts = context.getResources().getStringArray(extraAbouts);
-            if (abouts.length % 3 == 0) {
-                for (int i = 0, aboutsLength = abouts.length; i < aboutsLength; i += 3) {
-                    String aboutName = abouts[i];
-                    String aboutDescription = abouts[i + 1];
-                    if (TextUtils.isEmpty(aboutDescription)) {
-                        aboutDescription = null;
-                    }
-                    String aboutLink = abouts[i + 2];
-                    if (TextUtils.isEmpty(aboutLink)) {
-                        aboutLink = null;
-                    }
-
-                    final String finalAboutLink = aboutLink;
-                    View.OnClickListener clickListener = v -> {
-                        if (finalAboutLink != null) {
-                            if (finalAboutLink.contains("__EMAIL__")) {
-                                String[] email = finalAboutLink.split("__EMAIL__");
-                                Intent intent = new Intent(Intent.ACTION_SENDTO);
-                                intent.setData(Uri.parse("mailto:"));
-                                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email[0]});
-                                String subject = email[1];
-                                subject = subject.replace("__VERSION__", version);
-                                intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-                                AndroidUtils.openIntent(intent);
-                            } else {
-                                AndroidUtils.openLink(finalAboutLink);
-                            }
-                        }
-                    };
-
-                    about.add(new LinkSettingView(this,
-                            aboutName, aboutDescription,
-                            clickListener));
-                }
-            }
-        }
-    }
-
-    private String setupVersionSetting(SettingsGroup about) {
-        String version = "";
-        try {
-            version = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException ignored) {
-        }
-
-        about.add(new LinkSettingView(this,
-                "Clover", version,
-                v -> {
-                    if ((++clickCount) % 5 == 0) {
-                        boolean developer = !ChanSettings.developer.get();
-
-                        ChanSettings.developer.set(developer);
-
-                        Toast.makeText(context, (developer ? "Enabled" : "Disabled") +
-                                " developer options", Toast.LENGTH_LONG).show();
-
-                        developerView.view.setVisibility(developer ? View.VISIBLE : View.GONE);
-                    }
-                }));
-
-        return version;
-    }
-
-    private void setupUpdateSetting(SettingsGroup about) {
-        if (((StartActivity) context).getVersionHandler().isUpdatingAvailable()) {
-            about.add(new LinkSettingView(this,
-                    R.string.settings_update_check, 0,
-                    v -> ((StartActivity) context).getVersionHandler().manualUpdateCheck()));
-        }
     }
 }

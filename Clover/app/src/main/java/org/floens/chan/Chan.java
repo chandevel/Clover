@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.StrictMode;
 
@@ -42,20 +41,14 @@ import org.floens.chan.utils.LocaleUtils;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
-import java.util.Locale;
-
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
-@SuppressLint("Registered") // extended by ChanApplication, which is registered in the manifest.
 public class Chan extends Application implements UserAgentProvider, Application.ActivityLifecycleCallbacks {
-    private static final String TAG = "ChanApplication";
-
     @SuppressLint("StaticFieldLeak")
     private static Chan instance;
 
-    private String userAgent;
     private int activityForegroundCounter = 0;
 
     @Inject
@@ -93,14 +86,14 @@ public class Chan extends Application implements UserAgentProvider, Application.
         AndroidUtils.init(this);
     }
 
-    public void initialize() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
         LocaleUtils.overrideLocaleToEnglishIfNeeded(this);
 
         final long startTime = Time.startTiming();
 
         registerActivityLifecycleCallbacks(this);
-
-        userAgent = createUserAgent();
 
         initializeGraph();
 
@@ -111,7 +104,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
         Time.endTiming("Initializing application", startTime);
 
         // Start watching for slow disk reads and writes after the heavy initializing is done
-        if (ChanBuild.DEVELOPER_MODE) {
+        if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
                     new StrictMode.ThreadPolicy.Builder()
                             .detectCustomSlowCalls()
@@ -144,7 +137,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
     @Override
     public String getUserAgent() {
-        return userAgent;
+        return "Clover/" + BuildConfig.VERSION_NAME;
     }
 
     private void activityEnteredForeground() {
@@ -162,7 +155,7 @@ public class Chan extends Application implements UserAgentProvider, Application.
 
         activityForegroundCounter--;
         if (activityForegroundCounter < 0) {
-            Logger.wtf(TAG, "activityForegroundCounter below 0");
+            Logger.wtf("ChanApplication", "activityForegroundCounter below 0");
         }
 
         if (getApplicationInForeground() != lastForeground) {
@@ -180,18 +173,6 @@ public class Chan extends Application implements UserAgentProvider, Application.
         public ForegroundChangedMessage(boolean inForeground) {
             this.inForeground = inForeground;
         }
-    }
-
-    private String createUserAgent() {
-        // User agent is <appname>/<version>
-        String version = "Unknown";
-        try {
-            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Logger.e(TAG, "Error getting app version", e);
-        }
-        version = version.toLowerCase().replace(" ", "_");
-        return "Clover/" + version;
     }
 
     @Override

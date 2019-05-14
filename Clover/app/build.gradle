@@ -2,17 +2,19 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 28
 
-        versionName "v3.0.3"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
-        versionCode 30003
+        // version name should be of the form vXX.YY.ZZ
+        versionCode 40000
+        versionName "v4.0.0"
+
         applicationId "org.floens.chan"
+        buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Clover/releases/latest\""
     }
 
     compileOptions {
@@ -27,64 +29,46 @@ android {
     // Needed for volley
     useLibrary 'org.apache.http.legacy'
 
-    /*
-    If you want to sign releases, make a file in app/keys.properties with the following content:
-    keystoreFile=yourkey.store
-    keystorePass=pass
-    keyAlias=alias
-    keyPass=pass
-    */
-
-    File f = file('keys.properties')
-    boolean doSign = f.exists();
-
-    if (doSign) {
-        Properties props = new Properties()
-        InputStream is = new FileInputStream(f)
-        props.load(is)
-
-        signingConfigs {
-            release {
-                storeFile file(props['keystoreFile'])
-                storePassword props['keystorePass']
-                keyAlias props['keyAlias']
-                keyPassword props['keyPass']
-            }
-        }
-
-        is.close()
-    }
-
-    defaultPublishConfig "default"
-    flavorDimensions "default"
-    productFlavors {
-        // NOTE: the file provider authority names append to the package name.
-        // When changing this also update the authority in the manifest files.
-
-        // The app name refers to the name as displayed on the launcher.
-        // the flavor name is appended to the name in the settings.
-        "default" {
-            dimension "default"
-            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://build.floens.org/api/update\""
-        }
-
-        fdroid {
-            dimension "default"
-            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Clover.apk"
         }
     }
 
     buildTypes {
         release {
-            if (doSign) {
+            /*
+            If you want to sign releases, make a file in app/keys.properties with the following content:
+            keystoreFile=yourkey.store
+            keystorePass=pass
+            keyAlias=alias
+            keyPass=pass
+            */
+            File f = file('keys.properties')
+            if (f.exists()) {
+                Properties props = new Properties()
+                InputStream is = new FileInputStream(f)
+                props.load(is)
+
+                signingConfigs {
+                    release {
+                        storeFile file(props['keystoreFile'])
+                        storePassword props['keystorePass']
+                        keyAlias props['keyAlias']
+                        keyPassword props['keyPass']
+                    }
+                }
+
+                is.close()
                 signingConfig signingConfigs.release
             }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+            debuggable = false
         }
-
         debug {
-            minifyEnabled true
+            minifyEnabled false
+            debuggable = true
         }
     }
 }
@@ -105,20 +89,18 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-core:2.9.0'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.0'
 
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    //noinspection GradleDependency
-    implementation 'com.j256.ormlite:ormlite-core:4.48'
-    //noinspection GradleDependency
-    implementation 'com.j256.ormlite:ormlite-android:4.48'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.1'
+    implementation 'com.j256.ormlite:ormlite-core:5.1'
+    implementation 'com.j256.ormlite:ormlite-android:5.1'
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.12'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
-    //noinspection GradleDependency
     implementation 'de.greenrobot:eventbus:2.4.0'
-    implementation 'org.nibor.autolink:autolink:0.9.0'
+    implementation 'org.nibor.autolink:autolink:0.10.0'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'me.xdrop:fuzzywuzzy:1.1.10'
     implementation 'org.codejargon.feather:feather:1.0'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
 
     testImplementation 'junit:junit:4.12'
 }

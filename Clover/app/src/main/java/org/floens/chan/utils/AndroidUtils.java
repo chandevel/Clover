@@ -71,7 +71,6 @@ public class AndroidUtils {
     private static HashMap<String, Typeface> typefaceCache = new HashMap<>();
 
     public static Typeface ROBOTO_MEDIUM;
-    public static Typeface ROBOTO_MEDIUM_ITALIC;
     public static Typeface ROBOTO_CONDENSED_REGULAR;
 
     @SuppressLint("StaticFieldLeak")
@@ -84,7 +83,6 @@ public class AndroidUtils {
             AndroidUtils.application = application;
 
             ROBOTO_MEDIUM = getTypeface("Roboto-Medium.ttf");
-            ROBOTO_MEDIUM_ITALIC = getTypeface("Roboto-MediumItalic.ttf");
             ROBOTO_CONDENSED_REGULAR = getTypeface("RobotoCondensed-Regular.ttf");
         }
     }

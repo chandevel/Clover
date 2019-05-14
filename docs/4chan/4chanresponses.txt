@@ -1,6 +1,0 @@
-Error: No file selected.
-Error: You forgot to solve the CAPTCHA. Please try again.
-Error: You seem to have mistyped the CAPTCHA. Please try again.
-
-
-<!DOCTYPE html><head><meta http-equiv="refresh" content="1;URL=http://boards.4chan.org/board/thread/12345"><link rel="shortcut icon" href="//s.4cdn.org/image/favicon.ico"><title>Post successful!</title><link rel="stylesheet" title="switch" href="//s.4cdn.org/css/yotsubanew.607.css"></head><body style="margin-top: 20%; text-align: center;"><h1 style="font-size:36pt;">image.jpg uploaded!</h1><!-- thread:0,no:12345 --></body></html>

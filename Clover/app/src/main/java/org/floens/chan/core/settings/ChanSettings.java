@@ -22,7 +22,6 @@ import android.text.TextUtils;
 
 import org.floens.chan.R;
 import org.floens.chan.core.manager.WakeManager;
-import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.utils.AndroidUtils;
 
@@ -164,7 +163,6 @@ public class ChanSettings {
     public static final CounterSetting threadOpenCounter;
 
     public static final LongSetting updateCheckTime;
-    public static final LongSetting updateCheckInterval;
 
     public static final BooleanSetting reencodeHintShown;
 
@@ -267,7 +265,6 @@ public class ChanSettings {
         threadOpenCounter = new CounterSetting(p, "counter_thread_open");
 
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
-        updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
 

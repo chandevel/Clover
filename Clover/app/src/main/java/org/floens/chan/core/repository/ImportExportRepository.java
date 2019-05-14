@@ -42,8 +42,8 @@ import org.floens.chan.utils.Logger;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,8 +113,8 @@ public class ImportExportRepository {
                     );
                 }
 
-                try (RandomAccessFile raf = new RandomAccessFile(settingsFile, "rw")) {
-                    raf.writeBytes(json);
+                try (FileWriter writer = new FileWriter(settingsFile)) {
+                    writer.write(json);
                 }
 
                 Logger.d(TAG, "Exporting done!");

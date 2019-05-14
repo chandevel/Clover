@@ -1,5 +1,0 @@
-delay range: 10, 15, 20, 30, 60, 90, 120, 180, 240, 300
-
-Resets to 10 on page visible
-
-

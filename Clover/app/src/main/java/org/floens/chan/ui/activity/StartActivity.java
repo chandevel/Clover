@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -31,6 +32,8 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
@@ -47,6 +50,7 @@ import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteResolver;
 import org.floens.chan.core.site.SiteService;
+import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
@@ -56,7 +60,6 @@ import org.floens.chan.ui.controller.ThreadSlideController;
 import org.floens.chan.ui.controller.ViewThreadController;
 import org.floens.chan.ui.helper.ImagePickDelegate;
 import org.floens.chan.ui.helper.RuntimePermissionsHelper;
-import org.floens.chan.ui.helper.VersionHandler;
 import org.floens.chan.ui.state.ChanState;
 import org.floens.chan.ui.theme.ThemeHelper;
 import org.floens.chan.utils.AndroidUtils;
@@ -71,6 +74,7 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static org.floens.chan.Chan.inject;
 
+@SuppressLint("Registered")
 public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "StartActivity";
 
@@ -85,7 +89,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     private ImagePickDelegate imagePickDelegate;
     private RuntimePermissionsHelper runtimePermissionsHelper;
-    private VersionHandler versionHandler;
+    private UpdateManager updateManager;
 
     private boolean intentMismatchWorkaroundActive = false;
 
@@ -121,7 +125,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
-        versionHandler = new VersionHandler(this, runtimePermissionsHelper);
+        updateManager = new UpdateManager(this);
 
         contentView = findViewById(android.R.id.content);
 
@@ -146,7 +150,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
         setupFromStateOrFreshLaunch(savedInstanceState);
 
-        versionHandler.run();
+        AndroidThreeTen.init(this);
+        updateManager.autoUpdateCheck();
     }
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
@@ -327,11 +332,11 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                     }
                 }
             } else if (pinId != -2 && mainNavigationController.getTop() instanceof ThreadSlideController) {
-                if(pinId == -1) {
+                if (pinId == -1) {
                     drawerController.onMenuClicked();
                 } else {
                     Pin pin = watchManager.findPinById(pinId);
-                    if(pin != null) {
+                    if (pin != null) {
                         List<Controller> controllers = mainNavigationController.childControllers;
                         for (Controller controller : controllers) {
                             if (controller instanceof ViewThreadController) {
@@ -469,8 +474,8 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         return imagePickDelegate;
     }
 
-    public VersionHandler getVersionHandler() {
-        return versionHandler;
+    public UpdateManager getUpdateManager() {
+        return updateManager;
     }
 
     public RuntimePermissionsHelper getRuntimePermissionsHelper() {

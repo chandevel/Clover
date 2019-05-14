@@ -36,20 +36,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         tools:ignore="UnknownIdInLayout">
 
-        <!--<org.floens.chan.ui.view.PostImageThumbnailView
-            android:id="@+id/thumbnail_view"
-            android:layout_width="@dimen/cell_post_thumbnail_size"
-            android:layout_height="@dimen/cell_post_thumbnail_size"
-            android:layout_alignWithParentIfMissing="true"
-            android:gravity="top" />-->
-
         <org.floens.chan.ui.text.FastTextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
             android:layout_alignWithParentIfMissing="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
             android:paddingRight="25dp" />
 
@@ -58,18 +51,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             class="org.floens.chan.ui.cell.PostCell$PostIcons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/title"
+            android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view" />
 
         <TextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/icons"
+            android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
             android:textColor="?attr/text_color_primary" />
 
@@ -87,30 +80,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/replies_additional_area"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignTop="@id/replies"
             android:layout_alignBottom="@id/replies"
             android:layout_alignParentRight="true"
-            android:layout_alignTop="@id/replies"
             android:layout_toRightOf="@id/replies" />
 
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
             android:background="?attr/divider_color" />
 
         <ImageView
             android:id="@+id/options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:paddingBottom="15dp"
+            android:layout_alignParentRight="true"
             android:paddingLeft="15dp"
-            android:paddingRight="5dp"
             android:paddingTop="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="15dp"
             android:src="?post_options_drawable"
             tools:ignore="ContentDescription" />
 

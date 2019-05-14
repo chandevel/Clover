@@ -44,4 +44,8 @@ public class BooleanSetting extends Setting<Boolean> {
             onValueChanged();
         }
     }
+
+    public void toggle() {
+        set(!get());
+    }
 }

@@ -50,8 +50,6 @@ public class LastPageNotification extends Service {
         if (intent != null && intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
             int pinId = extras.getInt("pin_id");
-
-            //NotificationManagerCompat.from(getAppContext()).notify(random.nextInt(), getNotification(pinId));
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(random.nextInt(), getNotification(pinId));
         }
         return START_STICKY;
