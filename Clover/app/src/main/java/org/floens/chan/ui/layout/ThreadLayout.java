@@ -42,7 +42,6 @@ import android.widget.Toast;
 import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
@@ -53,6 +52,7 @@ import org.floens.chan.core.presenter.ThreadPresenter;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.http.Reply;
+import org.floens.chan.core.site.loader.ChanThreadLoader;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.helper.ImageOptionsHelper;
 import org.floens.chan.ui.helper.PostPopupHelper;
@@ -262,7 +262,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     }
 
     @Override
-    public void showError(ChanLoaderException error) {
+    public void showError(ChanThreadLoader.ChanLoaderException error) {
         String errorMessage = getString(error.getErrorMessage());
 
         if (visible == Visible.THREAD) {

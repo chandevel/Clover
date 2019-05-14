@@ -19,7 +19,6 @@ package org.floens.chan.core.manager;
 
 import org.floens.chan.core.database.DatabaseLoadableManager;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
@@ -184,7 +183,7 @@ public class FilterWatchManager implements WakeManager.Wakeable {
         }
 
         @Override
-        public void onChanLoaderError(ChanLoaderException error) {
+        public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
             //ignore all errors
         }
     }

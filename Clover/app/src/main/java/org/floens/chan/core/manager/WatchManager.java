@@ -25,7 +25,6 @@ import android.support.annotation.Nullable;
 import org.floens.chan.Chan;
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.database.DatabasePinManager;
-import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.PostImage;
@@ -337,7 +336,7 @@ public class WatchManager implements WakeManager.Wakeable {
     // Returns a list of pins that can later be given to addAll to undo the clearing
     public List<Pin> clearPins(boolean all) {
         List<Pin> toRemove = new ArrayList<>();
-        if(all) {
+        if (all) {
             toRemove.addAll(pins);
         } else {
             for (Pin pin : pins) {
@@ -638,7 +637,7 @@ public class WatchManager implements WakeManager.Wakeable {
         }
 
         @Override
-        public void onChanLoaderError(ChanLoaderException error) {
+        public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
             // Ignore normal network errors, we only pause pins when there is absolutely no way
             // we'll ever need watching again: a 404.
             if (error.isNotFound()) {

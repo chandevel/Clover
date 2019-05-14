@@ -22,7 +22,6 @@ import android.text.TextUtils;
 import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.database.DatabaseManager;
-import org.floens.chan.core.exception.ChanLoaderException;
 import org.floens.chan.core.manager.PageRequestManager;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.model.ChanThread;
@@ -312,7 +311,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     }
 
     @Override
-    public void onChanLoaderError(ChanLoaderException error) {
+    public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
         threadPresenterCallback.showError(error);
     }
 
@@ -834,7 +833,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
         void postClicked(Post post);
 
-        void showError(ChanLoaderException error);
+        void showError(ChanThreadLoader.ChanLoaderException error);
 
         void showLoading();
 
