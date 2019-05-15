@@ -14,9 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.activity;
+package com.github.adamantcheese.chan;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -57,7 +56,6 @@ import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
 import com.github.adamantcheese.chan.ui.controller.ViewThreadController;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
-import com.github.adamantcheese.chan.ui.state.ChanState;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.LocaleUtils;
@@ -71,7 +69,6 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 
-@SuppressLint("Registered")
 public class StartActivity extends AppCompatActivity implements NfcAdapter.CreateNdefMessageCallback {
     private static final String TAG = "StartActivity";
 
@@ -315,7 +312,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        // Handle WatchNotifier clicks
+        // Handle WatchNotification clicks
         if (intent.getExtras() != null) {
             int pinId = intent.getExtras().getInt("pin_id", -2);
             if (pinId != -2 && mainNavigationController.getTop() instanceof BrowseController) {
@@ -537,6 +534,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         // Workaround for an intent mismatch that causes a new activity instance to be started
         // every time the app is launched from the launcher.
         // See https://issuetracker.google.com/issues/36907463
+        // Still unfixed as of 5/15/2019
         if (intentMismatchWorkaroundActive) {
             return true;
         }
@@ -562,7 +560,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     // It is a hack but it works.
     // The other restart() method does not work for this case so I'm using this one instead
     public void restartApp() {
-        Intent intent = new Intent(this, BoardActivity.class);
+        Intent intent = new Intent(this, StartActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();

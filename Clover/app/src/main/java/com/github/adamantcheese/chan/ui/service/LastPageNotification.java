@@ -15,7 +15,7 @@ import android.support.v4.app.NotificationCompat;
 import com.adamantcheese.github.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.ui.activity.BoardActivity;
+import com.github.adamantcheese.chan.StartActivity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -58,7 +58,7 @@ public class LastPageNotification extends Service {
     private Notification getNotification(int pinId) {
         Pin pin = watchManager.findPinById(pinId);
 
-        Intent intent = new Intent(this, BoardActivity.class);
+        Intent intent = new Intent(this, StartActivity.class);
         intent.setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |

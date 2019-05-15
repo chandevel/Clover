@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import com.adamantcheese.github.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.ui.activity.StartActivity;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.drawable;
+package com.github.adamantcheese.chan.ui.theme;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;

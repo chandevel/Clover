@@ -30,7 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.adamantcheese.github.chan.R;
-import com.github.adamantcheese.chan.ui.drawable.ArrowMenuDrawable;
+import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 
 import java.util.ArrayList;
 import java.util.List;

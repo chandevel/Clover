@@ -40,8 +40,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.adamantcheese.github.chan.R;
-import com.github.adamantcheese.chan.ui.drawable.ArrowMenuDrawable;
-import com.github.adamantcheese.chan.ui.drawable.DropdownArrowDrawable;
+import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
+import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 

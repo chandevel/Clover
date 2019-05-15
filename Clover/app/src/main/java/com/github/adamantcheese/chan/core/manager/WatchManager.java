@@ -35,7 +35,7 @@ import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
-import com.github.adamantcheese.chan.ui.service.WatchNotifier;
+import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -466,9 +466,9 @@ public class WatchManager implements WakeManager.Wakeable {
         // Update notification state
         if (watchEnabled && backgroundEnabled) {
             // Also calls onStartCommand, which updates the notification with new info
-            getAppContext().startService(new Intent(getAppContext(), WatchNotifier.class));
+            getAppContext().startService(new Intent(getAppContext(), WatchNotification.class));
         } else {
-            getAppContext().stopService(new Intent(getAppContext(), WatchNotifier.class));
+            getAppContext().stopService(new Intent(getAppContext(), WatchNotification.class));
         }
     }
 

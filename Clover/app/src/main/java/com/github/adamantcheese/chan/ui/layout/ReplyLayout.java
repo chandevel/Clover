@@ -45,7 +45,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
-import com.github.adamantcheese.chan.ui.activity.StartActivity;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaLayout;
@@ -53,7 +53,7 @@ import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayo
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
 import com.github.adamantcheese.chan.ui.captcha.v1.CaptchaNojsLayoutV1;
 import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
-import com.github.adamantcheese.chan.ui.drawable.DropdownArrowDrawable;
+import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.view.LoadView;

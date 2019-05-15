@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.adamantcheese.github.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.activity.StartActivity;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 

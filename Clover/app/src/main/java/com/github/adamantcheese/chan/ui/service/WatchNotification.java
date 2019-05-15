@@ -32,7 +32,7 @@ import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.activity.BoardActivity;
+import com.github.adamantcheese.chan.StartActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,8 +43,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class WatchNotifier extends Service {
-    private static final String TAG = "WatchNotifier";
+public class WatchNotification extends Service {
     private static final int NOTIFICATION_ID = 1;
     private static final int SUBJECT_LENGTH = 6;
     private static final String IMAGE_TEXT = "(img) ";
@@ -228,7 +227,7 @@ public class WatchNotifier extends Service {
      */
     private Notification get(String title, String smallText, List<CharSequence> expandedLines,
                              boolean light, boolean sound, boolean peek, boolean alertIcon, Pin target) {
-        Intent intent = new Intent(this, BoardActivity.class);
+        Intent intent = new Intent(this, StartActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
@@ -265,7 +264,7 @@ public class WatchNotifier extends Service {
             builder.setPriority(NotificationCompat.PRIORITY_MIN);
         }
 
-        Intent pauseWatching = new Intent(this, WatchNotifier.class);
+        Intent pauseWatching = new Intent(this, WatchNotification.class);
         pauseWatching.putExtra("pause_pins", true);
 
         PendingIntent pauseWatchingPending = PendingIntent.getService(this, 0, pauseWatching,

@@ -58,7 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:value="598.0dip" />
 
         <activity
-            android:name="com.github.adamantcheese.chan.ui.activity.BoardActivity"
+            android:name="com.github.adamantcheese.chan.StartActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="Clover4">
 
@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </activity>
 
         <service
-            android:name="com.github.adamantcheese.chan.ui.service.WatchNotifier"
+            android:name="com.github.adamantcheese.chan.ui.service.WatchNotification"
             android:exported="false" />
 
         <service

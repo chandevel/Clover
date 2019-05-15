@@ -25,8 +25,8 @@ import android.text.style.UnderlineSpan;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.ui.span.AbsoluteSizeSpanHashed;
-import com.github.adamantcheese.chan.ui.span.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
+import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
