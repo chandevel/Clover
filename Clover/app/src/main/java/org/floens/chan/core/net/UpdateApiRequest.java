@@ -46,10 +46,11 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                         String version = reader.nextString();
                         Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d+?)\\.(\\d+?)");
                         Matcher versionMatcher = versionPattern.matcher(version);
-                        versionMatcher.matches();
-                        response.versionCode = Integer.parseInt(versionMatcher.group(1))
-                                + (Integer.parseInt(versionMatcher.group(2)) * 100)
-                                + (Integer.parseInt(versionMatcher.group(3)) * 10000);
+                        if (versionMatcher.matches()) {
+                            response.versionCode = Integer.parseInt(versionMatcher.group(1))
+                                    + (Integer.parseInt(versionMatcher.group(2)) * 100)
+                                    + (Integer.parseInt(versionMatcher.group(3)) * 10000);
+                        }
                     } catch (Exception e) {
                         throw new VolleyError("Tag name wasn't of the form v(major).(minor).(patch)!");
                     }

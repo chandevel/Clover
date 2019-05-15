@@ -57,8 +57,6 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     private AppCompatButton useOldCaptchaButton;
     private AppCompatButton reloadCaptchaButton;
     private AppCompatButton refreshCookiesButton;
-    private ConstraintLayout buttonsHolder;
-    private ScrollView background;
 
     private CaptchaNoJsV2Adapter adapter;
     private CaptchaNoJsPresenterV2 presenter;
@@ -93,8 +91,8 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
         useOldCaptchaButton = view.findViewById(R.id.captcha_layout_v2_use_old_captcha_button);
         reloadCaptchaButton = view.findViewById(R.id.captcha_layout_v2_reload_button);
         refreshCookiesButton = view.findViewById(R.id.captcha_layout_v2_refresh_cookies);
-        buttonsHolder = view.findViewById(R.id.captcha_layout_v2_buttons_holder);
-        background = view.findViewById(R.id.captcha_layout_v2_background);
+        ConstraintLayout buttonsHolder = view.findViewById(R.id.captcha_layout_v2_buttons_holder);
+        ScrollView background = view.findViewById(R.id.captcha_layout_v2_background);
 
         background.setBackgroundColor(AndroidUtils.getAttrColor(getContext(), R.attr.backcolor));
         buttonsHolder.setBackgroundColor(AndroidUtils.getAttrColor(getContext(), R.attr.backcolor_secondary));
@@ -227,9 +225,7 @@ public class CaptchaNoJsLayoutV2 extends FrameLayout
     }
 
     private void showToast(String message) {
-        AndroidUtils.runOnUiThread(() -> {
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-        });
+        AndroidUtils.runOnUiThread(() -> Toast.makeText(context, message, Toast.LENGTH_LONG).show());
     }
 
     @Override

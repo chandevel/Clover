@@ -258,6 +258,10 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
                 mShowHideAnimator.setStartDelay(0);
                 mShowHideAnimator.start();
                 break;
+            case ANIMATION_STATE_FADING_IN:
+                break;
+            case ANIMATION_STATE_IN:
+                break;
         }
     }
 
@@ -505,6 +509,7 @@ public class FastScroller extends ItemDecoration implements OnItemTouchListener 
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     }

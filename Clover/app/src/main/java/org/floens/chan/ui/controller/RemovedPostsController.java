@@ -225,12 +225,8 @@ public class RemovedPostsController extends BaseFloatingController implements Vi
                 postImage.setVisibility(View.GONE);
             }
 
-            checkbox.setOnClickListener((v) -> {
-                onItemClick(position);
-            });
-            viewHolder.setOnClickListener((v) -> {
-                onItemClick(position);
-            });
+            checkbox.setOnClickListener((v) -> onItemClick(position));
+            viewHolder.setOnClickListener((v) -> onItemClick(position));
 
             return convertView;
         }

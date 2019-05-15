@@ -164,6 +164,7 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
     }
@@ -173,10 +174,12 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         activityEnteredForeground();
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onActivityResumed(Activity activity) {
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onActivityPaused(Activity activity) {
     }
@@ -186,10 +189,12 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         activityEnteredBackground();
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onActivityDestroyed(Activity activity) {
     }

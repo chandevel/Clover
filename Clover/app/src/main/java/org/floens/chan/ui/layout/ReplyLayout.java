@@ -561,10 +561,12 @@ public class ReplyLayout extends LoadView implements View.OnClickListener, Reply
         }
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
     }

@@ -141,14 +141,6 @@ public abstract class NavigationController extends Controller {
         } else {
             finishTransition(from, pushing);
         }
-
-        if (to != null) {
-            if (pushing) {
-                controllerPushed(to);
-            } else {
-                controllerPopped(to);
-            }
-        }
     }
 
     private void finishTransition(Controller from, boolean pushing) {
@@ -162,12 +154,6 @@ public abstract class NavigationController extends Controller {
 
         controllerTransition = null;
         blockingInput = false;
-    }
-
-    protected void controllerPushed(Controller controller) {
-    }
-
-    protected void controllerPopped(Controller controller) {
     }
 
     public boolean onBack() {

@@ -710,13 +710,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     public void noRemovedPostsFoundForThisThread() {
         // called on background thread
 
-        AndroidUtils.runOnUiThread(() -> {
-            Toast.makeText(
-                    getContext(),
-                    getContext().getString(R.string.no_removed_posts_for_current_thread),
-                    Toast.LENGTH_SHORT
-            ).show();
-        });
+        AndroidUtils.runOnUiThread(() -> Toast.makeText(
+                getContext(),
+                getContext().getString(R.string.no_removed_posts_for_current_thread),
+                Toast.LENGTH_SHORT
+        ).show());
     }
 
     @Override
@@ -733,12 +731,8 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setMessage(message)
-                .setPositiveButton(positiveButtonText, (dialog, which) -> {
-                    presenter.hideOrRemovePosts(hide, true, post, threadNo);
-                })
-                .setNegativeButton(negativeButtonText, (dialog, which) -> {
-                    presenter.hideOrRemovePosts(hide, false, post, threadNo);
-                })
+                .setPositiveButton(positiveButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo))
+                .setNegativeButton(negativeButtonText, (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post, threadNo))
                 .create();
 
         alertDialog.show();

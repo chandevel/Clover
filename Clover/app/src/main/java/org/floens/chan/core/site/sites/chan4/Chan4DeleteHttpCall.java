@@ -34,7 +34,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class Chan4DeleteHttpCall extends HttpCall {
-    private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)<\\/span");
+    private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)</span");
 
     private final DeleteRequest deleteRequest;
     public final DeleteResponse deleteResponse = new DeleteResponse();

@@ -614,7 +614,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
      * A MovementMethod that searches for PostLinkables.<br>
      * See {@link PostLinkable} for more information.
      */
-    private class PostViewMovementMethod extends LinkMovementMethod {
+    public class PostViewMovementMethod extends LinkMovementMethod {
         @Override
         public boolean onTouchEvent(@NonNull TextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {
             int action = event.getActionMasked();

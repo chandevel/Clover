@@ -117,9 +117,7 @@ public class PostAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         compact);
 
                 if (itemViewType == TYPE_POST_STUB) {
-                    ((View)postViewHolder.postView).setOnClickListener(v -> {
-                        postAdapterCallback.onUnhidePostClick(post);
-                    });
+                    ((View)postViewHolder.postView).setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                 }
                 break;
             case TYPE_STATUS:

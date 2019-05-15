@@ -48,7 +48,6 @@ import static org.floens.chan.utils.AndroidUtils.sp;
 
 public class ThumbnailView extends View implements ImageLoader.ImageListener {
     private ImageLoader.ImageContainer container;
-    private int fadeTime = 200;
 
     private boolean circular = false;
     private int rounding = 0;
@@ -294,9 +293,9 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
     private void onImageSet(boolean isImmediate) {
         clearAnimation();
-        if (fadeTime > 0 && !isImmediate) {
+        if (!isImmediate) {
             setAlpha(0f);
-            animate().alpha(1f).setDuration(fadeTime);
+            animate().alpha(1f).setDuration(200);
         } else {
             setAlpha(1f);
         }
