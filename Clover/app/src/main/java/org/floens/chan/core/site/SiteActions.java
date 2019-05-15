@@ -34,7 +34,7 @@ public interface SiteActions {
     void pages(Board board, PagesListener pagesListener);
 
     interface BoardsListener {
-        void onBoardsReceived(Boards boards);
+        void onBoardsReceived(SiteBase.Boards boards);
     }
 
     interface PagesListener {

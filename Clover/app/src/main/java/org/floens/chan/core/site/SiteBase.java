@@ -106,4 +106,12 @@ public abstract class SiteBase implements Site {
         boardManager.updateAvailableBoardsForSite(this, Collections.singletonList(board));
         return board;
     }
+
+    public static class Boards {
+        public final List<Board> boards;
+
+        public Boards(List<Board> boards) {
+            this.boards = boards;
+        }
+    }
 }

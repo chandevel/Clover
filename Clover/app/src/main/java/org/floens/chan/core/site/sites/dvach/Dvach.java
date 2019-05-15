@@ -6,7 +6,6 @@ import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.OptionsSetting;
-import org.floens.chan.core.site.Boards;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.SiteIcon;
@@ -149,16 +148,16 @@ public class Dvach extends CommonSite {
             @Override
             public void post(Reply reply, final PostListener postListener) {
                 httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply), new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                            @Override
-                            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                                postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                            }
+                    @Override
+                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                        postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                    }
 
-                            @Override
-                            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                                postListener.onPostError(httpPost, e);
-                            }
-                        }, postListener::onUploadingProgress);
+                    @Override
+                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                        postListener.onPostError(httpPost, e);
+                    }
+                }, postListener::onUploadingProgress);
             }
 
             @Override
