@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <org.floens.chan.ui.view.ThumbnailView
+        <com.github.adamantcheese.chan.ui.view.ThumbnailView
             android:id="@+id/thumbnail"
             android:layout_width="48dp"
             android:layout_height="48dp"

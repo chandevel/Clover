@@ -19,18 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <org.floens.chan.ui.view.TransitionImageView
+    <com.github.adamantcheese.chan.ui.view.TransitionImageView
         android:id="@+id/preview_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <org.floens.chan.ui.view.OptionalSwipeViewPager
+    <com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible" />
 
-    <org.floens.chan.ui.view.LoadingBar
+    <com.github.adamantcheese.chan.ui.view.LoadingBar
         android:id="@+id/loading_bar"
         android:layout_width="match_parent"
         android:layout_height="3dp"

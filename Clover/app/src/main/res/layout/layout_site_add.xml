@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.layout.SiteAddLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.layout.SiteAddLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -46,4 +46,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </android.support.design.widget.TextInputLayout>
 
-</org.floens.chan.ui.layout.SiteAddLayout>
+</com.github.adamantcheese.chan.ui.layout.SiteAddLayout>

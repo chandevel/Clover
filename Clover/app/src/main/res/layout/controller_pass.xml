@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:textSize="16sp"
             android:visibility="gone" />
 
-        <org.floens.chan.ui.view.CrossfadeView
+        <com.github.adamantcheese.chan.ui.view.CrossfadeView
             android:id="@+id/crossfade"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -80,7 +80,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:textColor="?text_color_primary"
                 android:textSize="20sp" />
 
-        </org.floens.chan.ui.view.CrossfadeView>
+        </com.github.adamantcheese.chan.ui.view.CrossfadeView>
 
         <Button
             android:id="@+id/button"

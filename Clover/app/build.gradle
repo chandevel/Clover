@@ -13,7 +13,7 @@ android {
         versionCode 40000
         versionName "v4.0.0"
 
-        applicationId "org.floens.chan"
+        applicationId "com.adamantcheese.github.chan"
         buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Clover/releases/latest\""
     }
 

@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.cell.ThreadStatusCell xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.cell.ThreadStatusCell xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="88dp"
     android:orientation="horizontal">
@@ -28,4 +28,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:gravity="center"
         android:textColor="?text_color_secondary" />
 
-</org.floens.chan.ui.cell.ThreadStatusCell>
+</com.github.adamantcheese.chan.ui.cell.ThreadStatusCell>

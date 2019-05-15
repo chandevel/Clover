@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <org.floens.chan.ui.view.WrappingGridView
+            <com.github.adamantcheese.chan.ui.view.WrappingGridView
                 android:id="@+id/captcha_layout_v2_images_grid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

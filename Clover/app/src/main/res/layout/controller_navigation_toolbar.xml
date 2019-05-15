@@ -15,19 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.view.TouchBlockingFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.view.TouchBlockingFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor">
 
-    <org.floens.chan.controller.ui.NavigationControllerContainerLayout
+    <com.github.adamantcheese.chan.controller.ui.NavigationControllerContainerLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <org.floens.chan.ui.toolbar.Toolbar
+    <com.github.adamantcheese.chan.ui.toolbar.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height" />
 
-</org.floens.chan.ui.view.TouchBlockingFrameLayout>
+</com.github.adamantcheese.chan.ui.view.TouchBlockingFrameLayout>

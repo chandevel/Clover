@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="0dp"
     tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry">
 
-    <org.floens.chan.ui.view.PostImageThumbnailView
+    <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
         android:id="@+id/thumbnail_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

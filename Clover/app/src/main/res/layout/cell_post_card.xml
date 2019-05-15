@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.cell.CardPostCell xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.cell.CardPostCell xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     card_view:cardCornerRadius="@dimen/grid_card_corner_radius"
     card_view:cardElevation="2dp">
 
-    <org.floens.chan.ui.layout.FixedRatioLinearLayout
+    <com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout
         android:id="@+id/card_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <org.floens.chan.ui.view.PostImageThumbnailView
+            <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -68,7 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingRight="8dp"
             android:paddingTop="8dp" />
 
-        <org.floens.chan.ui.text.FastTextView
+        <com.github.adamantcheese.chan.ui.text.FastTextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -89,6 +89,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:singleLine="true"
             android:textColor="?attr/text_color_secondary" />
 
-    </org.floens.chan.ui.layout.FixedRatioLinearLayout>
+    </com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout>
 
-</org.floens.chan.ui.cell.CardPostCell>
+</com.github.adamantcheese.chan.ui.cell.CardPostCell>

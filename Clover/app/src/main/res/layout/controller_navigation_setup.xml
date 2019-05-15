@@ -15,13 +15,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.view.TouchBlockingLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor"
     android:orientation="vertical">
 
-    <org.floens.chan.ui.toolbar.Toolbar
+    <com.github.adamantcheese.chan.ui.toolbar.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height" />
@@ -31,4 +31,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-</org.floens.chan.ui.view.TouchBlockingLinearLayout>
+</com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout>

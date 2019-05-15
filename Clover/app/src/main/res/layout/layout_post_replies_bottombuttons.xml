@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <org.floens.chan.ui.layout.PostRepliesContainer
+    <com.github.adamantcheese.chan.ui.layout.PostRepliesContainer
         android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -87,6 +87,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </FrameLayout>
         </LinearLayout>
 
-    </org.floens.chan.ui.layout.PostRepliesContainer>
+    </com.github.adamantcheese.chan.ui.layout.PostRepliesContainer>
 
 </FrameLayout>

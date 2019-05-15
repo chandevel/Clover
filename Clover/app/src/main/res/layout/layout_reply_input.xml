@@ -94,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <org.floens.chan.ui.view.SelectionListeningEditText
+                <com.github.adamantcheese.chan.ui.view.SelectionListeningEditText
                     android:id="@+id/comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -15,18 +15,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.layout.DrawerWidthAdjustingLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.layout.DrawerWidthAdjustingLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <org.floens.chan.ui.view.TouchBlockingFrameLayout
+    <com.github.adamantcheese.chan.ui.view.TouchBlockingFrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <org.floens.chan.ui.view.TouchBlockingLinearLayout
+    <com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout
         android:id="@+id/drawer"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -87,6 +87,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         </LinearLayout>
 
-    </org.floens.chan.ui.view.TouchBlockingLinearLayout>
+    </com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout>
 
-</org.floens.chan.ui.layout.DrawerWidthAdjustingLayout>
+</com.github.adamantcheese.chan.ui.layout.DrawerWidthAdjustingLayout>

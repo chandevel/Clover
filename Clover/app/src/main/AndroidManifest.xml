@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.floens.chan"
+    package="com.adamantcheese.github.chan"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         tools:node="replace" />
 
     <application
-        android:name=".Chan"
+        android:name="com.github.adamantcheese.chan.Chan"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Clover"
@@ -59,7 +59,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:value="598.0dip" />
 
         <activity
-            android:name=".ui.activity.BoardActivity"
+            android:name="com.github.adamantcheese.chan.ui.activity.BoardActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="Clover">
 
@@ -86,28 +86,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </activity>
 
         <service
-            android:name=".ui.service.WatchNotifier"
+            android:name="com.github.adamantcheese.chan.ui.service.WatchNotifier"
             android:exported="false" />
 
         <service
-            android:name=".ui.service.SavingNotification"
+            android:name="com.github.adamantcheese.chan.ui.service.SavingNotification"
             android:exported="false" />
 
         <service
-            android:name=".ui.service.LastPageNotification"
+            android:name="com.github.adamantcheese.chan.ui.service.LastPageNotification"
             android:exported="false" />
 
         <receiver
-            android:name=".core.receiver.WakeUpdateReceiver"
+            android:name="com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="org.floens.chan.intent.action.WAKE_ALARM" />
+                <action android:name="com.adamantcheese.github.chan.intent.action.WAKE_ALARM" />
             </intent-filter>
         </receiver>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="org.floens.chan.fileprovider"
+            android:authorities="com.adamantcheese.github.chan.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
 

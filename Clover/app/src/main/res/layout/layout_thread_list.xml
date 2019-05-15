@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<org.floens.chan.ui.layout.ThreadListLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.layout.ThreadListLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:clipToPadding="false"
         android:scrollbars="vertical" />
 
-    <org.floens.chan.ui.layout.ReplyLayout
+    <com.github.adamantcheese.chan.ui.layout.ReplyLayout
         android:id="@+id/reply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,4 +50,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:visibility="gone"
         tools:ignore="UnusedAttribute" />
 
-</org.floens.chan.ui.layout.ThreadListLayout>
+</com.github.adamantcheese.chan.ui.layout.ThreadListLayout>
