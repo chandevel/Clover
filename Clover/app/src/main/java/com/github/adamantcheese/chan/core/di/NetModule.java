@@ -1,6 +1,5 @@
 /*
- * Clover - 4chan browser https://github.com/Floens/Clover/
- * Copyright (C) 2014  Floens
+ * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +35,7 @@ public class NetModule {
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
     private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
     private static final String FILE_CACHE_NAME = "filecache";
-    public static final String USER_AGENT = "Clover/" + BuildConfig.VERSION_NAME;
+    public static final String USER_AGENT = "Clover4/" + BuildConfig.VERSION_NAME;
 
     @Provides
     @Singleton

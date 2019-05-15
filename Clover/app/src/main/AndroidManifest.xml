@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-Clover - 4chan browser https://github.com/Floens/Clover/
-Copyright (C) 2014  Floens
+Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:name="com.github.adamantcheese.chan.Chan"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Clover"
+        android:label="Clover4"
         android:theme="@style/Chan.Theme">
 
         <uses-library
@@ -61,7 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <activity
             android:name="com.github.adamantcheese.chan.ui.activity.BoardActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="Clover">
+            android:label="Clover4">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

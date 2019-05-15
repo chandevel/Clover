@@ -1,6 +1,5 @@
 /*
- * Clover - 4chan browser https://github.com/Floens/Clover/
- * Copyright (C) 2014  Floens
+ * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,7 +145,7 @@ public class MainSettingsController extends SettingsController implements Settin
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
         about.add(new LinkSettingView(this,
-                "Clover", BuildConfig.VERSION_NAME,
+                "Clover4", BuildConfig.VERSION_NAME,
                 v -> {
                     ChanSettings.developer.toggle();
                     Toast.makeText(context, (ChanSettings.developer.get() ? "Enabled" : "Disabled") +
@@ -159,8 +158,8 @@ public class MainSettingsController extends SettingsController implements Settin
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()));
 
         about.add(new LinkSettingView(this,
-                "Find Clover on GitHub", "View the source code, give feedback, submit bug reports",
-                v -> AndroidUtils.openLink("https://github.com/Adamantcheese/Clover")));
+                "Find Clover4 on GitHub", "View the source code, give feedback, submit bug reports",
+                v -> AndroidUtils.openLink("https://github.com/Adamantcheese/Clover4")));
 
         about.add(new LinkSettingView(this,
                 R.string.settings_about_license, R.string.settings_about_license_description,

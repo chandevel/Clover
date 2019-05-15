@@ -1,6 +1,5 @@
 /*
- * Clover - 4chan browser https://github.com/Floens/Clover/
- * Copyright (C) 2014  Floens
+ * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +71,7 @@ public class ImportExportSettingsController extends SettingsController implement
         populatePreferences();
         buildPreferences();
 
-        showCreateCloverDirectoryDialog();
+        showCreateDirectoryDialog();
     }
 
     @Override
@@ -130,14 +129,14 @@ public class ImportExportSettingsController extends SettingsController implement
         });
     }
 
-    private void showCreateCloverDirectoryDialog() {
+    private void showCreateDirectoryDialog() {
         String state = Environment.getExternalStorageState();
         if (!Environment.MEDIA_MOUNTED.equals(state)) {
             showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
             return;
         }
 
-        // if we already have the permission and the Clover directory already exists - do not show
+        // if we already have the permission and the default directory already exists - do not show
         // the dialog again
         if (getPermissionHelper().hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (settingsFile.getParentFile().exists()) {
@@ -151,10 +150,10 @@ public class ImportExportSettingsController extends SettingsController implement
             return;
         }
 
-        // Ask the user's permission to check whether the Clover directory exists and create it if it doesn't
+        // Ask the user's permission to check whether the default directory exists and create it if it doesn't
         AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.clover_directory_may_not_exist_title))
-                .setMessage(context.getString(R.string.clover_directory_may_not_exist_message))
+                .setTitle(context.getString(R.string.default_directory_may_not_exist_title))
+                .setMessage(context.getString(R.string.default_directory_may_not_exist_message))
                 .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> getPermissionHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
                     if (granted) {
                         onPermissionGrantedForDirectoryCreation();
@@ -168,14 +167,14 @@ public class ImportExportSettingsController extends SettingsController implement
 
     private void onPermissionGrantedForDirectoryCreation() {
         if (settingsFile.getParentFile().exists()) {
-            showMessage(context.getString(R.string.default_clover_directory_already_exists));
+            showMessage(context.getString(R.string.default_directory_already_exists));
             return;
         }
 
         if (!createExportDirectoryIfNotExist()) {
             showMessage(context.getString(R.string.could_not_create_dir_for_export_error_text));
         } else {
-            showMessage(context.getString(R.string.default_clover_directory_created));
+            showMessage(context.getString(R.string.default_directory_created));
         }
     }
 
