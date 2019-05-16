@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -202,7 +202,7 @@ public class ChanSettings {
 
         developer = new BooleanSetting(p, "preference_developer", false);
 
-        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Clover4");
+        saveLocation = new StringSetting(p, "preference_image_save_location", Environment.getExternalStorageDirectory() + File.separator + "Kuroba");
         saveLocation.addCallback((setting, value) ->
                 EventBus.getDefault().post(new SettingChanged<>(saveLocation)));
         saveOriginalFilename = new BooleanSetting(p, "preference_image_save_original", false);

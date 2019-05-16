@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ public class MainSettingsController extends SettingsController implements Settin
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
         about.add(new LinkSettingView(this,
-                "Clover4", BuildConfig.VERSION_NAME,
+                "Kuroba", BuildConfig.VERSION_NAME,
                 v -> {
                     ChanSettings.developer.toggle();
                     Toast.makeText(context, (ChanSettings.developer.get() ? "Enabled" : "Disabled") +
@@ -158,8 +158,8 @@ public class MainSettingsController extends SettingsController implements Settin
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()));
 
         about.add(new LinkSettingView(this,
-                "Find Clover4 on GitHub", "View the source code, give feedback, submit bug reports",
-                v -> AndroidUtils.openLink("https://github.com/Adamantcheese/Clover4")));
+                "Find Kuroba on GitHub", "View the source code, give feedback, submit bug reports",
+                v -> AndroidUtils.openLink("https://github.com/Adamantcheese/Kuroba")));
 
         about.add(new LinkSettingView(this,
                 R.string.settings_about_license, R.string.settings_about_license_description,

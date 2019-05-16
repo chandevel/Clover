@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
+import com.adamantcheese.github.chan.BuildConfig;
 import com.adamantcheese.github.chan.R;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
@@ -40,8 +41,11 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import java.io.File;
 import java.util.Locale;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 public class ImportExportSettingsController extends SettingsController implements
         ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
+    public static final String EXPORT_FILE_NAME = getAppContext().getPackageManager().getApplicationLabel(getAppContext().getApplicationInfo()) + "_exported_settings.json";
 
     @Nullable
     private ImportExportSettingsPresenter presenter;
@@ -50,7 +54,7 @@ public class ImportExportSettingsController extends SettingsController implement
     private OnExportSuccessCallbacks callbacks;
 
     private LoadingViewController loadingViewController;
-    private File settingsFile = new File(ChanSettings.saveLocation.get(), ImportExportRepository.EXPORT_FILE_NAME);
+    private File settingsFile = new File(ChanSettings.saveLocation.get(), EXPORT_FILE_NAME);
 
     public ImportExportSettingsController(Context context, @NonNull OnExportSuccessCallbacks callbacks) {
         super(context);
@@ -151,7 +155,7 @@ public class ImportExportSettingsController extends SettingsController implement
         }
 
         // Ask the user's permission to check whether the default directory exists and create it if it doesn't
-        AlertDialog dialog = new AlertDialog.Builder(context)
+        new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.default_directory_may_not_exist_title))
                 .setMessage(context.getString(R.string.default_directory_may_not_exist_message))
                 .setPositiveButton(context.getString(R.string.create), (dialog1, which) -> getPermissionHelper().requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted -> {
@@ -160,30 +164,14 @@ public class ImportExportSettingsController extends SettingsController implement
                     }
                 }))
                 .setNegativeButton(context.getString(R.string.do_not), null)
-                .create();
-
-        dialog.show();
+                .create()
+                .show();
     }
 
     private void onPermissionGrantedForDirectoryCreation() {
-        if (settingsFile.getParentFile().exists()) {
-            showMessage(context.getString(R.string.default_directory_already_exists));
-            return;
+        if (!settingsFile.getParentFile().mkdirs()) {
+            showMessage(context.getString(R.string.could_not_create_dir_for_export_error_text, settingsFile.getPath()));
         }
-
-        if (!createExportDirectoryIfNotExist()) {
-            showMessage(context.getString(R.string.could_not_create_dir_for_export_error_text));
-        } else {
-            showMessage(context.getString(R.string.default_directory_created));
-        }
-    }
-
-    private boolean createExportDirectoryIfNotExist() {
-        if (!settingsFile.getParentFile().exists()) {
-            return settingsFile.getParentFile().mkdirs();
-        }
-
-        return true;
     }
 
     private void onImportClicked() {

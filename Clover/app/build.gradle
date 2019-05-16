@@ -14,7 +14,7 @@ android {
         versionName "v4.0.0"
 
         applicationId "com.adamantcheese.github.chan"
-        buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Clover4/releases/latest\""
+        buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
     }
 
     compileOptions {
@@ -31,7 +31,7 @@ android {
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "Clover4.apk"
+            outputFileName = "Kuroba.apk"
         }
     }
 

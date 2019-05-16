@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,10 +89,18 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
     public void onCreate() {
         super.onCreate();
         LocaleUtils.overrideLocaleToEnglishIfNeeded(this);
-
         registerActivityLifecycleCallbacks(this);
 
-        initializeGraph();
+        feather = Feather.with(
+                new AppModule(this),
+                new DatabaseModule(),
+                new NetModule(),
+                new GsonModule(),
+                new RepositoryModule(),
+                new SiteModule(),
+                new ManagerModule()
+        );
+        feather.injectFields(this);
 
         siteService.initialize();
         boardManager.initialize();
@@ -114,20 +122,6 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
                             .penaltyLog()
                             .build());
         }
-    }
-
-    private void initializeGraph() {
-        feather = Feather.with(
-                new AppModule(this),
-                new DatabaseModule(),
-                new NetModule(),
-                new GsonModule(),
-                new RepositoryModule(),
-                new SiteModule(),
-                new ManagerModule()
-        );
-
-        feather.injectFields(this);
     }
 
     private void activityEnteredForeground() {

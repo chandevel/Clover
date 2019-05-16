@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,16 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.adamantcheese.github.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -29,17 +36,17 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.ui.adapter.FilesAdapter;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.FilesLayout;
+import com.github.adamantcheese.chan.ui.layout.NewFolderLayout;
+import com.github.adamantcheese.chan.ui.layout.SiteAddLayout;
 
 import java.io.File;
 
 public class SaveLocationController extends Controller implements FileWatcher.FileWatcherCallback, FilesAdapter.Callback, FilesLayout.Callback, View.OnClickListener {
-    private static final String TAG = "SaveLocationController";
-
     private FilesLayout filesLayout;
     private FloatingActionButton setButton;
+    private FloatingActionButton addButton;
 
     private RuntimePermissionsHelper runtimePermissionsHelper;
-    private boolean gotPermission = false;
 
     private FileWatcher fileWatcher;
 
@@ -58,13 +65,14 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
         filesLayout.setCallback(this);
         setButton = view.findViewById(R.id.set_button);
         setButton.setOnClickListener(this);
+        addButton = view.findViewById(R.id.add_button);
+        addButton.setOnClickListener(this);
 
         File saveLocation = new File(ChanSettings.saveLocation.get());
         fileWatcher = new FileWatcher(this, saveLocation);
 
         runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
-        gotPermission = hasPermission();
-        if (gotPermission) {
+        if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             initialize();
         } else {
             requestPermission();
@@ -77,6 +85,29 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
             File currentPath = fileWatcher.getCurrentPath();
             ChanSettings.saveLocation.set(currentPath.getAbsolutePath());
             navigationController.popController();
+        } else if (v == addButton) {
+            @SuppressLint("InflateParams") final NewFolderLayout dialogView =
+                    (NewFolderLayout) LayoutInflater.from(context)
+                            .inflate(R.layout.layout_folder_add, null);
+
+            new AlertDialog.Builder(context)
+                    .setView(dialogView)
+                    .setTitle(R.string.save_new_folder)
+                    .setPositiveButton(R.string.add, (dialog, which) -> {
+                        if (!dialogView.getFolderName().matches("\\A\\w+\\z")) {
+                            Toast.makeText(context, "Folder must be a word, no spaces", Toast.LENGTH_SHORT).show();
+                        } else {
+                            File newDir = new File(fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
+                            newDir.mkdir();
+                            fileWatcher.navigateTo(newDir);
+                            ChanSettings.saveLocation.set(fileWatcher.getCurrentPath().getAbsolutePath());
+                            navigationController.popController();
+                        }
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .create()
+                    .show();
         }
     }
 
@@ -98,14 +129,9 @@ public class SaveLocationController extends Controller implements FileWatcher.Fi
         // Else ignore, we only do folder selection here
     }
 
-    private boolean hasPermission() {
-        return runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    }
-
     private void requestPermission() {
         runtimePermissionsHelper.requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted -> {
-            gotPermission = granted;
-            if (gotPermission) {
+            if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 initialize();
             } else {
                 runtimePermissionsHelper.showPermissionRequiredDialog(

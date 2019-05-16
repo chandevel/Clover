@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,6 @@ import javax.inject.Inject;
 
 public class ImportExportRepository {
     private static final String TAG = "ImportExportRepository";
-    public static final String EXPORT_FILE_NAME = "exported_clover_settings.json";
 
     // Don't forget to change this when changing any of the Export models.
     // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods

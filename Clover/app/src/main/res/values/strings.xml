@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,14 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="permission_grant">Grant</string>
 
     <string name="update_later">Later</string>
-    <string name="update_none">Clover4 is up-to-date</string>
+    <string name="update_none">Kuroba is up-to-date</string>
     <string name="update_check_failed">Failed to check for updates.</string>
     <string name="update_install">Install</string>
     <string name="update_install_downloading">Downloading update</string>
     <string name="update_install_download_failed">Download failed</string>
     <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
     <string name="update_retry_title">Retry update</string>
-    <string name="update_retry">Clover4 was not updated yet. Tap \"retry\" to retry the install.</string>
+    <string name="update_retry">Kuroba was not updated yet. Tap \"retry\" to retry the install.</string>
     <string name="update_retry_button">retry</string>
 
     <string name="update_storage_permission_required_title">Storage permission required</string>
@@ -123,7 +123,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="action_rename">Rename</string>
     <string name="action_reply">Reply</string>
 
-    <string name="open_link_not_matched">Clover4 cannot open this link; it will open in your browser instead.</string>
+    <string name="open_link_not_matched">Kuroba cannot open this link; it will open in your browser instead.</string>
 
     <string name="order_bump">Bump order</string>
     <string name="order_reply">Reply count</string>
@@ -411,7 +411,7 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="settings_group_watch">Settings</string>
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
-    <string name="setting_watch_enable_background_description">Watch bookmarks when Clover4 is placed in the background</string>
+    <string name="setting_watch_enable_background_description">Watch bookmarks when Kuroba is placed in the background</string>
     <string name="setting_watch_enable_filter_watch" tools:ignore="MissingTranslation">Enable filter watching</string>
     <string name="setting_watch_enable_filter_watch_description" tools:ignore="MissingTranslation">Watch posts that match filters marked as watch post</string>
     <string name="setting_watch_background_timeout">Background update interval</string>
@@ -572,6 +572,8 @@ Re-enable this permission in the app settings if you permanently disabled it."
     </string>
     <string name="setting_folder_pick_ok">Choose</string>
     <string name="setting_folder_navigate_up">Up</string>
+    <string name="save_new_folder" tools:ignore="MissingTranslation">Add a new folder</string>
+    <string name="new_folder_hint" tools:ignore="MissingTranslation">Folder name</string>
 
 
     <!-- Theme settings -->
@@ -638,8 +640,6 @@ Don't have a 4chan Pass?<br>
     <string name="could_not_create_dir_for_export_error_text" tools:ignore="MissingTranslation">Could not create directory for export file %1$s probably you won\'t be able to export settings</string>
     <string name="default_directory_may_not_exist_message" tools:ignore="MissingTranslation">The default directory may not exist yet. Do you want to check whether the directory exists and create it automatically? (requires WRITE_STORAGE permission)</string>
     <string name="default_directory_may_not_exist_title" tools:ignore="MissingTranslation">Default directory may not exist</string>
-    <string name="default_directory_created" tools:ignore="MissingTranslation">Default directory has been created</string>
-    <string name="default_directory_already_exists" tools:ignore="MissingTranslation">Default directory already exists</string>
 
     <string name="apply_to_replies" tools:ignore="MissingTranslation">Apply to replies</string>
     <string name="thread_layout_hide_whole_chain" tools:ignore="MissingTranslation">Hide whole chain</string>

@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ import android.util.Log;
 import com.adamantcheese.github.chan.BuildConfig;
 
 public class Logger {
-    private static final String TAG = "Clover4";
+    private static final String TAG = "Kuroba";
     private static final String TAG_SPACER = " | ";
 
     public static boolean debugEnabled() {

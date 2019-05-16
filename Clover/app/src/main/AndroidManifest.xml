@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:name="com.github.adamantcheese.chan.Chan"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Clover4"
+        android:label="Kuroba"
         android:theme="@style/Chan.Theme">
 
         <uses-library
@@ -60,7 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <activity
             android:name="com.github.adamantcheese.chan.StartActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="Clover4">
+            android:label="Kuroba">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

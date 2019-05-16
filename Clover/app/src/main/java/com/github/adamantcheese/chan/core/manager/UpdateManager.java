@@ -1,5 +1,5 @@
 /*
- * Clover4 - *chan browser https://github.com/Adamantcheese/Clover4/
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ public class UpdateManager {
     public void autoUpdateCheck() {
         if (ChanSettings.previousVersion.get() < BuildConfig.VERSION_CODE
                 && ChanSettings.previousVersion.get() != 0) {
-            Spanned text = Html.fromHtml("<h3>Clover4 was updated</h3>Clover4 was updated to " + BuildConfig.VERSION_NAME);
+            Spanned text = Html.fromHtml("<h3>Kuroba was updated</h3>Kuroba was updated to " + BuildConfig.VERSION_NAME);
             final AlertDialog dialog = new AlertDialog.Builder(context)
                     .setMessage(text)
                     .setPositiveButton(R.string.ok, null)
@@ -142,7 +142,7 @@ public class UpdateManager {
     }
 
     private boolean processUpdateApiResponse(UpdateApiRequest.UpdateApiResponse response) {
-        Spanned text = Html.fromHtml("<h2>Clover4 update ready</h2>A new Clover4 version is available.<br><br>Changelog:<br>" + response.body);
+        Spanned text = Html.fromHtml("<h2>Kuroba update ready</h2>A new Kuroba version is available.<br><br>Changelog:<br>" + response.body);
         if (response.versionCode > BuildConfig.VERSION_CODE) {
             AlertDialog dialog = new AlertDialog.Builder(context)
                     .setMessage(text)
@@ -174,7 +174,7 @@ public class UpdateManager {
                 updateDownloadDialog = null;
                 File copy = new File(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_DOWNLOADS),
-                        "Clover4.apk");
+                        "Kuroba.apk");
                 try {
                     IOUtils.copyFile(file, copy);
                 } catch (IOException e) {
