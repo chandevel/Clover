@@ -18,14 +18,11 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.adamantcheese.github.chan.R;
@@ -37,7 +34,6 @@ import com.github.adamantcheese.chan.ui.adapter.FilesAdapter;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.layout.FilesLayout;
 import com.github.adamantcheese.chan.ui.layout.NewFolderLayout;
-import com.github.adamantcheese.chan.ui.layout.SiteAddLayout;
 
 import java.io.File;
 

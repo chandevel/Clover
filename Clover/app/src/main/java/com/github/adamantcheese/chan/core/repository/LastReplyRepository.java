@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LastReplyRepository {
-    private static final String TAG = "LastReplyRepository";
-
     private Map<SiteBoard, Long> lastReplyMap = new HashMap<>();
 
     public void putLastReply(Site s, Board b) {
@@ -37,21 +35,21 @@ public class LastReplyRepository {
     }
 
     public boolean canPost(Site s, Board b) {
-        return getLastReply(s, b) + 60 * 1000 < System.currentTimeMillis();
+        return getLastReply(s, b) + b.cooldownReplies * 1000 < System.currentTimeMillis();
     }
 
     private class SiteBoard {
         public String site;
         public String boardCode;
 
-        public SiteBoard (Site site, Board board) {
+        public SiteBoard(Site site, Board board) {
             this.site = site.name();
             this.boardCode = board.code;
         }
 
         @Override
         public boolean equals(Object o) {
-            if(!(o instanceof SiteBoard)) return false;
+            if (!(o instanceof SiteBoard)) return false;
             SiteBoard sb = (SiteBoard) o;
             return sb.boardCode.equals(this.boardCode) && sb.site.equals(this.site);
         }

@@ -41,6 +41,8 @@ import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+
 /**
  * The central point for database related access.<br>
  * <b>All database queries are run on a single database thread</b>, therefor all functions return a
@@ -54,7 +56,9 @@ public class DatabaseManager {
 
     private final ExecutorService backgroundExecutor;
     private Thread executorThread;
-    private final DatabaseHelper helper;
+
+    @Inject
+    DatabaseHelper helper;
 
     private final DatabasePinManager databasePinManager;
     private final DatabaseLoadableManager databaseLoadableManager;
@@ -66,26 +70,22 @@ public class DatabaseManager {
     private final DatabaseHideManager databaseHideManager;
 
     @Inject
-    public DatabaseManager(Context context, DatabaseHelper databaseHelper) {
-        this.helper = databaseHelper;
+    public DatabaseManager() {
+        inject(this);
 
         backgroundExecutor = new ThreadPoolExecutor(
                 1, 1,
                 1000L, TimeUnit.DAYS,
                 new LinkedBlockingQueue<>());
 
-        // Immediately trigger onUpgrade if necessary.
-        SQLiteDatabase writableDatabase = helper.getWritableDatabase();
-        writableDatabase.close();
-
-        databaseLoadableManager = new DatabaseLoadableManager(this, helper);
-        databasePinManager = new DatabasePinManager(this, helper, databaseLoadableManager);
-        databaseHistoryManager = new DatabaseHistoryManager(this, helper, databaseLoadableManager);
-        databaseSavedReplyManager = new DatabaseSavedReplyManager(this, helper);
-        databaseFilterManager = new DatabaseFilterManager(this, helper);
-        databaseBoardManager = new DatabaseBoardManager(this, helper);
-        databaseSiteManager = new DatabaseSiteManager(helper);
-        databaseHideManager = new DatabaseHideManager(this, helper);
+        databaseLoadableManager = new DatabaseLoadableManager();
+        databasePinManager = new DatabasePinManager(databaseLoadableManager);
+        databaseHistoryManager = new DatabaseHistoryManager(databaseLoadableManager);
+        databaseSavedReplyManager = new DatabaseSavedReplyManager();
+        databaseFilterManager = new DatabaseFilterManager();
+        databaseBoardManager = new DatabaseBoardManager();
+        databaseSiteManager = new DatabaseSiteManager();
+        databaseHideManager = new DatabaseHideManager();
         EventBus.getDefault().register(this);
     }
 

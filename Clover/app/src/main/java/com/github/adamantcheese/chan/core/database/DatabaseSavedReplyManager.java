@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.database;
 
 import android.support.annotation.AnyThread;
 
+import com.github.adamantcheese.chan.Chan;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
@@ -31,6 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+
 /**
  * Saved replies are posts-password combinations used to track what posts are posted by the app,
  * and used to delete posts.
@@ -41,14 +46,13 @@ public class DatabaseSavedReplyManager {
     private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
     private static final long SAVED_REPLY_TRIM_COUNT = 50;
 
-    private final DatabaseManager databaseManager;
-    private final DatabaseHelper helper;
+    @Inject
+    DatabaseHelper helper;
 
     private final Map<Integer, List<SavedReply>> savedRepliesByNo = new HashMap<>();
 
-    public DatabaseSavedReplyManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.databaseManager = databaseManager;
-        this.helper = helper;
+    public DatabaseSavedReplyManager() {
+        inject(this);
     }
 
     /**
@@ -80,7 +84,7 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> load() {
         return () -> {
-            databaseManager.trimTable(helper.savedDao, "savedreply",
+            Chan.injector().provider(DatabaseManager.class).get().trimTable(helper.savedDao, "savedreply",
                     SAVED_REPLY_TRIM_TRIGGER, SAVED_REPLY_TRIM_COUNT);
 
             final List<SavedReply> all = helper.savedDao.queryForAll();

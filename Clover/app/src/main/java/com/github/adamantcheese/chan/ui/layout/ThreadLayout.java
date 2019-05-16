@@ -473,7 +473,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     public void hideThread(Post post, int threadNo, boolean hide) {
         // hideRepliesToThisPost is false here because we don't have posts in the catalog mode so there
         // is no point in hiding replies to a thread
-        final PostHide postHide = PostHide.hidePost(post, threadNo, true, hide, false);
+        final PostHide postHide = PostHide.hidePost(post, true, hide, false);
 
         databaseManager.runTask(
                 databaseManager.getDatabaseHideManager().addThreadHide(postHide));
@@ -499,7 +499,7 @@ public class ThreadLayout extends CoordinatorLayout implements
             // Do not add the OP post to the hideList since we don't want to hide an OP post
             // while being in a thread (it just doesn't make any sense)
             if (!post.isOP) {
-                hideList.add(PostHide.hidePost(post, threadNo, false, hide, wholeChain));
+                hideList.add(PostHide.hidePost(post, false, hide, wholeChain));
             }
         }
 

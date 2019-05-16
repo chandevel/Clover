@@ -1,15 +1,11 @@
 package com.github.adamantcheese.chan.ui.layout;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.support.design.widget.TextInputLayout;
 import android.util.AttributeSet;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.adamantcheese.github.chan.BuildConfig;
 import com.adamantcheese.github.chan.R;
-import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 

@@ -466,6 +466,7 @@ public class WatchManager implements WakeManager.Wakeable {
         // Update notification state
         if (watchEnabled && backgroundEnabled) {
             // Also calls onStartCommand, which updates the notification with new info
+            //this might not be the right way to do it
             getAppContext().startService(new Intent(getAppContext(), WatchNotification.class));
         } else {
             getAppContext().stopService(new Intent(getAppContext(), WatchNotification.class));

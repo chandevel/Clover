@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.database;
 import android.annotation.SuppressLint;
 import android.support.annotation.Nullable;
 
+import com.github.adamantcheese.chan.Chan;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.table.TableUtils;
 
@@ -22,23 +23,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+
 public class DatabaseHideManager {
     private static final String TAG = "DatabaseHideManager";
 
     private static final long POST_HIDE_TRIM_TRIGGER = 25000;
     private static final long POST_HIDE_TRIM_COUNT = 5000;
 
-    private DatabaseManager databaseManager;
-    private DatabaseHelper helper;
+    @Inject
+    DatabaseHelper helper;
 
-    public DatabaseHideManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.databaseManager = databaseManager;
-        this.helper = helper;
+    public DatabaseHideManager() {
+        inject(this);
     }
 
     public Callable<Void> load() {
         return () -> {
-            databaseManager.trimTable(helper.postHideDao, "posthide",
+            Chan.injector().provider(DatabaseManager.class).get().trimTable(helper.postHideDao, "posthide",
                     POST_HIDE_TRIM_TRIGGER, POST_HIDE_TRIM_COUNT);
 
             return null;
@@ -50,7 +54,7 @@ public class DatabaseHideManager {
      * to already hidden posts and if there are hides them as well.
      */
     public List<Post> filterHiddenPosts(List<Post> posts, int siteId, String board) {
-        return databaseManager.runTask(() -> {
+        return Chan.injector().provider(DatabaseManager.class).get().runTask(() -> {
             List<Integer> postNoList = new ArrayList<>(posts.size());
             for (Post post : posts) {
                 postNoList.add(post.no);
@@ -135,14 +139,7 @@ public class DatabaseHideManager {
                         continue;
                     }
 
-                    PostHide newHiddenPost = new PostHide();
-                    newHiddenPost.no = post.no;
-                    newHiddenPost.site = parentHiddenPost.site;
-                    newHiddenPost.board = parentHiddenPost.board;
-                    newHiddenPost.wholeThread = false;
-                    newHiddenPost.hideRepliesToThisPost = parentHiddenPost.hideRepliesToThisPost;
-                    newHiddenPost.hide = parentHiddenPost.hide;
-
+                    PostHide newHiddenPost = PostHide.hidePost(post, false, parentHiddenPost.hide, parentHiddenPost.hideRepliesToThisPost);
                     hiddenPostsFastLookupMap.put(newHiddenPost.no, newHiddenPost);
                     newHiddenPosts.add(newHiddenPost);
 

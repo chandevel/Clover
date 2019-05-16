@@ -60,8 +60,7 @@ public class PostHide {
     @DatabaseField(columnName = "thread_no")
     public int threadNo;
 
-    @Deprecated
-    public PostHide() {
+    private PostHide() {
     }
 
     public PostHide(int siteId, String boardCode, int no) {
@@ -72,7 +71,6 @@ public class PostHide {
 
     public static PostHide hidePost(
             Post post,
-            int threadNo,
             Boolean wholeThread,
             Boolean hide,
             Boolean hideRepliesToThisPost
@@ -80,7 +78,7 @@ public class PostHide {
         PostHide postHide = new PostHide();
         postHide.board = post.board.code;
         postHide.no = post.no;
-        postHide.threadNo = threadNo;
+        postHide.threadNo = post.opId;
         postHide.site = post.board.siteId;
         postHide.wholeThread = wholeThread;
         postHide.hide = hide;

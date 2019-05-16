@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import android.support.v4.util.ObjectsCompat;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;
@@ -93,16 +93,6 @@ public class Board implements Cloneable {
     @DatabaseField
     public int cooldownImages = 0;
 
-    // unused, to be removed
-    @Deprecated
-    @DatabaseField
-    public int cooldownRepliesIntra = -1;
-
-    // unused, to be removed
-    @Deprecated
-    @DatabaseField
-    public int cooldownImagesIntra = -1;
-
     @DatabaseField
     public boolean spoilers = false;
 
@@ -121,15 +111,12 @@ public class Board implements Cloneable {
     @DatabaseField
     public boolean countryFlags = false;
 
-    @Deprecated
-    @DatabaseField
-    public boolean trollFlags = false;
-
     @DatabaseField
     public boolean mathTags = false;
 
     @DatabaseField
-    public String description;
+    @NonNull
+    public String description = "";
 
     @DatabaseField
     public boolean archive = false;
@@ -155,17 +142,14 @@ public class Board implements Cloneable {
             int cooldownThreads,
             int cooldownReplies,
             int cooldownImages,
-            int cooldownRepliesIntra,
-            int cooldownImagesIntra,
             boolean spoilers,
             int customSpoilers,
             boolean userIds,
             boolean codeTags,
             boolean preuploadCaptcha,
             boolean countryFlags,
-            boolean trollFlags,
             boolean mathTags,
-            String description,
+            @NonNull String description,
             boolean archive
     ) {
         this.siteId = siteId;
@@ -184,30 +168,15 @@ public class Board implements Cloneable {
         this.cooldownThreads = cooldownThreads;
         this.cooldownReplies = cooldownReplies;
         this.cooldownImages = cooldownImages;
-        this.cooldownRepliesIntra = cooldownRepliesIntra;
-        this.cooldownImagesIntra = cooldownImagesIntra;
         this.spoilers = spoilers;
         this.customSpoilers = customSpoilers;
         this.userIds = userIds;
         this.codeTags = codeTags;
         this.preuploadCaptcha = preuploadCaptcha;
         this.countryFlags = countryFlags;
-        this.trollFlags = trollFlags;
         this.mathTags = mathTags;
         this.description = description;
         this.archive = archive;
-    }
-
-    /**
-     * UNSAFE TO USE!!! FOR TESTS ONLY!!!
-     * <p>
-     * Site class accesses Android's context so it cannot be used in Unit tests.
-     * That's why this constructor was added.
-     */
-    @Deprecated
-    public Board(String name, String code) {
-        this.name = name;
-        this.code = code;
     }
 
     @Deprecated
@@ -263,15 +232,12 @@ public class Board implements Cloneable {
         cooldownThreads = o.cooldownThreads;
         cooldownReplies = o.cooldownReplies;
         cooldownImages = o.cooldownImages;
-        cooldownRepliesIntra = o.cooldownRepliesIntra;
-        cooldownImagesIntra = o.cooldownImagesIntra;
         spoilers = o.spoilers;
         customSpoilers = o.customSpoilers;
         userIds = o.userIds;
         codeTags = o.codeTags;
         preuploadCaptcha = o.preuploadCaptcha;
         countryFlags = o.countryFlags;
-        trollFlags = o.trollFlags;
         mathTags = o.mathTags;
         description = o.description;
         archive = o.archive;
@@ -302,15 +268,12 @@ public class Board implements Cloneable {
         b.cooldownThreads = cooldownThreads;
         b.cooldownReplies = cooldownReplies;
         b.cooldownImages = cooldownImages;
-        b.cooldownRepliesIntra = cooldownRepliesIntra;
-        b.cooldownImagesIntra = cooldownImagesIntra;
         b.spoilers = spoilers;
         b.customSpoilers = customSpoilers;
         b.userIds = userIds;
         b.codeTags = codeTags;
         b.preuploadCaptcha = preuploadCaptcha;
         b.countryFlags = countryFlags;
-        b.trollFlags = trollFlags;
         b.mathTags = mathTags;
         b.description = description;
         b.archive = archive;
@@ -333,17 +296,14 @@ public class Board implements Cloneable {
                     cooldownThreads == b.cooldownThreads &&
                     cooldownReplies == b.cooldownReplies &&
                     cooldownImages == b.cooldownImages &&
-                    cooldownRepliesIntra == b.cooldownRepliesIntra &&
-                    cooldownImagesIntra == b.cooldownImagesIntra &&
                     spoilers == b.spoilers &&
                     customSpoilers == b.customSpoilers &&
                     userIds == b.userIds &&
                     codeTags == b.codeTags &&
                     preuploadCaptcha == b.preuploadCaptcha &&
                     countryFlags == b.countryFlags &&
-                    trollFlags == b.trollFlags &&
                     mathTags == b.mathTags &&
-                    ObjectsCompat.equals(description, b.description) &&
+                    description.equals(b.description) &&
                     archive == b.archive;
         }
         return false;

@@ -19,13 +19,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+
 public class DatabaseBoardManager {
     private static final String TAG = "DatabaseBoardManager";
 
-    private DatabaseHelper helper;
+    @Inject
+    DatabaseHelper helper;
 
-    public DatabaseBoardManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.helper = helper;
+    public DatabaseBoardManager() {
+        inject(this);
     }
 
     public Callable<Board> createOrUpdate(final Board board) {

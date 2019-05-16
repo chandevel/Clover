@@ -25,8 +25,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.adamantcheese.github.chan.R;
-import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
@@ -44,7 +44,6 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
     protected List<SettingView> requiresUiRefresh = new ArrayList<>();
 
     // Very user unfriendly.
-    @Deprecated
     protected List<SettingView> requiresRestart = new ArrayList<>();
 
     private boolean needRestart = false;

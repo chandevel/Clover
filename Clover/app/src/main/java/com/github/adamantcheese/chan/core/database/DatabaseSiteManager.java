@@ -17,20 +17,24 @@
 package com.github.adamantcheese.chan.core.database;
 
 
-import com.j256.ormlite.stmt.QueryBuilder;
-
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public class DatabaseSiteManager {
-    private DatabaseHelper helper;
+import javax.inject.Inject;
 
-    public DatabaseSiteManager(DatabaseHelper helper) {
-        this.helper = helper;
+import static com.github.adamantcheese.chan.Chan.inject;
+
+public class DatabaseSiteManager {
+    @Inject
+    DatabaseHelper helper;
+
+    public DatabaseSiteManager() {
+        inject(this);
     }
 
     public Callable<SiteModel> byId(int id) {

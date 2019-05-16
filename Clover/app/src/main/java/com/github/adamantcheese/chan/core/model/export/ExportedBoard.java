@@ -56,10 +56,6 @@ public class ExportedBoard {
     private int cooldownReplies;
     @SerializedName("cooldown_images")
     private int cooldownImages;
-    @SerializedName("cooldown_replies_intra")
-    private int cooldownRepliesIntra;
-    @SerializedName("cooldown_images_intra")
-    private int cooldownImagesIntra;
     @SerializedName("spoilers")
     private boolean spoilers;
     @SerializedName("custom_spoilers")
@@ -72,8 +68,6 @@ public class ExportedBoard {
     private boolean preuploadCaptcha;
     @SerializedName("country_flags")
     private boolean countryFlags;
-    @SerializedName("troll_flags")
-    private boolean trollFlags;
     @SerializedName("math_tags")
     private boolean mathTags;
     @SerializedName("description")
@@ -101,15 +95,12 @@ public class ExportedBoard {
             int cooldownThreads,
             int cooldownReplies,
             int cooldownImages,
-            int cooldownRepliesIntra,
-            int cooldownImagesIntra,
             boolean spoilers,
             int customSpoilers,
             boolean userIds,
             boolean codeTags,
             boolean preuploadCaptcha,
             boolean countryFlags,
-            boolean trollFlags,
             boolean mathTags,
             @NonNull
             String description,
@@ -131,15 +122,12 @@ public class ExportedBoard {
         this.cooldownThreads = cooldownThreads;
         this.cooldownReplies = cooldownReplies;
         this.cooldownImages = cooldownImages;
-        this.cooldownRepliesIntra = cooldownRepliesIntra;
-        this.cooldownImagesIntra = cooldownImagesIntra;
         this.spoilers = spoilers;
         this.customSpoilers = customSpoilers;
         this.userIds = userIds;
         this.codeTags = codeTags;
         this.preuploadCaptcha = preuploadCaptcha;
         this.countryFlags = countryFlags;
-        this.trollFlags = trollFlags;
         this.mathTags = mathTags;
         this.description = description;
         this.archive = archive;
@@ -211,14 +199,6 @@ public class ExportedBoard {
         return cooldownImages;
     }
 
-    public int getCooldownRepliesIntra() {
-        return cooldownRepliesIntra;
-    }
-
-    public int getCooldownImagesIntra() {
-        return cooldownImagesIntra;
-    }
-
     public boolean isSpoilers() {
         return spoilers;
     }
@@ -241,10 +221,6 @@ public class ExportedBoard {
 
     public boolean isCountryFlags() {
         return countryFlags;
-    }
-
-    public boolean isTrollFlags() {
-        return trollFlags;
     }
 
     public boolean isMathTags() {

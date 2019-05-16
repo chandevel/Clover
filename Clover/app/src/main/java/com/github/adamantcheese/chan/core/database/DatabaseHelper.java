@@ -19,11 +19,6 @@ package com.github.adamantcheese.chan.core.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
-
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.History;
@@ -34,6 +29,10 @@ import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -46,7 +45,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 29;
+    private static final int DATABASE_VERSION = 30;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -300,6 +299,26 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
                 Logger.e(TAG, "Error upgrading to version 29", e);
             }
         }
+
+        if (oldVersion < 30) {
+            try {
+                boardsDao.executeRawNoArgs("BEGIN TRANSACTION;\n" +
+                        "CREATE TEMPORARY TABLE board_backup(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n" +
+                        "INSERT INTO board_backup SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board;\n" +
+                        "DROP TABLE board;\n" +
+                        "CREATE TABLE board(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n" +
+                        "INSERT INTO board SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board_backup;\n" +
+                        "DROP TABLE board_backup;\n" +
+                        "COMMIT;");
+            } catch (SQLException e) {
+                Logger.e(TAG, "Error upgrading to version 30");
+            }
+        }
+    }
+
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        db.enableWriteAheadLogging();
     }
 
     public void reset() {

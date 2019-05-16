@@ -35,9 +35,7 @@ public class DatabaseModule {
     @Provides
     @Singleton
     public DatabaseManager provideDatabaseManager(
-            Context applicationContext,
-            DatabaseHelper databaseHelper
     ) {
-        return new DatabaseManager(applicationContext, databaseHelper);
+        return new DatabaseManager();
     }
 }

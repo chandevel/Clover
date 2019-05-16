@@ -21,13 +21,18 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+
 public class DatabaseFilterManager {
     private static final String TAG = "DatabaseFilterManager";
 
-    private DatabaseHelper helper;
+    @Inject
+    DatabaseHelper helper;
 
-    public DatabaseFilterManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.helper = helper;
+    public DatabaseFilterManager() {
+        inject(this);
     }
 
     public Callable<Filter> createFilter(final Filter filter) {

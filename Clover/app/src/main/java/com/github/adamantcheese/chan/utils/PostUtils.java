@@ -54,7 +54,7 @@ public class PostUtils {
      * For every already hidden post checks whether there is a post that replies to this hidden post.
      * Collects all hidden posts with their replies.
      * This function is slow so it must be executed on the background thread
-     * */
+     */
     public static List<PostHide> findHiddenPostsWithReplies(
             List<PostHide> hiddenPostsFirstIteration,
             Map<Integer, Post> postsFastLookupMap
@@ -84,7 +84,7 @@ public class PostUtils {
     /**
      * For every post checks whether it has a reply to already hidden post and adds that post to the
      * hidden posts list if it has. Checks for some flags to decide whether that post should be hidden or not.
-     * */
+     */
     private static List<PostHide> search(
             Map<Integer, PostHide> hiddenPostsFastLookupMap,
             Map<Integer, Post> postsFastLookupMap
@@ -111,16 +111,7 @@ public class PostUtils {
                     continue;
                 }
 
-                PostHide postHide = new PostHide();
-                postHide.hide = toInheritBaseInfoFrom.hide;
-                postHide.site = toInheritBaseInfoFrom.site;
-                postHide.board = toInheritBaseInfoFrom.board;
-                postHide.hideRepliesToThisPost = toInheritBaseInfoFrom.hideRepliesToThisPost;
-                postHide.no = post.no;
-
-                //always false because there may be only one OP
-                postHide.wholeThread = false;
-
+                PostHide postHide = PostHide.hidePost(post, false, toInheritBaseInfoFrom.hide, toInheritBaseInfoFrom.hideRepliesToThisPost);
                 hiddenPostsFastLookupMap.put(post.no, postHide);
                 newHiddenPosts.add(postHide);
 

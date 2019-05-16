@@ -18,8 +18,8 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.text.TextUtils;
 
-import com.github.adamantcheese.chan.Chan;
 import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -606,7 +607,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         } else if (linkable.type == PostLinkable.Type.LINK) {
             threadPresenterCallback.openLink((String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
-            PostLinkable.ThreadLink link = (PostLinkable.ThreadLink) linkable.value;
+            CommentParser.ThreadLink link = (CommentParser.ThreadLink) linkable.value;
 
             Board board = loadable.site.board(link.board);
             if (board != null) {

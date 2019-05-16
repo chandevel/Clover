@@ -18,11 +18,11 @@ package com.github.adamantcheese.chan.core.database;
 
 import android.util.Log;
 
-import com.j256.ormlite.stmt.QueryBuilder;
-
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,17 +31,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+
 public class DatabaseLoadableManager {
     private static final String TAG = "DatabaseLoadableManager";
 
-    private DatabaseManager databaseManager;
-    private DatabaseHelper helper;
+    @Inject
+    DatabaseHelper helper;
 
     private Map<Loadable, Loadable> cachedLoadables = new HashMap<>();
 
-    public DatabaseLoadableManager(DatabaseManager databaseManager, DatabaseHelper helper) {
-        this.databaseManager = databaseManager;
-        this.helper = helper;
+    public DatabaseLoadableManager() {
+        inject(this);
     }
 
     /**
@@ -86,7 +89,7 @@ public class DatabaseLoadableManager {
 
         // We only cache THREAD loadables in the db
         if (loadable.isThreadMode()) {
-            return databaseManager.runTask(getLoadable(loadable));
+            return Chan.injector().provider(DatabaseManager.class).get().runTask(getLoadable(loadable));
         } else {
             return loadable;
         }

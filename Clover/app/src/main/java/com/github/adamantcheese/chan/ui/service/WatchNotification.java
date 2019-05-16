@@ -17,36 +17,47 @@
 package com.github.adamantcheese.chan.ui.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.text.Editable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 
-import com.github.adamantcheese.chan.Chan;
 import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.StartActivity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class WatchNotification extends Service {
     private static final int NOTIFICATION_ID = 1;
+    private static final int NOTIFICATION_ID_ALERT = 2;
+    private static final String NOTIFICATION_NAME = "Watch notification";
+    private static final String NOTIFICATION_NAME_ALERT = "Watch notification alert";
     private static final int SUBJECT_LENGTH = 6;
-    private static final String IMAGE_TEXT = "(img) ";
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
     private NotificationManager nm;
@@ -65,7 +76,21 @@ public class WatchNotification extends Service {
         inject(this);
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            nm.createNotificationChannel(new NotificationChannel(String.valueOf(NOTIFICATION_ID), NOTIFICATION_NAME, NotificationManager.IMPORTANCE_LOW));
+            NotificationChannel alert = new NotificationChannel(String.valueOf(NOTIFICATION_ID_ALERT), NOTIFICATION_NAME_ALERT, NotificationManager.IMPORTANCE_HIGH);
+            alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                    .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
+                    .build());
+            alert.enableLights(true);
+            alert.setLightColor((int) Long.parseLong(ChanSettings.watchLed.get(), 16));
+            nm.createNotificationChannel(alert);
+        }
 
+        //prevent ongoing notifications somewhere here
         startForeground(NOTIFICATION_ID, createNotification());
     }
 
@@ -78,20 +103,12 @@ public class WatchNotification extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
-            pausePins();
+            watchManager.pauseAll();
         } else {
-            updateNotification();
+            nm.notify(NOTIFICATION_ID, createNotification());
         }
 
         return START_STICKY;
-    }
-
-    public void updateNotification() {
-        nm.notify(NOTIFICATION_ID, createNotification());
-    }
-
-    public void pausePins() {
-        watchManager.pauseAll();
     }
 
     private Notification createNotification() {
@@ -192,13 +209,29 @@ public class WatchNotification extends Service {
                     prefix = postForExpandedLine.getTitle().subSequence(0, SUBJECT_LENGTH);
                 }
 
-                String comment = postForExpandedLine.image() != null ? IMAGE_TEXT : "";
+                CharSequence comment = postForExpandedLine.image() != null ? "(img) " : "";
                 if (postForExpandedLine.comment.length() > 0) {
-                    comment += postForExpandedLine.comment;
+                    comment = TextUtils.concat(comment, postForExpandedLine.comment);
                 }
 
-                // Replace >>132456798 with >789 to shorten the notification
-                comment = SHORTEN_NO_PATTERN.matcher(comment).replaceAll(">$1");
+                // Replace >>123456789 with >789 to shorten the notification
+                // Also replace spoilered shit with █
+                // All spans are deleted by the replaceAll call and you can't fix it easily so this will have to do
+                Editable toFix = new SpannableStringBuilder(comment);
+                PostLinkable[] spans = toFix.getSpans(0, comment.length(), PostLinkable.class);
+                for (PostLinkable span : spans) {
+                    if (span.type == PostLinkable.Type.SPOILER && !span.getSpoilerState()) {
+                        int start = toFix.getSpanStart(span);
+                        int end = toFix.getSpanEnd(span);
+
+                        char[] chars = new char[end - start];
+                        Arrays.fill(chars, '█');
+                        String s = new String(chars);
+
+                        toFix.replace(start, end, s);
+                    }
+                }
+                comment = SHORTEN_NO_PATTERN.matcher(toFix).replaceAll(">$1");
 
                 expandedLines.add(prefix + ": " + comment);
             }
@@ -232,9 +265,7 @@ public class WatchNotification extends Service {
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-
         intent.putExtra("pin_id", target == null ? -1 : target.id);
-
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -259,9 +290,15 @@ public class WatchNotification extends Service {
         if (alertIcon || peek) {
             builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
             builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                builder.setChannelId(String.valueOf(NOTIFICATION_ID_ALERT));
+            }
         } else {
             builder.setSmallIcon(R.drawable.ic_stat_notify);
             builder.setPriority(NotificationCompat.PRIORITY_MIN);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                builder.setChannelId(String.valueOf(NOTIFICATION_ID));
+            }
         }
 
         Intent pauseWatching = new Intent(this, WatchNotification.class);

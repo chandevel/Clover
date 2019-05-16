@@ -21,14 +21,19 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
+
 public class DatabasePinManager {
     private static final String TAG = "DatabasePinManager";
 
-    private DatabaseHelper helper;
+    @Inject
+    DatabaseHelper helper;
     private DatabaseLoadableManager databaseLoadableManager;
 
-    public DatabasePinManager(DatabaseManager databaseManager, DatabaseHelper helper, DatabaseLoadableManager databaseLoadableManager) {
-        this.helper = helper;
+    public DatabasePinManager(DatabaseLoadableManager databaseLoadableManager) {
+        inject(this);
         this.databaseLoadableManager = databaseLoadableManager;
     }
 

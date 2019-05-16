@@ -199,6 +199,7 @@ public class ImportExportRepository {
         databaseHelper.postHideDao.deleteBuilder().delete();
 
         for (ExportedBoard exportedBoard : appSettings.getExportedBoards()) {
+            assert exportedBoard.getDescription() != null;
             databaseHelper.boardsDao.createIfNotExists(new Board(
                     exportedBoard.getSiteId(),
                     exportedBoard.isSaved(),
@@ -216,15 +217,12 @@ public class ImportExportRepository {
                     exportedBoard.getCooldownThreads(),
                     exportedBoard.getCooldownReplies(),
                     exportedBoard.getCooldownImages(),
-                    exportedBoard.getCooldownRepliesIntra(),
-                    exportedBoard.getCooldownImagesIntra(),
                     exportedBoard.isSpoilers(),
                     exportedBoard.getCustomSpoilers(),
                     exportedBoard.isUserIds(),
                     exportedBoard.isCodeTags(),
                     exportedBoard.isPreuploadCaptcha(),
                     exportedBoard.isCountryFlags(),
-                    exportedBoard.isTrollFlags(),
                     exportedBoard.isMathTags(),
                     exportedBoard.getDescription(),
                     exportedBoard.isArchive()
@@ -406,15 +404,12 @@ public class ImportExportRepository {
                     board.cooldownThreads,
                     board.cooldownReplies,
                     board.cooldownImages,
-                    board.cooldownRepliesIntra,
-                    board.cooldownImagesIntra,
                     board.spoilers,
                     board.customSpoilers,
                     board.userIds,
                     board.codeTags,
                     board.preuploadCaptcha,
                     board.countryFlags,
-                    board.trollFlags,
                     board.mathTags,
                     board.description,
                     board.archive
