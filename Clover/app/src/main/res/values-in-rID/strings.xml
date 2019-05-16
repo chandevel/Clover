@@ -373,6 +373,8 @@ Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak
     <string name="settings_screen_behavior">Tingkah laku</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">Umum</string>
+    <string name="setting_force_english_locale">Selalu menggunakan bahasa Inggris di aplikasi</string>
+    <string name="setting_force_english_locale_toggle_notice">Bahasa akan diterapkan pada saat aplikasi dibuka kembali.</string>
     <string name="setting_auto_refresh_thread">Segarkan otomatis utas</string>
     <string name="setting_confirm_exit">Konfirmasikan sebelum keluar</string>
     <string name="setting_controller_swipeable">Izinkan layar untuk digesek</string>
@@ -394,7 +396,7 @@ Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak
     <string name="setting_volume_key_scrolling">Tombol volume gulir konten</string>
     <string name="setting_tap_no_rely">Ketuk nomor pos untuk membalas</string>
     <string name="setting_open_link_confirmation">Tanyakan sebelum membuka tautan</string>
-    <string name="setting_open_link_browser">Always open links in external browser</string>
+    <string name="setting_open_link_browser">Selalu buka tautan di browser eksternal</string>
     <!-- Behavior proxy group -->
     <string name="settings_group_proxy">HTTP Proxy</string>
     <string name="setting_proxy_enabled">Aktifkan proxy</string>
@@ -415,6 +417,8 @@ Jika dinonaktifkan, simpan gambar dengan nama file yang diunggah oleh pengunggah
     <string name="setting_video_default_muted_description">Jika video memiliki audio, nonaktifkan secara default.</string>
     <string name="setting_video_open_external">Putar video dengan pemutar eksternal</string>
     <string name="setting_video_open_external_description">Putar video di aplikasi pemutar media eksternal</string>
+    <string name="setting_video_exoplayer">Aktifkan ExoPlayer baru</string>
+    <string name="setting_video_exoplayer_description">Gunakan ExoPlayer baru untuk pemutar media internal</string>
     <string name="setting_share_url">Bagikan URL ke gambar</string>
     <string name="setting_share_url_description">Bagikan URL ke gambar, bukan gambar itu sendiri</string>
     <string name="settings_reveal_image_spoilers">Mengungkapkan spoiler gambar</string>
@@ -426,15 +430,14 @@ Jika dinonaktifkan, simpan gambar dengan nama file yang diunggah oleh pengunggah
     <string name="setting_image_auto_load_wifi">Wi-Fi saja</string>
     <string name="setting_image_auto_load_none">Tak pernah</string>
     <string name="setting_video_auto_load">Memuat video secara otomatis</string>
-    <string name="setting_video_auto_loop">Enable automatic video-looping</string>
-    <string name="setting_video_auto_loop_description">Automatically loop video content</string>
+    <string name="setting_video_auto_loop">Aktifkan perulangan video otomatis</string>
+    <string name="setting_video_auto_loop_description">Secara otomatis memutar konten video</string>
     <!-- Save location settings -->
     <string name="save_location_screen">Lokasi Penyimpanan</string>
     <string name="save_location_storage_permission_required_title">Izin penyimpanan diperlukan</string>
-    <string name="save_location_storage_permission_required">
-"Izin untuk mengakses penyimpanan diperlukan untuk mencari file.
+    <string name="save_location_storage_permission_required">\"Izin untuk mengakses penyimpanan diperlukan untuk mencari file.
 
-Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya secara permanen."
+Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya secara permanen.\"
     </string>
     <string name="setting_folder_pick_ok">Pilih</string>
     <string name="setting_folder_navigate_up">Atas</string>

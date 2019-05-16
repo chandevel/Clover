@@ -385,6 +385,8 @@ Active \"Reproducir videos con reproductor externo\" En las configuraciones"</st
     <string name="settings_screen_behavior">Comportamiento</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">General</string>
+    <string name="setting_force_english_locale">Utilizar siempre Inglés para el idioma de la aplicación</string>
+    <string name="setting_force_english_locale_toggle_notice">La configuración se aplicara la próxima vez que la app inicie.</string>
     <string name="setting_auto_refresh_thread">Auto-refrescar hilo</string>
     <string name="setting_confirm_exit">Confirmar antes de salir</string>
     <string name="setting_controller_swipeable">Permitir pantallas deslizables</string>
@@ -427,6 +429,8 @@ Si esta deshabilitado, guardar imágen con el nombre de archivo original de la s
     <string name="setting_video_default_muted_description">Si un video tiene audio, silenceado predeterminado.</string>
     <string name="setting_video_open_external">Reproducir con reproductor externo</string>
     <string name="setting_video_open_external_description">Reproducir en una aplicación de reproductor de medios externos</string>
+    <string name="setting_video_exoplayer">Habilitar el nuevo ExoPlayer</string>
+    <string name="setting_video_exoplayer_description">Usar el nuevo ExoPlayer para reproductor de media interna</string>
     <string name="setting_share_url">Compartir la URL de la imagen</string>
     <string name="setting_share_url_description">Compartir la URL de la imagen en lugar de la propia imagen</string>
     <string name="settings_reveal_image_spoilers">Revelar imágenes spoilers</string>
