@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -247,7 +248,7 @@ public class CommentParser {
             } else {
                 //link to post not in same thread with post number (>>post or >>>/board/post)
                 t = PostLinkable.Type.THREAD;
-                value = new PostLinkable.ThreadLink(board, threadId, postId);
+                value = new ThreadLink(board, threadId, postId);
             }
         } else {
             Matcher quoteMatcher = quotePattern.matcher(href);
@@ -268,7 +269,7 @@ public class CommentParser {
                     String board = boardSearchMatcher.group(1);
                     String search = boardSearchMatcher.group(2);
                     t = PostLinkable.Type.SEARCH;
-                    value = new PostLinkable.SearchLink(board, search);
+                    value = new SearchLink(board, search);
                 } else {
                     //normal link
                     t = PostLinkable.Type.LINK;
@@ -303,5 +304,27 @@ public class CommentParser {
         public PostLinkable.Type type;
         public CharSequence key;
         public Object value;
+    }
+
+    public static class ThreadLink {
+        public String board;
+        public int threadId;
+        public int postId;
+
+        public ThreadLink(String board, int threadId, int postId) {
+            this.board = board;
+            this.threadId = threadId;
+            this.postId = postId;
+        }
+    }
+
+    public static class SearchLink {
+        public String board;
+        public String search;
+
+        public SearchLink(String board, String search) {
+            this.board = board;
+            this.search = search;
+        }
     }
 }

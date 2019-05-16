@@ -170,7 +170,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
     private void onPermissionGrantedForDirectoryCreation() {
         if (!settingsFile.getParentFile().mkdirs()) {
-            showMessage(context.getString(R.string.could_not_create_dir_for_export_error_text, settingsFile.getPath()));
+            showMessage(context.getString(R.string.could_not_create_dir_for_export_error_text, settingsFile.getParentFile().getAbsolutePath()));
         }
     }
 

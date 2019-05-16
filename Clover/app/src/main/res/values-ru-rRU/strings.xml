@@ -163,8 +163,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setup_sites_add_hint">Добавьте сайт здесь</string>
     <string name="setup_sites_add_title">Добавить сайт</string>
     <string name="setup_sites_description">Добавить сайт с помощью адреса или имени</string>
-    <string name="setup_sites_url">Адрес или имя</string>
-    <string name="setup_sites_url_hint">http://example.com</string>
     <string name="setup_sites_site_description">%s добавлен</string>
     <string name="setup_sites_add_boards_hint">Нажмите, чтобы добавить форумы</string>
     <string name="setup_site_title">Настройка %s</string>

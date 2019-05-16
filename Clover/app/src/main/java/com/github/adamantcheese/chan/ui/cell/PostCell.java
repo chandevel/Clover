@@ -377,9 +377,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         date.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
 
-        boolean noClickable = ChanSettings.tapNoReply.get();
-        if (noClickable) {
-            date.setSpan(new NoClickableSpan(), 0, noText.length(), 0);
+        if (ChanSettings.tapNoReply.get()) {
+            date.setSpan(new PostNoClickableSpan(), 0, noText.length(), 0);
         }
 
         titleParts.add(date);
@@ -485,18 +484,13 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             // And this sets clickable to appropriate values again.
             comment.setOnClickListener(selfClicked);
 
-            if (noClickable) {
+            if (ChanSettings.tapNoReply.get()) {
                 title.setMovementMethod(titleMovementMethod);
             }
         } else {
-//            comment.setTextIsSelectable(false);
-
             comment.setText(commentText);
-
             comment.setOnClickListener(null);
-
             comment.setClickable(false);
-
             // Sets focusable to auto, clickable and longclickable to false.
             comment.setMovementMethod(null);
 
@@ -717,7 +711,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
     }
 
-    private class NoClickableSpan extends ClickableSpan {
+    private class PostNoClickableSpan extends ClickableSpan {
         @Override
         public void onClick(View widget) {
             callback.onPostNoClicked(post);

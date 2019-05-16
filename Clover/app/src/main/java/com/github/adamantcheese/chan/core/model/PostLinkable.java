@@ -89,26 +89,4 @@ public class PostLinkable extends ClickableSpan {
     public boolean getSpoilerState() {
         return spoilerVisible;
     }
-
-    public static class ThreadLink {
-        public String board;
-        public int threadId;
-        public int postId;
-
-        public ThreadLink(String board, int threadId, int postId) {
-            this.board = board;
-            this.threadId = threadId;
-            this.postId = postId;
-        }
-    }
-
-    public static class SearchLink {
-        public String board;
-        public String search;
-
-        public SearchLink(String board, String search) {
-            this.board = board;
-            this.search = search;
-        }
-    }
 }

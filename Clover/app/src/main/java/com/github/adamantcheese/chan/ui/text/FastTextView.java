@@ -153,8 +153,6 @@ public class FastTextView extends View {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-//        Logger.test("%X %s %s", System.identityHashCode(this), MeasureSpec.toString(widthMeasureSpec), MeasureSpec.toString(heightMeasureSpec));
-
         if ((widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.UNSPECIFIED) && !singleLine) {
             throw new IllegalArgumentException("FasTextView only supports wrapping widths on a single line");
         }
@@ -200,8 +198,7 @@ public class FastTextView extends View {
                 setMeasuredDimension(width, height);
             }
         } else {
-            // Width is 0, ignore
-            Logger.w(TAG, "Width = 0");
+            Logger.w(TAG, "Width = 0, ignoring");
             setMeasuredDimension(0, 0);
         }
     }
@@ -211,22 +208,16 @@ public class FastTextView extends View {
             if (update) {
                 int layoutWidth = width - getPaddingLeft() - getPaddingRight();
                 if (layoutWidth > 0) {
-//                    long start = Time.startTiming();
-
                     // The StaticLayouts are cached with the static textCache LRU map
                     FastTextViewItem item = new FastTextViewItem(text, paint, layoutWidth);
 
                     StaticLayout cached = textCache.get(item);
                     if (cached == null) {
-//                        Logger.test("staticlayout cache miss: text = %s", text);
                         cached = getStaticLayout(layoutWidth);
                         textCache.put(item, cached);
-                    }/* else {
-                        Logger.test("staticlayout cache hit");
-                    }*/
+                    }
 
                     layout = cached;
-//                    Time.endTiming(Integer.toHexString(System.identityHashCode(this)) + " staticlayout for width = " + layoutWidth + "\t", start);
                 } else {
                     layout = null;
                 }
@@ -238,7 +229,6 @@ public class FastTextView extends View {
     }
 
     private StaticLayout getStaticLayout(int layoutWidth) {
-//        Logger.test("new staticlayout width=%d", layoutWidth);
         return new StaticLayout(text, paint, layoutWidth, Layout.Alignment.ALIGN_NORMAL, 1f, 0f, false);
     }
 

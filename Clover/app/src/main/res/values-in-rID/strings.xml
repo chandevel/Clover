@@ -133,8 +133,6 @@ Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya seca
     <string name="setup_sites_add_hint">Tambahkan situs di sini</string>
     <string name="setup_sites_add_title">Tambahkan situs</string>
     <string name="setup_sites_description">Tambahkan situs berdasarkan URL atau nama</string>
-    <string name="setup_sites_url">URL atau nama</string>
-    <string name="setup_sites_url_hint">http://example.com</string>
     <string name="setup_sites_site_description">%s ditambahkan</string>
     <string name="setup_sites_add_boards_hint">Ketuk untuk menambahkan papan</string>
     <string name="setup_site_title">Konfigurasikan %s</string>

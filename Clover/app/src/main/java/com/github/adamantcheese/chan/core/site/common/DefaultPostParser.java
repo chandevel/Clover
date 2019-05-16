@@ -73,7 +73,7 @@ public class DefaultPostParser implements PostParser {
         if (builder.comment != null) {
             builder.comment = parseComment(theme, builder, builder.comment, callback);
         } else {
-            builder.comment = "";
+            builder.comment = new SpannableString("");
         }
 
         return builder.build();

@@ -142,8 +142,6 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="setup_sites_add_hint">Añadir un sitio web aquí</string>
     <string name="setup_sites_add_title">Agregar sitio</string>
     <string name="setup_sites_description">Añadir un sitio web por su dirección URL o nombre</string>
-    <string name="setup_sites_url">Dirección URL o nombre</string>
-    <string name="setup_sites_url_hint">http://ejemplo.com</string>
     <string name="setup_sites_site_description">%s añadido</string>
     <string name="setup_sites_add_boards_hint">Toca para añadir boards</string>
     <string name="setup_site_title">Configurar %s</string>

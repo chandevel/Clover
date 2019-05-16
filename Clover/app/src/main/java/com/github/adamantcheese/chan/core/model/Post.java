@@ -412,7 +412,7 @@ public class Post implements Comparable<Post> {
             return this;
         }
 
-        public Builder comment(String comment) {
+        public Builder comment(CharSequence comment) {
             this.comment = comment;
             return this;
         }

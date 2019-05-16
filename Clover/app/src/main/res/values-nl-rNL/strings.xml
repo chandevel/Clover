@@ -142,8 +142,6 @@ Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"
     <string name="setup_sites_add_hint">Voeg hier een site toe</string>
     <string name="setup_sites_add_title">Site toevoegen</string>
     <string name="setup_sites_description">Voeg een site toe met de URL of naam</string>
-    <string name="setup_sites_url">URL of naam</string>
-    <string name="setup_sites_url_hint">http://voorbeeld.nl</string>
     <string name="setup_sites_site_description">%s toegevoegd</string>
     <string name="setup_sites_add_boards_hint">Tik om boards toe te voegen</string>
     <string name="setup_site_title">%s instellen</string>
