@@ -42,7 +42,7 @@ import java.io.File;
 import java.util.Locale;
 
 public class ImportExportSettingsController extends SettingsController implements
-        ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
+        ImportExportSettingsPresenter.ImportSettingsCallbacks, ImportExportSettingsPresenter.ExportSettingsCallbacks {
 
     @Nullable
     private ImportExportSettingsPresenter presenter;
@@ -66,7 +66,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
         navigation.setTitle(R.string.settings_import_export);
 
-        presenter = new ImportExportSettingsPresenter(this);
+        presenter = new ImportExportSettingsPresenter(this, this);
 
         setupLayout();
         populatePreferences();
@@ -222,7 +222,7 @@ public class ImportExportSettingsController extends SettingsController implement
                 context.getString(R.string.import_warning_text),
                 settingsFile.getParentFile().getPath(),
                 settingsFile.getName()
-                );
+        );
 
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle(R.string.import_warning_title)
@@ -241,30 +241,6 @@ public class ImportExportSettingsController extends SettingsController implement
         }
     }
 
-    @Override
-    public void onSuccess(ImportExportRepository.ImportExport importExport) {
-        // called on background thread
-
-        if (context instanceof StartActivity) {
-            AndroidUtils.runOnUiThread(() -> {
-                if (importExport == ImportExportRepository.ImportExport.Import) {
-                    ((StartActivity) context).restartApp();
-                } else {
-                    copyDirPathToClipboard();
-                    clearAllChildControllers();
-
-                    showMessage(String.format(Locale.getDefault(),
-                            context.getString(R.string.successfully_exported_text),
-                            settingsFile.getAbsolutePath()));
-
-                    if (callbacks != null) {
-                        callbacks.finish();
-                    }
-                }
-            });
-        }
-    }
-
     private void copyDirPathToClipboard() {
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("exported_file_path", settingsFile.getPath());
@@ -275,17 +251,59 @@ public class ImportExportSettingsController extends SettingsController implement
     }
 
     @Override
+    public void onSuccessImport() {
+        // called on background thread
+
+        if (context instanceof StartActivity) {
+            AndroidUtils.runOnUiThread(() -> {
+                ((StartActivity) context).restartApp();
+            });
+        }
+    }
+
+    @Override
+    public void onSuccessExport() {
+        // called on background thread
+
+        if (context instanceof StartActivity) {
+            AndroidUtils.runOnUiThread(() -> {
+                copyDirPathToClipboard();
+                clearAllChildControllers();
+
+                showMessage(String.format(Locale.getDefault(),
+                        context.getString(R.string.successfully_exported_text),
+                        settingsFile.getAbsolutePath()));
+
+                if (callbacks != null) {
+                    callbacks.finish();
+                }
+            });
+        }
+    }
+
+    @Override
     public void onError(String message) {
         // may be called on background thread
 
         AndroidUtils.runOnUiThread(() -> {
             clearAllChildControllers();
-            showMessage(message);
+            showMessageDialog(message);
         });
     }
 
     private RuntimePermissionsHelper getPermissionHelper() {
         return ((StartActivity) context).getPermissionHelper();
+    }
+
+    private void showMessageDialog(String message) {
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.error_string)
+                .setMessage(message)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .create()
+                .show();
     }
 
     private void showMessage(String message) {
