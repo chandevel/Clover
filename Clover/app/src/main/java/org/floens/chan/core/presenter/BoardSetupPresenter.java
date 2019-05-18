@@ -274,12 +274,18 @@ public class BoardSetupPresenter implements Observer {
     }
 
     public void updateSortingMode(BoardSortingInfo.BoardSortingMode sortingMode) {
-        boardSortingInfo.setSortingMode(sortingMode);
+        synchronized (boardSortingInfo) {
+            boardSortingInfo.setSortingMode(sortingMode);
+        }
+
         queryBoardsWithQueryAndShowInAddDialog();
     }
 
     public void updateSortingOrder(BoardSortingInfo.BoardSortingOrder sortingOrder) {
-        boardSortingInfo.setSortingOrder(sortingOrder);
+        synchronized (boardSortingInfo) {
+            boardSortingInfo.setSortingOrder(sortingOrder);
+        }
+
         queryBoardsWithQueryAndShowInAddDialog();
     }
 
