@@ -123,7 +123,7 @@ public class CaptchaNoJsHtmlParser {
         return token;
     }
 
-    private void parseChallengeTitle(
+    public void parseChallengeTitle(
             String responseHtml,
             CaptchaInfo captchaInfo
     ) throws CaptchaNoJsV2ParsingError {
@@ -240,7 +240,7 @@ public class CaptchaNoJsHtmlParser {
         }
     }
 
-    private void parseCParameter(
+    public void parseCParameter(
             String responseHtml,
             CaptchaInfo captchaInfo
     ) throws CaptchaNoJsV2ParsingError {
@@ -269,7 +269,7 @@ public class CaptchaNoJsHtmlParser {
         captchaInfo.setcParameter(cParameter);
     }
 
-    private void parseCheckboxes(
+    public void parseCheckboxes(
             String responseHtml,
             CaptchaInfo captchaInfo
     ) throws CaptchaNoJsV2ParsingError {

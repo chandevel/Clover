@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.Headers;
@@ -48,7 +49,6 @@ public class CaptchaNoJsPresenterV2 {
     private static final String acceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
     private static final String acceptEncodingHeader = "deflate, br";
     private static final String acceptLanguageHeader = "en-US";
-
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
     private static final String googleBaseUrl = "https://www.google.com/";
     private static final String encoding = "UTF-8";
@@ -58,6 +58,7 @@ public class CaptchaNoJsPresenterV2 {
     private static final String setCookieHeaderName = "set-cookie";
     private static final int SUCCESS_STATUS_CODE = 200;
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
+    private static final long THREE_MONTHS = TimeUnit.DAYS.toMillis(90);
 
     // this cookie is taken from dashchan
     private static final String defaultGoogleCookies = "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
@@ -134,6 +135,8 @@ public class CaptchaNoJsPresenterV2 {
                 try {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
                     RequestBody body = createResponseBody(prevCaptchaInfo, selectedIds);
+
+                    Logger.d(TAG, "Verify called. Current cookie = " + googleCookie);
 
                     Request request = new Request.Builder()
                             .url(recaptchaUrl)
@@ -282,10 +285,16 @@ public class CaptchaNoJsPresenterV2 {
             return defaultGoogleCookies;
         }
 
-        if (!forced && !googleCookie.isEmpty()) {
+        boolean isItTimeToUpdateCookies =
+                ((System.currentTimeMillis() - ChanSettings.lastGoogleCookieUpdateTime.get()) > THREE_MONTHS);
+
+        if (!forced && (!googleCookie.isEmpty() && !isItTimeToUpdateCookies)) {
             Logger.d(TAG, "We already have google cookies");
             return googleCookie;
         }
+
+        Logger.d(TAG, "Time to update cookies: forced = " + forced + ", isCookieEmpty = " +
+                googleCookie.isEmpty() + ", last cookie expired = " + isItTimeToUpdateCookies);
 
         Request request = new Request.Builder()
                 .url(googleBaseUrl)
@@ -297,9 +306,16 @@ public class CaptchaNoJsPresenterV2 {
 
         try (Response response = okHttpClient.newCall(request).execute()) {
             String newCookie = handleGetGoogleCookiesResponse(response);
-            ChanSettings.googleCookie.set(newCookie);
+            if (!newCookie.equalsIgnoreCase(defaultGoogleCookies)) {
+                ChanSettings.googleCookie.set(newCookie);
+                ChanSettings.lastGoogleCookieUpdateTime.set(System.currentTimeMillis());
 
-            Logger.d(TAG, "Successfully refreshed google cookies, new cookie = " + newCookie);
+                Logger.d(TAG, "Successfully refreshed google cookies, new cookie = " + newCookie);
+            } else {
+                Logger.d(TAG, "Could not successfully handle google cookie response, " +
+                        "using the default google cookies until the next request");
+            }
+
             return newCookie;
         }
     }
