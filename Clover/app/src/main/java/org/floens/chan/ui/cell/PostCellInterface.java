@@ -49,6 +49,8 @@ public interface PostCellInterface {
 
         void onPostClicked(Post post);
 
+        void onPostLongClicked(Post post);
+
         void onThumbnailClicked(Post post, PostImage image, ThumbnailView thumbnail);
 
         void onShowPostReplies(Post post);

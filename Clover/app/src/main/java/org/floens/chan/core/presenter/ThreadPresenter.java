@@ -411,7 +411,12 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
             Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(loadable.site, post.board, post.no));
             threadLoadable.title = PostHelper.getTitle(post, loadable);
             threadPresenterCallback.showThread(threadLoadable);
-        } else {
+        }
+    }
+
+    @Override
+    public void onPostLongClicked(Post post) {
+        if (!loadable.isCatalogMode()) {
             if (searchOpen) {
                 searchQuery = null;
                 showPosts();

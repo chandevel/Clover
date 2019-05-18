@@ -130,6 +130,19 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             }
         }
     };
+    private OnLongClickListener selfLongClicked = new OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (ignoreNextOnClick) {
+                ignoreNextOnClick = false;
+            } else {
+                callback.onPostLongClicked(post);
+            }
+
+            return true;
+        }
+    };
+
     private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
     private PostViewFastMovementMethod titleMovementMethod = new PostViewFastMovementMethod();
 
@@ -212,6 +225,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         });
 
         setOnClickListener(selfClicked);
+        setOnLongClickListener(selfLongClicked);
     }
 
     private void showOptions(View anchor, List<FloatingMenuItem> items,
@@ -491,6 +505,8 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             // And this sets clickable to appropriate values again.
             comment.setOnClickListener(selfClicked);
 
+            comment.setOnLongClickListener(selfLongClicked);
+
             if (noClickable) {
                 title.setMovementMethod(titleMovementMethod);
             }
@@ -501,7 +517,11 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
             comment.setOnClickListener(null);
 
+            comment.setOnLongClickListener(null);
+
             comment.setClickable(false);
+
+            comment.setLongClickable(false);
 
             // Sets focusable to auto, clickable and longclickable to false.
             comment.setMovementMethod(null);

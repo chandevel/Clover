@@ -46,7 +46,7 @@ import java.util.List;
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.setRoundItemBackground;
 
-public class CardPostCell extends CardView implements PostCellInterface, View.OnClickListener {
+public class CardPostCell extends CardView implements PostCellInterface, View.OnClickListener, View.OnLongClickListener {
     private static final int COMMENT_MAX_LENGTH = 200;
 
     private boolean bound;
@@ -92,6 +92,7 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         filterMatchColor = findViewById(R.id.filter_match_color);
 
         setOnClickListener(this);
+        setOnLongClickListener(this);
 
         setCompact(compact);
 
@@ -131,6 +132,15 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
         } else if (v == this) {
             callback.onPostClicked(post);
         }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (v == this) {
+            callback.onPostLongClicked(post);
+        }
+
+        return true;
     }
 
     @Override
