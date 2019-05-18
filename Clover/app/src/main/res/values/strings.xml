@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -577,4 +577,7 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+    <string name="delete_site_dialog_title" tools:ignore="MissingTranslation">Delete site?</string>
+    <string name="delete_site_dialog_message" tools:ignore="MissingTranslation">Are you sure you want to delete "%1$s"? This action will delete the site and everything that is associated with it. The app will be restarted. Do you wish to proceed?</string>
+    <string name="could_not_remove_site_error_message" tools:ignore="MissingTranslation">"Could not remove site %1$s, error message: %2$s</string>
 </resources>

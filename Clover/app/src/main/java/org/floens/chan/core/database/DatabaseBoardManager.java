@@ -3,6 +3,7 @@ package org.floens.chan.core.database;
 import android.annotation.SuppressLint;
 import android.util.Pair;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.SelectArg;
@@ -256,6 +257,18 @@ public class DatabaseBoardManager {
                 board.site = site;
             }
             return boards;
+        };
+    }
+
+    public Callable<Void> deleteBoards(Site site) {
+        return () -> {
+            DeleteBuilder<Board, Integer> builder = helper.boardsDao.deleteBuilder();
+
+            builder.where()
+                    .eq("site", site.id());
+            builder.delete();
+
+            return null;
         };
     }
 }

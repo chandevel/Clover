@@ -1,10 +1,13 @@
 package org.floens.chan.core.repository;
 
+import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
 
 import org.floens.chan.core.database.DatabaseManager;
 import org.floens.chan.core.model.json.site.SiteConfig;
+import org.floens.chan.core.model.orm.Filter;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.settings.json.JsonSettings;
 import org.floens.chan.core.site.Site;
@@ -186,6 +189,81 @@ public class SiteRepository {
             throw new IllegalArgumentException();
         }
         return site;
+    }
+
+    public void removeSite(Site site) {
+        databaseManager.runTask(() -> {
+           removeFilters(site);
+           removeBoards(site);
+
+           List<Loadable> siteLoadables = databaseManager.getDatabaseLoadableManager().getLoadables(site).call();
+           if (!siteLoadables.isEmpty()) {
+               removePins(siteLoadables);
+               removeHistory(siteLoadables);
+               removeLoadables(siteLoadables);
+           }
+
+           removeSavedReplies(site);
+           removeThreadHides(site);
+
+           databaseManager.getDatabaseSiteManager().deleteSite(site).call();
+           return null;
+        });
+    }
+
+    private void removeThreadHides(Site site) throws Exception {
+        databaseManager.getDatabaseHideManager().deleteThreadHides(site).call();
+    }
+
+    private void removeSavedReplies(Site site) throws Exception {
+        databaseManager.getDatabaseSavedReplyManager().deleteSavedReplies(site).call();
+    }
+
+    private void removeLoadables(List<Loadable> siteLoadables) throws Exception {
+        databaseManager.getDatabaseLoadableManager().deleteLoadables(siteLoadables).call();
+    }
+
+    private void removeHistory(List<Loadable> siteLoadables) throws Exception {
+        databaseManager.getDatabaseHistoryManager().deleteHistory(siteLoadables).call();
+    }
+
+    private void removePins(List<Loadable> siteLoadables) throws Exception {
+        databaseManager.getDatabasePinManager().deletePins(siteLoadables).call();
+    }
+
+    private void removeBoards(Site site) throws Exception {
+        databaseManager.getDatabaseBoardManager().deleteBoards(site).call();
+    }
+
+    private void removeFilters(Site site) throws Exception {
+        List<Filter> filtersToDelete = new ArrayList<>();
+
+        for (Filter filter : databaseManager.getDatabaseFilterManager().getFilters().call()) {
+            if (filter.allBoards) {
+                continue;
+            }
+
+            if (TextUtils.isEmpty(filter.boards)) {
+                continue;
+            }
+
+            for (String uniqueId : filter.boards.split(",")) {
+                String[] split = uniqueId.split(":");
+                if (split.length != 2) {
+                    continue;
+                }
+
+                try {
+                    if (Integer.parseInt(split[0]) == site.id()) {
+                        filtersToDelete.add(filter);
+                        break;
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        databaseManager.getDatabaseFilterManager().deleteFilters(filtersToDelete).call();
     }
 
     public class Sites extends Observable {

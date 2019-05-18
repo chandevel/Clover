@@ -18,9 +18,11 @@
 package org.floens.chan.core.database;
 
 
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.floens.chan.core.model.orm.SiteModel;
+import org.floens.chan.core.site.Site;
 
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +92,16 @@ public class DatabaseSiteManager {
                 m.order = i;
                 helper.siteDao.update(m);
             }
+            return null;
+        };
+    }
+
+    public Callable<Void> deleteSite(Site site) {
+        return () -> {
+            DeleteBuilder<SiteModel, Integer> builder = helper.siteDao.deleteBuilder();
+            builder.where().eq("id", site.id());
+            builder.delete();
+
             return null;
         };
     }

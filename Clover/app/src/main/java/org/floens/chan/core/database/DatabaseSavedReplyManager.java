@@ -19,12 +19,14 @@ package org.floens.chan.core.database;
 
 import android.support.annotation.AnyThread;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.orm.Board;
 import org.floens.chan.core.model.orm.SavedReply;
 import org.floens.chan.core.repository.SiteRepository;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.Time;
 
 import java.util.ArrayList;
@@ -144,6 +146,16 @@ public class DatabaseSavedReplyManager {
                     .and().eq("board", board.code)
                     .and().eq("no", no).query();
             return query.isEmpty() ? null : query.get(0);
+        };
+    }
+
+    public Callable<Void> deleteSavedReplies(Site site) {
+        return () -> {
+            DeleteBuilder<SavedReply, Integer> builder = helper.savedDao.deleteBuilder();
+            builder.where().eq("site", site.id());
+            builder.delete();
+
+            return null;
         };
     }
 }

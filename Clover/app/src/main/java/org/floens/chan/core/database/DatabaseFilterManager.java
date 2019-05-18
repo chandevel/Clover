@@ -17,9 +17,13 @@
  */
 package org.floens.chan.core.database;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
+
 import org.floens.chan.core.model.orm.Filter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class DatabaseFilterManager {
@@ -74,5 +78,27 @@ public class DatabaseFilterManager {
 
     public Callable<Long> getCount() {
         return () -> helper.filterDao.countOf();
+    }
+
+    public Callable<Void> deleteFilters(List<Filter> filtersToDelete) {
+        return () -> {
+            Set<Integer> filterIdSet = new HashSet<>();
+
+            for (Filter filter : filtersToDelete) {
+                filterIdSet.add(filter.id);
+            }
+
+            DeleteBuilder<Filter, Integer> builder = helper.filterDao.deleteBuilder();
+            builder.where().in("id", filterIdSet);
+
+            int deletedCount = builder.delete();
+
+            if (deletedCount != filterIdSet.size()) {
+                throw new IllegalStateException("Deleted count is less than filterIdList.size(). (deletedCount = "
+                        + deletedCount + "), " + "(filterIdSet = " + filterIdSet.size() + ")");
+            }
+
+            return null;
+        };
     }
 }

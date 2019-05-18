@@ -17,13 +17,17 @@
  */
 package org.floens.chan.core.database;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.orm.History;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.utils.Time;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class DatabaseHistoryManager {
@@ -117,6 +121,22 @@ public class DatabaseHistoryManager {
 
                 return null;
             }
+        };
+    }
+
+    public Callable<Void> deleteHistory(List<Loadable> siteLoadables) {
+        return () -> {
+            Set<Integer> loadableIdSet = new HashSet<>();
+
+            for (Loadable loadable : siteLoadables) {
+                loadableIdSet.add(loadable.id);
+            }
+
+            DeleteBuilder<History, Integer> builder = helper.historyDao.deleteBuilder();
+            builder.where().in("loadable_id", loadableIdSet);
+            builder.delete();
+
+            return null;
         };
     }
 }

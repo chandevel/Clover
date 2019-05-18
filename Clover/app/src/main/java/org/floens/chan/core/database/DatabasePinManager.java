@@ -17,9 +17,14 @@
  */
 package org.floens.chan.core.database;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
+
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.orm.Pin;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class DatabasePinManager {
@@ -95,6 +100,22 @@ public class DatabasePinManager {
                 }
                 return list;
             }
+        };
+    }
+
+    public Callable<Void> deletePins(List<Loadable> siteLoadables) {
+        return () -> {
+            Set<Integer> loadableIdSet = new HashSet<>();
+
+            for (Loadable loadable : siteLoadables) {
+                loadableIdSet.add(loadable.id);
+            }
+
+            DeleteBuilder<Pin, Integer> builder = helper.pinDao.deleteBuilder();
+            builder.where().in("loadable_id", loadableIdSet);
+            builder.delete();
+
+            return null;
         };
     }
 }

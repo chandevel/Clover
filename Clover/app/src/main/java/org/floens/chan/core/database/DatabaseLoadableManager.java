@@ -19,18 +19,22 @@ package org.floens.chan.core.database;
 
 import android.util.Log;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.repository.SiteRepository;
+import org.floens.chan.core.site.Site;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class DatabaseLoadableManager {
@@ -173,6 +177,31 @@ public class DatabaseLoadableManager {
                     return result;
                 }
             }
+        };
+    }
+
+    public Callable<List<Loadable>> getLoadables(Site site) {
+        return () -> helper.loadableDao.queryForEq("site", site.id());
+    }
+
+    public Callable<Object> deleteLoadables(List<Loadable> siteLoadables) {
+        return () -> {
+            Set<Integer> loadableIdSet = new HashSet<>();
+
+            for (Loadable loadable : siteLoadables) {
+                loadableIdSet.add(loadable.id);
+            }
+
+            DeleteBuilder<Loadable, Integer> builder = helper.loadableDao.deleteBuilder();
+            builder.where().in("id", loadableIdSet);
+
+            int deletedCount = builder.delete();
+            if (loadableIdSet.size() != deletedCount) {
+                throw new IllegalStateException("Deleted count is less than loadableIdSet.size(). (deletedCount = "
+                        + deletedCount + "), " + "(loadableIdSet = " + loadableIdSet.size() + ")");
+            }
+
+            return null;
         };
     }
 }

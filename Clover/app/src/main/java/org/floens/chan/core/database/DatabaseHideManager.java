@@ -1,9 +1,11 @@
 package org.floens.chan.core.database;
 
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.ThreadHide;
+import org.floens.chan.core.site.Site;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,6 +113,16 @@ public class DatabaseHideManager {
             synchronized (hides) {
                 hides.clear();
             }
+
+            return null;
+        };
+    }
+
+    public Callable<Void> deleteThreadHides(Site site) {
+        return () -> {
+            DeleteBuilder<ThreadHide, Integer> builder = helper.threadHideDao.deleteBuilder();
+            builder.where().eq("site", site.id());
+            builder.delete();
 
             return null;
         };
