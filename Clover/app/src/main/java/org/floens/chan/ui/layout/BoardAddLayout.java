@@ -19,12 +19,15 @@ package org.floens.chan.ui.layout;
 
 import android.content.Context;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -37,7 +40,8 @@ import org.floens.chan.core.presenter.BoardSetupPresenter;
 import static org.floens.chan.utils.AndroidUtils.getAttrColor;
 import static org.floens.chan.utils.AndroidUtils.getString;
 
-public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
+public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchLayoutCallback,
+        BoardSetupPresenter.AddCallback, View.OnClickListener, AdapterView.OnItemSelectedListener {
     private BoardSetupPresenter presenter;
 
     private SuggestionsAdapter suggestionsAdapter;
@@ -45,6 +49,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
     private SearchLayout search;
     private Button checkAllButton;
     private RecyclerView suggestionsRecycler;
+    private AppCompatSpinner sortingModeSpinner;
+    private AppCompatSpinner sortingOrderSpinner;
 
     private AlertDialog dialog;
 
@@ -68,6 +74,8 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         search = findViewById(R.id.search);
         suggestionsRecycler = findViewById(R.id.suggestions);
         checkAllButton = findViewById(R.id.select_all);
+        sortingModeSpinner = findViewById(R.id.board_add_layout_sorting_mode);
+        sortingOrderSpinner = findViewById(R.id.board_add_layout_sorting_order);
 
         // Adapters
         suggestionsAdapter = new SuggestionsAdapter();
@@ -81,6 +89,18 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         checkAllButton.setOnClickListener(this);
         suggestionsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         suggestionsRecycler.setAdapter(suggestionsAdapter);
+
+        sortingModeSpinner.setAdapter(ArrayAdapter.createFromResource(
+                getContext(),
+                R.array.sorting_mode,
+                android.R.layout.simple_spinner_dropdown_item));
+        sortingModeSpinner.setOnItemSelectedListener(this);
+
+        sortingOrderSpinner.setAdapter(ArrayAdapter.createFromResource(
+                getContext(),
+                R.array.sorting_order,
+                android.R.layout.simple_spinner_dropdown_item));
+        sortingOrderSpinner.setOnItemSelectedListener(this);
 
         suggestionsRecycler.requestFocus();
     }
@@ -102,6 +122,45 @@ public class BoardAddLayout extends LinearLayout implements SearchLayout.SearchL
         if (v == checkAllButton) {
             presenter.onSelectAllClicked();
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (parent == sortingModeSpinner) {
+            BoardSetupPresenter.BoardSortingInfo.BoardSortingMode sortingMode;
+
+            switch (position) {
+                case 0:
+                    sortingMode = BoardSetupPresenter.BoardSortingInfo.BoardSortingMode.ByBoardCode;
+                    break;
+                case 1:
+                    sortingMode = BoardSetupPresenter.BoardSortingInfo.BoardSortingMode.ByBoardName;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown sortingModeSpinner: " + position);
+            }
+
+            presenter.updateSortingMode(sortingMode);
+        } else if (parent == sortingOrderSpinner) {
+            BoardSetupPresenter.BoardSortingInfo.BoardSortingOrder sortingOrder;
+
+            switch (position) {
+                case 0:
+                    sortingOrder = BoardSetupPresenter.BoardSortingInfo.BoardSortingOrder.Ascending;
+                    break;
+                case 1:
+                    sortingOrder = BoardSetupPresenter.BoardSortingInfo.BoardSortingOrder.Descending;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown sortingOrderSpinner: " + position);
+            }
+
+            presenter.updateSortingOrder(sortingOrder);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
     }
 
     @Override

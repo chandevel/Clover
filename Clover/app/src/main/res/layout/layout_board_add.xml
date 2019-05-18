@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <org.floens.chan.ui.layout.BoardAddLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minHeight="10000dp"
     android:minWidth="10000dp"
+    android:minHeight="10000dp"
     android:orientation="vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp">
@@ -27,22 +27,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <org.floens.chan.ui.layout.SearchLayout
-            android:id="@+id/search"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingBottom="8dp"
-            android:paddingTop="8dp" />
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/select_all"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="@string/setup_board_select_all" />
+            <org.floens.chan.ui.layout.SearchLayout
+                android:id="@+id/search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+
+            <Button
+                android:id="@+id/select_all"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/setup_board_select_all" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/board_add_layout_sorting_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/sorting_mode"/>
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/board_add_layout_sorting_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/sorting_order"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

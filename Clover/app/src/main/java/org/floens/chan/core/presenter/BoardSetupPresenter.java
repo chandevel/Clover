@@ -26,6 +26,8 @@ import org.floens.chan.ui.helper.BoardHelper;
 import org.floens.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,6 +58,7 @@ public class BoardSetupPresenter implements Observer {
     private List<String> selectedSuggestions = new LinkedList<>();
 
     private String suggestionsQuery = null;
+    private final BoardSortingInfo boardSortingInfo = BoardSortingInfo.defaultSorting();
 
     @Inject
     public BoardSetupPresenter(BoardManager boardManager) {
@@ -233,7 +236,13 @@ public class BoardSetupPresenter implements Observer {
                 }
             }
 
-            return suggestions;
+            BoardSortingInfo localBoardSortingInfo;
+
+            synchronized (boardSortingInfo) {
+                localBoardSortingInfo = new BoardSortingInfo(boardSortingInfo);
+            }
+
+            return sortSuggestions(suggestions, localBoardSortingInfo);
         }, result -> {
             updateSuggestions(result);
 
@@ -241,6 +250,13 @@ public class BoardSetupPresenter implements Observer {
                 addCallback.suggestionsWereChanged();
             }
         });
+    }
+
+    private List<BoardSuggestion> sortSuggestions(
+            List<BoardSuggestion> suggestions,
+            BoardSortingInfo boardSortingInfo) {
+        Collections.sort(suggestions, new BoardSuggestionComparator(boardSortingInfo));
+        return suggestions;
     }
 
     private void updateSuggestions(List<BoardSuggestion> suggestions) {
@@ -255,6 +271,16 @@ public class BoardSetupPresenter implements Observer {
             Board b = savedBoards.get(i);
             b.order = i;
         }
+    }
+
+    public void updateSortingMode(BoardSortingInfo.BoardSortingMode sortingMode) {
+        boardSortingInfo.setSortingMode(sortingMode);
+        queryBoardsWithQueryAndShowInAddDialog();
+    }
+
+    public void updateSortingOrder(BoardSortingInfo.BoardSortingOrder sortingOrder) {
+        boardSortingInfo.setSortingOrder(sortingOrder);
+        queryBoardsWithQueryAndShowInAddDialog();
     }
 
     public interface Callback {
@@ -313,6 +339,122 @@ public class BoardSetupPresenter implements Observer {
 
         public long getId() {
             return code.hashCode();
+        }
+    }
+
+    private static class BoardSuggestionComparator implements Comparator<BoardSuggestion> {
+        public static final int SORT_BY_BOARD_CODE = 1 << 0;
+        public static final int SORT_BY_BOARD_NAME = 1 << 1;
+        public static final int SORT_ASCENDING = 1 << 8;
+        public static final int SORT_DESCENDING = 1 << 9;
+
+        private int options;
+
+        public BoardSuggestionComparator(BoardSortingInfo boardSortingInfo) {
+            options = boardSortingInfo.getSortingMode().value | boardSortingInfo.getSortingOrder().value;
+        }
+
+        @Override
+        public int compare(BoardSuggestion o1, BoardSuggestion o2) {
+            if (o1 == null && o2 == null) {
+                return 0;
+            } else if (o1 == null) {
+                return -1;
+            } else if (o2 == null) {
+                return 1;
+            }
+
+            if (o1.board == null && o2.board == null) {
+                return 0;
+            } else if (o1.board == null) {
+                return -1;
+            }  else if (o2.board == null) {
+                return 1;
+            }
+
+            String str1;
+            String str2;
+
+            if (((options & 0xFF) & SORT_BY_BOARD_CODE) != 0) {
+                str1 = o1.code;
+                str2 = o2.code;
+            } else if (((options & 0xFF) & SORT_BY_BOARD_NAME) != 0) {
+                str1 = o1.board.name;
+                str2 = o2.board.name;
+            } else {
+                throw new IllegalStateException("Unknown options flag: " + (options & 0xFF));
+            }
+
+            int multiplier = (((options & 0xFF00) & SORT_ASCENDING) != 0) ? 1 : -1;
+            return str1.compareTo(str2) * multiplier;
+        }
+
+    }
+
+    public static class BoardSortingInfo {
+        private BoardSortingMode sortingMode;
+        private BoardSortingOrder sortingOrder;
+
+        public BoardSortingInfo(BoardSortingMode sortingMode, BoardSortingOrder sortingOrder) {
+            this.sortingMode = sortingMode;
+            this.sortingOrder = sortingOrder;
+        }
+
+        public BoardSortingInfo(BoardSortingInfo other) {
+            this.sortingMode = other.sortingMode;
+            this.sortingOrder = other.sortingOrder;
+        }
+
+        public static BoardSortingInfo defaultSorting() {
+            return new BoardSortingInfo(
+                    BoardSortingMode.ByBoardCode,
+                    BoardSortingOrder.Ascending);
+        }
+
+        public BoardSortingMode getSortingMode() {
+            return sortingMode;
+        }
+
+        public BoardSortingOrder getSortingOrder() {
+            return sortingOrder;
+        }
+
+        public void setSortingMode(BoardSortingMode sortingMode) {
+            this.sortingMode = sortingMode;
+        }
+
+        public void setSortingOrder(BoardSortingOrder sortingOrder) {
+            this.sortingOrder = sortingOrder;
+        }
+
+        public enum BoardSortingMode {
+            ByBoardCode(BoardSuggestionComparator.SORT_BY_BOARD_CODE),
+            ByBoardName(BoardSuggestionComparator.SORT_BY_BOARD_NAME);
+
+            private int value;
+
+            BoardSortingMode(int value) {
+                this.value = value;
+            }
+
+            public int getValue() {
+                return value;
+            }
+        }
+
+        public enum BoardSortingOrder {
+            Ascending(BoardSuggestionComparator.SORT_ASCENDING),
+            Descending(BoardSuggestionComparator.SORT_DESCENDING);
+
+            private int value;
+
+            BoardSortingOrder(int value) {
+                this.value = value;
+            }
+
+            public int getValue() {
+                return value;
+            }
         }
     }
 }

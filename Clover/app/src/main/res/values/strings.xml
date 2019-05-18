@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -577,4 +577,18 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+    <string name="sorting_mode_sort_by_board_code" tools:ignore="MissingTranslation">Sort by board code</string>
+    <string name="sorting_mode_sort_by_board_name" tools:ignore="MissingTranslation">Sort by board name</string>
+    <string name="sorting_order_ascending" tools:ignore="MissingTranslation">Ascending</string>
+    <string name="sorting_order_descending" tools:ignore="MissingTranslation">Descending</string>
+
+    <string-array name="sorting_mode">
+        <item>@string/sorting_mode_sort_by_board_code</item>
+        <item>@string/sorting_mode_sort_by_board_name</item>
+    </string-array>
+
+    <string-array name="sorting_order">
+        <item>@string/sorting_order_ascending</item>
+        <item>@string/sorting_order_descending</item>
+    </string-array>
 </resources>
