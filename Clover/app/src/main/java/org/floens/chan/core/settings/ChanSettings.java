@@ -88,6 +88,34 @@ public class ChanSettings {
         }
     }
 
+    public enum PostingTimeout implements OptionSettingItem {
+        THIRTY_SECONDS("30 seconds", 30_000L),
+        SIXTY_SECONDS("1 minute", 60_000L),
+        ONE_HUNDRED_EIGHTY("3 minutes", 180_000L),
+        THREE_HUNDRED("5 minutes", 300_000L);
+
+        String name;
+        Long timeInMs;
+
+        PostingTimeout(String name, Long timeInMs) {
+            this.name = name;
+            this.timeInMs = timeInMs;
+        }
+
+        @Override
+        public String getKey() {
+            return name().toLowerCase();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Long getTimeoutValue() {
+            return timeInMs;
+        }
+    }
+
     private static Proxy proxy;
 
     public static final BooleanSetting forceEnglishLocale;
@@ -160,6 +188,7 @@ public class ChanSettings {
     public static final LongSetting updateCheckInterval;
 
     public static final BooleanSetting crashReporting;
+    public static final OptionsSetting<PostingTimeout> postingTimeout;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -250,6 +279,7 @@ public class ChanSettings {
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
         crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
+        postingTimeout = new OptionsSetting<>(p, "posting_timeout", PostingTimeout.class, PostingTimeout.THIRTY_SECONDS);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

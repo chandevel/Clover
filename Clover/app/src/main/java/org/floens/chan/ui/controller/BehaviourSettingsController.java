@@ -28,10 +28,14 @@ import org.floens.chan.ui.helper.RefreshUIMessage;
 import org.floens.chan.ui.settings.BooleanSettingView;
 import org.floens.chan.ui.settings.IntegerSettingView;
 import org.floens.chan.ui.settings.LinkSettingView;
+import org.floens.chan.ui.settings.ListSettingView;
 import org.floens.chan.ui.settings.SettingView;
 import org.floens.chan.ui.settings.SettingsController;
 import org.floens.chan.ui.settings.SettingsGroup;
 import org.floens.chan.ui.settings.StringSettingView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -39,6 +43,7 @@ import static org.floens.chan.Chan.injector;
 
 public class BehaviourSettingsController extends SettingsController {
     private SettingView forceEnglishSetting;
+    private ListSettingView<ChanSettings.PostingTimeout> postingTimeoutSetting;
 
     public BehaviourSettingsController(Context context) {
         super(context);
@@ -62,6 +67,9 @@ public class BehaviourSettingsController extends SettingsController {
         super.onPreferenceChange(item);
         if (item == forceEnglishSetting) {
             Toast.makeText(context, R.string.setting_force_english_locale_toggle_notice,
+                    Toast.LENGTH_LONG).show();
+        } else if (item == postingTimeoutSetting) {
+            Toast.makeText(context, R.string.setting_posting_timeout_toggle_notice,
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -149,6 +157,9 @@ public class BehaviourSettingsController extends SettingsController {
                     ChanSettings.openLinkBrowser,
                     R.string.setting_open_link_browser, 0));
 
+            postingTimeoutSetting = addPostingTimeoutSetting();
+            post.add(postingTimeoutSetting);
+
             groups.add(post);
         }
 
@@ -167,6 +178,20 @@ public class BehaviourSettingsController extends SettingsController {
 
             groups.add(proxy);
         }
+    }
+
+    private ListSettingView<ChanSettings.PostingTimeout> addPostingTimeoutSetting() {
+        List<ListSettingView.Item> postTimeoutTypes = new ArrayList<>();
+
+        for (ChanSettings.PostingTimeout timeout : ChanSettings.PostingTimeout.values()) {
+            postTimeoutTypes.add(new ListSettingView.Item<>(timeout.getName(), timeout));
+        }
+
+        return new ListSettingView<>(
+                this,
+                ChanSettings.postingTimeout,
+                "Posting timeout",
+                postTimeoutTypes);
     }
 
     private void setupClearThreadHidesSetting(SettingsGroup post) {

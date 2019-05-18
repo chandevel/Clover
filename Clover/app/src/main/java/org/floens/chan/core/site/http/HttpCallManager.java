@@ -19,6 +19,7 @@ package org.floens.chan.core.site.http;
 
 
 import org.floens.chan.core.di.UserAgentProvider;
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteRequestModifier;
 
@@ -35,18 +36,18 @@ import okhttp3.Request;
  */
 @Singleton
 public class HttpCallManager {
-    private static final int TIMEOUT = 30000;
-
     private UserAgentProvider userAgentProvider;
     private OkHttpClient client;
 
     @Inject
     public HttpCallManager(UserAgentProvider userAgentProvider) {
         this.userAgentProvider = userAgentProvider;
+        long timeout = ChanSettings.postingTimeout.get().getTimeoutValue();
+
         client = new OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
+                .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
                 .build();
     }
 
