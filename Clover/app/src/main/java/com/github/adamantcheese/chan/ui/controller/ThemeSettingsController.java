@@ -92,7 +92,11 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         }
 
         @Override
-        public void onThumbnailClicked(PostImage postImage, ThumbnailView thumbnail) {
+        public void onPostLongClicked(Post post) {
+        }
+
+        @Override
+        public void onThumbnailClicked(Post post, PostImage postImage, ThumbnailView thumbnail) {
         }
 
         @Override

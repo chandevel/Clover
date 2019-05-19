@@ -50,10 +50,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.adamantcheese.github.chan.R;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-
-import com.adamantcheese.github.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -61,9 +60,9 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.FastTextView;
 import com.github.adamantcheese.chan.ui.text.FastTextViewMovementMethod;
+import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -127,6 +126,19 @@ public class PostCell extends LinearLayout implements PostCellInterface {
             }
         }
     };
+    private OnLongClickListener selfLongClicked = new OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            if (ignoreNextOnClick) {
+                ignoreNextOnClick = false;
+            } else {
+                callback.onPostLongClicked(post);
+            }
+
+            return true;
+        }
+    };
+
     private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
     private PostViewFastMovementMethod titleMovementMethod = new PostViewFastMovementMethod();
 
@@ -209,6 +221,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         });
 
         setOnClickListener(selfClicked);
+        setOnLongClickListener(selfLongClicked);
     }
 
     private void showOptions(View anchor, List<FloatingMenuItem> items,
@@ -483,6 +496,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
             // And this sets clickable to appropriate values again.
             comment.setOnClickListener(selfClicked);
+            comment.setOnLongClickListener(selfLongClicked);
 
             if (ChanSettings.tapNoReply.get()) {
                 title.setMovementMethod(titleMovementMethod);
@@ -490,7 +504,10 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         } else {
             comment.setText(commentText);
             comment.setOnClickListener(null);
+            comment.setOnLongClickListener(null);
             comment.setClickable(false);
+            comment.setLongClickable(false);
+
             // Sets focusable to auto, clickable and longclickable to false.
             comment.setMovementMethod(null);
 
