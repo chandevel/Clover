@@ -568,10 +568,10 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
                 watchManager.createPin(pinLoadable, post);
                 break;
             case POST_OPTION_OPEN_BROWSER:
-                AndroidUtils.openLink(loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post));
+                AndroidUtils.openLink(loadable.site.resolvable().desktopUrl(loadable, post));
                 break;
             case POST_OPTION_SHARE:
-                AndroidUtils.shareLink(loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post));
+                AndroidUtils.shareLink(loadable.site.resolvable().desktopUrl(loadable, post));
                 break;
             case POST_OPTION_REMOVE:
             case POST_OPTION_HIDE:

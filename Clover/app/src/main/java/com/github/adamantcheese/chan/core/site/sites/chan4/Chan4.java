@@ -80,9 +80,13 @@ public class Chan4 extends SiteBase {
         }
 
         @Override
-        public String desktopUrl(Loadable loadable, @Nullable Post post) {
+        public String desktopUrl(Loadable loadable, Post post) {
             if (loadable.isCatalogMode()) {
-                return "https://boards.4chan.org/" + loadable.board.code + "/";
+                if(post != null && post.no != 0) {
+                    return "https://boards.4chan.org/" + loadable.board.code + "/thread/" + post.no;
+                } else {
+                    return "https://boards.4chan.org/" + loadable.board.code + "/";
+                }
             } else if (loadable.isThreadMode()) {
                 String url = "https://boards.4chan.org/" + loadable.board.code + "/thread/" + loadable.no;
                 if (post != null) {

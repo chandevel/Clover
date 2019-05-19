@@ -243,7 +243,7 @@ public class BrowseController extends ThreadController implements
     private void handleShareAndOpenInBrowser(ThreadPresenter presenter, boolean share) {
         if (presenter.isBound()) {
             Loadable loadable = presenter.getLoadable();
-            String link = loadable.site.resolvable().desktopUrl(loadable, null);
+            String link = loadable.site.resolvable().desktopUrl(loadable, presenter.getChanThread().op);
 
             if (share) {
                 AndroidUtils.shareLink(link);

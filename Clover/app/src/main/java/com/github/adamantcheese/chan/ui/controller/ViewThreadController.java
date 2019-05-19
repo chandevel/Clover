@@ -119,13 +119,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(loadable, null);
+        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getDisplayingPosts().get(0));
         AndroidUtils.openLinkInBrowser((Activity) context, link);
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(loadable, null);
+        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getDisplayingPosts().get(0));
         AndroidUtils.shareLink(link);
     }
 

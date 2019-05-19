@@ -295,7 +295,7 @@ public class ChanSettings {
         postingTimeout = new OptionsSetting<>(p, "posting_timeout", PostingTimeout.class, PostingTimeout.THIRTY_SECONDS);
 
         reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
-        
+
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
         useRealGoogleCookies = new BooleanSetting(p, "use_real_google_cookies", false);
         googleCookie = new StringSetting(p, "google_cookie", "");
