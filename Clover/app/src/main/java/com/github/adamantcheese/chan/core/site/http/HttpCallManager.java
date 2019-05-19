@@ -16,10 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
-
 import android.support.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
 
@@ -34,16 +34,16 @@ import okhttp3.Request;
  * Manages the {@link HttpCall} executions.
  */
 public class HttpCallManager {
-    private static final int TIMEOUT = 30000;
-
     private OkHttpClient client;
 
     @Inject
     public HttpCallManager() {
+        long timeout = ChanSettings.postingTimeout.get().getTimeoutValue();
+
         client = new OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
+                .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
                 .build();
     }
 

@@ -666,4 +666,6 @@ Don't have a 4chan Pass?<br>
     <string name="captcha_layout_v2_captcha_request_is_already_in_progress" tools:ignore="MissingTranslation">Captcha request is already in progress</string>
     <string name="captcha_layout_v2_you_are_requesting_captcha_too_fast" tools:ignore="MissingTranslation">You are requesting captcha too fast</string>
     <string name="captcha_layout_v2_refresh_cookies" tools:ignore="MissingTranslation">Refresh cookies</string>
+
+    <string name="setting_posting_timeout_toggle_notice" tools:ignore="MissingTranslation">Posting timeout will be applied on the next app start</string>
 </resources>

@@ -88,6 +88,34 @@ public class ChanSettings {
         }
     }
 
+    public enum PostingTimeout implements OptionSettingItem {
+        THIRTY_SECONDS("30 seconds", 30_000L),
+        SIXTY_SECONDS("1 minute", 60_000L),
+        ONE_HUNDRED_EIGHTY("3 minutes", 180_000L),
+        THREE_HUNDRED("5 minutes", 300_000L);
+
+        String name;
+        Long timeInMs;
+
+        PostingTimeout(String name, Long timeInMs) {
+            this.name = name;
+            this.timeInMs = timeInMs;
+        }
+
+        @Override
+        public String getKey() {
+            return name().toLowerCase();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Long getTimeoutValue() {
+            return timeInMs;
+        }
+    }
+
     private static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/com.adamantcheese.github.chan_preferences.xml";
 
@@ -164,10 +192,11 @@ public class ChanSettings {
 
     public static final BooleanSetting reencodeHintShown;
 
-    public static final BooleanSetting crashReporting;
     public static final BooleanSetting useNewCaptchaWindow;
     public static final BooleanSetting useRealGoogleCookies;
     public static final StringSetting googleCookie;
+
+    public static final OptionsSetting<PostingTimeout> postingTimeout;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -263,9 +292,10 @@ public class ChanSettings {
 
         updateCheckTime = new LongSetting(p, "update_check_time", 0L);
 
-        reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
+        postingTimeout = new OptionsSetting<>(p, "posting_timeout", PostingTimeout.class, PostingTimeout.THIRTY_SECONDS);
 
-        crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
+        reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
+        
         useNewCaptchaWindow = new BooleanSetting(p, "use_new_captcha_window", true);
         useRealGoogleCookies = new BooleanSetting(p, "use_real_google_cookies", false);
         googleCookie = new StringSetting(p, "google_cookie", "");
