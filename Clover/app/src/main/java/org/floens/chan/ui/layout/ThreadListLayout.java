@@ -49,6 +49,7 @@ import org.floens.chan.ui.adapter.PostAdapter;
 import org.floens.chan.ui.adapter.PostsFilter;
 import org.floens.chan.ui.cell.PostCell;
 import org.floens.chan.ui.cell.PostCellInterface;
+import org.floens.chan.ui.cell.PostStubCell;
 import org.floens.chan.ui.cell.ThreadStatusCell;
 import org.floens.chan.ui.toolbar.Toolbar;
 import org.floens.chan.ui.view.FastScroller;
@@ -411,7 +412,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             case CARD:
                 if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
-                    return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+
+                    if (top instanceof PostStubCell) {
+                        // PostStubCell does not have grid_card_margin
+                        return top.getTop() != toolbarHeight() + dp(1);
+                    } else {
+                        return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+                    }
                 }
                 break;
         }
