@@ -49,6 +49,7 @@ import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
+import com.github.adamantcheese.chan.ui.cell.PostStubCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.FastScroller;
@@ -431,7 +432,13 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
             case CARD:
                 if (getTopAdapterPosition() == 0) {
                     View top = layoutManager.findViewByPosition(0);
-                    return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+
+                    if (top instanceof PostStubCell) {
+                        // PostStubCell does not have grid_card_margin
+                        return top.getTop() != toolbarHeight() + dp(1);
+                    } else {
+                        return top.getTop() != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+                    }
                 }
                 break;
         }
