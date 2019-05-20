@@ -339,13 +339,16 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
     }
 
     @Override
-    public void onVideoLoaded(MultiImageView multiImageView, boolean hasAudio) {
+    public void onVideoLoaded(MultiImageView multiImageView) {
+        callback.showVolumeMenuItem(false, muted);
+    }
+
+    @Override
+    public void onAudioLoaded(MultiImageView multiImageView) {
         PostImage currentPostImage = getCurrentPostImage();
         if (multiImageView.getPostImage() == currentPostImage) {
-            if (hasAudio) {
-                callback.showVolumeMenuItem(true, muted);
-                callback.setVolume(currentPostImage, muted);
-            }
+            callback.showVolumeMenuItem(true, muted);
+            callback.setVolume(currentPostImage, muted);
         }
     }
 

@@ -33,23 +33,12 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.adamantcheese.github.chan.R;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
-
-import com.adamantcheese.github.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
@@ -59,6 +48,16 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioListener;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +69,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class MultiImageView extends FrameLayout implements View.OnClickListener {
+public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener {
     public enum Mode {
         UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE
     }
@@ -417,10 +416,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                     Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(videoSource);
+            exoPlayer.addAudioListener(this);
+
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.MOVIE, exoVideoView);
-            callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(exoPlayer));
+            callback.onVideoLoaded(this);
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
 
@@ -439,7 +440,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 mp.setLooping(ChanSettings.videoAutoLoop.get());
                 mp.setVolume(0f, 0f);
                 onModeLoaded(Mode.MOVIE, videoView);
-                callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(mp));
+                callback.onVideoLoaded(this);
+
+                if (hasMediaPlayerAudioTracks(mp)) {
+                    callback.onAudioLoaded(this);
+                }
             });
 
             videoView.setOnErrorListener((mp, what, extra) -> {
@@ -456,6 +461,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 Logger.e(TAG, "Video view start error", e);
                 onVideoError();
             }
+        }
+    }
+
+    @Override
+    public void onAudioSessionId(int audioSessionId) {
+        if (exoPlayer.getAudioFormat() != null) {
+            callback.onAudioLoaded(this);
         }
     }
 
@@ -479,10 +491,6 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             // Return a default value.
             return true;
         }
-    }
-
-    private boolean hasMediaPlayerAudioTracks(ExoPlayer mediaPlayer) {
-        return mediaPlayer.getAudioComponent() != null;
     }
 
     private void onVideoError() {
@@ -668,9 +676,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
         void onVideoError(MultiImageView multiImageView);
 
-        void onVideoLoaded(MultiImageView multiImageView, boolean hasAudio);
+        void onVideoLoaded(MultiImageView multiImageView);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
+
+        void onAudioLoaded(MultiImageView multiImageView);
     }
 
     public static class NoMusicServiceCommandContext extends ContextWrapper {
