@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -39,6 +42,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
@@ -69,7 +73,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 
-public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener {
+public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener, LifecycleObserver {
     public enum Mode {
         UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE
     }
@@ -82,6 +86,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     @Inject
     ImageLoader imageLoader;
 
+    private Context context;
     private ImageView playView;
 
     private PostImage postImage;
@@ -111,15 +116,24 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     public MultiImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        this.context = context;
 
         inject(this);
-
         setOnClickListener(this);
 
         playView = new ImageView(getContext());
         playView.setVisibility(View.GONE);
         playView.setImageResource(R.drawable.ic_play_circle_outline_white_48dp);
         addView(playView, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+
+        if (context instanceof StartActivity) {
+            ((StartActivity) context).getLifecycle().addObserver(this);
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    public void onPause() {
+        pauseVideo();
     }
 
     public void bindPostImage(PostImage postImage, Callback callback) {
@@ -182,6 +196,14 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         return gif;
     }
 
+    private void pauseVideo() {
+        if (exoPlayer != null) {
+            exoPlayer.setPlayWhenReady(false);
+        } else if (videoView != null) {
+            videoView.pause();
+        }
+    }
+
     public void setVolume(boolean muted) {
         final float volume = muted ? 0f : 1f;
         if (exoPlayer != null) {
@@ -203,6 +225,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         cancelLoad();
+
+        if (context instanceof StartActivity) {
+            ((StartActivity) context).getLifecycle().removeObserver(this);
+        }
+
+        context = null;
     }
 
     private void setThumbnail(String thumbnailUrl, boolean center) {
