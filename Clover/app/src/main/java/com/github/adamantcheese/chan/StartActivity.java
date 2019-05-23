@@ -366,6 +366,13 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         return stackTop().dispatchKeyEvent(event) || super.dispatchKeyEvent(event);
     }
 
+    public ViewThreadController currentViewThreadController() {
+        for (Controller c : mainNavigationController.childControllers) {
+            if (c instanceof ViewThreadController) return (ViewThreadController) c;
+        }
+        return null;
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

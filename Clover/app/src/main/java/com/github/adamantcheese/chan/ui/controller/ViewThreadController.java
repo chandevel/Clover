@@ -122,7 +122,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         threadLayout.getPresenter().requestData();
     }
 
-    private void showArchives(ToolbarMenuSubItem item) {
+    public void showArchives(ToolbarMenuSubItem item) {
         @SuppressLint("InflateParams") final ArchivesLayout dialogView =
                 (ArchivesLayout) LayoutInflater.from(context)
                         .inflate(R.layout.layout_archives, null);

@@ -40,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.adamantcheese.github.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -106,6 +107,7 @@ public class ThreadLayout extends CoordinatorLayout implements
     private HidingFloatingActionButton replyButton;
     private ThreadListLayout threadListLayout;
     private LinearLayout errorLayout;
+    private boolean archiveButton;
 
     private TextView errorText;
     private Button errorRetryButton;
@@ -185,7 +187,11 @@ public class ThreadLayout extends CoordinatorLayout implements
     @Override
     public void onClick(View v) {
         if (v == errorRetryButton) {
-            presenter.requestData();
+            if (!archiveButton) {
+                presenter.requestData();
+            } else {
+                ((StartActivity) getContext()).currentViewThreadController().showArchives(null);
+            }
         } else if (v == replyButton) {
             threadListLayout.openReply(true);
         }
@@ -269,6 +275,10 @@ public class ThreadLayout extends CoordinatorLayout implements
         } else {
             switchVisible(Visible.ERROR);
             errorText.setText(errorMessage);
+            if (error.getErrorMessage() == R.string.thread_load_failed_not_found) {
+                errorRetryButton.setText(R.string.thread_show_archives);
+                archiveButton = true;
+            }
         }
     }
 
