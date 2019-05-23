@@ -177,10 +177,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
         AndroidUtils.hideKeyboard(this);
 
-        // ???
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
-        }
+        anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
 
         animateOut(() -> removeFromParentView(this));
     }
@@ -191,9 +188,7 @@ public class BrowseBoardsFloatingMenu extends FrameLayout implements BoardsMenuP
 
         // View setup
         recyclerView.setBackgroundColor(AndroidUtils.getAttrColor(getContext(), R.attr.backcolor));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            recyclerView.setElevation(dp(ELEVATION_DP));
-        }
+        recyclerView.setElevation(dp(ELEVATION_DP));
 
         // View attaching
         int recyclerWidth = Math.max(

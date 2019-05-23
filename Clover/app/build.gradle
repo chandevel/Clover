@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 22
         targetSdkVersion 28
 
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch

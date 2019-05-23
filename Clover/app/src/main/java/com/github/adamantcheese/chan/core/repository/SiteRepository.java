@@ -240,6 +240,15 @@ public class SiteRepository {
             }
             sitesById = byId;
         }
+
+        public Site getForClass(Class<? extends Site> clazz) {
+            for (Site site : sites) {
+                if (site.getClass().equals(clazz)) {
+                    return site;
+                }
+            }
+            return null;
+        }
     }
 
     private class SiteConfigSettingsHolder {

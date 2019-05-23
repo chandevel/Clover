@@ -368,11 +368,7 @@ public class AndroidUtils {
     }
 
     public static void setRoundItemBackground(View view) {
-        if (isLollipop()) {
-            setRoundItemBackgroundLollipop(view);
-        } else {
-            view.setBackgroundResource(R.drawable.item_background);
-        }
+        view.setBackgroundResource(R.drawable.item_background);
     }
 
     public static List<View> findViewsById(ViewGroup root, int id) {
@@ -401,23 +397,6 @@ public class AndroidUtils {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private static void setRoundItemBackgroundLollipop(View view) {
-        view.setBackground(getAttrDrawable(view.getContext(), android.R.attr.selectableItemBackgroundBorderless));
-    }
-
-    public static boolean isApi16() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-    }
-
-    public static boolean isLollipop() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    }
-
-    public static boolean isMarshmallow() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
-    }
-
     public static void fixSnackbarText(Context context, Snackbar snackbar) {
         ((TextView) snackbar.getView().findViewById(R.id.snackbar_text)).setTextColor(0xffffffff);
         snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
@@ -433,16 +412,14 @@ public class AndroidUtils {
     public static void animateStatusBar(Window window, boolean in, final int originalColor, int duration) {
         ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);
         statusBar.addUpdateListener(animation -> {
-            if (Build.VERSION.SDK_INT >= 21) { // Make lint happy
-                float progress = (float) animation.getAnimatedValue();
-                if (progress == 0f) {
-                    window.setStatusBarColor(originalColor);
-                } else {
-                    int r = (int) ((1f - progress) * Color.red(originalColor));
-                    int g = (int) ((1f - progress) * Color.green(originalColor));
-                    int b = (int) ((1f - progress) * Color.blue(originalColor));
-                    window.setStatusBarColor(Color.argb(255, r, g, b));
-                }
+            float progress = (float) animation.getAnimatedValue();
+            if (progress == 0f) {
+                window.setStatusBarColor(originalColor);
+            } else {
+                int r = (int) ((1f - progress) * Color.red(originalColor));
+                int g = (int) ((1f - progress) * Color.green(originalColor));
+                int b = (int) ((1f - progress) * Color.blue(originalColor));
+                window.setStatusBarColor(Color.argb(255, r, g, b));
             }
         });
         statusBar.setDuration(duration).setInterpolator(new LinearInterpolator());

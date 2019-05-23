@@ -115,13 +115,11 @@ public class ThemeHelper {
         updateCurrentTheme();
         context.setTheme(theme.resValue);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            context.getWindow().setStatusBarColor(theme.primaryColor.dark);
-            context.getWindow().setNavigationBarColor(0xff000000);
+        context.getWindow().setStatusBarColor(theme.primaryColor.dark);
+        context.getWindow().setNavigationBarColor(0xff000000);
 
-            Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_task_description);
-            context.setTaskDescription(new ActivityManager.TaskDescription(null, icon, theme.primaryColor.color));
-        }
+        Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_task_description);
+        context.setTaskDescription(new ActivityManager.TaskDescription(null, icon, theme.primaryColor.color));
     }
 
     public PrimaryColor getColor(String name, PrimaryColor defaultColor) {

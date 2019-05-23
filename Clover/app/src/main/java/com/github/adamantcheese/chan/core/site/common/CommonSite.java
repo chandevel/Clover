@@ -526,6 +526,10 @@ public abstract class CommonSite extends SiteBase {
         }
 
         @Override
+        public void archives(ArchiveRequestListener archivesListener) {
+        }
+
+        @Override
         public void archive(Board board, ArchiveListener archiveListener) {
         }
 

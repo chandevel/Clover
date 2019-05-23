@@ -102,11 +102,9 @@ public class ImageOptionsController extends Controller implements
 
         presenter.loadImagePreview();
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            statusBarColorPrevious = getWindow().getStatusBarColor();
-            if (statusBarColorPrevious != 0) {
-                AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
-            }
+        statusBarColorPrevious = getWindow().getStatusBarColor();
+        if (statusBarColorPrevious != 0) {
+            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 
@@ -114,10 +112,8 @@ public class ImageOptionsController extends Controller implements
     public void stopPresenting() {
         super.stopPresenting();
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (statusBarColorPrevious != 0) {
-                AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
-            }
+        if (statusBarColorPrevious != 0) {
+            AndroidUtils.animateStatusBar(getWindow(), true, statusBarColorPrevious, TRANSITION_DURATION);
         }
     }
 

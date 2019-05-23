@@ -173,6 +173,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
     <string name="thread_view_archive">Archive</string>
+    <string name="thread_show_archives" tools:ignore="MissingTranslation">Archives</string>
 
     <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
     <string name="thread_empty_setup_title">Nothing to show</string>

@@ -111,10 +111,8 @@ public class Toolbar extends LinearLayout implements
         navigationItemContainer.setCallback(this);
         navigationItemContainer.setArrowMenu(arrowMenuDrawable);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (getElevation() == 0f) {
-                setElevation(dp(4f));
-            }
+        if (getElevation() == 0f) {
+            setElevation(dp(4f));
         }
     }
 

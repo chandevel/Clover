@@ -18,8 +18,8 @@ package com.github.adamantcheese.chan.core.di;
 
 import android.content.Context;
 
-import org.codejargon.feather.Provides;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
@@ -29,6 +29,10 @@ import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.pool.ChanLoaderFactory;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
+import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
+
+import org.codejargon.feather.Provides;
 
 import javax.inject.Singleton;
 
@@ -97,5 +101,12 @@ public class ManagerModule {
     @Singleton
     public PageRequestManager providePageRequestManager() {
         return new PageRequestManager();
+    }
+
+    @Provides
+    @Singleton
+    public ArchivesManager provideArchivesManager(SiteRepository siteRepository) {
+        //archives are only for 4chan
+        return new ArchivesManager(siteRepository.all().getForClass(Chan4.class));
     }
 }

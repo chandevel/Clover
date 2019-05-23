@@ -60,12 +60,9 @@ public class GenericWebViewAuthenticationLayout extends WebView implements Authe
 
         authentication = site.actions().postAuthenticate();
 
-        // Older versions just have to manually go back or something.
-        if (Build.VERSION.SDK_INT >= 17) {
-            WebSettings settings = getSettings();
-            settings.setJavaScriptEnabled(true);
-            addJavascriptInterface(new WebInterface(this), "WebInterface");
-        }
+        WebSettings settings = getSettings();
+        settings.setJavaScriptEnabled(true);
+        addJavascriptInterface(new WebInterface(this), "WebInterface");
     }
 
     @Override

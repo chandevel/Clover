@@ -147,12 +147,6 @@ public class ImportExportSettingsController extends SettingsController implement
             }
         }
 
-        if (!AndroidUtils.isApi16()) {
-            // we can't request READ_EXTERNAL_STORAGE permission on devices with API level below 16
-            onPermissionGrantedForDirectoryCreation();
-            return;
-        }
-
         // Ask the user's permission to check whether the default directory exists and create it if it doesn't
         new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.default_directory_may_not_exist_title))
@@ -177,12 +171,6 @@ public class ImportExportSettingsController extends SettingsController implement
         String state = Environment.getExternalStorageState();
         if (!Environment.MEDIA_MOUNTED.equals(state)) {
             showMessage(context.getString(R.string.error_external_storage_is_not_mounted));
-            return;
-        }
-
-        if (!AndroidUtils.isApi16()) {
-            // we can't request READ_EXTERNAL_STORAGE permission on devices with API level below 16
-            onPermissionGrantedForImport();
             return;
         }
 

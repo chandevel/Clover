@@ -501,18 +501,13 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
     private boolean hasMediaPlayerAudioTracks(MediaPlayer mediaPlayer) {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                for (MediaPlayer.TrackInfo trackInfo : mediaPlayer.getTrackInfo()) {
-                    if (trackInfo.getTrackType() == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
-                        return true;
-                    }
+            for (MediaPlayer.TrackInfo trackInfo : mediaPlayer.getTrackInfo()) {
+                if (trackInfo.getTrackType() == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+                    return true;
                 }
-
-                return false;
-            } else {
-                // It'll just show the icon without doing anything. Remove when 4.0 is dropped.
-                return true;
             }
+
+            return false;
         } catch (RuntimeException e) {
             // getTrackInfo() raises an IllegalStateException on some devices.
             // Samsung even throws a RuntimeException.

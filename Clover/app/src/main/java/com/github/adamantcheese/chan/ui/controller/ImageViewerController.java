@@ -391,9 +391,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
             return; // TODO
         }
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            statusBarColorPrevious = getWindow().getStatusBarColor();
-        }
+        statusBarColorPrevious = getWindow().getStatusBarColor();
 
         setBackgroundAlpha(0f);
 
@@ -528,24 +526,20 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     private void setBackgroundAlpha(float alpha) {
         navigationController.view.setBackgroundColor(Color.argb((int) (alpha * TRANSITION_FINAL_ALPHA * 255f), 0, 0, 0));
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (alpha == 0f) {
-                setStatusBarColor(statusBarColorPrevious);
-            } else {
-                int r = (int) ((1f - alpha) * Color.red(statusBarColorPrevious));
-                int g = (int) ((1f - alpha) * Color.green(statusBarColorPrevious));
-                int b = (int) ((1f - alpha) * Color.blue(statusBarColorPrevious));
-                setStatusBarColor(Color.argb(255, r, g, b));
-            }
+        if (alpha == 0f) {
+            setStatusBarColor(statusBarColorPrevious);
+        } else {
+            int r = (int) ((1f - alpha) * Color.red(statusBarColorPrevious));
+            int g = (int) ((1f - alpha) * Color.green(statusBarColorPrevious));
+            int b = (int) ((1f - alpha) * Color.blue(statusBarColorPrevious));
+            setStatusBarColor(Color.argb(255, r, g, b));
         }
 
         setToolbarBackgroundAlpha(alpha);
     }
 
     private void setStatusBarColor(int color) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setStatusBarColor(color);
-        }
+        getWindow().setStatusBarColor(color);
     }
 
     private void setToolbarBackgroundAlpha(float alpha) {

@@ -33,18 +33,7 @@ public class Volley {
 
     public static RequestQueue newRequestQueue(Context context, String userAgent, HttpStack stack, File cacheDir, int diskCacheSize) {
         if (stack == null) {
-            if (Build.VERSION.SDK_INT >= 9) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-                    // Use a socket factory that removes sslv3
-                    stack = new HurlStack(userAgent, null, new NoSSLv3Compat.NoSSLv3Factory());
-                } else {
-                    stack = new HurlStack(userAgent);
-                }
-            } else {
-                // Prior to Gingerbread, HttpUrlConnection was unreliable.
-                // See: http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-                stack = new HttpClientStack(AndroidHttpClient.newInstance(userAgent));
-            }
+            stack = new HurlStack(userAgent);
         }
 
         Network network = new BasicNetwork(stack);

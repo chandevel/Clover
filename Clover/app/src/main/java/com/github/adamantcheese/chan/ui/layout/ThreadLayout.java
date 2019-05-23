@@ -24,6 +24,7 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -72,7 +73,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isMarshmallow;
 
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
@@ -677,7 +677,7 @@ public class ThreadLayout extends CoordinatorLayout implements
         View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
         TextView tv = view.findViewById(R.id.feature);
 
-        if (isMarshmallow()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // This unicode symbol crashes app on APIs below 23
             // https://github.com/Floens/Clover/issues/677
             tv.setText(R.string.thread_empty_setup_feature);

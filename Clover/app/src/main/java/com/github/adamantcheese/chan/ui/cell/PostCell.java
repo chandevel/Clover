@@ -320,7 +320,6 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public boolean hasOverlappingRendering() {
         return false;
     }

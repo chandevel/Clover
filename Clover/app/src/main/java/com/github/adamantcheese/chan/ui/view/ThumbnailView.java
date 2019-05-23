@@ -125,11 +125,7 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
 
             foregroundCalculate = clickable;
             if (clickable) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    foreground = getContext().getDrawable(R.drawable.item_background);
-                } else {
-                    foreground = getResources().getDrawable(R.drawable.item_background);
-                }
+                foreground = getResources().getDrawable(R.drawable.item_background);
                 foreground.setCallback(this);
                 if (foreground.isStateful()) {
                     foreground.setState(getDrawableState());
@@ -280,7 +276,6 @@ public class ThumbnailView extends View implements ImageLoader.ImageListener {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void drawableHotspotChanged(float x, float y) {
         super.drawableHotspotChanged(x, y);

@@ -170,7 +170,6 @@ public class PostStubCell extends RelativeLayout implements PostCellInterface, V
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public boolean hasOverlappingRendering() {
         return false;
     }

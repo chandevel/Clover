@@ -275,13 +275,12 @@ public class BoardSetupController extends Controller implements View.OnClickList
             DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_hint));
             reorder.setImageDrawable(drawable);
 
-            View.OnTouchListener l = (v, event) -> {
+            reorder.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     itemTouchHelper.startDrag(SavedBoardCell.this);
                 }
                 return false;
-            };
-            reorder.setOnTouchListener(l);
+            });
         }
     }
 }

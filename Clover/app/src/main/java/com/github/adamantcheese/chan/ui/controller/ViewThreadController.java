@@ -16,10 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.adamantcheese.github.chan.R;
@@ -32,6 +35,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
+import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
@@ -45,7 +49,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
-public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback {
+public class ViewThreadController extends ThreadController implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback {
     private static final int PIN_ID = 1;
 
     @Inject
@@ -85,6 +89,7 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         menuOverflowBuilder
                 .withSubItem(R.string.action_search, this::searchClicked)
                 .withSubItem(R.string.action_reload, this::reloadClicked)
+                .withSubItem(R.string.thread_show_archives, this::showArchives)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
@@ -115,6 +120,21 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void reloadClicked(ToolbarMenuSubItem item) {
         threadLayout.getPresenter().requestData();
+    }
+
+    private void showArchives(ToolbarMenuSubItem item) {
+        @SuppressLint("InflateParams") final ArchivesLayout dialogView =
+                (ArchivesLayout) LayoutInflater.from(context)
+                        .inflate(R.layout.layout_archives, null);
+        dialogView.setBoard(threadLayout.getPresenter().getLoadable().board);
+        dialogView.setCallback(this);
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(dialogView)
+                .setTitle(R.string.thread_show_archives)
+                .create();
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
@@ -198,13 +218,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
             ((BrowseController) doubleNavigationController.getLeftController().childControllers.get(0)).setBoard(catalogLoadable.board);
         } else {
             BrowseController browseController = null;
-            for(Controller c : navigationController.childControllers) {
-                if (c instanceof  BrowseController) {
+            for (Controller c : navigationController.childControllers) {
+                if (c instanceof BrowseController) {
                     browseController = (BrowseController) c;
                     break;
                 }
             }
-            if(browseController != null) {
+            if (browseController != null) {
                 browseController.setBoard(catalogLoadable.board);
             }
             navigationController.popController();
@@ -309,5 +329,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
         Drawable drawable = pinned ? white : outline;
 
         navigation.findItem(PIN_ID).setImage(drawable, animated);
+    }
+
+    @Override
+    public void openArchive(Pair<String, String> domainNamePair) {
+        Loadable loadable = threadLayout.getPresenter().getLoadable();
+        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getDisplayingPosts().get(0));
+        link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
+        AndroidUtils.openLinkInBrowser((Activity) context, link);
     }
 }

@@ -190,7 +190,6 @@ public class CardPostCell extends CardView implements PostCellInterface, View.On
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public boolean hasOverlappingRendering() {
         return false;
     }

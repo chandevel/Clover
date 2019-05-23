@@ -16,13 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
-import android.support.annotation.Nullable;
+import android.util.JsonReader;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.settings.OptionSettingItem;
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
@@ -82,7 +84,7 @@ public class Chan4 extends SiteBase {
         @Override
         public String desktopUrl(Loadable loadable, Post post) {
             if (loadable.isCatalogMode()) {
-                if(post != null && post.no != 0) {
+                if (post != null && post.no != 0) {
                     return "https://boards.4chan.org/" + loadable.board.code + "/thread/" + post.no;
                 } else {
                     return "https://boards.4chan.org/" + loadable.board.code + "/";
@@ -359,6 +361,55 @@ public class Chan4 extends SiteBase {
                 Logger.e(TAG, "Failed to get threads for board " + board.code);
                 listener.onPagesReceived(board, new Chan4PagesRequest.Pages(new ArrayList<>()));
             }));
+        }
+
+        @Override
+        public void archives(ArchiveRequestListener archivesListener) {
+            requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>("https://mayhemydg.github.io/archives.json/archives.json",
+                    archivesListener::onArchivesReceived,
+                    (error) -> {
+                        Logger.e(TAG, "Failed to get archives for 4Chan");
+                        archivesListener.onArchivesReceived(new ArrayList<>());
+                    }) {
+                @Override
+                public List<ArchivesManager.Archives> readJson(JsonReader reader) throws Exception {
+                    List<ArchivesManager.Archives> archives = new ArrayList<>();
+
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        ArchivesManager.Archives a = new ArchivesManager.Archives();
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            switch (reader.nextName()) {
+                                case "name":
+                                    a.name = reader.nextString();
+                                    break;
+                                case "domain":
+                                    a.domain = reader.nextString();
+                                    break;
+                                case "boards":
+                                    List<String> b = new ArrayList<>();
+                                    reader.beginArray();
+                                    while (reader.hasNext()) {
+                                        b.add(reader.nextString());
+                                    }
+                                    reader.endArray();
+                                    a.boards = b;
+                                    break;
+                                default:
+                                    reader.skipValue();
+                                    break;
+                            }
+                        }
+                        reader.endObject();
+                        archives.add(a);
+                    }
+                    reader.endArray();
+
+                    return archives;
+                }
+            });
         }
 
         @Override
