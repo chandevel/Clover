@@ -30,6 +30,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
+import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
@@ -139,13 +140,13 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getDisplayingPosts().get(0));
+        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().op);
         AndroidUtils.openLinkInBrowser((Activity) context, link);
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getDisplayingPosts().get(0));
+        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getPresenter().getChanThread().op);
         AndroidUtils.shareLink(link);
     }
 
@@ -334,7 +335,8 @@ public class ViewThreadController extends ThreadController implements ThreadLayo
     @Override
     public void openArchive(Pair<String, String> domainNamePair) {
         Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.site.resolvable().desktopUrl(loadable, threadLayout.getDisplayingPosts().get(0));
+        Post tempOP = new Post.Builder().board(loadable.board).id(loadable.no).opId(loadable.no).setUnixTimestampSeconds(1).comment("").build();
+        String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
         link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
         AndroidUtils.openLinkInBrowser((Activity) context, link);
     }

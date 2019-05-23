@@ -368,7 +368,14 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
 
     public ViewThreadController currentViewThreadController() {
         for (Controller c : mainNavigationController.childControllers) {
-            if (c instanceof ViewThreadController) return (ViewThreadController) c;
+            if (c instanceof ViewThreadController) {
+                return (ViewThreadController) c;
+            } else if (c instanceof ThreadSlideController) {
+                ThreadSlideController controller = (ThreadSlideController) c;
+                if(controller.getRightController() instanceof ViewThreadController) {
+                    return (ViewThreadController) controller.getRightController();
+                }
+            }
         }
         return null;
     }
