@@ -258,9 +258,6 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
   <plurals name="watch_title">
     <item quantity="other">Watching %d threads</item>
   </plurals>
-  <plurals name="watch_new">
-    <item quantity="other">%d new posts</item>
-  </plurals>
   <plurals name="watch_new_quotes">
     <item quantity="other">%d new posts quoting you</item>
   </plurals>

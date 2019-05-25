@@ -267,9 +267,6 @@ Solusi adalah menggunakan pemutar media eksternal dengan dekoder perangkat lunak
     <plurals name="watch_title">
         <item quantity="other">Menonton %d utas</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="other">%d posting baru</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="other">%d posting baru yang mengutip Anda</item>
     </plurals>

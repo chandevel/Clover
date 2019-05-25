@@ -273,10 +273,6 @@ Ative \"Abrir videos em um player externo\" nas configurações para abrir video
         <item quantity="one">Observando um thread</item>
         <item quantity="other">Observando %d threads</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="one">%d novo post</item>
-        <item quantity="other">%d novos posts</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d novo post citando você</item>
         <item quantity="other">%d novos posts te citando</item>

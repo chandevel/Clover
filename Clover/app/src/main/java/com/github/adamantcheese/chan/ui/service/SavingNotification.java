@@ -39,8 +39,8 @@ public class SavingNotification extends Service {
     public static final String TOTAL_TASKS_KEY = "total_tasks";
     private static final String CANCEL_KEY = "cancel";
 
-    private static final int NOTIFICATION_ID = 3;
-    private static final String NOTIFICATION_NAME = "Save notification";
+    private String NOTIFICATION_ID_STR = "3";
+    private int NOTIFICATION_ID = 3;
 
     private NotificationManager notificationManager;
 
@@ -59,7 +59,7 @@ public class SavingNotification extends Service {
         super.onCreate();
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(new NotificationChannel(String.valueOf(NOTIFICATION_ID), NOTIFICATION_NAME, NotificationManager.IMPORTANCE_LOW));
+            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, "Save notification", NotificationManager.IMPORTANCE_LOW));
         }
     }
 
@@ -106,7 +106,7 @@ public class SavingNotification extends Service {
                 .setContentIntent(pendingIntent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(String.valueOf(NOTIFICATION_ID));
+            builder.setChannelId(NOTIFICATION_ID_STR);
         }
 
         return builder.build();

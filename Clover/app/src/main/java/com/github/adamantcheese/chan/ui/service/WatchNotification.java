@@ -115,9 +115,13 @@ public class WatchNotification extends Service {
         boolean notifyQuotesOnly = ChanSettings.watchNotifyMode.get().equals("quotes");
         boolean soundQuotesOnly = ChanSettings.watchSound.get().equals("quotes");
 
+        //A list of unviewed posts
         List<Post> unviewedPosts = new ArrayList<>();
+        //A list of posts that quote the user
         List<Post> listQuoting = new ArrayList<>();
+        //A list of pins that aren't errored or unwatched
         List<Pin> pins = new ArrayList<>();
+        //A list of pins that had new posts in them, or had new quotes in them, depending on settings
         List<Pin> subjectPins = new ArrayList<>();
 
         boolean light = false;
@@ -195,7 +199,7 @@ public class WatchNotification extends Service {
                 if (listQuoting.size() > 0) {
                     message = getResources().getQuantityString(R.plurals.watch_new_quoting, unviewedPosts.size(), unviewedPosts.size(), listQuoting.size());
                 } else {
-                    message = getResources().getQuantityString(R.plurals.watch_new, unviewedPosts.size(), unviewedPosts.size());
+                    message = getResources().getQuantityString(R.plurals.thread_new_posts, unviewedPosts.size(), unviewedPosts.size());
                 }
             }
 
@@ -216,11 +220,11 @@ public class WatchNotification extends Service {
 
                 // Replace >>123456789 with >789 to shorten the notification
                 // Also replace spoilered shit with █
-                // All spans are deleted by the replaceAll call and you can't fix it easily so this will have to do
+                // All spans are deleted by the replaceAll call and you can't modify their ranges easily so this will have to do
                 Editable toFix = new SpannableStringBuilder(comment);
                 PostLinkable[] spans = toFix.getSpans(0, comment.length(), PostLinkable.class);
                 for (PostLinkable span : spans) {
-                    if (span.type == PostLinkable.Type.SPOILER && !span.getSpoilerState()) {
+                    if (span.type == PostLinkable.Type.SPOILER) {
                         int start = toFix.getSpanStart(span);
                         int end = toFix.getSpanEnd(span);
 

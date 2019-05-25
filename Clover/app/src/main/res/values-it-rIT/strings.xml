@@ -274,10 +274,6 @@ Abilita \"Riproduci video con un lettore esterno\" nelle impostazioni per riprod
         <item quantity="one">Watching one thread</item>
         <item quantity="other">Watching %d threads</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="one">%d nuovo post</item>
-        <item quantity="other">%d nuovi post</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d new post quoting you</item>
         <item quantity="other">%d new posts quoting you</item>

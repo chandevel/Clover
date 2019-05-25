@@ -272,10 +272,6 @@ Vi povas instali eksteran videoludilon, kiu havas programaran malkodilon kaj ŝa
         <item quantity="one">Atentanta unun fadenon</item>
         <item quantity="other">Atentanta %d fadenojn</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="one">%d nova afiŝo</item>
-        <item quantity="other">%d novaj afiŝoj</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d nova afiŝo citanta vin</item>
         <item quantity="other">%d novaj afiŝoj citantaj vin</item>

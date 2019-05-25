@@ -272,10 +272,6 @@ Eine Problemumgehung besteht darin, einen externen Media Player mit einem Softwa
         <item quantity="one">Ein Thread gesehen</item>
         <item quantity="other">%d Theads ansehen</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="one">%d neu Beitrag</item>
-        <item quantity="other">%d neu Beiträge</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d neue Beitrag zitieren Sie</item>
         <item quantity="other">%d neue Beiträge zitieren Sie</item>

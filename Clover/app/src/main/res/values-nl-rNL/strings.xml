@@ -272,10 +272,6 @@ Zet \"Speel video\'s af met een externe mediaspeler\" aan in de instellingen om 
         <item quantity="one">Eén thread aan het volgen</item>
         <item quantity="other">%d threads aan het volgen</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="one">%d nieuwe post</item>
-        <item quantity="other">%d nieuwe posts</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d nieuwe post die jou citeert</item>
         <item quantity="other">%d nieuwe posts die jou citeren</item>

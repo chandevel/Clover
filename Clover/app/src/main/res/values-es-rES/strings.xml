@@ -276,10 +276,6 @@ Active \"Reproducir videos con reproductor externo\" En las configuraciones"</st
         <item quantity="one">Observando un hilo</item>
         <item quantity="other">Observando %d hilos</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="one">%d nueva respuesta</item>
-        <item quantity="other">%d nueva respuestas</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d nueva respuesta mencionandote</item>
         <item quantity="other">%d nuevas respuestas mencionandote</item>

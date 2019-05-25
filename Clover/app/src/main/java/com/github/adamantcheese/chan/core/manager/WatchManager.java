@@ -70,6 +70,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
  */
 public class WatchManager implements WakeManager.Wakeable {
     private static final String TAG = "WatchManager";
+    private static final Intent WATCH_NOTIFICATION_INTENT = new Intent(getAppContext(), WatchNotification.class);
 
     enum IntervalType {
         /**
@@ -467,9 +468,9 @@ public class WatchManager implements WakeManager.Wakeable {
         if (watchEnabled && backgroundEnabled) {
             // Also calls onStartCommand, which updates the notification with new info
             //this might not be the right way to do it
-            getAppContext().startService(new Intent(getAppContext(), WatchNotification.class));
+            getAppContext().startService(WATCH_NOTIFICATION_INTENT);
         } else {
-            getAppContext().stopService(new Intent(getAppContext(), WatchNotification.class));
+            getAppContext().stopService(WATCH_NOTIFICATION_INTENT);
         }
     }
 

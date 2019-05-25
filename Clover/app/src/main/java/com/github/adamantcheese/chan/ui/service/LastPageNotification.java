@@ -35,8 +35,7 @@ public class LastPageNotification extends Service {
     private Random random = new Random();
 
     private NotificationManager notificationManager;
-    private int NOTIFICATION_ID = 4;
-    private String NOTIFICATION_NAME = "Last page notification";
+    private String NOTIFICATION_ID = "4";
 
     @Inject
     WatchManager watchManager;
@@ -53,7 +52,7 @@ public class LastPageNotification extends Service {
         inject(this);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel alert = new NotificationChannel(String.valueOf(NOTIFICATION_ID), NOTIFICATION_NAME, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID, "Last page notification", NotificationManager.IMPORTANCE_HIGH);
             alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -98,7 +97,7 @@ public class LastPageNotification extends Service {
                 .setAutoCancel(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(String.valueOf(NOTIFICATION_ID));
+            builder.setChannelId(NOTIFICATION_ID);
         }
 
         return builder.build();

@@ -280,10 +280,6 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <item quantity="one">Watching one thread</item>
     <item quantity="other">Watching %d threads</item>
   </plurals>
-  <plurals name="watch_new">
-    <item quantity="one">%d new post</item>
-    <item quantity="other">%d new posts</item>
-  </plurals>
   <plurals name="watch_new_quotes">
     <item quantity="one">%d new post quoting you</item>
     <item quantity="other">%d new posts quoting you</item>

@@ -300,12 +300,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="many">Слежу за %d тредами</item>
         <item quantity="other">Слежу за %d тредами</item>
     </plurals>
-    <plurals name="watch_new">
-        <item quantity="one">%d новый пост</item>
-        <item quantity="few">%d новых поста</item>
-        <item quantity="many">%d новых постов</item>
-        <item quantity="other">%d новых постов</item>
-    </plurals>
     <plurals name="watch_new_quotes">
         <item quantity="one">%d новый пост, цитирующий вас</item>
         <item quantity="few">%d новых поста, цитирующие вас</item>
