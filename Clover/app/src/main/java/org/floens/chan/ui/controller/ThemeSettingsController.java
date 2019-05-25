@@ -209,7 +209,7 @@ public class ThemeSettingsController extends Controller implements View.OnClickL
         Theme selectedTheme = themeHelper.getThemes().get(currentItem);
         ThemeHelper.PrimaryColor selectedColor = selectedPrimaryColors.get(currentItem);
         themeHelper.changeTheme(selectedTheme, selectedColor, selectedAccentColor);
-        ((StartActivity) context).restart();
+        ((StartActivity) context).restartApp();
     }
 
     private void showAccentColorPicker() {
