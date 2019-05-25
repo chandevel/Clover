@@ -362,20 +362,8 @@ public class BoardSetupPresenter implements Observer {
 
         @Override
         public int compare(BoardSuggestion o1, BoardSuggestion o2) {
-            if (o1 == null && o2 == null) {
-                return 0;
-            } else if (o1 == null) {
-                return -1;
-            } else if (o2 == null) {
-                return 1;
-            }
-
-            if (o1.board == null && o2.board == null) {
-                return 0;
-            } else if (o1.board == null) {
-                return -1;
-            }  else if (o2.board == null) {
-                return 1;
+            if (o1 == null || o2 == null) {
+                throw new NullPointerException("Null objects are not supported");
             }
 
             String str1;
