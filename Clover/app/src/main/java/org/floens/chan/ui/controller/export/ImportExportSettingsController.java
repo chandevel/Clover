@@ -283,7 +283,7 @@ public class ImportExportSettingsController extends SettingsController implement
 
     @Override
     public void onError(String message) {
-        // may be called on background thread
+        //called on background thread
 
         AndroidUtils.runOnUiThread(() -> {
             clearAllChildControllers();

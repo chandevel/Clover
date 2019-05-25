@@ -38,6 +38,7 @@ import org.floens.chan.core.model.orm.Pin;
 import org.floens.chan.core.model.orm.SiteModel;
 import org.floens.chan.core.model.orm.ThreadHide;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.utils.ByteUtils;
 import org.floens.chan.utils.Logger;
 
 import java.io.File;
@@ -45,25 +46,32 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
 public class ImportExportRepository {
     private static final String TAG = "ImportExportRepository";
+    private static final byte[] SETTINGS_HEADER_MAGIC_CONST = "CLOVER_SETTINGS".getBytes();
+    private static final int SETTINGS_HEADER_MAGIC_CONST_LEN = SETTINGS_HEADER_MAGIC_CONST.length;
     public static final String EXPORT_FILE_NAME = "exported_clover_settings.json";
 
     // Don't forget to change this when changing any of the Export models.
-    // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
+    // Also, don't forget to handle the change in the onUpgrade method.
     public static final int CURRENT_EXPORT_SETTINGS_VERSION = 2;
 
     private DatabaseManager databaseManager;
     private DatabaseHelper databaseHelper;
     private Gson gson;
+
+    private AtomicBoolean exportingRunning = new AtomicBoolean(false);
+    private AtomicBoolean importingRunning = new AtomicBoolean(false);
 
     @Inject
     public ImportExportRepository(
@@ -77,7 +85,11 @@ public class ImportExportRepository {
     }
 
     public void exportTo(File settingsFile, ExportCallbacks callbacks) {
-        databaseManager.runTask(() -> {
+        if (!exportingRunning.compareAndSet(false, true)) {
+            return;
+        }
+
+        databaseManager.runTaskAsync(() -> {
             try {
                 ExportedAppSettings appSettings = readSettingsFromDatabase();
                 if (appSettings.isEmpty()) {
@@ -113,6 +125,11 @@ public class ImportExportRepository {
                 }
 
                 try (RandomAccessFile raf = new RandomAccessFile(settingsFile, "rw")) {
+                    // Write the header magic constant so we can figure out that this file is the settings file
+                    raf.write(SETTINGS_HEADER_MAGIC_CONST);
+                    // Write the version of the file
+                    raf.writeInt(ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION);
+                    // Write the settings
                     raf.writeUTF(json);
                 }
 
@@ -123,6 +140,11 @@ public class ImportExportRepository {
 
                 deleteExportFile(settingsFile);
                 callbacks.onExportError(error);
+
+                // throw to upstream to rollback the transaction
+                throw error;
+            } finally {
+                exportingRunning.set(false);
             }
 
             return null;
@@ -130,10 +152,16 @@ public class ImportExportRepository {
     }
 
     public void importFrom(File settingsFile, ImportCallbacks callbacks) {
-        databaseManager.runTask(() -> {
+        if (!importingRunning.compareAndSet(false, true)) {
+            return;
+        }
+
+        databaseManager.runTaskAsync(() -> {
             try {
                 if (!settingsFile.exists()) {
-                    Logger.i(TAG, "There is nothing to import, importFile does not exist " + settingsFile.getAbsolutePath());
+                    Logger.d(TAG, "There is nothing to import, importFile does not exist " +
+                            settingsFile.getAbsolutePath());
+
                     callbacks.onNothingToImport();
                     return null;
                 }
@@ -146,28 +174,78 @@ public class ImportExportRepository {
                 }
 
                 ExportedAppSettings appSettings;
+                int settingsFileVersion;
 
-                try (RandomAccessFile raf = new RandomAccessFile(settingsFile, "r");) {
+                try (RandomAccessFile raf = new RandomAccessFile(settingsFile, "r")) {
+                    byte[] readMagicConst = new byte[SETTINGS_HEADER_MAGIC_CONST_LEN];
+                    int readCount = raf.read(readMagicConst);
+
+                    if (readCount != SETTINGS_HEADER_MAGIC_CONST_LEN) {
+                        throw new IOException("Could not read settings header magic constant (the " +
+                                "amount of bytes read is not equals to the header const length: " + readCount + ")");
+                    }
+
+                    if (!Arrays.equals(readMagicConst, SETTINGS_HEADER_MAGIC_CONST)) {
+                        throw new IOException("The file does not contain the settings header magic constant, " +
+                                "file header is: " + ByteUtils.bytesToHex(readMagicConst) +
+                                ", but should be: " + ByteUtils.bytesToHex(SETTINGS_HEADER_MAGIC_CONST));
+                    }
+
+                    settingsFileVersion = raf.readInt();
+                    Logger.d(TAG, "Settings file version = " + settingsFileVersion);
+
+                    throwIfDowngrade(settingsFileVersion);
+                    throwIfCannotUpgrade(settingsFileVersion);
+
                     appSettings = gson.fromJson(raf.readUTF(), ExportedAppSettings.class);
                 }
 
                 if (appSettings.isEmpty()) {
-                    Logger.i(TAG, "There is nothing to import, appSettings is empty");
+                    Logger.d(TAG, "There is nothing to import, appSettings is empty");
                     callbacks.onNothingToImport();
                     return null;
                 }
 
-                writeSettingsToDatabase(appSettings);
+                writeSettingsToDatabase(settingsFileVersion, appSettings);
 
                 Logger.d(TAG, "Importing success!");
                 callbacks.onSuccessImport();
             } catch (Throwable error) {
                 Logger.e(TAG, "Error while trying to import settings", error);
                 callbacks.onImportError(error);
+
+                // throw to upstream to rollback the transaction
+                throw error;
+            } finally {
+                importingRunning.set(false);
             }
 
             return null;
         });
+    }
+
+    private void throwIfCannotUpgrade(int settingsFileVersion) throws UpgradeImpossibleException {
+        if (settingsFileVersion == 1) {
+            ///////////////////////////////////////
+            // Upgrade from version 1.
+            // In version 2 we had to change the settings file format (Version code is moved out of the json part to the header part).
+            ///////////////////////////////////////
+            throw new UpgradeImpossibleException("Upgrade from version 1 to version 2 is impossible because " +
+                    "in version 2 the settings file format had to be changed because of unforeseen problems");
+        }
+    }
+
+    private void throwIfDowngrade(int settingsFileVersion) throws DowngradeNotSupportedException {
+        if (settingsFileVersion > CURRENT_EXPORT_SETTINGS_VERSION) {
+            // we don't support settings downgrade so just notify the user about it
+            throw new DowngradeNotSupportedException(
+                    "You are attempting to import settings with version " +
+                            "higher than the current app's settings version (downgrade). " +
+                            "This is not supported so nothing will be imported. " +
+                            "(Current version = " + ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION +
+                            ", settingFileVersion = " + settingsFileVersion
+            );
+        }
     }
 
     private void deleteExportFile(File exportFile) {
@@ -178,19 +256,14 @@ public class ImportExportRepository {
         }
     }
 
-    private void writeSettingsToDatabase(@NonNull ExportedAppSettings appSettingsParam)
-            throws SQLException, IOException, DowngradeNotSupportedException, UpgradeImpossibleException {
+    private void writeSettingsToDatabase(
+            int settingsFileVersion,
+            @NonNull ExportedAppSettings appSettingsParam)
+            throws SQLException, IOException {
         ExportedAppSettings appSettings = appSettingsParam;
 
-        if (appSettings.getVersion() < CURRENT_EXPORT_SETTINGS_VERSION) {
-            appSettings = onUpgrade(appSettings.getVersion(), appSettings);
-        } else if (appSettings.getVersion() > CURRENT_EXPORT_SETTINGS_VERSION) {
-            // we don't support settings downgrade so just notify the user about it
-            throw new DowngradeNotSupportedException(
-                    "You are attempting to import settings with version " +
-                            "higher than the current app's settings version (downgrade). " +
-                            "This is not supported so nothing will be imported."
-            );
+        if (settingsFileVersion < CURRENT_EXPORT_SETTINGS_VERSION) {
+            appSettings = onUpgrade(settingsFileVersion, appSettings);
         }
 
         databaseHelper.siteDao.deleteBuilder().delete();
@@ -296,18 +369,8 @@ public class ImportExportRepository {
 
     @NonNull
     private ExportedAppSettings onUpgrade(
-            int version, ExportedAppSettings appSettings) throws UpgradeImpossibleException {
-        if (version < 2) {
-            ///////////////////////////////////////
-            // Upgrade from version 1 to version 2.
-            // In version 2 we had to change the way the settings are serialized to a file because
-            // it was not considering the UTF-8 characters. This breaks everything. So we have no other
-            // way other than clear everything.
-            ///////////////////////////////////////
-
-            throw new UpgradeImpossibleException("Upgrade from version 1 to version 2 is impossible because in version 2 the settings serialization was changed from ASCII to UTF-8");
-        }
-
+            int settingsFileVersion,
+            ExportedAppSettings appSettings) {
         // Add your ExportAppSettings migrations here
         return appSettings;
     }

@@ -606,4 +606,5 @@ Don't have a 4chan Pass?<br>
     <string name="default_clover_directory_created" tools:ignore="MissingTranslation">Default clover directory has been created</string>
     <string name="default_clover_directory_already_exists" tools:ignore="MissingTranslation">Default Clover directory already exists</string>
     <string name="error_string" tools:ignore="MissingTranslation">Error</string>
+    <string name="loading_view_controller_cannot_be_canceled" tools:ignore="MissingTranslation">Cannot be canceled</string>
 </resources>

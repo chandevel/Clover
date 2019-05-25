@@ -38,9 +38,6 @@ public class ImportExportSettingsPresenter {
     @Inject
     ImportExportRepository importExportRepository;
 
-    @Inject
-    BoardRepository boardRepository;
-
     public ImportExportSettingsPresenter(
             @NonNull ImportSettingsCallbacks importCallbacks,
             @NonNull ExportSettingsCallbacks exportCallbacks
@@ -81,7 +78,7 @@ public class ImportExportSettingsPresenter {
                 //called on background thread
 
                 if (exportCallbacks != null) {
-                    exportCallbacks.onError("Error while try to export settings: " + error.getMessage());
+                    exportCallbacks.onError("Error while trying to export settings: " + error.getMessage());
                 }
             }
         });
@@ -101,6 +98,8 @@ public class ImportExportSettingsPresenter {
 
             @Override
             public void onNothingToImport() {
+                //called on background thread
+
                 if (importCallbacks != null) {
                     importCallbacks.onError("There is nothing to import");
                 }
