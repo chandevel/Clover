@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
@@ -107,6 +108,16 @@ public class MainSettingsController extends SettingsController implements Settin
     public void setWatchEnabled(boolean enabled) {
         watchLink.setDescription(enabled ?
                 R.string.setting_watch_summary_enabled : R.string.setting_watch_summary_disabled);
+    }
+
+    @Override
+    public void showReexportSuggestionMessage() {
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.settings_file_version_changed_message)
+                .setMessage(R.string.reexport_settings_suggestion_message)
+                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
     }
 
     @Override

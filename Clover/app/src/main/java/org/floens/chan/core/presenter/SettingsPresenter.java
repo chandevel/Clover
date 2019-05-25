@@ -18,6 +18,7 @@
 package org.floens.chan.core.presenter;
 
 import org.floens.chan.core.database.DatabaseManager;
+import org.floens.chan.core.repository.ImportExportRepository;
 import org.floens.chan.core.settings.ChanSettings;
 
 import javax.inject.Inject;
@@ -27,9 +28,16 @@ public class SettingsPresenter {
 
     private DatabaseManager databaseManager;
 
+    // Inject ImportExportRepository here to avoid strange behavior when CURRENT_EXPORT_SETTINGS_VERSION is zero
+    // even though it is a static variable that is initialized with non-zero value. (Apparently it happens
+    // because if we don't inject the class here it won't be constructed yet, so the
+    // CURRENT_EXPORT_SETTINGS_VERSION holds a default value - zero)
+    private ImportExportRepository importExportRepository;
+
     @Inject
-    public SettingsPresenter(DatabaseManager databaseManager) {
+    public SettingsPresenter(DatabaseManager databaseManager, ImportExportRepository importExportRepository) {
         this.databaseManager = databaseManager;
+        this.importExportRepository = importExportRepository;
     }
 
     public void create(Callback callback) {
@@ -49,6 +57,22 @@ public class SettingsPresenter {
         callback.setSiteCount((int) siteCount);
         callback.setFiltersCount((int) filterCount);
         callback.setWatchEnabled(ChanSettings.watchEnabled.get());
+
+        suggestToReexportSettings();
+    }
+
+    /**
+     * When settings file version changes - show the user a suggestion to re-export the settings file
+     * */
+    private void suggestToReexportSettings() {
+        int lastVersionSuggestion = ChanSettings.suggestReexportSettingsLastVersion.get();
+
+        if (ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION > lastVersionSuggestion
+                && lastVersionSuggestion != -1) {
+            callback.showReexportSuggestionMessage();
+        }
+
+        ChanSettings.suggestReexportSettingsLastVersion.set(ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION);
     }
 
     public interface Callback {
@@ -57,5 +81,7 @@ public class SettingsPresenter {
         void setFiltersCount(int count);
 
         void setWatchEnabled(boolean enabled);
+
+        void showReexportSuggestionMessage();
     }
 }

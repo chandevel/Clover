@@ -164,6 +164,7 @@ public class ChanSettings {
     public static final LongSetting updateCheckInterval;
 
     public static final BooleanSetting crashReporting;
+    public static final IntegerSetting suggestReexportSettingsLastVersion;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -254,6 +255,7 @@ public class ChanSettings {
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
         crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
+        suggestReexportSettingsLastVersion = new IntegerSetting(p, "suggest_reexport_settings_last_version", -1);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"
