@@ -40,10 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_storage_permission_required">El perimiso para acceder almacenamiento es requerido para instalar la actualización
 
 Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes</string>
-    <plurals name="minutes">
-        <item quantity="one">%d minuto</item>
-        <item quantity="other">%d minuto</item>
-    </plurals>
+    <string name="minutes">%d minuto</string>
     <plurals name="posts">
         <item quantity="one">%d publicación</item>
         <item quantity="other">%d publicaciónes</item>

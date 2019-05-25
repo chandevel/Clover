@@ -57,10 +57,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 "Permission to access storage is required to import settings.
 
 Re-enable this permission in the app settings if you permanently disabled it."</string>
-    <plurals name="minutes">
-        <item quantity="one">%d minute</item>
-        <item quantity="other">%d minutes</item>
-    </plurals>
+    <string name="minutes">%d minutes</string>
 
     <plurals name="posts">
         <item quantity="one">%d post</item>

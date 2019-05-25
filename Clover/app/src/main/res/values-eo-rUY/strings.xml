@@ -42,10 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_storage_permission_required">«Permeso al atingi konservon estas bezonata por instali la ĝisdatigon.
 
 Reŝaltu tiun permeson en la ap-agordoj se vi malŝaltis ĝin eterne.»</string>
-    <plurals name="minutes">
-        <item quantity="one">%d minuto</item>
-        <item quantity="other">%d minutoj</item>
-    </plurals>
+    <string name="minutes">%d minutoj</string>
     <plurals name="posts">
         <item quantity="one">%d afiŝo</item>
         <item quantity="other">%d afiŝoj</item>

@@ -42,10 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_storage_permission_required">\"Garantir permissão para acessar o armazenamento é necessário para intalar a atualização.
 
 Ative essa permissão novamente nas configurações do aplicativo caso tenha desativado-as permanentemente.\"</string>
-    <plurals name="minutes">
-        <item quantity="one">%d minuto</item>
-        <item quantity="other">%d minutos</item>
-    </plurals>
+    <string name="minutes">%d minutos</string>
     <plurals name="posts">
         <item quantity="one">%d postagem</item>
         <item quantity="other">%d postagens</item>

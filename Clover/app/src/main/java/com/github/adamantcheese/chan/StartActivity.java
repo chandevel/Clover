@@ -61,6 +61,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.LocaleUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -145,6 +147,15 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         setupFromStateOrFreshLaunch(savedInstanceState);
 
         updateManager.autoUpdateCheck();
+
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            //if there's any uncaught crash stuff, just dump them to the log and exit immediately
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            Logger.e("UNCAUGHT", sw.toString());
+            System.exit(999);
+        });
     }
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
@@ -372,7 +383,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
                 return (ViewThreadController) c;
             } else if (c instanceof ThreadSlideController) {
                 ThreadSlideController controller = (ThreadSlideController) c;
-                if(controller.getRightController() instanceof ViewThreadController) {
+                if (controller.getRightController() instanceof ViewThreadController) {
                     return (ViewThreadController) controller.getRightController();
                 }
             }

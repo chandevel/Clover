@@ -40,10 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_storage_permission_required">\"Permissie voor toegang tot de opslag is vereist voor het installeren van de update.
 
 Zet de permissie opnieuw aan in de app-instellingen als je het uit hebt gezet.\"</string>
-    <plurals name="minutes">
-        <item quantity="one">%d minuut</item>
-        <item quantity="other">%d minuten</item>
-    </plurals>
+    <string name="minutes">%d minuten</string>
     <plurals name="posts">
         <item quantity="one">%d post</item>
         <item quantity="other">%d posts</item>

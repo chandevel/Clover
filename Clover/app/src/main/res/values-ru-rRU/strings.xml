@@ -41,12 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 \"Разрешение на доступ к памяти устройства необходимо для установки обновления.
 
 Включите это разрешение в настройках приложений если ранее отказали в нем.\"</string>
-    <plurals name="minutes">
-        <item quantity="one">%d минута</item>
-        <item quantity="few">%d минуты</item>
-        <item quantity="many">%d минут</item>
-        <item quantity="other">%d минут</item>
-    </plurals>
+    <string name="minutes">%d минут</string>
     <plurals name="posts">
         <item quantity="one">%d пост</item>
         <item quantity="few">%d поста</item>

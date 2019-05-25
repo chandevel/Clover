@@ -175,7 +175,6 @@ public class ChanSettings {
     public static final StringSetting watchNotifyMode;
     public static final StringSetting watchSound;
     public static final BooleanSetting watchPeek;
-    public static final StringSetting watchLed;
 
     public static final BooleanSetting historyEnabled;
 
@@ -272,7 +271,6 @@ public class ChanSettings {
         watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", "all");
         watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
         watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
-        watchLed = new StringSetting(p, "preference_watch_led", "ffffffff");
 
         historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
 

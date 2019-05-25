@@ -40,7 +40,6 @@ public class WatchSettingsController extends SettingsController implements Compo
     private SettingView notifyMode;
     private SettingView soundMode;
     private SettingView peekMode;
-    private SettingView ledMode;
 
     public WatchSettingsController(Context context) {
         super(context);
@@ -75,7 +74,6 @@ public class WatchSettingsController extends SettingsController implements Compo
             setSettingViewVisibility(notifyMode, false);
             setSettingViewVisibility(soundMode, false);
             setSettingViewVisibility(peekMode, false);
-            setSettingViewVisibility(ledMode, false);
             setSettingViewVisibility(enableFilterWatch, false);
         }
     }
@@ -97,7 +95,6 @@ public class WatchSettingsController extends SettingsController implements Compo
             setSettingViewVisibility(notifyMode, enabled);
             setSettingViewVisibility(soundMode, enabled);
             setSettingViewVisibility(peekMode, enabled);
-            setSettingViewVisibility(ledMode, enabled);
             setSettingViewVisibility(enableFilterWatch, enabled);
         }
     }
@@ -120,8 +117,7 @@ public class WatchSettingsController extends SettingsController implements Compo
         };
         ListSettingView.Item[] timeoutsItems = new ListSettingView.Item[timeouts.length];
         for (int i = 0; i < timeouts.length; i++) {
-            int value = timeouts[i] / 1000 / 60;
-            String name = context.getResources().getQuantityString(R.plurals.minutes, value, value);
+            String name = content.getResources().getString(R.string.minutes, timeouts[i] / 1000 / 60);
             timeoutsItems[i] = new ListSettingView.Item<>(name, timeouts[i]);
         }
         backgroundTimeout = settings.add(new ListSettingView<Integer>(this, ChanSettings.watchBackgroundInterval, R.string.setting_watch_background_timeout, timeoutsItems) {
@@ -140,10 +136,6 @@ public class WatchSettingsController extends SettingsController implements Compo
                 context.getResources().getStringArray(R.array.setting_watch_sounds), new String[]{"all", "quotes"}));
 
         peekMode = settings.add(new BooleanSettingView(this, ChanSettings.watchPeek, R.string.setting_watch_peek, R.string.setting_watch_peek_description));
-
-        ledMode = settings.add(new ListSettingView<>(this, ChanSettings.watchLed, R.string.setting_watch_led,
-                context.getResources().getStringArray(R.array.setting_watch_leds),
-                new String[]{"-1", "ffffffff", "ffff0000", "ffffff00", "ff00ff00", "ff00ffff", "ff0000ff", "ffff00ff"}));
 
         enableFilterWatch = settings.add(new BooleanSettingView(this, ChanSettings.watchFilterWatch, R.string.setting_watch_enable_filter_watch, R.string.setting_watch_enable_filter_watch_description));
 

@@ -42,10 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_storage_permission_required">\"Speicherzugriff ist für die Installation des Updates erforderlich.
 
 erteilen Sie diese Berechtigung in den Appeinstellungen falls Sie diese deaktiviert haben.\"</string>
-    <plurals name="minutes">
-        <item quantity="one">%d Minute</item>
-        <item quantity="other">%d Minuten</item>
-    </plurals>
+    <string name="minutes">%d Minuten</string>
     <plurals name="posts">
         <item quantity="one">%d Beitrag</item>
         <item quantity="other">%d Beiträge</item>

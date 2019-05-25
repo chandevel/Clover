@@ -41,9 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 "Izin untuk mengakses penyimpanan diperlukan untuk menginstal pembaruan.
 
 Aktifkan kembali izin ini di pengaturan aplikasi jika Anda menonaktifkannya secara permanen."</string>
-    <plurals name="minutes">
-        <item quantity="other">%d menit</item>
-    </plurals>
+    <string name="minutes">%d menit</string>
     <plurals name="posts">
         <item quantity="other">%d posts</item>
     </plurals>
