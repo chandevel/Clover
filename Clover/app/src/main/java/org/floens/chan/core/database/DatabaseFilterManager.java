@@ -94,7 +94,7 @@ public class DatabaseFilterManager {
             int deletedCount = builder.delete();
 
             if (deletedCount != filterIdSet.size()) {
-                throw new IllegalStateException("Deleted count is less than filterIdList.size(). (deletedCount = "
+                throw new IllegalStateException("Deleted count not equals to filterIdList.size(). (deletedCount = "
                         + deletedCount + "), " + "(filterIdSet = " + filterIdSet.size() + ")");
             }
 
