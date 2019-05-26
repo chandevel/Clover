@@ -50,6 +50,16 @@ public class PostsFilter {
     private static final Comparator<Post> MODIFIED_COMPARATOR =
             (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified());
 
+    private static final Comparator<Post> THREAD_ACTIVITY_COMPARATOR =
+            (lhs, rhs) -> {
+                long currentTimeSeconds = System.currentTimeMillis() / 1000;
+
+                long score1 = (currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0 ? lhs.getReplies() : 1);
+                long score2 = (currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0 ? rhs.getReplies() : 1);
+
+                return Long.compare(score1, score2);
+            };
+
     @Inject
     DatabaseManager databaseManager;
 
@@ -88,6 +98,9 @@ public class PostsFilter {
                     break;
                 case MODIFIED:
                     Collections.sort(posts, MODIFIED_COMPARATOR);
+                    break;
+                case ACTIVITY:
+                    Collections.sort(posts, THREAD_ACTIVITY_COMPARATOR);
                     break;
             }
         }
@@ -140,7 +153,8 @@ public class PostsFilter {
         IMAGE("image"),
         NEWEST("newest"),
         OLDEST("oldest"),
-        MODIFIED("modified");
+        MODIFIED("modified"),
+        ACTIVITY("activity");
 
         public String name;
 

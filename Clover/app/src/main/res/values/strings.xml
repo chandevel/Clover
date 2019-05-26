@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -117,6 +117,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="order_newest">Newest</string>
     <string name="order_oldest">Oldest</string>
     <string name="order_modified">Latest reply</string>
+    <string name="order_activity" tools:ignore="MissingTranslation">Thread activity</string>
 
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>
