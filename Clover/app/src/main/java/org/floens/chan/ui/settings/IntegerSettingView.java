@@ -18,6 +18,8 @@
 package org.floens.chan.ui.settings;
 
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.view.View;
@@ -28,6 +30,7 @@ import android.widget.LinearLayout;
 
 import org.floens.chan.R;
 import org.floens.chan.core.settings.Setting;
+import org.floens.chan.utils.Logger;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 
@@ -35,8 +38,11 @@ import static org.floens.chan.utils.AndroidUtils.dp;
  * Created by Zetsubou on 02.07.2015
  */
 public class IntegerSettingView extends SettingView implements View.OnClickListener {
+    private static final String TAG = "IntegerSettingView";
     private final Setting<Integer> setting;
     private final String dialogTitle;
+    @Nullable
+    private final IntegerSettingValidator validator;
 
     public IntegerSettingView(SettingsController settingsController, Setting<Integer> setting, int name, int dialogTitle) {
         this(settingsController, setting, getString(name), getString(dialogTitle));
@@ -46,6 +52,14 @@ public class IntegerSettingView extends SettingView implements View.OnClickListe
         super(settingsController, name);
         this.setting = setting;
         this.dialogTitle = dialogTitle;
+        this.validator = null;
+    }
+
+    public IntegerSettingView(SettingsController settingsController, Setting<Integer> setting, int name, int dialogTitle, @NonNull IntegerSettingValidator validator) {
+        super(settingsController, getString(name));
+        this.setting = setting;
+        this.dialogTitle = getString(dialogTitle);
+        this.validator = validator;
     }
 
     @Override
@@ -78,9 +92,10 @@ public class IntegerSettingView extends SettingView implements View.OnClickListe
                     @Override
                     public void onClick(DialogInterface d, int which) {
                         try {
-                            setting.set(Integer.parseInt(editText.getText().toString()));
+                            onClickInternal(editText);
                         } catch (Exception e) {
-                            setting.set(setting.getDefault());
+                            Logger.e(TAG, "New setting value parse error", e);
+                            return;
                         }
 
                         settingsController.onPreferenceChange(IntegerSettingView.this);
@@ -92,5 +107,21 @@ public class IntegerSettingView extends SettingView implements View.OnClickListe
                 .create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
+    }
+
+    private void onClickInternal(EditText editText) {
+        int newValue = Integer.parseInt(editText.getText().toString());
+        if (validator != null) {
+            boolean validated = validator.validate(newValue);
+            if (validated) {
+                setting.set(newValue);
+            }
+        } else {
+            setting.set(newValue);
+        }
+    }
+
+    public interface IntegerSettingValidator {
+        boolean validate(int newValue);
     }
 }

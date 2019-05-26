@@ -22,6 +22,7 @@ import android.text.TextUtils;
 
 import org.floens.chan.BuildConfig;
 import org.floens.chan.R;
+import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.manager.WatchManager;
 import org.floens.chan.core.update.UpdateManager;
 import org.floens.chan.ui.adapter.PostsFilter;
@@ -160,6 +161,7 @@ public class ChanSettings {
     public static final LongSetting updateCheckInterval;
 
     public static final BooleanSetting crashReporting;
+    public static final IntegerSetting fileCacheMaxSizeMb;
 
     static {
         SettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getPreferences());
@@ -250,6 +252,7 @@ public class ChanSettings {
         updateCheckInterval = new LongSetting(p, "update_check_interval", UpdateManager.DEFAULT_UPDATE_CHECK_INTERVAL_MS);
 
         crashReporting = new BooleanSetting(p, "preference_crash_reporting", true);
+        fileCacheMaxSizeMb = new IntegerSetting(p, "file_cache_max_size_mb", FileCache.FILE_CACHE_DISK_SIZE_MB);
 
         // Old (but possibly still in some users phone)
         // preference_board_view_mode default "list"

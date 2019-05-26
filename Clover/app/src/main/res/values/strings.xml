@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="close">Close</string>
@@ -577,4 +577,12 @@ Don't have a 4chan Pass?<br>
     "</string>
 
     <string name="settings_screen_theme">Themes</string>
+    <string name="media_settings_file_cache_has_been_wiped_message" tools:ignore="MissingTranslation">File cache has been wiped. Deleted %1$d files</string>
+    <string name="media_settings_wipe_cached_files_message" tools:ignore="MissingTranslation">Wipe cached files</string>
+    <string name="media_settings_wipe_cached_files_description" tools:ignore="MissingTranslation">Delete all cached images and other files</string>
+    <string name="settings_cache_cannot_be_zero_or_negative" tools:ignore="MissingTranslation">Cache size cannot be zero or negative</string>
+    <string name="settings_cache_size_is_too_big" tools:ignore="MissingTranslation">It is probably not a good idea to make cache size this big</string>
+    <string name="settings_file_cache_max_size_title" tools:ignore="MissingTranslation">File cache max size (in megabytes)</string>
+    <string name="settings_enter_new_file_cache_max_size_text" tools:ignore="MissingTranslation">Enter new file cache max size (in megabytes)</string>
+    <string name="settings_setting_will_be_applied_on_the_next_start" tools:ignore="MissingTranslation">Setting will be applied on the next app start</string>
 </resources>

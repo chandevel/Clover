@@ -15,7 +15,6 @@ import javax.inject.Singleton;
 
 public class NetModule {
     private static final int VOLLEY_CACHE_SIZE = 10 * 1024 * 1024;
-    private static final long FILE_CACHE_DISK_SIZE = 50 * 1024 * 1024;
     private static final String FILE_CACHE_NAME = "filecache";
 
     @Provides
@@ -33,7 +32,7 @@ public class NetModule {
     @Provides
     @Singleton
     public FileCache provideFileCache(Context applicationContext, UserAgentProvider userAgentProvider) {
-        return new FileCache(new File(getCacheDir(applicationContext), FILE_CACHE_NAME), FILE_CACHE_DISK_SIZE, userAgentProvider.getUserAgent());
+        return new FileCache(new File(getCacheDir(applicationContext), FILE_CACHE_NAME), userAgentProvider.getUserAgent());
     }
 
     private File getCacheDir(Context applicationContext) {

@@ -87,7 +87,8 @@ public class CacheHandler {
     }
 
     @MainThread
-    public void clearCache() {
+    public int clearCache() {
+        int deletedFilesCount = 0;
         Logger.d(TAG, "Clearing cache");
 
         if (directory.exists() && directory.isDirectory()) {
@@ -95,11 +96,14 @@ public class CacheHandler {
                 if (!file.delete()) {
                     Logger.d(TAG, "Could not delete cache file while clearing cache " +
                             file.getName());
+                } else {
+                    ++deletedFilesCount;
                 }
             }
         }
 
         recalculateSize();
+        return deletedFilesCount;
     }
 
     @MainThread

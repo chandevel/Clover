@@ -19,6 +19,7 @@ package org.floens.chan.core.cache;
 
 import android.support.annotation.MainThread;
 
+import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;
 
@@ -37,6 +38,8 @@ public class FileCache implements FileCacheDownloader.Callback {
     private static final String TAG = "FileCache";
     private static final int TIMEOUT = 10000;
     private static final int DOWNLOAD_POOL_SIZE = 2;
+    private static final long ONE_MEGABYTE = 1024 * 1024;
+    public static final int FILE_CACHE_DISK_SIZE_MB = 50;
 
     private final ExecutorService downloadPool = Executors.newFixedThreadPool(DOWNLOAD_POOL_SIZE);
     private String userAgent;
@@ -46,7 +49,7 @@ public class FileCache implements FileCacheDownloader.Callback {
 
     private List<FileCacheDownloader> downloaders = new ArrayList<>();
 
-    public FileCache(File directory, long maxSize, String userAgent) {
+    public FileCache(File directory, String userAgent) {
         this.userAgent = userAgent;
 
         httpClient = new OkHttpClient.Builder()
@@ -57,15 +60,17 @@ public class FileCache implements FileCacheDownloader.Callback {
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .build();
 
-        cacheHandler = new CacheHandler(directory, maxSize);
+        cacheHandler = new CacheHandler(
+                directory,
+                ChanSettings.fileCacheMaxSizeMb.get() * ONE_MEGABYTE);
     }
 
-    public void clearCache() {
+    public int clearCache() {
         for (FileCacheDownloader downloader : downloaders) {
             downloader.cancel();
         }
 
-        cacheHandler.clearCache();
+        return cacheHandler.clearCache();
     }
 
     /**
