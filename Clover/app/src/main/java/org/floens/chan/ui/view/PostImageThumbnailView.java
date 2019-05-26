@@ -17,16 +17,21 @@
  */
 package org.floens.chan.ui.view;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.View;
+import android.widget.Toast;
 
 import org.floens.chan.R;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.utils.AndroidUtils;
 
-public class PostImageThumbnailView extends ThumbnailView {
+public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
     private PostImage postImage;
     private Drawable playIcon;
     private Rect bounds = new Rect();
@@ -43,6 +48,7 @@ public class PostImageThumbnailView extends ThumbnailView {
     @SuppressWarnings("deprecation")
     public PostImageThumbnailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        this.setOnLongClickListener(this);
 
         playIcon = getResources().getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
@@ -91,5 +97,19 @@ public class PostImageThumbnailView extends ThumbnailView {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
         }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (postImage == null || postImage.imageUrl == null) {
+            return false;
+        }
+
+        ClipboardManager clipboard = (ClipboardManager) AndroidUtils.getAppContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("File url", postImage.imageUrl.toString());
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(getContext(), R.string.file_url_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+
+        return true;
     }
 }
