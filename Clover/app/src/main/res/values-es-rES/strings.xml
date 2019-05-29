@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
     <string name="cancel">Cancelar</string>
-    <string name="add">Añadir</string>
+    <string name="add">Agregar</string>
     <string name="close">Cerrar</string>
     <string name="back">Volver</string>
-    <string name="ok">OK</string>
+    <string name="ok">Aceptar</string>
     <string name="exit">Salir</string>
     <string name="delete">Eliminar</string>
     <string name="undo">Deshacer</string>
@@ -40,23 +40,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_retry">Clover no se ha actualizado todavía. Presione \"Reintentar\" para volver a intentar la instalación.</string>
     <string name="update_retry_button">Reintentar</string>
     <string name="update_storage_permission_required_title">Permiso de almacenamiento requerido</string>
-    <string name="update_storage_permission_required">El perimiso para acceder almacenamiento es requerido para instalar la actualización
+    <string name="update_storage_permission_required">\"El permiso para acceder al almacenamiento es requerido para instalar la actualización
 
-Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes</string>
+Rehabilita este permiso en la configuración de la aplicación si lo deshabilitaste permanentemente\"</string>
     <plurals name="minutes">
         <item quantity="one">%d minuto</item>
         <item quantity="other">%d minuto</item>
     </plurals>
     <plurals name="posts">
         <item quantity="one">%d publicación</item>
-        <item quantity="other">%d publicaciónes</item>
+        <item quantity="other">%d publicaciones</item>
     </plurals>
     <plurals name="reply">
         <item quantity="one">%d respuesta</item>
         <item quantity="other">%d respuestas</item>
     </plurals>
     <plurals name="image">
-        <item quantity="one">%d imágen</item>
+        <item quantity="one">%d imagen</item>
         <item quantity="other">%d imágenes</item>
     </plurals>
     <plurals name="board">
