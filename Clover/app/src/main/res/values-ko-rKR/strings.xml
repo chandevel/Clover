@@ -296,17 +296,17 @@ Enable \"Play videos with external player\" in the settings to play videos with 
     <string name="settings_watch">스레드 구독</string>
     <string name="settings_sites">사이트</string>
     <string name="settings_appearance">모양새</string>
-    <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
-    <string name="settings_behavior">Behavior</string>
-    <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
-    <string name="settings_media">Media</string>
-    <string name="settings_media_description">Save location, auto loading, etc.</string>
-    <string name="settings_filters">Filters</string>
+    <string name="settings_appearance_description">테마, 레이아웃, 글꼴, 기타.</string>
+    <string name="settings_behavior">동작</string>
+    <string name="settings_behavior_description">스레드 새로고침, 캡차, 기타.</string>
+    <string name="settings_media">미디어</string>
+    <string name="settings_media_description">저장 위치, 자동 불러오기, 기타.</string>
+    <string name="settings_filters">필터</string>
     <!-- Thread watcher -->
-    <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
-    <string name="setting_watch_summary_disabled">Off</string>
-    <string name="settings_screen_watch">Thread watcher settings</string>
-    <string name="settings_group_watch">Settings</string>
+    <string name="setting_watch_summary_enabled">구독한 즐겨찾기 스레드</string>
+    <string name="setting_watch_summary_disabled">끄기</string>
+    <string name="settings_screen_watch">스레드 구독 설정</string>
+    <string name="settings_group_watch">설정</string>
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when Clover is placed in the background</string>
