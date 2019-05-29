@@ -221,20 +221,15 @@ public class DrawerController extends Controller implements DrawerAdapter.Callba
     }
 
     private void updateBadge() {
-        List<Pin> list = watchManager.getWatchingPins();
-        int count = 0;
+        int total = 0;
         boolean color = false;
-        if (list.size() > 0) {
-            for (Pin p : list) {
-                count += p.getNewPostCount();
-                if (p.getNewQuoteCount() > 0) {
-                    color = true;
-                }
-            }
+        for (Pin p : watchManager.getWatchingPins()) {
+            total += p.getNewPostCount();
+            color = color | p.getNewQuoteCount() > 0;
         }
 
         if (getTop() != null) {
-            getMainToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(count, color);
+            getMainToolbarNavigationController().toolbar.getArrowMenuDrawable().setBadge(total, color);
         }
     }
 

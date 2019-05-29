@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.UpdateManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -105,6 +106,10 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
     //Used to instantiate an instance of the filter watch manager, which automatically ties itself to the wake manager
     @Inject
     FilterWatchManager filterWatchManager;
+
+    //Used to instantiate an instance of the archives manager, so the archives list is requested on startup
+    @Inject
+    ArchivesManager archivesManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

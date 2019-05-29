@@ -32,11 +32,6 @@ public class ArchivesManager implements SiteActions.ArchiveRequestListener {
     }
 
     public List<ArchivesLayout.PairForAdapter> domainsForBoard(Board b) {
-        if (archivesList == null) {
-            List<ArchivesLayout.PairForAdapter> temp = new ArrayList<>();
-            temp.add(new ArchivesLayout.PairForAdapter("Archives parsing, please reload!", "boards.4chan.org"));
-            return temp;
-        }
         List<ArchivesLayout.PairForAdapter> result = new ArrayList<>();
         for (Archives a : archivesList) {
             for (String code : a.boards) {
