@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -26,7 +25,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.Layout;
 import android.text.Spannable;
@@ -390,7 +388,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
 
         if (ChanSettings.tapNoReply.get()) {
-            date.setSpan(new PostNoClickableSpan(), 0, noText.length(), 0);
+            date.setSpan(new PostNumberClickableSpan(), 0, noText.length(), 0);
         }
 
         titleParts.add(date);
@@ -727,7 +725,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         }
     }
 
-    private class PostNoClickableSpan extends ClickableSpan {
+    private class PostNumberClickableSpan extends ClickableSpan {
         @Override
         public void onClick(View widget) {
             callback.onPostNoClicked(post);
