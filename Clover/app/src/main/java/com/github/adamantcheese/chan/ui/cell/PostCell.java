@@ -370,15 +370,6 @@ public class PostCell extends LinearLayout implements PostCellInterface {
         if (ChanSettings.postFullDate.get()) {
             time = PostHelper.getLocalDate(post);
         } else {
-            // Disabled for performance reasons
-            // Force the relative date to use the english locale, and restore the previous one.
-            /*Configuration c = Resources.getSystem().getConfiguration();
-            Locale previousLocale = c.locale;
-            c.locale = Locale.ENGLISH;
-            Resources.getSystem().updateConfiguration(c, null);
-            time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, Time.get(), DateUtils.SECOND_IN_MILLIS, 0);
-            c.locale = previousLocale;
-            Resources.getSystem().updateConfiguration(c, null);*/
             time = DateUtils.getRelativeTimeSpanString(post.time * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0);
         }
 
