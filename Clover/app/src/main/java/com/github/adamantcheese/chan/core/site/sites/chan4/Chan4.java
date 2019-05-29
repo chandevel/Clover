@@ -568,7 +568,7 @@ public class Chan4 extends SiteBase {
 
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromAssets("icons/4chan.png");
+        return SiteIcon.fromFavicon(HttpUrl.parse("https://s.4cdn.org/image/favicon.ico"));
     }
 
     @Override

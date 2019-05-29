@@ -17,36 +17,22 @@
 package com.github.adamantcheese.chan.core.site;
 
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-
 import com.github.adamantcheese.chan.utils.Logger;
-
-import java.io.IOException;
 
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.injector;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {
     private static final String TAG = "SiteIcon";
     private static final int FAVICON_SIZE = 64;
 
-    private String assetPath;
     private HttpUrl url;
-
-    public static SiteIcon fromAssets(String path) {
-        SiteIcon siteIcon = new SiteIcon();
-        siteIcon.assetPath = path;
-        return siteIcon;
-    }
 
     public static SiteIcon fromFavicon(HttpUrl url) {
         SiteIcon siteIcon = new SiteIcon();
@@ -58,21 +44,7 @@ public class SiteIcon {
     }
 
     public void get(SiteIconResult result) {
-        if (assetPath != null) {
-            Bitmap bitmap;
-            try {
-                BitmapFactory.Options opts = new BitmapFactory.Options();
-                opts.inScaled = false;
-                bitmap = BitmapFactory.decodeStream(getAppContext().getAssets().open(assetPath), null, opts);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            BitmapDrawable drawable = new BitmapDrawable(getRes(), bitmap);
-            drawable = (BitmapDrawable) drawable.mutate();
-            drawable.getPaint().setFilterBitmap(false);
-            result.onSiteIcon(this, drawable);
-        } else if (url != null) {
+        if (url != null) {
             injector().instance(ImageLoader.class).get(url.toString(), new ImageLoader.ImageListener() {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
