@@ -390,7 +390,7 @@ Crashrapportages verzamelen geen persoonlijk identificeerbare informatie.\"    <
     <string name="settings_screen_behavior">Gedrag</string>
     <!-- Behavior general group -->
     <string name="settings_group_general">Algemeen</string>
-    <string name="setting_force_english_locale">Always use English for the language of the app</string>
+    <string name="setting_force_english_locale">Altijd Engels gebruiken voor de taal van de app</string>
     <string name="setting_force_english_locale_toggle_notice">Language will be applied on the next app start.</string>
     <string name="setting_auto_refresh_thread">Threads automatisch vernieuwen</string>
     <string name="setting_confirm_exit">Afsluiten bevestigen</string>
