@@ -18,65 +18,65 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <string name="cancel">Cancel</string>
-    <string name="add">Add</string>
-    <string name="close">Close</string>
-    <string name="back">Back</string>
-    <string name="ok">OK</string>
-    <string name="exit">Exit</string>
-    <string name="delete">Delete</string>
-    <string name="undo">Undo</string>
-    <string name="save">Save</string>
-    <string name="permission_app_settings">App settings</string>
+    <string name="cancel">취소</string>
+    <string name="add">추가</string>
+    <string name="close">닫기</string>
+    <string name="back">뒤로가기</string>
+    <string name="ok">확인</string>
+    <string name="exit">끝내기</string>
+    <string name="delete">삭제</string>
+    <string name="undo">되돌리기</string>
+    <string name="save">저장</string>
+    <string name="permission_app_settings">앱 설정</string>
     <string name="permission_grant">Grant</string>
-    <string name="update_later">Later</string>
-    <string name="update_none">Clover is up-to-date</string>
-    <string name="update_check_failed">Failed to check for updates.</string>
-    <string name="update_install">Install</string>
-    <string name="update_install_downloading">Downloading update</string>
-    <string name="update_install_download_failed">Download failed</string>
-    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
-    <string name="update_retry_title">Retry update</string>
-    <string name="update_retry">Clover was not updated yet. Tap \"retry\" to retry the install.</string>
-    <string name="update_retry_button">retry</string>
-    <string name="update_storage_permission_required_title">Storage permission required</string>
-    <string name="update_storage_permission_required">\"Permission to access storage is required for installing the update.
+    <string name="update_later">나중에</string>
+    <string name="update_none">Clover가 최신 버전입니다</string>
+    <string name="update_check_failed">업데이트 확인에 실패했습니다.</string>
+    <string name="update_install">설치</string>
+    <string name="update_install_downloading">업데이트 받는 중</string>
+    <string name="update_install_download_failed">다운로드 실패</string>
+    <string name="update_install_download_move_failed">받은 파일을 다운로드 디렉터리로 옮기는데 실패했습니다.</string>
+    <string name="update_retry_title">업데이트 재시도</string>
+    <string name="update_retry">Clover가 업데이트되지 않았습니다. 다시 시도를 눌러 설치를 다시 시도하세요.</string>
+    <string name="update_retry_button">다시 시도</string>
+    <string name="update_storage_permission_required_title">저장소 권한 필요</string>
+    <string name="update_storage_permission_required">\"업데이트를 설치하기 위해선 저장소 접근 권한이 필요합니다.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+완전히 비활성하고 싶으시다면 앱 설정에서 이 권한을 다시 활성화해주세요.\"</string>
     <plurals name="minutes">
-        <item quantity="other">%d minutes</item>
+        <item quantity="other">%d분</item>
     </plurals>
     <plurals name="posts">
-        <item quantity="other">%d posts</item>
+        <item quantity="other">글 %d개</item>
     </plurals>
     <plurals name="reply">
-        <item quantity="other">%d replies</item>
+        <item quantity="other">댓글 %d개</item>
     </plurals>
     <plurals name="image">
-        <item quantity="other">%d images</item>
+        <item quantity="other">이미지 %d개</item>
     </plurals>
     <plurals name="board">
-        <item quantity="other">%d boards</item>
+        <item quantity="other">게시판 %d개</item>
     </plurals>
     <plurals name="type">
-        <item quantity="other">%d types</item>
+        <item quantity="other">종류 %d개</item>
     </plurals>
     <plurals name="bookmark">
-        <item quantity="other">%d bookmarks</item>
+        <item quantity="other">즐겨찾기 %d개</item>
     </plurals>
     <plurals name="filter">
-        <item quantity="other">%d filters</item>
+        <item quantity="other">필터 %d개</item>
     </plurals>
     <plurals name="site">
-        <item quantity="other">%d sites</item>
+        <item quantity="other">사이트 %d개</item>
     </plurals>
     <string name="card_stats">%1$dR %2$dI</string>
-    <string name="action_reload">Reload</string>
-    <string name="action_pin">Bookmark</string>
-    <string name="action_open_browser">Open in a browser</string>
-    <string name="action_share">Share</string>
-    <string name="action_download_album">Download album</string>
-    <string name="action_search">Search</string>
+    <string name="action_reload">새로고침</string>
+    <string name="action_pin">즐겨찾기</string>
+    <string name="action_open_browser">브라우저에서 열기</string>
+    <string name="action_share">공유</string>
+    <string name="action_download_album">앨범 다운로드</string>
+    <string name="action_search">검색</string>
     <string name="action_search_image">Image search</string>
     <string name="action_switch_catalog">Catalog mode</string>
     <string name="action_switch_board">Board mode</string>
