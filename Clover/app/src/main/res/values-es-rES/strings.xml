@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_check_failed">No se ha podido buscar actualizaciones.</string>
     <string name="update_install">Instalar</string>
     <string name="update_install_downloading">Descargando actualización</string>
-    <string name="update_install_download_failed">Fallo en la descarga</string>
+    <string name="update_install_download_failed">Descarga fallida</string>
     <string name="update_install_download_move_failed">No se pudo mover el archivo descargado a la carpeta de descarga.</string>
     <string name="update_retry_title">Reintentar actualización</string>
     <string name="update_retry">Clover no se ha actualizado todavía. Presione \"Reintentar\" para volver a intentar la instalación.</string>
