@@ -15,73 +15,74 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <string name="cancel">Cancel</string>
-    <string name="add">Add</string>
-    <string name="close">Close</string>
-    <string name="back">Back</string>
-    <string name="ok">OK</string>
-    <string name="exit">Exit</string>
-    <string name="delete">Delete</string>
-    <string name="undo">Undo</string>
-    <string name="save">Save</string>
-    <string name="permission_app_settings">App settings</string>
+    <string name="cancel">취소</string>
+    <string name="add">추가</string>
+    <string name="close">닫기</string>
+    <string name="back">뒤로가기</string>
+    <string name="ok">확인</string>
+    <string name="exit">끝내기</string>
+    <string name="delete">삭제</string>
+    <string name="undo">되돌리기</string>
+    <string name="save">저장</string>
+    <string name="permission_app_settings">앱 설정</string>
     <string name="permission_grant">Grant</string>
-    <string name="update_later">Later</string>
-    <string name="update_none">Kuroba is up-to-date</string>
-    <string name="update_check_failed">Failed to check for updates.</string>
-    <string name="update_install">Install</string>
-    <string name="update_install_downloading">Downloading update</string>
-    <string name="update_install_download_failed">Download failed</string>
-    <string name="update_install_download_move_failed">Failed to move downloaded file to the Download directory.</string>
-    <string name="update_retry_title">Retry update</string>
-    <string name="update_retry">Kuroba was not updated yet. Tap \"retry\" to retry the install.</string>
-    <string name="update_retry_button">retry</string>
-    <string name="update_storage_permission_required_title">Storage permission required</string>
-    <string name="update_storage_permission_required">\"Permission to access storage is required for installing the update.
+    <string name="update_later">나중에</string>
+    <string name="update_none">Clover가 최신 버전입니다</string>
+    <string name="update_check_failed">업데이트 확인에 실패했습니다.</string>
+    <string name="update_install">설치</string>
+    <string name="update_install_downloading">업데이트 받는 중</string>
+    <string name="update_install_download_failed">다운로드 실패</string>
+    <string name="update_install_download_move_failed">받은 파일을 다운로드 디렉터리로 옮기는데 실패했습니다.</string>
+    <string name="update_retry_title">업데이트 재시도</string>
+    <string name="update_retry">Clover가 업데이트되지 않았습니다. 다시 시도를 눌러 설치를 다시 시도하세요.</string>
+    <string name="update_retry_button">다시 시도</string>
+    <string name="update_storage_permission_required_title">저장소 권한 필요</string>
+    <string name="update_storage_permission_required">\"업데이트를 설치하기 위해선 저장소 접근 권한이 필요합니다.
 
-Re-enable this permission in the app settings if you permanently disabled it.\"</string>
+완전히 비활성하고 싶으시다면 앱 설정에서 이 권한을 다시 활성화해주세요.\"</string>
+    <string name="minutes">%d분</string>
     <plurals name="posts">
-        <item quantity="other">%d posts</item>
+        <item quantity="other">글 %d개</item>
     </plurals>
     <plurals name="reply">
-        <item quantity="other">%d replies</item>
+        <item quantity="other">댓글 %d개</item>
     </plurals>
     <plurals name="image">
-        <item quantity="other">%d images</item>
+        <item quantity="other">이미지 %d개</item>
     </plurals>
     <plurals name="board">
-        <item quantity="other">%d boards</item>
+        <item quantity="other">게시판 %d개</item>
     </plurals>
     <plurals name="type">
-        <item quantity="other">%d types</item>
+        <item quantity="other">종류 %d개</item>
     </plurals>
     <plurals name="bookmark">
-        <item quantity="other">%d bookmarks</item>
+        <item quantity="other">즐겨찾기 %d개</item>
     </plurals>
     <plurals name="filter">
-        <item quantity="other">%d filters</item>
+        <item quantity="other">필터 %d개</item>
     </plurals>
     <plurals name="site">
-        <item quantity="other">%d sites</item>
+        <item quantity="other">사이트 %d개</item>
     </plurals>
     <string name="card_stats">%1$dR %2$dI</string>
-    <string name="action_reload">Reload</string>
-    <string name="action_pin">Bookmark</string>
-    <string name="action_open_browser">Open in a browser</string>
-    <string name="action_share">Share</string>
-    <string name="action_download_album">Download album</string>
-    <string name="action_search">Search</string>
-    <string name="action_search_image">Image search</string>
-    <string name="action_switch_catalog">Catalog mode</string>
-    <string name="action_switch_board">Board mode</string>
-    <string name="action_scroll_to_top">Top</string>
-    <string name="action_scroll_to_bottom">Bottom</string>
-    <string name="action_sort">Sort</string>
-    <string name="action_rename_pin">Rename bookmark</string>
-    <string name="action_rename">Rename</string>
-    <string name="action_reply">Reply</string>
-    <string name="open_link_not_matched">Kuroba cannot open this link; it will open in your browser instead.</string>
-    <string name="order_bump">Bump order</string>
+    <string name="action_reload">새로고침</string>
+    <string name="action_pin">즐겨찾기</string>
+    <string name="action_open_browser">브라우저에서 열기</string>
+    <string name="action_share">공유</string>
+    <string name="action_download_album">앨범 다운로드</string>
+    <string name="action_search">검색</string>
+    <string name="action_search_image">이미지 검색</string>
+    <string name="action_switch_catalog">목록 모드</string>
+    <string name="action_switch_board">게시판 모드</string>
+    <string name="action_scroll_to_top">맨 위로</string>
+    <string name="action_scroll_to_bottom">맨 아래로</string>
+    <string name="action_sort">정렬</string>
+    <string name="action_rename_pin">즐겨찾기 이름 바꾸기</string>
+    <string name="action_rename">이름 바꾸기</string>
+    <string name="action_reply">댓글</string>
+    <string name="open_link_not_matched">Clover는 이 주소를 열 수 없습니다, 대신 브라우저를 통해 엽니다.</string>
+    <string name="order_bump">범프 순위</string>
     <string name="order_reply">Reply count</string>
     <string name="order_image">Image count</string>
     <string name="order_newest">Newest</string>
@@ -131,40 +132,40 @@ Re-enable this permission in the app settings if you permanently disabled it.\"<
     <string name="setup_sites_description">Add a site by its URL or name</string>
     <string name="setup_sites_site_description">%s added</string>
     <string name="setup_sites_add_boards_hint">Tap to add boards</string>
-    <string name="setup_site_title">Configure %s</string>
-    <string name="setup_site_group_general">General</string>
-    <string name="setup_site_boards">Setup boards</string>
-    <string name="setup_site_boards_description">%s added</string>
-    <string name="setup_site_group_login">Authentication</string>
-    <string name="setup_site_login">Login</string>
-    <string name="setup_site_login_description_enabled">Logged in</string>
-    <string name="setup_site_login_description_disabled">Off</string>
-    <string name="setup_board_title">Configure boards of %s</string>
-    <string name="setup_board_empty">No boards added</string>
-    <string name="setup_board_removed">Removed \"%s\"</string>
-    <string name="setup_board_added">%s added</string>
-    <string name="setup_board_select_all">Select all</string>
-    <string name="filter_summary_all_boards">All boards</string>
-    <string name="filter_enabled">Enabled</string>
-    <string name="filter_filter">Filter</string>
-    <string name="filter_action">Action</string>
-    <string name="filter_pattern">Pattern</string>
-    <string name="filter_match_test">Test the pattern</string>
-    <string name="filter_pattern_hint_regex">Pattern</string>
-    <string name="filter_boards">Boards</string>
-    <string name="filter_types">Types</string>
-    <string name="filter_type_string_matching">String matching</string>
-    <string name="filter_type_regex_matching">Regex matching</string>
-    <string name="filter_all">all</string>
-    <string name="filter_hide">Hide post</string>
-    <string name="filter_color">Highlight post</string>
-    <string name="filter_remove">Remove post</string>
-    <string name="filter_invalid_pattern">Invalid pattern</string>
-    <string name="filter_preview">Test your filter</string>
-    <string name="filter_no_matches">Does not match</string>
-    <string name="filter_matches">Matches</string>
-    <string name="filter_color_pick">Pick color</string>
-    <string name="filter_help_title">Filter help</string>
+    <string name="setup_site_title">%s 설정</string>
+    <string name="setup_site_group_general">일반</string>
+    <string name="setup_site_boards">게시판 설정</string>
+    <string name="setup_site_boards_description">%s 추가됨</string>
+    <string name="setup_site_group_login">계정</string>
+    <string name="setup_site_login">로그인</string>
+    <string name="setup_site_login_description_enabled">로그인 중</string>
+    <string name="setup_site_login_description_disabled">끄기</string>
+    <string name="setup_board_title">%s 게시판 설정</string>
+    <string name="setup_board_empty">추가된 게시판이 없음</string>
+    <string name="setup_board_removed">\"%s\" 제거됨</string>
+    <string name="setup_board_added">%s 추가됨</string>
+    <string name="setup_board_select_all">전체 선택</string>
+    <string name="filter_summary_all_boards">모든 게시판</string>
+    <string name="filter_enabled">활성화</string>
+    <string name="filter_filter">필터</string>
+    <string name="filter_action">동작</string>
+    <string name="filter_pattern">패턴</string>
+    <string name="filter_match_test">패턴 테스트하기</string>
+    <string name="filter_pattern_hint_regex">패턴</string>
+    <string name="filter_boards">게시판</string>
+    <string name="filter_types">종류</string>
+    <string name="filter_type_string_matching">일치하는 문자열</string>
+    <string name="filter_type_regex_matching">일치하는 정규표현식</string>
+    <string name="filter_all">전체</string>
+    <string name="filter_hide">게시글 숨기기</string>
+    <string name="filter_color">게시글 띄우기</string>
+    <string name="filter_remove">게시글 지우기</string>
+    <string name="filter_invalid_pattern">사용할 수 없는 패턴</string>
+    <string name="filter_preview">필터 테스트하기</string>
+    <string name="filter_no_matches">일치하지 않음</string>
+    <string name="filter_matches">일치</string>
+    <string name="filter_color_pick">색 선택</string>
+    <string name="filter_help_title">필터 도움말</string>
     <string name="filter_help"><![CDATA[Filters act on a given pattern and a place to search the pattern.<br>
 If the pattern matches then the post can be hidden or highlighted.<br>
 
@@ -186,21 +187,21 @@ If the pattern matches then the post can be hidden or highlighted.<br>
     <br>
     3. Regular expressions. <tt>/^>implying/</tt> for example.
 </p>]]></string>
-    <string name="filter_tripcode">Tripcode</string>
-    <string name="filter_name">Name</string>
-    <string name="filter_comment">Comment</string>
+    <string name="filter_tripcode">트립코드</string>
+    <string name="filter_name">이름</string>
+    <string name="filter_comment">댓글</string>
     <string name="filter_id">ID</string>
-    <string name="filter_subject">Subject</string>
-    <string name="filter_filename">Filename</string>
-    <string name="board_select_all">Select all</string>
-    <string name="board_select_none">Select none</string>
-    <string name="history_clear">Clear history</string>
-    <string name="history_clear_confirm">Clear history?</string>
-    <string name="history_clear_confirm_button">Clear</string>
-    <string name="history_toggle_hint">Enable or disable history</string>
-    <string name="history_empty_info">No history</string>
-    <string name="saved_reply_clear">Clear posting history</string>
-    <string name="saved_reply_clear_confirm">Clear posting history?</string>
+    <string name="filter_subject">주제</string>
+    <string name="filter_filename">파일명</string>
+    <string name="board_select_all">전체 선택</string>
+    <string name="board_select_none">선택 해제</string>
+    <string name="history_clear">기록 지우기</string>
+    <string name="history_clear_confirm">기록을 지울까요?</string>
+    <string name="history_clear_confirm_button">비우기</string>
+    <string name="history_toggle_hint">기록을 활성화 또는 비활성화하기</string>
+    <string name="history_empty_info">기록 없음</string>
+    <string name="saved_reply_clear">작성 기록 비우기</string>
+    <string name="saved_reply_clear_confirm">작성 기록을 비울까요?</string>
     <string name="saved_reply_clear_confirm_button">Clear</string>
     <string name="archive_title">%s archive</string>
     <string name="archive_error">Error loading archive</string>
@@ -253,48 +254,48 @@ A workaround is to use an external media player with a software decoder.
 Enable \"Play videos with external player\" in the settings to play videos with an external player.\"
     </string>
     <string name="video_playback_ignore">Don\'t show again</string>
-    <string name="watch_pause_pins">Stop watching</string>
-    <string name="watch_idle">No new posts</string>
+    <string name="watch_pause_pins">구독 해제하기</string>
+    <string name="watch_idle">새 게시글이 없습니다</string>
     <plurals name="watch_title">
-        <item quantity="other">Watching %d threads</item>
+        <item quantity="other">%d 스레드 구독 중</item>
     </plurals>
     <plurals name="watch_new_quotes">
-        <item quantity="other">%d new posts quoting you</item>
+        <item quantity="other">나를 지목하는 %d개의 새 글</item>
     </plurals>
     <plurals name="watch_new_quoting">
-        <item quantity="other">%1$d new posts, %2$d quoting you</item>
+        <item quantity="other">%1$d 개의 새 글 중 나를 지목한 글 %2$d개</item>
     </plurals>
-    <string name="history_screen">History</string>
-    <string name="filters_screen">Filters</string>
-    <string name="album_download_screen">Select images (%1$d / %2$d)</string>
-    <string name="album_download_none_checked">Please select images to download</string>
-    <string name="album_download_confirm">%1$s will be downloaded to the folder %2$s</string>
-    <string name="report_screen">Report %1$s</string>
-    <string name="image_save_notification_downloading">Downloading images</string>
-    <string name="image_save_notification_cancel">Tap to cancel</string>
-    <string name="image_save_saved">Image saved</string>
-    <string name="image_save_as">Saved as \"%1$s\"</string>
-    <string name="image_save_failed">Saving image failed</string>
-    <string name="drawer_sites">Setup sites</string>
-    <string name="drawer_history">History</string>
+    <string name="history_screen">기록</string>
+    <string name="filters_screen">필터</string>
+    <string name="album_download_screen">이미지 선택 (%1$d / %2$d)</string>
+    <string name="album_download_none_checked">받고 싶은 이미지를 선택해주세요</string>
+    <string name="album_download_confirm">%1$s 개가 %2$s 폴더에 받아집니다</string>
+    <string name="report_screen">%1$s 신고하기</string>
+    <string name="image_save_notification_downloading">이미지 다운로드 중</string>
+    <string name="image_save_notification_cancel">눌러서 취소하기</string>
+    <string name="image_save_saved">이미지 저장됨</string>
+    <string name="image_save_as">\"%1$s\" 로 저장됨</string>
+    <string name="image_save_failed">이미지 저장 실패</string>
+    <string name="drawer_sites">사이트 설정</string>
+    <string name="drawer_history">기록</string>
     <!-- Main settings -->
-    <string name="settings_screen">Settings</string>
+    <string name="settings_screen">설정</string>
     <!-- Main "Settings" group -->
-    <string name="settings_group_settings">Settings</string>
-    <string name="settings_watch">Thread watcher</string>
-    <string name="settings_sites">Sites</string>
-    <string name="settings_appearance">Appearance</string>
-    <string name="settings_appearance_description">Theme, layout, fonts, etc.</string>
-    <string name="settings_behavior">Behavior</string>
-    <string name="settings_behavior_description">Thread refresh, captcha, etc.</string>
-    <string name="settings_media">Media</string>
-    <string name="settings_media_description">Save location, auto loading, etc.</string>
-    <string name="settings_filters">Filters</string>
+    <string name="settings_group_settings">설정</string>
+    <string name="settings_watch">스레드 구독</string>
+    <string name="settings_sites">사이트</string>
+    <string name="settings_appearance">모양새</string>
+    <string name="settings_appearance_description">테마, 레이아웃, 글꼴, 기타.</string>
+    <string name="settings_behavior">동작</string>
+    <string name="settings_behavior_description">스레드 새로고침, 캡차, 기타.</string>
+    <string name="settings_media">미디어</string>
+    <string name="settings_media_description">저장 위치, 자동 불러오기, 기타.</string>
+    <string name="settings_filters">필터</string>
     <!-- Thread watcher -->
-    <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
-    <string name="setting_watch_summary_disabled">Off</string>
-    <string name="settings_screen_watch">Thread watcher settings</string>
-    <string name="settings_group_watch">Settings</string>
+    <string name="setting_watch_summary_enabled">구독한 즐겨찾기 스레드</string>
+    <string name="setting_watch_summary_disabled">끄기</string>
+    <string name="settings_screen_watch">스레드 구독 설정</string>
+    <string name="settings_group_watch">설정</string>
     <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in the background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when Kuroba is placed in the background</string>

@@ -16,10 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
     <string name="cancel">Cancelar</string>
-    <string name="add">Añadir</string>
+    <string name="add">Agregar</string>
     <string name="close">Cerrar</string>
     <string name="back">Volver</string>
-    <string name="ok">OK</string>
+    <string name="ok">Aceptar</string>
     <string name="exit">Salir</string>
     <string name="delete">Eliminar</string>
     <string name="undo">Deshacer</string>
@@ -31,31 +31,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_check_failed">No se ha podido buscar actualizaciones.</string>
     <string name="update_install">Instalar</string>
     <string name="update_install_downloading">Descargando actualización</string>
-    <string name="update_install_download_failed">Fallo en la descarga</string>
+    <string name="update_install_download_failed">Descarga fallida</string>
     <string name="update_install_download_move_failed">No se pudo mover el archivo descargado a la carpeta de descarga.</string>
     <string name="update_retry_title">Reintentar actualización</string>
     <string name="update_retry">Kuroba no se ha actualizado todavía. Presione \"Reintentar\" para volver a intentar la instalación.</string>
     <string name="update_retry_button">Reintentar</string>
     <string name="update_storage_permission_required_title">Permiso de almacenamiento requerido</string>
-    <string name="update_storage_permission_required">El perimiso para acceder almacenamiento es requerido para instalar la actualización
+    <string name="update_storage_permission_required">\"El permiso para acceder al almacenamiento es requerido para instalar la actualización
 
-Rehablita este permiso en la configuracion de la app si lo desailitaste permanentementes</string>
+Rehablita este permiso en la configuración de la aplicación si lo desailitaste permanentemente</string>
     <string name="minutes">%d minuto</string>
     <plurals name="posts">
         <item quantity="one">%d publicación</item>
-        <item quantity="other">%d publicaciónes</item>
+        <item quantity="other">%d publicaciones</item>
     </plurals>
     <plurals name="reply">
         <item quantity="one">%d respuesta</item>
         <item quantity="other">%d respuestas</item>
     </plurals>
     <plurals name="image">
-        <item quantity="one">%d imágen</item>
+        <item quantity="one">%d imagen</item>
         <item quantity="other">%d imágenes</item>
     </plurals>
     <plurals name="board">
-        <item quantity="one">%d board</item>
-        <item quantity="other">%d boards</item>
+        <item quantity="one">%d tablero</item>
+        <item quantity="other">%d tableros</item>
     </plurals>
     <plurals name="type">
         <item quantity="one">%d tipo</item>
@@ -74,17 +74,17 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
         <item quantity="other">%d sitios</item>
     </plurals>
     <string name="card_stats">%1$dR%2$dI</string>
-    <string name="action_reload">Refresar</string>
-    <string name="action_pin">Favorito</string>
+    <string name="action_reload">Recargar</string>
+    <string name="action_pin">Marcador</string>
     <string name="action_open_browser">Abrir en el navegador</string>
     <string name="action_share">Compartir</string>
     <string name="action_download_album">Descargar álbum</string>
     <string name="action_search">Buscar</string>
     <string name="action_search_image">Búsqueda de imágenes</string>
     <string name="action_switch_catalog">Modo catálogo</string>
-    <string name="action_switch_board">Índice del Foro</string>
+    <string name="action_switch_board">Modo tablero</string>
     <string name="action_scroll_to_top">Arriba</string>
-    <string name="action_scroll_to_bottom">Fondo</string>
+    <string name="action_scroll_to_bottom">Abajo</string>
     <string name="action_sort">Ordenar</string>
     <string name="action_rename_pin">Renombrar marcador</string>
     <string name="action_rename">Renombrar</string>
@@ -99,23 +99,23 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="search_hint">Buscar</string>
     <string name="search_results">Encontrados %1$s para \"%2$s\"</string>
     <string name="search_empty">Buscar asuntos, comentarios, nombres y nombres de archivo</string>
-    <string name="open_link_confirmation">¿Abrir este link?</string>
+    <string name="open_link_confirmation">¿Abrir este enlace?</string>
     <string name="open_thread_confirmation">¿Abrir este hilo?</string>
     <string name="open_link_failed">No se ha encontrado ninguna aplicación para abrir el archivo</string>
     <string name="action_confirm_exit_title">Confirmar salida</string>
     <string name="thumbnail_load_failed_network">Error</string>
-    <string name="image_preview_failed">No se pudo cargar la imagen</string>
-    <string name="image_preview_failed_oom">Error al mostrar la imagen, sin memoria</string>
-    <string name="image_failed_big_image">Error al mostrar la imagen, carga de zoom profundo falló</string>
+    <string name="image_preview_failed">No se pudo mostrar la imagen</string>
+    <string name="image_preview_failed_oom">No se pudo mostrar la imagen, no hay memoria</string>
+    <string name="image_failed_big_image">No se pudo mostrar la imagen, falló la carga de zoom profundo</string>
     <string name="image_not_found">Imagen no encontrada</string>
-    <string name="image_open_failed">Error al abrir la página</string>
+    <string name="image_open_failed">No se pudo abrir la imagen</string>
     <string name="image_spoiler_filename">Imagen spoiler</string>
     <string name="thread_boards_search_hint">Buscar</string>
     <string name="thread_load_failed_ssl">Error HTTPS</string>
     <string name="thread_load_failed_network">Error de red</string>
     <string name="thread_load_failed_parsing">Error de parse de la API</string>
     <string name="thread_load_failed_server">Error del servidor</string>
-    <string name="thread_load_failed_not_found">Error 404 No encontrado</string>
+    <string name="thread_load_failed_not_found">404 No encontrado</string>
     <string name="thread_refresh_bar_inactive">Tocar para actualizar</string>
     <string name="thread_refresh_now">Cargando</string>
     <string name="thread_refresh_countdown">Carga en %1$ds</string>
@@ -123,8 +123,8 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="thread_archived">Archivado</string>
     <string name="thread_closed">Cerrado</string>
     <plurals name="thread_new_posts">
-        <item quantity="one">%d nuevo post</item>
-        <item quantity="other">%d nuevos posts</item>
+        <item quantity="one">%d nueva publicación</item>
+        <item quantity="other">%d nuevas publicaciones</item>
     </plurals>
     <string name="thread_new_posts_goto">Ver</string>
     <string name="thread_empty_select">Por favor, seleccione un hilo</string>
@@ -132,19 +132,19 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="thread_pin_hint">Marcar este hilo</string>
     <string name="thread_view_archive">Archivar</string>
     <string name="thread_empty_setup_title">Nada que mostrar</string>
-    <string name="thread_empty_setup_body">Añadir un sitio web para comenzar a navegar</string>
-    <string name="thread_empty_setup_hint">Añadir un sitio web aquí</string>
+    <string name="thread_empty_setup_body">Agregar un sitio web para comenzar a navegar</string>
+    <string name="thread_empty_setup_hint">Agregar un sitio web aquí</string>
     <string name="setup_sites_title">Configurar sitios</string>
-    <string name="setup_sites_empty">No hay sitios añadidos</string>
-    <string name="setup_sites_add_hint">Añadir un sitio web aquí</string>
+    <string name="setup_sites_empty">No hay sitios agregados</string>
+    <string name="setup_sites_add_hint">Agregar un sitio web aquí</string>
     <string name="setup_sites_add_title">Agregar sitio</string>
-    <string name="setup_sites_description">Añadir un sitio web por su dirección URL o nombre</string>
+    <string name="setup_sites_description">Agregar un sitio web por su dirección URL o nombre</string>
     <string name="setup_sites_site_description">%s añadido</string>
-    <string name="setup_sites_add_boards_hint">Toca para añadir boards</string>
+    <string name="setup_sites_add_boards_hint">Toca para añadir tableros</string>
     <string name="setup_site_title">Configurar %s</string>
     <string name="setup_site_group_general">General</string>
-    <string name="setup_site_boards">Configurar borads</string>
-    <string name="setup_site_boards_description">%s añadido</string>
+    <string name="setup_site_boards">Configurar tableros</string>
+    <string name="setup_site_boards_description">%s agregado</string>
     <string name="setup_site_group_login">Autenticación</string>
     <string name="setup_site_login">Iniciar sesión </string>
     <string name="setup_site_login_description_enabled">Conectado</string>
@@ -152,23 +152,23 @@ Rehablita este permiso en la configuracion de la app si lo desailitaste permanen
     <string name="setup_board_title">Configurar borads de %s</string>
     <string name="setup_board_empty">No se han agregado boards</string>
     <string name="setup_board_removed">\"%s\" Removido</string>
-    <string name="setup_board_added">%s añadido</string>
+    <string name="setup_board_added">%s agregado</string>
     <string name="setup_board_select_all">Seleccionar todo</string>
-    <string name="filter_summary_all_boards">Todos los boards</string>
-    <string name="filter_enabled">Habilitar</string>
+    <string name="filter_summary_all_boards">Todos los tableros</string>
+    <string name="filter_enabled">Habilitado</string>
     <string name="filter_filter">Filtro</string>
     <string name="filter_action">Acción</string>
     <string name="filter_pattern">Patrón</string>
     <string name="filter_match_test">Prueba el patrón</string>
     <string name="filter_pattern_hint_regex">Patrón</string>
-    <string name="filter_boards">Boards</string>
+    <string name="filter_boards">Tableros</string>
     <string name="filter_types">Tipos</string>
-    <string name="filter_type_string_matching">Búsqueda de cadenas de texto</string>
-    <string name="filter_type_regex_matching">Busqued de Regex</string>
+    <string name="filter_type_string_matching">Búsqueda por cadena de texto</string>
+    <string name="filter_type_regex_matching">Busqueda por Regex</string>
     <string name="filter_all">Todos</string>
-    <string name="filter_hide">Ocultar post</string>
-    <string name="filter_color">Marcar post</string>
-    <string name="filter_remove">Eliminar post</string>
+    <string name="filter_hide">Ocultar publicación</string>
+    <string name="filter_color">Marcar publicación</string>
+    <string name="filter_remove">Eliminar publicación</string>
     <string name="filter_invalid_pattern">Patrón no válido</string>
     <string name="filter_preview">Probar filtro</string>
     <string name="filter_no_matches">No coincide con</string>
