@@ -128,6 +128,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="order_newest">Newest</string>
     <string name="order_oldest">Oldest</string>
     <string name="order_modified" tools:ignore="MissingTranslation">Latest reply</string>
+    <string name="order_activity" tools:ignore="MissingTranslation">Thread activity</string>
 
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>

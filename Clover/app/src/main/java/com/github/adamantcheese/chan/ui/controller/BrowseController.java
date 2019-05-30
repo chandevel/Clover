@@ -292,6 +292,9 @@ public class BrowseController extends ThreadController implements
                 case MODIFIED:
                     nameId = R.string.order_modified;
                     break;
+                case ACTIVITY:
+                    nameId = R.string.order_activity;
+                    break;
             }
 
             String name = getString(nameId);
