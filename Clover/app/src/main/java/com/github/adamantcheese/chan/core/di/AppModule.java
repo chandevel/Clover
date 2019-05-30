@@ -16,15 +16,18 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
+import android.app.NotificationManager;
 import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
-
-import org.codejargon.feather.Provides;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 
+import org.codejargon.feather.Provides;
+
 import javax.inject.Singleton;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class AppModule {
     private Context applicationContext;
@@ -45,5 +48,11 @@ public class AppModule {
         final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int lruImageCacheSize = runtimeMemory / 8;
         return new ImageLoader(requestQueue, new BitmapLruImageCache(lruImageCacheSize));
+    }
+
+    @Provides
+    @Singleton
+    public NotificationManager provideNotificationManager() {
+        return (NotificationManager) applicationContext.getSystemService(NOTIFICATION_SERVICE);
     }
 }

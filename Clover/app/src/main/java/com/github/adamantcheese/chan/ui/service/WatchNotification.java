@@ -66,7 +66,8 @@ public class WatchNotification extends Service {
     private int NOTIFICATION_SOUND = 0x2;
     private int NOTIFICATION_PEEK = 0x4;
 
-    private NotificationManager nm;
+    @Inject
+    NotificationManager notificationManager;
 
     @Inject
     WatchManager watchManager;
@@ -81,10 +82,9 @@ public class WatchNotification extends Service {
         super.onCreate();
         inject(this);
 
-        nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //notification channel for non-alerts
-            nm.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, NOTIFICATION_NAME, NotificationManager.IMPORTANCE_LOW));
+            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, NOTIFICATION_NAME, NotificationManager.IMPORTANCE_LOW));
             //notification channel for alerts
             NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_ALERT_STR, NOTIFICATION_NAME_ALERT, NotificationManager.IMPORTANCE_HIGH);
             alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()
@@ -94,16 +94,14 @@ public class WatchNotification extends Service {
                     .build());
             alert.enableLights(true);
             alert.setLightColor(0xff91e466);
-            nm.createNotificationChannel(alert);
+            notificationManager.createNotificationChannel(alert);
         }
-
-        startForeground(NOTIFICATION_ID, createNotification());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        nm.cancel(NOTIFICATION_ID);
+        notificationManager.cancel(NOTIFICATION_ID);
     }
 
     @Override
@@ -112,14 +110,14 @@ public class WatchNotification extends Service {
             watchManager.pauseAll();
         } else {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                nm.notify(NOTIFICATION_ID, createNotification());
+                notificationManager.notify(NOTIFICATION_ID, createNotification());
             } else {
                 //Notification n = createNotification();
                 //if (ChanSettings.watchNotifyAlert.buildNotification()) {
-                //    nm.cancel(NOTIFICATION_ID);
+                //    notificationManager.cancel(NOTIFICATION_ID);
                 //}
-                //nm.notify(ChanSettings.watchNotifyAlert.buildNotification() ? NOTIFICATION_ID_ALERT : NOTIFICATION_ID, n);
-                nm.notify(NOTIFICATION_ID, createNotification());
+                //notificationManager.notify(ChanSettings.watchNotifyAlert.buildNotification() ? NOTIFICATION_ID_ALERT : NOTIFICATION_ID, n);
+                notificationManager.notify(NOTIFICATION_ID, createNotification());
             }
         }
 

@@ -5,7 +5,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioAttributes;
@@ -34,7 +33,8 @@ public class LastPageNotification extends Service {
     //random notification ID's, so one notification per thread
     private Random random = new Random();
 
-    private NotificationManager notificationManager;
+    @Inject
+    NotificationManager notificationManager;
     private String NOTIFICATION_ID = "4";
 
     @Inject
@@ -50,7 +50,6 @@ public class LastPageNotification extends Service {
     public void onCreate() {
         super.onCreate();
         inject(this);
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID, "Last page notification", NotificationManager.IMPORTANCE_HIGH);
             alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()

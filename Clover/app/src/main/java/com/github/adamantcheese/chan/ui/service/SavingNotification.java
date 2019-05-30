@@ -30,8 +30,11 @@ import android.support.v4.app.NotificationCompat;
 
 import com.adamantcheese.github.chan.R;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class SavingNotification extends Service {
@@ -42,9 +45,9 @@ public class SavingNotification extends Service {
     private String NOTIFICATION_ID_STR = "3";
     private int NOTIFICATION_ID = 3;
 
-    private NotificationManager notificationManager;
+    @Inject
+    NotificationManager notificationManager;
 
-    private boolean inForeground = false;
     private int doneTasks;
     private int totalTasks;
 
@@ -57,7 +60,7 @@ public class SavingNotification extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        inject(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, "Save notification", NotificationManager.IMPORTANCE_LOW));
         }
@@ -79,13 +82,7 @@ public class SavingNotification extends Service {
             } else {
                 doneTasks = extras.getInt(DONE_TASKS_KEY);
                 totalTasks = extras.getInt(TOTAL_TASKS_KEY);
-
-                if (!inForeground) {
-                    startForeground(NOTIFICATION_ID, getNotification());
-                    inForeground = true;
-                } else {
-                    notificationManager.notify(NOTIFICATION_ID, getNotification());
-                }
+                notificationManager.notify(NOTIFICATION_ID, getNotification());
             }
         }
 
