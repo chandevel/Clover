@@ -159,6 +159,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             Logger.e("UNCAUGHT", sw.toString());
+            e.printStackTrace();
             System.exit(999);
         });
     }
@@ -316,12 +317,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         } else {
             mainNavigationController.pushController(browseController, false);
         }
-    }
-
-    public void restart() {
-        Intent intent = getIntent();
-        finish();
-        startActivity(intent);
     }
 
     @Override
@@ -586,9 +581,6 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
         return runtimePermissionsHelper;
     }
 
-    // This method is called to apply new imported settings.
-    // It is a hack but it works.
-    // The other restart() method does not work for this case so I'm using this one instead
     public void restartApp() {
         Intent intent = new Intent(this, StartActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);

@@ -64,7 +64,7 @@ public class SettingsController extends Controller implements AndroidUtils.OnMea
         super.onDestroy();
 
         if (needRestart) {
-            ((StartActivity) context).restart();
+            ((StartActivity) context).restartApp();
         }
     }
 
