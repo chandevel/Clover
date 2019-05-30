@@ -661,4 +661,6 @@ Don't have a 4chan Pass?<br>
     <string name="captcha_layout_v2_refresh_cookies" tools:ignore="MissingTranslation">Refresh cookies</string>
 
     <string name="setting_posting_timeout_toggle_notice" tools:ignore="MissingTranslation">Posting timeout will be applied on the next app start</string>
+
+    <string name="file_url_copied_to_clipboard" tools:ignore="MissingTranslation">File url copied to clipboard</string>
 </resources>
