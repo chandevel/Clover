@@ -53,12 +53,18 @@ import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class WatchNotification extends Service {
-    private static final int NOTIFICATION_ID = 1;
-    private static final int NOTIFICATION_ID_ALERT = 2;
+    private String NOTIFICATION_ID_STR = "1";
+    private String NOTIFICATION_ID_ALERT_STR = "2";
+    private int NOTIFICATION_ID = 1;
     private static final String NOTIFICATION_NAME = "Watch notification";
     private static final String NOTIFICATION_NAME_ALERT = "Watch notification alert";
+
     private static final int SUBJECT_LENGTH = 6;
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
+
+    private int NOTIFICATION_LIGHT = 0x1;
+    private int NOTIFICATION_SOUND = 0x2;
+    private int NOTIFICATION_PEEK = 0x4;
 
     private NotificationManager nm;
 
@@ -77,20 +83,20 @@ public class WatchNotification extends Service {
 
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            nm.createNotificationChannel(new NotificationChannel(String.valueOf(NOTIFICATION_ID), NOTIFICATION_NAME, NotificationManager.IMPORTANCE_LOW));
-            NotificationChannel alert = new NotificationChannel(String.valueOf(NOTIFICATION_ID_ALERT), NOTIFICATION_NAME_ALERT, NotificationManager.IMPORTANCE_HIGH);
+            //notification channel for non-alerts
+            nm.createNotificationChannel(new NotificationChannel(NOTIFICATION_ID_STR, NOTIFICATION_NAME, NotificationManager.IMPORTANCE_LOW));
+            //notification channel for alerts
+            NotificationChannel alert = new NotificationChannel(NOTIFICATION_ID_ALERT_STR, NOTIFICATION_NAME_ALERT, NotificationManager.IMPORTANCE_HIGH);
             alert.setSound(DEFAULT_NOTIFICATION_URI, new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                     .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
                     .build());
             alert.enableLights(true);
-            alert.setLightColor((int) Long.parseLong(ChanSettings.watchLed.get(), 16));
+            alert.setLightColor(0xff91e466);
             nm.createNotificationChannel(alert);
         }
 
-        //prevent ongoing notifications somewhere here
         startForeground(NOTIFICATION_ID, createNotification());
     }
 
@@ -105,7 +111,16 @@ public class WatchNotification extends Service {
         if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean("pause_pins", false)) {
             watchManager.pauseAll();
         } else {
-            nm.notify(NOTIFICATION_ID, createNotification());
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                nm.notify(NOTIFICATION_ID, createNotification());
+            } else {
+                //Notification n = createNotification();
+                //if (ChanSettings.watchNotifyAlert.buildNotification()) {
+                //    nm.cancel(NOTIFICATION_ID);
+                //}
+                //nm.notify(ChanSettings.watchNotifyAlert.buildNotification() ? NOTIFICATION_ID_ALERT : NOTIFICATION_ID, n);
+                nm.notify(NOTIFICATION_ID, createNotification());
+            }
         }
 
         return START_STICKY;
@@ -124,9 +139,7 @@ public class WatchNotification extends Service {
         //A list of pins that had new posts in them, or had new quotes in them, depending on settings
         List<Pin> subjectPins = new ArrayList<>();
 
-        boolean light = false;
-        boolean sound = false;
-        boolean peek = false;
+        int flags = 0;
 
         for (Pin pin : watchManager.getWatchingPins()) {
             WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
@@ -140,9 +153,7 @@ public class WatchNotification extends Service {
                 unviewedPosts.addAll(watcher.getUnviewedQuotes());
                 listQuoting.addAll(watcher.getUnviewedQuotes());
                 if (watcher.getWereNewQuotes()) {
-                    light = true;
-                    sound = true;
-                    peek = true;
+                    flags |= NOTIFICATION_LIGHT | NOTIFICATION_PEEK | NOTIFICATION_SOUND;
                 }
                 if (pin.getNewQuoteCount() > 0) {
                     subjectPins.add(pin);
@@ -151,15 +162,13 @@ public class WatchNotification extends Service {
                 unviewedPosts.addAll(watcher.getUnviewedPosts());
                 listQuoting.addAll(watcher.getUnviewedQuotes());
                 if (watcher.getWereNewPosts()) {
-                    light = true;
+                    flags |= NOTIFICATION_LIGHT;
                     if (!soundQuotesOnly) {
-                        sound = true;
-                        peek = true;
+                        flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
                     }
                 }
                 if (watcher.getWereNewQuotes()) {
-                    sound = true;
-                    peek = true;
+                    flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
                 }
                 if (pin.getNewPostCount() > 0) {
                     subjectPins.add(pin);
@@ -168,25 +177,23 @@ public class WatchNotification extends Service {
         }
 
         if (Chan.getInstance().getApplicationInForeground()) {
-            light = false;
-            sound = false;
+            flags &= ~(1 << NOTIFICATION_LIGHT) & ~(1 << NOTIFICATION_SOUND);
         }
 
         if (!ChanSettings.watchPeek.get()) {
-            peek = false;
+            flags &= ~(1 << NOTIFICATION_PEEK);
         }
 
-        return notifyAboutPosts(pins, subjectPins, unviewedPosts, listQuoting, notifyQuotesOnly, light, sound, peek);
+        return setupNotificationTextFields(pins, subjectPins, unviewedPosts, listQuoting, notifyQuotesOnly, flags);
     }
 
-    private Notification notifyAboutPosts(List<Pin> pins, List<Pin> subjectPins, List<Post> unviewedPosts, List<Post> listQuoting,
-                                          boolean notifyQuotesOnly, boolean light, boolean sound, boolean peek) {
-        String title = getResources().getQuantityString(R.plurals.watch_title, pins.size(), pins.size());
-
+    private Notification setupNotificationTextFields(List<Pin> pins, List<Pin> subjectPins, List<Post> unviewedPosts, List<Post> listQuoting,
+                                                     boolean notifyQuotesOnly, int flags) {
         if (unviewedPosts.isEmpty()) {
             // Idle notification
-            String message = getString(R.string.watch_idle);
-            return get(title, message, null, false, false, false, false, null);
+            return buildNotification(getResources().getQuantityString(R.plurals.watch_title, pins.size(), pins.size()),
+                    Collections.singletonList(getString(R.string.watch_idle)),
+                    0, false, null);
         } else {
             // New posts notification
             String message;
@@ -240,13 +247,7 @@ public class WatchNotification extends Service {
                 expandedLines.add(prefix + ": " + comment);
             }
 
-            Pin targetPin = null;
-            if (subjectPins.size() == 1) {
-                targetPin = subjectPins.get(0);
-            }
-
-            String smallText = TextUtils.join(", ", expandedLines);
-            return get(message, smallText, expandedLines, light, sound, peek, true, targetPin);
+            return buildNotification(message, expandedLines, flags, true, subjectPins.size() == 1 ? subjectPins.get(0) : null);
         }
     }
 
@@ -255,73 +256,68 @@ public class WatchNotification extends Service {
      * The style of the big notification is InboxStyle, a list of text.
      *
      * @param title         The title of the notification
-     * @param smallText     The content of the small notification
-     * @param expandedLines A list of lines for the big notification, or null if not shown
-     * @param sound         Should the notification make a sound
-     * @param peek          Peek the notification into the screen
+     * @param expandedLines A list of lines for the notification
+     * @param flags         Flags for this notification (light, sound, peek)
      * @param alertIcon     Show the alert version of the icon
      * @param target        The target pin, or null to open the pinned pane on tap
      */
-    private Notification get(String title, String smallText, List<CharSequence> expandedLines,
-                             boolean light, boolean sound, boolean peek, boolean alertIcon, Pin target) {
-        Intent intent = new Intent(this, StartActivity.class);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        intent.putExtra("pin_id", target == null ? -1 : target.id);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+    private Notification buildNotification(String title, List<CharSequence> expandedLines,
+                                           int flags, boolean alertIcon, Pin target) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        if (sound || peek) {
+        builder.setContentTitle(title);
+        builder.setContentText(TextUtils.join(", ", expandedLines));
+
+        //setup launch for target pin, if it isn't null
+        if (target != null) {
+            Intent intent = new Intent(this, StartActivity.class);
+            intent.setAction(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            intent.putExtra("pin_id", target.id);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(pendingIntent);
+        }
+
+        //setup lights, sound, and peek
+        if ((flags & NOTIFICATION_SOUND) != 0 || (flags & NOTIFICATION_PEEK) != 0) {
             builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
         }
 
-        if (light) {
-            long watchLed = Long.parseLong(ChanSettings.watchLed.get(), 16);
-            if (watchLed >= 0) {
-                builder.setLights((int) watchLed, 1000, 1000);
-            }
+        if ((flags & NOTIFICATION_LIGHT) != 0) {
+            builder.setLights(0xff91e466, 1000, 1000);
         }
 
-        builder.setContentIntent(pendingIntent);
-
-        builder.setContentTitle(title);
-        if (smallText != null) {
-            builder.setContentText(smallText);
-        }
-
-        if (alertIcon || peek) {
+        //set the alert icon if necessary
+        if (alertIcon) {
             builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
             builder.setPriority(NotificationCompat.PRIORITY_HIGH);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder.setChannelId(String.valueOf(NOTIFICATION_ID_ALERT));
+                builder.setChannelId(NOTIFICATION_ID_ALERT_STR);
             }
         } else {
             builder.setSmallIcon(R.drawable.ic_stat_notify);
             builder.setPriority(NotificationCompat.PRIORITY_MIN);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder.setChannelId(String.valueOf(NOTIFICATION_ID));
+                builder.setChannelId(NOTIFICATION_ID_STR);
             }
         }
 
+        //setup the pause watch button
         Intent pauseWatching = new Intent(this, WatchNotification.class);
         pauseWatching.putExtra("pause_pins", true);
-
         PendingIntent pauseWatchingPending = PendingIntent.getService(this, 0, pauseWatching,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-
         builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins),
                 pauseWatchingPending);
 
-        if (expandedLines != null) {
-            NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-            for (CharSequence line : expandedLines.subList(Math.max(0, expandedLines.size() - 10), expandedLines.size())) {
-                style.addLine(line);
-            }
-            style.setBigContentTitle(title);
-            builder.setStyle(style);
+        //setup the display in the notification
+        NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
+        for (CharSequence line : expandedLines.subList(Math.max(0, expandedLines.size() - 10), expandedLines.size())) {
+            style.addLine(line);
         }
+        style.setBigContentTitle(title);
+        builder.setStyle(style);
 
         return builder.build();
     }
