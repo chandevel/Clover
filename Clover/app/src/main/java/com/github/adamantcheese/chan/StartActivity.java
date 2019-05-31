@@ -65,6 +65,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -150,7 +151,7 @@ public class StartActivity extends AppCompatActivity implements NfcAdapter.Creat
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             Logger.e("UNCAUGHT", sw.toString());
-            e.printStackTrace();
+            Logger.e("UNCAUGHT",".\n----------------------------------------\nEND OF CURRENT RUNTIME MESSAGES\n----------------------------------------\n.");
             System.exit(999);
         });
     }
