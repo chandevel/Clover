@@ -27,6 +27,7 @@ import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.support.v4.content.FileProvider;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -36,17 +37,16 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.github.adamantcheese.chan.R;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCache;
 import com.github.adamantcheese.chan.core.cache.FileCacheDownloader;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
-import com.github.adamantcheese.chan.core.cache.FileCacheProvider;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -72,6 +72,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener, AudioListener, LifecycleObserver {
     public enum Mode {
@@ -425,7 +426,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
     private void setVideoFile(final File file) {
         if (ChanSettings.videoOpenExternal.get()) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(FileCacheProvider.getUriForFile(file), "video/*");
+            intent.setDataAndType(FileProvider.getUriForFile(getAppContext(), getAppContext().getPackageName() + ".fileprovider", file), "video/*");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             AndroidUtils.openIntent(intent);
