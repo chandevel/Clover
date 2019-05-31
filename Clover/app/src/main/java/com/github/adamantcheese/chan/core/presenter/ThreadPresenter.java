@@ -16,10 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -48,6 +54,7 @@ import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -64,7 +71,12 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
-public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback, PostCellInterface.PostCellCallback, ThreadStatusCell.Callback, ThreadListLayout.ThreadListLayoutPresenterCallback {
+public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback,
+        PostAdapter.PostAdapterCallback,
+        PostCellInterface.PostCellCallback,
+        ThreadStatusCell.Callback,
+        ThreadListLayout.ThreadListLayoutPresenterCallback,
+        ArchivesLayout.Callback {
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
@@ -96,6 +108,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     private String searchQuery;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private boolean historyAdded;
+    private Context context;
 
     @Inject
     public ThreadPresenter(WatchManager watchManager,
@@ -627,7 +640,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
             threadPresenterCallback.showBoard(catalog);
         } //else if (linkable.type == PostLinkable.Type.SEARCH) {
-            //TODO go to board and search
+        //TODO go to board and search
         //}
     }
 
@@ -668,7 +681,7 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
     @Override
     public boolean isWatching() {
         return loadable.isThreadMode() && ChanSettings.autoRefreshThread.get() &&
-                Chan.getInstance().getApplicationInForeground() && chanLoader.getThread() != null &&
+                ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground() && chanLoader.getThread() != null &&
                 !chanLoader.getThread().closed && !chanLoader.getThread().archived;
     }
 
@@ -683,7 +696,22 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
 
     @Override
     public void onListStatusClicked() {
-        chanLoader.requestMoreDataAndResetTimer();
+        if (!getChanThread().archived) {
+            chanLoader.requestMoreDataAndResetTimer();
+        } else {
+            @SuppressLint("InflateParams") final ArchivesLayout dialogView =
+                    (ArchivesLayout) LayoutInflater.from(context)
+                            .inflate(R.layout.layout_archives, null);
+            dialogView.setBoard(loadable.board);
+            dialogView.setCallback(this);
+
+            AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setView(dialogView)
+                    .setTitle(R.string.thread_show_archives)
+                    .create();
+            dialog.setCanceledOnTouchOutside(true);
+            dialog.show();
+        }
     }
 
     @Override
@@ -831,6 +859,18 @@ public class ThreadPresenter implements ChanThreadLoader.ChanLoaderCallback, Pos
         String boardCode = chanLoader.getThread().loadable.boardCode;
 
         threadPresenterCallback.onRestoreRemovedPostsClicked(threadNo, site, boardCode, selectedPosts);
+    }
+
+    @Override
+    public void openArchive(Pair<String, String> domainNamePair) {
+        Post tempOP = new Post.Builder().board(loadable.board).id(loadable.no).opId(loadable.no).setUnixTimestampSeconds(1).comment("").build();
+        String link = loadable.site.resolvable().desktopUrl(loadable, tempOP);
+        link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
+        AndroidUtils.openLinkInBrowser((Activity) context, link);
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     public interface ThreadPresenterCallback {

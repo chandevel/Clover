@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -46,9 +45,6 @@ import javax.inject.Inject;
 import de.greenrobot.event.EventBus;
 
 public class Chan extends Application implements Application.ActivityLifecycleCallbacks {
-    @SuppressLint("StaticFieldLeak")
-    private static Chan instance;
-
     private int activityForegroundCounter = 0;
 
     @Inject
@@ -60,22 +56,14 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
     @Inject
     BoardManager boardManager;
 
-    private Feather feather;
-
-    public Chan() {
-        instance = this;
-    }
-
-    public static Chan getInstance() {
-        return instance;
-    }
+    private static Feather feather;
 
     public static Feather injector() {
-        return instance.feather;
+        return feather;
     }
 
     public static <T> T inject(T instance) {
-        Chan.instance.feather.injectFields(instance);
+        feather.injectFields(instance);
         return instance;
     }
 
@@ -165,6 +153,7 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         }
     }
 
+    //region Empty Methods
     @SuppressWarnings("EmptyMethod")
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -199,4 +188,5 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
     @Override
     public void onActivityDestroyed(Activity activity) {
     }
+    //endregion Empty Methods
 }

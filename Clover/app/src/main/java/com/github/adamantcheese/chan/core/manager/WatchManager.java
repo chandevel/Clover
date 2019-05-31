@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -395,7 +396,7 @@ public class WatchManager implements WakeManager.Wakeable {
     }
 
     private boolean isInForeground() {
-        return Chan.getInstance().getApplicationInForeground();
+        return ((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground();
     }
 
     private boolean isTimerEnabled() {

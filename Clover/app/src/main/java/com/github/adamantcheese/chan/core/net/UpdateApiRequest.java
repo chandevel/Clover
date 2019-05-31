@@ -85,7 +85,6 @@ public class UpdateApiRequest extends JsonReaderRequest<UpdateApiRequest.UpdateA
                 case "body":
                     Node updateLog = Parser.builder().build().parse(reader.nextString());
                     response.body = Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
-                    System.out.println("test");
                     break;
                 default:
                     reader.skipValue();

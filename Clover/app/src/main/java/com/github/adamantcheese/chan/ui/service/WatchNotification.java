@@ -21,6 +21,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -163,7 +164,7 @@ public class WatchNotification extends Service {
             }
         }
 
-        if (Chan.getInstance().getApplicationInForeground()) {
+        if (((Chan) Chan.injector().instance(Context.class)).getApplicationInForeground()) {
             flags &= ~(NOTIFICATION_LIGHT);
             flags &= ~(NOTIFICATION_SOUND);
         }

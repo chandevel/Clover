@@ -155,11 +155,9 @@ public class ThreadLayout extends CoordinatorLayout implements
 
         // Inflate thread loading layout
         progressLayout = layoutInflater.inflate(R.layout.layout_thread_progress, this, false);
-
-        // Inflate empty layout
-
-
+        
         // View setup
+        presenter.setContext(getContext());
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
         imageReencodingHelper = new ImageOptionsHelper(getContext(), this);
