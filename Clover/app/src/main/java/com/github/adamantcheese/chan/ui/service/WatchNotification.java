@@ -31,8 +31,8 @@ import android.text.Editable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -163,11 +163,11 @@ public class WatchNotification extends Service {
         }
 
         if (Chan.getInstance().getApplicationInForeground()) {
-            flags &= ~(1 << NOTIFICATION_LIGHT) & ~(1 << NOTIFICATION_SOUND);
+            flags &= ~(NOTIFICATION_LIGHT) & ~(NOTIFICATION_SOUND);
         }
 
         if (!ChanSettings.watchPeek.get()) {
-            flags &= ~(1 << NOTIFICATION_PEEK);
+            flags &= ~(NOTIFICATION_PEEK);
         }
 
         return setupNotificationTextFields(pins, subjectPins, unviewedPosts, listQuoting, notifyQuotesOnly, flags);
@@ -294,8 +294,7 @@ public class WatchNotification extends Service {
         pauseWatching.putExtra("pause_pins", true);
         PendingIntent pauseWatchingPending = PendingIntent.getService(this, 0, pauseWatching,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins),
-                pauseWatchingPending);
+        builder.addAction(R.drawable.ic_action_pause, getString(R.string.watch_pause_pins), pauseWatchingPending);
 
         //setup the display in the notification
         NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
