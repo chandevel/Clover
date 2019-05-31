@@ -100,7 +100,8 @@ public class SavingNotification extends Service {
                 .setContentText(getString(R.string.image_save_notification_cancel))
                 .setProgress(totalTasks, doneTasks, false)
                 .setContentInfo(doneTasks + "/" + totalTasks)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntent)
+                .setOngoing(true);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder.setChannelId(NOTIFICATION_ID_STR);

@@ -79,6 +79,7 @@ public class WatchNotification extends Service {
     public void onCreate() {
         super.onCreate();
         inject(this);
+        ChanSettings.watchLastCount.set(0);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //notification channel for non-alerts
@@ -163,7 +164,8 @@ public class WatchNotification extends Service {
         }
 
         if (Chan.getInstance().getApplicationInForeground()) {
-            flags &= ~(NOTIFICATION_LIGHT) & ~(NOTIFICATION_SOUND);
+            flags &= ~(NOTIFICATION_LIGHT);
+            flags &= ~(NOTIFICATION_SOUND);
         }
 
         if (!ChanSettings.watchPeek.get()) {
@@ -177,9 +179,10 @@ public class WatchNotification extends Service {
                                                      boolean notifyQuotesOnly, int flags) {
         if (unviewedPosts.isEmpty()) {
             // Idle notification
+            ChanSettings.watchLastCount.set(0);
             return buildNotification(getResources().getQuantityString(R.plurals.watch_title, pins.size(), pins.size()),
                     Collections.singletonList(getString(R.string.watch_idle)),
-                    0, false, null);
+                    0, false, false, pins.size() > 0 ? pins.get(0) : null);
         } else {
             // New posts notification
             String message;
@@ -233,7 +236,12 @@ public class WatchNotification extends Service {
                 expandedLines.add(prefix + ": " + comment);
             }
 
-            return buildNotification(message, expandedLines, flags, true, subjectPins.size() == 1 ? subjectPins.get(0) : null);
+            boolean alert = ChanSettings.watchLastCount.get() < listQuoting.size();
+            ChanSettings.watchLastCount.set(listQuoting.size());
+
+            return buildNotification(message, expandedLines, flags, alert,
+                    ChanSettings.watchLastCount.get() > 0,
+                    subjectPins.size() > 0 ? subjectPins.get(0) : null);
         }
     }
 
@@ -248,10 +256,11 @@ public class WatchNotification extends Service {
      * @param target        The target pin, or null to open the pinned pane on tap
      */
     private Notification buildNotification(String title, List<CharSequence> expandedLines,
-                                           int flags, boolean alertIcon, Pin target) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                                           int flags, boolean alertIcon, boolean alertIconOverride, Pin target) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
         builder.setContentTitle(title);
         builder.setContentText(TextUtils.join(", ", expandedLines));
+        builder.setOngoing(true);
 
         //setup launch for target pin, if it isn't null
         if (target != null) {
@@ -278,15 +287,14 @@ public class WatchNotification extends Service {
         if (alertIcon) {
             builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
             builder.setPriority(NotificationCompat.PRIORITY_HIGH);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder.setChannelId(NOTIFICATION_ID_ALERT_STR);
-            }
         } else {
             builder.setSmallIcon(R.drawable.ic_stat_notify);
             builder.setPriority(NotificationCompat.PRIORITY_MIN);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder.setChannelId(NOTIFICATION_ID_STR);
-            }
+        }
+
+        //if the last notification was an alert, continue it having that icon until it goes to zero
+        if(alertIconOverride) {
+            builder.setSmallIcon(R.drawable.ic_stat_notify_alert);
         }
 
         //setup the pause watch button

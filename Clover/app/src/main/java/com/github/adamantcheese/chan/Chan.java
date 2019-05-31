@@ -23,8 +23,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.StrictMode;
 
-import org.codejargon.feather.Feather;
-
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.DatabaseModule;
@@ -40,6 +38,8 @@ import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.LocaleUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+
+import org.codejargon.feather.Feather;
 
 import javax.inject.Inject;
 
@@ -107,7 +107,8 @@ public class Chan extends Application implements Application.ActivityLifecycleCa
         boardManager.initialize();
         databaseManager.initializeAndTrim();
 
-        //create these classes here even if they aren't explicitly used, so they do their background tasks
+        //create these classes here even if they aren't explicitly used, so they do their background startup tasks
+        //and so that they're available for feather later on for archives/filter watch waking
         feather.instance(ArchivesManager.class);
         feather.instance(FilterWatchManager.class);
 

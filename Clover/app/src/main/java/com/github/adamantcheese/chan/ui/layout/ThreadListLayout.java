@@ -402,7 +402,7 @@ public class ThreadListLayout extends FrameLayout implements ReplyLayout.ReplyLa
     }
 
     @SuppressLint("StringFormatMatches")
-    //search_results for some reason gives a warning for having 3 variables instead of 2
+    //android studio doesn't like the nested getQuantityString and messes up, but nothing is wrong
     public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {
         if (hideKeyboard) {
             AndroidUtils.hideKeyboard(this);
